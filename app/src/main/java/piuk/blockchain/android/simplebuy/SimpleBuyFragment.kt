@@ -30,4 +30,5 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
 
 interface SmallSimpleBuyNavigator {
     fun exitSimpleBuyFlow()
+    fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean)
 }

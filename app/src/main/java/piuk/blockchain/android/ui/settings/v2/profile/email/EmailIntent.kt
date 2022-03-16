@@ -60,6 +60,7 @@ sealed class EmailIntent : MviIntent<EmailState> {
         override fun reduce(oldState: EmailState): EmailState =
             oldState.copy(
                 isLoading = false,
+                emailSent = true,
                 userInfoSettings = WalletSettingsService.UserInfoSettings(
                     email = settings.address,
                     emailVerified = settings.isVerified,

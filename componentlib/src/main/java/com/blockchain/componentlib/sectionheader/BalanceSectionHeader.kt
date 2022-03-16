@@ -25,6 +25,7 @@ fun BalanceSectionHeader(
     secondaryText: String,
     iconResource: ImageResource = ImageResource.Local(R.drawable.ic_star, null),
     onIconClick: () -> Unit = {},
+    shouldShowIcon: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -51,13 +52,15 @@ fun BalanceSectionHeader(
                 modifier = Modifier
             )
         }
-        CompositionLocalProvider(
-            LocalRippleTheme provides NoRippleProvider
-        ) {
-            Image(
-                modifier = Modifier.clickable(onClick = onIconClick),
-                imageResource = iconResource
-            )
+        if (shouldShowIcon) {
+            CompositionLocalProvider(
+                LocalRippleTheme provides NoRippleProvider
+            ) {
+                Image(
+                    modifier = Modifier.clickable(onClick = onIconClick),
+                    imageResource = iconResource
+                )
+            }
         }
     }
 }

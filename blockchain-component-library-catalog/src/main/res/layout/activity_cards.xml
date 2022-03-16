@@ -19,7 +19,7 @@
             android:text="Default Card"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.card.abstract.DefaultCardView
+        <com.blockchain.componentlib.card.DefaultCardView
             android:id="@+id/default_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -31,7 +31,7 @@
             android:text="Default Card Cta"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.card.abstract.DefaultCardView
+        <com.blockchain.componentlib.card.DefaultCardView
             android:id="@+id/default_card_cta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -43,7 +43,7 @@
             android:text="Call Out Card"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.card.abstract.CallOutCardView
+        <com.blockchain.componentlib.card.CallOutCardView
             android:id="@+id/call_out_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -55,7 +55,7 @@
             android:text="Announcement Card"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.card.abstract.AnnouncementCardView
+        <com.blockchain.componentlib.card.AnnouncementCardView
             android:id="@+id/announcement_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -67,7 +67,7 @@
             android:text="CtaAnnouncement Card"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 
-        <com.blockchain.componentlib.card.abstract.CtaAnnouncementCardView
+        <com.blockchain.componentlib.card.CtaAnnouncementCardView
             android:id="@+id/cta_announcement_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

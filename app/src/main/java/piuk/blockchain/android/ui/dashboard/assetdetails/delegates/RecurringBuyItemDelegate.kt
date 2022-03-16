@@ -62,7 +62,6 @@ private class RecurringBuyViewHolder(
                     item.recurringBuy.nextPaymentDate.toFormattedDateWithoutYear()
                 )
             } else {
-                // TODO verify state with BE in next story
                 context.getString(R.string.dashboard_recurring_buy_item_label_error)
             }
         }

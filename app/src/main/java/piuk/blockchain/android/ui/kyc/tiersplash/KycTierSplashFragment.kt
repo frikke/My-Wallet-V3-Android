@@ -300,7 +300,7 @@ class KycTierSplashFragment :
 
     private fun startSwap() =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 action = AssetAction.Swap
             )

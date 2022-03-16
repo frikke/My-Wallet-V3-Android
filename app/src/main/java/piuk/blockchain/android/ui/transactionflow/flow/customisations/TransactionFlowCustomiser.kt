@@ -1096,6 +1096,27 @@ class TransactionFlowCustomiserImpl(
             TransactionStep.CLOSED -> ""
         }
 
+    override fun sendToDomainCardTitle(state: TransactionState): String {
+        return when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.send_domain_alert_title)
+            else -> ""
+        }
+    }
+
+    override fun sendToDomainCardDescription(state: TransactionState): String {
+        return when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.send_domain_alert_description)
+            else -> ""
+        }
+    }
+
+    override fun shouldShowSendToDomainBanner(state: TransactionState): Boolean {
+        return when (state.action) {
+            AssetAction.Send -> state.shouldShowSendToDomainBanner
+            else -> false
+        }
+    }
+
     companion object {
         const val MAX_ACCOUNTS_FOR_SHEET = 3
         private const val FIVE_DAYS = 5

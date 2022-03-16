@@ -36,7 +36,8 @@ fun DefaultCard(
     iconResource: ImageResource = ImageResource.None,
     callToActionButton: CardButton? = null,
     onClose: () -> Unit = {},
-    isDarkTheme: Boolean = isSystemInDarkTheme()
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDismissable: Boolean = true
 ) {
 
     val backgroundColor = if (!isDarkTheme) {
@@ -71,12 +72,15 @@ fun DefaultCard(
                     Spacer(
                         modifier = Modifier.weight(1f, true)
                     )
-                    CardCloseButton(onClick = onClose)
+
+                    if (isDismissable) {
+                        CardCloseButton(onClick = onClose)
+                    }
                 }
 
                 Text(
                     modifier = Modifier
-                        .padding(top = 23.dp),
+                        .padding(top = dimensionResource(R.dimen.very_small_margin)),
                     text = title,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.title
@@ -84,7 +88,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = 8.dp),
+                        .padding(top = dimensionResource(R.dimen.tiny_margin)),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.title
@@ -93,7 +97,7 @@ fun DefaultCard(
                 if (callToActionButton != null) {
                     PrimaryButton(
                         modifier = Modifier
-                            .padding(top = dimensionResource(R.dimen.medium_margin))
+                            .padding(top = dimensionResource(R.dimen.very_small_margin))
                             .fillMaxWidth(),
                         defaultBackgroundColor = callToActionButton.backgroundColor,
                         text = callToActionButton.text,

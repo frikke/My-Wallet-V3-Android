@@ -43,7 +43,14 @@ sealed class PinIntent : MviIntent<PinState> {
         val isForValidatingPinForResult: Boolean = false,
         val isChangingPin: Boolean = false
     ) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState = oldState
+        override fun reduce(oldState: PinState): PinState =
+            oldState.copy(
+                isLoading = true,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = oldState.biometricStatus.canShowFingerprint
+                )
+            )
     }
 
     object ValidatePINSucceeded : PinIntent() {
@@ -56,6 +63,10 @@ sealed class PinIntent : MviIntent<PinState> {
                     isFromPinCreation = oldState.pinStatus.isFromPinCreation
                 ),
             )
+    }
+
+    object DisableBiometrics : PinIntent() {
+        override fun reduce(oldState: PinState): PinState = oldState
     }
 
     data class ValidatePINFailed(val pinError: PinError) : PinIntent() {
@@ -140,22 +151,8 @@ sealed class PinIntent : MviIntent<PinState> {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = oldState.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = oldState.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = canShow
-                )
-            )
-    }
-
-    data class SetFingerprintEnabled(
-        val isEnabled: Boolean
-    ) : PinIntent() {
-        override fun reduce(oldState: PinState): PinState =
-            oldState.copy(
-                biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = isEnabled,
-                    shouldShowFingerprint = oldState.biometricStatus.shouldShowFingerprint,
-                    canShowFingerprint = oldState.biometricStatus.canShowFingerprint
                 )
             )
     }
@@ -166,7 +163,6 @@ sealed class PinIntent : MviIntent<PinState> {
         override fun reduce(oldState: PinState): PinState =
             oldState.copy(
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = oldState.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = shouldShow,
                     canShowFingerprint = oldState.biometricStatus.canShowFingerprint
                 )

@@ -26,6 +26,7 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
@@ -117,11 +118,13 @@ class PinActivity :
         init()
 
         with(binding) {
-            keyboard.requestFocus()
             keyboard.addTextChangedListener(this@PinActivity)
             pinLogout.apply {
                 text = getString(R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
+            }
+            root.setOnClickListener {
+                this@PinActivity.showKeyboard()
             }
         }
     }
@@ -133,6 +136,8 @@ class PinActivity :
     override fun render(newState: PinState) {
         lastState = newState
         setPinView(newState.action)
+
+        checkFingerprintStatus()
 
         if (newState.pinStatus.isPinValidated) {
             when {
@@ -209,8 +214,6 @@ class PinActivity :
             model.process(PinIntent.ClearStateAlreadyHandled)
         }
 
-        checkFingerprintStatus()
-
         newState.progressDialog?.let {
             if (it.hasToShow) {
                 showProgressDialog(it.messageToShow)
@@ -238,12 +241,8 @@ class PinActivity :
     override fun afterTextChanged(currentPin: Editable?) {
         currentPin?.let {
             when {
-                it.length > pinLastLength -> {
-                    onPadClicked()
-                }
-                it.length < pinLastLength -> {
-                    onDeleteClicked()
-                }
+                it.length > pinLastLength -> onPadClicked()
+                it.length < pinLastLength -> onDeleteClicked()
                 else -> {
                     // do nothing (enter key pressed)
                 }
@@ -274,9 +273,16 @@ class PinActivity :
                     backAction = { handleBackButton() }
                 )
             }
-            OriginScreenToPin.CREATE_WALLET -> {}
-            OriginScreenToPin.BACKUP_PHRASE -> {}
-            OriginScreenToPin.OTHER -> binding.pinLogout.visible()
+            OriginScreenToPin.CREATE_WALLET,
+            OriginScreenToPin.BACKUP_PHRASE,
+            OriginScreenToPin.LAUNCHER_SCREEN,
+            OriginScreenToPin.LOADER_SCREEN,
+            OriginScreenToPin.LOGIN_SCREEN,
+            OriginScreenToPin.RESET_PASSWORD_SCREEN,
+            OriginScreenToPin.PIN_SCREEN,
+            OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+            OriginScreenToPin.LOGIN_AUTH_SCREEN,
+            OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> binding.pinLogout.visible()
         }
     }
 
@@ -305,7 +311,7 @@ class PinActivity :
     }
 
     private fun checkFingerprintStatus() {
-        if (lastState.biometricStatus.shouldShowFingerprint) {
+        if (lastState.biometricStatus.shouldShowFingerprint && !isChangingPin) {
             showFingerprintDialog()
         } else {
             binding.keyboard.requestFocus()
@@ -630,7 +636,14 @@ class PinActivity :
 
     private fun handlePasswordValidated() {
         BlockchainSnackbar.make(binding.root, getString(R.string.pin_4_strikes_password_accepted))
-        startActivity(newIntent(this))
+        startActivity(
+            newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = OriginScreenToPin.PIN_SCREEN,
+                addFlagsToClear = true
+            )
+        )
     }
 
     private fun onPadClicked() {
@@ -753,13 +766,12 @@ class PinActivity :
         finish()
     }
 
-    private fun handleBackButton() {
+    private fun handleBackButton() =
         when {
-            isForValidatingPinForResult -> { finishWithResultCanceled() }
-            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> { super.onBackPressed() }
-            else -> { appUtil.logout() }
+            isForValidatingPinForResult -> finishWithResultCanceled()
+            originScreen == OriginScreenToPin.CHANGE_PIN_SECURITY -> super.onBackPressed()
+            else -> appUtil.logout()
         }
-    }
 
     override fun onBackPressed() {
         handleBackButton()
@@ -874,19 +886,13 @@ class PinActivity :
         )
     }
 
-    private fun onUpdateFinished(isFromPinCreation: Boolean) {
+    private fun onUpdateFinished(isFromPinCreation: Boolean) =
         when {
-            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> {
-                askToUseBiometrics()
-            }
-            isChangingPin -> {
-                finish()
-            }
-            else -> {
-                util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
-            }
+            isChangingPin && biometricsController.isBiometricUnlockEnabled -> enrollBiometrics()
+            isFromPinCreation && biometricsController.isBiometricAuthEnabled -> askToUseBiometrics()
+            isChangingPin -> finish()
+            else -> finishSignupProcess()
         }
-    }
 
     private fun askToUseBiometrics() {
         BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BOTTOM_SHEET")
@@ -915,7 +921,12 @@ class PinActivity :
                     override fun onAuthSuccess(unencryptedBiometricData: WalletBiometricData) {
                         correctPinBoxes()
                         model.process(PinIntent.SetCanShowFingerprint(false))
-                        model.process(PinIntent.ValidatePIN(unencryptedBiometricData.accessPin))
+                        model.process(
+                            PinIntent.ValidatePIN(
+                                pin = unencryptedBiometricData.accessPin,
+                                isForValidatingPinForResult = isForValidatingPinForResult
+                            )
+                        )
                     }
 
                     override fun onAuthFailed(error: BiometricAuthError) {
@@ -955,6 +966,7 @@ class PinActivity :
             this, BiometricsType.TYPE_REGISTER,
             object : BiometricsCallback<WalletBiometricData> {
                 override fun onAuthSuccess(data: WalletBiometricData) {
+                    model.process(PinIntent.CreatePINSucceeded)
                     finishSignupProcess()
                 }
 
@@ -981,6 +993,10 @@ class PinActivity :
                 }
 
                 override fun onAuthCancelled() {
+                    if (isChangingPin) {
+                        model.process(PinIntent.DisableBiometrics)
+                        finishSignupProcess()
+                    }
                     // do nothing, the sheet is not dismissed when the user starts the flow
                 }
             }
@@ -1000,20 +1016,30 @@ class PinActivity :
 
         fun newIntent(
             context: Context,
-            startForResult: Boolean = false,
-            originScreen: OriginScreenToPin? = OriginScreenToPin.OTHER
+            startForResult: Boolean,
+            originScreen: OriginScreenToPin,
+            addFlagsToClear: Boolean,
         ) =
             Intent(context, PinActivity::class.java).apply {
                 putExtra(KEY_VALIDATING_PIN_FOR_RESULT, startForResult)
                 putExtra(ORIGIN_SCREEN, originScreen)
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                if (addFlagsToClear) {
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             }
 
         enum class OriginScreenToPin {
             CHANGE_PIN_SECURITY,
             CREATE_WALLET,
             BACKUP_PHRASE,
-            OTHER,
+            LAUNCHER_SCREEN,
+            LOADER_SCREEN,
+            LOGIN_SCREEN,
+            RESET_PASSWORD_SCREEN,
+            PIN_SCREEN,
+            MANUAL_PAIRING_SCREEN,
+            LOGIN_AUTH_SCREEN,
+            PASSWORD_REQUIRED_SCREEN
         }
     }
 }

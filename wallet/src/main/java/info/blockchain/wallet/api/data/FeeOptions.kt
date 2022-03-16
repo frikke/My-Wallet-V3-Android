@@ -2,13 +2,17 @@ package info.blockchain.wallet.api.data
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Serializable
 class FeeOptions constructor(
     /**
      * Returns a "gasLimit" for Ethereum
      */
     @JsonProperty("gasLimit")
+    @SerialName("gasLimit")
     val gasLimit: Long = 0,
 
     /**
@@ -16,11 +20,13 @@ class FeeOptions constructor(
      * within the next 4-6 hours. The fee is in Satoshis per byte.
      */
     @field:JsonProperty("regular")
+    @SerialName("regular")
     val regularFee: Long = 0,
     /**
      * Returns a "gasLimit" for Erc20 contract
      */
     @JsonProperty("gasLimitContract")
+    @SerialName("gasLimitContract")
     val gasLimitContract: Long = 0,
 
     /**
@@ -28,6 +34,7 @@ class FeeOptions constructor(
      * an hour or so. The fee is in Satoshis per byte.
      */
     @field:JsonProperty("priority")
+    @SerialName("priority")
     val priorityFee: Long = 0,
 
     /**
@@ -35,6 +42,7 @@ class FeeOptions constructor(
      * an hour or so. The fee is in Satoshis per byte.
      */
     @JsonProperty("limits")
+    @SerialName("limits")
     val limits: FeeLimits? = null
 ) {
 

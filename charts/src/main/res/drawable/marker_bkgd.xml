@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/colorMarkerBackground" />
+    <corners android:radius="8dp" />
+    <padding
+        android:bottom="@dimen/minuscule_margin"
+        android:left="@dimen/minuscule_margin"
+        android:right="@dimen/minuscule_margin"
+        android:top="@dimen/minuscule_margin" />
+</shape>

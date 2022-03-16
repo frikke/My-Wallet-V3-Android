@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentError
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
@@ -299,7 +300,7 @@ class SimpleBuyModel(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
             ).subscribeBy(
                 onSuccess = { buySellOrder ->
-                    processOrderStatus(buySellOrder)
+                    processOrderStatus(buySellOrder.value)
                 },
                 onError = {
                     process(SimpleBuyIntent.ErrorIntent())
@@ -371,6 +372,14 @@ class SimpleBuyModel(
             buySellOrder.state.isPending() -> {
                 process(SimpleBuyIntent.PaymentPending)
             }
+            buySellOrder.state.hasFailed() -> {
+                process(
+                    SimpleBuyIntent.ErrorIntent(
+                        error = if (buySellOrder.paymentError == PaymentError.CARD_PAYMENT_FAILED)
+                            ErrorState.CardPaymentFailed else ErrorState.GenericError
+                    )
+                )
+            }
             else -> {
                 when (val cardAttributes = buySellOrder.attributes?.cardAttributes ?: CardAttributes.Empty) {
                     is CardAttributes.EveryPay -> {
@@ -420,7 +429,7 @@ class SimpleBuyModel(
                     // We are allowed to refresh the payment methods only when
                     // 1. there is at least one with enough funds so making sure that in the end
                     // something will be selected
-                    // 2. when at least one with not enought funds has been detected.
+                    // 2. when at least one with not enough funds has been detected.
 
                     val shouldRefreshPaymentMethods =
                         paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()
@@ -692,6 +701,7 @@ class SimpleBuyModel(
         recurringBuyFrequency: RecurringBuyFrequency
     ): Single<SimpleBuyIntent.OrderCreated> {
         return isFirstTimeBuyer(recurringBuyFrequency)
+            .trackProgress(activityIndicator)
             .flatMap { isFirstTimeBuyer ->
                 createOrder(
                     selectedCryptoAsset,
@@ -750,7 +760,7 @@ class SimpleBuyModel(
             paymentMethod = selectedPaymentMethod.paymentMethodType,
             isPending = true,
             recurringBuyFrequency = recurringBuyFrequency
-        )
+        ).trackProgress(activityIndicator)
     }
 
     private fun confirmOrder(
@@ -792,6 +802,7 @@ class SimpleBuyModel(
         googlePayBeneficiaryId: String? = null
     ): Disposable {
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
+            .trackProgress(activityIndicator)
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED

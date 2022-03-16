@@ -5,12 +5,14 @@ import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
+import com.blockchain.network.PollResult
+import com.blockchain.network.PollService
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -52,7 +54,8 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     protected abstract val crashLogger: CrashLogger
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val authDisposable = CompositeDisposable()
+    val timerDisposable = CompositeDisposable()
+    private lateinit var pollService: PollService<Response<ResponseBody>>
 
     override fun onViewAttached() {
         if (authComplete) {
@@ -115,9 +118,9 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             }
             .doOnNext { s -> sessionId = s }
             .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = false) }
-            .subscribe(
-                { response -> handleResponse(password, guid, response) },
-                { throwable -> handleSessionError(throwable) }
+            .subscribeBy(
+                onNext = { response -> handleResponse(password, guid, response) },
+                onError = { throwable -> handleSessionError(throwable) }
             )
     }
 
@@ -128,9 +131,9 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             }
             .doOnNext { s -> sessionId = s }
             .flatMap { sessionId -> authDataManager.getEncryptedPayload(guid, sessionId, resend2FASms = true) }
-            .subscribe(
-                { response -> handleResponse(password, guid, response) },
-                { throwable -> handleSessionError(throwable) }
+            .subscribeBy(
+                onNext = { response -> handleResponse(password, guid, response) },
+                onError = { throwable -> handleSessionError(throwable) }
             )
     }
 
@@ -146,6 +149,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         when {
             errorBody.contains(KEY_AUTH_REQUIRED) -> {
                 waitForEmailAuth(password, guid)
+                startTimer()
             }
             errorBody.contains(INITIAL_ERROR) -> {
                 decodeBodyAndShowError(errorBody)
@@ -170,50 +174,74 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         }
     }
 
-    private fun waitForEmailAuth(password: String, guid: String) {
+    private fun pollAuthStatus(guid: String): Single<PollResult<Response<ResponseBody>>> {
+        pollService = PollService(
+            authDataManager.getEncryptedPayload(guid, sessionId!!, resend2FASms = false).firstOrError()
+        ) {
+            val errorString = it.errorBody()?.toString()
+            val bodyString = it.body()?.toString()
 
-        val authPoll = authDataManager.startPollingAuthStatus(guid, sessionId!!)
-            .doOnNext { payloadResponse ->
-                if (payloadResponse.contains(KEY_AUTH_REQUIRED)) {
-                    throw RuntimeException("Auth failed")
-                } else {
-                    val responseBody =
-                        payloadResponse.toResponseBody("application/json".toMediaTypeOrNull())
-                    checkTwoFactor(password, guid, Response.success(responseBody))
-                }
-            }
-            .ignoreElements()
+            errorString == null && bodyString != null && bodyString.isNotEmpty()
+        }
+        return pollService.start(timerInSec = INTERVAL, retries = Int.MAX_VALUE)
+    }
 
-        val dlgUpdater = authDataManager.createCheckEmailTimer()
+    fun cancelPollAuthStatus() {
+        if (::pollService.isInitialized) {
+            pollService.cancel.onNext(true)
+        }
+    }
+
+    private fun startTimer() {
+        timerDisposable += authDataManager.createCheckEmailTimer()
             .doOnSubscribe {
                 view?.showProgressDialog(R.string.check_email_to_auth_login, ::onProgressCancelled)
             }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { integer ->
-                if (integer <= 0) {
-                    // Only called if timer has run out
-                    showErrorSnackbarAndRestartApp(R.string.pairing_failed)
-                } else {
-                    view?.updateWaitingForAuthDialog(integer!!)
+                if (integer > 1) {
+                    view?.updateWaitingForAuthDialog(integer)
                 }
             }
-            .doOnComplete { throw RuntimeException("Timeout") }
-            .ignoreElements()
-
-        authDisposable += Completable.ambArray(
-            authPoll,
-            dlgUpdater
-        ).subscribeBy(
-            onError = {
-                showErrorSnackbar(R.string.auth_failed)
+            .doOnComplete {
+                cancelPollAuthStatus()
+                throw RuntimeException("Timeout")
             }
-        )
+            .subscribeBy(
+                onError = {
+                    showErrorSnackbar(R.string.auth_failed)
+                }
+            )
+    }
+
+    fun waitForEmailAuth(password: String, guid: String) {
+        pollAuthStatus(guid)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = {
+                    when (it) {
+                        is PollResult.FinalResult -> {
+                            checkTwoFactor(password, guid, it.value)
+                        }
+                        is PollResult.Cancel,
+                        is PollResult.TimeOut -> {
+                        }
+                    }
+                },
+                onError = {
+                    Timber.e(it)
+                }
+            )
     }
 
     private fun checkTwoFactor(password: String, guid: String, response: Response<ResponseBody>) {
-
         val responseBody = response.body()!!.string()
-        val jsonObject = JSONObject(responseBody)
+        val jsonObject = try {
+            JSONObject(responseBody)
+        } catch (e: Exception) {
+            Timber.e("checkTwoFactor" + e.message)
+            JSONObject()
+        }
         // Check if the response has a 2FA Auth Type but is also missing the payload,
         // as it comes in two parts if 2FA enabled.
         if (jsonObject.isAuth() && (jsonObject.isGoogleAuth() || jsonObject.isSMSAuth())) {
@@ -266,7 +294,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
 
     internal fun onProgressCancelled() {
         compositeDisposable.clear()
-        authDisposable.clear()
+        timerDisposable.clear()
     }
 
     protected fun showErrorSnackbar(@StringRes message: Int) {
@@ -283,17 +311,21 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
             dismissProgressDialog()
             showSnackbar(message, SnackbarType.Error)
         }
-        appUtil.clearCredentialsAndRestart()
+        cancelPollAuthStatus()
+        cancelAuthTimer()
     }
+
+    fun cancelAuthTimer() {
+        timerDisposable.clear()
+    }
+
+    fun hasTimerStarted(): Boolean = timerDisposable.size() > 0
 
     companion object {
         @VisibleForTesting
         internal val KEY_AUTH_REQUIRED = "authorization_required"
         internal val INITIAL_ERROR = "initial_error"
-    }
-
-    fun cancelAuthTimer() {
-        authDisposable.clear()
+        private const val INTERVAL: Long = 2
     }
 }
 

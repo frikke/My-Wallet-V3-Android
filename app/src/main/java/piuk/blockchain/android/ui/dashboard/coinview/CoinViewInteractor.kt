@@ -5,28 +5,28 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.NullAccountGroup
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.DashboardPrefs
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.android.domain.repositories.TradeDataManager
 
 class CoinViewInteractor(
-    private val dashboardPrefs: DashboardPrefs,
     private val coincore: Coincore,
-    private val userIdentity: UserIdentity,
-    private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val tradeDataManager: TradeDataManager,
+    private val currencyPrefs: CurrencyPrefs,
+    private val assetCatalogue: AssetCatalogue,
+    private val identity: UserIdentity
 ) {
 
     fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
@@ -39,13 +39,34 @@ class CoinViewInteractor(
         asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
 
-    fun shouldShowCustody(asset: AssetInfo): Single<Boolean> {
-        return coincore[asset].accountGroup(AssetFilter.Custodial)
-            .flatMapSingle { it.balance.firstOrError() }
-            .map {
-                !dashboardPrefs.isCustodialIntroSeen && !it.total.isZero
-            }.defaultIfEmpty(false)
-    }
+    fun loadRecurringBuys(asset: AssetInfo): Single<List<RecurringBuy>> =
+        tradeDataManager.getRecurringBuysForAsset(asset)
+
+    fun loadQuickActions(asset: AssetInfo, totalCryptoBalance: Money): Single<Pair<QuickActionCta, QuickActionCta>> =
+        Single.zip(
+            identity.getHighestApprovedKycTier(),
+            identity.isEligibleFor(Feature.SimplifiedDueDiligence)
+        ) { tier, sddEligible ->
+            val assetWithCustodialWallet = assetCatalogue.supportedCustodialAssets.firstOrNull { assetAccount ->
+                assetAccount.networkTicker == asset.networkTicker && assetAccount.categories.contains(
+                    AssetCategory.CUSTODIAL
+                )
+            }
+
+            assetWithCustodialWallet?.let {
+                if (tier == Tier.GOLD || sddEligible) {
+                    if (totalCryptoBalance.isPositive) {
+                        Pair(QuickActionCta.Sell, QuickActionCta.Buy)
+                    } else {
+                        Pair(QuickActionCta.Receive, QuickActionCta.Buy)
+                    }
+                } else {
+                    Pair(QuickActionCta.Receive, QuickActionCta.Buy)
+                }
+            } ?: run {
+                Pair(QuickActionCta.Receive, QuickActionCta.Send)
+            }
+        }
 
     private fun load24hPriceDelta(asset: CryptoAsset) =
         asset.getPricesWith24hDelta()
@@ -58,15 +79,33 @@ class CoinViewInteractor(
             splitAccountsInGroup(asset, AssetFilter.Interest),
             asset.interestRate()
         ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate ->
-            val list =
-                mapAccounts(nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate)
-            var totalCryptoBalance = Money.zero(asset.assetInfo)
-            var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
-            list.forEach { account ->
-                totalCryptoBalance = totalCryptoBalance.plus(account.amount)
-                totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
+            // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
+            // custodial endpoint products to see if we support custodial or PK balances as a guideline to
+            // asset support
+            val tradeableAsset = assetCatalogue.supportedCustodialAssets.firstOrNull { assetAccount ->
+                assetAccount.networkTicker == asset.assetInfo.networkTicker &&
+                    (
+                        assetAccount.categories.contains(AssetCategory.CUSTODIAL) ||
+                            assetAccount.categories.contains(AssetCategory.NON_CUSTODIAL)
+                        )
             }
-            return@zip AssetInformation(prices, list, totalCryptoBalance as CryptoValue, totalFiatBalance as FiatValue)
+
+            return@zip if (tradeableAsset == null) {
+                AssetInformation.NonTradeable(prices)
+            } else {
+                val accountsList = mapAccounts(
+                    nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate
+                )
+                var totalCryptoBalance = Money.zero(asset.assetInfo)
+                var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
+                accountsList.forEach { account ->
+                    totalCryptoBalance = totalCryptoBalance.plus(account.amount)
+                    totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
+                }
+                AssetInformation.AccountsInfo(
+                    prices, accountsList, totalCryptoBalance, totalFiatBalance
+                )
+            }
         }
     }
 

@@ -22,6 +22,13 @@ import info.blockchain.wallet.stx.STXAccount
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.LinkedList
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import org.spongycastle.util.encoders.Hex
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,27 +40,35 @@ import org.spongycastle.util.encoders.Hex
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 class WalletBody {
 
     @field:JsonProperty("accounts")
+    @SerialName("accounts")
     var accounts: MutableList<Account>? = null
 
     @field:JsonProperty("seed_hex")
+    @SerialName("seed_hex")
     var seedHex: String? = null
 
     @field:JsonProperty("passphrase")
+    @SerialName("passphrase")
     var passphrase: String? = null
 
     @field:JsonProperty("mnemonic_verified")
+    @SerialName("mnemonic_verified")
     var mnemonicVerified = false
 
     @field:JsonProperty("default_account_idx")
+    @SerialName("default_account_idx")
     var defaultAccountIdx = 0
 
     @JsonIgnore
+    @Transient
     var wrapperVersion = 0
 
     @JsonIgnore
+    @Transient
     private val HD = HDWalletsContainer()
 
     fun decryptHDWallet(
@@ -141,6 +156,15 @@ class WalletBody {
 
     fun toJson(mapper: ObjectMapper): String =
         mapper.writeValueAsString(this)
+
+    fun toJson(module: SerializersModule): String {
+        val jsonBuilder = Json {
+            ignoreUnknownKeys = true
+            serializersModule = module
+            encodeDefaults = true
+        }
+        return jsonBuilder.encodeToString(this)
+    }
 
     fun upgradeAccountsToV4(): List<Account> {
         val upgradedAccounts = mutableListOf<Account>()
@@ -509,6 +533,16 @@ class WalletBody {
 
         fun fromJson(json: String, mapper: ObjectMapper): WalletBody {
             val walletBody = mapper.readValue(json, WalletBody::class.java)
+            walletBody.instantiateBip44Wallet()
+            return walletBody
+        }
+
+        fun fromJson(json: String, module: SerializersModule): WalletBody {
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+                serializersModule = module
+            }
+            val walletBody: WalletBody = jsonBuilder.decodeFromString(json)
             walletBody.instantiateBip44Wallet()
             return walletBody
         }

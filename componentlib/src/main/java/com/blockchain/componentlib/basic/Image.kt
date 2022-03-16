@@ -47,6 +47,13 @@ fun Image(
                 colorFilter = imageResource.colorFilter,
                 contentScale = contentScale,
             )
+        is ImageResource.LocalWithResolvedBitmap ->
+            androidx.compose.foundation.Image(
+                painter = rememberImagePainter(imageResource.bitmap),
+                contentDescription = imageResource.contentDescription,
+                modifier = modifier,
+                contentScale = contentScale,
+            )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
                 painter = rememberImagePainter(
@@ -58,8 +65,8 @@ fun Image(
                 contentScale = contentScale,
             )
         is ImageResource.LocalWithBackground -> {
-            val filterColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.filterColorId))
-            val tintColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.tintColorId))
+            val filterColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.iconTintColour))
+            val tintColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(dimensionResource(R.dimen.large_margin))
@@ -82,9 +89,9 @@ fun Image(
                 )
             }
         }
-        is ImageResource.LocalWithBackgroundAndExternalFilterResources -> {
-            val filterColor = Color(android.graphics.Color.parseColor(imageResource.filterColor))
-            val tintColor = Color(android.graphics.Color.parseColor(imageResource.tintColor))
+        is ImageResource.LocalWithBackgroundAndExternalResources -> {
+            val filterColor = Color(android.graphics.Color.parseColor(imageResource.iconTintColour))
+            val tintColor = Color(android.graphics.Color.parseColor(imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(dimensionResource(R.dimen.large_margin))

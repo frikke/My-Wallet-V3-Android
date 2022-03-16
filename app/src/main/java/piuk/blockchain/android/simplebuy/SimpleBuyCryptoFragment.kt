@@ -409,8 +409,12 @@ class SimpleBuyCryptoFragment :
         KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
-    private fun canContinue(state: SimpleBuyState) =
-        state.errorState == TransactionErrorState.NONE && state.selectedPaymentMethod != null && !state.isLoading
+    private fun canContinue(state: SimpleBuyState): Boolean =
+        if (state.amount.isZero) false else {
+            state.errorState == TransactionErrorState.NONE &&
+                state.selectedPaymentMethod != null &&
+                !state.isLoading
+        }
 
     private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
         renderRecurringBuy(state)
@@ -627,7 +631,6 @@ class SimpleBuyCryptoFragment :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == ADD_CARD_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val preselectedId =
                 (data?.extras?.getSerializable(CardDetailsActivity.CARD_KEY) as? PaymentMethod.Card)?.id

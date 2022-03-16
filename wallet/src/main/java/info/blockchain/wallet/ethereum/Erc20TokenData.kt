@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import java.util.HashMap
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,20 +19,24 @@ import java.util.HashMap
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
-
+@Serializable
 class Erc20TokenData {
 
     @JsonProperty("label")
+    @SerialName("label")
     var label: String = ""
 
     @field:JsonProperty("contract")
+    @SerialName("contract")
     var contractAddress: String = ""
         private set
 
     @field:JsonProperty("has_seen")
+    @SerialName("has_seen")
     var hasSeen: Boolean = false
 
     @field:JsonProperty("tx_notes")
+    @SerialName("tx_notes")
     val txNotes: HashMap<String, String> = HashMap()
 
     fun putTxNote(txHash: String, txNote: String) {

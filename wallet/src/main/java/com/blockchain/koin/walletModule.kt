@@ -38,7 +38,9 @@ val walletModule = module {
         )
     }
 
-    single { get<Retrofit>(apiRetrofit).create(MetadataService::class.java) }
+    single {
+        get<Retrofit>(apiRetrofit).create(MetadataService::class.java)
+    }
 
     factory {
         BchDustService(

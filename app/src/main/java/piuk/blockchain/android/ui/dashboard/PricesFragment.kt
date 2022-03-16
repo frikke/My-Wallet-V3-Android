@@ -142,7 +142,7 @@ internal class PricesFragment :
                 when (it) {
                     is TransactionFlow -> {
                         startActivity(
-                            TransactionFlowActivity.newInstance(
+                            TransactionFlowActivity.newIntent(
                                 context = requireActivity(),
                                 sourceAccount = it.txSource,
                                 target = it.txTarget,
@@ -435,7 +435,7 @@ internal class PricesFragment :
 
     override fun goToSellFrom(account: CryptoAccount) =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = account,
                 action = AssetAction.Sell

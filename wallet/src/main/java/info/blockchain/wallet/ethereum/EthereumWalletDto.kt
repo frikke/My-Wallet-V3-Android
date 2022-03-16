@@ -9,6 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
 import java.util.ArrayList
 import java.util.HashMap
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,8 +24,10 @@ import java.util.HashMap
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 class EthereumWalletDto {
     @field:JsonProperty("ethereum")
+    @SerialName("ethereum")
     var walletData: EthereumWalletData? = null
 
     constructor() {
@@ -39,8 +46,16 @@ class EthereumWalletDto {
     }
 
     @Throws(JsonProcessingException::class)
-    fun toJson(): String {
-        return ObjectMapper().writeValueAsString(this)
+    fun toJson(withKotlinX: Boolean): String {
+        return if (withKotlinX) {
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+            }
+            return jsonBuilder.encodeToString(this)
+        } else {
+            ObjectMapper().writeValueAsString(this)
+        }
     }
 
     /**
@@ -60,17 +75,22 @@ class EthereumWalletDto {
 
         @JvmStatic
         @Throws(IOException::class)
-        fun fromJson(json: String): EthereumWalletDto {
-            val mapper = ObjectMapper()
-            mapper.setVisibility(
-                mapper.serializationConfig.defaultVisibilityChecker
-                    .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                    .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                    .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-                    .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                    .withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
-            )
-            return mapper.readValue(json, EthereumWalletDto::class.java)
+        fun fromJson(json: String, withKotlinX: Boolean): EthereumWalletDto {
+            return if (withKotlinX) {
+                val jsonBuilder = Json { ignoreUnknownKeys = true }
+                jsonBuilder.decodeFromString(json)
+            } else {
+                val mapper = ObjectMapper()
+                mapper.setVisibility(
+                    mapper.serializationConfig.defaultVisibilityChecker
+                        .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                        .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                        .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                        .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                        .withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
+                )
+                mapper.readValue(json, EthereumWalletDto::class.java)
+            }
         }
     }
 }

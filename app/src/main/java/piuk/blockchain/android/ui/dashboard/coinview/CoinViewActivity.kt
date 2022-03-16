@@ -4,16 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -21,6 +27,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
+import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -30,15 +37,22 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
+import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
+import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
+import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 
-class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>() {
+class CoinViewActivity :
+    MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
+    RecurringBuyDetailsSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -59,6 +73,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
     private val listItems = mutableListOf<AssetDetailsItemNew>()
+    private lateinit var historicalGraphData: HistoricalRateList
+    private lateinit var prices24Hr: Prices24HrWithDelta
+    private lateinit var selectedFiat: FiatCurrency
+    private var hasLoadedIcon = false
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
@@ -85,13 +103,18 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
             }
 
-            // TODO update these in relevant story - placeholder texts
+            assetChartLoading.loadingText = getString(R.string.coinview_chart_loading)
+            assetPricesLoading.showIconLoader = false
+
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetAboutTitle.apply {
                 text = getString(R.string.coinview_about_asset, assetName)
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Body2
+                gone()
             }
 
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetAboutBlurb.apply {
                 text =
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut" +
@@ -101,6 +124,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                     "cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Paragraph1
+                gone()
             }
 
             assetChartViewSwitcher.displayedChild = CHART_LOADING
@@ -108,7 +132,19 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
             assetPricesSwitcher.displayedChild = PRICES_LOADING
             assetBalancesSwitcher.displayedChild = BALANCES_LOADING
 
-            assetChart.isChartLive = false
+            assetChart.apply {
+                isChartLive = false
+                onEntryHighlighted = { entry ->
+                    updateScrubPriceInformation(entry)
+                }
+                onScrubRelease = {
+                    renderPriceInformation(
+                        prices24Hr,
+                        historicalGraphData,
+                        selectedFiat
+                    )
+                }
+            }
 
             chartControls.apply {
                 items = listOf(
@@ -126,29 +162,18 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
             }
 
             assetBalance.apply {
+                // TODO (dserrano-bc): AND-5669 - add asset to watchlist pending BE implementation
+                shouldShowIcon = false
                 onIconClick = {
                     // model.process(ToggleWatchlist)
                 }
             }
 
-            // TODO update these in another story based on accounts logic
-            primaryCta.apply {
-                text = "Buy"
-                icon = ImageResource.Local(
-                    R.drawable.ic_bottom_nav_buy,
-                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
-                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
-                    )
-                )
-            }
+            showLoadingCtas()
 
-            secondaryCta.apply {
-                text = "Sell"
-                icon = ImageResource.Local(R.drawable.ic_fiat_notes)
-            }
-
-            // TODO in upcoming stories
+            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
             assetWebsite.apply {
+                gone()
                 text = "Visit Website ->"
                 textColor = ComposeColors.Primary
                 style = ComposeTypographies.Paragraph2
@@ -159,27 +184,76 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         }
     }
 
+    private fun ActivityCoinviewBinding.updateScrubPriceInformation(entry: Entry) {
+        val dataForEntry = historicalGraphData.first {
+            it.timestamp.toFloat() == entry.x
+        }
+
+        val firstForPeriod = historicalGraphData.first()
+        val difference = dataForEntry.rate - firstForPeriod.rate
+
+        val percentChange = (difference / firstForPeriod.rate) * 100
+
+        val changeDifference = Money.fromMajor(selectedFiat, difference.toBigDecimal()).toStringWithSymbol()
+
+        assetPrice.apply {
+            price = Money.fromMajor(selectedFiat, dataForEntry.rate.toBigDecimal()).toStringWithSymbol()
+            percentageChangeData = PercentageChangeData(
+                priceChange = changeDifference,
+                percentChange = percentChange / 100,
+                interval = ""
+            )
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 
     override fun render(newState: CoinViewState) {
-        newState.asset?.let {
+        newState.asset?.let { cryptoAsset ->
             with(binding) {
-                assetAboutTitle.text = getString(R.string.coinview_about_asset, it.assetInfo.name)
-                assetPrice.endIcon = ImageResource.Remote(it.assetInfo.logo)
+                assetAboutTitle.text = getString(R.string.coinview_about_asset, cryptoAsset.assetInfo.name)
+                assetPrice.endIcon = ImageResource.Remote(cryptoAsset.assetInfo.logo)
             }
         }
 
         if (newState.viewState != CoinViewViewState.None) {
             renderUiState(newState)
         }
+
+        if (newState.error != CoinViewError.None) {
+            // TODO (dserrano-bc): Placeholders - update these to real errors when design knows how we should show them
+            when (newState.error) {
+                CoinViewError.UnknownAsset -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_unknown_asset), type = SnackbarType.Error
+                ).show()
+                CoinViewError.WalletLoadError -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_wallet_load_error), type = SnackbarType.Error
+                ).show()
+                CoinViewError.ChartLoadError -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_chart_load_error), type = SnackbarType.Error
+                ).show()
+                CoinViewError.RecurringBuysLoadError -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_recurring_buy_load_error), type = SnackbarType.Error
+                ).show()
+                CoinViewError.QuickActionsFailed -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_action_failed), type = SnackbarType.Error
+                ).show()
+                CoinViewError.None -> {
+                    // do nothing
+                }
+            }
+
+            model.process(CoinViewIntent.ResetErrorState)
+        }
     }
 
     private fun renderUiState(newState: CoinViewState) {
         when (val state = newState.viewState) {
-            CoinViewViewState.LoadingWallets -> {
+            CoinViewViewState.LoadingWallets,
+            CoinViewViewState.LoadingRecurringBuys -> {
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
             }
             is CoinViewViewState.ShowAccountInfo -> {
@@ -188,15 +262,29 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
 
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
+            is CoinViewViewState.NonTradeableAccount -> {
+                renderNonTradeableAsset(newState)
+            }
             CoinViewViewState.LoadingChart -> {
                 binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
             }
             is CoinViewViewState.ShowAssetInfo -> {
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
-                    assetChart.setData(state.entries)
+                    assetChart.apply {
+                        datePattern = HistoricalTimeSpan.fromInt(chartControls.selectedItemIndex).toDatePattern()
+                        fiatSymbol = state.selectedFiat.symbol
+                        setData(state.entries)
+                    }
                 }
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
+            }
+            is CoinViewViewState.ShowRecurringBuys -> renderRecurringBuys(state.recurringBuys)
+            CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
+            is CoinViewViewState.QuickActionsLoaded -> {
+                newState.asset?.let { asset ->
+                    renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
+                }
             }
             CoinViewViewState.None -> {
                 // do nothing
@@ -206,7 +294,145 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         model.process(CoinViewIntent.ResetViewState)
     }
 
-    private fun renderBalanceInformation(totalCryptoBalance: CryptoValue, totalFiatBalance: FiatValue) {
+    private fun renderNonTradeableAsset(newState: CoinViewState) {
+        with(binding) {
+            assetAccountsViewSwitcher.gone()
+            ctasDivider.gone()
+            primaryCta.gone()
+            secondaryCta.gone()
+            nonTradeableCard.apply {
+                visible()
+                isDismissable = false
+                title = getString(R.string.coinview_not_tradeable_title, assetName, assetTicker)
+                subtitle = getString(R.string.coinview_not_tradeable_subtitle, assetName)
+            }
+
+            newState.asset?.assetInfo?.let { assetInfo ->
+                newState.selectedFiat?.let { selectedFiat ->
+                    renderBalanceInformation(CryptoValue.zero(assetInfo), FiatValue.zero(selectedFiat))
+                }
+            }
+        }
+    }
+
+    private fun showLoadingCtas() {
+        with(binding) {
+            primaryCta.buttonState = ButtonState.Loading
+            secondaryCta.buttonState = ButtonState.Loading
+        }
+    }
+
+    private fun renderQuickActions(
+        asset: AssetInfo,
+        highestBalanceWallet: BlockchainAccount,
+        startAction: QuickActionCta,
+        endAction: QuickActionCta
+    ) {
+        with(binding) {
+            val startButtonResources = getQuickActionUi(asset, highestBalanceWallet, startAction)
+            val endButtonResources = getQuickActionUi(asset, highestBalanceWallet, endAction)
+            primaryCta.apply {
+                buttonState = ButtonState.Enabled
+                text = endButtonResources.name
+                icon = endButtonResources.icon
+                onClick = {
+                    endButtonResources.onClick()
+                }
+            }
+
+            secondaryCta.apply {
+                buttonState = ButtonState.Enabled
+                text = startButtonResources.name
+                icon = startButtonResources.icon
+                onClick = {
+                    startButtonResources.onClick()
+                }
+            }
+        }
+    }
+
+    private fun getQuickActionUi(
+        asset: AssetInfo,
+        highestBalanceWallet: BlockchainAccount,
+        action: QuickActionCta
+    ): QuickAction =
+        when (action) {
+            QuickActionCta.Buy -> QuickAction(
+                getString(R.string.common_buy),
+                ImageResource.Local(
+                    R.drawable.ic_bottom_nav_buy,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    SimpleBuyActivity.newIntent(
+                        context = this,
+                        asset = asset
+                    )
+                )
+            }
+            QuickActionCta.Sell -> QuickAction(
+                getString(R.string.common_sell),
+                ImageResource.Local(
+                    R.drawable.ic_fiat_notes,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Sell,
+                        sourceAccount = highestBalanceWallet
+                    )
+                )
+            }
+            QuickActionCta.Send -> QuickAction(
+                getString(R.string.common_send),
+                ImageResource.Local(
+                    R.drawable.ic_icon_send,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = this,
+                        action = AssetAction.Send,
+                        sourceAccount = highestBalanceWallet
+                    )
+                )
+            }
+            QuickActionCta.Receive -> QuickAction(
+                getString(R.string.common_receive),
+                ImageResource.Local(
+                    R.drawable.ic_qr_scan,
+                    colorFilter = ColorFilter.tint(
+                        Color(ContextCompat.getColor(this@CoinViewActivity, R.color.white))
+                    )
+                )
+            ) {
+                showBottomSheet(ReceiveDetailSheet.newInstance(highestBalanceWallet as CryptoAccount))
+            }
+        }
+
+    private fun renderRecurringBuys(recurringBuys: List<RecurringBuy>) {
+        if (recurringBuys.isNotEmpty()) {
+            val recurringBuysItems = recurringBuys.map {
+                AssetDetailsItemNew.RecurringBuyInfo(it)
+            }
+            listItems.addAll(recurringBuysItems)
+        } else {
+            listItems.add(AssetDetailsItemNew.RecurringBuyBanner)
+        }
+        updateList()
+    }
+
+    private fun renderBalanceInformation(totalCryptoBalance: Money, totalFiatBalance: Money) {
         with(binding) {
             assetBalance.apply {
                 labelText = getString(R.string.coinview_balance_label, assetTicker)
@@ -222,6 +448,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         historicalRateList: HistoricalRateList,
         selectedFiat: FiatCurrency
     ) {
+        prices24Hr = prices
+        historicalGraphData = historicalRateList
+        this.selectedFiat = selectedFiat
+
         val currentPrice = prices.currentRate.price.toStringWithSymbol()
         // We have filtered out nulls by here, so we can 'safely' default to zeros for the price
         val firstPrice: Double = historicalRateList.firstOrNull()?.rate ?: 0.0
@@ -279,7 +509,7 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     }
 
     private fun onAccountSelected(account: BlockchainAccount, assetFilter: AssetFilter) {
-        clearList()
+        // clearList()
 
         if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
             analytics.logEvent(CustodialBalanceClicked(account.currency))
@@ -292,19 +522,16 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
 
     private fun openOnboardingForRecurringBuy() {
         analytics.logEvent(RecurringBuyAnalytics.RecurringBuyLearnMoreClicked(LaunchOrigin.CURRENCY_PAGE))
-        //        startActivity(
-        //            RecurringBuyOnboardingActivity.newInstance(
-        //                context = this,
-        //                fromCoinView = true,
-        //                asset = asset
-        //            )
-        //        )
-        //        dismiss()
+        startActivity(
+            RecurringBuyOnboardingActivity.newIntent(
+                context = this,
+                fromCoinView = true,
+                assetTicker = assetTicker
+            )
+        )
     }
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
-        clearList()
-
         recurringBuy.asset.let {
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
@@ -313,7 +540,12 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 )
             )
         }
-        //        model.process(ShowRecurringBuySheet(recurringBuy))
+
+        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy))
+    }
+
+    override fun onRecurringBuyDeleted(asset: AssetInfo) {
+        model.process(CoinViewIntent.LoadRecurringBuys(asset))
     }
 
     private fun clearList() {
@@ -324,6 +556,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
     private fun updateList() {
         adapterDelegate.items = listItems
         adapterDelegate.notifyDataSetChanged()
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     companion object {
@@ -337,6 +573,10 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
         private const val BALANCES_VIEW = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
+        private const val PATTERN_HOURS = "HH:mm"
+        private const val PATTERN_DAY_HOUR = "HH:mm, EEE"
+        private const val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
+        private const val PATTERN_DAY_MONTH_YEAR = "d MMM YYYY"
 
         fun newIntent(context: Context, asset: AssetInfo): Intent =
             Intent(context, CoinViewActivity::class.java).apply {
@@ -344,4 +584,19 @@ class CoinViewActivity : MviActivity<CoinViewModel, CoinViewIntent, CoinViewStat
                 putExtra(ASSET_NAME, asset.name)
             }
     }
+
+    private fun HistoricalTimeSpan.toDatePattern(): String =
+        when (this) {
+            HistoricalTimeSpan.DAY -> PATTERN_HOURS
+            HistoricalTimeSpan.WEEK -> PATTERN_DAY_HOUR
+            HistoricalTimeSpan.MONTH -> PATTERN_DAY_HOUR_MONTH
+            HistoricalTimeSpan.YEAR,
+            HistoricalTimeSpan.ALL_TIME -> PATTERN_DAY_MONTH_YEAR
+        }
 }
+
+private data class QuickAction(
+    val name: String,
+    val icon: ImageResource,
+    val onClick: () -> Unit
+)

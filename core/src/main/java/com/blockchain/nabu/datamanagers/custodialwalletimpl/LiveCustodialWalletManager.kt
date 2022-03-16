@@ -24,6 +24,7 @@ import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
+import com.blockchain.nabu.datamanagers.PaymentError
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
@@ -419,6 +420,7 @@ class LiveCustodialWalletManager(
         return dailyMax.coerceAtMost(max)
     }
 
+    // TODO (dserrano-bc): Remove these methods when we clean up old AssetDetailsSheet
     override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
         authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker)
@@ -448,6 +450,7 @@ class LiveCustodialWalletManager(
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
         }
+    // TODO (dserrano-bc): end ------------------
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         authenticator.authenticate { nabuSessionToken ->
@@ -867,6 +870,11 @@ private fun BuySellOrderResponse.type() =
         side == "SELL" -> OrderType.SELL
         else -> throw IllegalStateException("Unsupported order type")
     }
+private fun BuySellOrderResponse.paymentError(): PaymentError? =
+    when (paymentError) {
+        "CARD_PAYMENT_FAILED" -> PaymentError.CARD_PAYMENT_FAILED
+        else -> null
+    }
 
 enum class OrderType {
     BUY,
@@ -875,19 +883,7 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-    /* val fiatCurrencyString = if (type() == OrderType.SELL) outputCurrency else inputCurrency
-     val cryptoCurrency =
-         assetCatalogue.fromNetworkTicker(
-             if (type() == OrderType.SELL) inputCurrency else outputCurrency
-         ) ?: throw UnknownFormatConversionException("Unknown Crypto currency: $inputCurrency")
-     val fiatAmount = if (type() == OrderType.SELL) {
-         outputQuantity.toLongOrDefault(0)
-     } else {
-         inputQuantity.toLongOrDefault(0)
-     }
-     val cryptoAmount =
-         if (type() == OrderType.SELL) inputQuantity.toBigInteger() else outputQuantity.toBigInteger()
-    */
+
     return BuySellOrder(
         id = id,
         pair = pair,
@@ -924,6 +920,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         ),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
+        paymentError = paymentError(),
         depositPaymentId = depositPaymentId.orEmpty(),
         approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
         failureReason = failureReason?.toRecurringBuyError(),

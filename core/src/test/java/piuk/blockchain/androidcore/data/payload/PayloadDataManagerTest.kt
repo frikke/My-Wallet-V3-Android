@@ -3,6 +3,7 @@ package piuk.blockchain.androidcore.data.payload
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.CrashLogger
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.isNull
 import com.nhaarman.mockitokotlin2.mock
@@ -47,6 +48,8 @@ class PayloadDataManagerTest {
     private val crashLogger: CrashLogger = mock()
     private val testScheduler = TestScheduler()
 
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
+
     @Suppress("unused")
     @get:Rule
     val initSchedulers = rxInit {
@@ -62,7 +65,8 @@ class PayloadDataManagerTest {
             bitcoinApi,
             privateKeyFactory,
             payloadManager,
-            crashLogger
+            crashLogger,
+            kotlinSerializerFeatureFlag
         )
     }
 
@@ -162,9 +166,11 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
+        val withKotlinX = true
 
         whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired).thenReturn(false)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -172,7 +178,7 @@ class PayloadDataManagerTest {
             .assertComplete()
 
         // Assert
-        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
+        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName, withKotlinX)
         verify(payloadManager).isV3UpgradeRequired
         verify(payloadManager).isV4UpgradeRequired
         verify(payloadManager).payload
@@ -186,9 +192,11 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
+        val withKotlinX = true
 
         whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -196,8 +204,8 @@ class PayloadDataManagerTest {
             .assertComplete()
 
         // Assert
-        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
+        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName, withKotlinX)
+        verify(payloadManager).upgradeV3PayloadToV4(secondPassword, withKotlinX)
         verify(payloadManager).isV3UpgradeRequired
         verify(payloadManager).isV4UpgradeRequired
         verify(payloadManager).payload
@@ -211,9 +219,11 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
+        val withKotlinX = true
 
         whenever(payloadManager.isV3UpgradeRequired).thenReturn(false)
         whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -221,7 +231,7 @@ class PayloadDataManagerTest {
             .assertComplete()
 
         // Assert
-        verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
+        verify(payloadManager).upgradeV3PayloadToV4(secondPassword, withKotlinX)
         verify(payloadManager).isV3UpgradeRequired
         verify(payloadManager).isV4UpgradeRequired
         verify(payloadManager).payload
@@ -235,10 +245,12 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
-        whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName))
+        val withKotlinX = true
+        whenever(payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName, withKotlinX))
             .thenThrow(Exception("Failed"))
         whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -246,7 +258,7 @@ class PayloadDataManagerTest {
             .assertError(Throwable::class.java)
 
         // Assert
-        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
+        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName, withKotlinX)
         verify(payloadManager).isV3UpgradeRequired
         verify(payloadManager).payload
 
@@ -259,9 +271,11 @@ class PayloadDataManagerTest {
         // Arrange
         val secondPassword = "SECOND_PASSWORD"
         val defaultAccountName = "DEFAULT_ACCOUNT_NAME"
-        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword)).thenThrow(Exception("Failed"))
+        val withKotlinX = true
+        whenever(payloadManager.upgradeV3PayloadToV4(secondPassword, withKotlinX)).thenThrow(Exception("Failed"))
         whenever(payloadManager.isV3UpgradeRequired).thenReturn(true)
         whenever(payloadManager.isV4UpgradeRequired).thenReturn(true)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         subject.upgradeWalletPayload(secondPassword, defaultAccountName)
@@ -269,8 +283,8 @@ class PayloadDataManagerTest {
             .assertError(Throwable::class.java)
 
         // Assert
-        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName)
-        verify(payloadManager).upgradeV3PayloadToV4(secondPassword)
+        verify(payloadManager).upgradeV2PayloadToV3(secondPassword, defaultAccountName, withKotlinX)
+        verify(payloadManager).upgradeV3PayloadToV4(secondPassword, withKotlinX)
         verify(payloadManager).isV3UpgradeRequired
         verify(payloadManager).isV4UpgradeRequired
         verify(payloadManager).payload
@@ -417,20 +431,23 @@ class PayloadDataManagerTest {
         val address = "ADDRESS"
         val mockAccount: Account = mock()
         val accounts = mutableListOf(mockAccount)
+        val withKotlinX = true
         whenever(payloadManager.payload?.walletBody?.accounts).thenReturn(accounts)
         whenever(
             payloadManager.getNextReceiveAddressAndReserve(
                 mockAccount,
-                addressLabel
+                addressLabel,
+                withKotlinX
             )
         ).thenReturn(address)
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
 
         // Act
         val testObserver = subject.getNextReceiveAddressAndReserve(accountIndex, addressLabel).test()
         testScheduler.triggerActions()
 
         // Assert
-        verify(payloadManager).getNextReceiveAddressAndReserve(mockAccount, addressLabel)
+        verify(payloadManager).getNextReceiveAddressAndReserve(mockAccount, addressLabel, withKotlinX)
         testObserver.assertComplete()
         testObserver.assertValue(address)
     }

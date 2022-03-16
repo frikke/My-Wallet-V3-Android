@@ -34,6 +34,13 @@ class PasswordRequiredPresenter(
         }
     }
 
+    fun checkEmailAuth(password: String) {
+        if (password.isNotEmpty() && hasTimerStarted()) {
+            val guid = prefs.walletGuid
+            waitForEmailAuth(password, guid)
+        }
+    }
+
     fun onForgetWalletClicked() {
         view?.showForgetWalletWarning()
     }

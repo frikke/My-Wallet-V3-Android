@@ -400,14 +400,12 @@ class SimpleBuyInteractor(
         isBankPartner
     )
 
-    fun pollForOrderStatus(orderId: String): Single<BuySellOrder> =
-        custodialWalletManager.getBuyOrder(orderId)
-            .repeatWhen { it.delay(INTERVAL, TimeUnit.SECONDS).zipWith(Flowable.range(0, RETRIES_SHORT)) }
-            .takeUntil {
-                it.state == OrderState.FINISHED ||
-                    it.state == OrderState.FAILED ||
-                    it.state == OrderState.CANCELED
-            }.lastOrError()
+    fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
+        PollService(custodialWalletManager.getBuyOrder(orderId)) {
+            it.state == OrderState.FINISHED ||
+                it.state == OrderState.FAILED ||
+                it.state == OrderState.CANCELED
+        }.start(INTERVAL, RETRIES_SHORT)
 
     fun pollForAuthorisationUrl(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(
@@ -487,7 +485,7 @@ class SimpleBuyInteractor(
     )
         ?: EMPTY_PAYMENT_TOKEN
 
-    fun updateApprovalStatus() {
+    fun updateApprovalStatus(callbackPath: String) {
         bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
             bankLinkingPrefs.setBankLinkingState(
                 it.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
@@ -497,6 +495,9 @@ class SimpleBuyInteractor(
                 BankAuthDeepLinkState(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
             )
         }
+
+        val sanitisedUrl = callbackPath.removePrefix("nabu-gateway/")
+        bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
 
     fun updateOneTimeTokenPath(callbackPath: String) {

@@ -16,6 +16,7 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
@@ -36,7 +37,7 @@ class EthDataManager(
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
     private val lastTxUpdater: LastTxUpdater,
-    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
 ) : EthMessageSigner {
 
     private val internalAccountAddress: String?
@@ -288,11 +289,14 @@ class EthDataManager(
         assetCatalogue: AssetCatalogue,
         label: String
     ): Single<Pair<EthereumWallet, Boolean>> =
-        metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty("")
-            .map { metadata ->
+        Singles.zip(
+            metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty(""),
+            kotlinSerializerFeatureFlag.enabled
+        )
+            .map { (metadata, useKotlinX) ->
                 val walletJson = if (metadata != "") metadata else null
 
-                var ethWallet = EthereumWallet.load(walletJson)
+                var ethWallet = EthereumWallet.load(walletJson, useKotlinX)
                 var needsSave = false
 
                 if (ethWallet?.account == null || !ethWallet.account!!.isCorrect) {
@@ -319,10 +323,12 @@ class EthDataManager(
             }
 
     fun save(): Completable =
-        metadataManager.saveToMetadata(
-            ethDataStore.ethWallet!!.toJson(),
-            EthereumWallet.METADATA_TYPE_EXTERNAL
-        )
+        kotlinSerializerFeatureFlag.enabled.flatMapCompletable { useKotlinX ->
+            metadataManager.saveToMetadata(
+                ethDataStore.ethWallet!!.toJson(useKotlinX),
+                EthereumWallet.METADATA_TYPE_EXTERNAL
+            )
+        }
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
         require(asset.isErc20())

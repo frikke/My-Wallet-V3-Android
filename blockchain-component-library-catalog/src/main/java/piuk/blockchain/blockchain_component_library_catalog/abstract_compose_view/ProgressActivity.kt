@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.componentlib.system.CircularProgressBarView
 import com.blockchain.componentlib.system.LinearProgressBarView
+import com.blockchain.componentlib.system.LoadingChartView
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class ProgressActivity : AppCompatActivity() {
@@ -13,6 +14,10 @@ class ProgressActivity : AppCompatActivity() {
 
         findViewById<LinearProgressBarView>(R.id.linear_determinate).apply {
             progress = 0.5f
+        }
+
+        findViewById<LoadingChartView>(R.id.loading_chart_view).apply {
+            loadingText = "Loading Chart"
         }
 
         findViewById<CircularProgressBarView>(R.id.circular_determinate).apply {

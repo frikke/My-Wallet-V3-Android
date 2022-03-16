@@ -280,7 +280,7 @@ class SellIntroFragment : ViewPagerFragment() {
         analytics.logEvent(BuySellViewedEvent(BuySellFragment.BuySellViewType.TYPE_SELL))
 
         startForResult.launch(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = it,
                 action = AssetAction.Sell

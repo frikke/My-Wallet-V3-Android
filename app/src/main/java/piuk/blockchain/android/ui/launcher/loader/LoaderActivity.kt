@@ -165,8 +165,14 @@ class LoaderActivity :
         redesign.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
-                    startActivity(PinActivity.newIntent(this))
-                    finish()
+                    startActivity(
+                        PinActivity.newIntent(
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.LOADER_SCREEN,
+                            addFlagsToClear = true
+                        )
+                    )
                 } else {
                     startSingleActivity(PinEntryActivity::class.java)
                 }

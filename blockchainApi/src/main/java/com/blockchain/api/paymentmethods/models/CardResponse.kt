@@ -33,9 +33,11 @@ data class SimpleBuyConfirmationAttributes(
     @SerialName("disable3DS")
     private val disable3DS: Boolean? = null,
     @SerialName("isMitPayment")
-    private val isMitPayment: Boolean? = null,
+    private val isMitPayment: Boolean? = false,
     @SerialName("googlePayPayload")
-    private val googlePayPayload: String? = null
+    private val googlePayPayload: String? = null,
+    @SerialName("cvv")
+    private val cvv: String? = null
 )
 
 @Serializable

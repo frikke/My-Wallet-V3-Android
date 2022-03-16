@@ -127,7 +127,8 @@ data class TransactionState(
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
-    val locks: FundsLocks? = null
+    val locks: FundsLocks? = null,
+    val shouldShowSendToDomainBanner: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -319,6 +320,8 @@ class TransactionModel(
                 available = previousState.availableBalance
             )
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
+            is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
+            is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -326,6 +329,7 @@ class TransactionModel(
             is TransactionIntent.ClearSelectedTarget,
             TransactionIntent.TransactionApprovalDenied,
             TransactionIntent.ApprovalTriggered,
+            is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
             is TransactionIntent.FiatDepositOptionSelected -> null
         }
@@ -604,6 +608,28 @@ class TransactionModel(
                 onError = {
                     process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.Error(it)))
                     Timber.e("Error getting Fiat deposit options. $it")
+                }
+            )
+
+    private fun processLoadSendToDomainPrefs(prefsKey: String) =
+        interactor.loadSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
+                }
+            )
+
+    private fun processDismissSendToDomainPrefs(prefsKey: String) =
+        interactor.dismissSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
                 }
             )
 

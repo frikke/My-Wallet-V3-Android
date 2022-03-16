@@ -12,6 +12,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -453,7 +454,7 @@ class MainActivity :
                 .subscribeBy(
                     onSuccess = { sourceAccount ->
                         startActivity(
-                            TransactionFlowActivity.newInstance(
+                            TransactionFlowActivity.newIntent(
                                 context = this,
                                 sourceAccount = sourceAccount,
                                 target = targetAddress,
@@ -783,6 +784,13 @@ class MainActivity :
         launchBuySell()
     }
 
+    override fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean) {
+        supportFragmentManager.popBackStack(
+            fragmentName,
+            if (popInclusive) POP_BACK_STACK_INCLUSIVE else 0
+        )
+    }
+
     override fun logout() {
         analytics.logEvent(AnalyticsEvents.Logout)
         model.process(MainIntent.UnpairWallet)
@@ -850,7 +858,7 @@ class MainActivity :
             actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
         } else if (sourceAccount != null) {
             startActivity(
-                TransactionFlowActivity.newInstance(
+                TransactionFlowActivity.newIntent(
                     context = this,
                     sourceAccount = sourceAccount,
                     target = targetAccount ?: NullCryptoAccount(),

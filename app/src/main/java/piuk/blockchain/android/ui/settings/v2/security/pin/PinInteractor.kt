@@ -41,6 +41,10 @@ class PinInteractor internal constructor(
         return biometricsController.isBiometricUnlockEnabled && (!isCreatingNewPin() || !isConfirmingPin())
     }
 
+    fun disableBiometrics() {
+        biometricsController.setBiometricUnlockDisabled()
+    }
+
     fun isCreatingNewPin(): Boolean = authPrefs.pinId.isEmpty()
 
     fun isConfirmingPin(): Boolean = isCreatingNewPin() && pinRepository.pin.isNotEmpty()

@@ -6,13 +6,13 @@ import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ApiCode
-import info.blockchain.wallet.api.data.SignedToken
 import info.blockchain.wallet.api.data.Status
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.payload.data.WalletBase
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import java.security.SecureRandom
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -33,6 +33,7 @@ class WalletApiTest {
         val sessionId = ""
         val encryptedPayload = getStringFromResource("encrypted-payload.txt")
         val response = Response.success(encryptedPayload.toResponseBody("plain/text".toMediaTypeOrNull()))
+        val withKotlinX: Boolean = true
 
         whenever(
             walletExplorerEndpoints.fetchEncryptedPayload(
@@ -48,7 +49,7 @@ class WalletApiTest {
 
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
             .waitForCompletionWithoutErrors().assertValue {
-                WalletBase.fromJson(it.body()!!.string()).guid == "a09910d9-1906-4ea1-a956-2508c3fe0661"
+                WalletBase.fromJson(it.body()!!.string(), withKotlinX).guid == "a09910d9-1906-4ea1-a956-2508c3fe0661"
             }
     }
 
@@ -160,36 +161,14 @@ class WalletApiTest {
                 api.apiCode
             )
         ).thenReturn(
-            Observable.just(Response.success(200, Status.fromJson("{ \"success\": \"$keyReturned\"}")))
+            Observable.just(
+                Response.success(200, Json.decodeFromString<Status>("{ \"success\": \"$keyReturned\"}"))
+            )
         )
 
         subject.validateAccess(key, pin).test()
             .waitForCompletionWithoutErrors().assertValue {
                 it.body()!!.success == keyReturned
-            }
-    }
-
-    @Test
-    fun `get signed Json token should be successful`() {
-        val verifiedGuid = "cc3b7469-2b45-4af6-ac49-480d75a70d0f"
-        val verifiedSharedKey = "7dc0efed-a548-4732-8488-7bbb3f345f9b"
-        val partner = "coinify"
-
-        val expectedToken = SignedToken(true, "token", null)
-        whenever(
-            walletExplorerEndpoints.getSignedJsonToken(
-                verifiedGuid,
-                verifiedSharedKey,
-                "email%7Cwallet_age",
-                partner, api.apiCode
-            )
-        ).thenReturn(
-            Single.just(expectedToken)
-        )
-
-        subject.getSignedJsonToken(verifiedGuid, verifiedSharedKey, partner).test()
-            .waitForCompletionWithoutErrors().assertValue {
-                it == expectedToken.token
             }
     }
 }

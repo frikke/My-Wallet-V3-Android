@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -31,24 +32,20 @@
             <ViewSwitcher
                 android:id="@+id/asset_prices_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
-                <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
+                <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_prices_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.blockchain.componentlib.charts.BalanceView
                     android:id="@+id/asset_price"
@@ -59,19 +56,14 @@
             <ViewSwitcher
                 android:id="@+id/asset_chart_view_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="240dp">
+                android:layout_height="240dp"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
-                <ProgressBar
+                <com.blockchain.componentlib.system.LoadingChartView
                     android:id="@+id/asset_chart_loading"
-                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/standard_margin"
-                    android:layout_marginEnd="@dimen/standard_margin"
-                    android:indeterminate="true"
-                    android:indeterminateTint="@color/blue_600"
-                    android:indeterminateTintMode="src_in" />
+                    android:layout_height="wrap_content" />
 
                 <com.blockchain.charts.ChartView
                     android:id="@+id/asset_chart"
@@ -88,24 +80,20 @@
             <ViewSwitcher
                 android:id="@+id/asset_balances_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
-                <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
+                <com.blockchain.componentlib.system.LoadingTableRowView
                     android:id="@+id/asset_balances_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
                     android:id="@+id/asset_balance"
@@ -113,27 +101,49 @@
                     android:layout_height="wrap_content" />
             </ViewSwitcher>
 
+            <com.blockchain.componentlib.alert.CardAlertView
+                android:id="@+id/non_tradeable_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginBottom="@dimen/medium_margin"
+                android:visibility="gone" />
+
             <ViewSwitcher
                 android:id="@+id/asset_accounts_view_switcher"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@anim/fade_in"
+                android:outAnimation="@anim/fade_out">
 
-                <!-- TODO(dserrano-bc): WCL-37 replace this with shimmer component -->
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/asset_accounts_loading"
-                    android:layout_width="@dimen/animated_loader_view"
-                    android:layout_height="@dimen/animated_loader_view"
-                    android:layout_gravity="center"
-                    android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="lottie/loader.json"
-                    app:lottie_imageAssetsFolder="lottie/loader.json"
-                    app:lottie_loop="true"
-                    app:lottie_repeatMode="restart" />
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.blockchain.componentlib.system.LoadingTableRowView
+                        android:id="@+id/asset_accounts_loading_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.blockchain.componentlib.system.LoadingTableRowView
+                        android:id="@+id/asset_accounts_loading_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="visible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/asset_list"
@@ -157,7 +167,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginEnd="@dimen/standard_margin" />
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone" />
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/asset_about_blurb"
@@ -165,7 +176,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin" />
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone" />
 
             <com.blockchain.componentlib.basic.SimpleTextView
                 android:id="@+id/asset_website"
@@ -174,7 +186,8 @@
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
-                android:paddingBottom="@dimen/very_small_margin" />
+                android:paddingBottom="@dimen/very_small_margin"
+                android:visibility="gone" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.core.widget.NestedScrollView>
 

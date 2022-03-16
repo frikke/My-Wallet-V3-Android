@@ -7,7 +7,6 @@ import android.widget.TextView
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.utils.MPPointF
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -16,32 +15,58 @@ internal class ScrubMarker(
     datePattern: String,
     layoutResource: Int = R.layout.scrub_marker
 ) : MarkerView(context, layoutResource) {
+    private var uiScreenWidth = 0
+    private lateinit var currentHighlight: Highlight
+
+    init {
+        uiScreenWidth = resources.displayMetrics.widthPixels
+    }
 
     private val date = findViewById<TextView>(R.id.date)
     private val simpleDateFormat = SimpleDateFormat(datePattern, Locale.getDefault())
 
     @SuppressLint("SetTextI18n")
     override fun refreshContent(e: Entry, highlight: Highlight) {
-        date.text = simpleDateFormat.format(e.x * 1000L)
+        currentHighlight = highlight
+
+        when (highlight) {
+            is PeakHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
+            is TroughHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
+            else -> date.text = simpleDateFormat.format(e.x * 1000L)
+        }
         super.refreshContent(e, highlight)
-    }
-
-    override fun getOffset(): MPPointF {
-        return MPPointF((-width).toFloat(), 0f)
-    }
-
-    override fun getOffsetForDrawingAtPoint(posX: Float, posY: Float): MPPointF {
-        return MPPointF((-width).toFloat() / 2, 0f)
     }
 
     override fun draw(canvas: Canvas?, posX: Float, posY: Float) {
         if (canvas == null) return
+        // Check marker position and update offsets.
+        val w = width
+        var xPos = posX
+        if (uiScreenWidth - posX - w < w) {
+            xPos -= w
+        }
 
-        val offset = getOffsetForDrawingAtPoint(posX, posY)
+        when {
+            ::currentHighlight.isInitialized && currentHighlight is PeakHighlight -> {
+                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MAX)
+                draw(canvas)
+                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MAX)
+            }
+            ::currentHighlight.isInitialized && currentHighlight is TroughHighlight -> {
+                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MIN)
+                draw(canvas)
+                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MIN)
+            }
+            else -> {
+                canvas.translate(xPos, 0f)
+                draw(canvas)
+                canvas.translate(-xPos, 0f)
+            }
+        }
+    }
 
-        val saveId = canvas.save()
-        canvas.translate(posX + offset.x, 0f)
-        draw(canvas)
-        canvas.restoreToCount(saveId)
+    companion object {
+        private const val VERTICAL_ADJUSTMENT_MIN = 20
+        private const val VERTICAL_ADJUSTMENT_MAX = 60
     }
 }

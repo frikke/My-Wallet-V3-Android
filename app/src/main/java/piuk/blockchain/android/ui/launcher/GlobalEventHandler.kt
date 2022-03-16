@@ -132,7 +132,7 @@ class GlobalEventHandler(
     }
 
     private fun startTransactionFlowForSigning(event: WalletConnectUserEvent) {
-        val intent = TransactionFlowActivity.newInstance(
+        val intent = TransactionFlowActivity.newIntent(
             application,
             sourceAccount = event.source,
             target = event.target,

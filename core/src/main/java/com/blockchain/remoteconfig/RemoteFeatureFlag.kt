@@ -12,6 +12,8 @@ interface ABTestExperiment {
 
 interface RemoteConfig {
 
+    fun isFeatureEnabled(key: String): Boolean
+
     fun getIfFeatureEnabled(key: String): Single<Boolean>
 
     fun getRawJson(key: String): Single<String>
@@ -66,6 +68,10 @@ class RemoteConfiguration(
             it.getString(key)
         }
 
+    override fun isFeatureEnabled(key: String): Boolean {
+        return remoteConfig.getBoolean(key)
+    }
+
     override fun getIfFeatureEnabled(key: String): Single<Boolean> =
         configuration.map { it.getBoolean(key) }
 
@@ -80,4 +86,7 @@ fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : 
     override val key: String = key
     override val readableName: String = name
     override val enabled: Single<Boolean> get() = getIfFeatureEnabled(key)
+    override val isEnabled: Boolean by lazy {
+        isFeatureEnabled(key)
+    }
 }

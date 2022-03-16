@@ -29,4 +29,7 @@ interface TargetSelectionCustomisations {
     fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState
     fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String
     fun installAddressSheetSource(ctx: Context, frame: FrameLayout, state: TransactionState): TxFlowWidget
+    fun sendToDomainCardTitle(state: TransactionState): String
+    fun sendToDomainCardDescription(state: TransactionState): String
+    fun shouldShowSendToDomainBanner(state: TransactionState): Boolean
 }

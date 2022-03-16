@@ -10,9 +10,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.models.data.RecurringBuy
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 
 data class CoinViewState(
@@ -28,28 +26,52 @@ sealed class CoinViewViewState {
     object None : CoinViewViewState()
     object LoadingWallets : CoinViewViewState()
     object LoadingChart : CoinViewViewState()
-    class ShowAccountInfo(val assetInfo: AssetInformation) : CoinViewViewState()
+    object LoadingRecurringBuys : CoinViewViewState()
+    object LoadingQuickActions : CoinViewViewState()
+    class ShowAccountInfo(val assetInfo: AssetInformation.AccountsInfo) : CoinViewViewState()
     class ShowAssetInfo(
         val entries: List<ChartEntry>,
         val prices: Prices24HrWithDelta,
         val historicalRateList: HistoricalRateList,
         val selectedFiat: FiatCurrency
     ) : CoinViewViewState()
+
+    class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>) : CoinViewViewState()
+    class QuickActionsLoaded(
+        val startAction: QuickActionCta,
+        val endAction: QuickActionCta,
+        val actionableAccount: BlockchainAccount
+    ) : CoinViewViewState()
+    object NonTradeableAccount : CoinViewViewState()
+}
+
+enum class QuickActionCta {
+    Buy, Sell, Send, Receive
 }
 
 enum class CoinViewError {
     None,
     UnknownAsset,
     WalletLoadError,
-    ChartLoadError
+    ChartLoadError,
+    RecurringBuysLoadError,
+    QuickActionsFailed
 }
 
-data class AssetInformation(
-    val prices: Prices24HrWithDelta,
-    val accountsList: List<AssetDisplayInfo>,
-    val totalCryptoBalance: CryptoValue,
-    val totalFiatBalance: FiatValue
-)
+sealed class AssetInformation(
+    open val prices: Prices24HrWithDelta,
+) {
+    data class AccountsInfo(
+        override val prices: Prices24HrWithDelta,
+        val accountsList: List<AssetDisplayInfo>,
+        val totalCryptoBalance: Money,
+        val totalFiatBalance: Money
+    ) : AssetInformation(prices)
+
+    class NonTradeable(
+        override val prices: Prices24HrWithDelta,
+    ) : AssetInformation(prices)
+}
 
 sealed class AssetDetailsItem {
     data class CryptoDetailsInfo(

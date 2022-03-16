@@ -112,7 +112,7 @@ private class AssetWalletViewHolder(
                     }
                     accountIcon.indicator?.let {
                         startImageResource =
-                            ImageResource.LocalWithBackgroundAndExternalFilterResources(it, asset.colour, "#FFFFFF", 1F)
+                            ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
                     }
                 }
             } else {

@@ -1,6 +1,5 @@
 package info.blockchain.wallet.api
 
-import com.blockchain.api.ApiException
 import com.blockchain.utils.withBearerPrefix
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -260,23 +259,6 @@ class WalletApi(
 
     val walletOptions: Observable<WalletOptions>
         get() = explorerInstance.getWalletOptions(api.apiCode)
-
-    fun getSignedJsonToken(guid: String, sharedKey: String, partner: String?): Single<String> {
-        return explorerInstance.getSignedJsonToken(
-            guid,
-            sharedKey,
-            "email%7Cwallet_age",
-            partner,
-            api.apiCode
-        )
-            .map { signedToken ->
-                if (!signedToken.isSuccessful) {
-                    throw ApiException(signedToken.error)
-                } else {
-                    signedToken.token
-                }
-            }
-    }
 
     fun createSessionId(email: String): Single<ResponseBody> =
         explorerInstance.createSessionId(email, api.apiCode)

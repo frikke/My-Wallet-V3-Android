@@ -46,7 +46,7 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
-    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag = mock()
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
@@ -54,7 +54,7 @@ class EthDataManagerTest {
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
         lastTxUpdater = lastTxUpdater,
-        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag
+        kotlinSerializerFeatureFlag = kotlinSerializerFeatureFlag
     )
 
     @Test
@@ -286,9 +286,11 @@ class EthDataManagerTest {
         val hash = "HASH"
         val notes = "NOTES"
         val ethereumWallet: EthereumWallet = mock()
+        val withKotlinX = true
         whenever(ethDataStore.ethWallet).thenReturn(ethereumWallet)
-        whenever(ethDataStore.ethWallet!!.toJson()).thenReturn("{}")
+        whenever(ethDataStore.ethWallet!!.toJson(any())).thenReturn("{}")
         whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
         // Act
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
         // Assert
