@@ -20,7 +20,6 @@ interface LauncherView : MvpView {
     fun onNoGuid()
     fun onRequestPin()
     fun onReenterPassword()
-    fun onLaunchDeepLink(intentData: String?)
 }
 
 data class ViewIntentData(
@@ -36,9 +35,7 @@ class LauncherPresenter internal constructor(
     private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val envSettings: EnvironmentConfig,
-    private val authPrefs: AuthPrefs,
-    private val securityPrefs: SecurityPrefs,
-    private val deeplinkingV2FF: FeatureFlag
+    private val authPrefs: AuthPrefs
 ) : MvpPresenter<LauncherView>() {
 
     override fun onViewAttached() {
@@ -74,18 +71,9 @@ class LauncherPresenter internal constructor(
         val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
         val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()
         val hasLoggedIn = walletId.isNotEmpty() && pinId.isNotEmpty()
-        var skipPinAndProcessDeeplink = false
-        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    skipPinAndProcessDeeplink = !securityPrefs.isPinRequired && viewIntentData?.data != null
-                }
-            }
-        )
 
         when {
             isWalletIdInValid -> view?.onCorruptPayload()
-            skipPinAndProcessDeeplink -> view?.onLaunchDeepLink(viewIntentData?.data)
             hasLoggedIn -> view?.onRequestPin()
             hasUnPairedWallet -> view?.onReenterPassword()
             walletId.isEmpty() -> if (hasBackup) view?.onRequestPin() else view?.onNoGuid()

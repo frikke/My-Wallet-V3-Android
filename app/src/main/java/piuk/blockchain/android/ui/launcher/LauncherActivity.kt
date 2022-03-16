@@ -11,11 +11,12 @@ import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.json.JSONException
+import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -35,14 +36,34 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         }
     }
 
-    override fun getViewIntentData(): ViewIntentData =
-        ViewIntentData(
+    override fun getViewIntentData(): ViewIntentData {
+        val deeplinkURL =
+            when {
+                intent.data != null -> intent.data.toString()
+                intent.hasExtra("data") -> {
+                    try {
+                        val jsonObject = JSONObject(intent.getStringExtra("data"))
+                        if (jsonObject.has("deepLinkURL")) {
+                            jsonObject.getString("deepLinkURL")
+                        } else {
+                            null
+                        }
+                    } catch (e: JSONException) {
+                        Timber.e(e)
+                        null
+                    }
+                }
+                else -> null
+            }
+
+        return ViewIntentData(
             action = intent.action,
             scheme = intent.scheme,
             dataString = intent.dataString,
-            data = intent.data?.toString(),
+            data = deeplinkURL,
             isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
         )
+    }
 
     override fun onNoGuid() {
         Handler(Looper.getMainLooper()).postDelayed({
@@ -78,26 +99,15 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             .show()
     }
 
-    override fun onLaunchDeepLink(intentData: String?) {
-        startActivity(
-            MainActivity.newIntent(
-                context = this,
-                intentData = intentData,
-                shouldLaunchUiTour = false,
-                shouldBeNewTask = true
-            )
-        )
-    }
-
-    private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
-        val intent = Intent(this, clazz).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-            data = uri
-        }
-        Timber.d("DeepLink: Starting Activity $clazz with: $uri")
-        extras?.let { intent.putExtras(extras) }
-        startActivity(intent)
-    }
+   private fun startSingleActivity(clazz: Class<*>, extras: Bundle?, uri: Uri? = null) {
+       val intent = Intent(this, clazz).apply {
+           addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+           data = uri
+       }
+       Timber.d("DeepLink: Starting Activity $clazz with: $uri")
+       extras?.let { intent.putExtras(extras) }
+       startActivity(intent)
+   }
 
     override val presenter: LauncherPresenter by inject()
     override val view: LauncherView
@@ -113,3 +123,4 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             }
     }
 }
+

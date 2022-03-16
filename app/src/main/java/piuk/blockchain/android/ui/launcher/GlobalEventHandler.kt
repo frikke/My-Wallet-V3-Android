@@ -11,6 +11,7 @@ import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.extensions.exhaustive
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
@@ -46,22 +47,37 @@ class GlobalEventHandler(
             startTransactionFlowForSigning(event)
         }
 
+        Timber.d("deeplink: init global event handler")
         compositeDisposable += deeplinkRedirector.deeplinkEvents.subscribe { deeplinkResult ->
+            Timber.d("deeplink: new deeplinkResult")
             navigateToDeeplinkDestination(deeplinkResult)
         }
     }
 
     private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult.DeepLinkResultSuccess) {
-        var intent: Intent? = null
+        if (deeplinkResult.notificationPayload != null) {
+            triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
+        } else {
+            Timber.d("deeplink: Starting main activity with pending destination")
+            application.startActivity(
+                MainActivity.newIntent(
+                    context = application,
+                    pendingDestination = deeplinkResult.destination
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
 
-        val destination = deeplinkResult.destination
+    }
+
+    private fun triggerNotificationFromDeeplink(destination: Destination, notificationPayload: NotificationPayload) {
+        var intent: Intent? = null
         when (destination) {
             is Destination.AssetViewDestination -> {
                 val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)
                 if (assetInfo != null) {
-                    intent =  CoinViewActivity.newIntent(
-                            context = application,
-                            asset = assetInfo
+                    intent = CoinViewActivity.newIntent(
+                        context = application,
+                        asset = assetInfo
                     ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 } else {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
@@ -72,8 +88,8 @@ class GlobalEventHandler(
                 val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.code)
                 if (assetInfo != null) {
                     intent = SimpleBuyActivity.newIntent(
-                            context = application,
-                            asset = assetInfo
+                        context = application,
+                        asset = assetInfo
                     )
                 } else {
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
@@ -86,15 +102,15 @@ class GlobalEventHandler(
                         context = application,
                         pendingDestination = destination
                     )
-
             }
         }.exhaustive
 
         if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             val pendingIntent = PendingIntent.getActivity(
                 application,
                 0,
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
 
@@ -104,9 +120,9 @@ class GlobalEventHandler(
                     notificationManager = notificationManager,
                     analytics = analytics
                 ).triggerNotification(
-                    title = deeplinkResult.notificationPayload?.title ?: "",
-                    marquee = deeplinkResult.notificationPayload?.title ?: "",
-                    text = deeplinkResult.notificationPayload?.body ?: "",
+                    title = notificationPayload?.title ?: "",
+                    marquee = notificationPayload?.title ?: "",
+                    text =notificationPayload?.body ?: "",
                     pendingIntent = pendingIntent,
                     id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
                     appName = R.string.app_name,

@@ -9,8 +9,8 @@ import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -51,7 +51,7 @@ import timber.log.Timber
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
-    private val deeplinkProcessorV2: DeeplinkProcessorV2,
+    private val deeplinkRedirector: DeeplinkRedirector,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
@@ -172,8 +172,8 @@ class MainInteractor internal constructor(
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)
 
-    fun processDeepLinkV2(uri: Uri): Single<DeepLinkResult> =
-        deeplinkProcessorV2.process(uri)
+    fun processDeepLinkV2(url: Uri) =
+        deeplinkRedirector.processDeeplinkURL(url)
 
     fun clearDeepLink(): Completable =
         Completable.fromAction {

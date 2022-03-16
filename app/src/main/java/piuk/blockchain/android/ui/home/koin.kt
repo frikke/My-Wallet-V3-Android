@@ -29,7 +29,7 @@ val mainModule = module {
         factory {
             MainInteractor(
                 deepLinkProcessor = get(),
-                deeplinkProcessorV2 = get(),
+                deeplinkRedirector = get(),
                 deepLinkPersistence = get(),
                 exchangeLinking = get(),
                 exchangePrefs = get(),

@@ -15,7 +15,7 @@ class DeeplinkRedirector(private val deeplinkProcessorV2: DeeplinkProcessorV2) {
     val deeplinkEvents: Observable<DeepLinkResult.DeepLinkResultSuccess>
         get() = _deeplinkEvents
 
-    fun processDeeplinkURL(url: Uri, payload: NotificationPayload) =
+    fun processDeeplinkURL(url: Uri, payload: NotificationPayload? = null) =
         deeplinkProcessorV2.process(url, payload).subscribeBy(
         onSuccess = { result ->
             if (result is DeepLinkResult.DeepLinkResultSuccess)

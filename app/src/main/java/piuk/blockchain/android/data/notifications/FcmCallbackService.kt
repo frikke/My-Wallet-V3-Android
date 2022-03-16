@@ -166,7 +166,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private fun isSecureChannelMessage(payload: NotificationPayload) =
         payload.type == NotificationPayload.NotificationType.SECURE_CHANNEL_MESSAGE
 
-    private fun createSecureChannelIntent(payload: MutableMap<String, String>, foreground: Boolean): Maybe<Intent> {
+    private fun createSecureChannelIntent(payload: Map<String, String?>, foreground: Boolean): Maybe<Intent> {
         val pubKeyHash = payload[NotificationPayload.PUB_KEY_HASH]
             ?: return Maybe.empty()
         val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]

@@ -115,12 +115,7 @@ class MainModel(
                     onSuccess = { isEnabled ->
                         if (isEnabled) {
                             intent.appIntent.data?.let { uri ->
-                                interactor.processDeepLinkV2(uri).subscribeBy(
-                                    onSuccess = {
-                                        process(MainIntent.UpdateDeepLinkResult(it))
-                                    },
-                                    onError = { Timber.e(it) }
-                                )
+                                interactor.processDeepLinkV2(uri)
                             }
                         } else {
                             interactor.checkForDeepLinks(intent.appIntent)
