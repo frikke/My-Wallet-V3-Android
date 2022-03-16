@@ -25,6 +25,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.sheets.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
@@ -36,7 +37,8 @@ enum class AssetDetailsStep(val addToBackStack: Boolean = false) {
     ASSET_DETAILS(true),
     RECURRING_BUY_DETAILS(true),
     ASSET_ACTIONS(true),
-    SELECT_ACCOUNT(true)
+    SELECT_ACCOUNT(true),
+    KYC_UPGRADE_NOW(true)
 }
 
 class FullScreenCoinViewFlow(
@@ -49,7 +51,7 @@ class FullScreenCoinViewFlow(
 
 class AssetDetailsFlow(
     val asset: AssetInfo
-) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost {
+) : DialogFlow(), KoinComponent, AccountSelectSheet.SelectAndBackHost, KycUpgradeNowSheet.Host {
 
     interface AssetDetailsHost : FlowHost {
         fun performAssetActionFor(action: AssetAction, account: BlockchainAccount)
@@ -58,6 +60,7 @@ class AssetDetailsFlow(
         fun goToInterestWithdraw(fromAccount: InterestAccount) {}
         fun goToInterestDashboard() {}
         fun goToSummary(account: CryptoAccount) {}
+        fun goToKyc()
         fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess)
     }
 
@@ -106,6 +109,10 @@ class AssetDetailsFlow(
             assetFlowHost.goToInterestDashboard()
         }
 
+        if (newState.navigateToKyc) {
+            assetFlowHost.goToKyc()
+        }
+
         localState = newState
     }
 
@@ -126,6 +133,7 @@ class AssetDetailsFlow(
                     }
                 )
                 AssetDetailsStep.RECURRING_BUY_DETAILS -> RecurringBuyDetailsSheet.newInstance()
+                AssetDetailsStep.KYC_UPGRADE_NOW -> KycUpgradeNowSheet.newInstance(isHostAssetDetailsFlow = true)
             }
         )
     }
@@ -318,6 +326,11 @@ class AssetDetailsFlow(
 
     override fun onAccountSelectorBack() {
         model.process(ReturnToPreviousStep)
+    }
+
+    override fun startKycClicked() {
+        assetFlowHost.goToKyc()
+        finishFlow()
     }
 
     override fun onSheetClosed() {

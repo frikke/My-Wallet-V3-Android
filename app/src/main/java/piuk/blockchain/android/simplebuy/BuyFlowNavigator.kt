@@ -6,16 +6,19 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 
 class BuyFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag
 ) {
 
     val currentState: SimpleBuyState
@@ -74,30 +77,61 @@ class BuyFlowNavigator(
         preselectedCrypto: AssetInfo?,
         failOnUnavailableCurrency: Boolean = false
     ): Single<BuyNavigation> {
-
         val cryptoCurrency = preselectedCrypto
             ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
 
-        return currencyCheck().flatMap { currencySupported ->
-            if (!currencySupported) {
-                if (!failOnUnavailableCurrency) {
-                    custodialWalletManager.getSupportedFiatCurrencies().map {
-                        BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
+        return entitySwitchSilverEligibilityFeatureFlag.enabled
+            .onErrorReturnItem(false)
+            .flatMap { enabled ->
+                if (enabled) {
+                    Singles.zip(
+                        currencyCheck(),
+                        userIdentity.userAccessForFeature(Feature.Buy)
+                    ).flatMap { (currencySupported, eligibility) ->
+                        if (eligibility is FeatureAccess.Blocked) {
+                            Single.just(BuyNavigation.TransactionsLimitReached)
+                        } else if (!currencySupported) {
+                            if (!failOnUnavailableCurrency) {
+                                custodialWalletManager.getSupportedFiatCurrencies().map {
+                                    BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
+                                }
+                            } else {
+                                Single.just(BuyNavigation.CurrencyNotAvailable)
+                            }
+                        } else {
+                            checkForEligibilityOrPendingOrders().switchIfEmpty(
+                                stateCheck(
+                                    startedFromKycResume,
+                                    startedFromDashboard,
+                                    startedFromApprovalDeepLink,
+                                    cryptoCurrency
+                                )
+                            )
+                        }
                     }
                 } else {
-                    Single.just(BuyNavigation.CurrencyNotAvailable)
+                    currencyCheck().flatMap { currencySupported ->
+                        if (!currencySupported) {
+                            if (!failOnUnavailableCurrency) {
+                                custodialWalletManager.getSupportedFiatCurrencies().map {
+                                    BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
+                                }
+                            } else {
+                                Single.just(BuyNavigation.CurrencyNotAvailable)
+                            }
+                        } else {
+                            checkForEligibilityOrPendingOrders().switchIfEmpty(
+                                stateCheck(
+                                    startedFromKycResume,
+                                    startedFromDashboard,
+                                    startedFromApprovalDeepLink,
+                                    cryptoCurrency
+                                )
+                            )
+                        }
+                    }
                 }
-            } else {
-                checkForEligibilityOrPendingOrders().switchIfEmpty(
-                    stateCheck(
-                        startedFromKycResume,
-                        startedFromDashboard,
-                        startedFromApprovalDeepLink,
-                        cryptoCurrency
-                    )
-                )
             }
-        }
     }
 
     private fun checkForEligibilityOrPendingOrders(): Maybe<BuyNavigation> =
@@ -105,7 +139,7 @@ class BuyFlowNavigator(
             when (access) {
                 FeatureAccess.NotRequested,
                 FeatureAccess.Unknown,
-                FeatureAccess.Granted -> Maybe.empty()
+                is FeatureAccess.Granted -> Maybe.empty()
                 is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access))
             }
         }
@@ -123,4 +157,5 @@ sealed class BuyNavigation {
     data class BlockBuy(val access: FeatureAccess.Blocked) : BuyNavigation()
     object CurrencyNotAvailable : BuyNavigation()
     object OrderInProgressScreen : BuyNavigation()
+    object TransactionsLimitReached : BuyNavigation()
 }

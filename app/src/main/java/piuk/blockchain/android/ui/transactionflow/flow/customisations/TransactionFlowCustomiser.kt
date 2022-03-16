@@ -1086,6 +1086,7 @@ class TransactionFlowCustomiserImpl(
     override fun getScreenTitle(state: TransactionState): String =
         when (state.currentStep) {
             TransactionStep.ENTER_PASSWORD -> resources.getString(R.string.transfer_second_pswd_title)
+            TransactionStep.NOT_ELIGIBLE -> resources.getString(R.string.kyc_upgrade_now_toolbar)
             TransactionStep.SELECT_SOURCE -> selectSourceAccountTitle(state)
             TransactionStep.ENTER_ADDRESS -> selectTargetAddressTitle(state)
             TransactionStep.SELECT_TARGET_ACCOUNT -> selectTargetAccountTitle(state)

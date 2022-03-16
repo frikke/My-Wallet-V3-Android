@@ -19,6 +19,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -49,6 +50,7 @@ internal class EthAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
+    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val formatUtils: FormatUtilities,
     addressResolver: EthHotWalletAddressResolver
 ) : CryptoAssetBase(
@@ -62,6 +64,7 @@ internal class EthAsset(
     pitLinking,
     crashLogger,
     identity,
+    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ),
     NonCustodialSupport {
@@ -90,6 +93,7 @@ internal class EthAsset(
                         exchangeRates = exchangeRates,
                         custodialWalletManager = custodialManager,
                         identity = identity,
+                        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
                         assetCatalogue = assetCatalogue.value,
                         addressResolver = addressResolver
                     )
@@ -109,7 +113,8 @@ internal class EthAsset(
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity
+                    identity = identity,
+                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag
                 )
             )
         )

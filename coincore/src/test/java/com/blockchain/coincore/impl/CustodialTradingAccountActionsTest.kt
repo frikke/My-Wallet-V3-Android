@@ -10,7 +10,9 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -27,6 +29,9 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     @Before
     fun setup() {
@@ -253,6 +258,30 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
+    fun `If user has actionable balance and all default Actions, but no crypto buy pair then buy action should not be present`() {
+        // Arrange
+        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+
+        configureActionTest(
+            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
+            simpleBuy = true,
+            interest = true,
+            supportedFiat = listOf(USD),
+            custodialAccess = true
+        )
+
+        whenever(custodialManager.getSupportedBuySellCryptoCurrencies()).thenReturn(Single.just(emptyList()))
+
+        // Act
+        subject.actions
+            .test()
+            .assertValue {
+                !it.contains(AssetAction.Buy)
+            }
+    }
+
+    @Test
     fun `Unsupported actions are ignored`() {
 
         // Arrange
@@ -292,6 +321,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             custodialWalletManager = custodialManager,
             tradingBalances = tradingBalances,
             identity = identity,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             baseActions = actions
         )
 
@@ -307,12 +337,18 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
             Single.just(
                 if (simpleBuy) {
-                    FeatureAccess.Granted
+                    FeatureAccess.Granted()
                 } else {
                     FeatureAccess.Blocked(BlockedReason.NotEligible)
                 }
             )
         )
+
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(identity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(identity.userAccessForFeature(Feature.CryptoDeposit)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialManager.getSupportedBuySellCryptoCurrencies())
+            .thenReturn(Single.just(listOf(CurrencyPair(TEST_ASSET, USD))))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
@@ -320,7 +356,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         whenever(identity.userAccessForFeature(Feature.CustodialAccounts)).thenReturn(
             Single.just(
                 if (custodialAccess) {
-                    FeatureAccess.Granted
+                    FeatureAccess.Granted()
                 } else {
                     FeatureAccess.Blocked(BlockedReason.NotEligible)
                 }

@@ -19,6 +19,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -48,6 +49,7 @@ internal class Erc20Asset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
+    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities,
@@ -63,6 +65,7 @@ internal class Erc20Asset(
     pitLinking,
     crashLogger,
     identity,
+    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ) {
     private val erc20address
@@ -91,7 +94,8 @@ internal class Erc20Asset(
                         custodialWalletManager = custodialManager,
                         tradingBalances = tradingBalances,
                         identity = identity,
-                        baseActions = availableCustodialActions
+                        baseActions = availableCustodialActions,
+                        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag
                     )
                 )
             )
@@ -112,6 +116,7 @@ internal class Erc20Asset(
             custodialManager,
             availableNonCustodialActions,
             identity,
+            entitySwitchSilverEligibilityFeatureFlag,
             addressResolver
         )
 

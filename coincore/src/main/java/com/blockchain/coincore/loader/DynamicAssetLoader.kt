@@ -18,6 +18,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -53,6 +54,7 @@ internal class DynamicAssetLoader(
     private val pitLinking: PitLinking,
     private val crashLogger: CrashLogger,
     private val identity: UserIdentity,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val formatUtils: FormatUtilities,
     private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver
@@ -184,6 +186,7 @@ internal class DynamicAssetLoader(
             pitLinking = pitLinking,
             crashLogger = crashLogger,
             identity = identity,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             addressValidation = defaultCustodialAddressValidation,
             availableActions = assetActions,
             addressResolver = identityAddressResolver
@@ -208,10 +211,11 @@ internal class DynamicAssetLoader(
             pitLinking = pitLinking,
             walletPreferences = walletPreferences,
             identity = identity,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             availableCustodialActions = assetActions,
             availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
-            addressResolver = ethHotWalletAddressResolver
+            addressResolver = ethHotWalletAddressResolver,
         )
     }
 

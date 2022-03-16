@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.createwallet
 
 import androidx.annotation.StringRes
 import com.blockchain.api.services.Geolocation
-import com.blockchain.core.CountryIso
-import com.blockchain.core.EligibilityDataManager
+import com.blockchain.core.eligibility.CountryIso
+import com.blockchain.core.eligibility.EligibilityDataManager
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.notifications.analytics.Analytics

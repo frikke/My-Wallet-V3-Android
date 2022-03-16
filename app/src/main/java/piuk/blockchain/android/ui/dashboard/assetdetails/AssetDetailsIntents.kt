@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -24,7 +24,7 @@ class ShowAssetActionsIntent(
 
 class AccountActionsLoaded(
     private val account: BlockchainAccount,
-    private val actions: AvailableActions
+    private val actions: Set<StateAwareAction>
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(
@@ -67,6 +67,16 @@ class HandleActionIntent(
 ) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(hostAction = action)
+}
+
+object HandleActionIntentLockedForTier : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(assetDetailsCurrentStep = AssetDetailsStep.KYC_UPGRADE_NOW)
+}
+
+object NavigateToKyc : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(navigateToKyc = true)
 }
 
 object SelectAccount : AssetDetailsIntent() {

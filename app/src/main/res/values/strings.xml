@@ -1793,6 +1793,7 @@
     <string name="tx_enter_amount_transfer_cta">Preview Transfer</string>
     <string name="tx_enter_amount_deposit_cta">Preview Deposit</string>
     <string name="tx_enter_amount_withdraw_cta">Preview Withdrawal</string>
+    <string name="tx_enter_amount_orders_limit_info">%1$d Transaction Allowed, Verify Now -></string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -2505,15 +2506,15 @@
     <string name="feature_limits_gold_limits_description">Includes Silver Features</string>
     <string name="feature_limits_tier_state_approved">Approved</string>
     <string name="feature_limits_error">There was a problem retrieving your limits information.</string>
-    <string name="kyc_upgrade_now_title">Upgrade Now</string>
-    <string name="kyc_upgrade_now_gold_title">Gold Limits</string>
-    <string name="kyc_upgrade_now_gold_description">Buy &amp; Sell. Earn Rewards.</string>
-    <string name="kyc_upgrade_now_gold_info_1">Connect your bank or card to your Wallet. Hold cash in your wallet. Earn crypto with Rewards.</string>
-    <string name="kyc_upgrade_now_gold_info_2">Includes all Silver limits and features.</string>
-    <string name="kyc_upgrade_now_silver_title">Silver Limits</string>
-    <string name="kyc_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
-    <string name="kyc_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
-    <string name="kyc_upgrade_now_tier_state_under_review">In Manual Review</string>
+    <string name="kyc_limits_upgrade_now_title">Upgrade Now</string>
+    <string name="kyc_limits_upgrade_now_gold_title">Gold Limits</string>
+    <string name="kyc_limits_upgrade_now_gold_description">Buy &amp; Sell. Earn Rewards.</string>
+    <string name="kyc_limits_upgrade_now_gold_info_1">Connect your bank or card to your Wallet. Hold cash in your wallet. Earn crypto with Rewards.</string>
+    <string name="kyc_limits_upgrade_now_gold_info_2">Includes all Silver limits and features.</string>
+    <string name="kyc_limits_upgrade_now_silver_title">Silver Limits</string>
+    <string name="kyc_limits_upgrade_now_silver_description">Unlock Trade Accounts and Swap.</string>
+    <string name="kyc_limits_upgrade_now_silver_info">Unlock Swap - our in-app exchange. </string>
+    <string name="kyc_limits_upgrade_now_tier_state_under_review">In Manual Review</string>
     <string name="dashboard_onboarding_title3">Finish setting up your Blockchain.com account and start buying crypto today.</string>
     <string name="dashboard_onboarding_title2">Complete Your Profile.\nBuy Crypto Today.</string>
     <string name="dashboard_onboarding_title1">Your steps towards owning the future.</string>
@@ -2772,5 +2773,30 @@
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
     <string name="terms_and_conditions_accept_label">I agree to Blockchain.com’s Terms of Service &amp; Privacy Policy.</string>
     <string name="terms_and_conditions_review_button">Review</string>
+
+    <!-- Kyc Upgrade Now Sheet -->
+    <string name="transactions_left_title">Transactions Left</string>
+    <string name="transactions_left_subtitle">Verify for unlimited trades.</string>
+    <string name="kyc_upgrade_now_toolbar">Upgrade Now</string>
+    <string name="kyc_upgrade_now_tab_basic">Basic</string>
+    <string name="kyc_upgrade_now_tab_verified">Verified</string>
+    <string name="kyc_upgrade_now_basic_level">Basic Level</string>
+    <string name="kyc_upgrade_now_basic_limited_access">Limited Access</string>
+    <string name="kyc_upgrade_now_basic_send_receive_title">Send &amp; Receive Crypto</string>
+    <string name="kyc_upgrade_now_basic_send_receive_description">Between Private Key Wallets</string>
+    <string name="kyc_upgrade_now_basic_swap_title">Swap Crypto</string>
+    <string name="kyc_upgrade_now_basic_swap_description">1-Time Between Private Key Wallets</string>
+    <string name="kyc_upgrade_now_basic_cta">Get Basic</string>
+    <string name="kyc_upgrade_now_verified_level">Verified Level</string>
+    <string name="kyc_upgrade_now_verified_full_access">Full Access</string>
+    <string name="kyc_upgrade_now_verified_swap_title">Swap Crypto</string>
+    <string name="kyc_upgrade_now_verified_swap_description">Between All Wallets &amp; Accounts</string>
+    <string name="kyc_upgrade_now_verified_buy_title">Buying &amp; Selling</string>
+    <string name="kyc_upgrade_now_verified_buy_description">Card or Banking Methods</string>
+    <string name="kyc_upgrade_now_verified_interest_title">Earn Rewards</string>
+    <string name="kyc_upgrade_now_verified_interest_description">Earn Rewards On Your Crypto</string>
+    <string name="kyc_upgrade_now_verified_cta">Get Verified</string>
+    <string name="kyc_upgrade_now_sheet_title">Upgrade Your Profile.\nBuy, Sell &amp; Swap More Crypto</string>
+    <string name="kyc_upgrade_now_sheet_subtitle">Verify to unlock access to Buying, Selling, Swapping &amp; Rewards Accounts.</string>
 
 </resources>

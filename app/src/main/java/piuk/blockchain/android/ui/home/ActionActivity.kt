@@ -84,6 +84,10 @@ class ActionActivity : BlockchainActivity(), SlidingModalBottomDialog.Host, Upse
         finishWithResult(ActivityResult.StartKyc)
     }
 
+    override fun navigateBack() {
+        finish()
+    }
+
     override fun navigateToReceive() {
         finishWithResult(ActivityResult.StartReceive)
     }

@@ -23,12 +23,15 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -38,7 +41,6 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal const val transactionFetchCount = 50
@@ -181,6 +183,7 @@ abstract class CryptoNonCustodialAccount(
     protected val payloadDataManager: PayloadDataManager,
     override val currency: AssetInfo,
     private val custodialWalletManager: CustodialWalletManager,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val identity: UserIdentity
 ) : CryptoAccountBase(), NonCustodialAccount {
 
@@ -205,9 +208,11 @@ abstract class CryptoNonCustodialAccount(
 
     // The plan here is once we are caching the non custodial balances to remove this isFunded
     override val actions: Single<AvailableActions>
-        get() = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }.zipWith(
-            identity.isEligibleFor(Feature.Interest(currency))
-        ).map { (fiatAccounts, isEligibleForInterest) ->
+        get() = Single.zip(
+            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
+            identity.isEligibleFor(Feature.Interest(currency)),
+            identity.userAccessForFeature(Feature.Swap)
+        ) { fiatAccounts, isEligibleForInterest, swapEligibility ->
 
             val isActiveFunded = !isArchived && isFunded
 
@@ -219,7 +224,7 @@ abstract class CryptoNonCustodialAccount(
                 isActiveFunded
             }
             val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
-                isActiveFunded
+                isActiveFunded && swapEligibility is FeatureAccess.Granted
             }
             val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
                 isActiveFunded && fiatAccounts.isNotEmpty()
@@ -234,9 +239,11 @@ abstract class CryptoNonCustodialAccount(
         }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }.zipWith(
-            identity.isEligibleFor(Feature.Interest(currency))
-        ).map { (fiatAccounts, isEligibleForInterest) ->
+        get() = Single.zip(
+            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
+            identity.isEligibleFor(Feature.Interest(currency)),
+            identity.userAccessForFeature(Feature.Swap)
+        ) { fiatAccounts, isEligibleForInterest, swapEligibility ->
 
             val isActiveFunded = !isArchived && isFunded
 
@@ -261,10 +268,14 @@ abstract class CryptoNonCustodialAccount(
             )
 
             val swap = StateAwareAction(
-                if (baseActions.contains(
-                        AssetAction.Swap
-                    ) && isActiveFunded
-                ) ActionState.Available else ActionState.LockedForOther,
+                when {
+                    !baseActions.contains(AssetAction.Swap) || !isActiveFunded -> ActionState.LockedForOther
+                    swapEligibility is FeatureAccess.Blocked -> {
+                        if (swapEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
+                        else ActionState.LockedForOther
+                    }
+                    else -> ActionState.Available
+                },
                 AssetAction.Swap
             )
             val sell = StateAwareAction(
@@ -444,7 +455,16 @@ class CryptoAccountNonCustodialGroup(
             Single.just(emptySet())
         } else {
             Single.zip(accounts.map { it.stateAwareActions }) { t: Array<Any> ->
-                t.filterIsInstance<StateAwareAction>().toSet()
+                t.filterIsInstance<Iterable<StateAwareAction>>()
+                    .flatten()
+                    .groupBy { it.action }
+                    .toMutableMap()
+                    .mapValues { (_, values) ->
+                        // We have to remove duplicate AssetActions, we give priority to Available and pick the first as fallback
+                        values.firstOrNull { it.state == ActionState.Available } ?: values.first()
+                    }
+                    .values
+                    .toSet()
             }
         }
 

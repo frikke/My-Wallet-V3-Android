@@ -12,6 +12,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
@@ -38,8 +39,12 @@ internal class XlmCryptoWalletAccount(
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     identity: UserIdentity,
+    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, CryptoCurrency.XLM, custodialWalletManager,
+    entitySwitchSilverEligibilityFeatureFlag, identity
+) {
 
     override val baseActions: Set<AssetAction> = defaultActions
     override val isDefault: Boolean = true // Only one account ever, so always default

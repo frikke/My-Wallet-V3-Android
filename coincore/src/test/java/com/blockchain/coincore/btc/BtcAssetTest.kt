@@ -10,6 +10,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.nhaarman.mockitokotlin2.mock
@@ -57,6 +58,9 @@ class BtcAssetTest {
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
     private val notificationUpdater: BackendNotificationUpdater = mock()
 
     private val subject = BtcAsset(
@@ -75,6 +79,7 @@ class BtcAssetTest {
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         identity = identity,
+        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         addressResolver = mock()
     )
 

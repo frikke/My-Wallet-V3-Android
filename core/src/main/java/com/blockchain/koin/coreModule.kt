@@ -4,8 +4,6 @@ import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
-import com.blockchain.core.EligibilityDataManager
-import com.blockchain.core.EligibilityDataManagerImpl
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -20,6 +18,9 @@ import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
+import com.blockchain.core.eligibility.EligibilityDataManager
+import com.blockchain.core.eligibility.EligibilityDataManagerImpl
+import com.blockchain.core.eligibility.ProductsEligibilityCache
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
@@ -146,8 +147,18 @@ val coreModule = module {
             )
         }.bind(LimitsDataManager::class)
 
+        factory {
+            ProductsEligibilityCache(
+                authenticator = get(),
+                service = get()
+            )
+        }
+
         scoped {
-            EligibilityDataManagerImpl()
+            EligibilityDataManagerImpl(
+                productsEligibilityCache = get(),
+                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag)
+            )
         }.bind(EligibilityDataManager::class)
 
         factory {

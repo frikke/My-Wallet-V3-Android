@@ -46,7 +46,7 @@ class BuySellFlowNavigator(
                 when (access) {
                     FeatureAccess.NotRequested,
                     FeatureAccess.Unknown,
-                    FeatureAccess.Granted -> BuySellIntroAction.DisplayBuySellIntro
+                    is FeatureAccess.Granted -> BuySellIntroAction.DisplayBuySellIntro
                     is FeatureAccess.Blocked -> {
                         if (access.isBlockedDueToEligibility())
                             BuySellIntroAction.UserNotEligible

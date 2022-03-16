@@ -18,6 +18,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
@@ -129,6 +130,16 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 nextEnabled = false,
                 stepsBackStack = Stack()
             )
+    }
+
+    data class InitialiseTransaction(
+        val sourceAccount: BlockchainAccount,
+        val amount: Money,
+        val transactionTarget: TransactionTarget,
+        val action: AssetAction,
+        val eligibility: FeatureAccess? = null
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 
     object ClearBackStack : TransactionIntent() {
@@ -535,6 +546,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 currentStep = TransactionStep.SELECT_TARGET_ACCOUNT,
                 selectedTarget = NullAddress
             ).updateBackstack(oldState)
+    }
+
+    object ShowKycUpgradeNow : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                currentStep = TransactionStep.NOT_ELIGIBLE
+            )
     }
 
     object ClearSelectedTarget : TransactionIntent() {

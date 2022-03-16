@@ -8,10 +8,12 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
+import io.reactivex.rxjava3.core.Single
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -40,6 +42,9 @@ class XlmAssetUriParseTest {
     private val pitLinking: PitLinking = mock()
     private val crashLogger: CrashLogger = mock()
     private val walletPreferences: WalletStatus = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     private val subject = XlmAsset(
         payloadManager = payloadManager,
@@ -56,6 +61,7 @@ class XlmAssetUriParseTest {
         crashLogger = crashLogger,
         walletPreferences = walletPreferences,
         identity = mock(),
+        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         addressResolver = mock()
     )
 
