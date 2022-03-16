@@ -2,8 +2,6 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -12,7 +10,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
@@ -30,10 +27,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.github.mikephil.charting.data.Entry
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -56,7 +49,6 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
-import timber.log.Timber
 
 class CoinViewActivity :
     MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
@@ -220,10 +212,10 @@ class CoinViewActivity :
     }
 
     override fun render(newState: CoinViewState) {
-        newState.asset?.let {
+        newState.asset?.let { cryptoAsset ->
             with(binding) {
-                assetAboutTitle.text = getString(R.string.coinview_about_asset, it.assetInfo.name)
-                loadAssetIcon(it)
+                assetAboutTitle.text = getString(R.string.coinview_about_asset, cryptoAsset.assetInfo.name)
+                assetPrice.endIcon = ImageResource.Remote(cryptoAsset.assetInfo.logo)
             }
         }
 
@@ -235,19 +227,19 @@ class CoinViewActivity :
             // TODO (dserrano-bc): Placeholders - update these to real errors when design knows how we should show them
             when (newState.error) {
                 CoinViewError.UnknownAsset -> BlockchainSnackbar.make(
-                    binding.root, "This asset is not known", type = SnackbarType.Error
+                    binding.root, getString(R.string.coinview_unknown_asset), type = SnackbarType.Error
                 ).show()
                 CoinViewError.WalletLoadError -> BlockchainSnackbar.make(
-                    binding.root, "There was an issue loading the wallet info", type = SnackbarType.Error
+                    binding.root, getString(R.string.coinview_wallet_load_error), type = SnackbarType.Error
                 ).show()
                 CoinViewError.ChartLoadError -> BlockchainSnackbar.make(
-                    binding.root, "There was an issue loading the chart info", type = SnackbarType.Error
+                    binding.root, getString(R.string.coinview_chart_load_error), type = SnackbarType.Error
                 ).show()
                 CoinViewError.RecurringBuysLoadError -> BlockchainSnackbar.make(
-                    binding.root, "There was an issue loading recurring buys", type = SnackbarType.Error
+                    binding.root, getString(R.string.coinview_recurring_buy_load_error), type = SnackbarType.Error
                 ).show()
                 CoinViewError.QuickActionsFailed -> BlockchainSnackbar.make(
-                    binding.root, "There was an issue loading quick actions", type = SnackbarType.Error
+                    binding.root, getString(R.string.coinview_action_failed), type = SnackbarType.Error
                 ).show()
                 CoinViewError.None -> {
                     // do nothing
@@ -255,31 +247,6 @@ class CoinViewActivity :
             }
 
             model.process(CoinViewIntent.ResetErrorState)
-        }
-    }
-
-    private fun ActivityCoinviewBinding.loadAssetIcon(asset: CryptoAsset) {
-        if (!hasLoadedIcon) {
-            Glide.with(this@CoinViewActivity)
-                .asBitmap()
-                .load(asset.assetInfo.logo)
-                .apply(RequestOptions().placeholder(R.drawable.ic_blockchain))
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        assetPrice.endIcon = ImageResource.LocalWithResolvedBitmap(resource)
-                        hasLoadedIcon = true
-                    }
-
-                    override fun onLoadFailed(errorDrawable: Drawable?) {
-                        super.onLoadFailed(errorDrawable)
-                        Timber.e("Coinview - error loading asset icon")
-                        assetPrice.endIcon = ImageResource.Local(R.drawable.ic_blockchain)
-                    }
-
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        assetPrice.endIcon = ImageResource.Local(R.drawable.ic_blockchain)
-                    }
-                })
         }
     }
 
@@ -305,14 +272,7 @@ class CoinViewActivity :
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
                     assetChart.apply {
-                        datePattern = when (chartControls.selectedItemIndex) {
-                            HistoricalTimeSpan.DAY.ordinal -> "HH:mm"
-                            HistoricalTimeSpan.WEEK.ordinal -> "HH:mm, EEE"
-                            HistoricalTimeSpan.MONTH.ordinal -> "HH:mm d, MMM"
-                            HistoricalTimeSpan.YEAR.ordinal -> "d MMM YYYY"
-                            HistoricalTimeSpan.ALL_TIME.ordinal -> "d MMM YYYY"
-                            else -> "HH:mm"
-                        }
+                        datePattern = HistoricalTimeSpan.fromInt(chartControls.selectedItemIndex).toDatePattern()
                         fiatSymbol = state.selectedFiat.symbol
                         setData(state.entries)
                     }
@@ -613,6 +573,10 @@ class CoinViewActivity :
         private const val BALANCES_VIEW = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
+        private const val PATTERN_HOURS = "HH:mm"
+        private const val PATTERN_DAY_HOUR = "HH:mm, EEE"
+        private const val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
+        private const val PATTERN_DAY_MONTH_YEAR = "d MMM YYYY"
 
         fun newIntent(context: Context, asset: AssetInfo): Intent =
             Intent(context, CoinViewActivity::class.java).apply {
@@ -620,6 +584,15 @@ class CoinViewActivity :
                 putExtra(ASSET_NAME, asset.name)
             }
     }
+
+    private fun HistoricalTimeSpan.toDatePattern(): String =
+        when (this) {
+            HistoricalTimeSpan.DAY -> PATTERN_HOURS
+            HistoricalTimeSpan.WEEK -> PATTERN_DAY_HOUR
+            HistoricalTimeSpan.MONTH -> PATTERN_DAY_HOUR_MONTH
+            HistoricalTimeSpan.YEAR,
+            HistoricalTimeSpan.ALL_TIME -> PATTERN_DAY_MONTH_YEAR
+        }
 }
 
 private data class QuickAction(

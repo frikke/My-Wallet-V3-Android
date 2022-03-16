@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
@@ -65,7 +64,6 @@ private class AssetCardViewHolder(
 
             assetResources.loadAssetIcon(icon, state.currency)
             currency.text = state.currency.name
-            TextViewCompat.setAutoSizeTextTypeWithDefaults(currency, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
         }
 
         when {

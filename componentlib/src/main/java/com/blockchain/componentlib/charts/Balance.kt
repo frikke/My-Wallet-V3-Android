@@ -4,11 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +61,11 @@ fun Balance(
                 Image(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .padding(top = 8.dp, start = dimensionResource(R.dimen.medium_margin)),
+                        .padding(
+                            top = dimensionResource(R.dimen.tiny_margin),
+                            start = dimensionResource(R.dimen.medium_margin)
+                        )
+                        .size(dimensionResource(R.dimen.large_margin)),
                     imageResource = endIcon
                 )
             }

@@ -28,17 +28,17 @@ internal class ScrubMarker(
     @SuppressLint("SetTextI18n")
     override fun refreshContent(e: Entry, highlight: Highlight) {
         currentHighlight = highlight
-        if (highlight is PeakOrTroughHighlight) {
-            date.text = "${highlight.fiatSymbol}${e.y}"
-        } else {
-            date.text = simpleDateFormat.format(e.x * 1000L)
+
+        when (highlight) {
+            is PeakHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
+            is TroughHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
+            else -> date.text = simpleDateFormat.format(e.x * 1000L)
         }
         super.refreshContent(e, highlight)
     }
 
     override fun draw(canvas: Canvas?, posX: Float, posY: Float) {
         if (canvas == null) return
-
         // Check marker position and update offsets.
         val w = width
         var xPos = posX
@@ -46,20 +46,27 @@ internal class ScrubMarker(
             xPos -= w
         }
 
-        if (::currentHighlight.isInitialized && currentHighlight is PeakOrTroughHighlight) {
-            // translate to the correct position and draw
-            canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT)
-            draw(canvas)
-            canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT)
-        } else {
-            // translate to the correct position and draw
-            canvas.translate(xPos, 0f)
-            draw(canvas)
-            canvas.translate(-xPos, 0f)
+        when {
+            ::currentHighlight.isInitialized && currentHighlight is PeakHighlight -> {
+                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MAX)
+                draw(canvas)
+                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MAX)
+            }
+            ::currentHighlight.isInitialized && currentHighlight is TroughHighlight -> {
+                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MIN)
+                draw(canvas)
+                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MIN)
+            }
+            else -> {
+                canvas.translate(xPos, 0f)
+                draw(canvas)
+                canvas.translate(-xPos, 0f)
+            }
         }
     }
 
     companion object {
-        private const val VERTICAL_ADJUSTMENT = 20
+        private const val VERTICAL_ADJUSTMENT_MIN = 20
+        private const val VERTICAL_ADJUSTMENT_MAX = 60
     }
 }

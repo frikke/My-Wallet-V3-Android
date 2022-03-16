@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
+<androidx.appcompat.widget.AppCompatTextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/date"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingBottom="@dimen/smallest_margin"
-    android:background="@drawable/marker_bkgd">
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFeatureSettings="zero, ss01"
-        android:textAppearance="@style/TextAppearance.Blockchain.Caption2"
-        android:textColor="@color/colorText"
-        tools:text="9:30 PM" />
-</androidx.appcompat.widget.LinearLayoutCompat>
+    android:fontFeatureSettings="zero, ss01"
+    android:textAppearance="@style/TextAppearance.Blockchain.Caption2"
+    android:textColor="@color/colorText"
+    tools:text="9:30 PM" />

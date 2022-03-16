@@ -74,7 +74,7 @@ object Versions {
     const val rxBinding = "4.0.0"
     const val rxReplayShare = "3.0.0"
     const val rxRelay = "3.0.0"
-    const val glide = "4.12.0"
+    const val glide = "4.13.1"
 
     // Utils, BTC, Ethereum
     const val bitcoinj = "0.16"

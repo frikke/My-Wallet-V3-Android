@@ -2762,6 +2762,11 @@
     <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
+    <string name="coinview_wallet_load_error">Failed to load wallets and accounts</string>
+    <string name="coinview_unknown_asset">This asset is not known</string>
+    <string name="coinview_chart_load_error">Failed to load chart info</string>
+    <string name="coinview_recurring_buy_load_error">Failed to load recurring buys</string>
+    <string name="coinview_action_failed">There was an issue loading</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
