@@ -14,16 +14,17 @@ import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
 import com.blockchain.koin.scopedInject
 
 class BlockchainCardFragment :
-    MviComposeFragment<OrderCardModel, OrderCardIntent, OrderCardState>(), FlowFragment {
+    MviComposeFragment<BlockchainCardModel, BlockchainCardIntent, BlockchainCardState>(), FlowFragment {
 
-    override val model: OrderCardModel by scopedInject()
+    override val model: BlockchainCardModel by scopedInject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // model.process(DappsListIntent.LoadDapps)
+        model.process(BlockchainCardIntent.UpdateCardState(CardState.NOT_ORDERED))
     }
 
     companion object {
+        private const val BLOCKCHAIN_CARD = "BLOCKCHAIN_CARD"
         fun newInstance() = BlockchainCardFragment()
     }
 
@@ -50,7 +51,7 @@ class BlockchainCardFragment :
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                BlockchainCardScreen()
+                BlockchainCardScreen(model)
             }
         }
     }

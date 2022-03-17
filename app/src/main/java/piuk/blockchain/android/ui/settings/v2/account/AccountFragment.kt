@@ -178,7 +178,7 @@ class AccountFragment :
         }
 
         renderExchangeInformation(newState.exchangeLinkingState)
-        renderDebitCardInformation(newState.bcCardOrderState)
+        renderDebitCardInformation(newState.bcCardState)
         renderErrorState(newState.errorState)
     }
 
@@ -196,21 +196,21 @@ class AccountFragment :
             }
         }
 
-    private fun renderDebitCardInformation(debitCardOrderState: DebitCardOrderState) =
-        when (debitCardOrderState) {
-            DebitCardOrderState.UNKNOWN -> {
+    private fun renderDebitCardInformation(blockchainCardState: BlockchainCardState) =
+        when (blockchainCardState) {
+            BlockchainCardState.UNKNOWN -> {
                 binding.settingsDebitCard.secondaryText = ""
             }
-            DebitCardOrderState.NOT_ELIGIBLE -> {
+            BlockchainCardState.NOT_ELIGIBLE -> {
                 binding.settingsDebitCard.secondaryText = getString(R.string.account_not_eligible)
             }
-            DebitCardOrderState.ELIGIBLE -> {
+            BlockchainCardState.ELIGIBLE -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                 }
             }
-            DebitCardOrderState.ORDERED -> {
+            BlockchainCardState.ORDERED -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                 }

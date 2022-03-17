@@ -8,7 +8,7 @@ data class AccountState(
     val accountInformation: AccountInformation? = null,
     val errorState: AccountError = AccountError.NONE,
     val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN,
-    val bcCardOrderState: DebitCardOrderState = DebitCardOrderState.UNKNOWN
+    val bcCardState: BlockchainCardState = BlockchainCardState.UNKNOWN
 ) : MviState
 
 sealed class ViewToLaunch {
@@ -23,7 +23,7 @@ enum class ExchangeLinkingState {
     LINKED
 }
 
-enum class DebitCardOrderState {
+enum class BlockchainCardState {
     NOT_ELIGIBLE,
     ELIGIBLE,
     ORDERED,

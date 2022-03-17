@@ -43,8 +43,14 @@ dependencies {
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeActivity
+    implementation Libraries.composeRx
+    implementation Libraries.composeNavigation
     implementation Libraries.design
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations
+    implementation Libraries.navigationControllerCore
+    implementation Libraries.navigationControllerCoreKTX
+    implementation Libraries.navigationControllerFragments
+    implementation Libraries.navigationControllerSafeArgsPlugin
 
 }

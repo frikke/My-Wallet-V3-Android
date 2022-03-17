@@ -8,7 +8,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 
-class OrderCardActivity : BlockchainActivity() {
+class BlockchainCardActivity : BlockchainActivity() {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -36,6 +36,6 @@ class OrderCardActivity : BlockchainActivity() {
 
     companion object {
         fun newIntent(context: Context): Intent =
-            Intent(context, OrderCardActivity::class.java)
+            Intent(context, BlockchainCardActivity::class.java)
     }
 }

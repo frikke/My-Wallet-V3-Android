@@ -5,7 +5,8 @@ import com.blockchain.api.getBaseUrl
 import com.blockchain.blockchaincard.data.BcCardDataRepository
 import com.blockchain.blockchaincard.data.BcCardService
 import com.blockchain.blockchaincard.domain.BcCardApi
-import com.blockchain.blockchaincard.ui.OrderCardModel
+import com.blockchain.blockchaincard.ui.BlockchainCardModel
+import com.blockchain.blockchaincard.ui.navigation.BlockchainCardNavigator
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -54,13 +55,18 @@ val bcCardsApiModule = module {
         }
 
         factory {
-            OrderCardModel(
+            BlockchainCardModel(
                 uiSchedulers = AndroidSchedulers.mainThread(),
                 enviromentConfig = get(),
                 crashLogger = get(),
                 bcCardDataRepository = get(),
-                bcCardService = get()
+                bcCardService = get(),
+                navigator = get()
             )
+        }
+
+        factory {
+            BlockchainCardNavigator()
         }
 
 
