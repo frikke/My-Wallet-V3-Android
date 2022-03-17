@@ -295,6 +295,9 @@ class CoinViewActivity :
                 CoinViewError.QuickActionsFailed -> BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_action_failed), type = SnackbarType.Error
                 ).show()
+                CoinViewError.MissingSelectedFiat -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Error
+                ).show()
                 CoinViewError.None -> {
                     // do nothing
                 }

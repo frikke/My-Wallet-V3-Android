@@ -46,6 +46,8 @@ class BlockchainSnackbar(
                 parent,
                 customView
             ).setDuration(duration).apply {
+                // set the elevation here to max possible to make sure snackbars always show above
+                // any other UI element (fixes snackbars showing behind bottom sheets)
                 this.view.elevation = Float.MAX_VALUE
             }
         }

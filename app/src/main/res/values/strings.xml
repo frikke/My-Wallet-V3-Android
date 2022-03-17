@@ -2768,6 +2768,7 @@
     <string name="coinview_chart_load_error">Failed to load chart info</string>
     <string name="coinview_recurring_buy_load_error">Failed to load recurring buys</string>
     <string name="coinview_action_failed">There was an issue loading</string>
+    <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
