@@ -106,8 +106,8 @@ class LiveCustodialWalletManager(
     private val transactionErrorMapper: TransactionErrorMapper
 ) : CustodialWalletManager {
 
-    override val defaultFiatCurrency: FiatCurrency
-        get() = currencyPrefs.defaultFiatCurrency
+    override val selectedFiatcurrency: FiatCurrency
+        get() = currencyPrefs.selectedFiatCurrency
 
     override fun createOrder(
         custodialWalletOrder: CustodialWalletOrder,
@@ -315,6 +315,16 @@ class LiveCustodialWalletManager(
                 buyPair.pair.split("-")[1] == fiatCurrency.networkTicker
             } != null
         }.onErrorReturn { false }
+
+    override fun isCurrencyAvailableForTrading(assetInfo: AssetInfo): Single<Boolean> {
+        val tradingCurrency = currencyPrefs.tradingCurrency
+        return pairsCache.pairs().map {
+            it.pairs.firstOrNull { buyPair ->
+                val pair = buyPair.pair.split("-")
+                pair.first() == assetInfo.networkTicker && pair.last() == tradingCurrency.networkTicker
+            } != null
+        }.onErrorReturn { false }
+    }
 
     override fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList> =
         authenticator.authenticate {
@@ -870,6 +880,7 @@ private fun BuySellOrderResponse.type() =
         side == "SELL" -> OrderType.SELL
         else -> throw IllegalStateException("Unsupported order type")
     }
+
 private fun BuySellOrderResponse.paymentError(): PaymentError? =
     when (paymentError) {
         "CARD_PAYMENT_FAILED" -> PaymentError.CARD_PAYMENT_FAILED

@@ -290,7 +290,8 @@ val coreModule = module {
                 settingsService = get(),
                 settingsDataStore = get(),
                 currencyPrefs = get(),
-                walletSettingsService = get()
+                walletSettingsService = get(),
+                assetCatalogue = get()
             )
         }
 

@@ -10,7 +10,6 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
@@ -51,7 +50,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = false
         )
 
         // Act
@@ -74,7 +74,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = true
         )
 
         // Act
@@ -97,7 +98,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = true
         )
 
         // Act
@@ -124,7 +126,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = false,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = false
+            custodialAccess = false,
+            buySupported = false
         )
 
         // Act
@@ -151,7 +154,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = false,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = false
         )
 
         // Act
@@ -180,7 +184,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = true
         )
 
         // Act
@@ -210,7 +215,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = false,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = true
         )
 
         // Act
@@ -239,7 +245,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = emptyList(),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = true
         )
 
         // Act
@@ -268,10 +275,9 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = false
         )
-
-        whenever(custodialManager.getSupportedBuySellCryptoCurrencies()).thenReturn(Single.just(emptyList()))
 
         // Act
         subject.actions
@@ -299,7 +305,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true
+            custodialAccess = true,
+            buySupported = false
         )
 
         // Act
@@ -332,7 +339,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         simpleBuy: Boolean,
         interest: Boolean,
         supportedFiat: List<FiatCurrency>,
-        custodialAccess: Boolean
+        custodialAccess: Boolean,
+        buySupported: Boolean
     ) {
         whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
             Single.just(
@@ -347,8 +355,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(identity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(identity.userAccessForFeature(Feature.CryptoDeposit)).thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(custodialManager.getSupportedBuySellCryptoCurrencies())
-            .thenReturn(Single.just(listOf(CurrencyPair(TEST_ASSET, USD))))
+        whenever(custodialManager.isCurrencyAvailableForTrading(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
