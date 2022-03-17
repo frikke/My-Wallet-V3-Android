@@ -117,7 +117,7 @@ sealed class QrExpected : Parcelable {
     }
 }
 
-class QrScanActivity : BlockchainActivity() {
+class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
@@ -590,4 +590,8 @@ class QrScanActivity : BlockchainActivity() {
         fun Intent?.getRawScanData(): String? =
             this?.getStringExtra(EXTRA_SCAN_RESULT)
     }
+
+    override fun onCameraAccessAllowed() {}
+
+    override fun onSheetClosed() {}
 }
