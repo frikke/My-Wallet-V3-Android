@@ -24,6 +24,7 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -31,6 +32,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -44,6 +46,7 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
@@ -62,7 +65,9 @@ class TransactionInteractor(
     private val identity: UserIdentity,
     private val accountsSorting: AccountsSorting,
     private val linkedBanksFactory: LinkedBanksFactory,
-    private val bankLinkingPrefs: BankLinkingPrefs
+    private val bankLinkingPrefs: BankLinkingPrefs,
+    private val dismissRecorder: DismissRecorder,
+    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -289,6 +294,23 @@ class TransactionInteractor(
             }
         }
     }
+
+    fun loadSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
+        showSendToDomainsAnnouncementFeatureFlag.enabled.map { isEnabled ->
+            if (isEnabled) {
+                !dismissRecorder.isDismissed(prefsKey)
+            } else {
+                false
+            }
+        }
+
+    fun dismissSendToDomainAnnouncementPref(prefsKey: String): Single<Boolean> =
+        Single.fromCallable {
+            dismissRecorder.dismissForever(prefsKey)
+            dismissRecorder.isDismissed(prefsKey)
+        }
+
+    fun userAccessForFeature(feature: Feature): Single<FeatureAccess> = identity.userAccessForFeature(feature)
 }
 
 private fun CryptoAccount.isAvailableToSwapFrom(pairs: List<CurrencyPair>): Boolean =

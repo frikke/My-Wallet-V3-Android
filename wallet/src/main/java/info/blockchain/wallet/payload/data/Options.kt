@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,17 +19,22 @@ import java.io.IOException
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
+@Serializable
 class Options(
     @field:JsonProperty("pbkdf2_iterations")
+    @SerialName("pbkdf2_iterations")
     var pbkdf2Iterations: Int = 0,
 
     @field:JsonProperty("fee_per_kb")
+    @SerialName("fee_per_kb")
     var feePerKb: Long = 0,
 
     @field:JsonProperty("html5_notifications")
+    @SerialName("html5_notifications")
     var isHtml5Notifications: Boolean = false,
 
     @field:JsonProperty("logout_time")
+    @SerialName("logout_time")
     var logoutTime: Long = 0
 ) {
 

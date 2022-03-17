@@ -11,19 +11,19 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.databinding.DialogSheetKycUpgradeNowBinding
+import piuk.blockchain.android.databinding.DialogSheetKycLimitsUpgradeNowBinding
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 
-class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
+class KycLimitsUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycLimitsUpgradeNowBinding>() {
 
     private val isGoldPending: Boolean by lazy {
         arguments?.getBoolean(ARG_IS_GOLD_PENDING) ?: false
     }
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetKycUpgradeNowBinding =
-        DialogSheetKycUpgradeNowBinding.inflate(inflater, container, false)
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogSheetKycLimitsUpgradeNowBinding =
+        DialogSheetKycLimitsUpgradeNowBinding.inflate(inflater, container, false)
 
-    override fun initControls(binding: DialogSheetKycUpgradeNowBinding) {
+    override fun initControls(binding: DialogSheetKycLimitsUpgradeNowBinding) {
         with(binding) {
             val isClickable = !isGoldPending
 
@@ -43,8 +43,8 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                 clickableSilver.setOnClickListener(null)
             }
 
-            val goldInfo1 = getString(R.string.kyc_upgrade_now_gold_info_1)
-            val goldInfo2 = getString(R.string.kyc_upgrade_now_gold_info_2)
+            val goldInfo1 = getString(R.string.kyc_limits_upgrade_now_gold_info_1)
+            val goldInfo2 = getString(R.string.kyc_limits_upgrade_now_gold_info_2)
             textGoldInfo.text = SpannableString("$goldInfo1 $goldInfo2").apply {
                 setSpan(
                     ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.feature_limits_light_grey)),
@@ -66,7 +66,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                 )
             )
             textGoldState.setText(
-                if (isGoldPending) R.string.kyc_upgrade_now_tier_state_under_review
+                if (isGoldPending) R.string.kyc_limits_upgrade_now_tier_state_under_review
                 else R.string.most_popular
             )
         }
@@ -80,7 +80,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     companion object {
         private const val ARG_IS_GOLD_PENDING = "ARG_IS_GOLD_PENDING"
 
-        fun newInstance(isGoldPending: Boolean) = KycUpgradeNowSheet().apply {
+        fun newInstance(isGoldPending: Boolean) = KycLimitsUpgradeNowSheet().apply {
             arguments = Bundle().apply {
                 putBoolean(ARG_IS_GOLD_PENDING, isGoldPending)
             }

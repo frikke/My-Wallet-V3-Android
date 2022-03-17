@@ -163,12 +163,12 @@ class WalletTest : WalletApiMockedResponseTest() {
         assertTrue(true)
     }
 
-    @Test(expected = DecryptionException::class) @Throws(Exception::class) fun validateSecondPassword_fail() {
+    @Test(expected = DecryptionException::class) fun validateSecondPassword_fail() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
         wallet.validateSecondPassword("bogus")
     }
 
-    @Test @Throws(Exception::class)
+    @Test
     fun addAccount() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
         assertEquals(1, wallet.walletBody!!.accounts!!.size.toLong())

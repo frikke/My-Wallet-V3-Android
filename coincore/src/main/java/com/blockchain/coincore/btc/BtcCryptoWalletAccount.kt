@@ -13,9 +13,11 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -46,9 +48,13 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, CryptoCurrency.BTC, custodialWalletManager,
+    entitySwitchSilverEligibilityFeatureFlag, identity
+) {
     override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 
@@ -268,6 +274,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
+            entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
             identity: UserIdentity,
             addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
@@ -281,6 +288,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             identity = identity,
             addressResolver = addressResolver
         )
@@ -294,6 +302,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
+            entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
             identity: UserIdentity,
             addressResolver: AddressResolver
         ) = BtcCryptoWalletAccount(
@@ -307,6 +316,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             identity = identity,
             addressResolver = addressResolver
         )

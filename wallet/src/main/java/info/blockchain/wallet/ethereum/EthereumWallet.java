@@ -44,11 +44,11 @@ public class EthereumWallet {
             )
         );
 
-        this.walletDto = new EthereumWalletDto(accounts);
+        walletDto = new EthereumWalletDto(accounts);
     }
 
-    public String toJson() throws JsonProcessingException {
-        return walletDto.toJson();
+    public String toJson(boolean withKotlinX) throws JsonProcessingException {
+        return walletDto.toJson(withKotlinX);
     }
 
     /**
@@ -56,10 +56,10 @@ public class EthereumWallet {
      *
      * @return Existing Ethereum wallet or Null if no existing Ethereum wallet found.
      */
-    public static EthereumWallet load(String walletJson) throws IOException {
+    public static EthereumWallet load(String walletJson, boolean withKotlinX) throws IOException {
 
         if (walletJson != null) {
-            EthereumWalletDto wallet = EthereumWalletDto.fromJson(walletJson);
+            EthereumWalletDto wallet = EthereumWalletDto.fromJson(walletJson, withKotlinX);
 
             // Web can store an empty EthereumWalletData object
             if (wallet.getWalletData() == null || wallet.getWalletData().getAccounts().isEmpty()) {

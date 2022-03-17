@@ -47,6 +47,13 @@ fun Image(
                 colorFilter = imageResource.colorFilter,
                 contentScale = contentScale,
             )
+        is ImageResource.LocalWithResolvedBitmap ->
+            androidx.compose.foundation.Image(
+                painter = rememberImagePainter(imageResource.bitmap),
+                contentDescription = imageResource.contentDescription,
+                modifier = modifier,
+                contentScale = contentScale,
+            )
         is ImageResource.Remote ->
             androidx.compose.foundation.Image(
                 painter = rememberImagePainter(

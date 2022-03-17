@@ -14,5 +14,13 @@ val <T> T.exhaustive: T
 
 fun <E> Iterable<E>.replace(old: E, new: E) = map { if (it == old) new else it }
 
+fun <E> List<E>.minus(predicate: (E) -> Boolean): List<E> = toMutableList().apply {
+    removeIf(predicate)
+}.toList()
+
+fun <E> Set<E>.minus(predicate: (E) -> Boolean): Set<E> = toMutableSet().apply {
+    removeIf(predicate)
+}.toSet()
+
 inline fun <K, reified V> Map<K, V?>.withoutNullValues(): Map<K, V> =
     this.filterValues { it != null }.mapValues { it.value as V }

@@ -6,17 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentReceiveBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -24,10 +30,13 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
-class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, FragmentReceiveBinding>() {
+class ReceiveFragment :
+    MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, FragmentReceiveBinding>(),
+    KycUpgradeNowSheet.Host {
 
     private val assetResources: AssetResources by inject()
     private val compositeDisposable = CompositeDisposable()
+    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val upsellManager: KycUpgradePromptManager by scopedInject()
 
     override val model: ReceiveModel by scopedInject()
@@ -104,24 +113,51 @@ class ReceiveFragment : MviFragment<ReceiveModel, ReceiveIntent, ReceiveState, F
     }
 
     private fun doOnAccountSelected(account: CryptoAccount) {
-        compositeDisposable += upsellManager.queryUpsell(AssetAction.Receive, account)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { type ->
-                if (type == KycUpgradePromptManager.Type.NONE) {
-                    ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
+        compositeDisposable += entitySwitchSilverEligibilityFF.enabled
+            .onErrorReturnItem(false)
+            .subscribe { enabled ->
+                if (enabled) {
+                    compositeDisposable += account.stateAwareActions
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { stateAwareActions ->
+                            val receiveAction = stateAwareActions.find { it.action == AssetAction.Receive }
+                            if (receiveAction?.state == ActionState.Available) {
+                                ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
+                            } else {
+                                showBottomSheet(KycUpgradeNowSheet.newInstance())
+                            }
+                            analytics.logEvent(
+                                TransferAnalyticsEvent.ReceiveAccountSelected(
+                                    TxFlowAnalyticsAccountType.fromAccount(account),
+                                    account.currency
+                                )
+                            )
+                        }
                 } else {
-                    KycUpgradePromptManager.getUpsellSheet(type).show(
-                        childFragmentManager,
-                        BOTTOM_SHEET
-                    )
+                    compositeDisposable += upsellManager.queryUpsell(AssetAction.Receive, account)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { type ->
+                            if (type == KycUpgradePromptManager.Type.NONE) {
+                                ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
+                            } else {
+                                showBottomSheet(KycUpgradeNowSheet.newInstance())
+                            }
+                            analytics.logEvent(
+                                TransferAnalyticsEvent.ReceiveAccountSelected(
+                                    TxFlowAnalyticsAccountType.fromAccount(account),
+                                    account.currency
+                                )
+                            )
+                        }
                 }
-                analytics.logEvent(
-                    TransferAnalyticsEvent.ReceiveAccountSelected(
-                        TxFlowAnalyticsAccountType.fromAccount(account),
-                        account.currency
-                    )
-                )
             }
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.start(requireContext(), CampaignType.None)
+    }
+
+    override fun onSheetClosed() {
     }
 
     companion object {

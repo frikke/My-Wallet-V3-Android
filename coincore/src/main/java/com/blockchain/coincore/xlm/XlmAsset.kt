@@ -15,6 +15,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
@@ -49,6 +50,7 @@ internal class XlmAsset(
     crashLogger: CrashLogger,
     private val walletPreferences: WalletStatus,
     identity: UserIdentity,
+    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
@@ -61,6 +63,7 @@ internal class XlmAsset(
     pitLinking,
     crashLogger,
     identity,
+    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ) {
 
@@ -82,6 +85,7 @@ internal class XlmAsset(
                     walletOptionsDataManager = walletOptionsDataManager,
                     walletPreferences = walletPreferences,
                     custodialWalletManager = custodialManager,
+                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
                     identity = identity,
                     addressResolver = addressResolver
                 )
@@ -99,6 +103,7 @@ internal class XlmAsset(
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
+                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
                     isMemoSupported = true
                 )
             )

@@ -66,7 +66,7 @@ class BuySellFlowNavigatorTest {
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
         whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
             Single.just(
-                FeatureAccess.Granted
+                FeatureAccess.Granted()
             )
         )
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
@@ -89,7 +89,7 @@ class BuySellFlowNavigatorTest {
 
         whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
             Single.just(
-                FeatureAccess.Granted
+                FeatureAccess.Granted()
             )
         )
 

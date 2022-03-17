@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -30,8 +31,11 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -48,7 +52,8 @@ import timber.log.Timber
 
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
-    SlidingModalBottomDialog.Host {
+    SlidingModalBottomDialog.Host,
+    KycUpgradeNowSheet.Host {
 
     private val scopeId: String by lazy {
         "${TX_SCOPE_ID}_${this@TransactionFlowActivity.hashCode()}"
@@ -88,6 +93,10 @@ class TransactionFlowActivity :
 
     private val action: AssetAction by lazy {
         intent.extras?.getSerializable(ACTION) as? AssetAction ?: throw IllegalStateException("No action specified")
+    }
+
+    private val startKycForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        startModel()
     }
 
     private val compositeDisposable = CompositeDisposable()
@@ -152,12 +161,8 @@ class TransactionFlowActivity :
             TransactionStep.ZERO -> {
                 // do nothing
             }
-            TransactionStep.CLOSED -> kotlin.run {
-                dismissFlow()
-            }
-            else -> kotlin.run {
-                analyticsHooks.onStepChanged(state)
-            }
+            TransactionStep.CLOSED -> dismissFlow()
+            else -> analyticsHooks.onStepChanged(state)
         }
 
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
@@ -217,6 +222,7 @@ class TransactionFlowActivity :
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
+            TransactionStep.NOT_ELIGIBLE -> KycUpgradeNowSheet.newInstance()
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()
@@ -276,6 +282,17 @@ class TransactionFlowActivity :
         } catch (e: Throwable) {
             Timber.wtf("Error opening scope for id $scopeId - $e")
         }
+
+    override fun startKycClicked() {
+        val campaign = when (action) {
+            AssetAction.Swap -> CampaignType.Swap
+            AssetAction.Buy -> CampaignType.SimpleBuy
+            AssetAction.InterestDeposit -> CampaignType.Interest
+            AssetAction.InterestWithdraw -> CampaignType.Interest
+            else -> CampaignType.None
+        }
+        startKycForResult.launch(KycNavHostActivity.newIntent(this, campaign))
+    }
 
     override fun onSheetClosed() {
         // do nothing

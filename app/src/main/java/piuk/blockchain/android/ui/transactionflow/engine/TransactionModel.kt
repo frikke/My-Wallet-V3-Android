@@ -8,6 +8,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NeedsApprovalException
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
@@ -21,6 +22,7 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.FundsLocks
@@ -29,6 +31,9 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -38,6 +43,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -49,6 +55,7 @@ import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
     ZERO,
+    NOT_ELIGIBLE,
     ENTER_PASSWORD,
     SELECT_SOURCE(true),
     ENTER_ADDRESS(true),
@@ -127,7 +134,9 @@ data class TransactionState(
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
-    val locks: FundsLocks? = null
+    val locks: FundsLocks? = null,
+    val shouldShowSendToDomainBanner: Boolean = false,
+    val transactionsLimit: TransactionsLimit? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -220,6 +229,7 @@ class TransactionModel(
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
     private val errorLogger: TxFlowErrorReporting,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<TransactionState, TransactionIntent>(
@@ -246,6 +256,13 @@ class TransactionModel(
             )
             is TransactionIntent.ReInitialiseWithTargetAndNoSource -> processSourceAccountsListUpdate(
                 intent.action, intent.target, true
+            )
+            is TransactionIntent.InitialiseTransaction -> initialiseTransaction(
+                intent.sourceAccount,
+                intent.amount,
+                intent.transactionTarget,
+                intent.action,
+                intent.eligibility
             )
             is TransactionIntent.ValidatePassword -> processPasswordValidation(intent.password)
             is TransactionIntent.UpdatePasswordIsValidated -> null
@@ -319,6 +336,8 @@ class TransactionModel(
                 available = previousState.availableBalance
             )
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
+            is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
+            is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -326,7 +345,9 @@ class TransactionModel(
             is TransactionIntent.ClearSelectedTarget,
             TransactionIntent.TransactionApprovalDenied,
             TransactionIntent.ApprovalTriggered,
+            is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
+            is TransactionIntent.ShowKycUpgradeNow,
             is TransactionIntent.FiatDepositOptionSelected -> null
         }
     }
@@ -472,6 +493,30 @@ class TransactionModel(
                 }
             )
 
+    private fun fetchProductEligibility(
+        action: AssetAction,
+        sourceAccount: BlockchainAccount,
+        target: TransactionTarget
+    ): Maybe<FeatureAccess> = when (action) {
+        AssetAction.Buy -> interactor.userAccessForFeature(Feature.Buy).toMaybe()
+        AssetAction.Swap -> interactor.userAccessForFeature(Feature.Swap).toMaybe()
+        AssetAction.Send ->
+            if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is InterestAccount)) {
+                interactor.userAccessForFeature(Feature.CryptoDeposit).toMaybe()
+            } else {
+                Maybe.empty()
+            }
+        AssetAction.Receive,
+        AssetAction.ViewActivity,
+        AssetAction.ViewStatement,
+        AssetAction.Sell,
+        AssetAction.Withdraw,
+        AssetAction.InterestDeposit,
+        AssetAction.InterestWithdraw,
+        AssetAction.FiatDeposit,
+        AssetAction.Sign -> Maybe.empty()
+    }
+
     // At this point we can build a transactor object from coincore and configure
     // the state object a bit more; depending on whether it's an internal, external,
     // bitpay or BTC Url address we can set things like note, amount, fee schedule
@@ -481,6 +526,44 @@ class TransactionModel(
         amount: Money,
         transactionTarget: TransactionTarget,
         action: AssetAction
+    ): Disposable =
+        entitySwitchSilverEligibilityFeatureFlag.enabled
+            .onErrorReturnItem(false)
+            .flatMapMaybe { enabled ->
+                if (enabled) fetchProductEligibility(action, sourceAccount, transactionTarget)
+                else Maybe.empty()
+            }
+            .subscribeBy(
+                onSuccess = {
+                    if (it is FeatureAccess.Blocked) {
+                        process(TransactionIntent.ShowKycUpgradeNow)
+                    } else {
+                        process(
+                            TransactionIntent.InitialiseTransaction(
+                                sourceAccount,
+                                amount,
+                                transactionTarget,
+                                action,
+                                it
+                            )
+                        )
+                    }
+                },
+                onComplete = {
+                    process(TransactionIntent.InitialiseTransaction(sourceAccount, amount, transactionTarget, action))
+                },
+                onError = {
+                    process(TransactionIntent.InitialiseTransaction(sourceAccount, amount, transactionTarget, action))
+                    Timber.i(it)
+                }
+            )
+
+    private fun initialiseTransaction(
+        sourceAccount: BlockchainAccount,
+        amount: Money,
+        transactionTarget: TransactionTarget,
+        action: AssetAction,
+        eligibility: FeatureAccess?
     ): Disposable =
         interactor.initialiseTransaction(sourceAccount, transactionTarget, action)
             .doOnFirst {
@@ -492,7 +575,8 @@ class TransactionModel(
             }
             .subscribeBy(
                 onNext = {
-                    process(TransactionIntent.PendingTxUpdated(it))
+                    val transactionsLimit = (eligibility as? FeatureAccess.Granted)?.transactionsLimit
+                    process(TransactionIntent.PendingTxUpdated(it.copy(transactionsLimit = transactionsLimit)))
                 },
                 onError = {
                     Timber.e("!TRANSACTION!> Processor failed: $it")
@@ -604,6 +688,28 @@ class TransactionModel(
                 onError = {
                     process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.Error(it)))
                     Timber.e("Error getting Fiat deposit options. $it")
+                }
+            )
+
+    private fun processLoadSendToDomainPrefs(prefsKey: String) =
+        interactor.loadSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
+                }
+            )
+
+    private fun processDismissSendToDomainPrefs(prefsKey: String) =
+        interactor.dismissSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
                 }
             )
 

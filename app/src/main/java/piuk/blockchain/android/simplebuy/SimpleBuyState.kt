@@ -6,6 +6,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.LinkedBank
@@ -73,6 +74,7 @@ data class SimpleBuyState constructor(
     @Transient val paymentPending: Boolean = false,
     @Transient val paymentFailed: Boolean = false,
     @Transient private val transferLimits: TxLimits? = null,
+    @Transient val transactionsLimit: TransactionsLimit? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null

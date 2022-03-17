@@ -212,7 +212,6 @@ class PinModelTest {
         }.assertValueAt(0) {
             it == PinState(
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = shouldShow,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )
@@ -413,7 +412,6 @@ class PinModelTest {
                     passwordError = it.passwordStatus?.passwordError ?: PasswordError.NONE
                 ),
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
@@ -466,7 +464,6 @@ class PinModelTest {
                     isPinValidated = it.pinStatus.isPinValidated
                 ),
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
@@ -1220,7 +1217,6 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = false,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )
@@ -1276,7 +1272,6 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = false,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )
@@ -1319,7 +1314,6 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = false,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )
@@ -1370,7 +1364,6 @@ class PinModelTest {
             it == PinState(
                 isLoading = true,
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = false,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )

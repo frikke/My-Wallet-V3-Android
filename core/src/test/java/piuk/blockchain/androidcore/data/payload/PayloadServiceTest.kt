@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.ApiException
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -25,6 +26,7 @@ class PayloadServiceTest {
 
     private lateinit var subject: PayloadService
     private val mockPayloadManager: PayloadManager = mock(defaultAnswer = RETURNS_DEEP_STUBS)
+    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -36,7 +38,8 @@ class PayloadServiceTest {
     @Before
     fun setUp() {
         subject = PayloadService(
-            payloadManager = mockPayloadManager
+            payloadManager = mockPayloadManager,
+            kotlinSerializerFeatureFlag = kotlinSerializerFeatureFlag
         )
     }
 
@@ -45,13 +48,18 @@ class PayloadServiceTest {
         // Arrange
         val payload = "PAYLOAD"
         val password = "PASSWORD"
+        val withKotlinX = true
+
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+
         // Act
         val testObserver =
             subject.initializeFromPayload(payload, password).test()
         // Assert
         verify(mockPayloadManager).initializeAndDecryptFromPayload(
             payload,
-            password
+            password,
+            withKotlinX
         )
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
@@ -66,14 +74,16 @@ class PayloadServiceTest {
         val password = "PASSWORD"
         val mockWallet: Wallet = mock()
         val v4Enabled = true
-        whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled))
+        val withKotlinX = true
+        whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled, withKotlinX))
             .thenReturn(mockWallet)
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
 
         // Act
         val testObserver = subject.restoreHdWallet(mnemonic, walletName, email, password).test()
 
         // Assert
-        verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled)
+        verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)
@@ -87,11 +97,13 @@ class PayloadServiceTest {
         val email = "EMAIL"
         val mockWallet: Wallet = mock()
         val v4Enabled = true
-        whenever(mockPayloadManager.create(walletName, email, password, v4Enabled)).thenReturn(mockWallet)
+        val withKotlinX = true
+        whenever(mockPayloadManager.create(walletName, email, password, v4Enabled, withKotlinX)).thenReturn(mockWallet)
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
         // Act
         val testObserver = subject.createHdWallet(password, walletName, email).test()
         // Assert
-        verify(mockPayloadManager).create(walletName, email, password, v4Enabled)
+        verify(mockPayloadManager).create(walletName, email, password, v4Enabled, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)
@@ -104,6 +116,8 @@ class PayloadServiceTest {
         val guid = "GUID"
         val password = "PASSWORD"
         val v4Enabled = true
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
 
         // Act
         val testObserver = subject.initializeAndDecrypt(sharedKey, guid, password)
@@ -114,7 +128,8 @@ class PayloadServiceTest {
             sharedKey,
             guid,
             password,
-            v4Enabled
+            v4Enabled,
+            withKotlinX
         )
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
@@ -125,12 +140,14 @@ class PayloadServiceTest {
         // Arrange
         val qrString = "QR_STRING"
         val v4Enabled = true
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
 
         // Act
         val testObserver = subject.handleQrCode(qrString).test()
 
         // Assert
-        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString, v4Enabled)
+        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString, v4Enabled, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -138,11 +155,13 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadWithServer successful`() {
         // Arrange
-        whenever(mockPayloadManager.save()).thenReturn(true)
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+        whenever(mockPayloadManager.save(withKotlinX)).thenReturn(true)
         // Act
         val testObserver = subject.syncPayloadWithServer().test()
         // Assert
-        verify(mockPayloadManager).save()
+        verify(mockPayloadManager).save(withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -150,11 +169,13 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadWithServer failed`() {
         // Arrange
-        whenever(mockPayloadManager.save()).thenReturn(false)
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+        whenever(mockPayloadManager.save(withKotlinX)).thenReturn(false)
         // Act
         val testObserver = subject.syncPayloadWithServer().test()
         // Assert
-        verify(mockPayloadManager).save()
+        verify(mockPayloadManager).save(withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertNotComplete()
         testObserver.assertError(ApiException::class.java)
@@ -163,11 +184,13 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadAndPublicKeys successful`() {
         // Arrange
-        whenever(mockPayloadManager.saveAndSyncPubKeys()).thenReturn(true)
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+        whenever(mockPayloadManager.saveAndSyncPubKeys(withKotlinX)).thenReturn(true)
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
-        verify(mockPayloadManager).saveAndSyncPubKeys()
+        verify(mockPayloadManager).saveAndSyncPubKeys(withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -175,11 +198,13 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadAndPublicKeys failed`() {
         // Arrange
-        whenever(mockPayloadManager.saveAndSyncPubKeys()).thenReturn(false)
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+        whenever(mockPayloadManager.saveAndSyncPubKeys(withKotlinX)).thenReturn(false)
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
-        verify(mockPayloadManager).saveAndSyncPubKeys()
+        verify(mockPayloadManager).saveAndSyncPubKeys(withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertNotComplete()
         testObserver.assertError(ApiException::class.java)
@@ -236,13 +261,15 @@ class PayloadServiceTest {
         // Arrange
         val txHash = "TX_HASH"
         val note = "NOTE"
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
         whenever(mockPayloadManager.payload?.txNotes).thenReturn(mutableMapOf())
-        whenever(mockPayloadManager.save()).thenReturn(true)
+        whenever(mockPayloadManager.save(withKotlinX)).thenReturn(true)
         // Act
         val testObserver = subject.updateTransactionNotes(txHash, note).test()
         // Assert
         verify(mockPayloadManager, atLeastOnce()).payload
-        verify(mockPayloadManager).save()
+        verify(mockPayloadManager).save(withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -253,16 +280,19 @@ class PayloadServiceTest {
         val label = "LABEL"
         val secondPassword = "SECOND_PASSWORD"
         val mockAccount: Account = mock()
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
         whenever(
             mockPayloadManager.addAccount(
                 label,
-                secondPassword
+                secondPassword,
+                withKotlinX
             )
         ).thenReturn(mockAccount)
         // Act
         val testObserver = subject.createNewAccount(label, secondPassword).test()
         // Assert
-        verify(mockPayloadManager).addAccount(label, secondPassword)
+        verify(mockPayloadManager).addAccount(label, secondPassword, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockAccount)
@@ -274,12 +304,14 @@ class PayloadServiceTest {
         val mockKey: SigningKey = mock()
         val secondPassword = "SECOND_PASSWORD"
         val mockImportedAddress: ImportedAddress = mock()
-        whenever(mockPayloadManager.setKeyForImportedAddress(mockKey, secondPassword))
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
+        whenever(mockPayloadManager.setKeyForImportedAddress(mockKey, secondPassword, withKotlinX))
             .thenReturn(mockImportedAddress)
         // Act
         val testObserver = subject.setKeyForImportedAddress(mockKey, secondPassword).test()
         // Assert
-        verify(mockPayloadManager).setKeyForImportedAddress(mockKey, secondPassword)
+        verify(mockPayloadManager).setKeyForImportedAddress(mockKey, secondPassword, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockImportedAddress)
@@ -289,10 +321,12 @@ class PayloadServiceTest {
     fun addImportedAddress() {
         // Arrange
         val mockImportedAddress: ImportedAddress = mock()
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
         // Act
         val testObserver = subject.addImportedAddress(mockImportedAddress).test()
         // Assert
-        verify(mockPayloadManager).addImportedAddress(mockImportedAddress)
+        verify(mockPayloadManager).addImportedAddress(mockImportedAddress, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -301,10 +335,12 @@ class PayloadServiceTest {
     fun updateImportedAddress() {
         // Arrange
         val mockImportedAddress: ImportedAddress = mock()
+        val withKotlinX = true
+        whenever(kotlinSerializerFeatureFlag.isEnabled).thenReturn(withKotlinX)
         // Act
         val testObserver = subject.updateImportedAddress(mockImportedAddress).test()
         // Assert
-        verify(mockPayloadManager).updateImportedAddress(mockImportedAddress)
+        verify(mockPayloadManager).updateImportedAddress(mockImportedAddress, withKotlinX)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }

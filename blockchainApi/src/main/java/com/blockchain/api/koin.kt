@@ -10,6 +10,7 @@ import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.eligibility.ProductEligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.nabu.NabuUserApi
@@ -28,6 +29,7 @@ import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
+import com.blockchain.api.services.ProductEligibilityService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
@@ -185,6 +187,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(PaymentsApi::class.java)
         PaymentsService(
+            api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ProductEligibilityApi::class.java)
+        ProductEligibilityService(
             api
         )
     }

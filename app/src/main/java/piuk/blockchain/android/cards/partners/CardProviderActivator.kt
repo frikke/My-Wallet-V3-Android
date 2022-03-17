@@ -24,7 +24,8 @@ class CardProviderActivator(
             cardId = cardId,
             attributes = SimpleBuyConfirmationAttributes(
                 everypay = EveryPayAttrs(redirectUrl),
-                redirectURL = redirectUrl
+                redirectURL = redirectUrl,
+                cvv = cardData.cvv
             )
         ).flatMap { credentials ->
             when (credentials) {

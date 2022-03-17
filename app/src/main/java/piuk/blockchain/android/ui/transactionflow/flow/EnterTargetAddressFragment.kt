@@ -65,6 +65,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 }
             }
         }
+        model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowEnterAddressBinding =
@@ -91,6 +92,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
                 setupTransferList(newState)
                 setupLabels(newState)
+                showDomainCardAlert(newState)
             }
             sourceSlot?.update(newState)
 
@@ -132,6 +134,18 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     private fun hideErrorState() {
         binding.addressEntry.clearErrorState()
         binding.warningMessage.visible()
+    }
+
+    private fun showDomainCardAlert(state: TransactionState) {
+        binding.domainsAlert.apply {
+            title = customiser.sendToDomainCardTitle(state)
+            subtitle = customiser.sendToDomainCardDescription(state)
+            onClose = {
+                model.process(TransactionIntent.DismissSendToDomainBanner(DOMAIN_ALERT_DISMISS_KEY))
+                gone()
+            }
+            visibleIf { customiser.shouldShowSendToDomainBanner(state) }
+        }
     }
 
     private fun showManualAddressEntry(newState: TransactionState) {
@@ -289,7 +303,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     companion object {
         private const val NONCUSTODIAL_INPUT = 0
         private const val CUSTODIAL_INPUT = 1
-        private const val ADDRESS_UPDATE_INTERVAL = 500L
+        private const val ADDRESS_UPDATE_INTERVAL = 1000L
+        const val DOMAIN_ALERT_DISMISS_KEY = "SEND_TO_DOMAIN_ALERT_DISMISSED"
 
         fun newInstance(): EnterTargetAddressFragment = EnterTargetAddressFragment()
     }

@@ -18,6 +18,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
@@ -129,6 +130,16 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 nextEnabled = false,
                 stepsBackStack = Stack()
             )
+    }
+
+    data class InitialiseTransaction(
+        val sourceAccount: BlockchainAccount,
+        val amount: Money,
+        val transactionTarget: TransactionTarget,
+        val action: AssetAction,
+        val eligibility: FeatureAccess? = null
+    ) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState = oldState
     }
 
     object ClearBackStack : TransactionIntent() {
@@ -537,6 +548,13 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
+    object ShowKycUpgradeNow : TransactionIntent() {
+        override fun reduce(oldState: TransactionState): TransactionState =
+            oldState.copy(
+                currentStep = TransactionStep.NOT_ELIGIBLE
+            )
+    }
+
     object ClearSelectedTarget : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
@@ -580,6 +598,20 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             oldState.copy(
                 locks = fundsLocks
             )
+    }
+
+    data class LoadSendToDomainBannerPref(val prefsKey: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState
+    }
+
+    data class DismissSendToDomainBanner(val prefsKey: String) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState
+    }
+
+    data class SendToDomainPrefLoaded(private val shouldShowSendToDomain: Boolean) : TransactionIntent() {
+        override fun reduce(oldState: TransactionState) = oldState.copy(
+            shouldShowSendToDomainBanner = shouldShowSendToDomain
+        )
     }
 }
 

@@ -16,4 +16,7 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
             FeatureFlagState.DISABLED -> Single.just(false)
             FeatureFlagState.REMOTE -> remoteFlag.enabled.cache()
         }
+
+    override val isEnabled: Boolean
+        get() = remoteFlag.isEnabled
 }

@@ -161,11 +161,11 @@ public class EthereumWalletTest extends MockedResponseTest {
         eth.setHasSeen(true);
 
         //Act
-        subject = EthereumWallet.load(eth.toJson());
+        subject = EthereumWallet.load(eth.toJson(true), true);
 
         //Assert
         Assert.assertTrue(subject.hasSeen());
-        Assert.assertEquals(eth.toJson(), subject.toJson());
+        Assert.assertEquals(eth.toJson(true), subject.toJson(true));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         //Arrange
 
         //Act
-        subject = EthereumWallet.load(null);
+        subject = EthereumWallet.load(null, true);
 
         //Assert
         Assert.assertNull(subject);

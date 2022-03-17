@@ -223,6 +223,10 @@ class FiatCryptoInputView(
         }
     }
 
+    fun hideInfo() {
+        binding.info.gone()
+    }
+
     private fun hideExchangeAmount() {
         binding.exchangeAmount.gone()
     }

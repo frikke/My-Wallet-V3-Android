@@ -1,12 +1,14 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.PLN
@@ -20,18 +22,42 @@ import org.junit.Test
 class BuyFlowNavigatorTest {
 
     private val userIdentity: UserIdentity = mock {
-        on { userAccessForFeature(Feature.SimpleBuy) }.thenReturn(Single.just(FeatureAccess.Granted))
+        on { userAccessForFeature(Feature.SimpleBuy) }.thenReturn(Single.just(FeatureAccess.Granted()))
+        on { userAccessForFeature(Feature.Buy) }.thenReturn(Single.just(FeatureAccess.Granted()))
     }
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
     private lateinit var subject: BuyFlowNavigator
 
     @Before
     fun setUp() {
         subject = BuyFlowNavigator(
-            simpleBuySyncFactory, userIdentity, currencyPrefs, custodialWalletManager
+            simpleBuySyncFactory, userIdentity, currencyPrefs, custodialWalletManager,
+            entitySwitchSilverEligibilityFeatureFlag
         )
+    }
+
+    @Test
+    fun `if user is not eligible to buy then it should navigate to Kyc Upgrade Now`() {
+        val eligibility = FeatureAccess.Blocked(BlockedReason.InsufficientTier)
+        mockCurrencyIsSupported(true)
+        whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
+        whenever(userIdentity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(eligibility))
+        whenever(entitySwitchSilverEligibilityFeatureFlag.enabled).thenReturn(Single.just(true))
+
+        val test = subject.navigateTo(
+            startedFromKycResume = false,
+            startedFromDashboard = true,
+            startedFromApprovalDeepLink = false,
+            preselectedCrypto = CryptoCurrency.BTC,
+            failOnUnavailableCurrency = false
+        ).test()
+
+        test.assertValueAt(0, BuyNavigation.TransactionsLimitReached)
     }
 
     @Test

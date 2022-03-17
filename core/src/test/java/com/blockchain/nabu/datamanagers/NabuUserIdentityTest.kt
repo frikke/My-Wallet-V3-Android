@@ -1,6 +1,13 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.eligibility.EligibilityDataManager
+import com.blockchain.core.eligibility.models.EligibleProduct
+import com.blockchain.core.eligibility.models.ProductEligibility
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -21,6 +28,7 @@ class NabuUserIdentityTest {
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
     private val nabuUserDataManager: NabuUserDataManager = mock()
     private val nabuDataProvider: NabuDataUserProvider = mock()
+    private val eligibilityDataManager: EligibilityDataManager = mock()
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
@@ -28,6 +36,7 @@ class NabuUserIdentityTest {
         simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
         nabuUserDataManager = nabuUserDataManager,
         nabuDataProvider = nabuDataProvider,
+        eligibilityDataManager = eligibilityDataManager
     )
 
     @Test
@@ -104,6 +113,55 @@ class NabuUserIdentityTest {
         subject.isKycPending(Tier.GOLD)
             .test()
             .assertValue(true)
+    }
+
+    @Test
+    fun `on userAccessForFeature Buy should query eligibility data manager`() {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.BUY,
+            canTransact = true,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            canUpgradeTier = false
+        )
+        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.BUY))
+            .thenReturn(Single.just(eligibility))
+
+        subject.userAccessForFeature(Feature.Buy)
+            .test()
+            .assertValue(FeatureAccess.Granted())
+    }
+
+    @Test
+    fun `on userAccessForFeature Swap should query eligibility data manager`() {
+        val transactionsLimit = TransactionsLimit.Limited(3, 1)
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.SWAP,
+            canTransact = true,
+            maxTransactionsCap = transactionsLimit,
+            canUpgradeTier = false
+        )
+        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.SWAP))
+            .thenReturn(Single.just(eligibility))
+
+        subject.userAccessForFeature(Feature.Swap)
+            .test()
+            .assertValue(FeatureAccess.Granted(transactionsLimit))
+    }
+
+    @Test
+    fun `on userAccessForFeature CryptoDeposit should query eligibility data manager`() {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.CRYPTO_DEPOSIT,
+            canTransact = false,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            canUpgradeTier = true
+        )
+        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT))
+            .thenReturn(Single.just(eligibility))
+
+        subject.userAccessForFeature(Feature.CryptoDeposit)
+            .test()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.InsufficientTier))
     }
 
     companion object {

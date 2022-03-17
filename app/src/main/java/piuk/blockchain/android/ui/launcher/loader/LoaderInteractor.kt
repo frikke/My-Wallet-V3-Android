@@ -90,7 +90,12 @@ class LoaderInteractor(
                     )
                 }
             }.thenMaybe {
-                checkNewTermsAndConditions(isAfterWalletCreation)
+                termsAndConditionsFeatureFlag.enabled
+                    .onErrorReturnItem(false)
+                    .flatMapMaybe { enabled ->
+                        if (enabled) checkNewTermsAndConditions(isAfterWalletCreation)
+                        else Maybe.empty()
+                    }
             }.doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(

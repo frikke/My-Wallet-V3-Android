@@ -5,4 +5,5 @@
     <color name="colorBackground">#26619FF7</color>
     <color name="colorText">#FFFFFFFF</color>
     <color name="colorTextBackground">#FF0E121B</color>
+    <color name="colorMarkerBackground">#B30E121B</color>
 </resources>

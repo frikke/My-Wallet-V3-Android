@@ -51,7 +51,7 @@ class BankAuthModel(
                 intent, previousState.linkBankTransfer?.partner
             )
             is BankAuthIntent.StartBankApproval -> {
-                interactor.updateApprovalStatus()
+                interactor.updateApprovalStatus(intent.callbackPath)
                 null
             }
             else -> null

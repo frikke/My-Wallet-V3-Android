@@ -17,7 +17,7 @@ data class BankAuthState(
     val bankLinkingProcessState: BankLinkingProcessState = BankLinkingProcessState.NONE,
     val errorState: ErrorState? = null,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
-    val authorisePaymentUrl: String? = null
+    val callbackPathUrl: String = ""
 ) : MviState
 
 enum class BankLinkingProcessState {

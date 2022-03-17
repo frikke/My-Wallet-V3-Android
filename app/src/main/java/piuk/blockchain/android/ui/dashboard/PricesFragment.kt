@@ -487,6 +487,10 @@ internal class PricesFragment :
         )
     }
 
+    override fun goToKyc() {
+        navigator().launchKyc(CampaignType.None)
+    }
+
     override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
         val blockedState = buyAccess as? FeatureAccess.Blocked
 
@@ -494,6 +498,7 @@ internal class PricesFragment :
             when (val reason = it.reason) {
                 is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
                 BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
+                BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
             }.exhaustive
         } ?: run {
             navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset, true)

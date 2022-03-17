@@ -14,6 +14,7 @@ import android.view.MotionEvent.ACTION_UP
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import com.blockchain.componentlib.utils.VibrationManager
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -42,7 +43,7 @@ class ChartView : FrameLayout {
 
     private val lineChart: LineChart = LineChart(context)
 
-    var datePattern: String = "HH:mm aa"
+    var datePattern: String = "HH:mm"
         set(value) {
             field = value
             lineChart.setDrawMarkers(true)
@@ -56,6 +57,8 @@ class ChartView : FrameLayout {
         }
 
     var onEntryHighlighted: ((Entry) -> Unit)? = null
+    var onScrubRelease: (() -> Unit)? = null
+    var fiatSymbol: String = ""
 
     private var isBlockingScroll = false
     private var currentEvent: MotionEvent? = null
@@ -72,7 +75,7 @@ class ChartView : FrameLayout {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initialize() {
-        lineChart.setOnTouchListener { view, event ->
+        lineChart.setOnTouchListener { _, event ->
             currentEvent = event
 
             if (event?.action == ACTION_DOWN) {
@@ -87,6 +90,7 @@ class ChartView : FrameLayout {
                 isBlockingScroll = false
                 selectedEntry = null
                 setEntryData(entries)
+                onScrubRelease?.invoke()
             }
 
             if (event?.action == ACTION_MOVE && isBlockingScroll) {
@@ -107,6 +111,8 @@ class ChartView : FrameLayout {
             selectedEntry = entries.minByOrNull { abs(it.x - point.x) }
             selectedEntry?.let {
                 onEntryHighlighted?.invoke(it)
+
+                VibrationManager.vibrate(context)
             }
             setEntryData(entries)
         }
@@ -169,6 +175,7 @@ class ChartView : FrameLayout {
             mode = LineDataSet.Mode.LINEAR
             val h = Highlight(it.x, it.y, 0)
             h.dataIndex = index
+
             lineChart.highlightValue(h)
             icon?.alpha = 40
         } ?: run {
@@ -176,13 +183,26 @@ class ChartView : FrameLayout {
             lineChart.highlightValue(0f, -1)
         }
 
-        val firstDataset = getLineDataSet(firstEntries, R.color.colorPrimary, mode)
-        val secondDataset = getLineDataSet(secondEntries, R.color.colorScrub, mode)
+        val firstDataset = getLineDataSet(firstEntries, R.color.colorPrimary, mode, selectedEntry)
+        val secondDataset = getLineDataSet(secondEntries, R.color.colorScrub, mode, selectedEntry)
 
         lineChart.data = LineData(
             firstDataset,
             secondDataset
         )
+
+        if (selectedEntry == null) {
+            val highestEntry = entries.maxByOrNull { it.y }
+            val lowestEntry = entries.minByOrNull { it.y }
+            if (lowestEntry != null && highestEntry != null && lowestEntry != highestEntry) {
+                lineChart.highlightValues(
+                    arrayOf(
+                        TroughHighlight(fiatSymbol, lowestEntry.x, lowestEntry.y, 0),
+                        PeakHighlight(fiatSymbol, highestEntry.x, highestEntry.y, 0)
+                    )
+                )
+            }
+        }
 
         if (isChartLive) {
             entries.forEach {
@@ -201,7 +221,12 @@ class ChartView : FrameLayout {
         invalidate()
     }
 
-    private fun getLineDataSet(entries: List<Entry>, @ColorRes colorRes: Int, mode: LineDataSet.Mode): LineDataSet {
+    private fun getLineDataSet(
+        entries: List<Entry>,
+        @ColorRes colorRes: Int,
+        mode: LineDataSet.Mode,
+        selectedEntry: Entry?
+    ): LineDataSet {
         return LineDataSet(entries, null).apply {
             color = ContextCompat.getColor(context, colorRes)
             lineWidth = 2f
@@ -212,7 +237,7 @@ class ChartView : FrameLayout {
             lineChart.isHighlightPerDragEnabled = false
             lineChart.isHighlightPerTapEnabled = false
             setDrawHorizontalHighlightIndicator(false)
-            setDrawVerticalHighlightIndicator(true)
+            setDrawVerticalHighlightIndicator(selectedEntry != null)
             highlightLineWidth = 1f
             highLightColor = ContextCompat.getColor(context, R.color.colorText)
             setDrawFilled(true)
@@ -221,6 +246,12 @@ class ChartView : FrameLayout {
     }
 
     companion object {
-        private const val LONG_PRESS_DURATION = 350L
+        private const val LONG_PRESS_DURATION = 200L
     }
 }
+
+class TroughHighlight(val fiatSymbol: String, x: Float, y: Float, stackIndex: Int) :
+    Highlight(x, y, stackIndex)
+
+class PeakHighlight(val fiatSymbol: String, x: Float, y: Float, stackIndex: Int) :
+    Highlight(x, y, stackIndex)

@@ -14,6 +14,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
@@ -56,6 +57,7 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
 class SimpleBuyModel(
     prefs: CurrencyPrefs,
@@ -359,7 +361,19 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.ErrorIntent())
                 }
             )
-
+            is SimpleBuyIntent.FetchEligibility -> userIdentity.userAccessForFeature(Feature.Buy)
+                .subscribeBy(
+                    onSuccess = { buyEligibility ->
+                        if (buyEligibility is FeatureAccess.Granted) {
+                            process(
+                                SimpleBuyIntent.UpgradeEligibilityTransactionsLimit(buyEligibility.transactionsLimit)
+                            )
+                        }
+                    },
+                    onError = {
+                        Timber.i(it)
+                    }
+                )
             else -> null
         }
 
@@ -429,7 +443,7 @@ class SimpleBuyModel(
                     // We are allowed to refresh the payment methods only when
                     // 1. there is at least one with enough funds so making sure that in the end
                     // something will be selected
-                    // 2. when at least one with not enought funds has been detected.
+                    // 2. when at least one with not enough funds has been detected.
 
                     val shouldRefreshPaymentMethods =
                         paymentMethodsWithEnoughBalance.isNotEmpty() && paymentMethodsWithNotEnoughBalance.isNotEmpty()

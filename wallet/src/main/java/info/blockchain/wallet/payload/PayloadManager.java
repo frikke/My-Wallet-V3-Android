@@ -140,7 +140,8 @@ public class PayloadManager {
         @Nonnull String defaultAccountName,
         @Nonnull String email,
         @Nonnull String password,
-        boolean isPayloadV4Enabled
+        boolean isPayloadV4Enabled,
+        boolean withKotlinX
     ) throws Exception {
         this.isV4Enabled = isPayloadV4Enabled;
         this.password    = password;
@@ -152,7 +153,7 @@ public class PayloadManager {
             )
         );
 
-        saveNewWallet(email);
+        saveNewWallet(email, withKotlinX);
 
         updateAllBalances();
 
@@ -170,13 +171,14 @@ public class PayloadManager {
         @Nonnull String defaultAccountName,
         @Nonnull String email,
         @Nonnull String password,
-        boolean isPayloadV4Enabled
+        boolean isPayloadV4Enabled,
+        boolean withKotlinX
     ) throws Exception {
         this.isV4Enabled = isPayloadV4Enabled;
         this.password = password;
         walletBase = new WalletBase();
 
-        Wallet wallet = new Wallet();
+        Wallet wallet = new Wallet(defaultAccountName, isPayloadV4Enabled);
         WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(
             mnemonic,
             defaultAccountName,
@@ -187,7 +189,7 @@ public class PayloadManager {
 
         walletBase.setWalletBody(wallet);
 
-        saveNewWallet(email);
+        saveNewWallet(email, withKotlinX);
 
         updateAllBalances();
 
@@ -211,11 +213,12 @@ public class PayloadManager {
      */
     public void upgradeV2PayloadToV3(
         @Nullable String secondPassword,
-        @Nonnull String defaultAccountName
+        @Nonnull String defaultAccountName,
+        boolean withKotlinX
     ) throws Exception {
         try {
             getPayload().upgradeV2PayloadToV3(secondPassword, defaultAccountName);
-            boolean success = save();
+            boolean success = save(withKotlinX);
             if (!success) {
                 throw new Exception("Save failed");
             }
@@ -230,7 +233,7 @@ public class PayloadManager {
     /**
      * Upgrades a V3 wallet to V4 wallet format and saves it to the server
      */
-    public void upgradeV3PayloadToV4(@Nullable String secondPassword) throws Exception {
+    public void upgradeV3PayloadToV4(@Nullable String secondPassword, boolean withKotlinX) throws Exception {
         final Wallet payload = getPayload();
 
         if (payload.isDoubleEncryption()) {
@@ -253,7 +256,7 @@ public class PayloadManager {
             }
             payload.setWrapperVersion(WalletWrapper.V4);
 
-            if (!save()) {
+            if (!save(withKotlinX)) {
                 throw new Exception("Save failed");
             }
         } catch (Throwable t) {
@@ -298,7 +301,8 @@ public class PayloadManager {
         @Nonnull String sharedKey,
         @Nonnull String guid,
         @Nonnull String password,
-        boolean isV4Enabled
+        boolean isV4Enabled,
+        boolean withKotlinX
     ) throws IOException,
         InvalidCredentialsException,
         AccountLockedException,
@@ -320,9 +324,9 @@ public class PayloadManager {
 
         if (exe.isSuccessful()) {
             final String response = exe.body().string();
-            final WalletBase base = WalletBase.fromJson(response);
+            final WalletBase base = WalletBase.fromJson(response, withKotlinX);
 
-            base.decryptPayload(this.password);
+            base.decryptPayload(this.password, withKotlinX);
             walletBase = base;
         }
         else {
@@ -344,7 +348,8 @@ public class PayloadManager {
 
     public void initializeAndDecryptFromQR(
         @Nonnull String qrData,
-        boolean isV4Enabled
+        boolean isV4Enabled,
+        boolean withKotlinX
     ) throws Exception {
         MainNetParams netParams = MainNetParams.get();
         Pair qrComponents = Pairing.getQRComponentsFromRawString(qrData);
@@ -366,7 +371,8 @@ public class PayloadManager {
                 sharedKey,
                 guid,
                 password,
-                isV4Enabled
+                isV4Enabled,
+                withKotlinX
             );
         }
         else {
@@ -388,11 +394,12 @@ public class PayloadManager {
      */
     public void initializeAndDecryptFromPayload(
         String payload,
-        String password
+        String password,
+        boolean withKotlinX
     ) throws HDWalletException, DecryptionException {
         try {
-            walletBase = WalletBase.fromJson(payload);
-            walletBase.decryptPayload(password);
+            walletBase = WalletBase.fromJson(payload, withKotlinX);
+            walletBase.decryptPayload(password, withKotlinX);
             setTempPassword(password);
 
             updateAllBalances();
@@ -417,11 +424,10 @@ public class PayloadManager {
         }
     }
 
-    private void saveNewWallet(String email) throws Exception {
+    private void saveNewWallet(String email, boolean withKotlinX) throws Exception {
         validateSave();
         // Encrypt and wrap payload
-        ObjectMapper mapper = WalletWrapper.getMapperForVersion(getPayload().getWrapperVersion());
-        Pair pair = walletBase.encryptAndWrapPayload(password);
+        Pair pair = walletBase.encryptAndWrapPayload(password, withKotlinX);
         WalletWrapper payloadWrapper = (WalletWrapper) pair.getRight();
         String newPayloadChecksum = (String) pair.getLeft();
 
@@ -430,7 +436,7 @@ public class PayloadManager {
             getPayload().getGuid(),
             getPayload().getSharedKey(),
             null,
-            payloadWrapper.toJson(mapper),
+            payloadWrapper.toJson(getPayload().getWrapperVersion(), withKotlinX),
             newPayloadChecksum,
             email,
             device.getOsType()
@@ -453,12 +459,12 @@ public class PayloadManager {
      *
      * @return True if save successful
      */
-    public boolean saveAndSyncPubKeys() throws
+    public boolean saveAndSyncPubKeys(boolean withKotlinX) throws
         HDWalletException,
         EncryptionException,
         NoSuchAlgorithmException,
         IOException {
-        return save(true);
+        return save(true, withKotlinX);
     }
 
     /**
@@ -466,16 +472,17 @@ public class PayloadManager {
      *
      * @return True if save successful
      */
-    public boolean save() throws
+    public boolean save(boolean withKotlinX) throws
         HDWalletException,
         EncryptionException,
         NoSuchAlgorithmException,
         IOException {
-        return save(false);
+        return save(false, withKotlinX);
     }
 
     private synchronized boolean save(
-        boolean forcePubKeySync
+        boolean forcePubKeySync,
+        boolean withKotlinX
     ) throws HDWalletException,
         NoSuchAlgorithmException,
         EncryptionException,
@@ -485,8 +492,7 @@ public class PayloadManager {
 
         // Encrypt and wrap payload
         int payloadVersion = getPayload().getWrapperVersion();
-        ObjectMapper mapper = WalletWrapper.getMapperForVersion(payloadVersion);
-        Pair pair = walletBase.encryptAndWrapPayload(password);
+        Pair pair = walletBase.encryptAndWrapPayload(password, withKotlinX);
         WalletWrapper payloadWrapper = (WalletWrapper) pair.getRight();
         String newPayloadChecksum = (String) pair.getLeft();
         String oldPayloadChecksum = walletBase.getPayloadChecksum();
@@ -504,7 +510,7 @@ public class PayloadManager {
             getPayload().getGuid(),
             getPayload().getSharedKey(),
             syncAddresses,
-            payloadWrapper.toJson(mapper),
+            payloadWrapper.toJson(payloadVersion, withKotlinX),
             newPayloadChecksum,
             oldPayloadChecksum,
             device.getOsType()
@@ -570,7 +576,8 @@ public class PayloadManager {
      */
     public Account addAccount(
         String label,
-        @Nullable String secondPassword
+        @Nullable String secondPassword,
+        boolean withKotlinX
     ) throws Exception {
         int version = getPayload().getWrapperVersion();
         Account accountBody = getPayload().addAccount(
@@ -579,7 +586,7 @@ public class PayloadManager {
             version
         );
 
-        boolean success = save();
+        boolean success = save(withKotlinX);
 
         if (!success) {
             //Revert on save fail
@@ -599,11 +606,11 @@ public class PayloadManager {
      * @param importedAddress The {@link ImportedAddress} to be added
      * @throws Exception Possible if saving the Wallet fails
      */
-    public void addImportedAddress(ImportedAddress importedAddress) throws Exception {
+    public void addImportedAddress(ImportedAddress importedAddress, boolean withKotlinX) throws Exception {
         List<ImportedAddress> backup = new ArrayList<>(getPayload().getImportedAddressList());
         getPayload().getImportedAddressList().add(importedAddress);
 
-        if (!save()) {
+        if (!save(withKotlinX)) {
             // Revert on sync fail
             getPayload().setImportedAddressList(backup);
             throw new Exception("Failed to save added Imported Address.");
@@ -619,7 +626,7 @@ public class PayloadManager {
      * @throws Exception            Possible if saving the Wallet fails
      * @throws NullPointerException Thrown if the address to be updated is not found
      */
-    public void updateImportedAddress(ImportedAddress importedAddress) throws Exception {
+    public void updateImportedAddress(ImportedAddress importedAddress, boolean withKotlinX) throws Exception {
         boolean found = false;
 
         final List<ImportedAddress> backup = new ArrayList<>(getPayload().getImportedAddressList());
@@ -639,7 +646,7 @@ public class PayloadManager {
             throw new NullPointerException("Imported address not found");
         }
 
-        if (!save()) {
+        if (!save(withKotlinX)) {
             // Revert on sync fail
             getPayload().setImportedAddressList(backup);
             throw new Exception("Failed to save added imported Address.");
@@ -654,18 +661,21 @@ public class PayloadManager {
      * @param key            ECKey for existing imported address
      * @param secondPassword Double encryption password if applicable.
      */
-    public ImportedAddress setKeyForImportedAddress(SigningKey key,
-                                                    @Nullable String secondPassword) throws Exception {
+    public ImportedAddress setKeyForImportedAddress(
+        SigningKey key,
+        @Nullable String secondPassword,
+        boolean withKotlinX
+    ) throws Exception {
         ImportedAddress matchingImportedAddress;
         try {
             matchingImportedAddress = getPayload().setKeyForImportedAddress(key, secondPassword);
         } catch (NoSuchAddressException e) {
             e.printStackTrace();
             //If no match found, save as new
-            return addImportedAddressFromKey(key, secondPassword);
+            return addImportedAddressFromKey(key, secondPassword, withKotlinX);
         }
 
-        boolean success = save();
+        boolean success = save(withKotlinX);
 
         if (!success) {
             //Revert on save fail
@@ -677,7 +687,8 @@ public class PayloadManager {
 
     public ImportedAddress addImportedAddressFromKey(
         SigningKey key,
-        @Nullable String secondPassword
+        @Nullable String secondPassword,
+        boolean withKotlinX
     ) throws Exception {
         ImportedAddress newlyAdded = getPayload().addImportedAddressFromKey(
             key,
@@ -686,7 +697,7 @@ public class PayloadManager {
             appVersion.getAppVersion()
         );
 
-        boolean success = save();
+        boolean success = save(withKotlinX);
 
         if (!success) {
             //Revert on save fail
@@ -1021,7 +1032,7 @@ public class PayloadManager {
         multiAddressFactory.incrementNextChangeAddress(account.getXpubs().getDefault().getAddress());
     }
 
-    public String getNextReceiveAddressAndReserve(Account account, String reserveLabel)
+    public String getNextReceiveAddressAndReserve(Account account, String reserveLabel, boolean withKotlinX)
         throws
         HDWalletException,
         EncryptionException,
@@ -1031,12 +1042,12 @@ public class PayloadManager {
         String derivationType = derivationTypeFromXPub(account.getXpubs().getDefault());
         int nextIndex = getNextReceiveAddressIndexBtc(account);
 
-        reserveAddress(account, nextIndex, reserveLabel);
+        reserveAddress(account, nextIndex, reserveLabel, withKotlinX);
 
         return getReceiveAddress(account, nextIndex, derivationType);
     }
 
-    public void reserveAddress(Account account, int index, String label)
+    public void reserveAddress(Account account, int index, String label, boolean withKotlinX)
         throws
         HDWalletException,
         EncryptionException,
@@ -1045,7 +1056,7 @@ public class PayloadManager {
         ServerConnectionException {
 
         account.addAddressLabel(index, label);
-        if (!save()) {
+        if (!save(withKotlinX)) {
             throw new ServerConnectionException("Unable to reserve address.");
         }
     }

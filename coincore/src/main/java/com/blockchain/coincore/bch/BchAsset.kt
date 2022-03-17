@@ -20,6 +20,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -53,6 +54,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     private val walletPreferences: WalletStatus,
     private val beNotifyUpdate: BackendNotificationUpdater,
     identity: UserIdentity,
+    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
@@ -65,6 +67,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     pitLinking,
     crashLogger,
     identity,
+    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ),
     NonCustodialSupport {
@@ -96,6 +99,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
                             walletPreferences = walletPreferences,
                             custodialWalletManager = custodialManager,
                             refreshTrigger = this@BchAsset,
+                            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
                             identity = identity,
                             addressResolver = addressResolver
                         )
@@ -117,7 +121,8 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity
+                    identity = identity,
+                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag
                 )
             )
         )

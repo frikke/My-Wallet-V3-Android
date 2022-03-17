@@ -1,13 +1,17 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.SnackbarType
@@ -38,6 +42,7 @@ import piuk.blockchain.android.ui.customviews.account.removePossibleBottomView
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.context
+import piuk.blockchain.android.util.setAssetIconColours
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
 import timber.log.Timber
 
@@ -61,13 +66,17 @@ class AssetActionsSheet :
             newState.selectedAccount?.let { accounts ->
                 showAssetBalances(newState)
                 val firstAccount = accounts.selectFirstAccount()
-                itemAdapter.itemList = newState.actions.map { action ->
-                    mapAction(
-                        action,
-                        action.hasWarning(newState),
-                        firstAccount
-                    )
-                }
+                itemAdapter.itemList = newState.actions
+                    // TODO(aromano): Remove once other ActionStates are handled, probably this will never be implemented
+                    //                here, but rather in CoinView
+                    .filter { it.state == ActionState.Available || it.state == ActionState.LockedForTier }
+                    .map { action ->
+                        mapAction(
+                            action,
+                            action.hasWarning(newState),
+                            firstAccount
+                        )
+                    }
             }
 
             if (newState.errorState != AssetDetailsError.NONE) {
@@ -129,12 +138,12 @@ class AssetActionsSheet :
     }
 
     private fun mapAction(
-        action: AssetAction,
+        stateAwareAction: StateAwareAction,
         hasWarning: Boolean,
         account: CryptoAccount
     ): AssetActionItem {
         val asset = account.currency
-        return when (action) {
+        return when (stateAwareAction.action) {
             // using the secondary ctor ensures the action is always enabled if it is present
             AssetAction.ViewActivity ->
                 AssetActionItem(
@@ -143,10 +152,10 @@ class AssetActionsSheet :
                     hasWarning = hasWarning,
                     description = getString(R.string.fiat_funds_detail_activity_details),
                     asset = asset,
-                    action = action
+                    action = stateAwareAction
                 ) {
                     logActionEvent(AssetDetailsAnalytics.ACTIVITY_CLICKED, asset)
-                    processAction(AssetAction.ViewActivity)
+                    processAction(stateAwareAction)
                 }
             AssetAction.Send ->
                 AssetActionItem(
@@ -159,10 +168,10 @@ class AssetActionsSheet :
                         asset.displayTicker
                     ),
                     asset = asset,
-                    action = action
+                    action = stateAwareAction
                 ) {
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
-                    processAction(AssetAction.Send)
+                    processAction(stateAwareAction)
                     analytics.logEvent(
                         TransferAnalyticsEvent.TransferClicked(
                             LaunchOrigin.CURRENCY_PAGE,
@@ -180,10 +189,10 @@ class AssetActionsSheet :
                         asset.displayTicker
                     ),
                     asset = asset,
-                    action = action
+                    action = stateAwareAction
                 ) {
                     logActionEvent(AssetDetailsAnalytics.RECEIVE_CLICKED, asset)
-                    processAction(AssetAction.Receive)
+                    processAction(stateAwareAction)
                     analytics.logEvent(
                         TransferAnalyticsEvent.TransferClicked(
                             LaunchOrigin.CURRENCY_PAGE,
@@ -199,19 +208,21 @@ class AssetActionsSheet :
                 description = getString(
                     R.string.dashboard_asset_actions_swap_dsc, asset.displayTicker
                 ),
-                asset = asset, action = action
+                asset = asset, action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SWAP_CLICKED, asset)
-                processAction(AssetAction.Swap)
+                processAction(stateAwareAction)
             }
             AssetAction.ViewStatement -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_summary_title_1),
                 icon = R.drawable.ic_tx_interest,
                 hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_summary_dsc_1, asset.displayTicker),
-                asset = asset, action = action
+                asset = asset, action = stateAwareAction
             ) {
-                goToSummary()
+                checkForKycStatus {
+                    processAction(stateAwareAction)
+                }
             }
             AssetAction.InterestDeposit -> AssetActionItem(
                 title = getString(R.string.dashboard_asset_actions_add_title),
@@ -219,9 +230,9 @@ class AssetActionsSheet :
                 hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_add_dsc, asset.displayTicker),
                 asset = asset,
-                action = action
+                action = stateAwareAction
             ) {
-                processAction(AssetAction.InterestDeposit)
+                processAction(stateAwareAction)
                 analytics.logEvent(
                     InterestAnalytics.InterestDepositClicked(
                         currency = asset.networkTicker,
@@ -235,9 +246,9 @@ class AssetActionsSheet :
                 hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_withdraw_dsc_1, asset.displayTicker),
                 asset = asset,
-                action = action
+                action = stateAwareAction
             ) {
-                processAction(AssetAction.InterestWithdraw)
+                processAction(stateAwareAction)
                 analytics.logEvent(
                     InterestAnalytics.InterestWithdrawalClicked(
                         currency = asset.networkTicker,
@@ -250,10 +261,10 @@ class AssetActionsSheet :
                 icon = R.drawable.ic_tx_sell,
                 hasWarning = hasWarning,
                 description = getString(R.string.convert_your_crypto_to_cash),
-                asset = asset, action = action
+                asset = asset, action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SELL_CLICKED, asset)
-                processAction(AssetAction.Sell)
+                processAction(stateAwareAction)
             }
             AssetAction.Buy -> AssetActionItem(
                 title = getString(R.string.common_buy),
@@ -261,10 +272,9 @@ class AssetActionsSheet :
                 hasWarning = hasWarning,
                 description = getString(R.string.dashboard_asset_actions_buy_dsc, asset.displayTicker),
                 asset = asset,
-                action = action
+                action = stateAwareAction
             ) {
-                processAction(AssetAction.Buy)
-                dismiss()
+                processAction(stateAwareAction)
             }
             AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
@@ -274,12 +284,6 @@ class AssetActionsSheet :
 
     private fun logActionEvent(event: AssetDetailsAnalytics, asset: Currency) {
         analytics.logEvent(assetActionEvent(event, asset))
-    }
-
-    private fun goToSummary() {
-        checkForKycStatus {
-            processAction(AssetAction.ViewStatement)
-        }
     }
 
     private fun checkForKycStatus(action: () -> Unit) {
@@ -298,8 +302,17 @@ class AssetActionsSheet :
         )
     }
 
-    private fun processAction(action: AssetAction) {
-        model.process(HandleActionIntent(action))
+    private fun processAction(stateAwareAction: StateAwareAction) {
+        when (stateAwareAction.state) {
+            ActionState.LockedForTier -> model.process(HandleActionIntentLockedForTier)
+            ActionState.Available,
+            ActionState.LockedForBalance,
+            ActionState.LockedDueToAvailability,
+            ActionState.LockedForOther -> {
+                model.process(HandleActionIntent(stateAwareAction.action))
+            }
+        }
+
         dispose()
     }
 
@@ -311,8 +324,8 @@ class AssetActionsSheet :
         DialogAssetActionsSheetBinding.inflate(inflater, container, false)
 }
 
-private fun AssetAction.hasWarning(newState: AssetDetailsState): Boolean =
-    when (this) {
+private fun StateAwareAction.hasWarning(newState: AssetDetailsState): Boolean =
+    when (this.action) {
         AssetAction.Buy ->
             (newState.userBuyAccess as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions
         else -> false
@@ -357,10 +370,26 @@ private class AssetActionAdapter(
 
             binding.apply {
                 itemActionIcon.setImageResource(item.icon)
-                itemActionIcon.setAssetIconColoursWithTint(item.asset)
+                if (item.action.state == ActionState.LockedForTier) {
+                    itemActionIcon.setAssetIconColours(
+                        ContextCompat.getColor(context, R.color.grey_000),
+                        ContextCompat.getColor(context, R.color.grey_600)
+                    )
+                } else {
+                    itemActionIcon.setAssetIconColoursWithTint(item.asset)
+                }
                 itemActionTitle.text = item.title
                 itemActionLabel.text = item.description
-                itemActionWarning.visibleIf { item.hasWarning }
+
+                if (item.action.state == ActionState.LockedForTier) {
+                    itemActionWarning.setImageResource(R.drawable.ic_lock)
+                    itemActionWarning.imageTintList =
+                        ColorStateList.valueOf(ContextCompat.getColor(context, R.color.grey_300))
+                } else if (item.hasWarning) {
+                    itemActionWarning.setImageResource(R.drawable.ic_warning)
+                    itemActionWarning.imageTintList = null
+                }
+                itemActionWarning.visibleIf { item.hasWarning || item.action.state == ActionState.LockedForTier }
             }
         }
 
@@ -413,7 +442,7 @@ private data class AssetActionItem(
     val icon: Int,
     val description: String,
     val asset: Currency,
-    val action: AssetAction,
+    val action: StateAwareAction,
     val hasWarning: Boolean,
     val actionCta: () -> Unit
 ) {
@@ -423,7 +452,7 @@ private data class AssetActionItem(
         hasWarning: Boolean,
         description: String,
         asset: Currency,
-        action: AssetAction,
+        action: StateAwareAction,
         actionCta: () -> Unit
     ) : this(
         null,

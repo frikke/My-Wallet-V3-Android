@@ -485,7 +485,7 @@ class SimpleBuyInteractor(
     )
         ?: EMPTY_PAYMENT_TOKEN
 
-    fun updateApprovalStatus() {
+    fun updateApprovalStatus(callbackPath: String) {
         bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
             bankLinkingPrefs.setBankLinkingState(
                 it.copy(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
@@ -495,6 +495,9 @@ class SimpleBuyInteractor(
                 BankAuthDeepLinkState(bankAuthFlow = BankAuthFlowState.BANK_APPROVAL_PENDING).toPreferencesValue()
             )
         }
+
+        val sanitisedUrl = callbackPath.removePrefix("nabu-gateway/")
+        bankLinkingPrefs.setDynamicOneTimeTokenUrl(sanitisedUrl)
     }
 
     fun updateOneTimeTokenPath(callbackPath: String) {

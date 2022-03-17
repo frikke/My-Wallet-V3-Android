@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import info.blockchain.wallet.bip44.HDAccount
 import java.lang.IllegalStateException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,17 +19,22 @@ import java.lang.IllegalStateException
     creatorVisibility = Visibility.NONE,
     isGetterVisibility = Visibility.NONE
 )
+@Serializable
 data class AccountV4(
     @JsonProperty("label")
+    @SerialName("label")
     override var label: String = "",
 
     @field:JsonProperty("default_derivation")
+    @SerialName("default_derivation")
     var defaultType: String = Derivation.SEGWIT_BECH32_TYPE,
 
     @field:JsonProperty("archived")
+    @SerialName("archived")
     override var isArchived: Boolean = false,
 
     @JsonProperty("derivations")
+    @SerialName("derivations")
     val derivations: MutableList<Derivation> = mutableListOf()
 ) : Account {
 

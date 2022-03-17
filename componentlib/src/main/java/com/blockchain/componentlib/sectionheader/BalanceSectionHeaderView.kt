@@ -24,6 +24,7 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
     var secondaryText by mutableStateOf("")
     var iconResource: ImageResource by mutableStateOf(defaultIcon)
     var onIconClick by mutableStateOf({})
+    var shouldShowIcon by mutableStateOf(true)
 
     @Composable
     override fun Content() {
@@ -34,7 +35,8 @@ class BalanceSectionHeaderView @JvmOverloads constructor(
                     primaryText = primaryText,
                     secondaryText = secondaryText,
                     iconResource = iconResource,
-                    onIconClick = onIconClick
+                    onIconClick = onIconClick,
+                    shouldShowIcon = shouldShowIcon
                 )
             }
         }

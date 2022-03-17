@@ -52,7 +52,7 @@ class OutcomeCall<R>(
         // Http error response (4xx - 5xx)
         val body = body()
         return when {
-            !isSuccessful -> Outcome.Failure(ApiError.HttpError(throwable = Throwable(errorBody()?.toString() ?: "")))
+            !isSuccessful -> Outcome.Failure(ApiError.HttpError(throwable = Throwable(errorBody()?.string() ?: "")))
             // Http success response with body
             body != null -> Outcome.Success(body)
             // if we defined Unit as success type it means we expected no response body

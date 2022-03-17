@@ -10,6 +10,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -38,6 +39,9 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val pitLinking: PitLinking = mock()
     private val crashLogger: CrashLogger = mock()
     private val identity: UserIdentity = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
     private val formatUtils: FormatUtilities = mock()
     private val addressResolver: EthHotWalletAddressResolver = mock()
 
@@ -57,6 +61,7 @@ class EthAddressParserTest : CoincoreTestBase() {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         identity = identity,
+        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         formatUtils = formatUtils,
         addressResolver = addressResolver
     )

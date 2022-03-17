@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
@@ -29,6 +30,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
@@ -43,7 +45,7 @@ import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
+class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNowSheet.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -86,7 +88,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar { super.onBackPressed() }
+        updateToolbar(
+            toolbarTitle = getString(R.string.common_buy),
+            backAction = { super.onBackPressed() }
+        )
         if (savedInstanceState == null) {
             if (startedFromApprovalDeepLink) {
                 bankLinkingPrefs.getBankLinkingState().fromPreferencesValue()?.let {
@@ -106,7 +111,13 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
         }
     }
 
-    override fun onSheetClosed() = subscribeForNavigation(true)
+    override fun onSheetClosed() {
+    }
+
+    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        if (sheet is KycUpgradeNowSheet) exitSimpleBuyFlow()
+        else subscribeForNavigation(true)
+    }
 
     private fun subscribeForNavigation(failOnUnavailableCurrency: Boolean = false) {
         compositeDisposable += buyFlowNavigator.navigateTo(
@@ -124,6 +135,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
                     is BuyNavigation.BlockBuy -> blockBuy(it.access)
                     BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
                     BuyNavigation.CurrencyNotAvailable -> finish()
+                    is BuyNavigation.TransactionsLimitReached -> showBottomSheet(KycUpgradeNowSheet.newInstance())
                 }.exhaustive
             }
     }
@@ -303,6 +315,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator {
             }
         }
         googlePayResponseInterceptor.interceptActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun startKycClicked() {
+        startKyc()
     }
 
     companion object {

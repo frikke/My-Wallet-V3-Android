@@ -1086,6 +1086,7 @@ class TransactionFlowCustomiserImpl(
     override fun getScreenTitle(state: TransactionState): String =
         when (state.currentStep) {
             TransactionStep.ENTER_PASSWORD -> resources.getString(R.string.transfer_second_pswd_title)
+            TransactionStep.NOT_ELIGIBLE -> resources.getString(R.string.kyc_upgrade_now_toolbar)
             TransactionStep.SELECT_SOURCE -> selectSourceAccountTitle(state)
             TransactionStep.ENTER_ADDRESS -> selectTargetAddressTitle(state)
             TransactionStep.SELECT_TARGET_ACCOUNT -> selectTargetAccountTitle(state)
@@ -1095,6 +1096,27 @@ class TransactionFlowCustomiserImpl(
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> ""
         }
+
+    override fun sendToDomainCardTitle(state: TransactionState): String {
+        return when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.send_domain_alert_title)
+            else -> ""
+        }
+    }
+
+    override fun sendToDomainCardDescription(state: TransactionState): String {
+        return when (state.action) {
+            AssetAction.Send -> resources.getString(R.string.send_domain_alert_description)
+            else -> ""
+        }
+    }
+
+    override fun shouldShowSendToDomainBanner(state: TransactionState): Boolean {
+        return when (state.action) {
+            AssetAction.Send -> state.shouldShowSendToDomainBanner
+            else -> false
+        }
+    }
 
     companion object {
         const val MAX_ACCOUNTS_FOR_SHEET = 3

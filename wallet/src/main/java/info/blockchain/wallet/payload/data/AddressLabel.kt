@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.IOException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,24 +17,14 @@ import java.io.IOException
     creatorVisibility = Visibility.NONE,
     isGetterVisibility = Visibility.NONE
 )
+@Serializable
 data class AddressLabel(
 
     @JsonProperty("index")
+    @SerialName("index")
     var index: Int = 0,
 
     @JsonProperty("label")
+    @SerialName("label")
     var label: String? = null
-) {
-    @Throws(JsonProcessingException::class)
-    fun toJson(): String {
-        return ObjectMapper().writeValueAsString(this)
-    }
-
-    companion object {
-
-        @Throws(IOException::class)
-        fun fromJson(json: String): AddressLabel {
-            return ObjectMapper().readValue(json, AddressLabel::class.java)
-        }
-    }
-}
+)

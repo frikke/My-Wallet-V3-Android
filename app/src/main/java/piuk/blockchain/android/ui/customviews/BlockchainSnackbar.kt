@@ -45,7 +45,9 @@ class BlockchainSnackbar(
             return BlockchainSnackbar(
                 parent,
                 customView
-            ).setDuration(duration)
+            ).setDuration(duration).apply {
+                this.view.elevation = Float.MAX_VALUE
+            }
         }
 
         fun make(

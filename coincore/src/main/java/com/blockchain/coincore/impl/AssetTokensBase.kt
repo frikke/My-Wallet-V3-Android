@@ -24,6 +24,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
@@ -51,6 +52,7 @@ interface AccountRefreshTrigger {
     private val pitLinking: PitLinking,
     protected val crashLogger: CrashLogger,
     protected val identity: UserIdentity,
+    protected val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     protected val addressResolver: AddressResolver
 ) : CryptoAsset, AccountRefreshTrigger {
 

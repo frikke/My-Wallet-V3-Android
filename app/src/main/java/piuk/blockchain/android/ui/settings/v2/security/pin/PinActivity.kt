@@ -26,6 +26,7 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
+import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
@@ -121,6 +122,9 @@ class PinActivity :
             pinLogout.apply {
                 text = getString(R.string.logout)
                 setOnClickListener { model.process(PinIntent.PinLogout) }
+            }
+            root.setOnClickListener {
+                this@PinActivity.showKeyboard()
             }
         }
     }
@@ -277,6 +281,7 @@ class PinActivity :
             OriginScreenToPin.RESET_PASSWORD_SCREEN,
             OriginScreenToPin.PIN_SCREEN,
             OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+            OriginScreenToPin.LOGIN_AUTH_SCREEN,
             OriginScreenToPin.PASSWORD_REQUIRED_SCREEN -> binding.pinLogout.visible()
         }
     }
@@ -883,6 +888,7 @@ class PinActivity :
 
     private fun onUpdateFinished(isFromPinCreation: Boolean) =
         when {
+            isChangingPin && biometricsController.isBiometricUnlockEnabled -> enrollBiometrics()
             isFromPinCreation && biometricsController.isBiometricAuthEnabled -> askToUseBiometrics()
             isChangingPin -> finish()
             else -> finishSignupProcess()
@@ -987,6 +993,10 @@ class PinActivity :
                 }
 
                 override fun onAuthCancelled() {
+                    if (isChangingPin) {
+                        model.process(PinIntent.DisableBiometrics)
+                        finishSignupProcess()
+                    }
                     // do nothing, the sheet is not dismissed when the user starts the flow
                 }
             }
@@ -1028,6 +1038,7 @@ class PinActivity :
             RESET_PASSWORD_SCREEN,
             PIN_SCREEN,
             MANUAL_PAIRING_SCREEN,
+            LOGIN_AUTH_SCREEN,
             PASSWORD_REQUIRED_SCREEN
         }
     }
