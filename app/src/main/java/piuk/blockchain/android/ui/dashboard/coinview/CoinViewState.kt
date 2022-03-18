@@ -55,7 +55,8 @@ enum class CoinViewError {
     WalletLoadError,
     ChartLoadError,
     RecurringBuysLoadError,
-    QuickActionsFailed
+    QuickActionsFailed,
+    MissingSelectedFiat
 }
 
 sealed class AssetInformation(

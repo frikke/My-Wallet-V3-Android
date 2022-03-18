@@ -215,4 +215,7 @@ class AssetDetailsInteractor(
 
     fun userCanBuy(): Single<FeatureAccess> =
         userIdentity.userAccessForFeature(Feature.SimpleBuy)
+
+    fun isAssetSupportedToBuy(assetInfo: AssetInfo): Single<Boolean> =
+        custodialWalletManager.isCurrencyAvailableForTrading(assetInfo)
 }

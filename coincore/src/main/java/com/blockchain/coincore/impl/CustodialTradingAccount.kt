@@ -142,10 +142,11 @@ class CustodialTradingAccount(
             identity.userAccessForFeature(Feature.Buy),
             identity.userAccessForFeature(Feature.Swap),
             identity.userAccessForFeature(Feature.CryptoDeposit),
-            custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
-            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
-        ) { balance, hasAccessToCustodialAccounts, hasSimpleBuyAccess, isEligibleForInterest,
-            buyEligibility, swapEligibility, cryptoDepositEligibility, supportedCurrencyPairs, fiatAccounts ->
+            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
+            custodialWalletManager.isCurrencyAvailableForTrading(currency)
+        ) { balance, hasAccessToCustodialAccounts, hasSimpleBuyAccess,
+            isEligibleForInterest, buyEligibility, swapEligibility, cryptoDepositEligibility,
+            fiatAccounts, isCurrencySupported ->
             val isActiveFunded = !isArchived && balance.total.isPositive
 
             val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions) { hasTransactions }
@@ -157,8 +158,7 @@ class CustodialTradingAccount(
 
             val buy = AssetAction.Buy.takeEnabledIf(baseActions) {
                 !hasSimpleBuyAccess.isBlockedDueToEligibility() &&
-                    buyEligibility is FeatureAccess.Granted &&
-                    supportedCurrencyPairs.any { it.source == currency }
+                    buyEligibility is FeatureAccess.Granted && isCurrencySupported
             }
 
             val send = AssetAction.Send.takeEnabledIf(baseActions) {

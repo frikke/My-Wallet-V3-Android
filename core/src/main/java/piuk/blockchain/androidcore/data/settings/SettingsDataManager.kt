@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.settings
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
@@ -15,7 +16,8 @@ class SettingsDataManager(
     private val settingsService: SettingsService,
     private val settingsDataStore: SettingsDataStore,
     private val currencyPrefs: CurrencyPrefs,
-    private val walletSettingsService: WalletSettingsService
+    private val walletSettingsService: WalletSettingsService,
+    private val assetCatalogue: AssetCatalogue
 ) {
     /**
      * Grabs the latest user [Settings] object from memory, or makes a web request if not
@@ -236,7 +238,8 @@ class SettingsDataManager(
             .applySchedulers()
 
     fun setDefaultUserFiat(): Single<String> {
-        val userFiat = currencyPrefs.defaultFiatCurrency
+        val userFiat = FiatCurrency.locale().takeIf { assetCatalogue.fiatFromNetworkTicker(it.networkTicker) != null }
+            ?: FiatCurrency.Dollars
         return settingsService.updateFiatUnit(userFiat.networkTicker)
             .flatMap { fetchSettings() }
             .singleOrError()

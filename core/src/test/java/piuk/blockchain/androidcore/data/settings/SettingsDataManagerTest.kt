@@ -4,6 +4,7 @@ import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.settings.SettingsManager
 import io.reactivex.rxjava3.core.Completable
@@ -26,10 +27,14 @@ class SettingsDataManagerTest : RxTest() {
     private val settingsDataStore: SettingsDataStore = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val walletSettingsService: WalletSettingsService = mock()
+    private val assetCatalogue: AssetCatalogue = mock()
 
     @Before
     fun setUp() {
-        subject = SettingsDataManager(settingsService, settingsDataStore, currencyPrefs, walletSettingsService)
+        subject = SettingsDataManager(
+            settingsService, settingsDataStore, currencyPrefs,
+            walletSettingsService, assetCatalogue
+        )
     }
 
     @Test

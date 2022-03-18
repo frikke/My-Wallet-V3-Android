@@ -2772,11 +2772,14 @@
     <string name="coinview_chart_load_error">Failed to load chart info</string>
     <string name="coinview_recurring_buy_load_error">Failed to load recurring buys</string>
     <string name="coinview_action_failed">There was an issue loading</string>
+    <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
     <string name="terms_and_conditions_accept_label">I agree to Blockchain.com’s Terms of Service &amp; Privacy Policy.</string>
     <string name="terms_and_conditions_review_button">Review</string>
+    <string name="pair_not_supported_title">Pair not supported</string>
+    <string name="pair_not_supported_subtitle">Missing rate for pair</string>
 
     <!-- Kyc Upgrade Now Sheet -->
     <string name="transactions_left_title">Transactions Left</string>

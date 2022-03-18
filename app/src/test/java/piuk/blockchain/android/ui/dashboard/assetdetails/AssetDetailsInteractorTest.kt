@@ -8,11 +8,18 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -45,7 +52,10 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
     }
 
-    private val subject = AssetDetailsInteractor(mock(), mock(), mock(), mock(), mock())
+    private val userIdentity = mock<UserIdentity>()
+    private val custodialWalletManager = mock<CustodialWalletManager>()
+
+    private val subject = AssetDetailsInteractor(mock(), mock(), userIdentity, custodialWalletManager, mock())
 
     @Before
     fun setUp() {
@@ -219,6 +229,26 @@ class AssetDetailsInteractorTest {
             .assertValue { it.isEmpty() }
             .assertValueCount(1)
             .assertNoErrors()
+    }
+
+    @Test
+    fun `CheckBuyStatus then can userCanBuy and isAssetSupportedToBuy`() {
+        val asset: AssetInfo = mock {
+            on { networkTicker }.thenReturn("BTC")
+        }
+
+        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset))
+            .thenReturn(Single.just(true))
+
+        subject.userCanBuy().test()
+        subject.isAssetSupportedToBuy(asset).test()
+
+        verify(userIdentity).userAccessForFeature(Feature.SimpleBuy)
+        verify(custodialWalletManager).isCurrencyAvailableForTrading(asset)
+
+        verifyNoMoreInteractions(userIdentity)
+        verifyNoMoreInteractions(custodialWalletManager)
     }
 
     companion object {

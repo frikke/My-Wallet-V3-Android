@@ -135,9 +135,23 @@ class CoinViewActivity :
             assetChart.apply {
                 isChartLive = false
                 onEntryHighlighted = { entry ->
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartEngaged(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
+                        )
+                    )
                     updateScrubPriceInformation(entry)
                 }
                 onScrubRelease = {
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartDisengaged(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
+                        )
+                    )
                     renderPriceInformation(
                         prices24Hr,
                         historicalGraphData,
@@ -147,14 +161,15 @@ class CoinViewActivity :
             }
 
             chartControls.apply {
-                items = listOf(
-                    getString(R.string.coinview_chart_tab_day),
-                    getString(R.string.coinview_chart_tab_week),
-                    getString(R.string.coinview_chart_tab_month),
-                    getString(R.string.coinview_chart_tab_year),
-                    getString(R.string.coinview_chart_tab_all)
-                )
+                items = getTimeIntervalItems()
                 onItemSelected = {
+                    analytics.logEvent(
+                        CoinViewAnalytics.ChartTimeIntervalSelected(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            timeInterval = stringPositionToTimeInterval(it)
+                        )
+                    )
                     model.process(CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.fromInt(it)))
                 }
                 selectedItemIndex = 0
@@ -162,9 +177,21 @@ class CoinViewActivity :
             }
 
             assetBalance.apply {
-                // TODO (dserrano-bc): AND-5669 - add asset to watchlist pending BE implementation
+                // TODO (dserrano-bc): AND-5669 - add asset to watchlist pending BE implementation and analytics
                 shouldShowIcon = false
                 onIconClick = {
+                    analytics.logEvent(
+                        CoinViewAnalytics.CoinAddedFromWatchlist(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker
+                        )
+                    )
+                    analytics.logEvent(
+                        CoinViewAnalytics.CoinRemovedFromWatchlist(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker
+                        )
+                    )
                     // model.process(ToggleWatchlist)
                 }
             }
@@ -178,11 +205,37 @@ class CoinViewActivity :
                 textColor = ComposeColors.Primary
                 style = ComposeTypographies.Paragraph2
                 onClick = {
+                    analytics.logEvent(
+                        CoinViewAnalytics.HyperlinkClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = assetTicker,
+                            selection = CoinViewAnalytics.Companion.Selection.LEARN_MORE
+                        )
+                    )
                     BlockchainSnackbar.make(binding.root, "Website link clicked").show()
                 }
             }
         }
     }
+
+    private fun getTimeIntervalItems(): List<String> =
+        listOf(
+            getString(R.string.coinview_chart_tab_day),
+            getString(R.string.coinview_chart_tab_week),
+            getString(R.string.coinview_chart_tab_month),
+            getString(R.string.coinview_chart_tab_year),
+            getString(R.string.coinview_chart_tab_all)
+        )
+
+    private fun stringPositionToTimeInterval(position: Int): CoinViewAnalytics.Companion.TimeInterval =
+        when (HistoricalTimeSpan.fromInt(position)) {
+            HistoricalTimeSpan.DAY -> CoinViewAnalytics.Companion.TimeInterval.DAY
+            HistoricalTimeSpan.WEEK -> CoinViewAnalytics.Companion.TimeInterval.WEEK
+            HistoricalTimeSpan.MONTH -> CoinViewAnalytics.Companion.TimeInterval.MONTH
+            HistoricalTimeSpan.YEAR -> CoinViewAnalytics.Companion.TimeInterval.YEAR
+            HistoricalTimeSpan.ALL_TIME -> CoinViewAnalytics.Companion.TimeInterval.ALL_TIME
+            else -> CoinViewAnalytics.Companion.TimeInterval.LIVE
+        }
 
     private fun ActivityCoinviewBinding.updateScrubPriceInformation(entry: Entry) {
         val dataForEntry = historicalGraphData.first {
@@ -208,6 +261,7 @@ class CoinViewActivity :
 
     override fun onResume() {
         super.onResume()
+        analytics.logEvent(CoinViewAnalytics.CoinViewOpen)
         model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 
@@ -240,6 +294,9 @@ class CoinViewActivity :
                 ).show()
                 CoinViewError.QuickActionsFailed -> BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_action_failed), type = SnackbarType.Error
+                ).show()
+                CoinViewError.MissingSelectedFiat -> BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Error
                 ).show()
                 CoinViewError.None -> {
                     // do nothing
@@ -366,6 +423,13 @@ class CoinViewActivity :
                     )
                 )
             ) {
+                analytics.logEvent(
+                    CoinViewAnalytics.BuySellClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = assetTicker,
+                        type = CoinViewAnalytics.Companion.Type.BUY
+                    )
+                )
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         context = this,
@@ -382,6 +446,13 @@ class CoinViewActivity :
                     )
                 )
             ) {
+                analytics.logEvent(
+                    CoinViewAnalytics.BuySellClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = assetTicker,
+                        type = CoinViewAnalytics.Companion.Type.SELL
+                    )
+                )
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,
@@ -399,6 +470,13 @@ class CoinViewActivity :
                     )
                 )
             ) {
+                analytics.logEvent(
+                    CoinViewAnalytics.SendReceiveClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = assetTicker,
+                        type = CoinViewAnalytics.Companion.Type.SEND
+                    )
+                )
                 startActivity(
                     TransactionFlowActivity.newIntent(
                         context = this,
@@ -416,6 +494,13 @@ class CoinViewActivity :
                     )
                 )
             ) {
+                analytics.logEvent(
+                    CoinViewAnalytics.SendReceiveClicked(
+                        origin = LaunchOrigin.COIN_VIEW,
+                        currency = assetTicker,
+                        type = CoinViewAnalytics.Companion.Type.RECEIVE
+                    )
+                )
                 showBottomSheet(ReceiveDetailSheet.newInstance(highestBalanceWallet as CryptoAccount))
             }
         }
@@ -533,10 +618,16 @@ class CoinViewActivity :
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         recurringBuy.asset.let {
+            // TODO one of these 2 has to go - awaiting confirmation
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.CURRENCY_PAGE,
                     it.networkTicker
+                )
+            )
+            analytics.logEvent(
+                CoinViewAnalytics.RecurringBuyClicked(
+                    LaunchOrigin.COIN_VIEW
                 )
             )
         }

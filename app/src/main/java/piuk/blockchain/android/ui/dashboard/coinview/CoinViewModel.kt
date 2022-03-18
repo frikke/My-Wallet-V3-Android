@@ -39,14 +39,16 @@ class CoinViewModel(
             is CoinViewIntent.UpdateAccountDetails -> {
                 previousState.selectedFiat?.let {
                     process(CoinViewIntent.LoadAssetChart(intent.asset, intent.assetInformation.prices, it))
-                }
+                } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat))
                 null
             }
             is CoinViewIntent.LoadAssetChart -> loadChart(intent)
-            is CoinViewIntent.LoadNewChartPeriod ->
+            is CoinViewIntent.LoadNewChartPeriod -> {
                 previousState.asset?.let {
                     loadNewTimePeriod(it, intent, previousState)
-                }
+                } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
+                null
+            }
             is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             CoinViewIntent.ResetErrorState,
@@ -103,11 +105,11 @@ class CoinViewModel(
                                 )
                             },
                             prices = previousState.assetPrices ?: throw IllegalStateException(
-                                "previous state prices cant be null"
+                                "previousState prices can't be null"
                             ),
                             historicalRateList = historicalRates,
                             selectedFiat = previousState.selectedFiat ?: throw IllegalStateException(
-                                "previous state selected fiat cant be null"
+                                "previousState selectedFiat can't be null"
                             )
                         )
                     )
@@ -125,15 +127,15 @@ class CoinViewModel(
                     process(
                         CoinViewIntent.UpdateViewState(
                             CoinViewViewState.ShowAssetInfo(
-                                list.map { point ->
+                                entries = list.map { point ->
                                     ChartEntry(
                                         point.timestamp.toFloat(),
                                         point.rate.toFloat()
                                     )
                                 },
-                                intent.assetPrice,
-                                list,
-                                intent.selectedFiat
+                                prices = intent.assetPrice,
+                                historicalRateList = list,
+                                selectedFiat = intent.selectedFiat
                             )
                         )
                     )

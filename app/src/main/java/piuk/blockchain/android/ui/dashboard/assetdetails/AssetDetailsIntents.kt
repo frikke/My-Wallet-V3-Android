@@ -45,7 +45,7 @@ class LoadAsset(
         )
 }
 
-object CheckUserBuyStatus : AssetDetailsIntent() {
+object CheckBuyStatus : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState
 }
@@ -53,6 +53,11 @@ object CheckUserBuyStatus : AssetDetailsIntent() {
 class UserBuyAccessUpdated(private val userBuyAccess: FeatureAccess) : AssetDetailsIntent() {
     override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
         oldState.copy(userBuyAccess = userBuyAccess)
+}
+
+class IsBuySupported(val supported: Boolean) : AssetDetailsIntent() {
+    override fun reduce(oldState: AssetDetailsState): AssetDetailsState =
+        oldState.copy(buySupported = supported)
 }
 
 class UpdateTimeSpan(

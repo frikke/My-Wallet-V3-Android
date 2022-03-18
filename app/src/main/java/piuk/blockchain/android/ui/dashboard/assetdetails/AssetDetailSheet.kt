@@ -112,7 +112,9 @@ class AssetDetailSheet : MviBottomSheet<
 
         renderRecurringBuys(newState.recurringBuys)
 
-        configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
+        if (newState.userBuyAccess != FeatureAccess.Unknown && newState.buySupported) {
+            configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
+        }
 
         configureTimespanSelectionUI(binding, newState.timeSpan)
 
@@ -154,7 +156,7 @@ class AssetDetailSheet : MviBottomSheet<
 
     override fun initControls(binding: DialogSheetDashboardAssetDetailsBinding) {
         model.process(LoadAsset(token))
-        model.process(CheckUserBuyStatus)
+        model.process(CheckBuyStatus)
 
         with(binding) {
             configureChart(

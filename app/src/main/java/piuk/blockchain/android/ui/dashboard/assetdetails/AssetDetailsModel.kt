@@ -21,6 +21,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -46,6 +47,7 @@ data class AssetDetailsState(
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
     val userBuyAccess: FeatureAccess = FeatureAccess.Unknown,
+    val buySupported: Boolean = false,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
     val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
@@ -94,15 +96,20 @@ class AssetDetailsModel(
                 )
             is ShowAssetActionsIntent -> accountActions(intent.account)
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
-            is CheckUserBuyStatus -> interactor.userCanBuy().subscribeBy(
-                onSuccess = {
-                    process(UserBuyAccessUpdated(it))
-                },
-                onError = {
-                    // lets not block the user if check fails.
-                    process(UserBuyAccessUpdated(FeatureAccess.Granted()))
-                }
+            is CheckBuyStatus -> Singles.zip(
+                interactor.userCanBuy(),
+                previousState.asset?.let {
+                    interactor.isAssetSupportedToBuy(it.assetInfo)
+                } ?: Single.just(false)
             )
+                .subscribeBy(
+                    onSuccess = { (userFeatureAccess, supported) ->
+                        process(UserBuyAccessUpdated(userFeatureAccess))
+                        process(IsBuySupported(supported))
+                    },
+                    onError = {}
+                )
+
             is LoadAsset -> {
                 updateChartData(intent.asset, previousState.timeSpan)
                 load24hPriceDelta(intent.asset)
@@ -144,6 +151,7 @@ class AssetDetailsModel(
             is UpdatePaymentDetails,
             is UpdatePriceDeltaDetails,
             is UserBuyAccessUpdated,
+            is IsBuySupported,
             is HandleActionIntentLockedForTier,
             is NavigateToKyc,
             is UpdatePriceDeltaFailed -> null
