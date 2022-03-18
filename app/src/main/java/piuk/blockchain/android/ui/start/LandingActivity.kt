@@ -9,13 +9,15 @@ import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
+import java.util.Timer
+import java.util.TimerTask
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -38,11 +40,11 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
     }
 
+    private lateinit var timer: Timer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        presenter.checkShouldShowLandingCta()
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
@@ -82,6 +84,32 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
                 setOnPricesAlphaChangeListener {
                     this@with.background.alpha = it
                 }
+            }
+
+            val handler = Handler(Looper.getMainLooper())
+            val update = Runnable {
+                if (this@LandingActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    if (carousel.selectedPosition < onboardingList.size) {
+                        carousel.setPage(carousel.selectedPosition++)
+                    } else {
+                        timer.cancel()
+                        carousel.setPage(0)
+                        presenter.checkShouldShowLandingCta()
+                    }
+                } else {
+                    timer.cancel()
+                }
+            }
+
+            timer = Timer().apply {
+                schedule(
+                    object : TimerTask() {
+                        override fun run() {
+                            handler.post(update)
+                        }
+                    },
+                    CAROUSEL_PAGE_TIME, CAROUSEL_PAGE_TIME
+                )
             }
         }
     }
@@ -187,6 +215,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
             }
         }
 
-        private const val CAROUSEL_PAGE_TIME = 3000L
+        private const val CAROUSEL_PAGE_TIME = 2500L
     }
 }
