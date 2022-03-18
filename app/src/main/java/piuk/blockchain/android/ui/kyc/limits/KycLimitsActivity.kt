@@ -108,7 +108,7 @@ class KycLimitsActivity :
             KycLimitsSheet.None -> {
             }
             is KycLimitsSheet.UpgradeNow ->
-                KycUpgradeNowSheet.newInstance(sheet.isGoldPending)
+                KycLimitsUpgradeNowSheet.newInstance(sheet.isGoldPending)
                     .show(supportFragmentManager, MviFragment.BOTTOM_SHEET)
         }
 

@@ -34,7 +34,9 @@ class Erc20NonCustodialAccount(
     override val baseActions: Set<AssetAction>,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, asset, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, asset, custodialWalletManager, identity
+) {
 
     private val hasFunds = AtomicBoolean(false)
 

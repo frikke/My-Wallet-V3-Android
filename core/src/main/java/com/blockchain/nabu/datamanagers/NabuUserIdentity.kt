@@ -1,5 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.core.eligibility.EligibilityDataManager
+import com.blockchain.core.eligibility.models.EligibleProduct
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BasicProfileInfo
@@ -22,7 +24,8 @@ class NabuUserIdentity(
     private val interestEligibilityProvider: InterestEligibilityProvider,
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
     private val nabuUserDataManager: NabuUserDataManager,
-    private val nabuDataProvider: NabuDataUserProvider
+    private val nabuDataProvider: NabuDataUserProvider,
+    private val eligibilityDataManager: EligibilityDataManager
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -37,6 +40,9 @@ class NabuUserIdentity(
             is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
+            Feature.Buy -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
+            Feature.CryptoDeposit -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
+            Feature.Swap -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
         }
     }
 
@@ -53,7 +59,10 @@ class NabuUserIdentity(
                 simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
             ) { nabuUser, sbEligibility -> nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible }
             is Feature.SimpleBuy,
-            is Feature.Interest -> throw IllegalArgumentException("Cannot be verified for $feature")
+            is Feature.Interest,
+            Feature.Buy,
+            Feature.CryptoDeposit,
+            Feature.Swap -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
     }
 
@@ -128,7 +137,7 @@ class NabuUserIdentity(
                 ) { nabuUser, sbEligibility ->
                     when {
                         nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible -> {
-                            FeatureAccess.Granted
+                            FeatureAccess.Granted()
                         }
                         nabuUser.currentTier != Tier.GOLD.ordinal -> {
                             FeatureAccess.NotRequested
@@ -137,6 +146,28 @@ class NabuUserIdentity(
                             FeatureAccess.Blocked(BlockedReason.NotEligible)
                         }
                     }
+                }
+            Feature.Buy -> eligibilityDataManager.getProductEligibility(EligibleProduct.BUY).map { eligibility ->
+                if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
+                else FeatureAccess.Blocked(
+                    if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
+                    else BlockedReason.NotEligible
+                )
+            }
+            Feature.Swap -> eligibilityDataManager.getProductEligibility(EligibleProduct.SWAP).map { eligibility ->
+                if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
+                else FeatureAccess.Blocked(
+                    if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
+                    else BlockedReason.NotEligible
+                )
+            }
+            Feature.CryptoDeposit -> eligibilityDataManager.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT)
+                .map { eligibility ->
+                    if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
+                    else FeatureAccess.Blocked(
+                        if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
+                        else BlockedReason.NotEligible
+                    )
                 }
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
@@ -148,7 +179,7 @@ class NabuUserIdentity(
         return when {
             !eligibility.simpleBuyTradingEligible && gold -> FeatureAccess.Blocked(BlockedReason.NotEligible)
             !eligibility.simpleBuyTradingEligible -> FeatureAccess.NotRequested
-            eligibility.canCreateOrder() -> FeatureAccess.Granted
+            eligibility.canCreateOrder() -> FeatureAccess.Granted()
             else -> FeatureAccess.Blocked(
                 BlockedReason.TooManyInFlightTransactions(
                     eligibility.maxPendingDepositSimpleBuyTrades

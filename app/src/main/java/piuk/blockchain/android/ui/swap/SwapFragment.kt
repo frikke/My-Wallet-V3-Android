@@ -20,7 +20,11 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -31,6 +35,7 @@ import com.blockchain.nabu.service.TierService
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -45,6 +50,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
@@ -55,9 +61,11 @@ import timber.log.Timber
 class SwapFragment :
     Fragment(),
     KycBenefitsBottomSheet.Host,
-    TradingWalletPromoBottomSheet.Host {
+    TradingWalletPromoBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     interface Host {
+        fun navigateBack()
         fun navigateToReceive()
         fun navigateToBuy()
     }
@@ -84,6 +92,8 @@ class SwapFragment :
     private val exchangeRateDataManager: ExchangeRatesDataManager by scopedInject()
     private val trendingPairsProvider: TrendingPairsProvider by scopedInject()
     private val walletManager: CustodialWalletManager by scopedInject()
+    private val userIdentity: UserIdentity by scopedInject()
+    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val walletPrefs: WalletStatus by inject()
@@ -149,7 +159,17 @@ class SwapFragment :
     }
 
     override fun onSheetClosed() {
-        walletPrefs.setSeenSwapPromo()
+    }
+
+    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        when (sheet) {
+            is KycBenefitsBottomSheet -> walletPrefs.setSeenSwapPromo()
+            is KycUpgradeNowSheet -> host.navigateBack()
+        }
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.start(requireContext(), CampaignType.Swap)
     }
 
     override fun startNewSwap() {
@@ -164,18 +184,24 @@ class SwapFragment :
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },
                 coincore.allWalletsWithActions(setOf(AssetAction.Swap))
-                    .map { it.isNotEmpty() }
+                    .map { it.isNotEmpty() },
+                userIdentity.userAccessForFeature(Feature.Swap),
+                entitySwitchSilverEligibilityFF.enabled.onErrorReturnItem(false)
             ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
-                hasAtLeastOneAccountToSwapFrom ->
+                hasAtLeastOneAccountToSwapFrom,
+                eligibility,
+                isFFEnabled ->
                 SwapComposite(
                     tiers,
                     pairs,
                     limits,
                     orders,
-                    hasAtLeastOneAccountToSwapFrom
+                    hasAtLeastOneAccountToSwapFrom,
+                    eligibility,
+                    isFFEnabled
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -186,9 +212,10 @@ class SwapFragment :
                         showSwapUi(composite.orders, composite.hasAtLeastOneAccountToSwapFrom)
 
                         if (composite.tiers.isVerified()) {
-                            binding.swapViewFlipper.displayedChild =
-                                if (composite.hasAtLeastOneAccountToSwapFrom) SWAP_VIEW
-                                else SWAP_NO_ACCOUNTS
+                            binding.swapViewFlipper.displayedChild = when {
+                                composite.hasAtLeastOneAccountToSwapFrom -> SWAP_VIEW
+                                else -> SWAP_NO_ACCOUNTS
+                            }
                             binding.swapHeader.toggleBottomSeparator(false)
 
                             val onPairClicked = onTrendingPairClicked()
@@ -199,7 +226,10 @@ class SwapFragment :
                                 assetResources = assetResources
                             )
 
-                            if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
+                            val eligibility = composite.eligibility
+                            if (eligibility is FeatureAccess.Blocked && composite.isFFEnabled) {
+                                showKycUpgradeNow()
+                            } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
                             }
                         } else {
@@ -217,6 +247,10 @@ class SwapFragment :
                         Timber.e("Error loading swap kyc service $it")
                     }
                 )
+    }
+
+    private fun showKycUpgradeNow() {
+        showBottomSheet(KycUpgradeNowSheet.newInstance())
     }
 
     private fun showKycUpsellIfEligible(limits: TransferLimits) {
@@ -302,6 +336,7 @@ class SwapFragment :
     }
 
     private fun showErrorUi() {
+        binding.swapViewFlipper.gone()
         binding.swapError.visible()
     }
 
@@ -328,6 +363,8 @@ class SwapFragment :
     private fun showLoading() {
         binding.progress.visible()
         binding.progress.playAnimation()
+        binding.swapViewFlipper.gone()
+        binding.swapError.gone()
     }
 
     private fun hideLoading() {
@@ -350,7 +387,9 @@ class SwapFragment :
         val pairs: List<TrendingPair>,
         val limits: TransferLimits,
         val orders: List<CustodialOrder>,
-        val hasAtLeastOneAccountToSwapFrom: Boolean
+        val hasAtLeastOneAccountToSwapFrom: Boolean,
+        val eligibility: FeatureAccess,
+        val isFFEnabled: Boolean
     )
 
     override fun onDestroyView() {

@@ -39,7 +39,9 @@ internal class XlmCryptoWalletAccount(
     private val custodialWalletManager: CustodialWalletManager,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity
+) {
 
     override val baseActions: Set<AssetAction> = defaultActions
     override val isDefault: Boolean = true // Only one account ever, so always default

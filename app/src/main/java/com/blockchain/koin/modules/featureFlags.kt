@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.enableKotlinSerializerFeatureFlag
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
@@ -74,6 +75,7 @@ val featureFlagsModule = module {
             )
         )
     }.bind(FeatureFlag::class)
+
     single(enableKotlinSerializerFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -115,6 +117,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_send_to_domains_announcement",
                 "Show Send To Domains Banner"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(entitySwitchSilverEligibilityFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_entity_switch_silver_eligibility",
+                "Entity Switch Silver Eligibility"
             )
         )
     }.bind(FeatureFlag::class)

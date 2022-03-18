@@ -136,15 +136,13 @@ class PrefsUtil(
 
     // From CurrencyPrefs
     override var selectedFiatCurrency: FiatCurrency
-        get() = assetCatalogue.fiatFromNetworkTicker(getValue(KEY_SELECTED_FIAT, "")) ?: FiatCurrency.Dollars
+        get() = assetCatalogue.fiatFromNetworkTicker(getValue(KEY_SELECTED_FIAT, ""))
+            ?: FiatCurrency.locale().takeIf { assetCatalogue.fiatFromNetworkTicker(it.networkTicker) != null }
+            ?: FiatCurrency.Dollars
         set(fiat) {
             setValue(KEY_SELECTED_FIAT, fiat.networkTicker)
             tradingCurrency = fiat
         }
-
-    override val defaultFiatCurrency: FiatCurrency
-        get() = FiatCurrency.locale().takeIf { assetCatalogue.fiatFromNetworkTicker(it.networkTicker) != null }
-            ?: FiatCurrency.Dollars
 
     override val noCurrencySet: Boolean
         get() = getValue(KEY_SELECTED_FIAT, "").isEmpty()

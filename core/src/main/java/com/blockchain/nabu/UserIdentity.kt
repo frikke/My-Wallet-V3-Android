@@ -1,5 +1,6 @@
 package com.blockchain.nabu
 
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -29,6 +30,9 @@ sealed class Feature {
     data class Interest(val currency: Currency) : Feature()
     object SimpleBuy : Feature()
     object CustodialAccounts : Feature()
+    object Buy : Feature()
+    object Swap : Feature()
+    object CryptoDeposit : Feature()
 }
 
 /**
@@ -49,7 +53,10 @@ data class BasicProfileInfo(
 ) : Serializable
 
 sealed class FeatureAccess {
-    object Granted : FeatureAccess()
+    data class Granted(
+        // Only used by Feature.Buy and Feature.Swap
+        val transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited
+    ) : FeatureAccess()
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
     object NotRequested : FeatureAccess()
     object Unknown : FeatureAccess() // Used mostly for initialisation purposes
@@ -60,5 +67,6 @@ sealed class FeatureAccess {
 
 sealed class BlockedReason {
     object NotEligible : BlockedReason()
+    object InsufficientTier : BlockedReason()
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
 }

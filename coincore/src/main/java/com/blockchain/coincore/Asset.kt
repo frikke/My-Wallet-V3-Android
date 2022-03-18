@@ -67,7 +67,7 @@ enum class AssetAction(
     Sign(ActionOrigin.FROM_SOURCE)
 }
 
-class StateAwareAction(
+data class StateAwareAction(
     val state: ActionState,
     val action: AssetAction
 )

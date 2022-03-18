@@ -1,10 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
@@ -12,12 +13,15 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.minus
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,7 +31,7 @@ import timber.log.Timber
 data class AssetDetailsState(
     val asset: CryptoAsset? = null,
     val selectedAccount: BlockchainAccount? = null,
-    val actions: AvailableActions = emptySet(),
+    val actions: Set<StateAwareAction> = emptySet(),
     val assetDetailsCurrentStep: AssetDetailsStep = AssetDetailsStep.ZERO,
     val assetDisplayMap: AssetDisplayMap? = null,
     val recurringBuys: Map<String, RecurringBuy> = emptyMap(),
@@ -39,9 +43,11 @@ data class AssetDetailsState(
     val selectedAccountCryptoBalance: Money? = null,
     val selectedAccountFiatBalance: Money? = null,
     val navigateToInterestDashboard: Boolean = false,
+    val navigateToKyc: Boolean = false,
     val selectedRecurringBuy: RecurringBuy? = null,
     val paymentId: String? = null,
     val userBuyAccess: FeatureAccess = FeatureAccess.Unknown,
+    val buySupported: Boolean = false,
     val stepsBackStack: Stack<AssetDetailsStep> = Stack(),
     val prices24HrWithDelta: Prices24HrWithDelta? = null
 ) : MviState
@@ -60,7 +66,8 @@ class AssetDetailsModel(
     initialState: AssetDetailsState,
     mainScheduler: Scheduler,
     private val interactor: AssetDetailsInteractor,
-    private val assetActionsComparator: Comparator<AssetAction>,
+    private val assetActionsComparator: Comparator<StateAwareAction>,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
 ) : MviModel<AssetDetailsState, AssetDetailsIntent>(
@@ -89,15 +96,20 @@ class AssetDetailsModel(
                 )
             is ShowAssetActionsIntent -> accountActions(intent.account)
             is UpdateTimeSpan -> previousState.asset?.let { updateChartData(it, intent.updatedTimeSpan) }
-            is CheckUserBuyStatus -> interactor.userCanBuy().subscribeBy(
-                onSuccess = {
-                    process(UserBuyAccessUpdated(it))
-                },
-                onError = {
-                    // lets not block the user if check fails.
-                    process(UserBuyAccessUpdated(FeatureAccess.Granted))
-                }
+            is CheckBuyStatus -> Singles.zip(
+                interactor.userCanBuy(),
+                previousState.asset?.let {
+                    interactor.isAssetSupportedToBuy(it.assetInfo)
+                } ?: Single.just(false)
             )
+                .subscribeBy(
+                    onSuccess = { (userFeatureAccess, supported) ->
+                        process(UserBuyAccessUpdated(userFeatureAccess))
+                        process(IsBuySupported(supported))
+                    },
+                    onError = {}
+                )
+
             is LoadAsset -> {
                 updateChartData(intent.asset, previousState.timeSpan)
                 load24hPriceDelta(intent.asset)
@@ -139,6 +151,9 @@ class AssetDetailsModel(
             is UpdatePaymentDetails,
             is UpdatePriceDeltaDetails,
             is UserBuyAccessUpdated,
+            is IsBuySupported,
+            is HandleActionIntentLockedForTier,
+            is NavigateToKyc,
             is UpdatePriceDeltaFailed -> null
         }
     }
@@ -217,26 +232,39 @@ class AssetDetailsModel(
             )
 
     private fun accountActions(account: BlockchainAccount): Disposable =
-        Singles.zip(
-            account.actions,
-            account.isEnabled
-        ).subscribeBy(
-            onSuccess = { (actions, enabled) ->
-                val sortedActions = when (account.selectFirstAccount()) {
-                    is InterestAccount -> {
-                        when {
-                            !enabled && account.isFunded -> {
-                                actions - AssetAction.InterestDeposit + AssetAction.InterestWithdraw
-                            }
-                            else -> {
-                                actions + AssetAction.InterestDeposit
+        entitySwitchSilverEligibilityFeatureFlag.enabled
+            .onErrorReturnItem(false)
+            .flatMap { enabled ->
+                if (enabled) {
+                    Singles.zip(account.stateAwareActions, account.isEnabled)
+                } else {
+                    Singles.zip(
+                        account.actions.map { actions ->
+                            actions.map { StateAwareAction(ActionState.Available, it) }.toSet()
+                        },
+                        account.isEnabled
+                    )
+                }
+            }.subscribeBy(
+                onSuccess = { (actions, enabled) ->
+                    val sortedActions = when (account.selectFirstAccount()) {
+                        is InterestAccount -> {
+                            when {
+                                !enabled && account.isFunded -> {
+                                    actions.minus { it.action == AssetAction.InterestDeposit } +
+                                        StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
+                                }
+                                else -> {
+                                    actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
+                                }
                             }
                         }
-                    }
-                    else -> actions - AssetAction.InterestDeposit
-                }.sortedWith(assetActionsComparator)
-                process(AccountActionsLoaded(account, sortedActions.toSet()))
-            },
-            onError = { Timber.e("***> Error Loading account actions: $it") }
-        )
+                        else -> actions.minus { it.action == AssetAction.InterestDeposit }
+                    }.sortedWith(assetActionsComparator)
+                    process(AccountActionsLoaded(account, sortedActions.toSet()))
+                },
+                onError = {
+                    Timber.e("***> Error Loading account actions: $it")
+                }
+            )
 }

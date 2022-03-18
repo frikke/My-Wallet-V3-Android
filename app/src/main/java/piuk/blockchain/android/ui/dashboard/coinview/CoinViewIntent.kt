@@ -56,7 +56,7 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     }
 
     class UpdateAccountDetails(
-        val viewState: CoinViewViewState,
+        private val viewState: CoinViewViewState,
         val assetInformation: AssetInformation,
         val asset: CryptoAsset
     ) : CoinViewIntent() {

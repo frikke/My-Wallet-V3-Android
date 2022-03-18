@@ -211,7 +211,7 @@ internal class DynamicAssetLoader(
             availableCustodialActions = assetActions,
             availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
-            addressResolver = ethHotWalletAddressResolver
+            addressResolver = ethHotWalletAddressResolver,
         )
     }
 

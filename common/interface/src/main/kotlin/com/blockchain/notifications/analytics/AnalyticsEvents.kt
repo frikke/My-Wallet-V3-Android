@@ -209,7 +209,27 @@ enum class AnalyticsNames(val eventName: String) {
     QR_CODE_CLICKED("Qr Code Clicked"),
     QR_CODE_SCANNED("Qr Code Scanned"),
     TERMS_CONDITIONS_VIEWED("T&C Viewed"),
-    TERMS_CONDITIONS_ACCEPTED("T&C Accepted")
+    TERMS_CONDITIONS_ACCEPTED("T&C Accepted"),
+    COINVIEW_REWARDS_WITHDRAW_ADD_CLICKED("Rewards Withdraw Add Clicked"),
+    COINVIEW_WALLETS_ACCOUNTS_VIEWED("Wallets Accounts Viewed"),
+    COINVIEW_WALLETS_ACCOUNTS_CLICKED("Wallets Accounts Clicked"),
+    COINVIEW_TRANSACTION_CLICKED("Transaction Type Clicked"),
+    COINVIEW_SEND_RECEIVE_CLICKED("Send Receive Clicked"),
+    COINVIEW_BUY_RECEIVE_CLICKED("Buy Receive Clicked"),
+    COINVIEW_CHART_INTERVAL_SELECTED("Chart Time Interval Selected"),
+    COINVIEW_CHART_ENGAGED("Chart Engaged"),
+    COINVIEW_CHART_DISENGAGED("Chart Disengaged"),
+    COINVIEW_PAST_TRANSACTION_CLICKED("Past Transaction Clicked"),
+    COINVIEW_HYPERLINK_CLICKED("Hyperlink Clicked"),
+    COINVIEW_RECURRING_BUY_CLICKED("Recurring Buy Clicked"),
+    COINVIEW_EXPLAINER_ACCEPTED("Explainer Accepted"),
+    COINVIEW_EXPLAINER_VIEWED("Explainer Viewed"),
+    COINVIEW_CONNECT_EXCHANGE_ACTIONED("Connect To The Exchange Actioned"),
+    COINVIEW_COINVIEW_OPEN("Coin View Open"),
+    COINVIEW_COINVIEW_CLOSE("Coin View Closed"),
+    COINVIEW_REMOVED_FROM_WATCHLIST("Coin Removed From Watchlist"),
+    COINVIEW_ADDED_WATCHLIST("Coin Added To Watchlist"),
+    COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked");
 }
 
 enum class LaunchOrigin {
@@ -241,6 +261,7 @@ enum class LaunchOrigin {
     APPS_LIST,
     QR_CODE,
     LAUNCH_SCREEN,
+    COIN_VIEW,
     NUX_LAUNCH_PROMO_LOG_IN,
     NUX_LAUNCH_PROMO_BUY_CRYPTO;
 }

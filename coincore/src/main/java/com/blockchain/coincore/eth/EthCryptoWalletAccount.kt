@@ -36,7 +36,9 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity
+) {
 
     override val baseActions: Set<AssetAction> = defaultActions
 

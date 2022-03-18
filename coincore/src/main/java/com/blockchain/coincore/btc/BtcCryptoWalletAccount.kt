@@ -48,7 +48,9 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val refreshTrigger: AccountRefreshTrigger,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity) {
+) : CryptoNonCustodialAccount(
+    payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity
+) {
     override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 

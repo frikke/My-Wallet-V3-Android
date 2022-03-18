@@ -115,6 +115,10 @@ interface CustodialWalletManager {
         fiatCurrency: FiatCurrency
     ): Single<Boolean>
 
+    fun isCurrencyAvailableForTrading(
+        assetInfo: AssetInfo
+    ): Single<Boolean>
+
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
     fun getAllOutstandingBuyOrders(): Single<BuyOrderList>
@@ -162,7 +166,7 @@ interface CustodialWalletManager {
 
     fun startInterestWithdrawal(asset: AssetInfo, amount: Money, address: String): Completable
 
-    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = defaultFiatCurrency): Single<List<FiatCurrency>>
+    fun getSupportedFundsFiats(fiatCurrency: FiatCurrency = selectedFiatcurrency): Single<List<FiatCurrency>>
 
     fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String>
 
@@ -208,7 +212,7 @@ interface CustodialWalletManager {
 
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
-    val defaultFiatCurrency: FiatCurrency
+    val selectedFiatcurrency: FiatCurrency
 
     fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 

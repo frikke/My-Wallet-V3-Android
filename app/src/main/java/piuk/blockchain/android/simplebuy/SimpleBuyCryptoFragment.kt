@@ -12,8 +12,10 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -22,6 +24,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -45,6 +48,7 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.dashboard.showLoading
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -71,12 +75,14 @@ class SimpleBuyCryptoFragment :
     RecurringBuySelectionBottomSheet.Host,
     SimpleBuyScreen,
     TransactionFlowInfoHost,
-    PaymentMethodChooserBottomSheet.Host {
+    PaymentMethodChooserBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -129,6 +135,11 @@ class SimpleBuyCryptoFragment :
             )
         )
         model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
+        compositeDisposable += entitySwitchSilverEligibilityFF.enabled
+            .onErrorReturnItem(false)
+            .subscribe { enabled ->
+                if (enabled) model.process(SimpleBuyIntent.FetchEligibility)
+            }
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
         compositeDisposable += binding.inputAmount.amount.subscribe {
@@ -268,6 +279,17 @@ class SimpleBuyCryptoFragment :
             binding.inputAmount.maxLimit = it
         }
 
+        val transactionsLimit = newState.transactionsLimit
+        if (transactionsLimit is TransactionsLimit.Limited) {
+            binding.inputAmount.showInfo(
+                getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
+            ) {
+                showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
+            }
+        } else {
+            binding.inputAmount.hideInfo()
+        }
+
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
             paymentMethodLoading()
             disableRecurringBuyCta(false)
@@ -392,6 +414,10 @@ class SimpleBuyCryptoFragment :
                 }.exhaustive
             }
         }
+    }
+
+    override fun startKycClicked() {
+        startKyc()
     }
 
     /**

@@ -66,7 +66,7 @@ class SingleCurrencyInputView(context: Context, attrs: AttributeSet) :
 
     var maxLimit by Delegates.observable(
         Money.fromMinor(
-            currencyPrefs.defaultFiatCurrency,
+            currencyPrefs.selectedFiatCurrency,
             Long.MAX_VALUE.toBigInteger()
         )
     ) { _, oldValue, newValue ->

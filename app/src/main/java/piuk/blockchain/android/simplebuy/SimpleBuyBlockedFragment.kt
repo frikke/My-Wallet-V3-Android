@@ -60,6 +60,7 @@ class SimpleBuyBlockedFragment : Fragment() {
                     description = resources.getString(R.string.pending_buys_description, reason.maxTransactions),
                     icon = R.drawable.ic_trolley_market
                 )
+                BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
             }
 
             return SimpleBuyBlockedFragment().apply {

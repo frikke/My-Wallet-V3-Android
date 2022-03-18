@@ -65,7 +65,7 @@ class FiatCryptoInputView(
         FiatCryptoConversionModel(exchangeRates)
     }
 
-    var customInternalExchangeRate: ExchangeRate = ExchangeRate.identityExchangeRate(currencyPrefs.defaultFiatCurrency)
+    var customInternalExchangeRate: ExchangeRate = ExchangeRate.identityExchangeRate(currencyPrefs.selectedFiatCurrency)
         set(value) {
             field = value
             conversionModel.updateInternalExchangeRate(
@@ -221,6 +221,10 @@ class FiatCryptoInputView(
             }
             hideExchangeAmount()
         }
+    }
+
+    fun hideInfo() {
+        binding.info.gone()
     }
 
     private fun hideExchangeAmount() {

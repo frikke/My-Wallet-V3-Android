@@ -1,12 +1,13 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.StateAwareAction
 
-class AssetActionsComparator : Comparator<AssetAction> {
-    override fun compare(p0: AssetAction, p1: AssetAction): Int =
+class StateAwareActionsComparator : Comparator<StateAwareAction> {
+    override fun compare(p0: StateAwareAction, p1: StateAwareAction): Int =
         p0.sortingValue().compareTo(p1.sortingValue())
 
-    private fun AssetAction.sortingValue(): Int = when (this) {
+    private fun StateAwareAction.sortingValue(): Int = when (this.action) {
         AssetAction.Buy -> 0
         AssetAction.Sell -> 1
         AssetAction.Swap -> 2

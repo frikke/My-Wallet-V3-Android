@@ -3,6 +3,7 @@ package com.blockchain.coincore
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -84,6 +85,7 @@ data class PendingTx(
     val selectedFiat: FiatCurrency,
     val confirmations: List<TxConfirmationValue> = emptyList(),
     val limits: TxLimits? = null,
+    val transactionsLimit: TransactionsLimit? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
     val engineState: Map<String, Any> = emptyMap()
 ) {

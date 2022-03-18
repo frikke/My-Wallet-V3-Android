@@ -17,6 +17,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetInfo
@@ -39,6 +40,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.locks.LocksInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -53,7 +55,10 @@ import piuk.blockchain.android.ui.transactionflow.plugin.ExpandableTxFlowWidget
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import timber.log.Timber
 
-class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBinding>(), TransactionFlowInfoHost {
+class EnterAmountFragment :
+    TransactionFlowFragment<FragmentTxFlowEnterAmountBinding>(),
+    TransactionFlowInfoHost,
+    KycUpgradeNowSheet.Host {
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowEnterAmountBinding =
         FragmentTxFlowEnterAmountBinding.inflate(inflater, container, false)
@@ -209,6 +214,16 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
             }
 
             newState.pendingTx?.let {
+                val transactionsLimit = it.transactionsLimit
+                if (transactionsLimit is TransactionsLimit.Limited) {
+                    amountSheetInput.showInfo(
+                        getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
+                    ) {
+                        showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
+                    }
+                } else {
+                    amountSheetInput.hideInfo()
+                }
                 if (it.feeSelection.selectedLevel == FeeLevel.None) {
                     frameLowerSlot.setOnClickListener(null)
                 } else {
@@ -224,6 +239,10 @@ class EnterAmountFragment : TransactionFlowFragment<FragmentTxFlowEnterAmountBin
         }
 
         state = newState
+    }
+
+    override fun startKycClicked() {
+        startKyc()
     }
 
     private fun updateInputStateUI(newState: TransactionState) {
