@@ -77,6 +77,10 @@ sealed class LoginAnalytics(
         event = AnalyticsNames.LOGIN_VIEWED.eventName
     )
 
+    object LoginEmailFailed : LoginAnalytics(
+        event = AnalyticsNames.LOGIN_EMAIL_FAILED.eventName
+    )
+
     object LoginFailedIPMismatch : LoginAnalytics(
         event = AnalyticsNames.LOGIN_FAILED.eventName,
         params = mapOf(

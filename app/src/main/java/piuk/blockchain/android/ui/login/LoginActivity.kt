@@ -199,7 +199,10 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice()
             LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
-            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
+            LoginStep.SHOW_EMAIL_ERROR -> {
+                analytics.logEvent(LoginAnalytics.LoginEmailFailed)
+                showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
+            }
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
