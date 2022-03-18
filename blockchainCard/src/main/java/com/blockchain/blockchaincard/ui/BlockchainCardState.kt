@@ -38,7 +38,7 @@ class BlockchainCardModel(
     }
 
     private fun navigate() {
-        navigator.navigateTo("order_or_link_card")
+        navigator.navigateTo(BlockchainCardNavigator.NavTarget.OrderOrLinkCard)
     }
 }
 

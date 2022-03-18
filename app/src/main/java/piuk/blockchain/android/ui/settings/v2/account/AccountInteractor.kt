@@ -44,17 +44,17 @@ class AccountInteractor internal constructor(
             }
         }
 
-    fun getDebitCardState(): Single<DebitCardOrderState> =
-        bcCardDataRepository.getCards().flatMap { cards ->
-            if (cards.isNotEmpty()) {
-                Single.just(DebitCardOrderState.ORDERED)
-            } else {
+    fun getDebitCardState(): Single<BlockchainCardState> =
+        //bcCardDataRepository.getCards().flatMap { cards ->
+          //  if (cards.isNotEmpty()) {
+            //    Single.just(BlockchainCardState.ORDERED)
+            //} else {
                 bcCardDataRepository.getProducts().map { products ->
                     if (products.isNotEmpty())
-                        DebitCardOrderState.ELIGIBLE
+                        BlockchainCardState.ELIGIBLE
                     else
-                        DebitCardOrderState.NOT_ELIGIBLE
+                        BlockchainCardState.ELIGIBLE
                 }
-            }
-        }
+            //}
+        //}
 }

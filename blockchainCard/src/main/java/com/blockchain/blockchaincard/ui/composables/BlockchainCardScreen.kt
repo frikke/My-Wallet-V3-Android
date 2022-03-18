@@ -11,21 +11,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rxjava3.subscribeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
-import com.blockchain.blockchaincard.ui.BlockchainCardIntent
-import com.blockchain.blockchaincard.ui.BlockchainCardModel
-import com.blockchain.blockchaincard.ui.BlockchainCardState
-import com.blockchain.blockchaincard.ui.CardState
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -34,36 +38,46 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 @Composable
-fun BlockchainCardScreen(model: BlockchainCardModel) {
+fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
 
-    val state by model.state.subscribeAsState(BlockchainCardState(CardState.UNKNOWN))
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val state by stateFlowLifecycleAware.collectAsState(null)
 
-    when(state.cardState) {
-        CardState.UNKNOWN -> {
-            // TODO ????
+    when(state) {
+        is BlockchainCardViewState.OrderCard -> {
+            OrderOrLinkCard(viewModel)
         }
-        CardState.NOT_ORDERED -> {
-            OrderOrLinkCard(model)
+
+        is BlockchainCardViewState.LinkCard -> {
+            //TODO
         }
-        CardState.CREATED -> {
-            // TODO Manage Card Screen
+
+        is BlockchainCardViewState.ManageCard -> {
+            // TODO
         }
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
-fun MainNavHost(navController: NavHostController, model: BlockchainCardModel) {
+fun BlockchainCardNavHost(navController: NavHostController, viewModel: BlockchainCardViewModel) {
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val navigationFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    val navigationEvent by navigationFlowLifecycleAware.collectAsState(
+        BlockchainCardNavigationEvent.BlockchainCardDestination
+    )
 
     // Coroutine that subscribes to navigation target changes
     LaunchedEffect("navigation") {
-        model.navigator.sharedFlow.onEach {
-            navController.navigate(it.first.label, it.second)
-        }.launchIn(this)
+        navController.navigate(navigationEvent.name)
     }
 
     // Set animations for entering and exiting a screen and setup the navigation routes
@@ -71,28 +85,32 @@ fun MainNavHost(navController: NavHostController, model: BlockchainCardModel) {
         navController = navController,
         startDestination = "blockchain_card"
     ) {
-        composable("order_or_link_card") {
-            OrderOrLinkCard(model)
+
+        composable("blockchain_card") {
+            BlockchainCardScreen(viewModel)
         }
 
-        composable("imgur_post_detail_screen") {
-            SelectCardForOrder()
+        composable("order_or_link_card") {
+            OrderOrLinkCard(viewModel)
         }
     }
 }
 
 @Composable
 private fun OrderOrLinkCard(
-    model: BlockchainCardModel
+    viewModel: BlockchainCardViewModel
 ) {
+    OrderOrLinkCardContent(
+        onOrderCard = { viewModel.onIntent(BlockchainCardIntent.OrderCard) },
+        onLinkCard =  { viewModel.onIntent(BlockchainCardIntent.LinkCard) },
+    )
+}
 
-    val onOrderCard = {
-        model.process(BlockchainCardIntent.OrderCard) // TODO maybe the model should provide this
-    }
-    val onLinkCard = {
-        model.process(BlockchainCardIntent.LinkCard)
-    }
-
+@Composable
+private fun OrderOrLinkCardContent(
+    onOrderCard: () -> Unit,
+    onLinkCard: () -> Unit,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)

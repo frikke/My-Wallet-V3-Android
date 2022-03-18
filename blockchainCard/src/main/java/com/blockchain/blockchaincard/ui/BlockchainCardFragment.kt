@@ -6,21 +6,33 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardScreen
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
-import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
+import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
+import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.androidx.viewmodel.scope.getViewModel
 
-class BlockchainCardFragment :
-    MviComposeFragment<BlockchainCardModel, BlockchainCardIntent, BlockchainCardState>(), FlowFragment {
+class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragment {
 
-    override val model: BlockchainCardModel by scopedInject()
+    private val viewModel: BlockchainCardViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
+
+    private val navigator: BlockchainCardNavigationRouter by scopedInject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        model.process(BlockchainCardIntent.UpdateCardState(CardState.NOT_ORDERED))
     }
 
     companion object {
@@ -38,9 +50,6 @@ class BlockchainCardFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        analytics.logEvent(
-//            WalletConnectAnalytics.ConnectedDappsListViewed
-//        )
     }
 
     override fun onCreateView(
@@ -48,14 +57,21 @@ class BlockchainCardFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        bindViewModel(viewModel, navigator, ModelConfigArgs.NoArgs) // TODO pass card info here
+
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                BlockchainCardScreen(model)
+                val navController = rememberNavController()
+                BlockchainCardNavHost(navController = navController, viewModel = viewModel)
             }
         }
     }
 
     override fun onBackPressed(): Boolean = false
 
+    override fun onStateUpdated(state: BlockchainCardViewState) {
+        TODO("Not yet implemented")
+    }
 }
