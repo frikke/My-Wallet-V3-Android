@@ -4,7 +4,6 @@ import android.content.Intent
 import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
-import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
