@@ -5,14 +5,15 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdkVersion Versions.compileSdk
+    buildToolsVersion Versions.buildTools
 
     defaultConfig {
         applicationId "piuk.blockchain.blockchain_component_library_catalog"
-        minSdk 24
-        targetSdk 31
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion Versions.minSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode Versions.versionCode
+        versionName Versions.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -31,15 +32,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = Versions.kotlinJvmTarget
         useIR = true
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.5.31'
+        kotlinCompilerExtensionVersion Versions.compose
+        kotlinCompilerVersion Versions.kotlin
     }
     packagingOptions {
         resources {
@@ -49,25 +50,23 @@ android {
 }
 
 dependencies {
-
     implementation Libraries.lifecycleViewModel
-    implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.activity:activity-compose:1.3.1'
+    implementation Libraries.lifecycleRuntime
+    implementation Libraries.appCompat
+    implementation Libraries.design
+    implementation Libraries.constraintLayout
+
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composeUiTooling
+    implementation Libraries.composeActivity
+    implementation Libraries.composeUiTooling
+    implementation Libraries.composeUiTest
+
+    implementation 'androidx.core:core-ktx:1.7.0'
 
     implementation "com.airbnb.android:showkase:1.0.0-beta07"
+    kapt "com.airbnb.android:showkase-processor:1.0.0-beta07"
     implementation project(path: ':componentlib')
     api(project(":charts"))
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
-    kapt "com.airbnb.android:showkase-processor:1.0.0-beta07"
-
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 }
