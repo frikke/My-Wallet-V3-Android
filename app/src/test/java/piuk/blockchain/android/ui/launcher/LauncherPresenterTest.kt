@@ -25,19 +25,13 @@ class LauncherPresenterTest {
     private val appUtil: AppUtil = mock()
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
-    private val securityPrefs: SecurityPrefs = mock()
-    private val deeplinkFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
 
     private val subject = LauncherPresenter(
         appUtil,
         prefsUtil,
         deepLinkPersistence,
         environmentConfig,
-        authPrefs,
-        securityPrefs,
-        deeplinkFeatureFlag
+        authPrefs
     )
 
     @Test

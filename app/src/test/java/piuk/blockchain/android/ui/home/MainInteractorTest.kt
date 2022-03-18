@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.home
 import android.content.Intent
 import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -46,7 +47,7 @@ class MainInteractorTest {
 
     private lateinit var interactor: MainInteractor
     private val deepLinkProcessor: DeepLinkProcessor = mock()
-    private val deepLinkProcessorV2: DeeplinkProcessorV2 = mock()
+    private val deeplinkRedirector: DeeplinkRedirector = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val exchangeLinking: PitLinking = mock()
     private val exchangePrefs: ThePitLinkingPrefs = mock()
@@ -70,7 +71,7 @@ class MainInteractorTest {
     fun setup() {
         interactor = MainInteractor(
             deepLinkProcessor = deepLinkProcessor,
-            deeplinkProcessorV2 = deepLinkProcessorV2,
+            deeplinkRedirector = deeplinkRedirector,
             deepLinkPersistence = deepLinkPersistence,
             exchangeLinking = exchangeLinking,
             exchangePrefs = exchangePrefs,
