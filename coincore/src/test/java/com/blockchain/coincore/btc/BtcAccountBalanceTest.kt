@@ -50,7 +50,6 @@ class BtcAccountBalanceTest : CoincoreTestBase() {
             walletPreferences = walletPrefs,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            entitySwitchSilverEligibilityFeatureFlag = mock(),
             identity = mock(),
             addressResolver = mock()
         )

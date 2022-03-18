@@ -43,7 +43,6 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
         exchangeRates = exchangeRates,
         walletPreferences = walletPreferences,
         custodialWalletManager = custodialWalletManager,
-        entitySwitchSilverEligibilityFeatureFlag = mock(),
         identity = mock(),
         baseActions = CryptoAccountBase.defaultActions,
         addressResolver = mock()

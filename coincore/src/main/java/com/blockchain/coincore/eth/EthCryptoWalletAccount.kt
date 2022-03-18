@@ -12,7 +12,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -35,12 +34,10 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     override val exchangeRates: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,
-    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     identity: UserIdentity,
     override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.ETHER, custodialWalletManager,
-    entitySwitchSilverEligibilityFeatureFlag, identity
+    payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity
 ) {
 
     override val baseActions: Set<AssetAction> = defaultActions

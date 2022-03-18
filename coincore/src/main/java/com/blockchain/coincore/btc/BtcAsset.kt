@@ -18,7 +18,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import info.blockchain.balance.AssetInfo
@@ -55,7 +54,6 @@ import thepit.PitLinking
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
-    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     addressResolver: IdentityAddressResolver
 ) : CryptoAssetBase(
     payloadManager,
@@ -68,7 +66,6 @@ import thepit.PitLinking
     pitLinking,
     crashLogger,
     identity,
-    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ) {
 
@@ -106,8 +103,7 @@ import thepit.PitLinking
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity,
-                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag
+                    identity = identity
                 )
             )
         )
@@ -213,7 +209,6 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             identity = identity,
             addressResolver = addressResolver
         )
@@ -228,7 +223,6 @@ import thepit.PitLinking
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             identity = identity,
             addressResolver = addressResolver
         )

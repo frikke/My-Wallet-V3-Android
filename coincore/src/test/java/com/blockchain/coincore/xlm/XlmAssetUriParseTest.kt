@@ -61,7 +61,6 @@ class XlmAssetUriParseTest {
         crashLogger = crashLogger,
         walletPreferences = walletPreferences,
         identity = mock(),
-        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         addressResolver = mock()
     )
 

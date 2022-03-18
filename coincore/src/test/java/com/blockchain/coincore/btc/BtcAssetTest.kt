@@ -79,7 +79,6 @@ class BtcAssetTest {
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         identity = identity,
-        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         addressResolver = mock()
     )
 
