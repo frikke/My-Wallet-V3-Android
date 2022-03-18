@@ -77,18 +77,9 @@
                 <data
                     android:host="${DYNAMIC_LINK_HOST_2}"
                     android:scheme="https" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="www.blockchain.com"
-                    android:scheme="https" />
-                <data
-                    android:host="blockchain.com"
+                    android:host="${DEEPLINKING_URL}"
                     android:scheme="https" />
             </intent-filter>
         </activity>

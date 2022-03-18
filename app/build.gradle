@@ -101,6 +101,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
@@ -143,6 +144,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
@@ -185,6 +187,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
