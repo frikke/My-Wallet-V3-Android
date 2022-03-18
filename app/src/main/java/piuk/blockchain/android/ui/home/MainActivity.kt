@@ -492,15 +492,6 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
-        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    if (newState.deeplinkResult is DeepLinkResult.DeepLinkResultSuccess) {
-                        navigateToDeeplinkDestination(newState.deeplinkResult.destination)
-                    }
-                }
-            }
-        )
 
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
