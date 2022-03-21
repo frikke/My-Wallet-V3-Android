@@ -990,6 +990,11 @@
     <string name="rename_asset_card_body">Heads up: %1$s has renamed to %2$s. All balances are unaffected.</string>
     <string name="rename_asset_card_cta">Trade %s</string>
 
+    <!-- WalletConnect announcement -->
+    <string name="wallet_connect_announcement_card_title">WalletConnect is Now Available!</string>
+    <string name="wallet_connect_announcement_card_subtitle">Securely connect your wallet to any web 3.0 application. </string>
+    <string name="wallet_connect_announcement_action">Learn More</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>

@@ -36,6 +36,9 @@ const val URL_XLM_MEMO = "https://support.blockchain.com/hc/en-us/articles/36001
 
 const val URL_TX_FEES = "https://support.blockchain.com/hc/en-us/articles/360000939903-Transaction-fees"
 
+const val URL_WALLET_CONNECT_LEARN_MORE =
+    "https://medium.com/blockchain/introducing-walletconnect-access-web3-from-your-blockchain-com-wallet-da02e49ccea9"
+
 const val YODLEE_LEARN_MORE = "https://www.yodlee.com/legal/yodlee-security"
 const val URL_YODLEE_SUPPORT_LEARN_MORE = "https://support.blockchain.com/hc/en-us/articles/360053570252 "
 
