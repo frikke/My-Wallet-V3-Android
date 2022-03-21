@@ -23,8 +23,8 @@ interface ViewState
 /**
  * Intent representing an action from the user
  */
-interface Intent {
-    fun isValidFor(modelState: ModelState): Boolean = true
+interface Intent<TModelState : ModelState> {
+    fun isValidFor(modelState: TModelState): Boolean = true
 }
 
 /**
@@ -44,7 +44,7 @@ sealed interface ModelConfigArgs {
     object NoArgs : ModelConfigArgs
 }
 
-abstract class MviViewModel<TIntent : Intent,
+abstract class MviViewModel<TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEvent : NavigationEvent,

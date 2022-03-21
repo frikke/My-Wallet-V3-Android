@@ -11,7 +11,7 @@ abstract class MVIFragment<TViewState : ViewState> : Fragment() {
     abstract fun onStateUpdated(state: TViewState)
 }
 
-fun <TIntent : Intent,
+fun <TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,
