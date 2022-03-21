@@ -725,6 +725,7 @@ val applicationModule = module {
                 deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
                 assetCatalogue = get(),
+                coincore = get(),
                 notificationManager = get(),
                 analytics = get()
             )

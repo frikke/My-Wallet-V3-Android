@@ -47,6 +47,24 @@ class DeeplinkProcessorV2 {
                 }
             }
 
+            SEND_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                val amount = getAmount(deeplinkUri)
+                val address = getAddress(deeplinkUri)
+                Timber.d("deeplink: AssetSend with args $code, $amount, $address") // TODO can we log address??
+                if (!code.isNullOrEmpty() && !amount.isNullOrEmpty() && !address.isNullOrEmpty()) {
+                    val destination = Destination.AssetSendDestination(code, amount, address)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                }
+            }
+
             ACTIVITY_URL -> {
 
                 // Todo add filter parameter to destination
@@ -66,11 +84,13 @@ class DeeplinkProcessorV2 {
 
         const val ASSET_URL = "$APP_URL/asset"
         const val BUY_URL = "$ASSET_URL/buy"
+        const val SEND_URL = "$ASSET_URL/send"
 
         const val ACTIVITY_URL = "$APP_URL/activity"
 
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"
+        const val PARAMETER_ADDRESS = "address"
         const val PARAMETER_FILTER = "filter"
     }
 
@@ -79,6 +99,9 @@ class DeeplinkProcessorV2 {
 
     private fun getAmount(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_AMOUNT)
+
+    private fun getAddress(deeplinkUri: Uri): String? =
+        deeplinkUri.getQueryParameter(PARAMETER_ADDRESS)
 
     private fun getFilter(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_FILTER)

@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.processor.DeepLinkResult
@@ -19,6 +21,7 @@ import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
@@ -33,6 +36,7 @@ class GlobalEventHandler(
     private val deeplinkFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val assetCatalogue: AssetCatalogue,
+    private val coincore: Coincore,
     private val notificationManager: NotificationManager,
     private val analytics: Analytics
 ) {
@@ -91,6 +95,33 @@ class GlobalEventHandler(
                 } ?: run {
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
+            }
+
+            is Destination.AssetSendDestination -> {
+                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
+                    coincore.findAccountByAddress(assetInfo, destination.accountAddress).subscribeBy(
+                        onSuccess = { account ->
+                            if (account is CryptoAccount) {
+                                intent = TransactionFlowActivity.newIntent(
+                                    context = application,
+                                    sourceAccount = account,
+                                    action = AssetAction.Send
+                                )
+                            } else {
+                                Timber.e("Unable to start Send from deeplink. Account is not a CryptoAccount")
+                            }
+                        },
+                        onComplete = {
+                            Timber.e("Unable to start Send from deeplink. Account not found")
+                        },
+                        onError = {
+                            Timber.e(it)
+                        }
+                    )
+                } ?: run {
+                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                }
+
             }
 
             is Destination.ActivityDestination -> {

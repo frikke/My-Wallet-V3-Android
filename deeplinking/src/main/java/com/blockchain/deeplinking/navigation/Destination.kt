@@ -11,5 +11,8 @@ sealed class Destination : Parcelable {
     data class AssetBuyDestination(val networkTicker: String, val amount: String) : Destination()
 
     @Parcelize
+    data class AssetSendDestination(val networkTicker: String, val amount: String, val accountAddress: String) : Destination()
+
+    @Parcelize
     data class ActivityDestination(val filter: String? = null) : Destination()
 }

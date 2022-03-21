@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
@@ -99,6 +100,7 @@ import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
@@ -142,6 +144,7 @@ class MainActivity :
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val assetCatalogue: AssetCatalogue by scopedInject()
+    private val coincore: Coincore by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -631,11 +634,11 @@ class MainActivity :
         }
     }
 
-    private fun navigateToDeeplinkDestination(mainDestination: Destination) {
-        when (mainDestination) {
+    private fun navigateToDeeplinkDestination(destination: Destination) {
+        when (destination) {
             is Destination.AssetViewDestination -> {
                 // TODO maybe this should come from the model?
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.networkTicker)
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)
                 if (assetInfo != null) {
                     startActivity(
                         CoinViewActivity.newIntent(
@@ -649,16 +652,45 @@ class MainActivity :
             }
 
             is Destination.AssetBuyDestination -> {
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.networkTicker)
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)
                 if (assetInfo != null) {
                     startActivity(
                         SimpleBuyActivity.newIntent(
                             context = this,
-                            asset = assetInfo
+                            asset = assetInfo,
+                            preselectedAmount = destination.amount
                         )
                     )
                 } else {
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.AssetSendDestination -> {
+                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
+                    coincore.findAccountByAddress(assetInfo, destination.accountAddress).subscribeBy(
+                        onSuccess = { account ->
+                            if (account is CryptoAccount && account !is NullCryptoAccount) {
+                                startActivity(
+                                    TransactionFlowActivity.newIntent(
+                                        context = application,
+                                        sourceAccount = account,
+                                        action = AssetAction.Send
+                                    )
+                                )
+                            } else {
+                                Timber.e("Unable to start Send from deeplink. Account is not a CryptoAccount")
+                            }
+                        },
+                        onComplete = {
+                            Timber.e("Unable to start Send from deeplink. Account not found")
+                        },
+                        onError = {
+                            Timber.e(it)
+                        }
+                    )
+                } ?: run {
+                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
                 }
             }
 
@@ -724,6 +756,12 @@ class MainActivity :
             reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
+    }
+
+    private fun startSendFragment() {
+        supportFragmentManager.showFragment(
+            fragment = TransferSendFragment.newInstance()
+        )
     }
 
     override fun startDashboardOnboarding() {
