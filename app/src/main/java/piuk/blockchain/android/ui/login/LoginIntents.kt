@@ -85,7 +85,22 @@ sealed class LoginIntents : MviIntent<LoginState> {
     object CancelPolling : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(
-                pollingState = AuthPollingState.NOT_STARTED
+                pollingState = if (oldState.pollingState == AuthPollingState.POLLING) {
+                    AuthPollingState.SUSPENDED
+                } else {
+                    AuthPollingState.NOT_STARTED
+                }
+            )
+    }
+
+    object ResumePolling : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState =
+            oldState.copy(
+                pollingState = if (oldState.pollingState == AuthPollingState.SUSPENDED) {
+                    AuthPollingState.POLLING
+                } else {
+                    oldState.pollingState
+                }
             )
     }
 

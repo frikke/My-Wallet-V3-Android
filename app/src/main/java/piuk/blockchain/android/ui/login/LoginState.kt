@@ -45,6 +45,7 @@ data class LoginState(
 enum class AuthPollingState {
     NOT_STARTED,
     POLLING,
+    SUSPENDED,
     TIMEOUT,
     COMPLETE,
     ERROR,

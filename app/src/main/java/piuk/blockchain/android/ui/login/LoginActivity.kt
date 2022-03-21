@@ -24,7 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
-import org.koin.core.component.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
@@ -60,7 +59,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
-    private lateinit var state: LoginState
+    private var state: LoginState? = null
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -146,6 +145,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private fun isDemoAccount(email: String): Boolean = email == BuildConfig.PLAY_STORE_DEMO_EMAIL
 
+    override fun onResume() {
+        super.onResume()
+        model.process(LoginIntents.ResumePolling)
+    }
+
     override fun onPause() {
         model.process(LoginIntents.CancelPolling)
         super.onPause()
@@ -164,8 +168,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     override fun render(newState: LoginState) {
-        state = newState
         updateUI(newState)
+        if (state?.currentStep == newState.currentStep) {
+            return
+        }
+        state = newState
         when (newState.currentStep) {
             LoginStep.SHOW_SCAN_ERROR -> {
                 showSnackbar(SnackbarType.Error, R.string.pairing_failed)
@@ -197,7 +204,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                     }
                 )
             }
-            LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice()
+            LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice(newState)
             LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
             LoginStep.SHOW_EMAIL_ERROR -> {
                 analytics.logEvent(LoginAnalytics.LoginEmailFailed)
@@ -211,6 +218,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             LoginStep.NAVIGATE_FROM_PAYLOAD -> {
                 newState.payload?.let {
                     startActivity(LoginAuthActivity.newInstance(this, it, newState.payloadBase64String))
+                    model.process(LoginIntents.ShowEmailSent)
                 }
             }
             LoginStep.UNKNOWN_ERROR -> {
@@ -336,13 +344,16 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         }
     }
 
-    private fun navigateToVerifyDevice() {
+    private fun navigateToVerifyDevice(newState: LoginState) {
         supportFragmentManager.run {
+            if (this.findFragmentByTag(VerifyDeviceFragment::class.simpleName) != null) {
+                return // don't add multiple instances
+            }
             beginTransaction()
                 .replace(
                     R.id.content_frame,
                     VerifyDeviceFragment.newInstance(
-                        state.sessionId, state.email, state.captcha
+                        newState.sessionId, newState.email, newState.captcha
                     ),
                     VerifyDeviceFragment::class.simpleName
                 )
