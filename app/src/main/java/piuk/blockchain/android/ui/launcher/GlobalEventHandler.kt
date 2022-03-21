@@ -18,10 +18,13 @@ import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import info.blockchain.balance.AssetCatalogue
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.subjects.MaybeSubject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
@@ -71,29 +74,33 @@ class GlobalEventHandler(
         }
     }
 
-    private fun triggerNotificationFromDeeplink(destination: Destination, notificationPayload: NotificationPayload) {
-        var intent: Intent? = null
+    private fun buildNotificationIntentFromDeeplink(destination: Destination) : Maybe<Intent> {
+        val subject = MaybeSubject.create<Intent>()
         when (destination) {
             is Destination.AssetViewDestination -> {
                 assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
-                    intent = CoinViewActivity.newIntent(
-                        context = application,
-                        asset = assetInfo
-                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    subject.onSuccess(
+                        CoinViewActivity.newIntent(
+                            context = application,
+                            asset = assetInfo
+                        )
+                    )
                 } ?: run {
-                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                    subject.onError(Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null"))
                 }
             }
 
             is Destination.AssetBuyDestination -> {
                 assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
-                    intent = SimpleBuyActivity.newIntent(
+                    subject.onSuccess(
+                        SimpleBuyActivity.newIntent(
                         context = application,
                         asset = assetInfo,
                         preselectedAmount = destination.amount
+                        )
                     )
                 } ?: run {
-                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                    subject.onError(Exception("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null"))
                 }
             }
 
@@ -102,61 +109,75 @@ class GlobalEventHandler(
                     coincore.findAccountByAddress(assetInfo, destination.accountAddress).subscribeBy(
                         onSuccess = { account ->
                             if (account is CryptoAccount) {
-                                intent = TransactionFlowActivity.newIntent(
-                                    context = application,
-                                    sourceAccount = account,
-                                    action = AssetAction.Send
+                                subject.onSuccess(
+                                    TransactionFlowActivity.newIntent(
+                                        context = application,
+                                        sourceAccount = account,
+                                        action = AssetAction.Send
+                                    )
                                 )
                             } else {
-                                Timber.e("Unable to start Send from deeplink. Account is not a CryptoAccount")
+                                subject.onError(Exception("Unable to start Send from deeplink. Account is not a CryptoAccount"))
                             }
                         },
                         onComplete = {
-                            Timber.e("Unable to start Send from deeplink. Account not found")
+                            subject.onError(Exception("Unable to start Send from deeplink. Account not found"))
                         },
                         onError = {
-                            Timber.e(it)
+                            subject.onError(it)
                         }
                     )
                 } ?: run {
-                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                    subject.onError(Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null"))
                 }
             }
 
             is Destination.ActivityDestination -> {
-                intent =
+                subject.onSuccess(
                     MainActivity.newIntent(
                         context = application,
                         pendingDestination = destination
                     )
-            }
-        }.exhaustive
-
-        intent?.let { intentFinal ->
-            intentFinal.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val pendingIntent = PendingIntent.getActivity(
-                application,
-                0,
-                intentFinal,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-            pendingIntent?.let { pendingIntentFinal ->
-                NotificationsUtil(
-                    context = application,
-                    notificationManager = notificationManager,
-                    analytics = analytics
-                ).triggerNotification(
-                    title = notificationPayload.title ?: "",
-                    marquee = notificationPayload.title ?: "",
-                    text = notificationPayload.body ?: "",
-                    pendingIntent = pendingIntentFinal,
-                    id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
-                    appName = R.string.app_name,
-                    colorRes = R.color.primary_navy_medium
                 )
             }
+
+            else -> subject.onError(Exception(""))
         }
+
+        return subject
+    }
+
+    private fun triggerNotificationFromDeeplink(destination: Destination, notificationPayload: NotificationPayload) {
+        buildNotificationIntentFromDeeplink(destination).subscribeBy(
+            onSuccess = { intent ->
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                val pendingIntent = PendingIntent.getActivity(
+                    application,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+
+                pendingIntent?.let { pendingIntentFinal ->
+                    NotificationsUtil(
+                        context = application,
+                        notificationManager = notificationManager,
+                        analytics = analytics
+                    ).triggerNotification(
+                        title = notificationPayload.title ?: "",
+                        marquee = notificationPayload.title ?: "",
+                        text = notificationPayload.body ?: "",
+                        pendingIntent = pendingIntentFinal,
+                        id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
+                        appName = R.string.app_name,
+                        colorRes = R.color.primary_navy_medium
+                    )
+                }
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
     }
 
     private fun startTransactionFlowForSigning(event: WalletConnectUserEvent) {
