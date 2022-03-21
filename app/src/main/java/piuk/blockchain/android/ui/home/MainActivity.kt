@@ -28,7 +28,6 @@ import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
-import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -650,7 +649,7 @@ class MainActivity :
             }
 
             is Destination.AssetBuyDestination -> {
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.code)
+                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(mainDestination.networkTicker)
                 if (assetInfo != null) {
                     startActivity(
                         SimpleBuyActivity.newIntent(

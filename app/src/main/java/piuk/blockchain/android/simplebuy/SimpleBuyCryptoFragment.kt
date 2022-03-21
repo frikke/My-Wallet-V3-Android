@@ -69,6 +69,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
+import java.math.BigDecimal
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -99,6 +100,11 @@ class SimpleBuyCryptoFragment :
 
     private val preselectedMethodId: String?
         get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
+
+    private val preselectedAmount: FiatValue?
+        get() = arguments?.getString(ARG_AMOUNT)?.let { amount ->
+            FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+        }
 
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
@@ -142,11 +148,19 @@ class SimpleBuyCryptoFragment :
             }
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
-        compositeDisposable += binding.inputAmount.amount.subscribe {
-            when (it) {
-                is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
-                else -> throw IllegalStateException("CryptoValue is not supported as input yet")
+        preselectedAmount
+
+        compositeDisposable += binding.inputAmount.amount
+            .doOnSubscribe {
+                preselectedAmount?.let { amount ->
+                    model.process(SimpleBuyIntent.AmountUpdated(amount))
+                }
             }
+            .subscribe {
+                when (it) {
+                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
+                    else -> throw IllegalStateException("CryptoValue is not supported as input yet")
+                }
         }
 
         binding.btnContinue.setOnClickListener { startBuy() }

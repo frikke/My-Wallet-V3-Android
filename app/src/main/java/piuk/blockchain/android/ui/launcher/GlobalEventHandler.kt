@@ -47,7 +47,6 @@ class GlobalEventHandler(
             startTransactionFlowForSigning(event)
         }
 
-        Timber.d("deeplink: init global event handler")
         compositeDisposable += deeplinkRedirector.deeplinkEvents.subscribe { deeplinkResult ->
             Timber.d("deeplink: new deeplinkResult")
             navigateToDeeplinkDestination(deeplinkResult)
@@ -72,25 +71,24 @@ class GlobalEventHandler(
         var intent: Intent? = null
         when (destination) {
             is Destination.AssetViewDestination -> {
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)
-                if (assetInfo != null) {
+                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
                     intent = CoinViewActivity.newIntent(
                         context = application,
                         asset = assetInfo
                     ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                } else {
+                } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
                 }
             }
 
             is Destination.AssetBuyDestination -> {
-                val assetInfo = assetCatalogue.assetInfoFromNetworkTicker(destination.code)
-                if (assetInfo != null) {
+                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
                     intent = SimpleBuyActivity.newIntent(
                         context = application,
-                        asset = assetInfo
+                        asset = assetInfo,
+                        preselectedAmount = destination.amount
                     )
-                } else {
+                } ?: run {
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
@@ -104,25 +102,25 @@ class GlobalEventHandler(
             }
         }.exhaustive
 
-        if (intent != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent?.let { intentFinal ->
+            intentFinal.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             val pendingIntent = PendingIntent.getActivity(
                 application,
                 0,
-                intent,
+                intentFinal,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            if (pendingIntent != null) {
+            pendingIntent?.let { pendingIntentFinal ->
                 NotificationsUtil(
                     context = application,
                     notificationManager = notificationManager,
                     analytics = analytics
                 ).triggerNotification(
-                    title = notificationPayload?.title ?: "",
-                    marquee = notificationPayload?.title ?: "",
-                    text = notificationPayload?.body ?: "",
-                    pendingIntent = pendingIntent,
+                    title = notificationPayload.title ?: "",
+                    marquee = notificationPayload.title ?: "",
+                    text = notificationPayload.body ?: "",
+                    pendingIntent = pendingIntentFinal,
                     id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
                     appName = R.string.app_name,
                     colorRes = R.color.primary_navy_medium

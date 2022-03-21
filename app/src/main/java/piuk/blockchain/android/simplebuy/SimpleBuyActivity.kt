@@ -68,6 +68,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         intent.getStringExtra(PRESELECTED_PAYMENT_METHOD)
     }
 
+    private val preselectedAmount: String? by unsafeLazy {
+        intent.getStringExtra(PRESELECTED_AMOUNT)
+    }
+
     private val startedFromKycResume: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_KYC_RESUME, false)
     }
@@ -154,7 +158,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
         when (screenWithCurrency.flowScreen) {
             FlowScreen.ENTER_AMOUNT -> goToBuyCryptoScreen(
-                false, screenWithCurrency.cryptoCurrency, preselectedPaymentMethodId
+                addToBackStack = false,
+                preselectedAsset = screenWithCurrency.cryptoCurrency,
+                preselectedPaymentMethodId = preselectedPaymentMethodId,
+                preselectedAmount = preselectedAmount
             )
             FlowScreen.KYC -> startKyc()
             FlowScreen.KYC_VERIFICATION -> goToKycVerificationScreen(false)
@@ -186,13 +193,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     override fun goToBuyCryptoScreen(
         addToBackStack: Boolean,
         preselectedAsset: AssetInfo,
-        preselectedPaymentMethodId: String?
+        preselectedPaymentMethodId: String?,
+        preselectedAmount: String?
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId),
+                SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId, preselectedAmount),
                 SimpleBuyCryptoFragment::class.simpleName
             )
             .apply {
@@ -329,6 +337,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         private const val STARTED_FROM_APPROVAL_KEY = "STARTED_FROM_APPROVAL_KEY"
         private const val ASSET_KEY = "crypto_currency_key"
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
+        private const val PRESELECTED_AMOUNT = "preselected_amount_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
 
         fun newIntent(
@@ -337,12 +346,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             launchFromNavigationBar: Boolean = false,
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
+            preselectedAmount: String? = null,
             launchFromApprovalDeepLink: Boolean = false
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
             putExtra(ASSET_KEY, asset?.networkTicker)
             putExtra(STARTED_FROM_KYC_RESUME, launchKycResume)
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
+            putExtra(PRESELECTED_AMOUNT, preselectedAmount)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
         }
     }

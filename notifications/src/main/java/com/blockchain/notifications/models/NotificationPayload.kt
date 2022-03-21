@@ -69,8 +69,8 @@ class NotificationPayload(map: Map<String, String?>) {
                 if (jsonObject.has("address")) {
                     address = jsonObject.getString("address")
                 }
-                if (jsonObject.has("deepLinkURL")) {
-                    deeplinkURL = jsonObject.getString("deepLinkURL")
+                if (jsonObject.has("url")) {
+                    deeplinkURL = jsonObject.getString("url")
                 }
             } catch (e: JSONException) {
                 Timber.e(e)
