@@ -27,6 +27,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnounce
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.TaxCenterAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.UkEntitySwitchAnnouncement
@@ -98,6 +99,13 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             UkEntitySwitchAnnouncement(
+                userIdentity = get(),
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            TaxCenterAnnouncement(
                 userIdentity = get(),
                 dismissRecorder = get()
             )
