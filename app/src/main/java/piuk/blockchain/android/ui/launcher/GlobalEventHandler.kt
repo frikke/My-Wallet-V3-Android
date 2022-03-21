@@ -53,13 +53,13 @@ class GlobalEventHandler(
         }
 
         compositeDisposable += deeplinkRedirector.deeplinkEvents.subscribe { deeplinkResult ->
-            Timber.d("deeplink: new deeplinkResult")
             navigateToDeeplinkDestination(deeplinkResult)
         }
     }
 
     private fun navigateToDeeplinkDestination(deeplinkResult: DeepLinkResult.DeepLinkResultSuccess) {
         if (deeplinkResult.notificationPayload != null) {
+            Timber.d("deeplink: triggering notification with deeplink")
             triggerNotificationFromDeeplink(deeplinkResult.destination, deeplinkResult.notificationPayload!!)
         } else {
             Timber.d("deeplink: Starting main activity with pending destination")
