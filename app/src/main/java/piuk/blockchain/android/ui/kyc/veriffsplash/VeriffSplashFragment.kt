@@ -24,12 +24,15 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
+import com.blockchain.veriff.VeriffResultHandler
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
@@ -51,7 +54,6 @@ import piuk.blockchain.android.urllinks.URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_L
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class VeriffSplashFragment :
     BaseFragment<VeriffSplashView, VeriffSplashPresenter>(),
@@ -68,6 +70,23 @@ class VeriffSplashFragment :
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
     )
+
+    private val analytics: Analytics by inject()
+
+    private val veriffResultHandler = VeriffResultHandler(
+        onSuccess = {
+            presenter.submitVerification()
+        },
+        onError = {
+            analytics.logEvent(
+                VeriffAnalytics.VerifSubmissionFailed(
+                    tierUserIsAboutToUpgrade = Tier.GOLD,
+                    failureReason = it
+                )
+            )
+        }
+    )
+
     override val countryCode by unsafeLazy {
         VeriffSplashFragmentArgs.fromBundle(arguments ?: Bundle()).countryCode
     }
@@ -175,9 +194,12 @@ class VeriffSplashFragment :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_VERIFF) {
-            Timber.d("Veriff result code $resultCode")
-            if (resultCode == RESULT_OK) {
-                presenter.submitVerification()
+            data?.let {
+                veriffResultHandler.handleResult(it)
+            } ?: run {
+                if (resultCode == RESULT_OK) {
+                    presenter.submitVerification()
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)

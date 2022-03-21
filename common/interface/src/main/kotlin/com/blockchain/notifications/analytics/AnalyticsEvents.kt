@@ -210,6 +210,7 @@ enum class AnalyticsNames(val eventName: String) {
     QR_CODE_CLICKED("Qr Code Clicked"),
     QR_CODE_SCANNED("Qr Code Scanned"),
     TERMS_CONDITIONS_VIEWED("T&C Viewed"),
+    VERIFICATION_SUBMISSION_FAILED("Verification Submission Failed"),
     TERMS_CONDITIONS_ACCEPTED("T&C Accepted"),
     COINVIEW_REWARDS_WITHDRAW_ADD_CLICKED("Rewards Withdraw Add Clicked"),
     COINVIEW_WALLETS_ACCOUNTS_VIEWED("Wallets Accounts Viewed"),
