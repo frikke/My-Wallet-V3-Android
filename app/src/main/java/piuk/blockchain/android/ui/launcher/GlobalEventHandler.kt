@@ -10,7 +10,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.extensions.exhaustive
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
@@ -20,7 +19,6 @@ import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -74,7 +72,7 @@ class GlobalEventHandler(
         }
     }
 
-    private fun buildNotificationIntentFromDeeplink(destination: Destination) : Maybe<Intent> {
+    private fun buildNotificationIntentFromDeeplink(destination: Destination): Maybe<Intent> {
         val subject = MaybeSubject.create<Intent>()
         when (destination) {
             is Destination.AssetViewDestination -> {
@@ -86,7 +84,9 @@ class GlobalEventHandler(
                         )
                     )
                 } ?: run {
-                    subject.onError(Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null"))
+                    subject.onError(
+                        Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                    )
                 }
             }
 
@@ -94,13 +94,15 @@ class GlobalEventHandler(
                 assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
                     subject.onSuccess(
                         SimpleBuyActivity.newIntent(
-                        context = application,
-                        asset = assetInfo,
-                        preselectedAmount = destination.amount
+                            context = application,
+                            asset = assetInfo,
+                            preselectedAmount = destination.amount
                         )
                     )
                 } ?: run {
-                    subject.onError(Exception("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null"))
+                    subject.onError(
+                        Exception("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                    )
                 }
             }
 
@@ -117,18 +119,24 @@ class GlobalEventHandler(
                                     )
                                 )
                             } else {
-                                subject.onError(Exception("Unable to start Send from deeplink. Account is not a CryptoAccount"))
+                                subject.onError(
+                                    Exception("Unable to start Send from deeplink. Account is not a CryptoAccount")
+                                )
                             }
                         },
                         onComplete = {
-                            subject.onError(Exception("Unable to start Send from deeplink. Account not found"))
+                            subject.onError(
+                                Exception("Unable to start Send from deeplink. Account not found")
+                            )
                         },
                         onError = {
                             subject.onError(it)
                         }
                     )
                 } ?: run {
-                    subject.onError(Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null"))
+                    subject.onError(
+                        Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                    )
                 }
             }
 
@@ -141,7 +149,9 @@ class GlobalEventHandler(
                 )
             }
 
-            else -> subject.onError(Exception(""))
+            else -> subject.onError(
+                Exception("Deeplink destination not recognized")
+            )
         }
 
         return subject
