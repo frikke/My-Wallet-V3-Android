@@ -333,8 +333,6 @@ dependencies {
     implementation Libraries.cardForm
     implementation Libraries.zxing
     implementation Libraries.sift
-    implementation Libraries.markwon
-    implementation Libraries.markwonRecyclerView
 
     // Google core
     implementation Libraries.googlePlayCore

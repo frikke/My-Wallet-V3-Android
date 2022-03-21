@@ -99,7 +99,6 @@ object Versions {
     const val charts = "3.1.0"
     const val circleIndicator = "2.1.6"
     const val countryPicker = "2.0.4"
-    const val markwon = "4.6.2"
 
     // Compose
     const val compose = "1.0.4"
@@ -278,8 +277,6 @@ object Libraries {
     const val zxing = "com.google.zxing:core:${Versions.zxing}"
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
-    const val markwon = "io.noties.markwon:core:${Versions.markwon}"
-    const val markwonRecyclerView = "io.noties.markwon:recycler:${Versions.markwon}"
 
     // Compose
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"

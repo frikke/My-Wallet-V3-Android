@@ -72,7 +72,7 @@ class LoaderActivity :
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
             is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.RequestPin -> onRequestPin()
-            is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.markdown)
+            is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.url)
             null -> {
             }
         }
@@ -151,7 +151,7 @@ class LoaderActivity :
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
-    override fun termsAndConditionsSigned() {
+    override fun termsAndConditionsAccepted() {
         model.process(LoaderIntents.OnTermsAndConditionsSigned)
     }
 
@@ -201,14 +201,14 @@ class LoaderActivity :
             .commitAllowingStateLoss()
     }
 
-    private fun launchTermsAndConditions(markdown: String) {
+    private fun launchTermsAndConditions(url: String) {
         updateToolbarTitle(getString(R.string.terms_and_conditions_toolbar))
         binding.progress.gone()
         binding.contentFrame.visible()
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                TermsAndConditionsFragment.newInstance(markdown),
+                TermsAndConditionsFragment.newInstance(url),
                 TermsAndConditionsFragment::class.simpleName
             )
             .commitAllowingStateLoss()

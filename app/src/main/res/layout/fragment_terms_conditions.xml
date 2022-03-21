@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,45 +7,23 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/markdown_container"
+    <WebView
+        android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@dimen/standard_margin"
-        android:background="@color/white"
         />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottom_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        >
-        
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/standard_margin"
-            >
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/progress"
+        android:layout_width="@dimen/animated_loader_view"
+        android:layout_height="@dimen/animated_loader_view"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="lottie/loader.json"
+        app:lottie_imageAssetsFolder="lottie/loader.json"
+        app:lottie_loop="true"
+        app:lottie_repeatMode="restart"
+        tools:visibility="visible" />
 
-            <com.blockchain.componentlib.button.MinimalButtonView
-                android:id="@+id/review_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-            
-            <com.blockchain.componentlib.button.PrimaryButtonView
-                android:id="@+id/continue_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                />
-
-        </FrameLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
