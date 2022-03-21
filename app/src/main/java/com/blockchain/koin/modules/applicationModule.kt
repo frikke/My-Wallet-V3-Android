@@ -724,8 +724,7 @@ val applicationModule = module {
                 wcFeatureFlag = get(walletConnectFeatureFlag),
                 deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
-                assetCatalogue = get(),
-                coincore = get(),
+                destinationArgs = get(),
                 notificationManager = get(),
                 analytics = get()
             )

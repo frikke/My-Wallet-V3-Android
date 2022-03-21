@@ -147,7 +147,6 @@ class LoaderInteractor(
         }
         emitter.onComplete()
         walletPrefs.isAppUnlocked = true
-        securityPrefs.setPinNotRequired()
         analytics.logEvent(LoginAnalyticsEvent)
     }
 

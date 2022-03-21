@@ -47,13 +47,6 @@ class PrefsUtil(
         isUnderAutomationTesting = true
     }
 
-    private var _isPinRequired = true
-    override fun setPinNotRequired() {
-        _isPinRequired = false
-    }
-    override val isPinRequired: Boolean
-        get() = _isPinRequired
-
     override val deviceId: String
         get() {
             return if (qaRandomiseDeviceId) {

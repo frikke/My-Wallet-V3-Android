@@ -8,7 +8,4 @@ interface SecurityPrefs {
 
     fun setScreenshotsEnabled(enable: Boolean)
     fun setIsUnderTest()
-
-    fun setPinNotRequired()
-    val isPinRequired: Boolean
 }

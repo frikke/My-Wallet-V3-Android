@@ -5,10 +5,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.CryptoAccount
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
+import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
@@ -16,7 +15,6 @@ import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
-import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -36,8 +34,7 @@ class GlobalEventHandler(
     private val wcFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkRedirector: DeeplinkRedirector,
-    private val assetCatalogue: AssetCatalogue,
-    private val coincore: Coincore,
+    private val destinationArgs: DestinationArgs,
     private val notificationManager: NotificationManager,
     private val analytics: Analytics
 ) {
@@ -52,7 +49,10 @@ class GlobalEventHandler(
             startTransactionFlowForSigning(event)
         }
 
-        compositeDisposable += deeplinkRedirector.deeplinkEvents.subscribe { deeplinkResult ->
+        compositeDisposable += deeplinkFeatureFlag.enabled.flatMapObservable { enabled ->
+            if (enabled) deeplinkRedirector.deeplinkEvents
+            else Observable.empty()
+        }.subscribe { deeplinkResult ->
             navigateToDeeplinkDestination(deeplinkResult)
         }
     }
@@ -76,7 +76,7 @@ class GlobalEventHandler(
         val subject = MaybeSubject.create<Intent>()
         when (destination) {
             is Destination.AssetViewDestination -> {
-                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     subject.onSuccess(
                         CoinViewActivity.newIntent(
                             context = application,
@@ -91,7 +91,7 @@ class GlobalEventHandler(
             }
 
             is Destination.AssetBuyDestination -> {
-                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     subject.onSuccess(
                         SimpleBuyActivity.newIntent(
                             context = application,
@@ -107,26 +107,15 @@ class GlobalEventHandler(
             }
 
             is Destination.AssetSendDestination -> {
-                assetCatalogue.assetInfoFromNetworkTicker(destination.networkTicker)?.let { assetInfo ->
-                    coincore.findAccountByAddress(assetInfo, destination.accountAddress).subscribeBy(
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
                         onSuccess = { account ->
-                            if (account is CryptoAccount) {
-                                subject.onSuccess(
-                                    TransactionFlowActivity.newIntent(
-                                        context = application,
-                                        sourceAccount = account,
-                                        action = AssetAction.Send
-                                    )
+                            subject.onSuccess(
+                                TransactionFlowActivity.newIntent(
+                                    context = application,
+                                    sourceAccount = account,
+                                    action = AssetAction.Send
                                 )
-                            } else {
-                                subject.onError(
-                                    Exception("Unable to start Send from deeplink. Account is not a CryptoAccount")
-                                )
-                            }
-                        },
-                        onComplete = {
-                            subject.onError(
-                                Exception("Unable to start Send from deeplink. Account not found")
                             )
                         },
                         onError = {
@@ -135,7 +124,7 @@ class GlobalEventHandler(
                     )
                 } ?: run {
                     subject.onError(
-                        Exception("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                        Exception("Unable to start Send flow from deeplink. AssetInfo is null")
                     )
                 }
             }

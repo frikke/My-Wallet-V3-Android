@@ -33,4 +33,5 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':core')
     implementation project(':notifications')
+    implementation project(':coincore')
 }

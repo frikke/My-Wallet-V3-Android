@@ -61,7 +61,7 @@ class FcmCallbackService : FirebaseMessagingService() {
             rxBus.emitEvent(NotificationPayload::class.java, payload)
             sendNotification(
                 payload = payload,
-                foreground = true
+                foreground = isAppOnForegrounded && walletPrefs.isAppUnlocked
             )
         } else {
             // If there is no data field, provide this default behaviour
