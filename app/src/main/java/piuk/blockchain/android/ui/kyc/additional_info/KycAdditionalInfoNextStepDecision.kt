@@ -1,26 +1,17 @@
-package piuk.blockchain.android.ui.kyc.address
+package piuk.blockchain.android.ui.kyc.additional_info
 
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import piuk.blockchain.android.ui.kyc.address.KycNextStepDecision
 
-internal class KycNextStepDecisionAdapter(
+class KycAdditionalInfoNextStepDecision(
     private val nabuToken: NabuToken,
-    private val nabuDataManager: NabuDataManager,
-    private val kycDataManager: KycDataManager
+    private val nabuDataManager: NabuDataManager
 ) : KycNextStepDecision {
-
     override fun nextStep(): Single<KycNextStepDecision.NextStep> =
-        Single.zip(
-            nabuToken.fetchNabuToken().flatMap(nabuDataManager::getUser),
-            rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }
-        ) { user, missingAdditionalInfo ->
-            if (missingAdditionalInfo.isNotEmpty()) {
-                KycNextStepDecision.NextStep.MissingAdditionalInfo(missingAdditionalInfo.toMutableNode())
-            } else if (user.tierInProgressOrCurrentTier == 1) {
+        nabuToken.fetchNabuToken().flatMap(nabuDataManager::getUser).map { user ->
+            if (user.tierInProgressOrCurrentTier == 1) {
                 KycNextStepDecision.NextStep.Tier1Complete
             } else {
                 val tiers = user.tiers

@@ -1,14 +1,25 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
+import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
+import com.blockchain.outcome.Outcome
+import io.mockk.coEvery
+import io.mockk.mockk
 import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should be equal to`
 import org.junit.Test
+import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 
 class ReentryDecisionTest {
+
+    private val kycDataManager: KycDataManager = mockk {
+        coEvery { getAdditionalInfoForm() } returns Outcome.Success(emptyList())
+    }
 
     @Test
     fun `if email is unverified - go to email entry`() {
@@ -163,6 +174,38 @@ class ReentryDecisionTest {
     }
 
     @Test
+    fun `if user is tier 0, has missing additional info then go to additional info entry`() {
+        val nodes = listOf(
+            KycAdditionalInfoNode.Selection("s1", "text1", emptyList(), false),
+            KycAdditionalInfoNode.Selection("s2", "text2", emptyList(), false),
+        )
+        coEvery { kycDataManager.getAdditionalInfoForm() } returns Outcome.Success(nodes)
+        val root = TreeNode.Root(
+            listOf(
+                TreeNode.Selection("s1", "text1", emptyList(), false),
+                TreeNode.Selection("s2", "text2", emptyList(), false)
+            )
+        )
+        whereNext(
+            createdNabuUser(tier = 0, next = 2).copy(
+                email = "abc@def.com",
+                emailVerified = true,
+                address = Address(
+                    line1 = "",
+                    line2 = "",
+                    city = "",
+                    state = "",
+                    postCode = "",
+                    countryCode = "DE"
+                ),
+                dob = "dob",
+                firstName = "A",
+                lastName = "B"
+            )
+        ) `should be equal to` ReentryPoint.AdditionalInfo(root)
+    }
+
+    @Test
     fun `if user is tier 0, upgraded then go to mobile`() {
         whereNext(
             createdNabuUser(tier = 0, next = 2).copy(
@@ -184,7 +227,7 @@ class ReentryDecisionTest {
     }
 
     private fun whereNext(user: NabuUser) =
-        TiersReentryDecision().findReentryPoint(user)
+        TiersReentryDecision(kycDataManager).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(
         selected: Int = 1,

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.address
 
+import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -21,6 +22,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
+import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -28,11 +30,14 @@ import timber.log.Timber
 
 interface KycNextStepDecision {
 
-    enum class NextStep {
-        Tier1Complete,
-        SDDComplete,
-        Tier2ContinueTier1NeedsMoreInfo,
-        Tier2Continue
+    sealed class NextStep(val order: Int) : Comparable<NextStep> {
+        data class MissingAdditionalInfo(val root: TreeNode.Root) : NextStep(0)
+        object Tier1Complete : NextStep(1)
+        object SDDComplete : NextStep(2)
+        object Tier2ContinueTier1NeedsMoreInfo : NextStep(3)
+        object Tier2Continue : NextStep(4)
+
+        override fun compareTo(other: NextStep): Int = this.order - other.order
     }
 
     fun nextStep(): Single<NextStep>
@@ -151,12 +156,14 @@ class KycHomeAddressPresenter(
             .subscribeBy(
                 onSuccess = {
                     when (it.progressToKycNextStep) {
+                        is KycNextStepDecision.NextStep.MissingAdditionalInfo ->
+                            view.missingAdditionalInfo(it.progressToKycNextStep.root, it.countryCode)
                         KycNextStepDecision.NextStep.Tier1Complete -> view.tier1Complete()
                         KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo ->
                             view.continueToTier2MoreInfoNeeded(it.countryCode)
                         KycNextStepDecision.NextStep.Tier2Continue -> view.continueToVeriffSplash(it.countryCode)
                         KycNextStepDecision.NextStep.SDDComplete -> view.onSddVerified()
-                    }
+                    }.exhaustive
                 },
                 onError = {
                     when ((it as? NabuApiException?)?.getErrorCode()) {

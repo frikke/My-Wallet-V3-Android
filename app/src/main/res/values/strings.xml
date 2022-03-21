@@ -2806,6 +2806,11 @@
     <string name="kyc_upgrade_now_verified_cta">Get Verified</string>
     <string name="kyc_upgrade_now_sheet_title">Upgrade Your Profile.\nBuy, Sell &amp; Swap More Crypto</string>
     <string name="kyc_upgrade_now_sheet_subtitle">Verify to unlock access to Buying, Selling, Swapping &amp; Rewards Accounts.</string>
+
+    <!-- Kyc Additional Info -->
+    <string name="kyc_additional_info_toolbar">Use of Account Information</string>
+    <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
+
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
 </resources>

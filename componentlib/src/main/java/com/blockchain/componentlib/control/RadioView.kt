@@ -18,7 +18,7 @@ class RadioView @JvmOverloads constructor(
 
     var state by mutableStateOf(RadioButtonState.Unselected)
     var radioButtonEnabled by mutableStateOf(true)
-    var onSelectedChanged by mutableStateOf({ _: Boolean -> })
+    var onSelectedChanged: ((Boolean) -> Unit)? by mutableStateOf(null)
 
     @Composable
     override fun Content() {
@@ -27,10 +27,7 @@ class RadioView @JvmOverloads constructor(
                 Radio(
                     state = state,
                     enabled = radioButtonEnabled,
-                    onSelectedChanged = { isSelected ->
-                        state = if (isSelected) RadioButtonState.Selected else RadioButtonState.Unselected
-                        onSelectedChanged(isSelected)
-                    }
+                    onSelectedChanged = onSelectedChanged
                 )
             }
         }

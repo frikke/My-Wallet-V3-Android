@@ -168,6 +168,7 @@ class PaymentsDataManagerImpl(
                 is ApiError.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
                 is ApiError.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
                 is ApiError.UnknownApiError -> PaymentMethodDetailsError.UNKNOWN
+                is ApiError.KnownError -> PaymentMethodDetailsError.REQUEST_FAILED
             }
         }
     }

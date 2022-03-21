@@ -1,5 +1,7 @@
 package com.blockchain.api.adapters
 
+import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.outcome.Outcome
 import java.io.IOException
 import java.lang.reflect.Type
@@ -7,6 +9,7 @@ import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.HttpException
 import retrofit2.Response
 
 class OutcomeCall<R>(
@@ -52,7 +55,7 @@ class OutcomeCall<R>(
         // Http error response (4xx - 5xx)
         val body = body()
         return when {
-            !isSuccessful -> Outcome.Failure(ApiError.HttpError(throwable = Throwable(errorBody()?.string() ?: "")))
+            !isSuccessful -> Outcome.Failure(this.toApiError())
             // Http success response with body
             body != null -> Outcome.Success(body)
             // if we defined Unit as success type it means we expected no response body
@@ -61,6 +64,15 @@ class OutcomeCall<R>(
                 @Suppress("UNCHECKED_CAST")
                 Outcome.Success(Unit) as Outcome<ApiError, R>
             else -> Outcome.Failure(ApiError.UnknownApiError(throwable = Throwable(errorBody()?.toString() ?: "")))
+        }
+    }
+
+    private fun <R> Response<R>.toApiError(): ApiError {
+        val error = NabuApiExceptionFactory.fromResponseBody(HttpException(this))
+        return if (error.getErrorCode() == NabuErrorCodes.Unknown) {
+            ApiError.HttpError(error)
+        } else {
+            ApiError.KnownError(error)
         }
     }
 }
