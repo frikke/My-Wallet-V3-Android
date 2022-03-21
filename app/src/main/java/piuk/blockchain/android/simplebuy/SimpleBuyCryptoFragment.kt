@@ -35,6 +35,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -69,7 +70,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import java.math.BigDecimal
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
@@ -161,7 +161,7 @@ class SimpleBuyCryptoFragment :
                     is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
                     else -> throw IllegalStateException("CryptoValue is not supported as input yet")
                 }
-        }
+            }
 
         binding.btnContinue.setOnClickListener { startBuy() }
 

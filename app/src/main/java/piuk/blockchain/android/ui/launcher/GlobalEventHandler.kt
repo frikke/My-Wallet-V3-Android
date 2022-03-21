@@ -121,7 +121,6 @@ class GlobalEventHandler(
                 } ?: run {
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
                 }
-
             }
 
             is Destination.ActivityDestination -> {
