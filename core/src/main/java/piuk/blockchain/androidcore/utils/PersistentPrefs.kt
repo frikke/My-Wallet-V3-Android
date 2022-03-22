@@ -8,6 +8,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -28,6 +29,7 @@ interface PersistentPrefs :
     AuthPrefs,
     BankLinkingPrefs,
     AppInfoPrefs,
+    RemoteConfigPrefs,
     OnboardingPrefs {
 
     val deviceId: String // Pre-IDV device identifier

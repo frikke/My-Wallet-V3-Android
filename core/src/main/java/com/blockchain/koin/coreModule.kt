@@ -48,6 +48,7 @@ import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RatingPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -401,6 +402,7 @@ val coreModule = module {
         .bind(DashboardPrefs::class)
         .bind(SecurityPrefs::class)
         .bind(ThePitLinkingPrefs::class)
+        .bind(RemoteConfigPrefs::class)
         .bind(SimpleBuyPrefs::class)
         .bind(RatingPrefs::class)
         .bind(WalletStatus::class)

@@ -1,10 +1,10 @@
 package com.blockchain.remoteconfig
 
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.androidcore.utils.extensions.then
 
 interface ABTestExperiment {
     fun getABVariant(key: String): Single<String>
@@ -23,45 +23,47 @@ interface RemoteConfig {
 
 class RemoteConfiguration(
     private val remoteConfig: FirebaseRemoteConfig,
+    private val remoteConfigPrefs: RemoteConfigPrefs,
     private val environmentConfig: EnvironmentConfig
 ) : RemoteConfig, ABTestExperiment {
 
-    val timeout: Long
-        get() = if (environmentConfig.isRunningInDebugMode()) 0L else 14400L
+    private var remoteConfigFetchAndActivate: Completable? = null
 
-    private val configuration: Single<FirebaseRemoteConfig> =
-        fetchRemoteConfig()
-            .then {
-                activate().onErrorComplete()
-            }
-            .cache()
-            .toSingle { remoteConfig }
+    private val configuration: Single<FirebaseRemoteConfig>
+        get() = updateRemoteConfig().toSingle { remoteConfig }
 
-    private fun fetchRemoteConfig(): Completable {
-        return Completable.create { emitter ->
-            remoteConfig.fetch(timeout).addOnCompleteListener {
-                if (!emitter.isDisposed)
-                    emitter.onComplete()
+    private fun updateRemoteConfig(): Completable {
+        return remoteConfigFetchAndActivate ?: fetchAndActivateCache(
+            remoteConfigPrefs.isRemoteConfigStale
+        )
+            .doFinally {
+                remoteConfigFetchAndActivate = null
+            }.also {
+                remoteConfigFetchAndActivate = it
             }
-                .addOnFailureListener {
-                    if (!emitter.isDisposed)
-                        emitter.onError(it)
-                }
-        }
     }
 
-    private fun activate(): Completable {
-        return Completable.create { emitter ->
-            remoteConfig.activate().addOnCompleteListener {
-                if (!emitter.isDisposed)
-                    emitter.onComplete()
-            }
-                .addOnFailureListener {
+    private fun fetchAndActivateCache(isRemoteConfigStale: Boolean): Completable = Completable.create { emitter ->
+        val cacheExpirationTimeOut =
+            if (isRemoteConfigStale || environmentConfig.isRunningInDebugMode())
+                cacheExpirationForStaleValues
+            else
+                cacheExpirationForUpdatedValues
+
+        remoteConfig.fetch(cacheExpirationTimeOut)
+            .addOnCompleteListener {
+                remoteConfig.activate().addOnCompleteListener {
+                    if (isRemoteConfigStale) {
+                        remoteConfigPrefs.updateRemoteConfigStaleStatus(false)
+                    }
                     if (!emitter.isDisposed)
-                        emitter.onError(it)
+                        emitter.onComplete()
                 }
-        }.onErrorComplete()
-    }
+            }.addOnFailureListener {
+                if (!emitter.isDisposed)
+                    emitter.onError(it)
+            }
+    }.cache()
 
     override fun getRawJson(key: String): Single<String> =
         configuration.map {
@@ -73,13 +75,20 @@ class RemoteConfiguration(
     }
 
     override fun getIfFeatureEnabled(key: String): Single<Boolean> =
-        configuration.map { it.getBoolean(key) }
+        configuration.map {
+            it.getBoolean(key)
+        }
 
     override fun getABVariant(key: String): Single<String> =
         configuration.map { it.getString(key) }
 
     override fun getFeatureCount(key: String): Single<Long> =
         configuration.map { it.getLong(key) }
+
+    companion object {
+        private const val cacheExpirationForStaleValues = 0L
+        private const val cacheExpirationForUpdatedValues = 14400L
+    }
 }
 
 fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : FeatureFlag {

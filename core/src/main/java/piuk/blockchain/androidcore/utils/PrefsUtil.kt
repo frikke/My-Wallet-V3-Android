@@ -180,6 +180,13 @@ class PrefsUtil(
 
     override fun getDynamicOneTimeTokenUrl(): String = getValue(KEY_ONE_TIME_TOKEN_PATH, "")
 
+    override val isRemoteConfigStale: Boolean
+        get() = getValue(CONFIG_STALE, false)
+
+    override fun updateRemoteConfigStaleStatus(isStale: Boolean) {
+        setValue(CONFIG_STALE, isStale)
+    }
+
     override var installationVersionName: String
         get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
         set(value) {
@@ -661,6 +668,8 @@ class PrefsUtil(
         private const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
         private const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
+
+        private const val CONFIG_STALE = "CONFIG_STALE"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
     }

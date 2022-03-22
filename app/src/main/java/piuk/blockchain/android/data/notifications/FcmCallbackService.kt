@@ -10,7 +10,9 @@ import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.rxjava3.core.Maybe
@@ -24,16 +26,15 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
-import piuk.blockchain.androidcore.data.rxjava.RxBus
 import timber.log.Timber
 
 class FcmCallbackService : FirebaseMessagingService() {
 
     private val notificationManager: NotificationManager by inject()
     private val notificationTokenManager: NotificationTokenManager by scopedInject()
-    private val rxBus: RxBus by inject()
     private val analytics: Analytics by inject()
     private val walletPrefs: WalletStatus by inject()
+    private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val secureChannelManager: SecureChannelManager by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private val lifecycleObservable: LifecycleObservable by inject()
@@ -52,7 +53,12 @@ class FcmCallbackService : FirebaseMessagingService() {
 
             // Parse data, emit events
             val payload = NotificationPayload(remoteMessage.data)
-            rxBus.emitEvent(NotificationPayload::class.java, payload)
+
+            // This payload gets triggered by the cloud function when a remote config gets changed/added
+            if (remoteMessage.data["CONFIG_STATE"] == "STALE") {
+                remoteConfigPrefs.updateRemoteConfigStaleStatus(isStale = true)
+                return
+            }
             sendNotification(
                 payload = payload,
                 foreground = isAppOnForegrounded && walletPrefs.isAppUnlocked
@@ -86,6 +92,11 @@ class FcmCallbackService : FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         notificationTokenManager.storeAndUpdateToken(newToken)
+        subscribeToRealTimeRemoteConfigUpdates()
+    }
+
+    private fun subscribeToRealTimeRemoteConfigUpdates() {
+        FirebaseMessaging.getInstance().subscribeToTopic("PUSH_RC")
     }
 
     /**
