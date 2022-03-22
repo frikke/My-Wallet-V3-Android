@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.additional_info
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
-sealed class KycAdditionalInfoIntent : Intent {
+sealed class KycAdditionalInfoIntent : Intent<KycAdditionalInfoModelState> {
 
     data class DropdownChoiceChanged(
         val node: FlatNode.Dropdown,
