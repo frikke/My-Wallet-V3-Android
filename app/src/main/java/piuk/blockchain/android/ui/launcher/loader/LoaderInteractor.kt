@@ -40,7 +40,6 @@ class LoaderInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val nabuUserDataManager: NabuUserDataManager,
     private val walletPrefs: WalletStatus,
-    private val securityPrefs: SecurityPrefs,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
