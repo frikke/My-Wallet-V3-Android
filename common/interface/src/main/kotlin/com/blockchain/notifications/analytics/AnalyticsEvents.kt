@@ -231,7 +231,10 @@ enum class AnalyticsNames(val eventName: String) {
     COINVIEW_COINVIEW_CLOSE("Coin View Closed"),
     COINVIEW_REMOVED_FROM_WATCHLIST("Coin Removed From Watchlist"),
     COINVIEW_ADDED_WATCHLIST("Coin Added To Watchlist"),
-    COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked");
+    COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked"),
+    LOGIN_HELP_SHEET_SHOWN("Upgrade Verification Clicked"),
+    LOGIN_HELP_EMAIL_CLICKED("Upgrade Verification Clicked"),
+    LOGIN_HELP_FAQ_CLICKED("Upgrade Verification Clicked");
 }
 
 enum class LaunchOrigin {

@@ -24,6 +24,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.Visibility
@@ -63,6 +64,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
+import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
@@ -158,6 +160,12 @@ class PinEntryFragment :
         binding.textViewVersionCode.text = getVersionText()
         binding.pinEntryLogout.setOnClickListener {
             presenter.resetApp()
+        }
+        binding.ivHelp.setOnClickListener {
+            (activity as? BlockchainActivity)?.let { activity ->
+                PinHelpSheet.newInstance()
+                    .also { activity.showBottomSheet(it) }
+            }
         }
     }
 

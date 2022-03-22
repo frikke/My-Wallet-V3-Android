@@ -1,8 +1,10 @@
 package piuk.blockchain.android.util
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
@@ -33,3 +35,11 @@ fun Fragment.getResolvedColor(@ColorRes color: Int): Int =
  */
 fun Context.getResolvedDrawable(@DrawableRes drawable: Int): Drawable? =
     ContextCompat.getDrawable(this, drawable)
+
+fun Context?.openUrl(url: String) {
+    openUrl(Uri.parse(url))
+}
+
+fun Context?.openUrl(url: Uri) {
+    this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+}
