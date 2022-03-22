@@ -48,8 +48,8 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
                 intent.hasExtra("data") -> {
                     try {
                         val jsonObject = JSONObject(intent.getStringExtra("data"))
-                        if (jsonObject.has("deepLinkURL")) {
-                            jsonObject.getString("deepLinkURL")
+                        if (jsonObject.has("url")) {
+                            jsonObject.getString("url")
                         } else {
                             null
                         }

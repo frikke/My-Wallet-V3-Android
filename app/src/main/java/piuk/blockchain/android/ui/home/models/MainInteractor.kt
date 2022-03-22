@@ -171,7 +171,7 @@ class MainInteractor internal constructor(
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)
 
-    fun processDeepLinkV2(url: Uri) =
+    fun processDeepLinkV2(url: Uri): Completable =
         deeplinkRedirector.processDeeplinkURL(url)
 
     fun clearDeepLink(): Completable =

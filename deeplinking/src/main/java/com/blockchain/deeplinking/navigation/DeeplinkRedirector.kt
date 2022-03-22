@@ -4,6 +4,7 @@ import android.net.Uri
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.deeplinking.processor.DeeplinkProcessorV2
 import com.blockchain.notifications.models.NotificationPayload
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -15,14 +16,17 @@ class DeeplinkRedirector(private val deeplinkProcessorV2: DeeplinkProcessorV2) {
     val deeplinkEvents: Observable<DeepLinkResult.DeepLinkResultSuccess>
         get() = _deeplinkEvents
 
-    fun processDeeplinkURL(url: Uri, payload: NotificationPayload? = null) =
-        deeplinkProcessorV2.process(url, payload).subscribeBy(
-            onSuccess = { result ->
-                if (result is DeepLinkResult.DeepLinkResultSuccess)
-                    _deeplinkEvents.onNext(result as DeepLinkResult.DeepLinkResultSuccess?)
-                else
-                    Timber.e("Unable to process deeplink URL")
-            },
-            onError = { Timber.e(it) }
-        )
+    fun processDeeplinkURL(url: Uri, payload: NotificationPayload? = null) : Completable =
+        Completable.fromCallable {
+            deeplinkProcessorV2.process(url, payload).subscribeBy(
+                onSuccess = { result ->
+                    if (result is DeepLinkResult.DeepLinkResultSuccess) {
+                        _deeplinkEvents.onNext(result as DeepLinkResult.DeepLinkResultSuccess?)
+                    } else {
+                        throw Exception("Unable to process deeplink URL")
+                    }
+                },
+                onError = { throw Exception(it) }
+            )
+        }
 }

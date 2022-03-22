@@ -90,9 +90,19 @@ class MainModel(
                     .subscribeBy(
                         onComplete = {
                             if (previousState.deeplinkIntent != null) {
-                                process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
+                                previousState.deeplinkIntent.data?.let { uri ->
+                                    interactor.processDeepLinkV2(uri).subscribeBy(
+                                        onComplete = {
+                                            // Nothing to do. Deeplink V2 was parsed successfully
+                                        },
+                                        onError = {
+                                            // Deeplink V2 parsing failed, fallback to legacy
+                                            Timber.e(it)
+                                            process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
+                                        }
+                                    )
+                                }
                             }
-
                         },
                         onError = { throwable ->
                             if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
@@ -106,29 +116,19 @@ class MainModel(
                     )
             }
             is MainIntent.CheckForPendingLinks -> {
-                deeplinkFeatureFlag.enabled.onErrorReturnItem(false).subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            intent.appIntent.data?.let { uri ->
-                                interactor.processDeepLinkV2(uri)
+                interactor.checkForDeepLinks(intent.appIntent)
+                    .subscribeBy(
+                        onSuccess = { linkState ->
+                            if ((
+                                intent.appIntent.flags
+                                    and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+                                ) == 0
+                            ) {
+                                dispatchDeepLink(linkState)
                             }
-                        } else {
-                            interactor.checkForDeepLinks(intent.appIntent)
-                                .subscribeBy(
-                                    onSuccess = { linkState ->
-                                        if ((
-                                            intent.appIntent.flags
-                                                and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-                                            ) == 0
-                                        ) {
-                                            dispatchDeepLink(linkState)
-                                        }
-                                    },
-                                    onError = { Timber.e(it) }
-                                )
-                        }
-                    }
-                )
+                        },
+                        onError = { Timber.e(it) }
+                    )
             }
             is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
                 .onErrorComplete()

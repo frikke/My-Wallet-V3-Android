@@ -131,7 +131,14 @@ class FcmCallbackService : FirebaseMessagingService() {
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
-                        deeplinkRedirector.processDeeplinkURL(Uri.parse(payload.deeplinkURL), payload)
+                        deeplinkRedirector.processDeeplinkURL(Uri.parse(payload.deeplinkURL), payload).subscribeBy(
+                            onComplete = {
+                                // Nothing to do
+                            },
+                            onError = {
+                                Timber.e(it)
+                            }
+                        )
                     } else {
                         triggerHeadsUpNotification(
                             payload,
