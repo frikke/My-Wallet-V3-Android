@@ -7,7 +7,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.io.File
 import java.io.IOException
-import java.lang.IllegalStateException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -44,7 +43,9 @@ class AnalyticsFileLocalPersistence(context: Context) : AnalyticsLocalPersistenc
     }
 
     override fun removeOldestItems(n: Int): Completable = Completable.fromAction {
-        queueFile.remove(n)
+        if (n >= queueFile.size()) {
+            queueFile.remove(n)
+        }
     }
 
     override fun clear(): Completable = Completable.fromAction {

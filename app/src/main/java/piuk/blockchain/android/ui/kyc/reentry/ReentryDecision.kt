@@ -13,7 +13,7 @@ import piuk.blockchain.android.ui.kyc.navhost.toProfileModel
 
 interface ReentryDecision {
 
-    fun findReentryPoint(user: NabuUser): ReentryPoint
+    fun findReentryPoint(user: NabuUser): Single<ReentryPoint>
 }
 
 interface KycNavigator {
@@ -23,7 +23,7 @@ interface KycNavigator {
      */
     fun findNextStep(): Single<NavDirections>
 
-    fun findNextStep(user: NabuUser): NavDirections
+    fun findNextStep(user: NabuUser): Single<NavDirections>
 
     fun userAndReentryPointToDirections(user: NabuUser, reentryPoint: ReentryPoint): NavDirections
 }
@@ -38,12 +38,13 @@ class ReentryDecisionKycNavigator(
     override fun findNextStep(): Single<NavDirections> =
         token.fetchNabuToken()
             .flatMap(dataManager::getUser)
-            .map { findNextStep(it) }
+            .flatMap { findNextStep(it) }
 
-    override fun findNextStep(user: NabuUser) =
-        userAndReentryPointToDirections(user, reentryDecision.findReentryPoint(user))
+    override fun findNextStep(user: NabuUser): Single<NavDirections> =
+        reentryDecision.findReentryPoint(user)
+            .map { userAndReentryPointToDirections(user, it) }
 
-    override fun userAndReentryPointToDirections(user: NabuUser, reentryPoint: ReentryPoint) =
+    override fun userAndReentryPointToDirections(user: NabuUser, reentryPoint: ReentryPoint): NavDirections =
         when (reentryPoint) {
             ReentryPoint.EmailEntry -> {
                 analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.VERIFICATION))
@@ -56,6 +57,8 @@ class ReentryDecisionKycNavigator(
             ReentryPoint.Address -> {
                 KycNavXmlDirections.actionStartAutocompleteAddressEntry(user.toProfileModel())
             }
+            is ReentryPoint.AdditionalInfo ->
+                KycNavXmlDirections.actionStartAdditionalInfoEntry(reentryPoint.root, user.requireCountryCode())
             ReentryPoint.MobileEntry -> KycNavXmlDirections.actionStartMobileVerification(user.requireCountryCode())
             ReentryPoint.Veriff -> {
                 val countryCode = user.requireCountryCode()

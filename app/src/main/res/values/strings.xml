@@ -990,6 +990,11 @@
     <string name="rename_asset_card_body">Heads up: %1$s has renamed to %2$s. All balances are unaffected.</string>
     <string name="rename_asset_card_cta">Trade %s</string>
 
+    <!-- WalletConnect announcement -->
+    <string name="wallet_connect_announcement_card_title">WalletConnect is Now Available!</string>
+    <string name="wallet_connect_announcement_card_subtitle">Securely connect your wallet to any web 3.0 application. </string>
+    <string name="wallet_connect_announcement_action">Learn More</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
@@ -2767,12 +2772,19 @@
     <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
+    <string name="coinview_accounts_label">Wallets &amp; Accounts</string>
+    <string name="coinview_chart_load_error_title">Failed to Load Price Chart</string>
+    <string name="coinview_chart_load_error_subtitle">Reload or exit and return to the page to view price chart.</string>
     <string name="coinview_wallet_load_error">Failed to load wallets and accounts</string>
-    <string name="coinview_unknown_asset">This asset is not known</string>
     <string name="coinview_chart_load_error">Failed to load chart info</string>
     <string name="coinview_recurring_buy_load_error">Failed to load recurring buys</string>
-    <string name="coinview_action_failed">There was an issue loading</string>
+    <string name="coinview_recuring_buy_load_error_title">Failed to Load Recurring Buys</string>
+    <string name="coinview_recuring_buy_load_error_subtitle">Reload or exit and return to the page to view your recurring buys.</string>
+    <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
+    <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
+    <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
+    <string name="coinview_no_asset_title">Unknown Asset</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
@@ -2806,4 +2818,10 @@
     <string name="kyc_upgrade_now_sheet_title">Upgrade Your Profile.\nBuy, Sell &amp; Swap More Crypto</string>
     <string name="kyc_upgrade_now_sheet_subtitle">Verify to unlock access to Buying, Selling, Swapping &amp; Rewards Accounts.</string>
 
+    <!-- Kyc Additional Info -->
+    <string name="kyc_additional_info_toolbar">Use of Account Information</string>
+    <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
+
+    <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
+    <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
 </resources>

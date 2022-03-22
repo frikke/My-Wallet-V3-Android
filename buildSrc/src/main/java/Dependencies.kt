@@ -8,7 +8,7 @@ object Versions {
     const val compileSdk = 31
 
     const val versionCode = 16830
-    const val versionName = "202203.2.0"
+    const val versionName = "202204.1.0"
 
     const val buildTools = "30.0.2"
 
@@ -99,7 +99,6 @@ object Versions {
     const val charts = "3.1.0"
     const val circleIndicator = "2.1.6"
     const val countryPicker = "2.0.4"
-    const val markwon = "4.6.2"
 
     // Compose
     const val compose = "1.0.4"
@@ -121,7 +120,7 @@ object Versions {
     const val sparkline = "1.2.0"
 
     // Third Party SDKs
-    const val veriff = "3.23.0"
+    const val veriff = "4.2.0"
     const val sift = "0.11.1"
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
@@ -282,8 +281,6 @@ object Libraries {
     const val zxing = "com.google.zxing:core:${Versions.zxing}"
     const val materialDatePicker = "com.wdullaer:materialdatetimepicker:${Versions.materialDatePicker}"
     const val sparkline = "com.robinhood.spark:spark:${Versions.sparkline}"
-    const val markwon = "io.noties.markwon:core:${Versions.markwon}"
-    const val markwonRecyclerView = "io.noties.markwon:recycler:${Versions.markwon}"
 
     // Compose
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"

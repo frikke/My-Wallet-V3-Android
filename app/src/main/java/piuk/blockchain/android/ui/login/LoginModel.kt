@@ -62,6 +62,7 @@ class LoginModel(
                 sessionId = previousState.payload?.accountWallet?.sessionId.orEmpty(),
                 base64Payload = previousState.payloadBase64String
             )
+            is LoginIntents.ResumePolling -> resumePollingIfNecessary(previousState)
             is LoginIntents.StartAuthPolling -> handlePayloadPollingResponse(previousState)
             is LoginIntents.CheckShouldNavigateToOtherScreen -> {
                 if (interactor.shouldContinueToPinEntry()) {
@@ -70,6 +71,15 @@ class LoginModel(
                 null
             }
             else -> null
+        }
+    }
+
+    private fun resumePollingIfNecessary(previousState: LoginState): Disposable? {
+        Timber.d(previousState.toString())
+        return if (previousState.pollingState == AuthPollingState.SUSPENDED) {
+            handlePayloadPollingResponse(previousState)
+        } else {
+            null
         }
     }
 

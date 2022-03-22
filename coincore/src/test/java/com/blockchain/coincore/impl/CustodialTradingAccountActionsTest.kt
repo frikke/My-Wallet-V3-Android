@@ -11,7 +11,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -28,9 +27,6 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     private val custodialManager: CustodialWalletManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
     private val identity: UserIdentity = mock()
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
 
     @Before
     fun setup() {
@@ -328,7 +324,6 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             custodialWalletManager = custodialManager,
             tradingBalances = tradingBalances,
             identity = identity,
-            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             baseActions = actions
         )
 

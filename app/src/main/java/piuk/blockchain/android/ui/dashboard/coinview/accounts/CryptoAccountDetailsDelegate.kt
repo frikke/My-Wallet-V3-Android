@@ -15,21 +15,18 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 
 class CryptoAccountDetailsDelegate(
     private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
-    private val disposable: CompositeDisposable,
-    private val block: AssetDetailsInfoDecorator,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : AdapterDelegate<AssetDetailsItemNew> {
@@ -40,8 +37,6 @@ class CryptoAccountDetailsDelegate(
         AssetWalletViewHolder(
             ViewCoinviewWalletsBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onAccountSelected,
-            disposable,
-            block,
             labels,
             assetResources
         )
@@ -59,8 +54,6 @@ class CryptoAccountDetailsDelegate(
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
     private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
-    private val disposable: CompositeDisposable,
-    private val block: AssetDetailsInfoDecorator,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -144,25 +137,12 @@ private class AssetWalletViewHolder(
 
             walletsLabel.apply {
                 visibleIf { isFirstItemOfCategory }
-                title = "Wallets & Accounts"
+                title = context.getString(R.string.coinview_accounts_label)
             }
 
             root.setOnClickListener {
                 onAccountSelected(item.account, item.assetFilter)
             }
-
-            //            walletBalanceFiat.text = item.balance.toStringWithSymbol()
-            //            walletBalanceCrypto.text = item.fiatBalance.toStringWithSymbol()
-            //            disposable += block(item).view(root.context)
-            //                .observeOn(AndroidSchedulers.mainThread())
-            //                .subscribe {
-            //                    container.addViewToBottomWithConstraints(
-            //                        view = it,
-            //                        bottomOfView = assetSubtitle,
-            //                        startOfView = assetSubtitle,
-            //                        endOfView = walletBalanceCrypto
-            //                    )
-            //                }
         }
     }
 

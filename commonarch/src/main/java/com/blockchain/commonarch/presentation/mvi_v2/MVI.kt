@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -22,8 +23,8 @@ interface ViewState
 /**
  * Intent representing an action from the user
  */
-interface Intent {
-    fun isValidFor(modelState: ModelState): Boolean = true
+interface Intent<TModelState : ModelState> {
+    fun isValidFor(modelState: TModelState): Boolean = true
 }
 
 /**
@@ -43,7 +44,7 @@ sealed interface ModelConfigArgs {
     object NoArgs : ModelConfigArgs
 }
 
-abstract class MviViewModel<TIntent : Intent,
+abstract class MviViewModel<TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEvent : NavigationEvent,
@@ -109,7 +110,7 @@ abstract class MviViewModel<TIntent : Intent,
         MutableStateFlow(reduce(initialState))
     }
 
-    val viewState: Flow<TViewState>
+    val viewState: StateFlow<TViewState>
         get() = _viewState
 
     /**

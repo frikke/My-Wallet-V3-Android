@@ -25,13 +25,13 @@ fun <E, F, R> Outcome<E, R>.mapLeft(transform: (E) -> F): Outcome<F, R> {
     }
 }
 
-fun <E, R, T> Outcome<E, R>.flatMap(f: (R) -> Outcome<E, T>): Outcome<E, T> =
+suspend fun <E, R, T> Outcome<E, R>.flatMap(f: suspend (R) -> Outcome<E, T>): Outcome<E, T> =
     when (this) {
         is Outcome.Success -> f(value)
         is Outcome.Failure -> Outcome.Failure(failure)
     }
 
-fun <E, F, R> Outcome<E, R>.flatMapLeft(f: (E) -> Outcome<F, R>): Outcome<F, R> =
+suspend fun <E, F, R> Outcome<E, R>.flatMapLeft(f: suspend (E) -> Outcome<F, R>): Outcome<F, R> =
     when (this) {
         is Outcome.Success -> Outcome.Success(value)
         is Outcome.Failure -> f(failure)

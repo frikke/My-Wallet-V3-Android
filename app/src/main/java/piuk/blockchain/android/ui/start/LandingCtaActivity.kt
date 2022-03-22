@@ -7,6 +7,8 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.Blue600
+import com.blockchain.koin.scopedInject
+import com.blockchain.preferences.OnboardingPrefs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLandingCtaBinding
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
@@ -20,6 +22,7 @@ class LandingCtaActivity : BlockchainActivity() {
     }
 
     override val toolbarBinding: ToolbarGeneralBinding? = null
+    private val onboardingPrefs: OnboardingPrefs by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +32,10 @@ class LandingCtaActivity : BlockchainActivity() {
             startNavigationBarButton = NavigationBarButton.Icon(
                 drawable = R.drawable.ic_close_circle_v2,
                 color = null,
-                onIconClick = { onBackPressed() }
+                onIconClick = {
+                    onboardingPrefs.isLandingCtaDismissed = true
+                    onBackPressed()
+                }
             )
             endNavigationBarButtons = listOf(
                 NavigationBarButton.Text(
@@ -37,6 +43,7 @@ class LandingCtaActivity : BlockchainActivity() {
                     color = Blue600,
                     onTextClick = {
                         analytics.logEvent(LandingAnalytics.LogInClicked)
+                        onboardingPrefs.isLandingCtaDismissed = true
                         startActivity(Intent(this@LandingCtaActivity, LoginActivity::class.java))
                         finish()
                     }
@@ -46,6 +53,7 @@ class LandingCtaActivity : BlockchainActivity() {
 
         binding.buttonCta.setOnClickListener {
             analytics.logEvent(LandingAnalytics.BuyCryptoCtaClicked)
+            onboardingPrefs.isLandingCtaDismissed = true
             CreateWalletActivity.start(this)
             finish()
         }

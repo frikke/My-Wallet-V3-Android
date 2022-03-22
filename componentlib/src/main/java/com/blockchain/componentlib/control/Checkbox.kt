@@ -33,7 +33,7 @@ import com.blockchain.componentlib.theme.Red900
 @Composable
 fun Checkbox(
     state: CheckboxState,
-    onCheckChanged: (Boolean) -> Unit,
+    onCheckChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -89,7 +89,7 @@ fun Checkbox(
             .run {
                 if (!enabled) {
                     this.alpha(ContentAlpha.disabled)
-                } else {
+                } else if (onCheckChanged != null) {
                     this.clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
@@ -105,6 +105,8 @@ fun Checkbox(
                             }
                         )
                     }
+                } else {
+                    this
                 }
             }
             .padding(dimensionResource(R.dimen.very_small_margin))

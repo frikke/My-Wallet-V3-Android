@@ -13,7 +13,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -34,11 +33,9 @@ class Erc20NonCustodialAccount(
     private val custodialWalletManager: CustodialWalletManager,
     override val baseActions: Set<AssetAction>,
     identity: UserIdentity,
-    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     override val addressResolver: AddressResolver
 ) : CryptoNonCustodialAccount(
-    payloadManager, asset, custodialWalletManager,
-    entitySwitchSilverEligibilityFeatureFlag, identity
+    payloadManager, asset, custodialWalletManager, identity
 ) {
 
     private val hasFunds = AtomicBoolean(false)

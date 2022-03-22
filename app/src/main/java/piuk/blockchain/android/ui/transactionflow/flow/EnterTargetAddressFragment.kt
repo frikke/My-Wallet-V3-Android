@@ -96,8 +96,6 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
             sourceSlot?.update(newState)
 
-            upsellGroup.visibleIf { customiser.shouldShowCustodialUpsell(newState) }
-
             if (customiser.selectTargetShowManualEnterAddress(newState)) {
                 showManualAddressEntry(newState)
             } else {

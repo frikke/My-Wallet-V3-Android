@@ -7,7 +7,6 @@ import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.StateAwareAction
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
@@ -42,25 +41,6 @@ sealed class AssetDetailsItem {
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy
     ) : AssetDetailsItem()
-
-    object RecurringBuyBanner : AssetDetailsItem()
-}
-
-sealed class AssetDetailsItemNew {
-    data class CryptoDetailsInfo(
-        val assetFilter: AssetFilter,
-        val account: BlockchainAccount,
-        val balance: Money,
-        val fiatBalance: Money,
-        val actions: Set<StateAwareAction>,
-        val interestRate: Double = Double.NaN
-    ) : AssetDetailsItemNew()
-
-    data class RecurringBuyInfo(
-        val recurringBuy: RecurringBuy
-    ) : AssetDetailsItemNew()
-
-    object RecurringBuyBanner : AssetDetailsItemNew()
 }
 
 data class AssetDisplayInfo(

@@ -60,8 +60,7 @@ class ScanAndConnectBottomSheet : SlidingModalBottomDialog<ScanAndConnectBottomS
                         ScanBenefit(
                             title = getString(R.string.connect_to_dapps),
                             description = getString(R.string.connect_to_dapps_description),
-                            image = ImageResource.Local(R.drawable.ic_walletconnect),
-                            isBeta = true
+                            image = ImageResource.Local(R.drawable.ic_walletconnect)
                         )
                     )
                 )

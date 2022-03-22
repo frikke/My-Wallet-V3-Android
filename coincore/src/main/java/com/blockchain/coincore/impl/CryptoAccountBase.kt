@@ -31,7 +31,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -183,7 +182,6 @@ abstract class CryptoNonCustodialAccount(
     protected val payloadDataManager: PayloadDataManager,
     override val currency: AssetInfo,
     private val custodialWalletManager: CustodialWalletManager,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val identity: UserIdentity
 ) : CryptoAccountBase(), NonCustodialAccount {
 

@@ -14,7 +14,6 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodialOnly
@@ -36,7 +35,6 @@ internal class DynamicOnlyTradingAsset(
     pitLinking: PitLinking,
     crashLogger: CrashLogger,
     identity: UserIdentity,
-    entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val addressValidation: String? = null,
     private val availableActions: Set<AssetAction> = emptySet(),
     addressResolver: IdentityAddressResolver
@@ -51,7 +49,6 @@ internal class DynamicOnlyTradingAsset(
     pitLinking,
     crashLogger,
     identity,
-    entitySwitchSilverEligibilityFeatureFlag,
     addressResolver
 ) {
     override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
@@ -70,8 +67,7 @@ internal class DynamicOnlyTradingAsset(
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
                     identity = identity,
-                    baseActions = availableActions,
-                    entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag
+                    baseActions = availableActions
                 )
             )
         )

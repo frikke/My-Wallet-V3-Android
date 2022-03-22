@@ -6,8 +6,12 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.CurrentTier
 import com.blockchain.nabu.EthEligibility
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel
+import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoNextStepDecision
+import piuk.blockchain.android.ui.kyc.additional_info.StateMachine
 import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
 import piuk.blockchain.android.ui.kyc.address.EligibilityForFreeEthAdapter
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
@@ -35,9 +39,13 @@ val kycUiModule = module {
 
     factory { KycStarter() }.bind(StartKyc::class)
 
-    factory { TiersReentryDecision() }.bind(ReentryDecision::class)
-
     scope(payloadScopeQualifier) {
+
+        factory {
+            TiersReentryDecision(
+                kycDataManager = get()
+            )
+        }.bind(ReentryDecision::class)
 
         factory {
             ReentryDecisionKycNavigator(
@@ -157,9 +165,17 @@ val kycUiNabuModule = module {
         factory {
             KycNextStepDecisionAdapter(
                 nabuToken = get(),
-                nabuDataManager = get()
+                nabuDataManager = get(),
+                kycDataManager = get()
             )
         }.bind(KycNextStepDecision::class)
+
+        factory {
+            KycAdditionalInfoNextStepDecision(
+                nabuToken = get(),
+                nabuDataManager = get()
+            )
+        }
 
         factory {
             CurrentTierAdapter(
@@ -174,5 +190,13 @@ val kycUiNabuModule = module {
                 nabuDataManager = get()
             )
         }.bind(EthEligibility::class)
+
+        viewModel {
+            KycAdditionalInfoModel(
+                kycDataManager = get(),
+                stateMachine = StateMachine(),
+                kycNextStepDecision = get(KycAdditionalInfoNextStepDecision::class)
+            )
+        }
     }
 }

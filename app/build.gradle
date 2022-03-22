@@ -271,7 +271,12 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        viewBinding true
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion Versions.composeKotlinCompile
     }
 
     testOptions {
@@ -334,8 +339,6 @@ dependencies {
     implementation Libraries.cardForm
     implementation Libraries.zxing
     implementation Libraries.sift
-    implementation Libraries.markwon
-    implementation Libraries.markwonRecyclerView
 
     // Google core
     implementation Libraries.googlePlayCore
@@ -419,6 +422,8 @@ dependencies {
 
     // Compose
     implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
 
     // Stripe
     implementation(Libraries.stripe) {
@@ -437,6 +442,7 @@ dependencies {
     // Unit Tests
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
+    testImplementation Libraries.mockk
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent

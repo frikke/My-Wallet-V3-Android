@@ -6,8 +6,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.wallet.DefaultLabels
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
-import piuk.blockchain.android.ui.dashboard.assetdetails.delegates.AssetDetailsInfoDecorator
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
 import piuk.blockchain.android.ui.resources.AssetResources
 
 class AccountsAdapterDelegate(
@@ -15,7 +14,6 @@ class AccountsAdapterDelegate(
     private val labels: DefaultLabels,
     private val onCardClicked: () -> Unit,
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
-    private val assetDetailsDecorator: AssetDetailsInfoDecorator,
     private val assetResources: AssetResources
 ) : DelegationAdapter<AssetDetailsItemNew>(AdapterDelegatesManager(), emptyList()) {
     init {
@@ -23,14 +21,14 @@ class AccountsAdapterDelegate(
             addAdapterDelegate(
                 CryptoAccountDetailsDelegate(
                     onAccountSelected,
-                    compositeDisposable,
-                    assetDetailsDecorator,
                     labels,
                     assetResources
                 )
             )
             addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))
             addAdapterDelegate(RecurringBuyInfoItemDelegate(onCardClicked))
+            addAdapterDelegate(RecurringBuyErrorDelegate())
+            addAdapterDelegate(AccountErrorDelegate())
         }
     }
 }

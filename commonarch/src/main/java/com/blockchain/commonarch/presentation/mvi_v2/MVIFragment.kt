@@ -11,7 +11,7 @@ abstract class MVIFragment<TViewState : ViewState> : Fragment() {
     abstract fun onStateUpdated(state: TViewState)
 }
 
-fun <TIntent : Intent,
+fun <TIntent : Intent<TModelState>,
     TViewState : ViewState,
     TModelState : ModelState,
     NavEnt : NavigationEvent,
@@ -45,6 +45,10 @@ fun <TIntent : Intent,
             viewModel.viewState.collect {
                 onStateUpdated(it)
             }
+        }
+    }
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.navigationEventFlow.collect {
                 navigator.route(it)
             }

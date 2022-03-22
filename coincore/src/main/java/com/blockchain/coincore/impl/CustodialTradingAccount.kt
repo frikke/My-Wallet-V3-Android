@@ -34,7 +34,6 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -56,7 +55,6 @@ class CustodialTradingAccount(
     val isNoteSupported: Boolean = false,
     override val isMemoSupported: Boolean = false,
     private val identity: UserIdentity,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     override val baseActions: Set<AssetAction> = defaultActions
 ) : CryptoAccountBase(), TradingAccount {
 

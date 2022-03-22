@@ -80,12 +80,27 @@
         android:label="KycHomeAddress"
         tools:layout="@layout/fragment_kyc_home_address">
         <action
+            android:id="@+id/action_kycHomeAddressFragment_to_kycAdditionalInfoFragment"
+            app:destination="@id/kycAdditionalInfoFragment" />
+        <argument
+            android:name="profileModel"
+            app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
+    </fragment>
+    <fragment
+        android:id="@+id/kycAdditionalInfoFragment"
+        android:name="piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment"
+        android:label="Kyc Additional Info"
+        >
+        <action
             android:id="@+id/action_tier1Complete"
             app:destination="@id/kycTierSplashFragment"
             app:popUpTo="@+id/kycTierSplashFragment" />
         <argument
-            android:name="profileModel"
-            app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
+            android:name="root"
+            app:argType="piuk.blockchain.android.ui.kyc.additional_info.TreeNode$Root" />
+        <argument
+            android:name="countryCode"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/kycMoreInfoSplashFragment"
@@ -214,6 +229,9 @@
     <action
         android:id="@+id/action_startAutocompleteAddressEntry"
         app:destination="@id/kycAutocompleteAddressFragment" />
+    <action
+        android:id="@+id/action_startAdditionalInfoEntry"
+        app:destination="@id/kycAdditionalInfoFragment" />
 
     <fragment
         android:id="@+id/kycResubmissionSplashFragment"

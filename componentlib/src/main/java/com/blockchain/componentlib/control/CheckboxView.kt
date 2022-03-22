@@ -16,7 +16,7 @@ class CheckboxView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
-    var onCheckChanged by mutableStateOf({ _: Boolean -> })
+    var onCheckChanged: ((Boolean) -> Unit)? by mutableStateOf(null)
     var state by mutableStateOf(CheckboxState.Unchecked)
     var checkboxEnabled by mutableStateOf(true)
 
@@ -27,10 +27,7 @@ class CheckboxView @JvmOverloads constructor(
                 Checkbox(
                     state = state,
                     enabled = checkboxEnabled,
-                    onCheckChanged = { isChecked ->
-                        state = if (isChecked) CheckboxState.Checked else CheckboxState.Unchecked
-                        onCheckChanged(isChecked)
-                    },
+                    onCheckChanged = onCheckChanged,
                 )
             }
         }

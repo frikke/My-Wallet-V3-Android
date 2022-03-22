@@ -56,6 +56,6 @@ data class Geolocation(
     val state: String? = null
 )
 
-private fun LatestTermsAndConditionsResponse.toDomain() = LatestTermsAndConditions(termsAndConditionsMarkdown)
+private fun LatestTermsAndConditionsResponse.toDomain() = LatestTermsAndConditions(termsAndConditionsUrl)
 
-data class LatestTermsAndConditions(val termsAndConditionsMarkdown: String?)
+data class LatestTermsAndConditions(val termsAndConditionsUrl: String?)

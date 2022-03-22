@@ -61,7 +61,6 @@ class EthAddressParserTest : CoincoreTestBase() {
         pitLinking = pitLinking,
         crashLogger = crashLogger,
         identity = identity,
-        entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
         formatUtils = formatUtils,
         addressResolver = addressResolver
     )

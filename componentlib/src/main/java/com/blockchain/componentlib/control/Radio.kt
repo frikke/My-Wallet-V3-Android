@@ -32,7 +32,7 @@ import com.blockchain.componentlib.theme.Red900
 @Composable
 fun Radio(
     state: RadioButtonState,
-    onSelectedChanged: (Boolean) -> Unit,
+    onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isDarkMode: Boolean = isSystemInDarkTheme(),
@@ -96,7 +96,7 @@ fun Radio(
             .run {
                 if (!enabled) {
                     this.alpha(ContentAlpha.disabled)
-                } else {
+                } else if (onSelectedChanged != null) {
                     this.clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
@@ -112,6 +112,8 @@ fun Radio(
                             }
                         )
                     }
+                } else {
+                    this
                 }
             }
             .padding(dimensionResource(R.dimen.very_small_margin))

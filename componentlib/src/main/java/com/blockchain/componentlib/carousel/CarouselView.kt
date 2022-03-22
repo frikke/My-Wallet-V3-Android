@@ -42,6 +42,7 @@ class CarouselView : ConstraintLayout {
 
     private val listAdapter = CarouselAdapter()
     private var carouselIndicatorView: CarouselIndicatorView? = null
+    var selectedPosition = 0
 
     @SuppressLint("WrongConstant")
     private fun initWithAttributes() {
@@ -63,10 +64,15 @@ class CarouselView : ConstraintLayout {
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                carouselIndicatorView?.selectedIndicator = (position ?: 0) % currentList.size
+                carouselIndicatorView?.selectedIndicator = position % currentList.size
+                selectedPosition = position
                 super.onPageSelected(position)
             }
         })
+    }
+
+    fun setPage(position: Int) {
+        binding.viewPager.setCurrentItem(position, true)
     }
 
     fun onLoadPrices(prices: List<PriceView.Price>) {
