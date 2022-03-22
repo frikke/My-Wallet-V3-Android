@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LatestTermsAndConditionsResponse(
     @SerialName("termsAndConditions")
-    val termsAndConditionsMarkdown: String?
+    val termsAndConditionsUrl: String?
 )

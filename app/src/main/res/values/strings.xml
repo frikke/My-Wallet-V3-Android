@@ -990,6 +990,11 @@
     <string name="rename_asset_card_body">Heads up: %1$s has renamed to %2$s. All balances are unaffected.</string>
     <string name="rename_asset_card_cta">Trade %s</string>
 
+    <!-- WalletConnect announcement -->
+    <string name="wallet_connect_announcement_card_title">WalletConnect is Now Available!</string>
+    <string name="wallet_connect_announcement_card_subtitle">Securely connect your wallet to any web 3.0 application. </string>
+    <string name="wallet_connect_announcement_action">Learn More</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
@@ -2802,4 +2807,10 @@
     <string name="kyc_upgrade_now_sheet_title">Upgrade Your Profile.\nBuy, Sell &amp; Swap More Crypto</string>
     <string name="kyc_upgrade_now_sheet_subtitle">Verify to unlock access to Buying, Selling, Swapping &amp; Rewards Accounts.</string>
 
+    <!-- Kyc Additional Info -->
+    <string name="kyc_additional_info_toolbar">Use of Account Information</string>
+    <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
+
+    <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
+    <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
 </resources>

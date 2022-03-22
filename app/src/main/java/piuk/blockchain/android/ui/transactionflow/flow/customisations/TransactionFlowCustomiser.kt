@@ -169,12 +169,6 @@ class TransactionFlowCustomiserImpl(
             }
         )
 
-    override fun shouldShowCustodialUpsell(state: TransactionState): Boolean =
-        when (state.action) {
-            AssetAction.Swap -> state.selectedTarget is NonCustodialAccount
-            else -> false
-        }
-
     override fun selectTargetAddressWalletsCta(state: TransactionState) =
         resources.getString(
             when (state.action) {

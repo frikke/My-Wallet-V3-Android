@@ -116,7 +116,7 @@ class LoaderInteractor(
     private fun checkNewTermsAndConditions(isAfterWalletCreation: Boolean): Maybe<String> =
         if (isAfterWalletCreation) Maybe.empty()
         else nabuUserDataManager.getLatestTermsAndConditions().flatMapMaybe {
-            val latestTerms = it.termsAndConditionsMarkdown
+            val latestTerms = it.termsAndConditionsUrl
             if (latestTerms != null) Maybe.just(latestTerms)
             else Maybe.empty()
         }.onErrorComplete()

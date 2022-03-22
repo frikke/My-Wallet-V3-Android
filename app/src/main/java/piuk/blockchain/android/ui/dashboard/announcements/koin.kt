@@ -27,10 +27,12 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnounce
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.TaxCenterAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.UkEntitySwitchAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.VerifyEmailAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.WalletConnectAnnouncement
 
 val dashboardAnnouncementsModule = module {
 
@@ -98,6 +100,13 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             UkEntitySwitchAnnouncement(
+                userIdentity = get(),
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            TaxCenterAnnouncement(
                 userIdentity = get(),
                 dismissRecorder = get()
             )
@@ -251,6 +260,12 @@ val dashboardAnnouncementsModule = module {
         factory {
             CeloEurAnnouncement(
                 announcementQueries = get(),
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            WalletConnectAnnouncement(
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)

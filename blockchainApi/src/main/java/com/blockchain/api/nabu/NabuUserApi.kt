@@ -10,6 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
+import retrofit2.http.Query
 
 interface NabuUserApi {
 
@@ -29,7 +30,8 @@ interface NabuUserApi {
 
     @GET("user/terms-and-conditions")
     fun getLatestTermsAndConditions(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String,
+        @Query("with-controls") withControls: Boolean = true
     ): Single<LatestTermsAndConditionsResponse>
 
     @PUT("user/terms-and-conditions/sign-latest")

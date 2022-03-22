@@ -467,6 +467,6 @@ class KycNavHostPresenterTest {
     )
 
     private fun givenReentryDecision(reentryPoint: ReentryPoint) {
-        whenever(reentryDecision.findReentryPoint(any())).thenReturn(reentryPoint)
+        whenever(reentryDecision.findReentryPoint(any())).thenReturn(Single.just(reentryPoint))
     }
 }

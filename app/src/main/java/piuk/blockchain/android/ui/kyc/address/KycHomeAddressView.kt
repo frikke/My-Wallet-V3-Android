@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.address
 import androidx.annotation.StringRes
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.base.View
+import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 
@@ -28,6 +29,7 @@ interface KycHomeAddressView : View {
 
     fun continueToTier2MoreInfoNeeded(countryCode: String)
 
+    fun missingAdditionalInfo(root: TreeNode.Root, countryCode: String)
     fun tier1Complete()
     fun onSddVerified()
 

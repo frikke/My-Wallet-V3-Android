@@ -45,6 +45,10 @@ fun <TIntent : Intent,
             viewModel.viewState.collect {
                 onStateUpdated(it)
             }
+        }
+    }
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.navigationEventFlow.collect {
                 navigator.route(it)
             }

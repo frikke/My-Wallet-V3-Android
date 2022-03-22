@@ -37,6 +37,7 @@ import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
+import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressDialog
 import piuk.blockchain.android.ui.kyc.address.models.AddressIntent
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
@@ -122,6 +123,11 @@ class KycHomeAddressFragment :
     override fun continueToVeriffSplash(countryCode: String) {
         closeKeyboard()
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
+    }
+
+    override fun missingAdditionalInfo(root: TreeNode.Root, countryCode: String) {
+        closeKeyboard()
+        navigate(KycHomeAddressFragmentDirections.actionStartAdditionalInfoEntry(root, countryCode))
     }
 
     override fun tier1Complete() {

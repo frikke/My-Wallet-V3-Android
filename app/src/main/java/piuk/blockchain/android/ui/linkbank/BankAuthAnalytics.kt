@@ -40,7 +40,8 @@ enum class BankAuthAnalytics(
     class LinkBankConditionsApproved(
         private val bankName: String,
         private val provider: String,
-        private val partner: String
+        private val partner: String,
+        override val origin: LaunchOrigin = LaunchOrigin.SETTINGS
     ) : AnalyticsEvent {
         override val event: String
             get() = AnalyticsNames.LINK_BANK_CONDITIONS_APPROVED.eventName

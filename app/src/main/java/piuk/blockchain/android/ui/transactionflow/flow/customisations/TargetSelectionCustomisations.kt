@@ -18,7 +18,6 @@ interface TargetSelectionCustomisations {
     fun selectTargetShowManualEnterAddress(state: TransactionState): Boolean
     fun selectTargetShouldShowSubtitle(state: TransactionState): Boolean
     fun selectTargetSubtitle(state: TransactionState): String
-    fun shouldShowCustodialUpsell(state: TransactionState): Boolean
     fun selectTargetAddressWalletsCta(state: TransactionState): String
     fun selectTargetSourceLabel(state: TransactionState): String
     fun selectTargetDestinationLabel(state: TransactionState): String

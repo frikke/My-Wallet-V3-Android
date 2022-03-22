@@ -114,10 +114,18 @@ class KycNavHostPresenter(
             user.state != UserState.None && user.kycState == KycState.None && !view.showTiersLimitsSplash -> {
                 val current = user.tiers?.current
                 if (current == null || current == 0) {
-                    val reentryPoint = reentryDecision.findReentryPoint(user)
-                    val directions = kycNavigator.userAndReentryPointToDirections(user, reentryPoint)
-                    view.navigate(directions)
-                    analytics.logEvent(KYCAnalyticsEvents.KycResumedEvent(reentryPoint.entryPoint))
+                    compositeDisposable += reentryDecision.findReentryPoint(user)
+                        .subscribeBy(
+                            onSuccess = { reentryPoint ->
+                                val directions = kycNavigator.userAndReentryPointToDirections(user, reentryPoint)
+                                view.navigate(directions)
+                                analytics.logEvent(KYCAnalyticsEvents.KycResumedEvent(reentryPoint.entryPoint))
+                            },
+                            onError = {
+                                Timber.e(it)
+                                view.showErrorSnackbarAndFinish(R.string.kyc_status_error)
+                            }
+                        )
                 }
             }
             view.campaignType == CampaignType.Sunriver -> {
