@@ -12,7 +12,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
 
 class RecurringBuyItemDelegate(
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit

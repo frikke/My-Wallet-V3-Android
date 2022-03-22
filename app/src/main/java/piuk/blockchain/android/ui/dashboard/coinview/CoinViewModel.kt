@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.enviroment.EnvironmentConfig
@@ -62,7 +61,11 @@ class CoinViewModel(
         interactor.loadRecurringBuys(intent.asset)
             .subscribeBy(
                 onSuccess = {
-                    process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowRecurringBuys(it)))
+                    process(
+                        CoinViewIntent.UpdateViewState(
+                            CoinViewViewState.ShowRecurringBuys(recurringBuys = it.first, shouldShowUpsell = it.second)
+                        )
+                    )
                 },
                 onError = {
                     process(CoinViewIntent.UpdateErrorState(CoinViewError.RecurringBuysLoadError))
@@ -70,15 +73,15 @@ class CoinViewModel(
             )
 
     private fun loadQuickActions(intent: CoinViewIntent.LoadQuickActions) =
-        interactor.loadQuickActions(intent.asset, intent.totalCryptoBalance)
+        interactor.loadQuickActions(intent.totalCryptoBalance, intent.accountList)
             .subscribeBy(
                 onSuccess = { actions ->
                     process(
                         CoinViewIntent.UpdateViewState(
                             CoinViewViewState.QuickActionsLoaded(
-                                startAction = actions.first,
-                                endAction = actions.second,
-                                actionableAccount = intent.actionableAccount
+                                startAction = actions.startAction,
+                                endAction = actions.endAction,
+                                actionableAccount = actions.actionableAccount
                             )
                         )
                     )
@@ -163,15 +166,11 @@ class CoinViewModel(
                     )
 
                     if (accountInfo is AssetInformation.AccountsInfo) {
-                        accountInfo.accountsList.firstOrNull {
-                            it.account is CustodialTradingAccount
-                        }?.let {
-                            process(
-                                CoinViewIntent.LoadQuickActions(
-                                    intent.asset.assetInfo, accountInfo.totalCryptoBalance, it.account
-                                )
+                        process(
+                            CoinViewIntent.LoadQuickActions(
+                                accountInfo.totalCryptoBalance, accountInfo.accountsList.map { it.account }
                             )
-                        }
+                        )
                     }
                 },
                 onError = {

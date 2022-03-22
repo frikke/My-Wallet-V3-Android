@@ -2768,12 +2768,19 @@
     <string name="coinview_not_tradeable_title">%1$s (%2$s) is not tradeable.</string>
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
+    <string name="coinview_accounts_label">Wallets &amp; Accounts</string>
+    <string name="coinview_chart_load_error_title">Failed to Load Price Chart</string>
+    <string name="coinview_chart_load_error_subtitle">Reload or exit and return to the page to view price chart.</string>
     <string name="coinview_wallet_load_error">Failed to load wallets and accounts</string>
-    <string name="coinview_unknown_asset">This asset is not known</string>
     <string name="coinview_chart_load_error">Failed to load chart info</string>
     <string name="coinview_recurring_buy_load_error">Failed to load recurring buys</string>
-    <string name="coinview_action_failed">There was an issue loading</string>
+    <string name="coinview_recuring_buy_load_error_title">Failed to Load Recurring Buys</string>
+    <string name="coinview_recuring_buy_load_error_subtitle">Reload or exit and return to the page to view your recurring buys.</string>
+    <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
+    <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
+    <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
+    <string name="coinview_no_asset_title">Unknown Asset</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>

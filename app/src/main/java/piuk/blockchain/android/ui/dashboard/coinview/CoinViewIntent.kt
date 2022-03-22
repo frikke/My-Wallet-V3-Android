@@ -27,9 +27,8 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     }
 
     class LoadQuickActions(
-        val asset: AssetInfo,
         val totalCryptoBalance: Money,
-        val actionableAccount: BlockchainAccount
+        val accountList: List<BlockchainAccount>
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
             viewState = CoinViewViewState.LoadingQuickActions
