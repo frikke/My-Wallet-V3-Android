@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.PublishSubject
-import timber.log.Timber
 
 class DeeplinkRedirector(private val deeplinkProcessorV2: DeeplinkProcessorV2) {
 
@@ -16,7 +15,7 @@ class DeeplinkRedirector(private val deeplinkProcessorV2: DeeplinkProcessorV2) {
     val deeplinkEvents: Observable<DeepLinkResult.DeepLinkResultSuccess>
         get() = _deeplinkEvents
 
-    fun processDeeplinkURL(url: Uri, payload: NotificationPayload? = null) : Completable =
+    fun processDeeplinkURL(url: Uri, payload: NotificationPayload? = null): Completable =
         Completable.fromCallable {
             deeplinkProcessorV2.process(url, payload).subscribeBy(
                 onSuccess = { result ->

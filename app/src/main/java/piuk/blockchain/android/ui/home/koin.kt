@@ -22,7 +22,6 @@ val mainModule = module {
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
                 crashLogger = get(),
-                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
             )
         }
 

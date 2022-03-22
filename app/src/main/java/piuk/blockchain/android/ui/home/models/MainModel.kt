@@ -50,8 +50,7 @@ class MainModel(
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
-    private val deeplinkFeatureFlag: FeatureFlag,
+    crashLogger: CrashLogger
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,

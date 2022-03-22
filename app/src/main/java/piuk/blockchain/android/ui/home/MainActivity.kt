@@ -143,7 +143,6 @@ class MainActivity :
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
-    private val coincore: Coincore by scopedInject()
     private val destinationArgs: DestinationArgs by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

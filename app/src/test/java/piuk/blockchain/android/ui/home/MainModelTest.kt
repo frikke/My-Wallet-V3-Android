@@ -67,10 +67,6 @@ class MainModelTest {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
 
-    private val deeplinkFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
-
     @get:Rule
     val rx = rxInit {
         mainTrampoline()
@@ -86,8 +82,7 @@ class MainModelTest {
             environmentConfig = environmentConfig,
             crashLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
-            interactor = interactor,
-            deeplinkFeatureFlag = deeplinkFeatureFlag
+            interactor = interactor
         )
     }
 
