@@ -28,8 +28,11 @@ import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -38,6 +41,7 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.extensions.exhaustive
 
 @Composable
 fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
@@ -49,8 +53,12 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
     val state by stateFlowLifecycleAware.collectAsState(null)
 
     when(state) {
-        is BlockchainCardViewState.OrderCard -> {
+        is BlockchainCardViewState.OrderOrLinkCard -> {
             OrderOrLinkCard(viewModel)
+        }
+
+        is BlockchainCardViewState.OrderCard -> {
+            SelectCardForOrder()
         }
 
         is BlockchainCardViewState.LinkCard -> {
@@ -64,25 +72,13 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
 }
 
 @Composable
-fun BlockchainCardNavHost(navController: NavHostController, viewModel: BlockchainCardViewModel) {
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val navigationFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
-        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-    }
-
-    val navigationEvent by navigationFlowLifecycleAware.collectAsState(
-        BlockchainCardNavigationEvent.BlockchainCardDestination
-    )
-
-    // Coroutine that subscribes to navigation target changes
-    LaunchedEffect("navigation") {
-        navController.navigate(navigationEvent.name)
-    }
-
+fun BlockchainCardNavHost(
+    navigator: BlockchainCardNavigationRouter,
+    viewModel: BlockchainCardViewModel,
+) {
     // Set animations for entering and exiting a screen and setup the navigation routes
     NavHost(
-        navController = navController,
+        navController = navigator.navController,
         startDestination = "blockchain_card"
     ) {
 
@@ -92,6 +88,10 @@ fun BlockchainCardNavHost(navController: NavHostController, viewModel: Blockchai
 
         composable("order_or_link_card") {
             OrderOrLinkCard(viewModel)
+        }
+
+        composable("select_card_for_order") {
+            SelectCardForOrder()
         }
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
-import com.blockchain.blockchaincard.ui.composables.BlockchainCardScreen
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
@@ -63,8 +62,8 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val navController = rememberNavController()
-                BlockchainCardNavHost(navController = navController, viewModel = viewModel)
+                navigator.navController = rememberNavController()
+                BlockchainCardNavHost(navigator = navigator, viewModel = viewModel)
             }
         }
     }
@@ -72,6 +71,6 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
     override fun onBackPressed(): Boolean = false
 
     override fun onStateUpdated(state: BlockchainCardViewState) {
-        TODO("Not yet implemented")
+        // TODO implement
     }
 }
