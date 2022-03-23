@@ -26,7 +26,7 @@ class KycDataManager(
         return authenticator.getAuthHeader().awaitOutcome()
             .flatMap { authToken -> kycService.getAdditionalInfoForm(authToken) }
             .mapLeft { KycError.REQUEST_FAILED }
-            .map { it.toDomain() }
+            .map { it?.toDomain() ?: emptyList() }
     }
 
     suspend fun updateAdditionalInfo(nodes: List<KycAdditionalInfoNode>): Outcome<UpdateKycAdditionalInfoError, Unit> =
