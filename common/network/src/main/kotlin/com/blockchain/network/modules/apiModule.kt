@@ -17,16 +17,11 @@ import com.blockchain.koin.status
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.BigIntegerAdapter
-import com.blockchain.serializers.BigDecimalSerializer
-import com.blockchain.serializers.BigIntSerializer
-import com.blockchain.serializers.IsoDateSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.squareup.moshi.Moshi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -70,20 +65,6 @@ val apiModule = module {
 
     single {
         MoshiConverterFactory.create(get())
-    }
-
-    single {
-        Json {
-            explicitNulls = false
-            ignoreUnknownKeys = true
-            isLenient = true
-            encodeDefaults = true
-            serializersModule = SerializersModule {
-                contextual(BigDecimalSerializer)
-                contextual(BigIntSerializer)
-                contextual(IsoDateSerializer)
-            }
-        }
     }
 
     single(kotlinJsonConverterFactory) {

@@ -3,7 +3,9 @@ package info.blockchain.wallet.ethereum.data
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import java.util.HashMap
+import kotlinx.serialization.Serializable
 
+@Serializable
 class EthAddressResponseMap {
 
     private val map: MutableMap<String, EthAddressResponse> = HashMap()
