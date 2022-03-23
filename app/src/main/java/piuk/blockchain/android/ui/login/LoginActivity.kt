@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -31,6 +32,8 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
+import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -66,10 +69,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
-            backAction = { onBackPressed() }
-        )
+
+        setupToolbar()
         recaptchaClient.initReCaptcha()
         checkExistingSessionOrDeeplink(intent)
     }
@@ -166,6 +167,22 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
+
+    private fun setupToolbar() {
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
+            backAction = { onBackPressed() }
+        )
+
+        updateToolbarMenuItems(
+            listOf(
+                NavigationBarButton.Icon(R.drawable.ic_question) {
+                    PinHelpSheet.newInstance()
+                        .also { showBottomSheet(it) }
+                }
+            )
+        )
+    }
 
     override fun render(newState: LoginState) {
         updateUI(newState)

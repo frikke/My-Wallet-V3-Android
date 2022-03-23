@@ -4,9 +4,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 
 class PinHelpViewModel(
-    loginHelpModelState: PinHelpModelState,
-
-    ) : MviViewModel<PinHelpIntents, PinHelpViewState, PinHelpModelState, PinHelpNavigationEvent, ModelConfigArgs.NoArgs>(
+    loginHelpModelState: PinHelpModelState
+) : MviViewModel<PinHelpIntents, PinHelpViewState, PinHelpModelState, PinHelpNavigationEvent, ModelConfigArgs.NoArgs>(
     loginHelpModelState
 ) {
 
