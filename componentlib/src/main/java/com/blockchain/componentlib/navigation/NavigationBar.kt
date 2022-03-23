@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +29,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 
 sealed class NavigationBarButton(val onClick: () -> Unit) {
-    data class Icon(val drawable: Int, val color: Color? = Grey400, val onIconClick: () -> Unit) :
+    data class Icon(val drawable: Int, val color: Color? = Grey400, val size: Int = 24, val onIconClick: () -> Unit) :
         NavigationBarButton(onIconClick)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
@@ -46,7 +47,7 @@ fun NavigationBar(
 ) = NavigationBar(
     title = title,
     startNavigationBarButton = onBackButtonClick?.let { onClick ->
-        NavigationBarButton.Icon(R.drawable.ic_nav_bar_back, Grey400, onClick)
+        NavigationBarButton.Icon(drawable = R.drawable.ic_nav_bar_back, onIconClick = onClick)
     },
     endNavigationBarButtons = navigationBarButtons
 )
@@ -116,6 +117,7 @@ fun NavigationBar(
                     when (it) {
                         is NavigationBarButton.Icon -> {
                             Image(
+                                modifier = Modifier.size(it.size.dp),
                                 painter = painterResource(id = it.drawable),
                                 contentDescription = null,
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
