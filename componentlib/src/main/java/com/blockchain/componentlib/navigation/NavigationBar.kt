@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.navigation
 
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,7 +30,12 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey400
 
 sealed class NavigationBarButton(val onClick: () -> Unit) {
-    data class Icon(val drawable: Int, val color: Color? = Grey400, val size: Int = 24, val onIconClick: () -> Unit) :
+    data class Icon(
+        val drawable: Int,
+        val color: Color? = Grey400,
+        @DimenRes val size: Int = R.dimen.standard_margin,
+        val onIconClick: () -> Unit
+    ) :
         NavigationBarButton(onIconClick)
 
     data class Text(val text: String, val color: Color? = null, val onTextClick: () -> Unit) :
@@ -117,7 +123,7 @@ fun NavigationBar(
                     when (it) {
                         is NavigationBarButton.Icon -> {
                             Image(
-                                modifier = Modifier.size(it.size.dp),
+                                modifier = Modifier.size(dimensionResource(it.size)),
                                 painter = painterResource(id = it.drawable),
                                 contentDescription = null,
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
