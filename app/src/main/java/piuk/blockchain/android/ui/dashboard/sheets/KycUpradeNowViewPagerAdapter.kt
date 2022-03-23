@@ -73,6 +73,15 @@ class KycCtaViewPagerAdapter(
     ) : KycVH(binding.root) {
 
         fun isBasicApprovedChanged(isBasicApproved: Boolean) = with(binding) {
+            rowTier.apply {
+                endTag = TagViewState(
+                    context.getString(
+                        if (isBasicApproved) R.string.kyc_upgrade_now_basic_active
+                        else R.string.kyc_upgrade_now_basic_limited_access
+                    ),
+                    TagType.InfoAlt()
+                )
+            }
             ctaButton.goneIf(isBasicApproved)
         }
 
@@ -86,7 +95,10 @@ class KycCtaViewPagerAdapter(
                 )
                 primaryText = context.getString(R.string.kyc_upgrade_now_basic_level)
                 endTag = TagViewState(
-                    context.getString(R.string.kyc_upgrade_now_basic_limited_access),
+                    context.getString(
+                        if (item.isBasicApproved) R.string.kyc_upgrade_now_basic_active
+                        else R.string.kyc_upgrade_now_basic_limited_access
+                    ),
                     TagType.InfoAlt()
                 )
             }

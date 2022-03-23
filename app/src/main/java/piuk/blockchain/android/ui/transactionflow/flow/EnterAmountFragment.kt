@@ -8,13 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.eligibility.models.TransactionsLimit
@@ -48,6 +46,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView
@@ -219,7 +218,14 @@ class EnterAmountFragment :
                     amountSheetInput.showInfo(
                         getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
                     ) {
-                        showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
+                        val info = bottomSheetInfoCustomiser.info(
+                            InfoBottomSheetType.TRANSACTIONS_LIMIT, newState,
+                            binding.amountSheetInput.configuration.inputCurrency.type
+                        )
+                        if (info != null) {
+                            showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
+                            infoActionCallback = handlePossibleInfoAction(info, state)
+                        }
                     }
                 } else {
                     amountSheetInput.hideInfo()
@@ -231,7 +237,7 @@ class EnterAmountFragment :
                         frameLowerSlot.getChildAt(0) is BalanceAndFeeView
                     ) {
                         root.setOnClickListener {
-                            FeeSelectionBottomSheet.newInstance().show(childFragmentManager, BOTTOM_SHEET)
+                            showBottomSheet(FeeSelectionBottomSheet.newInstance())
                         }
                     }
                 }
@@ -283,12 +289,26 @@ class EnterAmountFragment :
             binding.amountSheetCtaButton.gone()
             binding.errorLayout.errorMessage.text = it
             errorContainer.visible()
-            val bottomSheetInfo =
-                bottomSheetInfoCustomiser.info(state, binding.amountSheetInput.configuration.inputCurrency.type)
+
+            val infoType = when (state.errorState) {
+                TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
+                TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+                TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
+                // we need to keep those for working with the feature flag off, otherwise we would be based only on the
+                // suggested upgrade
+                TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+                TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+                TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
+                    InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+                else -> null
+            }
+
+            val bottomSheetInfo = infoType?.let { type ->
+                bottomSheetInfoCustomiser.info(type, state, binding.amountSheetInput.configuration.inputCurrency.type)
+            }
             bottomSheetInfo?.let { info ->
                 errorContainer.setOnClickListener {
-                    TransactionFlowInfoBottomSheet.newInstance(info)
-                        .show(childFragmentManager, "BOTTOM_DIALOG")
+                    showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
                     infoActionCallback = handlePossibleInfoAction(info, state)
                 }
             } ?: errorContainer.setOnClickListener {}
@@ -303,7 +323,11 @@ class EnterAmountFragment :
                     require(asset != null)
                     return { startBuyForCurrency(asset) }
                 }
-                InfoActionType.KYC_UPGRADE -> return { startKyc() }
+                InfoActionType.KYC_UPGRADE -> return {
+                    showBottomSheet(
+                        KycUpgradeNowSheet.newInstance(state.transactionsLimit ?: TransactionsLimit.Unlimited)
+                    )
+                }
             }
         } ?: return { }
     }
@@ -362,11 +386,13 @@ class EnterAmountFragment :
         val origin = if (action == AssetAction.Send) LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN
         else LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_WITHDRAW_SCREEN
 
-        LocksInfoBottomSheet.newInstance(
-            originScreen = origin,
-            available = availableBalance.toStringWithSymbol(),
-            fundsLocks = locks
-        ).show((context as AppCompatActivity).supportFragmentManager, MviFragment.BOTTOM_SHEET)
+        showBottomSheet(
+            LocksInfoBottomSheet.newInstance(
+                originScreen = origin,
+                available = availableBalance.toStringWithSymbol(),
+                fundsLocks = locks
+            )
+        )
     }
 
     private fun configureCtaButton() {

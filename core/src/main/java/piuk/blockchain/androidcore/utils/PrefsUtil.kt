@@ -441,6 +441,10 @@ class PrefsUtil(
         get() = getValue(KEY_IS_LANDING_CTA_DISMISSED, false)
         set(value) = setValue(KEY_IS_LANDING_CTA_DISMISSED, value)
 
+    override var isEntitySwitchSilverKycUpsellDismissed: Boolean
+        get() = getValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, false)
+        set(value) = setValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, value)
+
     override fun clearSessionId() = removeValue(SESSION_ID)
 
     override fun removePinID() {
@@ -657,6 +661,8 @@ class PrefsUtil(
 
         // Onboarding
         private const val KEY_IS_LANDING_CTA_DISMISSED = "KEY_IS_LANDING_PAGE_DISMISSED"
+        private const val KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED =
+            "KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED"
 
         // Auth prefs
         // NOTE: for historical purposes, should be used as the cryptography cipher key

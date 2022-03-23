@@ -136,7 +136,7 @@ data class TransactionState(
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
     val locks: FundsLocks? = null,
     val shouldShowSendToDomainBanner: Boolean = false,
-    val transactionsLimit: TransactionsLimit? = null
+    override val transactionsLimit: TransactionsLimit? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source

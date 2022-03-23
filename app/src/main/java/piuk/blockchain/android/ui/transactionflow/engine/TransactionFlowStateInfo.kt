@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.coincore.AssetAction
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import info.blockchain.balance.AssetCategory
@@ -11,6 +12,7 @@ interface TransactionFlowStateInfo {
     val errorState: TransactionErrorState
     val sourceAccountType: AssetCategory
     val limits: TxLimits
+    val transactionsLimit: TransactionsLimit?
     val action: AssetAction
     val amount: Money
     val fiatRate: ExchangeRate?
