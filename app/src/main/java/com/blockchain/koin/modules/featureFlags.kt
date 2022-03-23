@@ -6,6 +6,7 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
@@ -126,6 +127,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_kyc_additional_info",
                 "KYC Additional Info"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(customerSupportSheetFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_customer_support_sheet",
+                "Customer Support Sheet"
             )
         )
     }.bind(FeatureFlag::class)

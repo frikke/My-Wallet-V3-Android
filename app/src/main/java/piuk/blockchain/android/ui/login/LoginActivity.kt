@@ -16,6 +16,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.remoteconfig.FeatureFlag
@@ -33,7 +34,6 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
-import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -61,6 +61,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
 
     private var state: LoginState? = null
 
@@ -174,14 +175,17 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             backAction = { onBackPressed() }
         )
 
-        updateToolbarMenuItems(
-            listOf(
-                NavigationBarButton.Icon(R.drawable.ic_question) {
-                    PinHelpSheet.newInstance()
-                        .also { showBottomSheet(it) }
-                }
-            )
-        )
+        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (enabled) {
+                updateToolbarMenuItems(
+                    listOf(
+                        NavigationBarButton.Icon(R.drawable.ic_question) {
+                            showBottomSheet(PinHelpSheet.newInstance())
+                        }
+                    )
+                )
+            }
+        }
     }
 
     override fun render(newState: LoginState) {

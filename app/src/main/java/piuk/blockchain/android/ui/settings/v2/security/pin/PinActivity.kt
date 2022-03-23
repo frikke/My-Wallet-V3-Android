@@ -30,8 +30,10 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -83,6 +85,8 @@ class PinActivity :
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
 
+    private val pinHelpSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
@@ -127,10 +131,10 @@ class PinActivity :
             root.setOnClickListener {
                 this@PinActivity.showKeyboard()
             }
-            ivHelp.setOnClickListener {
-                PinHelpSheet.newInstance()
-                    .also { showBottomSheet(it) }
+            customerSupport.setOnClickListener {
+                showBottomSheet(PinHelpSheet.newInstance())
             }
+            pinHelpSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }
     }
 

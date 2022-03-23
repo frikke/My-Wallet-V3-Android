@@ -8,17 +8,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
-import java.util.concurrent.atomic.AtomicBoolean
+import com.blockchain.remoteconfig.FeatureFlag
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import java.util.concurrent.atomic.AtomicBoolean
 
 class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentVerifyDeviceBinding>() {
 
     override val model: LoginModel by scopedInject()
+
+    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentVerifyDeviceBinding =
         FragmentVerifyDeviceBinding.inflate(inflater, container, false)
@@ -56,6 +63,10 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
             backButton.setOnClickListener {
                 model.process(LoginIntents.RevertToEmailInput)
             }
+            customerSupport.setOnClickListener {
+                (requireActivity() as BlockchainActivity).showBottomSheet(PinHelpSheet.newInstance())
+            }
+            customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)
             openEmailButton.setOnClickListener {
                 Intent(Intent.ACTION_MAIN).apply {

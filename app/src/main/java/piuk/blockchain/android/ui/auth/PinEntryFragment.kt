@@ -33,7 +33,9 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -49,6 +51,7 @@ import com.google.android.play.core.tasks.Task
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
@@ -100,6 +103,8 @@ class PinEntryFragment :
         get() = presenter?.isForValidatingPinForResult ?: false
 
     private val compositeDisposable = CompositeDisposable()
+
+    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
 
     private val isAfterWalletCreation: Boolean by lazy {
         arguments?.getBoolean(KEY_IS_AFTER_WALLET_CREATION, false) ?: false
@@ -161,12 +166,10 @@ class PinEntryFragment :
         binding.pinEntryLogout.setOnClickListener {
             presenter.resetApp()
         }
-        binding.ivHelp.setOnClickListener {
-            (activity as? BlockchainActivity)?.let { activity ->
-                PinHelpSheet.newInstance()
-                    .also { activity.showBottomSheet(it) }
-            }
+        binding.customerSupport.setOnClickListener {
+            (requireActivity() as BlockchainActivity).showBottomSheet(PinHelpSheet.newInstance())
         }
+        compositeDisposable += customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> binding.customerSupport.visibleIf { enabled } }
     }
 
     private fun getVersionText() = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"

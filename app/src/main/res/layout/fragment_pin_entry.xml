@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/iv_help"
+        android:id="@+id/customer_support"
         android:clickable="true"
         android:focusable="true"
         android:layout_width="@dimen/size_huge"
@@ -32,7 +32,8 @@
         android:padding="@dimen/tiny_margin"
         android:src="@drawable/ic_question"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/grey_400" />
 
     <ImageView
         android:id="@+id/icon"
