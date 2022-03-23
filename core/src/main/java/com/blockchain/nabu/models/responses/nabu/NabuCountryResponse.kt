@@ -1,5 +1,8 @@
 package com.blockchain.nabu.models.responses.nabu
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NabuCountryResponse(
     override val code: String,
     override val name: String,
@@ -17,6 +20,7 @@ data class NabuCountryResponse(
         get() = scopes.any { it.equals(Scope.Kyc.value, ignoreCase = true) }
 }
 
+@Serializable
 data class NabuStateResponse(
     override val code: String,
     override val name: String,

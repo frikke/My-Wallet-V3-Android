@@ -7,7 +7,17 @@ import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.ToJson
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
+@Serializable
 data class AirdropStatusList(
     private val userCampaignsInfoResponseList: List<AirdropStatus> = emptyList()
 ) {
@@ -19,45 +29,60 @@ data class AirdropStatusList(
         get() = userCampaignsInfoResponseList
 }
 
+@Serializable
 data class AirdropStatus(
     val campaignName: String,
-    val campaignEndDate: Date?, // NOT USED!
+    val campaignEndDate: @Contextual Date? = null, // NOT USED!
     val campaignState: CampaignState,
+    @SerialName("userCampaignState")
     @field:Json(name = "userCampaignState")
     val userState: UserCampaignState,
-    val attributes: CampaignAttributes,
-    val updatedAt: Date,
+    val attributes: CampaignAttributes = CampaignAttributes(),
+    val updatedAt: @Contextual Date,
+    @SerialName("userCampaignTransactionResponseList")
     @field:Json(name = "userCampaignTransactionResponseList")
     val txResponseList: List<CampaignTransaction>
 )
 
+@Serializable
 data class CampaignAttributes(
+    @SerialName("x-campaign-address")
     @field:Json(name = "x-campaign-address")
     val campaignAddress: String = "",
+
+    @SerialName("x-campaign-code")
     @field:Json(name = "x-campaign-code")
     val campaignCode: String = "",
+
+    @SerialName("x-campaign-email")
     @field:Json(name = "x-campaign-email")
     val campaignEmail: String = "",
+
+    @SerialName("x-campaign-reject-reason")
     @field:Json(name = "x-campaign-reject-reason")
     val rejectReason: String = ""
 )
 
+@Serializable
 data class CampaignTransaction(
     val fiatValue: Long,
     val fiatCurrency: String,
     val withdrawalQuantity: Long,
     val withdrawalCurrency: String,
-    val withdrawalAt: Date,
+    val withdrawalAt: @Contextual Date,
+    @SerialName("userCampaignTransactionState")
     @field:Json(name = "userCampaignTransactionState")
     val transactionState: CampaignTransactionState
 )
 
+@Serializable(with = CampaignStateMoshiAdapter.CampaignStateSerializer::class)
 sealed class CampaignState {
     object None : CampaignState()
     object Started : CampaignState()
     object Ended : CampaignState()
 }
 
+@Serializable(with = UserCampaignStateMoshiAdapter.UserCampaignStateSerializer::class)
 sealed class UserCampaignState {
     object None : UserCampaignState()
     object Registered : UserCampaignState()
@@ -67,6 +92,7 @@ sealed class UserCampaignState {
     object Failed : UserCampaignState()
 }
 
+@Serializable(with = CampaignTransactionStateMoshiAdapter.CampaignTransactionStateSerializer::class)
 sealed class CampaignTransactionState {
     object None : CampaignTransactionState()
     object PendingDeposit : CampaignTransactionState()
@@ -79,6 +105,7 @@ sealed class CampaignTransactionState {
 // -------------------------------------------------------------------------------------------------------
 // Moshi JSON adapters
 
+@Deprecated("Use [IsoDateSerializer] instead.")
 class IsoDateMoshiAdapter {
 
     @SuppressLint("SimpleDateFormat")
@@ -91,6 +118,8 @@ class IsoDateMoshiAdapter {
     fun toJson(date: Date): String = format.format(date)
 }
 
+@Deprecated("Use [UserCampaignStateSerializer] instead.")
+// TODO Remove Moshi and migrate UserCampaignStateMoshiAdapter to UserCampaignStateSerializer
 class UserCampaignStateMoshiAdapter {
     @FromJson
     fun fromJson(input: String): UserCampaignState =
@@ -115,6 +144,36 @@ class UserCampaignStateMoshiAdapter {
             UserCampaignState.Failed -> FAILED
         }
 
+    object UserCampaignStateSerializer : KSerializer<UserCampaignState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("UserCampaignState", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: UserCampaignState) {
+            encoder.encodeString(
+                when (value) {
+                    UserCampaignState.None -> NONE
+                    UserCampaignState.Registered -> REGISTERED
+                    UserCampaignState.TaskFinished -> TASK_FINISHED
+                    UserCampaignState.RewardSend -> REWARD_SEND
+                    UserCampaignState.RewardReceived -> REWARD_RECEIVED
+                    UserCampaignState.Failed -> FAILED
+                }
+            )
+        }
+
+        override fun deserialize(decoder: Decoder): UserCampaignState {
+            return when (val input = decoder.decodeString()) {
+                NONE -> UserCampaignState.None
+                REGISTERED -> UserCampaignState.Registered
+                TASK_FINISHED -> UserCampaignState.TaskFinished
+                REWARD_SEND -> UserCampaignState.RewardSend
+                REWARD_RECEIVED -> UserCampaignState.RewardReceived
+                FAILED -> UserCampaignState.Failed
+                else -> throw JsonDataException("Unknown UserCampaignState: $input")
+            }
+        }
+    }
+
     companion object {
         private const val NONE = "NONE"
         private const val REGISTERED = "REGISTERED"
@@ -125,6 +184,8 @@ class UserCampaignStateMoshiAdapter {
     }
 }
 
+@Deprecated("Use [CampaignStateSerializer] instead.")
+// TODO Remove Moshi and migrate CampaignStateMoshiAdapter to CampaignStateSerializer
 class CampaignStateMoshiAdapter {
     @FromJson
     fun fromJson(input: String): CampaignState =
@@ -143,6 +204,30 @@ class CampaignStateMoshiAdapter {
             CampaignState.Ended -> ENDED
         }
 
+    object CampaignStateSerializer : KSerializer<CampaignState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("CampaignState", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: CampaignState) {
+            encoder.encodeString(
+                when (value) {
+                    CampaignState.None -> NONE
+                    CampaignState.Started -> STARTED
+                    CampaignState.Ended -> ENDED
+                }
+            )
+        }
+
+        override fun deserialize(decoder: Decoder): CampaignState {
+            return when (val input = decoder.decodeString()) {
+                NONE -> CampaignState.None
+                STARTED -> CampaignState.Started
+                ENDED -> CampaignState.Ended
+                else -> throw JsonDataException("Unknown CampaignState: $input")
+            }
+        }
+    }
+
     companion object {
         private const val NONE = "NONE"
         private const val STARTED = "STARTED"
@@ -150,6 +235,8 @@ class CampaignStateMoshiAdapter {
     }
 }
 
+@Deprecated("Use [CampaignTransactionStateSerializer] instead.")
+// TODO Remove Moshi and migrate CampaignTransactionStateMoshiAdapter to CampaignTransactionStateSerializer
 class CampaignTransactionStateMoshiAdapter {
 
     @FromJson
@@ -174,6 +261,36 @@ class CampaignTransactionStateMoshiAdapter {
             CampaignTransactionState.FinishedWithdrawal -> FINISHED_WITHDRAWAL
             CampaignTransactionState.Failed -> FAILED
         }
+
+    object CampaignTransactionStateSerializer : KSerializer<CampaignTransactionState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("CampaignTransactionState", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: CampaignTransactionState) {
+            encoder.encodeString(
+                when (value) {
+                    CampaignTransactionState.None -> NONE
+                    CampaignTransactionState.PendingDeposit -> PENDING_DEPOSIT
+                    CampaignTransactionState.FinishedDeposit -> FINISHED_DEPOSIT
+                    CampaignTransactionState.PendingWithdrawal -> PENDING_WITHDRAWAL
+                    CampaignTransactionState.FinishedWithdrawal -> FINISHED_WITHDRAWAL
+                    CampaignTransactionState.Failed -> FAILED
+                }
+            )
+        }
+
+        override fun deserialize(decoder: Decoder): CampaignTransactionState {
+            return when (val input = decoder.decodeString()) {
+                NONE -> CampaignTransactionState.None
+                PENDING_DEPOSIT -> CampaignTransactionState.PendingDeposit
+                FINISHED_DEPOSIT -> CampaignTransactionState.FinishedDeposit
+                PENDING_WITHDRAWAL -> CampaignTransactionState.PendingWithdrawal
+                FINISHED_WITHDRAWAL -> CampaignTransactionState.FinishedWithdrawal
+                FAILED -> CampaignTransactionState.Failed
+                else -> throw JsonDataException("Unknown CampaignTransactionState: $input")
+            }
+        }
+    }
 
     companion object {
         private const val NONE = "NONE"

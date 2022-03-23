@@ -4,12 +4,15 @@ import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
+@OptIn(InternalSerializationApi::class)
 class ResetPasswordInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
@@ -38,6 +41,7 @@ class ResetPasswordInteractor(
                     metadataRepository.saveMetadata(
                         nabuMetadata,
                         NabuCredentialsMetadata::class.java,
+                        NabuCredentialsMetadata::class.serializer(),
                         NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                     )
                 }

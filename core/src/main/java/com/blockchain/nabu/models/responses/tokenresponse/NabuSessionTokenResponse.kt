@@ -1,5 +1,8 @@
 package com.blockchain.nabu.models.responses.tokenresponse
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NabuSessionTokenResponse(
     val id: String,
     val userId: String,

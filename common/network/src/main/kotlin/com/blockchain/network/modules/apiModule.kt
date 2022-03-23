@@ -4,10 +4,12 @@ import com.blockchain.enviroment.EnvironmentUrls
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.koin.bigDecimal
 import com.blockchain.koin.bigInteger
+import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.everypayRetrofit
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.kotlinApiRetrofit
+import com.blockchain.koin.kotlinJsonConverterFactory
 import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.moshiInterceptor
 import com.blockchain.koin.nabu
@@ -15,29 +17,27 @@ import com.blockchain.koin.status
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.BigIntegerAdapter
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.squareup.moshi.Moshi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.dsl.module
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class OkHttpInterceptors(val list: List<Interceptor>) : List<Interceptor> by list
-
-private val json = Json {
-    explicitNulls = false
-    ignoreUnknownKeys = true
-    isLenient = true
-}
-
-private val jsonConverter = json.asConverterFactory("application/json".toMediaType())
 
 val apiModule = module {
 
@@ -72,42 +72,72 @@ val apiModule = module {
         MoshiConverterFactory.create(get())
     }
 
+    single {
+        Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(BigDecimalSerializer)
+                contextual(BigIntSerializer)
+                contextual(IsoDateSerializer)
+            }
+        }
+    }
+
+    single(kotlinJsonConverterFactory) {
+        get<Json>().asConverterFactory("application/json".toMediaType())
+    }
+
     /**
      * This instance converts to Kotlin data classes ONLY; it will break if used to parse data models
      * written with Java + Jackson.
      */
     single(moshiExplorerRetrofit) {
+        val converterFactory = if (get<FeatureFlag>(disableMoshiSerializerFeatureFlag).isEnabled)
+            get<Converter.Factory>(kotlinJsonConverterFactory) else get<MoshiConverterFactory>()
+
         Retrofit.Builder()
             .baseUrl(getProperty("explorer-api"))
             .client(get())
-            .addConverterFactory(get<MoshiConverterFactory>())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
     single(kotlinApiRetrofit) {
+        val converterFactory = if (get<FeatureFlag>(disableMoshiSerializerFeatureFlag).isEnabled)
+            get<Converter.Factory>(kotlinJsonConverterFactory) else get<MoshiConverterFactory>()
+
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().apiUrl)
             .client(get())
-            .addConverterFactory(get<MoshiConverterFactory>())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
     single(nabu) {
+        val converterFactory = if (get<FeatureFlag>(disableMoshiSerializerFeatureFlag).isEnabled)
+            get<Converter.Factory>(kotlinJsonConverterFactory) else get<MoshiConverterFactory>()
+
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().nabuApi)
             .client(get())
-            .addConverterFactory(get<MoshiConverterFactory>())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
 
     single(status) {
+        val converterFactory = if (get<FeatureFlag>(disableMoshiSerializerFeatureFlag).isEnabled)
+            get<Converter.Factory>(kotlinJsonConverterFactory) else get<MoshiConverterFactory>()
+
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().statusUrl)
             .client(get())
-            .addConverterFactory(get<MoshiConverterFactory>())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }
@@ -118,7 +148,7 @@ val apiModule = module {
             Retrofit.Builder()
                 .baseUrl(getProperty("blockchain-api"))
                 .client(get())
-                .addConverterFactory(jsonConverter)
+                .addConverterFactory(get(kotlinJsonConverterFactory))
                 .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
                 .build()
         } else {
@@ -137,7 +167,7 @@ val apiModule = module {
             Retrofit.Builder()
                 .baseUrl(getProperty("explorer-api"))
                 .client(get())
-                .addConverterFactory(jsonConverter)
+                .addConverterFactory(get(kotlinJsonConverterFactory))
                 .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
                 .build()
         } else {
@@ -151,10 +181,13 @@ val apiModule = module {
     }
 
     single(everypayRetrofit) {
+        val converterFactory = if (get<FeatureFlag>(disableMoshiSerializerFeatureFlag).isEnabled)
+            get<Converter.Factory>(kotlinJsonConverterFactory) else get<MoshiConverterFactory>()
+
         Retrofit.Builder()
             .baseUrl(get<EnvironmentUrls>().everypayHostUrl)
             .client(get())
-            .addConverterFactory(get<MoshiConverterFactory>())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .build()
     }

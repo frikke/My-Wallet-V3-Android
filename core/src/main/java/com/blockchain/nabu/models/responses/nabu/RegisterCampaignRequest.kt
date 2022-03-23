@@ -1,7 +1,9 @@
 package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.serialization.JsonSerializable
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RegisterCampaignRequest(
     val data: Map<String, String>,
     val newUser: Boolean

@@ -1,17 +1,23 @@
 package com.blockchain.nabu.models.responses.interest
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class InterestRateResponse(
     val rate: Double
 )
 
+@Serializable
 data class InterestAddressResponse(
     val accountRef: String
 )
 
+@Serializable
 data class InterestActivityResponse(
     val items: List<InterestActivityItemResponse>
 )
 
+@Serializable
 data class InterestActivityItemResponse(
     val amount: InterestAmount,
     val amountMinor: String,
@@ -37,11 +43,13 @@ data class InterestActivityItemResponse(
     }
 }
 
+@Serializable
 data class InterestAmount(
     val symbol: String,
     val value: String
 )
 
+@Serializable
 data class InterestAttributes(
     val address: String?,
     val confirmations: Int?,
@@ -51,19 +59,18 @@ data class InterestAttributes(
     val beneficiary: InterestBeneficiary?
 )
 
+@Serializable
 data class InterestBeneficiary(
     val user: String,
     val accountRef: String
 )
 
+@Serializable
 data class InterestLimitsFullResponse(
-    val limits: AssetLimitsResponse
+    val limits: Map<String, InterestLimitsResponse>
 )
 
-data class AssetLimitsResponse(
-    val assetMap: Map<String, InterestLimitsResponse>
-)
-
+@Serializable
 data class InterestLimitsResponse(
     val currency: String,
     val lockUpDuration: Int,
@@ -71,10 +78,12 @@ data class InterestLimitsResponse(
     val minDepositAmount: String
 )
 
+@Serializable
 data class InterestEnabledResponse(
     val instruments: List<String>
 )
 
+@Serializable
 data class InterestWithdrawalBody(
     val withdrawalAddress: String,
     val amount: String,

@@ -1,11 +1,13 @@
 package com.blockchain.nabu.datamanagers.repositories.serialization
 
-import com.blockchain.nabu.models.responses.interest.AssetLimitsResponse
 import com.blockchain.nabu.models.responses.interest.InterestLimitsFullResponse
 import com.blockchain.nabu.models.responses.interest.InterestLimitsResponse
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 
+@Deprecated(
+    "The structure of [InterestLimitsFullResponse] has changed and this is no longer needed with kotlinx serialization."
+)
 class InterestLimitsMapAdapter {
     @FromJson
     fun fromJson(reader: JsonReader): InterestLimitsFullResponse {
@@ -52,9 +54,7 @@ class InterestLimitsMapAdapter {
         }
         reader.endObject()
 
-        val limitsObject = AssetLimitsResponse(map)
-
-        return InterestLimitsFullResponse(limitsObject)
+        return InterestLimitsFullResponse(map)
     }
 
     companion object {

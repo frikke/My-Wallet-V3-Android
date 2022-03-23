@@ -279,7 +279,12 @@ val coreModule = module {
         }
 
         scoped {
-            MoshiMetadataRepositoryAdapter(get(), get())
+            MoshiMetadataRepositoryAdapter(
+                metadataManager = get(),
+                moshi = get(),
+                json = get(),
+                disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
+            )
         }.bind(MetadataRepository::class)
 
         scoped { EthDataStore() }

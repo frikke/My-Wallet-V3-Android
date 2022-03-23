@@ -1,5 +1,15 @@
 package com.blockchain.nabu.models.responses.sdd
 
-data class SDDEligibilityResponse(val eligible: Boolean, val tier: Int)
+import kotlinx.serialization.Serializable
 
-data class SDDStatusResponse(val verified: Boolean, val taskComplete: Boolean)
+@Serializable
+data class SDDEligibilityResponse(
+    val eligible: Boolean,
+    val tier: Int
+)
+
+@Serializable
+data class SDDStatusResponse(
+    val verified: Boolean,
+    val taskComplete: Boolean
+)
