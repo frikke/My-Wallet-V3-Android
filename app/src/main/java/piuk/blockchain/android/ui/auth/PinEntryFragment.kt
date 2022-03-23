@@ -67,7 +67,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
-import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
@@ -167,7 +167,7 @@ class PinEntryFragment :
             presenter.resetApp()
         }
         binding.customerSupport.setOnClickListener {
-            (requireActivity() as BlockchainActivity).showBottomSheet(PinHelpSheet.newInstance())
+            (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
         }
         compositeDisposable += customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> binding.customerSupport.visibleIf { enabled } }
     }

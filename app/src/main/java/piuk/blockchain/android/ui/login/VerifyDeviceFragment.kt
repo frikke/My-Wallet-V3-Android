@@ -18,7 +18,7 @@ import com.blockchain.remoteconfig.FeatureFlag
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
-import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import java.util.concurrent.atomic.AtomicBoolean
 
 class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentVerifyDeviceBinding>() {
@@ -64,7 +64,7 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
                 model.process(LoginIntents.RevertToEmailInput)
             }
             customerSupport.setOnClickListener {
-                (requireActivity() as BlockchainActivity).showBottomSheet(PinHelpSheet.newInstance())
+                (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
             }
             customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)

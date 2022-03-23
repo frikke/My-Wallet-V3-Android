@@ -56,7 +56,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
-import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL
@@ -132,7 +132,7 @@ class PinActivity :
                 this@PinActivity.showKeyboard()
             }
             customerSupport.setOnClickListener {
-                showBottomSheet(PinHelpSheet.newInstance())
+                showBottomSheet(CustomerSupportSheet.newInstance())
             }
             pinHelpSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }

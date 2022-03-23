@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.pinhelp
+package piuk.blockchain.android.ui.customersupport
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,31 +11,31 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import piuk.blockchain.android.databinding.DialogSheetPinHelpBinding
+import piuk.blockchain.android.databinding.DialogSheetCustomerSupportBinding
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
 import piuk.blockchain.android.util.openUrl
 
-class PinHelpSheet : MVIBottomSheet<PinHelpViewState>(), NavigationRouter<PinHelpNavigationEvent> {
+class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), NavigationRouter<CustomerSupportNavigationEvent> {
 
-    private lateinit var binding: DialogSheetPinHelpBinding
+    private lateinit var binding: DialogSheetCustomerSupportBinding
 
-    private val viewModel: PinHelpViewModel by viewModel()
+    private val viewModel: CustomerSupportViewModel by viewModel()
 
     val analytics: Analytics by inject()
 
-    override fun onStateUpdated(state: PinHelpViewState) {
+    override fun onStateUpdated(state: CustomerSupportViewState) {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DialogSheetPinHelpBinding.inflate(inflater, container, false)
+        binding = DialogSheetCustomerSupportBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        analytics.logEvent(PinHelpAnalytics.SheetShown)
+//        analytics.logEvent(CustomerSupportAnalytics.SheetShown)
 
         setupViews()
         setupViewModel()
@@ -48,11 +48,11 @@ class PinHelpSheet : MVIBottomSheet<PinHelpViewState>(), NavigationRouter<PinHel
     private fun setupViews() {
         with(binding) {
             btnEmail.setOnClickListener {
-//                analytics.logEvent(PinHelpAnalytics.EmailClicked)
+//                analytics.logEvent(CustomerSupportAnalytics.EmailClicked)
                 viewUrl(URL_CONTACT_SUBMIT_REQUEST)
             }
             btnFaq.setOnClickListener {
-//                analytics.logEvent(PinHelpAnalytics.FaqClicked)
+//                analytics.logEvent(CustomerSupportAnalytics.FaqClicked)
                 viewUrl(URL_FAQ)
             }
         }
@@ -63,11 +63,11 @@ class PinHelpSheet : MVIBottomSheet<PinHelpViewState>(), NavigationRouter<PinHel
         context.openUrl(url)
     }
 
-    override fun route(navigationEvent: PinHelpNavigationEvent) {
+    override fun route(navigationEvent: CustomerSupportNavigationEvent) {
     }
 
     companion object {
-        fun newInstance() = PinHelpSheet()
+        fun newInstance() = CustomerSupportSheet()
     }
 }
 

@@ -33,7 +33,7 @@ import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
-import piuk.blockchain.android.ui.pinhelp.PinHelpSheet
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -180,7 +180,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                 updateToolbarMenuItems(
                     listOf(
                         NavigationBarButton.Icon(R.drawable.ic_question) {
-                            showBottomSheet(PinHelpSheet.newInstance())
+                            showBottomSheet(CustomerSupportSheet.newInstance())
                         }
                     )
                 )
