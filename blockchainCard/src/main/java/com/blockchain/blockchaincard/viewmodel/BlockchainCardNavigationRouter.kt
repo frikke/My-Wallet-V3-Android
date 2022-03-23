@@ -1,13 +1,16 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
+import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 
-class BlockchainCardNavigationRouter : NavigationRouter<BlockchainCardNavigationEvent> {
+class BlockchainCardNavigationRouter : ComposeNavigationRouter {
 
-    public lateinit var navController: NavHostController
-
-    override fun route(navigationEvent: BlockchainCardNavigationEvent) {
+    override fun route(navigationEvent: ComposeNavigationEvent) {
         navController.navigate(navigationEvent.name)
     }
+
+    override lateinit var navController: NavHostController
 }

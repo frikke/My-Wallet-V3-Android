@@ -135,8 +135,8 @@ class RedesignSettingsPhase2Activity : BlockchainActivity(), SettingsNavigator {
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToOrderCard() {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance())
+    override fun goToBlockchainDebitCard(blockchainDebitCard: String?) {
+        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainDebitCard))
     }
 
     private fun replaceCurrentFragment(newFragment: Fragment) {
@@ -172,7 +172,7 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToOrderCard()
+    fun goToBlockchainDebitCard(blockchainDebitCard: String? = null)
 }
 
 interface SettingsScreen : FlowFragment {

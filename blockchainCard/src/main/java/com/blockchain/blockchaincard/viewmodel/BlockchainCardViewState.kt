@@ -6,5 +6,7 @@ sealed class BlockchainCardViewState : ViewState {
     object OrderOrLinkCard : BlockchainCardViewState()
     object OrderCard : BlockchainCardViewState()
     object LinkCard : BlockchainCardViewState()
-    data class ManageCard(val card: String): BlockchainCardViewState()
+    object CardCreationSuccess: BlockchainCardViewState()
+    object CardCreationFailed: BlockchainCardViewState()
+    data class ManageCard(val cardId: String): BlockchainCardViewState()
 }

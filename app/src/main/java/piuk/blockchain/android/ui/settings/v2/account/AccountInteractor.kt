@@ -45,16 +45,16 @@ class AccountInteractor internal constructor(
         }
 
     fun getDebitCardState(): Single<BlockchainCardState> =
-        //bcCardDataRepository.getCards().flatMap { cards ->
-          //  if (cards.isNotEmpty()) {
-            //    Single.just(BlockchainCardState.ORDERED)
-            //} else {
+        bcCardDataRepository.getCards().flatMap { cards ->
+            if (cards.isNotEmpty()) {
+                Single.just(BlockchainCardState.Ordered(cards.first().cardId)) // TODO if multiple should pass the list
+            } else {
                 bcCardDataRepository.getProducts().map { products ->
                     if (products.isNotEmpty())
-                        BlockchainCardState.ELIGIBLE
+                        BlockchainCardState.Eligible
                     else
-                        BlockchainCardState.ELIGIBLE
+                        BlockchainCardState.NotEligible
                 }
-            //}
-        //}
+            }
+        }
 }

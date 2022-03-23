@@ -1,14 +1,21 @@
 package com.blockchain.blockchaincard.viewmodel
 
+import com.blockchain.blockchaincard.data.BcCardDataRepository
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.parcelize.Parcelize
 
-class BlockchainCardViewModel :
+@Parcelize
+data class BlockchainDebitCardArgs(val cardId: String) : ModelConfigArgs.ParcelableArgs
+
+class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataRepository) :
     MviViewModel<
         BlockchainCardIntent,
         BlockchainCardViewState,
         BlockchainCardModelState,
-        BlockchainCardNavigationEvent,
+        ComposeNavigationEvent,
         ModelConfigArgs> (BlockchainCardModelState.Unknown) {
 
     override fun viewCreated(args: ModelConfigArgs) {
@@ -16,7 +23,9 @@ class BlockchainCardViewModel :
             is ModelConfigArgs.NoArgs -> {
                 updateState { BlockchainCardModelState.NotOrdered }
             }
-            is ModelConfigArgs.ParcelableArgs -> TODO()
+            is BlockchainDebitCardArgs -> {
+                updateState { BlockchainCardModelState.Created(args.cardId)}
+            }
         }
     }
 
@@ -31,7 +40,15 @@ class BlockchainCardViewModel :
             is BlockchainCardModelState.LinkCard -> {
                 BlockchainCardViewState.LinkCard
             }
-            is BlockchainCardModelState.Created -> BlockchainCardViewState.ManageCard(state.card)
+
+            is BlockchainCardModelState.CardCreationSuccess -> {
+                BlockchainCardViewState.CardCreationSuccess
+            }
+
+            is BlockchainCardModelState.CardCreationFailed -> {
+                BlockchainCardViewState.CardCreationFailed
+            }
+            is BlockchainCardModelState.Created -> BlockchainCardViewState.ManageCard(state.cardId)
             is BlockchainCardModelState.Unknown -> BlockchainCardViewState.OrderCard
         }
 
@@ -42,6 +59,19 @@ class BlockchainCardViewModel :
         when (intent) {
             is BlockchainCardIntent.OrderCard -> {
                 navigate(BlockchainCardNavigationEvent.SelectCardForOrder)
+            }
+
+            is BlockchainCardIntent.CreateCard -> {
+                bcCardDataRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).subscribeBy(
+                    onSuccess = {
+                        updateState { BlockchainCardModelState.CardCreationSuccess }
+                        navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
+                    },
+                    onError = {
+                        updateState { BlockchainCardModelState.CardCreationFailed }
+                        navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
+                    }
+                )
             }
         }
 

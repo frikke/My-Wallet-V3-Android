@@ -11,6 +11,12 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion Versions.composeKotlinCompile
     }
 }
 
@@ -22,15 +28,17 @@ dependencies {
     implementation Libraries.koinAndroid
     implementation Libraries.rxJava
     implementation Libraries.design
-    implementation Libraries.composeUi
     implementation Libraries.rxKotlin
     implementation Libraries.rxRelay
     implementation Libraries.rxAndroid
-    implementation Libraries.composeUi
     implementation Libraries.lifecycleRuntime
 
     implementation Libraries.lifecycleViewModel
     implementation Libraries.lifecycleViewModelExtensions
+
+    implementation Libraries.composeUi
+    implementation Libraries.composeNavigation
+
     // Logging
     implementation Libraries.timber
 

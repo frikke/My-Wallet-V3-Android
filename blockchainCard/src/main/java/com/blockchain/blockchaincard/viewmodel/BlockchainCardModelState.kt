@@ -6,6 +6,8 @@ sealed class BlockchainCardModelState : ModelState {
     object NotOrdered : BlockchainCardModelState()
     object OrderCard : BlockchainCardModelState()
     object LinkCard : BlockchainCardModelState()
-    data class Created(val card: String) : BlockchainCardModelState()
+    object CardCreationSuccess: BlockchainCardModelState()
+    object CardCreationFailed: BlockchainCardModelState()
+    data class Created(val cardId: String) : BlockchainCardModelState()
     object Unknown : BlockchainCardModelState()
 }

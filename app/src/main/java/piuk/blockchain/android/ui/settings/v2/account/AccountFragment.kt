@@ -124,9 +124,6 @@ class AccountFragment :
 
             settingsDebitCard.apply {
                 primaryText = getString(R.string.blockchain_debit_card)
-                onClick = {
-                    navigator().goToOrderCard()
-                }
             }
 
             settingsWalletConnect.apply {
@@ -198,21 +195,27 @@ class AccountFragment :
 
     private fun renderDebitCardInformation(blockchainCardState: BlockchainCardState) =
         when (blockchainCardState) {
-            BlockchainCardState.UNKNOWN -> {
+            is BlockchainCardState.Unknown -> {
                 binding.settingsDebitCard.secondaryText = ""
             }
-            BlockchainCardState.NOT_ELIGIBLE -> {
+            is BlockchainCardState.NotEligible -> {
                 binding.settingsDebitCard.secondaryText = getString(R.string.account_not_eligible)
             }
-            BlockchainCardState.ELIGIBLE -> {
+            is BlockchainCardState.Eligible -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
+                    onClick = {
+                        navigator().goToBlockchainDebitCard()
+                    }
                 }
             }
-            BlockchainCardState.ORDERED -> {
+            is BlockchainCardState.Ordered -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
+                    onClick = {
+                        navigator().goToBlockchainDebitCard(blockchainCardState.blockchainDebitCardId)
+                    }
                 }
             }
         }

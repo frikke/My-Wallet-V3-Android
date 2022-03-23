@@ -9,6 +9,7 @@ import com.blockchain.blockchaincard.ui.BlockchainCardModel
 import com.blockchain.blockchaincard.ui.navigation.BlockchainCardNavigator
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -77,7 +78,7 @@ val bcCardsApiModule = module {
         }
 
         viewModel {
-            BlockchainCardViewModel()
+            BlockchainCardViewModel(bcCardDataRepository = get())
         }
     }
 }

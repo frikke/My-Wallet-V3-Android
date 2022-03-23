@@ -1,7 +1,8 @@
 package com.blockchain.blockchaincard.data
 
-import com.blockchain.api.bccardapi.models.CardsResponse
-import com.blockchain.api.bccardapi.models.ProductsResponse
+
+import com.blockchain.blockchaincard.domain.CardsResponse
+import com.blockchain.blockchaincard.domain.ProductsResponse
 import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
@@ -13,7 +14,7 @@ class BcCardDataRepository(
     private val authenticator: Authenticator
 ) {
 
-    fun getProducts(): Single<List<BcCardProduct>> =
+    fun getProducts(): Single<List<BlockchainDebitCardProduct>> =
         authenticator.authenticate { tokenResponse ->
             bcCardService.getProducts(
                 tokenResponse.authHeader
@@ -24,7 +25,7 @@ class BcCardDataRepository(
             }
         }
 
-    fun getCards(): Single<List<BcCard>> =
+    fun getCards(): Single<List<BlockchainDebitCard>> =
         authenticator.authenticate { tokenResponse ->
             bcCardService.getCards(
                 tokenResponse.authHeader
@@ -34,10 +35,21 @@ class BcCardDataRepository(
                 }
             }
         }
+
+    fun createCard(productCode: String, ssn: String): Single<BlockchainDebitCard> =
+        authenticator.authenticate { tokenResponse ->
+            bcCardService.createCard(
+                authHeader = tokenResponse.authHeader,
+                productCode = productCode,
+                ssn = ssn
+            ).map { card ->
+                card.toDomainModel()
+            }
+        }
 }
 
-private fun ProductsResponse.toDomainModel(): BcCardProduct =
-    BcCardProduct(
+private fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =
+    BlockchainDebitCardProduct(
         productCode = productCode,
         price = FiatValue.fromMajor(
             fiatCurrency = FiatCurrency.fromCurrencyCode(price.symbol),
@@ -47,8 +59,8 @@ private fun ProductsResponse.toDomainModel(): BcCardProduct =
         type = BcCardType.valueOf(type)
     )
 
-private fun CardsResponse.toDomainModel(): BcCard =
-    BcCard(
+private fun CardsResponse.toDomainModel(): BlockchainDebitCard =
+    BlockchainDebitCard(
         cardId = cardId,
         type = BcCardType.valueOf(type),
         last4 = last4,
@@ -58,14 +70,14 @@ private fun CardsResponse.toDomainModel(): BcCard =
         createdAt = createdAt
     )
 
-data class BcCardProduct(
+data class BlockchainDebitCardProduct(
     val productCode: String,
     val price: FiatValue,
     val brand: BcCardBrand,
     val type: BcCardType
 )
 
-data class BcCard(
+data class BlockchainDebitCard(
     val cardId: String,
     val type: BcCardType,
     val last4: String,

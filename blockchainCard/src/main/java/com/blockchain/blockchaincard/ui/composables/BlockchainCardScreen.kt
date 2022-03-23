@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.ui.composables
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,17 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -41,7 +35,6 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.extensions.exhaustive
 
 @Composable
 fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
@@ -58,7 +51,7 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
         }
 
         is BlockchainCardViewState.OrderCard -> {
-            SelectCardForOrder()
+            // SelectCardForOrder()
         }
 
         is BlockchainCardViewState.LinkCard -> {
@@ -66,7 +59,7 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
         }
 
         is BlockchainCardViewState.ManageCard -> {
-            // TODO
+            ManageCard((state as BlockchainCardViewState.ManageCard).cardId) // TODO why cast here???
         }
     }
 }
@@ -77,8 +70,11 @@ fun BlockchainCardNavHost(
     viewModel: BlockchainCardViewModel,
 ) {
     // Set animations for entering and exiting a screen and setup the navigation routes
-    NavHost(
-        navController = navigator.navController,
+
+
+
+    MviNavHost(
+        navigator,
         startDestination = "blockchain_card"
     ) {
 
@@ -91,7 +87,16 @@ fun BlockchainCardNavHost(
         }
 
         composable("select_card_for_order") {
-            SelectCardForOrder()
+            SelectCardForOrder(
+                onCreateCard = {
+                    viewModel.onIntent(
+                        BlockchainCardIntent.CreateCard(
+                            productCode = "VIRTUAL1",
+                            ssn = "111111110"
+                        )
+                    )
+                }
+            )
         }
     }
 }
@@ -164,7 +169,7 @@ private fun PreviewOrderCardScreen() {
 }
 
 @Composable
-private fun SelectCardForOrder() {
+private fun SelectCardForOrder(onCreateCard: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -193,7 +198,7 @@ private fun SelectCardForOrder() {
 
         PrimaryButton(
             text = "Create Card",
-            onClick = { },
+            onClick = onCreateCard,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
@@ -207,8 +212,18 @@ private fun SelectCardForOrder() {
 private fun PreviewSelectCardForOrder() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            SelectCardForOrder()
+            SelectCardForOrder({})
         }
     }
+}
+
+@Composable
+private fun ManageCard(cardId: String) {
+    SimpleText(
+        text = "Card ID: $cardId",
+        style = ComposeTypographies.Title1,
+        color = ComposeColors.Title,
+        gravity = ComposeGravities.Centre
+    )
 }
 
