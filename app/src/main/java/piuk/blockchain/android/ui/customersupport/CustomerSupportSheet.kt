@@ -35,7 +35,7 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), Navigat
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        analytics.logEvent(CustomerSupportAnalytics.SheetShown)
+        analytics.logEvent(CustomerSupportAnalytics.SheetShown)
 
         setupViews()
         setupViewModel()
@@ -48,11 +48,11 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), Navigat
     private fun setupViews() {
         with(binding) {
             btnEmail.setOnClickListener {
-//                analytics.logEvent(CustomerSupportAnalytics.EmailClicked)
+                analytics.logEvent(CustomerSupportAnalytics.EmailClicked)
                 viewUrl(URL_CONTACT_SUBMIT_REQUEST)
             }
             btnFaq.setOnClickListener {
-//                analytics.logEvent(CustomerSupportAnalytics.FaqClicked)
+                analytics.logEvent(CustomerSupportAnalytics.FaqClicked)
                 viewUrl(URL_FAQ)
             }
         }

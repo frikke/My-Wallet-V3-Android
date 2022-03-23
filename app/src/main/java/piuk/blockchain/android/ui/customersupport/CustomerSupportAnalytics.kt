@@ -10,14 +10,14 @@ sealed class CustomerSupportAnalytics(
 ) : AnalyticsEvent {
 
     object SheetShown : CustomerSupportAnalytics(
-        event = AnalyticsNames.LOGIN_HELP_SHEET_SHOWN.eventName
+        event = AnalyticsNames.CUSTOMER_SUPPORT_SHEET_SHOWN.eventName
     )
 
     object EmailClicked : CustomerSupportAnalytics(
-        event = AnalyticsNames.LOGIN_HELP_EMAIL_CLICKED.eventName
+        event = AnalyticsNames.CUSTOMER_SUPPORT_EMAIL_CLICKED.eventName
     )
 
     object FaqClicked : CustomerSupportAnalytics(
-        event = AnalyticsNames.LOGIN_HELP_FAQ_CLICKED.eventName
+        event = AnalyticsNames.CUSTOMER_SUPPORT_FAQ_CLICKED.eventName
     )
 }
