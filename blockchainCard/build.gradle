@@ -50,5 +50,5 @@ dependencies {
     implementation Libraries.design
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations
-
+    implementation Libraries.accompanistNavigationMaterial
 }

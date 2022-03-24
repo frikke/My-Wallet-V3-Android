@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
@@ -33,22 +34,29 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
 
     private val navigator: BlockchainCardNavigationRouter by scopedInject()
 
-    private val cardId: String? by unsafeLazy {
-        arguments?.getString(BLOCKCHAIN_CARD_ID)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private val modelArgs: ModelConfigArgs by lazy {
+        arguments?.getString(BLOCKCHAIN_CARD_ID)?.let { cardId ->
+            BlockchainDebitCardArgs.CardArgs(cardId)
+        } ?: (arguments?.getParcelable(BLOCKCHAIN_PRODUCT) as? BlockchainDebitCardProduct)?.let { product ->
+            BlockchainDebitCardArgs.ProductArgs(product)
+        } ?: throw IllegalStateException("Missing card or product data")
     }
 
     companion object {
         private const val BLOCKCHAIN_CARD_ID = "BLOCKCHAIN_CARD_ID"
-            fun newInstance(blockchainDebitCardId: String? = null) =
+        private const val BLOCKCHAIN_PRODUCT = "BLOCKCHAIN_PRODUCT"
+
+        fun newInstance(blockchainDebitCardId: String) =
             BlockchainCardFragment().apply {
                 arguments = Bundle().apply {
-                    blockchainDebitCardId?.let {
-                        putString(BLOCKCHAIN_CARD_ID, blockchainDebitCardId)
-                    }
+                    putString(BLOCKCHAIN_CARD_ID, blockchainDebitCardId)
+                }
+            }
+
+        fun newInstance(blockchainDebitCardProduct: BlockchainDebitCardProduct) =
+            BlockchainCardFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(BLOCKCHAIN_PRODUCT, blockchainDebitCardProduct)
                 }
             }
 
@@ -62,19 +70,12 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        val args: ModelConfigArgs = cardId?.let { BlockchainDebitCardArgs(it) } ?: ModelConfigArgs.NoArgs
-
-        bindViewModel(viewModel, navigator, args) // TODO pass card info here
+        bindViewModel(viewModel, navigator, modelArgs)
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)

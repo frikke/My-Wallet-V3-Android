@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
@@ -31,10 +34,14 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.bottomSheet
 
 @Composable
 fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
@@ -64,15 +71,12 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun BlockchainCardNavHost(
     navigator: BlockchainCardNavigationRouter,
     viewModel: BlockchainCardViewModel,
 ) {
-    // Set animations for entering and exiting a screen and setup the navigation routes
-
-
-
     MviNavHost(
         navigator,
         startDestination = "blockchain_card"
@@ -95,7 +99,35 @@ fun BlockchainCardNavHost(
                             ssn = "111111110"
                         )
                     )
+                },
+                onSeeProductDetails = {
+                    viewModel.onIntent(
+                        BlockchainCardIntent.OnSeeProductDetails
+                    )
                 }
+            )
+        }
+
+        bottomSheet("product_details?" +
+            "brand={brand}&" +
+            "type={type}&" +
+            "price={price}",
+            arguments = listOf(
+                navArgument("brand") {
+                    type = NavType.StringType
+                },
+                navArgument("type") {
+                    type = NavType.StringType
+                },
+                navArgument("price") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            ProductDetails(
+                brand = backStackEntry.arguments?.getString("brand"),
+                type = backStackEntry.arguments?.getString("type"),
+                price = backStackEntry.arguments?.getString("price")
             )
         }
     }
@@ -169,7 +201,7 @@ private fun PreviewOrderCardScreen() {
 }
 
 @Composable
-private fun SelectCardForOrder(onCreateCard: () -> Unit) {
+private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -194,6 +226,15 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit) {
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
             )
+
+            AlertButton(
+                text = "See Card Details",
+                onClick = onSeeProductDetails,
+                state = ButtonState.Enabled,
+                modifier = Modifier
+                    .padding(0.dp, AppTheme.dimensions.xPaddingLarge)
+                    .wrapContentWidth()
+            )
         }
 
         PrimaryButton(
@@ -207,12 +248,45 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit) {
     }
 }
 
+@Composable
+private fun ProductDetails(brand: String? = "", type: String? = "", price: String? = "") {
+
+    Column() {
+        brand?.let {
+            SimpleText(
+                text = it,
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+        }
+
+        type?.let {
+            SimpleText(
+                text = it,
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+        }
+
+        price?.let {
+            SimpleText(
+                text = it,
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun PreviewSelectCardForOrder() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            SelectCardForOrder({})
+            SelectCardForOrder({}, {})
         }
     }
 }

@@ -110,7 +110,8 @@ object Versions {
     const val composeNavigation = "2.4.1"
 
     // Accompanist
-    const val systemUi = "0.20.2"
+    const val systemUi = "0.23.1"
+    const val navigationMaterial = "0.23.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -296,6 +297,7 @@ object Libraries {
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
+    const val accompanistNavigationMaterial = "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
 
     // Third Party SDKs

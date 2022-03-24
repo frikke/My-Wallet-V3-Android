@@ -8,8 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.plusAssign
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 
 interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
     var navController: NavHostController
@@ -22,6 +26,7 @@ interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
 */
 open class ComposeNavigationEvent(val name: String) : NavigationEvent
 
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun MviNavHost(
     navigationRouter: ComposeNavigationRouter,
@@ -30,12 +35,16 @@ fun MviNavHost(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
+    val bottomSheetNavigator = rememberBottomSheetNavigator()
     navigationRouter.navController = rememberNavController()
-    NavHost(
-        navigationRouter.navController,
-        remember(route, startDestination, builder) {
-            navigationRouter.navController.createGraph(startDestination, route, builder)
-        },
-        modifier
-    )
+    navigationRouter.navController.navigatorProvider += bottomSheetNavigator
+    ModalBottomSheetLayout(bottomSheetNavigator) {
+        NavHost(
+            navigationRouter.navController,
+            remember(route, startDestination, builder) {
+                navigationRouter.navController.createGraph(startDestination, route, builder)
+            },
+            modifier
+        )
+    }
 }

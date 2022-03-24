@@ -9,7 +9,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRo
 class BlockchainCardNavigationRouter : ComposeNavigationRouter {
 
     override fun route(navigationEvent: ComposeNavigationEvent) {
-        navController.navigate(navigationEvent.name)
+        var route = navigationEvent.name
+        if (navigationEvent is BlockchainCardNavigationEvent.OnSeeProductDetails) {
+            route = "$route?" +
+                "brand=${navigationEvent.cardProduct.brand}&" +
+                "type=${navigationEvent.cardProduct.type}&" +
+                "price=${navigationEvent.cardProduct.price.toStringWithSymbol()}"
+        }
+        navController.navigate(route)
     }
 
     override lateinit var navController: NavHostController

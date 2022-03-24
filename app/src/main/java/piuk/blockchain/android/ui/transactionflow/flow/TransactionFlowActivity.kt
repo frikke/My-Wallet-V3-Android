@@ -116,7 +116,7 @@ class TransactionFlowActivity :
         startModel()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_tx_flow, menu)
         return super.onCreateOptionsMenu(menu)
     }

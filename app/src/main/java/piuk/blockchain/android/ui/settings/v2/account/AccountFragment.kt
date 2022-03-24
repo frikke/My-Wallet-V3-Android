@@ -206,7 +206,7 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToBlockchainDebitCard()
+                        navigator().goToOrderBlockchainDebitCard(blockchainCardState.cardProducts.first())
                     }
                 }
             }
@@ -214,7 +214,7 @@ class AccountFragment :
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                     onClick = {
-                        navigator().goToBlockchainDebitCard(blockchainCardState.blockchainDebitCardId)
+                        navigator().goToManageBlockchainDebitCard(blockchainCardState.blockchainDebitCardId)
                     }
                 }
             }

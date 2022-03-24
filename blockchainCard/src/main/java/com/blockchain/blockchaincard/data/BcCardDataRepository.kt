@@ -1,12 +1,14 @@
 package com.blockchain.blockchaincard.data
 
 
+import android.os.Parcelable
 import com.blockchain.blockchaincard.domain.CardsResponse
 import com.blockchain.blockchaincard.domain.ProductsResponse
 import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
 class BcCardDataRepository(
@@ -70,12 +72,13 @@ private fun CardsResponse.toDomainModel(): BlockchainDebitCard =
         createdAt = createdAt
     )
 
+@Parcelize
 data class BlockchainDebitCardProduct(
     val productCode: String,
     val price: FiatValue,
     val brand: BcCardBrand,
     val type: BcCardType
-)
+) : Parcelable
 
 data class BlockchainDebitCard(
     val cardId: String,

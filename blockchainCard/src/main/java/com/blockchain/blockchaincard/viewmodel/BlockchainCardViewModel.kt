@@ -1,14 +1,21 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import com.blockchain.blockchaincard.data.BcCardDataRepository
+import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
-data class BlockchainDebitCardArgs(val cardId: String) : ModelConfigArgs.ParcelableArgs
+
+sealed class BlockchainDebitCardArgs : ModelConfigArgs.ParcelableArgs {
+    @Parcelize
+    data class CardArgs(val cardId: String) : ModelConfigArgs.ParcelableArgs
+
+    @Parcelize
+    data class ProductArgs(val product: BlockchainDebitCardProduct) : ModelConfigArgs.ParcelableArgs
+}
 
 class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataRepository) :
     MviViewModel<
@@ -20,11 +27,12 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
 
     override fun viewCreated(args: ModelConfigArgs) {
         when (args) {
-            is ModelConfigArgs.NoArgs -> {
-                updateState { BlockchainCardModelState.NotOrdered }
-            }
-            is BlockchainDebitCardArgs -> {
+            is BlockchainDebitCardArgs.CardArgs -> {
                 updateState { BlockchainCardModelState.Created(args.cardId)}
+            }
+
+            is BlockchainDebitCardArgs.ProductArgs -> {
+                updateState { BlockchainCardModelState.NotOrdered(args.product) }
             }
         }
     }
@@ -59,6 +67,11 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
         when (intent) {
             is BlockchainCardIntent.OrderCard -> {
                 navigate(BlockchainCardNavigationEvent.SelectCardForOrder)
+            }
+
+            is BlockchainCardIntent.OnSeeProductDetails -> {
+                if (modelState is BlockchainCardModelState.NotOrdered)
+                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(modelState.product))
             }
 
             is BlockchainCardIntent.CreateCard -> {

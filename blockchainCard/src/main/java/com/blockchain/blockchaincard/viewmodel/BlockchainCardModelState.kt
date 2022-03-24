@@ -1,9 +1,10 @@
 package com.blockchain.blockchaincard.viewmodel
 
+import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 
 sealed class BlockchainCardModelState : ModelState {
-    object NotOrdered : BlockchainCardModelState()
+    data class NotOrdered(val product: BlockchainDebitCardProduct) : BlockchainCardModelState()
     object OrderCard : BlockchainCardModelState()
     object LinkCard : BlockchainCardModelState()
     object CardCreationSuccess: BlockchainCardModelState()
