@@ -29,7 +29,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -43,6 +42,7 @@ import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -53,6 +53,7 @@ import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
+import piuk.blockchain.android.databinding.DialogEntitySwitchSilverBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -68,6 +69,7 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -111,7 +113,8 @@ class MainActivity :
     SmallSimpleBuyNavigator,
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
-    UiTourView.Host {
+    UiTourView.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -133,7 +136,6 @@ class MainActivity :
 
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
-    private val uiTourFF: FeatureFlag by scopedInject(uiTourFeatureFlag)
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -177,15 +179,7 @@ class MainActivity :
         }
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
-        if (startUiTour) {
-            intent.removeExtra(START_UI_TOUR_KEY)
-            compositeDisposable += uiTourFF.enabled.onErrorReturnItem(false)
-                .filter { enabled -> enabled }
-                .subscribeBy {
-                    binding.uiTour.host = this
-                    showUiTour()
-                }
-        }
+        intent.removeExtra(START_UI_TOUR_KEY)
 
         if (intent.hasExtra(SHOW_SWAP) &&
             intent.getBooleanExtra(SHOW_SWAP, false)
@@ -207,6 +201,7 @@ class MainActivity :
                 )
             }
         }
+        model.process(MainIntent.CheckForInitialDialogs(startUiTour))
         model.process(MainIntent.PerformInitialChecks)
     }
 
@@ -602,6 +597,28 @@ class MainActivity :
             is ViewToLaunch.LaunchWalletConnectSessionRejected -> launchWalletConnectSessionRejected(
                 view.walletConnectSession
             )
+            ViewToLaunch.ShowEntitySwitchSilverKycUpsell -> {
+                var alertDialog: AlertDialog? = null
+                val dialog = MaterialAlertDialogBuilder(this, R.style.RoundedCornersDialog)
+                val contentViewBinding = DialogEntitySwitchSilverBinding.inflate(layoutInflater).apply {
+                    closeButton.setOnClickListener {
+                        alertDialog?.dismiss()
+                        alertDialog = null
+                    }
+                    verifyNowButton.text = getString(R.string.entity_switch_silver_dialog_verify_now)
+                    verifyNowButton.setOnClickListener {
+                        alertDialog?.dismiss()
+                        alertDialog = null
+                        showBottomSheet(KycUpgradeNowSheet.newInstance())
+                    }
+                }
+                dialog.setView(contentViewBinding.root)
+                alertDialog = dialog.show()
+            }
+            ViewToLaunch.ShowUiTour -> {
+                binding.uiTour.host = this
+                showUiTour()
+            }
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch
@@ -684,6 +701,10 @@ class MainActivity :
 
     override fun dismiss() {
         hideUiTour()
+    }
+
+    override fun startKycClicked() {
+        launchKyc(CampaignType.None)
     }
 
     private fun showUiTour() {

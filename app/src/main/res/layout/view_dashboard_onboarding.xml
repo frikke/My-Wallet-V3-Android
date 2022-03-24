@@ -38,34 +38,39 @@
         <TextView
             android:id="@+id/complete_yo"
             style="@style/Text.Light.12"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/tiny_margin"
             android:layout_marginBottom="2dp"
+            android:layout_marginEnd="@dimen/standard_margin"
             android:lineSpacingExtra="1sp"
             android:text="@string/dashboard_onboarding_card_title"
             app:layout_constraintBottom_toTopOf="@+id/some_id"
             app:layout_constraintStart_toEndOf="@id/progress_steps"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/indicator"
             app:layout_constraintVertical_chainStyle="packed"
             />
 
         <TextView
             android:id="@+id/some_id"
             style="@style/Text.Semibold.14"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/tiny_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
             android:layout_marginTop="2dp"
             android:lineSpacingExtra="3sp"
             android:text="@string/dashboard_onboarding_subtitle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/progress_steps"
             app:layout_constraintTop_toBottomOf="@+id/complete_yo"
+            app:layout_constraintEnd_toStartOf="@+id/indicator"
             app:layout_constraintVertical_chainStyle="packed"
             />
 
         <ImageView
+            android:id="@+id/indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:tint="@color/blue_600"

@@ -4,6 +4,7 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
 import java.math.BigInteger
 
+@Deprecated("Use [BigIntSerializer] instead.")
 class BigIntegerAdapter {
 
     @FromJson

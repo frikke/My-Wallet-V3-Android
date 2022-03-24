@@ -1,5 +1,6 @@
 package com.blockchain.api.adapters
 
+import com.blockchain.api.HttpStatus
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.outcome.Outcome
@@ -58,6 +59,7 @@ class OutcomeCall<R>(
             !isSuccessful -> Outcome.Failure(this.toApiError())
             // Http success response with body
             body != null -> Outcome.Success(body)
+            code() == HttpStatus.NO_CONTENT -> Outcome.Success(null as R)
             // if we defined Unit as success type it means we expected no response body
             // e.g. in case of 204 No Content
             successType == Unit::class.java ->

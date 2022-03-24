@@ -2,7 +2,6 @@ package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.api.serializers.StringMapSerializer
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
@@ -50,6 +49,7 @@ import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency

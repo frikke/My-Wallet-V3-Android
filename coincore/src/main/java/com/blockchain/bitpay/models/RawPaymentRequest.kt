@@ -1,7 +1,10 @@
 package com.blockchain.bitpay.models
 
 import java.math.BigInteger
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RawPaymentRequest(
     val instructions: List<BitPaymentInstructions>,
     val memo: String,
@@ -9,11 +12,13 @@ data class RawPaymentRequest(
     val paymentUrl: String
 )
 
+@Serializable
 data class BitPaymentInstructions(
     val outputs: List<BitPayPaymentRequestOutput>
 )
 
+@Serializable
 data class BitPayPaymentRequestOutput(
-    val amount: BigInteger,
+    val amount: @Contextual BigInteger,
     val address: String
 )

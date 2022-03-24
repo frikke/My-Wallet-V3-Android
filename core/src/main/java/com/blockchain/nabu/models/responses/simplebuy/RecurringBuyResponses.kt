@@ -10,8 +10,10 @@ import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Money
 import java.util.Date
+import kotlinx.serialization.Serializable
 
 // TODO(dserrano-bc): remove this in favour of the one defined in the blockchainApi module
+@Serializable
 data class RecurringBuyResponse(
     val id: String,
     val userId: String,
@@ -19,7 +21,7 @@ data class RecurringBuyResponse(
     val inputValue: String,
     val destinationCurrency: String,
     val paymentMethod: String,
-    val paymentMethodId: String?,
+    val paymentMethodId: String? = null,
     val period: String,
     val nextPayment: String,
     val state: String,

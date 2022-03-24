@@ -180,6 +180,13 @@ class PrefsUtil(
 
     override fun getDynamicOneTimeTokenUrl(): String = getValue(KEY_ONE_TIME_TOKEN_PATH, "")
 
+    override val isRemoteConfigStale: Boolean
+        get() = getValue(CONFIG_STALE, false)
+
+    override fun updateRemoteConfigStaleStatus(isStale: Boolean) {
+        setValue(CONFIG_STALE, isStale)
+    }
+
     override var installationVersionName: String
         get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
         set(value) {
@@ -434,6 +441,10 @@ class PrefsUtil(
         get() = getValue(KEY_IS_LANDING_CTA_DISMISSED, false)
         set(value) = setValue(KEY_IS_LANDING_CTA_DISMISSED, value)
 
+    override var isEntitySwitchSilverKycUpsellDismissed: Boolean
+        get() = getValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, false)
+        set(value) = setValue(KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED, value)
+
     override fun clearSessionId() = removeValue(SESSION_ID)
 
     override fun removePinID() {
@@ -650,6 +661,8 @@ class PrefsUtil(
 
         // Onboarding
         private const val KEY_IS_LANDING_CTA_DISMISSED = "KEY_IS_LANDING_PAGE_DISMISSED"
+        private const val KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED =
+            "KEY_IS_ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED"
 
         // Auth prefs
         // NOTE: for historical purposes, should be used as the cryptography cipher key
@@ -661,6 +674,8 @@ class PrefsUtil(
         private const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
         private const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
+
+        private const val CONFIG_STALE = "CONFIG_STALE"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
     }

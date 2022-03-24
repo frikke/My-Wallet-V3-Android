@@ -24,7 +24,8 @@ fun BottomSheetHostLayout(
     stateFlow: ModalBottomSheetValue,
     onBackAction: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(stateFlow),
-    sheetContent: @Composable ColumnScope.() -> Unit
+    sheetContent: @Composable ColumnScope.() -> Unit,
+    onCollapse: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -58,5 +59,18 @@ fun BottomSheetHostLayout(
         sheetContent = sheetContent
     ) {
         content()
+
+        // detect collapse
+        val collapseFraction = modalBottomSheetState.progress.fraction
+        val targetValue = modalBottomSheetState.targetValue
+        val currentValue = modalBottomSheetState.currentValue
+
+        if (currentValue == ModalBottomSheetValue.Expanded &&
+            targetValue == ModalBottomSheetValue.Hidden &&
+            collapseFraction < 1.0 &&
+            collapseFraction > 0.9F
+        ) {
+            onCollapse()
+        }
     }
 }

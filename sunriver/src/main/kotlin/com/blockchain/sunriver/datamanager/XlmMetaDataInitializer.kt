@@ -9,7 +9,10 @@ import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
+@OptIn(InternalSerializationApi::class)
 internal class XlmMetaDataInitializer(
     private val defaultLabels: DefaultLabels,
     private val repository: MetadataRepository,
@@ -37,7 +40,7 @@ internal class XlmMetaDataInitializer(
     }
 
     private val load: Maybe<XlmMetaData> = Maybe.defer {
-        repository.loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java)
+        repository.loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java)
             .ignoreBadMetadata()
             .compareForLog()
     }.maybeCache()
@@ -86,6 +89,7 @@ internal class XlmMetaDataInitializer(
             repository.saveMetadata(
                 newData,
                 XlmMetaData::class.java,
+                XlmMetaData::class.serializer(),
                 XlmMetaData.MetaDataType
             ).andThen(Maybe.just(newData))
         }

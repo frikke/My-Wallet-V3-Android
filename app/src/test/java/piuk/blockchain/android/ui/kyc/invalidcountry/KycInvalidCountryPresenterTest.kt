@@ -95,6 +95,7 @@ class KycInvalidCountryPresenterTest {
             metadataRepo.saveMetadata(
                 any(),
                 eq(NabuCredentialsMetadata::class.java),
+                any(),
                 eq(NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE)
             )
         ).thenReturn(Completable.complete())

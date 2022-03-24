@@ -1,7 +1,7 @@
 @file:UseSerializers(BigIntSerializer::class)
 package com.blockchain.api.payments.data
 
-import com.blockchain.api.serializers.BigIntSerializer
+import com.blockchain.serializers.BigIntSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

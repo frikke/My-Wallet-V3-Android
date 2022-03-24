@@ -15,9 +15,12 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
+@OptIn(InternalSerializationApi::class)
 class MetadataRepositoryNabuTokenAdapterTest {
 
     @Test
@@ -103,6 +106,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         verify(metadataRepository).saveMetadata(
             data,
             NabuCredentialsMetadata::class.java,
+            NabuCredentialsMetadata::class.serializer(),
             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
         )
     }
@@ -136,6 +140,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         verify(metadataRepository).saveMetadata(
             data,
             NabuCredentialsMetadata::class.java,
+            NabuCredentialsMetadata::class.serializer(),
             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
         )
     }
@@ -222,32 +227,38 @@ class MetadataRepositoryNabuTokenAdapterTest {
 private fun givenMetadata(metaData: Maybe<NabuCredentialsMetadata>): MetadataRepository =
     mock<MetadataRepository>().givenMetaData(metaData)
 
+@OptIn(InternalSerializationApi::class)
 private fun MetadataRepository.givenMetaData(
     metadata: Maybe<NabuCredentialsMetadata>?
 ): MetadataRepository {
     whenever(
         loadMetadata(
             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+            NabuCredentialsMetadata::class.serializer(),
             NabuCredentialsMetadata::class.java
         )
     ).thenReturn(metadata)
     return this
 }
 
+@OptIn(InternalSerializationApi::class)
 private fun MetadataRepository.expectSave(data: NabuCredentialsMetadata): MetadataRepository {
     whenever(
         saveMetadata(
             data,
             NabuCredentialsMetadata::class.java,
+            NabuCredentialsMetadata::class.serializer(),
             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
         )
     ).thenReturn(Completable.complete())
     return this
 }
 
+@OptIn(InternalSerializationApi::class)
 private fun MetadataRepository.verifyJustLoadCalledNTimes(n: Int) {
     verify(this, times(n)).loadMetadata(
         NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+        NabuCredentialsMetadata::class.serializer(),
         NabuCredentialsMetadata::class.java
     )
     verifyNoMoreInteractions(this)

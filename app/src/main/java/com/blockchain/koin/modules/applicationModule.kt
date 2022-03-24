@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -329,7 +330,8 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 moshi = get(),
-                analytics = get()
+                json = get(),
+                disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
             )
         }
 
@@ -833,7 +835,11 @@ val applicationModule = module {
     }
 
     factory {
-        FirebaseMobileNoticeRemoteConfig(remoteConfig = get())
+        FirebaseMobileNoticeRemoteConfig(
+            remoteConfig = get(),
+            json = get(),
+            disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
+        )
     }.bind(MobileNoticeRemoteConfig::class)
 
     factory {

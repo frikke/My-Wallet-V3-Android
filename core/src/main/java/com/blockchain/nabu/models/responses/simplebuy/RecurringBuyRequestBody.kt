@@ -1,5 +1,8 @@
 package com.blockchain.nabu.models.responses.simplebuy
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class RecurringBuyRequestBody(
     private val inputValue: String,
     private val inputCurrency: String,

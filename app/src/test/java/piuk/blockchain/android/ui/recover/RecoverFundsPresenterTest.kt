@@ -1,11 +1,14 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import info.blockchain.wallet.metadata.MetadataInteractor
+import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,6 +35,14 @@ class RecoverFundsPresenterTest {
     private val moshi: Moshi = mock {
         on { adapter(WalletCredentialsMetadata::class.java) }.doReturn(moshiAdapter)
     }
+    private val disableMoshiFeatureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+    private val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
 
     private var subject: RecoverFundsPresenter = RecoverFundsPresenter(
         payloadDataManager = payloadDataManager,
@@ -39,7 +50,8 @@ class RecoverFundsPresenterTest {
         metadataInteractor = metadataInteractor,
         metadataDerivation = mock(),
         moshi = moshi,
-        analytics = mock()
+        json = json,
+        disableMoshiFeatureFlag = disableMoshiFeatureFlag
     )
 
     private val view: RecoverFundsView = mock()

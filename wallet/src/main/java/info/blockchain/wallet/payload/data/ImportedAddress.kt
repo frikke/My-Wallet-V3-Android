@@ -79,7 +79,7 @@ data class ImportedAddress(
         privateKey = Base58.encode(privKeyBytes)
     }
 
-    fun toJson(): String {
+    fun toJsonString(): String {
         return ObjectMapper().writeValueAsString(this)
     }
 

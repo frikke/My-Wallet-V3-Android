@@ -1,5 +1,8 @@
 package com.blockchain.nabu.models.responses.tokenresponse
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class NabuSessionTokenResponse(
     val id: String,
     val userId: String,
@@ -7,7 +10,7 @@ data class NabuSessionTokenResponse(
     val isActive: Boolean,
     val expiresAt: String,
     val insertedAt: String,
-    val updatedAt: String
+    val updatedAt: String? = ""
 ) {
     val authHeader
         get() = "Bearer $token"

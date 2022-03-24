@@ -100,6 +100,15 @@
         <item name="android:background">@drawable/bkgd_dialog_rounder_corners</item>
     </style>
 
+    <style name="RoundedCornersDialog" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Dialog.Rounded</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.Dialog.Rounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
     <style name="PasswordChangeDialogEditText">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">70</item>

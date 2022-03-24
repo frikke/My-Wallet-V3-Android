@@ -4,11 +4,14 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
 import java.util.Date
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Serializable
 data class SimpleBuyPairsResp(val pairs: List<SimpleBuyPairResp>)
 
+@Serializable
 data class SimpleBuyPairResp(
     val pair: String,
     val buyMin: Long,
@@ -17,6 +20,7 @@ data class SimpleBuyPairResp(
     val sellMax: Long
 )
 
+@Serializable
 data class SimpleBuyEligibility(
     val eligible: Boolean,
     val simpleBuyTradingEligible: Boolean,
@@ -24,10 +28,12 @@ data class SimpleBuyEligibility(
     val maxPendingDepositSimpleBuyTrades: Int
 )
 
+@Serializable
 data class SimpleBuyCurrency(val currency: String)
 
+@Serializable
 data class SimpleBuyQuoteResponse(
-    val time: Date,
+    val time: @Contextual Date,
     val rate: Long,
     val rateWithoutFee: Long,
     /* the  fee value is more of a feeRate (ie it is the fee per 1 unit of crypto) to get the actual
@@ -36,51 +42,62 @@ data class SimpleBuyQuoteResponse(
     val fee: Long
 )
 
-data class BankAccountResponse(val address: String?, val agent: BankAgentResponse, val currency: String)
-
-data class BankAgentResponse(
-    val account: String?,
-    val address: String?,
-    val code: String?,
-    val country: String?,
-    val name: String?,
-    val recipient: String?,
-    val routingNumber: String?,
-    val recipientAddress: String?,
-    val accountType: String?,
-    val swiftCode: String?
+@Serializable
+data class BankAccountResponse(
+    val address: String? = null,
+    val agent: BankAgentResponse,
+    val currency: String
 )
 
+@Serializable
+data class BankAgentResponse(
+    val account: String? = null,
+    val address: String? = null,
+    val code: String? = null,
+    val country: String? = null,
+    val name: String? = null,
+    val recipient: String? = null,
+    val routingNumber: String? = null,
+    val recipientAddress: String? = null,
+    val accountType: String? = null,
+    val swiftCode: String? = null
+)
+
+@Serializable
 data class TransferFundsResponse(
     val id: String,
-    val code: Long? // Only present in error responses
+    val code: Long? = null // Only present in error responses
 ) {
     companion object {
         const val ERROR_WITHDRAWL_LOCKED = 152L
     }
 }
 
+@Serializable
 data class FeesResponse(
     val fees: List<CurrencyFeeResponse>,
     val minAmounts: List<CurrencyFeeResponse>
 )
 
+@Serializable
 data class CurrencyFeeResponse(
     val symbol: String,
     val minorValue: String
 )
 
+@Serializable
 data class CustodialWalletOrder(
-    private val quoteId: String?,
+    private val quoteId: String? = null,
     private val pair: String,
     private val action: String,
     private val input: OrderInput,
     private val output: OrderOutput,
     private val paymentMethodId: String? = null,
     private val paymentType: String? = null,
-    private val period: String?
+    private val period: String? = null
 )
 
+@Serializable
 data class BuySellOrderResponse(
     val id: String,
     val pair: String,
@@ -88,21 +105,21 @@ data class BuySellOrderResponse(
     val inputQuantity: String,
     val outputCurrency: String,
     val outputQuantity: String,
-    val paymentMethodId: String?,
+    val paymentMethodId: String? = null,
     val paymentType: String,
     val state: String,
     val insertedAt: String,
-    val price: String?,
-    val fee: String?,
-    val attributes: PaymentAttributesResponse?,
+    val price: String? = null,
+    val fee: String? = null,
+    val attributes: PaymentAttributesResponse? = null,
     val expiresAt: String,
     val updatedAt: String,
     val side: String,
-    val depositPaymentId: String?,
-    val processingErrorType: String?,
-    val recurringBuyId: String?,
-    val failureReason: String?,
-    val paymentError: String?
+    val depositPaymentId: String? = null,
+    val processingErrorType: String? = null,
+    val recurringBuyId: String? = null,
+    val failureReason: String? = null,
+    val paymentError: String? = null
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -132,12 +149,14 @@ data class BuySellOrderResponse(
     }
 }
 
+@Serializable
 data class TransferRequest(
     val address: String,
     val currency: String,
     val amount: String
 )
 
+@Serializable
 class ProductTransferRequestBody(
     val currency: String,
     val amount: String,
@@ -145,11 +164,12 @@ class ProductTransferRequestBody(
     val destination: String
 )
 
+@Serializable
 data class PaymentAttributesResponse(
-    val everypay: EverypayPaymentAttributesResponse?,
-    val authorisationUrl: String?,
-    val status: String?,
-    val cardProvider: CardProviderPaymentAttributesResponse?
+    val everypay: EverypayPaymentAttributesResponse? = null,
+    val authorisationUrl: String? = null,
+    val status: String? = null,
+    val cardProvider: CardProviderPaymentAttributesResponse? = null
 )
 
 @Serializable
@@ -171,33 +191,38 @@ enum class PaymentStateResponse {
 }
 
 // cardAcquirerName and cardAcquirerAccountCode are mandatory
+@Serializable
 data class CardProviderPaymentAttributesResponse(
     val cardAcquirerName: String,
     val cardAcquirerAccountCode: String,
     val paymentLink: String?,
-    val paymentState: PaymentStateResponse?,
-    val clientSecret: String?,
-    val publishableApiKey: String?
+    val paymentState: PaymentStateResponse? = null,
+    val clientSecret: String? = null,
+    val publishableApiKey: String? = null
 )
 
+@Serializable
 data class EverypayPaymentAttributesResponse(
     val paymentLink: String,
-    val paymentState: PaymentStateResponse?
+    val paymentState: PaymentStateResponse? = null
 )
 
+@Serializable
 data class ConfirmOrderRequestBody(
     private val action: String = "confirm",
-    private val paymentMethodId: String?,
-    private val attributes: SimpleBuyConfirmationAttributes?,
-    private val paymentType: String?
+    private val paymentMethodId: String? = null,
+    private val attributes: SimpleBuyConfirmationAttributes? = null,
+    private val paymentType: String? = null
 )
 
+@Serializable
 data class WithdrawRequestBody(
     private val beneficiary: String,
     private val currency: String,
     private val amount: String
 )
 
+@Serializable
 data class DepositRequestBody(
     private val currency: String,
     private val depositAddress: String,
@@ -206,35 +231,40 @@ data class DepositRequestBody(
     private val product: String
 )
 
+@Serializable
 data class WithdrawLocksCheckRequestBody(
     private val paymentMethod: String,
     private val currency: String
 )
 
+@Serializable
 data class WithdrawLocksCheckResponse(
-    val rule: WithdrawLocksRuleResponse?
+    val rule: WithdrawLocksRuleResponse? = null
 )
 
+@Serializable
 data class WithdrawLocksRuleResponse(
     val lockTime: String
 )
 
+@Serializable
 data class TransactionsResponse(
     val items: List<TransactionResponse>
 )
 
+@Serializable
 data class TransactionResponse(
     val id: String,
     val amount: AmountResponse,
     val amountMinor: String,
-    val feeMinor: String?,
+    val feeMinor: String? = null,
     val insertedAt: String,
     val type: String,
     val state: String,
     val beneficiaryId: String? = null,
     val error: String? = null,
-    val extraAttributes: TransactionAttributesResponse?,
-    val txHash: String?
+    val extraAttributes: TransactionAttributesResponse? = null,
+    val txHash: String? = null
 ) {
     companion object {
         const val COMPLETE = "COMPLETE"
@@ -259,14 +289,17 @@ data class TransactionResponse(
     }
 }
 
+@Serializable
 data class TransactionAttributesResponse(
-    val beneficiary: TransactionBeneficiaryResponse?
+    val beneficiary: TransactionBeneficiaryResponse? = null
 )
 
+@Serializable
 data class TransactionBeneficiaryResponse(
-    val accountRef: String?
+    val accountRef: String? = null
 )
 
+@Serializable
 data class AmountResponse(
     val symbol: String
 )

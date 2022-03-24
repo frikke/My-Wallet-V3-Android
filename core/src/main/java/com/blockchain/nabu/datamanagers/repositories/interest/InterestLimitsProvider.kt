@@ -26,7 +26,7 @@ class InterestLimitsProviderImpl(
             nabuService.getInterestLimits(it, currencyPrefs.selectedFiatCurrency.networkTicker)
                 .map { responseBody ->
                     InterestLimitsList(
-                        responseBody.limits.assetMap.entries.mapNotNull { entry ->
+                        responseBody.limits.entries.mapNotNull { entry ->
                             assetCatalogue.assetInfoFromNetworkTicker(entry.key)?.let { crypto ->
 
                                 val minDepositFiatValue = Money.fromMinor(
