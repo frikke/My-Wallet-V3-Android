@@ -35,6 +35,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -63,6 +64,7 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.FragmentPinEntryBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity.Companion.KEY_ORIGIN_SETTINGS
 import piuk.blockchain.android.ui.base.BaseFragment
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.PinEntryKeypad
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
@@ -81,6 +83,8 @@ class PinEntryFragment :
     BaseFragment<PinEntryView, PinEntryPresenter>(),
     PinEntryView,
     BiometricsEnrollmentBottomSheet.Host {
+
+    val analytics: Analytics by inject()
 
     private var _binding: FragmentPinEntryBinding? = null
     private val binding: FragmentPinEntryBinding
@@ -167,7 +171,8 @@ class PinEntryFragment :
             presenter.resetApp()
         }
         binding.customerSupport.setOnClickListener {
-            (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
+            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+            showCustomerSupportSheet()
         }
         compositeDisposable += customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> binding.customerSupport.visibleIf { enabled } }
     }
@@ -767,6 +772,10 @@ class PinEntryFragment :
 
     override fun closePinChangeScreen() {
         activity?.finish()
+    }
+
+    private fun showCustomerSupportSheet() {
+        (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     override fun createPresenter(): PinEntryPresenter = pinEntryPresenter

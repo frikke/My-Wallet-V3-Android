@@ -9,6 +9,10 @@ sealed class CustomerSupportAnalytics(
     override val params: Map<String, Serializable> = emptyMap()
 ) : AnalyticsEvent {
 
+    object CustomerSupportClicked : CustomerSupportAnalytics(
+        event = AnalyticsNames.CUSTOMER_SUPPORT_CLICKED.eventName
+    )
+
     object SheetShown : CustomerSupportAnalytics(
         event = AnalyticsNames.CUSTOMER_SUPPORT_SHEET_SHOWN.eventName
     )

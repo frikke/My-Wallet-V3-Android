@@ -11,27 +11,35 @@ import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
 import piuk.blockchain.android.ui.auth.PinEntryActivity
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.login.LoginAnalytics
@@ -51,6 +59,7 @@ import piuk.blockchain.android.util.clearErrorState
 import piuk.blockchain.android.util.setErrorState
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicBoolean
 
 class LoginAuthActivity :
     MviActivity<LoginAuthModel, LoginAuthIntents, LoginAuthState, ActivityLoginAuthBinding>(),
@@ -67,6 +76,9 @@ class LoginAuthActivity :
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
+
+    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private var showCustomerSupportJob: Job? = null
 
     private lateinit var currentState: LoginAuthState
 
@@ -104,10 +116,7 @@ class LoginAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
-            backAction = { clearKeyboardAndFinish() }
-        )
+        setupToolbar()
         initControls()
     }
 
@@ -198,6 +207,26 @@ class LoginAuthActivity :
 
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
 
+    private fun setupToolbar() {
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
+            backAction = { clearKeyboardAndFinish() }
+        )
+
+        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (enabled) {
+                updateToolbarMenuItems(
+                    listOf(
+                        NavigationBarButton.Icon(R.drawable.ic_question) {
+                            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                            showCustomerSupportSheet()
+                        }
+                    )
+                )
+            }
+        }
+    }
+
     override fun render(newState: LoginAuthState) {
         renderAuthStatus(newState)
         updateLoginData(newState)
@@ -219,7 +248,10 @@ class LoginAuthActivity :
             AuthStatus.GetPayload -> binding.progressBar.gone()
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
-            AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
+            AuthStatus.UpdateMobileSetup -> {
+                binding.progressBar.visible()
+                startShowCustomerSupportJob()
+            }
             AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
             AuthStatus.Complete -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
@@ -245,6 +277,7 @@ class LoginAuthActivity :
             AuthStatus.InvalidPassword -> {
                 analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
+                cancelShowCustomerSupportJob()
                 binding.passwordTextLayout.setErrorState(getString(R.string.invalid_password))
             }
             AuthStatus.AuthFailed -> {
@@ -256,6 +289,7 @@ class LoginAuthActivity :
             AuthStatus.Invalid2FACode -> {
                 analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
+                cancelShowCustomerSupportJob()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
             AuthStatus.ShowManualPairing -> {
@@ -481,6 +515,24 @@ class LoginAuthActivity :
         startActivity(intent)
     }
 
+    private fun showCustomerSupportSheet() {
+        showBottomSheet(CustomerSupportSheet.newInstance())
+    }
+
+    private fun startShowCustomerSupportJob() {
+        if (showCustomerSupportJob == null) {
+            showCustomerSupportJob = lifecycleScope.launch {
+                delay(SHOW_CUSTOMER_SUPPORT_DELAY_MS)
+                showCustomerSupportSheet()
+            }
+        }
+    }
+
+    private fun cancelShowCustomerSupportJob() {
+        showCustomerSupportJob?.cancel()
+        showCustomerSupportJob = null
+    }
+
     companion object {
         fun newInstance(
             context: Activity,
@@ -502,5 +554,10 @@ class LoginAuthActivity :
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
         private const val UNIFICATION_WALLET_URL = "${BuildConfig.WEB_WALLET_URL}?product=wallet&platform=android"
+
+        /**
+         * if the login is taking more than 10 seconds -> show support sheet
+         */
+        private const val SHOW_CUSTOMER_SUPPORT_DELAY_MS = 10 * 1000L
     }
 }

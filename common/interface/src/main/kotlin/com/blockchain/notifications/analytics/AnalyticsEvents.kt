@@ -232,6 +232,7 @@ enum class AnalyticsNames(val eventName: String) {
     COINVIEW_REMOVED_FROM_WATCHLIST("Coin Removed From Watchlist"),
     COINVIEW_ADDED_WATCHLIST("Coin Added To Watchlist"),
     COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked"),
+    CUSTOMER_SUPPORT_CLICKED("Question Mark Clicked"),
     CUSTOMER_SUPPORT_SHEET_SHOWN("Customer Support Widget Viewed"),
     CUSTOMER_SUPPORT_EMAIL_CLICKED("Email Us Clicked"),
     CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked");

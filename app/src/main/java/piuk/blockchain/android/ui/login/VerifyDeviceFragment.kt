@@ -17,8 +17,9 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.remoteconfig.FeatureFlag
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import java.util.concurrent.atomic.AtomicBoolean
 
 class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentVerifyDeviceBinding>() {
@@ -64,9 +65,11 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
                 model.process(LoginIntents.RevertToEmailInput)
             }
             customerSupport.setOnClickListener {
-                (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
+                analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                showCustomerSupportSheet()
             }
-            customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupportSheetFF.enabled.onErrorReturn { false }
+                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)
             openEmailButton.setOnClickListener {
                 Intent(Intent.ACTION_MAIN).apply {
@@ -110,6 +113,10 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
         if (isTimerRunning.get()) {
             timer.start()
         }
+    }
+
+    private fun showCustomerSupportSheet() {
+        (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     companion object {

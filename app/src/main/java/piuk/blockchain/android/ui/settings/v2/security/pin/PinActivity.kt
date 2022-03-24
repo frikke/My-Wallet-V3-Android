@@ -53,6 +53,7 @@ import piuk.blockchain.android.databinding.ActivityPinBinding
 import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.PinEntryActivity
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
@@ -132,7 +133,8 @@ class PinActivity :
                 this@PinActivity.showKeyboard()
             }
             customerSupport.setOnClickListener {
-                showBottomSheet(CustomerSupportSheet.newInstance())
+                analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                showCustomerSupportSheet()
             }
             pinHelpSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }
@@ -1015,6 +1017,10 @@ class PinActivity :
     private fun hideBiometricsUi() {
         binding.keyboard.requestFocus()
         binding.fingerprintLogo.gone()
+    }
+
+    private fun showCustomerSupportSheet() {
+        showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     companion object {
