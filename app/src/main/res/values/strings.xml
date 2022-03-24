@@ -2832,8 +2832,8 @@
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
 
     <!-- Pin help -->
-    <string name="pin_help_title">Having Trouble Logging In?</string>
-    <string name="pin_help_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
-    <string name="pin_help_email">Contact Us</string>
-    <string name="pin_help_faq">View FAQs</string>
+    <string name="customer_support_title">Having Trouble Logging In?</string>
+    <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
+    <string name="customer_support_contact_us">Contact Us</string>
+    <string name="customer_support_faq">View FAQs</string>
 </resources>

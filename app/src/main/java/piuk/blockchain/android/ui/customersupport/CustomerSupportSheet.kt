@@ -40,11 +40,11 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(),
 
     private fun setupViews() {
         with(binding) {
-            btnEmail.setOnClickListener {
+            contactUsButton.setOnClickListener {
                 analytics.logEvent(CustomerSupportAnalytics.EmailClicked)
                 viewUrl(URL_CONTACT_SUBMIT_REQUEST)
             }
-            btnFaq.setOnClickListener {
+            faqButton.setOnClickListener {
                 analytics.logEvent(CustomerSupportAnalytics.FaqClicked)
                 viewUrl(URL_FAQ)
             }
