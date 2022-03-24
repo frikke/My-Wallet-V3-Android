@@ -52,5 +52,5 @@ class EthereumWalletData {
 
     @field:JsonProperty("last_tx_timestamp")
     @SerialName("last_tx_timestamp")
-    var lastTxTimestamp: Long = 0
+    var lastTxTimestamp: Long? = 0
 }

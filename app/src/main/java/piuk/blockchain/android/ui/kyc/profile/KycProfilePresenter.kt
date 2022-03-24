@@ -23,6 +23,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
@@ -30,6 +32,7 @@ import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
+@OptIn(InternalSerializationApi::class)
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
@@ -53,6 +56,7 @@ class KycProfilePresenter(
         compositeDisposable +=
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             ).toOptional()
                 .flatMapCompletable { optionalToken ->
@@ -137,6 +141,7 @@ class KycProfilePresenter(
                     metadataRepository.saveMetadata(
                         tokenResponse.mapToMetadata(),
                         NabuCredentialsMetadata::class.java,
+                        NabuCredentialsMetadata::class.serializer(),
                         NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                     ).toSingle { tokenResponse }
                         .flatMapCompletable { createBasicUser(it) }

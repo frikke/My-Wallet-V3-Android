@@ -10,9 +10,12 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
+@OptIn(InternalSerializationApi::class)
 class KycInvalidCountryPresenter(
     private val nabuDataManager: NabuDataManager,
     private val metadataRepository: MetadataRepository
@@ -62,6 +65,7 @@ class KycInvalidCountryPresenter(
                         metadataRepository.saveMetadata(
                             nabuMetadata,
                             NabuCredentialsMetadata::class.java,
+                            NabuCredentialsMetadata::class.serializer(),
                             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                         ).toSingle { jwt to tokenResponse }
                     }

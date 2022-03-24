@@ -1,15 +1,22 @@
 package com.blockchain.sunriver.datamanager
 
 import com.blockchain.serialization.JsonSerializable
-import com.blockchain.serialization.fromMoshiJson
-import com.blockchain.serialization.toMoshiJson
+import com.blockchain.serialization.fromJson
+import com.blockchain.serialization.toJson
 import com.blockchain.testutils.getStringFromResource
 import com.blockchain.testutils.`should be assignable from`
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
 class XlmMetaDataSerializationTest {
+
+    private val json = Json {
+        explicitNulls = false
+    }
 
     @Test
     fun `XlmAccount is JsonSerializable`() {
@@ -23,7 +30,7 @@ class XlmMetaDataSerializationTest {
 
     @Test
     fun `can deserialize`() {
-        XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata.json"))
+        XlmMetaData::class.fromJson(getStringFromResource("metadata/xlm_metadata.json"), json)
             .apply {
                 defaultAccountIndex `should be` 0
                 accounts `should be equal to` listOf(
@@ -39,7 +46,7 @@ class XlmMetaDataSerializationTest {
 
     @Test
     fun `can deserialize alternative values`() {
-        XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata_2.json"))
+        XlmMetaData::class.fromJson(getStringFromResource("metadata/xlm_metadata_2.json"), json)
             .apply {
                 defaultAccountIndex `should be` 1
                 accounts `should be equal to` listOf(
@@ -63,7 +70,7 @@ class XlmMetaDataSerializationTest {
 
     @Test
     fun `can deserialize missing values`() {
-        XlmMetaData::class.fromMoshiJson(getStringFromResource("metadata/xlm_metadata_with_missing_values.json"))
+        XlmMetaData::class.fromJson(getStringFromResource("metadata/xlm_metadata_with_missing_values.json"), json)
             .apply {
                 defaultAccountIndex `should be` 0
                 accounts `should be equal to` listOf(
@@ -84,7 +91,7 @@ class XlmMetaDataSerializationTest {
 
     @Test
     fun `can deserialize missing everything`() {
-        XlmMetaData::class.fromMoshiJson(json = "{}")
+        XlmMetaData::class.fromJson(input = "{}", json)
             .apply {
                 defaultAccountIndex `should be` 0
                 accounts `should be` null
@@ -119,12 +126,13 @@ class XlmMetaDataSerializationTest {
     fun `Meta data type`() {
         XlmMetaData.MetaDataType `should be` 11
     }
-}
 
-private fun String.assertJsonRoundTrip() {
-    XlmMetaData::class.fromMoshiJson(this).assertJsonRoundTrip()
-}
+    private fun String.assertJsonRoundTrip() {
+        XlmMetaData::class.fromJson(this, json).assertJsonRoundTrip()
+    }
 
-private fun XlmMetaData.assertJsonRoundTrip() {
-    XlmMetaData::class.fromMoshiJson(toMoshiJson()) `should be equal to` this
+    @OptIn(InternalSerializationApi::class)
+    private fun XlmMetaData.assertJsonRoundTrip() {
+        XlmMetaData::class.fromJson(toJson(XlmMetaData::class.serializer()), json) `should be equal to` this
+    }
 }

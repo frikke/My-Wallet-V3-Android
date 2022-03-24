@@ -1,7 +1,7 @@
 @file:UseSerializers(BigIntSerializer::class)
 package com.blockchain.api.ethereum.data
 
-import com.blockchain.api.serializers.BigIntSerializer
+import com.blockchain.serializers.BigIntSerializer
 import java.math.BigInteger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

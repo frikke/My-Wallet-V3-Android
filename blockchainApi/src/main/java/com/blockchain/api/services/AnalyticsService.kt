@@ -5,7 +5,7 @@ package com.blockchain.api.services
 import com.blockchain.api.analytics.AnalyticsApiInterface
 import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.AnalyticsRequestBody
-import com.blockchain.api.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigDecimalSerializer
 import io.reactivex.rxjava3.core.Completable
 import java.math.BigDecimal
 import kotlinx.serialization.Serializable

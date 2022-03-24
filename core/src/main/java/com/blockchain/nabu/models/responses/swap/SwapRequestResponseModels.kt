@@ -1,12 +1,16 @@
 package com.blockchain.nabu.models.responses.swap
 
+import kotlinx.serialization.Serializable
+
 @Suppress("unused")
+@Serializable
 class QuoteRequest(
     private val product: String,
     private val direction: String,
     private val pair: String
 )
 
+@Serializable
 class QuoteResponse(
     val id: String,
     val product: String,
@@ -19,6 +23,7 @@ class QuoteResponse(
     val expiresAt: String
 )
 
+@Serializable
 data class CustodialOrderResponse(
     val id: String,
     val state: String,
@@ -46,27 +51,32 @@ data class CustodialOrderResponse(
     }
 }
 
+@Serializable
 data class OrderQuote(
     val pair: String,
     val networkFee: String,
     val staticFee: String
 )
 
+@Serializable
 data class OrderKind(
     val direction: String,
-    val depositAddress: String?,
-    val depositTxHash: String?,
-    val withdrawalAddress: String?
+    val depositAddress: String? = null,
+    val depositTxHash: String? = null,
+    val withdrawalAddress: String? = null
 )
 
+@Serializable
 class Quote(val priceTiers: List<InterpolationPrices>)
 
+@Serializable
 data class InterpolationPrices(
     val volume: String,
     val price: String,
     val marginPrice: String
 )
 
+@Serializable
 class PriceFunnel(
     val inputMoney: String,
     val price: String,
@@ -75,6 +85,7 @@ class PriceFunnel(
     val outputMoney: String
 )
 
+@Serializable
 class CreateOrderRequest(
     private val direction: String,
     private val quoteId: String,
@@ -83,6 +94,7 @@ class CreateOrderRequest(
     private val refundAddress: String? = null
 )
 
+@Serializable
 class UpdateSwapOrderBody(
     private val action: String
 ) {
@@ -96,6 +108,7 @@ class UpdateSwapOrderBody(
     }
 }
 
+@Serializable
 data class SwapLimitsResponse(
     val currency: String? = null,
     val minOrder: String? = null,
@@ -106,6 +119,7 @@ data class SwapLimitsResponse(
     val annual: TimeLimitsResponse? = null
 )
 
+@Serializable
 data class TimeLimitsResponse(
     val limit: String,
     val available: String,

@@ -9,6 +9,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -17,7 +18,9 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -64,7 +67,9 @@ class MainInteractor internal constructor(
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelManager: SecureChannelManager,
-    private val cancelOrderUseCase: CancelOrderUseCase
+    private val cancelOrderUseCase: CancelOrderUseCase,
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
+    private val onboardingPrefs: OnboardingPrefs
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -166,4 +171,19 @@ class MainInteractor internal constructor(
 
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)
+
+    fun shouldShowEntitySwitchSilverKycUpsell(): Single<Boolean> =
+        entitySwitchSilverEligibilityFeatureFlag.enabled.onErrorReturnItem(false)
+            .flatMap { enabled ->
+                if (enabled) {
+                    userIdentity.getHighestApprovedKycTier().map { tier ->
+                        val showUpsell =
+                            tier != Tier.GOLD && !onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed
+                        if (showUpsell) onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed = true
+                        showUpsell
+                    }
+                } else {
+                    Single.just(false)
+                }
+            }
 }

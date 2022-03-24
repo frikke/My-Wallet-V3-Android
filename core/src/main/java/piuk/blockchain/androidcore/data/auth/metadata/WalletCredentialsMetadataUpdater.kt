@@ -2,8 +2,11 @@ package piuk.blockchain.androidcore.data.auth.metadata
 
 import com.blockchain.metadata.MetadataRepository
 import io.reactivex.rxjava3.core.Completable
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
+@OptIn(InternalSerializationApi::class)
 class WalletCredentialsMetadataUpdater(
     private val metadataRepository: MetadataRepository,
     private val payloadDataManager: PayloadDataManager
@@ -12,6 +15,7 @@ class WalletCredentialsMetadataUpdater(
         metadataRepository.saveMetadata(
             WalletCredentialsMetadata(guid, password, sharedKey),
             WalletCredentialsMetadata::class.java,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
         )
 
@@ -22,6 +26,7 @@ class WalletCredentialsMetadataUpdater(
 
         return metadataRepository.loadMetadata(
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         ).filter {
             it.guid == guid && it.password == password && it.sharedKey == sharedKey

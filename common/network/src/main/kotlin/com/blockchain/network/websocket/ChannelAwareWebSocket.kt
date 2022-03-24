@@ -1,10 +1,13 @@
 package com.blockchain.network.websocket
 
 import com.blockchain.serialization.JsonSerializable
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
+import com.blockchain.serializers.PrimitiveSerializer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 interface ChannelAwareWebSocket {
     fun openChannel(name: String, params: JsonSerializable? = null): WebSocketChannel<String>
@@ -14,23 +17,32 @@ interface WebSocketChannel<INCOMING> : WebSocketReceive<INCOMING> {
     fun close(params: JsonSerializable? = null)
 }
 
+private val json = Json {
+    explicitNulls = false
+    encodeDefaults = false
+    ignoreUnknownKeys = true
+}
+
 fun StringWebSocket.channelAware(): ChannelAwareWebSocket = WebSocketChannelAdapter(this)
 
 private class WebSocketChannelAdapter(private val underlingSocket: StringWebSocket) : ChannelAwareWebSocket {
-    private val outAdapter = Moshi.Builder()
-        .build().adapter(SubscribeUnsubscribeJson::class.java)
 
     override fun openChannel(name: String, params: JsonSerializable?): WebSocketChannel<String> {
-        underlingSocket.send(outAdapter.toJson(SubscribeUnsubscribeJson(name, "subscribe", params)))
-        return underlingSocket.asChannel(name, outAdapter)
+        underlingSocket.send(
+            json.encodeToString(
+                SubscribeUnsubscribeJson(
+                    action = "subscribe", channel = name, params = params
+                )
+            )
+        )
+        return underlingSocket.asChannel(name)
     }
 }
 
 class ErrorFromServer(val fullJson: String) : Exception("Server returned error")
 
 private fun StringWebSocket.asChannel(
-    name: String,
-    outAdapter: JsonAdapter<SubscribeUnsubscribeJson>
+    name: String
 ): WebSocketChannel<String> {
 
     return object : WebSocketChannel<String> {
@@ -40,7 +52,13 @@ private fun StringWebSocket.asChannel(
         private val closed = PublishSubject.create<Any>()
 
         override fun close(params: JsonSerializable?) {
-            this@asChannel.send(outAdapter.toJson(SubscribeUnsubscribeJson(name, "unsubscribe", params)))
+            this@asChannel.send(
+                json.encodeToString(
+                    SubscribeUnsubscribeJson(
+                        action = "unsubscribe", channel = name, params = params
+                    )
+                )
+            )
             closed.onNext(Any())
         }
 
@@ -57,14 +75,14 @@ fun WebSocketReceive<String>.channelMessageFilter(name: String, throwErrors: Boo
     return object : WebSocketReceive<String> {
 
         override val responses: Observable<String>
-            get() = this@channelMessageFilter.responses.filter { json ->
-                incomingAdapter.fromJson(json)
-                    ?.let {
+            get() = this@channelMessageFilter.responses.filter { jsonString ->
+                json.decodeFromString(IncomingMessage.serializer(), jsonString)
+                    .let {
                         it.channel == name &&
                             it.event != "subscribed" &&
                             it.event != "unsubscribed" &&
-                            !handleError(it, json)
-                    } ?: false
+                            !handleError(it, jsonString)
+                    }
             }
 
         private fun handleError(message: IncomingMessage, json: String): Boolean {
@@ -74,19 +92,29 @@ fun WebSocketReceive<String>.channelMessageFilter(name: String, throwErrors: Boo
                 else -> true
             }
         }
-
-        private val incomingAdapter =
-            Moshi.Builder().build().adapter(IncomingMessage::class.java)
     }
 }
 
+@Serializable
 private class IncomingMessage(
+    @SerialName("channel")
     val channel: String,
-    val event: String
+
+    @SerialName("event")
+    val event: String?
 ) : JsonSerializable
 
+@Serializable
 private class SubscribeUnsubscribeJson(
-    @Suppress("unused") val channel: String,
-    @Suppress("unused") val action: String,
+    @Suppress("unused")
+    @SerialName("action")
+    val action: String,
+
+    @Suppress("unused")
+    @SerialName("channel")
+    val channel: String,
+
+    @SerialName("params")
+    @Serializable(with = PrimitiveSerializer::class)
     val params: Any?
 ) : JsonSerializable

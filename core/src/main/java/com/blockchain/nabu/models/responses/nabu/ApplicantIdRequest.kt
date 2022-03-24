@@ -1,3 +1,8 @@
 package com.blockchain.nabu.models.responses.nabu
 
-internal data class ApplicantIdRequest(val applicantId: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+internal data class ApplicantIdRequest(
+    val applicantId: String
+)

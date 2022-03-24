@@ -1,16 +1,21 @@
 package com.blockchain.network.websocket
 
 import com.nhaarman.mockitokotlin2.mock
-import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
-class MoshiJsonWebSocketReceiveDecoratorTest {
+class JsonWebSocketReceiveDecoratorTest {
 
-    data class TypeIn(val fieldC: String, val fieldD: Int)
+    @Serializable
+    data class TypeIn(
+        val fieldC: String,
+        val fieldD: Int
+    )
 
-    private val moshi = Moshi.Builder().build()
+    private val json = Json {}
 
     @Test
     fun `incoming message is formatted from json`() {
@@ -22,7 +27,7 @@ class MoshiJsonWebSocketReceiveDecoratorTest {
                 )
             )
         }
-        inner.toJsonReceive<TypeIn>(moshi)
+        inner.toJsonReceive(json, TypeIn.serializer())
             .responses
             .test()
             .values() `should be equal to`

@@ -2,7 +2,10 @@ package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.serialization.JsonSerializable
 import info.blockchain.balance.Money
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class KycTiers(
     private val tiers: Tiers
 ) : JsonSerializable {
@@ -40,13 +43,19 @@ data class KycTiers(
     }
 }
 
-data class Limits(val dailyLimit: Money? = null, val annualLimit: Money? = null)
-
-data class Tier(
-    val state: KycTierState,
-    val limits: Limits?
+@Serializable
+data class Limits(
+    val dailyLimit: @Contextual Money? = null,
+    val annualLimit: @Contextual Money? = null
 )
 
+@Serializable
+data class Tier(
+    val state: KycTierState,
+    val limits: Limits? = null
+)
+
+@Serializable(with = KycTierStateAdapter.KycTierStateSerializer::class)
 enum class KycTierState {
     None,
     Rejected,
@@ -56,12 +65,20 @@ enum class KycTierState {
     Expired
 }
 
+@Serializable
 enum class KycTierLevel {
-    BRONZE, SILVER, GOLD
+    BRONZE,
+    SILVER,
+    GOLD
 }
 
-data class Tiers(private val map: Map<KycTierLevel, Tier>) : Map<KycTierLevel, Tier> by map {
+@Serializable
+data class Tiers(
+    private val map: Map<KycTierLevel, Tier>
+) : Map<KycTierLevel, Tier> by map {
     override operator fun get(key: KycTierLevel): Tier {
-        return map.getOrElse(key) { throw IllegalArgumentException("$key is not a known KycTierLevel") }
+        return map.getOrElse(key) {
+            throw IllegalArgumentException("$key is not a known KycTierLevel")
+        }
     }
 }

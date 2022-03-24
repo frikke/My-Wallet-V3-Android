@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.serialization.Serializable
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
@@ -154,5 +155,6 @@ class ChannelAwareWebSocketTest {
             .assertError { (it as ErrorFromServer).fullJson == "{\"channel\":\"ChannelName\",\"event\": \"error\"}" }
     }
 
+    @Serializable
     class Params(@Suppress("unused") val param1: String) : JsonSerializable
 }

@@ -38,9 +38,14 @@ import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
@@ -57,6 +62,12 @@ private val json = Json {
     explicitNulls = false
     ignoreUnknownKeys = true
     isLenient = true
+    encodeDefaults = true
+    serializersModule = SerializersModule {
+        contextual(BigDecimalSerializer)
+        contextual(BigIntSerializer)
+        contextual(IsoDateSerializer)
+    }
 }
 
 private val jsonConverter = json.asConverterFactory("application/json".toMediaType())

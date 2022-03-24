@@ -1,22 +1,25 @@
 package com.blockchain.nabu.models.responses.nabu
 
 import android.annotation.SuppressLint
-import com.squareup.moshi.Moshi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 
+@Serializable
 private data class NabuErrorResponse(
     /**
      * Machine-readable error code.
      */
-    val code: Int,
+    val code: Int = 0,
     /**
      * Machine-readable error type./ο-
      */
-    val type: String,
+    val type: String = "",
     /**
      * Human-readable error description.
      */
-    val description: String
+    val description: String = ""
 )
 
 class NabuApiException private constructor(message: String) : Throwable(message) {
@@ -43,11 +46,19 @@ class NabuApiException private constructor(message: String) : Throwable(message)
     companion object {
         @SuppressLint("SyntheticAccessor")
         fun fromResponseBody(exception: Throwable?): NabuApiException {
-            val moshi = Moshi.Builder().build()
-            val adapter = moshi.adapter(NabuErrorResponse::class.java)
+            val jsonBuilder = Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+                isLenient = true
+            }
+
             return if (exception is HttpException) {
                 exception.response()?.errorBody()?.string()?.let { errorBody ->
-                    val errorResponse = adapter.fromJson(errorBody)
+                    val errorResponse = try {
+                        jsonBuilder.decodeFromString<NabuErrorResponse>(errorBody)
+                    } catch (e: Exception) {
+                        null
+                    }
                     errorResponse?.let {
                         val httpErrorCode = exception.code()
                         val error = it.type

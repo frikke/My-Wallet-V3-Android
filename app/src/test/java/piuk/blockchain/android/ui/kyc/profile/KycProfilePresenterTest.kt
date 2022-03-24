@@ -24,6 +24,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
@@ -36,6 +38,7 @@ import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
 
+@OptIn(InternalSerializationApi::class)
 class KycProfilePresenterTest {
 
     private lateinit var subject: KycProfilePresenter
@@ -129,6 +132,7 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.error { Throwable() })
@@ -157,6 +161,7 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.just(validOfflineTokenMetadata))
@@ -192,6 +197,7 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.empty())
@@ -202,6 +208,7 @@ class KycProfilePresenterTest {
             metadataRepository.saveMetadata(
                 offlineToken,
                 NabuCredentialsMetadata::class.java,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())
@@ -237,6 +244,7 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.just(invalidToken))
@@ -250,6 +258,7 @@ class KycProfilePresenterTest {
             metadataRepository.saveMetadata(
                 validOfflineTokenMetadata,
                 NabuCredentialsMetadata::class.java,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())
@@ -284,6 +293,7 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.loadMetadata(
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.empty())
@@ -295,6 +305,7 @@ class KycProfilePresenterTest {
             metadataRepository.saveMetadata(
                 offlineToken,
                 NabuCredentialsMetadata::class.java,
+                NabuCredentialsMetadata::class.serializer(),
                 NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())

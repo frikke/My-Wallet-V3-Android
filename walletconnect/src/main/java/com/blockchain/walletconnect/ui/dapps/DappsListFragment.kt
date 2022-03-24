@@ -165,7 +165,10 @@ class DappsListFragment :
                     }
                 }
             }
-        }
+        },
+            onCollapse = {
+                bottomSheetState = ModalBottomSheetValue.Hidden
+            }
         )
     }
 }

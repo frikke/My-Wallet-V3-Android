@@ -13,7 +13,7 @@ interface KycApi {
     @GET("kyc/extra-questions")
     suspend fun getAdditionalInfoForm(
         @Header("authorization") authorization: String
-    ): Outcome<ApiError, KycAdditionalInfoResponse>
+    ): Outcome<ApiError, KycAdditionalInfoResponse?>
 
     @PUT("kyc/extra-questions")
     suspend fun updateAdditionalInfo(

@@ -2,7 +2,7 @@ package com.blockchain.sunriver.datamanager
 
 import com.blockchain.logging.CrashLogger
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.serialization.fromMoshiJson
+import com.blockchain.serialization.fromJson
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
@@ -18,9 +18,13 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.github.novacrypto.bip39.SeedCalculator
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
+@InternalSerializationApi
 class XlmMetaDataInitializerTest {
 
     private val crashLogger: CrashLogger = mock()
@@ -242,6 +246,7 @@ class XlmMetaDataInitializerTest {
                 saveMetadata<XlmMetaData>(
                     any(),
                     any(),
+                    eq(XlmMetaData::class.serializer()),
                     eq(XlmMetaData.MetaDataType)
                 )
             }.thenReturn(Completable.error(Exception("Save fail")))
@@ -435,7 +440,7 @@ class XlmMetaDataInitializerTest {
 
     @Test
     fun `if the meta data account is empty object, recreate it`() {
-        val badData = XlmMetaData::class.fromMoshiJson("{}")
+        val badData = XlmMetaData::class.fromJson("{}", Json { explicitNulls = false })
         val repository = mock<MetadataRepository> {
             successfulSave()
             loads(badData)
@@ -596,122 +601,140 @@ class XlmMetaDataInitializerTest {
         }
 
         repository.assertSaved(expectedData)
-        verify(repository, times(2)).loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java)
-        verify(repository, times(2)).loadMetadata(any(), eq(XlmMetaData::class.java))
+        verify(repository, times(2)).loadMetadata(
+            XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+        )
+        verify(repository, times(2)).loadMetadata(
+            any(), eq(XlmMetaData::class.serializer()), eq(XlmMetaData::class.java)
+        )
 
         verifyNoMoreInteractions(crashLogger)
     }
-}
 
-private fun givenSeedFor(mnemonic: String): SeedAccess =
-    object : SeedAccess {
+    private fun givenSeedFor(mnemonic: String): SeedAccess =
+        object : SeedAccess {
 
-        override val seed: Maybe<Seed>
-            get() = mnemonic.toSeed()
+            override val seed: Maybe<Seed>
+                get() = mnemonic.toSeed()
 
-        override val seedPromptIfRequired: Maybe<Seed>
-            get() = throw Exception("Unexpected")
+            override val seedPromptIfRequired: Maybe<Seed>
+                get() = throw Exception("Unexpected")
 
-        override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
-            throw Exception("Unexpected")
-        }
-    }
-
-private fun givenSeedPresentOnlyWithSecondPasswordFor(mnemonic: String): SeedAccess =
-    object : SeedAccess {
-
-        override val seed: Maybe<Seed>
-            get() = throw Exception("Unexpected")
-
-        override val seedPromptIfRequired: Maybe<Seed>
-            get() = mnemonic.toSeed()
-
-        override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
-            throw Exception("Unexpected")
-        }
-    }
-
-private fun String.toSeed() =
-    Maybe.just(
-        Seed(
-            hdSeed = SeedCalculator().calculateSeed(this, "")
-        )
-    )
-
-private fun givenNoSeed(): SeedAccess =
-    object : SeedAccess {
-
-        override val seed: Maybe<Seed>
-            get() = Maybe.empty()
-
-        override val seedPromptIfRequired: Maybe<Seed>
-            get() = Maybe.empty()
-
-        override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
-            throw Exception("Unexpected")
-        }
-    }
-
-private fun MetadataRepository.assertNothingSaved() {
-    verify(this, never()).saveMetadata<XlmMetaData>(any(), any(), any())
-}
-
-private fun MetadataRepository.assertLoaded() {
-    verify(this).loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java)
-}
-
-private fun assertSingleMetaDataLoad(repository: MetadataRepository) {
-    verify(repository).loadMetadata(any(), eq(XlmMetaData::class.java))
-}
-
-private fun MetadataRepository.assertSaved(
-    value: XlmMetaData
-) {
-    verify(this).saveMetadata(
-        eq(
-            value
-        ),
-        eq(XlmMetaData::class.java),
-        eq(XlmMetaData.MetaDataType)
-    )
-}
-
-private fun KStubbing<MetadataRepository>.emptyLoad() {
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(Maybe.empty())
-}
-
-private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(
-        Maybe.just(
-            expectedData
-        )
-    )
-}
-
-private fun KStubbing<MetadataRepository>.emptyAtFirstThenLoads(expectedData: XlmMetaData) {
-    var count = 1
-    on { loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.java) }.thenReturn(
-        Maybe.defer {
-            if (count-- > 0) {
-                Maybe.empty()
-            } else {
-                Maybe.just(expectedData)
+            override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
+                throw Exception("Unexpected")
             }
         }
-    )
-}
 
-private fun KStubbing<MetadataRepository>.successfulSave() {
-    on {
-        saveMetadata<XlmMetaData>(
-            any(),
-            any(),
+    private fun givenSeedPresentOnlyWithSecondPasswordFor(mnemonic: String): SeedAccess =
+        object : SeedAccess {
+
+            override val seed: Maybe<Seed>
+                get() = throw Exception("Unexpected")
+
+            override val seedPromptIfRequired: Maybe<Seed>
+                get() = mnemonic.toSeed()
+
+            override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
+                throw Exception("Unexpected")
+            }
+        }
+
+    private fun String.toSeed() =
+        Maybe.just(
+            Seed(
+                hdSeed = SeedCalculator().calculateSeed(this, "")
+            )
+        )
+
+    private fun givenNoSeed(): SeedAccess =
+        object : SeedAccess {
+
+            override val seed: Maybe<Seed>
+                get() = Maybe.empty()
+
+            override val seedPromptIfRequired: Maybe<Seed>
+                get() = Maybe.empty()
+
+            override fun seed(validatedSecondPassword: String?): Maybe<Seed> {
+                throw Exception("Unexpected")
+            }
+        }
+
+    private fun MetadataRepository.assertNothingSaved() {
+        verify(this, never()).saveMetadata<XlmMetaData>(any(), any(), eq(XlmMetaData::class.serializer()), any())
+    }
+
+    private fun MetadataRepository.assertLoaded() {
+        verify(this).loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java)
+    }
+
+    private fun assertSingleMetaDataLoad(repository: MetadataRepository) {
+        verify(repository).loadMetadata(any(), eq(XlmMetaData::class.serializer()), eq(XlmMetaData::class.java))
+    }
+
+    private fun MetadataRepository.assertSaved(
+        value: XlmMetaData
+    ) {
+        verify(this).saveMetadata(
+            eq(
+                value
+            ),
+            eq(XlmMetaData::class.java),
+            eq(XlmMetaData::class.serializer()),
             eq(XlmMetaData.MetaDataType)
         )
-    }.thenReturn(Completable.complete())
-}
-
-private fun givenDefaultXlmLabel(defaultLabel: String): DefaultLabels =
-    mock {
-        on { getDefaultNonCustodialWalletLabel() }.thenReturn(defaultLabel)
     }
+
+    private fun KStubbing<MetadataRepository>.emptyLoad() {
+        on {
+            loadMetadata(
+                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+            )
+        }.thenReturn(Maybe.empty())
+    }
+
+    private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
+        on {
+            loadMetadata(
+                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+            )
+        }.thenReturn(
+            Maybe.just(
+                expectedData
+            )
+        )
+    }
+
+    private fun KStubbing<MetadataRepository>.emptyAtFirstThenLoads(expectedData: XlmMetaData) {
+        var count = 1
+        on {
+            loadMetadata(
+                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+            )
+        }.thenReturn(
+            Maybe.defer {
+                if (count-- > 0) {
+                    Maybe.empty()
+                } else {
+                    Maybe.just(expectedData)
+                }
+            }
+        )
+    }
+
+    private fun KStubbing<MetadataRepository>.successfulSave() {
+        on {
+            saveMetadata<XlmMetaData>(
+                any(),
+                any(),
+                eq(XlmMetaData::class.serializer()),
+                eq(XlmMetaData.MetaDataType)
+            )
+        }.thenReturn(Completable.complete())
+    }
+
+    private fun givenDefaultXlmLabel(defaultLabel: String): DefaultLabels =
+        mock {
+            on { getDefaultNonCustodialWalletLabel() }.thenReturn(defaultLabel)
+        }
+}

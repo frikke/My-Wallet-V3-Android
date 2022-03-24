@@ -358,9 +358,17 @@ enum class PaymentError {
 
 typealias BuyOrderList = List<BuySellOrder>
 
-data class OrderInput(private val symbol: String, private val amount: String? = null)
+@kotlinx.serialization.Serializable
+data class OrderInput(
+    private val symbol: String,
+    private val amount: String? = null
+)
 
-data class OrderOutput(private val symbol: String, private val amount: String? = null)
+@kotlinx.serialization.Serializable
+data class OrderOutput(
+    private val symbol: String,
+    private val amount: String? = null
+)
 
 data class FiatTransaction(
     val amount: FiatValue,

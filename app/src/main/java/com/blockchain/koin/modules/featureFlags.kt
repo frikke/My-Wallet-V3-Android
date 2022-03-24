@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
@@ -81,7 +82,16 @@ val featureFlagsModule = module {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_enable_kotlin_serializer",
-                "Use Kotlinx Serializer"
+                "Use Kotlinx Serializer (Jackson)"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(disableMoshiSerializerFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_disable_moshi",
+                "Use Kotlinx Serializer (Moshi)"
             )
         )
     }.bind(FeatureFlag::class)

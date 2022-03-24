@@ -49,7 +49,7 @@ object Versions {
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "29.0.3"
+    const val firebaseBom = "29.2.1"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"

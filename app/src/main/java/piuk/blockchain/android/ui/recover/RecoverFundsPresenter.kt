@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.recover
 
-import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.remoteconfig.FeatureFlag
 import com.squareup.moshi.Moshi
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.metadata.Metadata
@@ -12,7 +12,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Locale
-import java.util.NoSuchElementException
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.bitcoinj.crypto.MnemonicCode
 import org.bitcoinj.crypto.MnemonicException
 import piuk.blockchain.android.R
@@ -29,7 +30,8 @@ class RecoverFundsPresenter(
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
     private val moshi: Moshi,
-    private val analytics: Analytics
+    private val json: Json,
+    private val disableMoshiFeatureFlag: FeatureFlag
 ) : BasePresenter<RecoverFundsView>() {
 
     private val mnemonicChecker: MnemonicCode by unsafeLazy {
@@ -74,17 +76,23 @@ class RecoverFundsPresenter(
         val masterKey = payloadDataManager.generateMasterKeyFromSeed(recoveryPhrase)
         val metadataNode = metadataDerivation.deriveMetadataNode(masterKey)
 
-        return metadataInteractor.loadRemoteMetadata(
-            Metadata.newInstance(
-                metaDataHDNode = metadataDerivation.deserializeMetadataNode(metadataNode),
-                type = WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
-                metadataDerivation = metadataDerivation
+        return disableMoshiFeatureFlag.enabled.flatMapMaybe { isMoshiDisabled ->
+            metadataInteractor.loadRemoteMetadata(
+                Metadata.newInstance(
+                    metaDataHDNode = metadataDerivation.deserializeMetadataNode(metadataNode),
+                    type = WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                    metadataDerivation = metadataDerivation
+                )
             )
-        )
-            .map {
-                moshi.adapter(WalletCredentialsMetadata::class.java)
-                    .fromJson(it) ?: throw NoSuchElementException()
-            }.toSingle()
+                .map {
+                    if (isMoshiDisabled) {
+                        json.decodeFromString<WalletCredentialsMetadata>(it)
+                    } else {
+                        moshi.adapter(WalletCredentialsMetadata::class.java).fromJson(it)
+                            ?: throw NoSuchElementException()
+                    }
+                }
+        }.toSingle()
     }
 
     private fun recoverWallet(recoveryPhrase: String) {

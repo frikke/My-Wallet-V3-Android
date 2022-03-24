@@ -21,7 +21,6 @@ dependencies {
     implementation Libraries.constraintLayout
     implementation Libraries.kotlinCoroutines
     implementation Libraries.kotlinJson
-    implementation Libraries.gson
 
     testImplementation project(':testutils')
     testImplementation Libraries.kotlinCoroutinesTest

@@ -1,7 +1,11 @@
-package com.blockchain.api.serializers
+package com.blockchain.serializers
 
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.text.SimpleDateFormat
+import java.util.Date
+import kotlinx.serialization.ContextualSerializer
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -10,6 +14,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.serializer
 
 object BigIntSerializer : KSerializer<BigInteger> {
     override val descriptor: SerialDescriptor =
@@ -52,5 +58,39 @@ object StringMapSerializer : KSerializer<Map<String, String>> {
 
     override fun deserialize(decoder: Decoder): Map<String, String> {
         return mapSerializer.deserialize(decoder)
+    }
+}
+
+object PrimitiveSerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
+
+    @OptIn(InternalSerializationApi::class)
+    override fun serialize(encoder: Encoder, value: Any) {
+        val actualSerializer = encoder.serializersModule.getContextual(value::class) ?: value::class.serializer()
+        encoder.encodeSerializableValue(actualSerializer as KSerializer<Any>, value)
+    }
+
+    override fun deserialize(decoder: Decoder): Any {
+        (decoder as? JsonDecoder)?.let {
+            return it.decodeJsonElement()
+        } ?: run {
+            error("Invalid decoder")
+        }
+    }
+}
+
+object IsoDateSerializer : KSerializer<Date> {
+    @Suppress("SimpleDateFormat")
+    private val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss") // ISO-8601 date format
+
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Date) {
+        encoder.encodeString(format.format(value))
+    }
+
+    override fun deserialize(decoder: Decoder): Date {
+        val input = decoder.decodeString()
+        return format.parse(input)
     }
 }

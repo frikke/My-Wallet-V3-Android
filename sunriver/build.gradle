@@ -1,3 +1,4 @@
+apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 dependencies {
@@ -9,6 +10,7 @@ dependencies {
     implementation project(':common:network')
 
     implementation Libraries.moshiKotlin
+    implementation Libraries.kotlinJson
     implementation Libraries.sunriver
 
     // Derivation

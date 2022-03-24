@@ -10,8 +10,11 @@ import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
 import com.blockchain.rx.maybeCache
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 
+@OptIn(InternalSerializationApi::class)
 class MetadataRepositoryNabuTokenAdapter(
     private val metadataRepository: MetadataRepository,
     private val createNabuToken: CreateNabuToken,
@@ -27,6 +30,7 @@ class MetadataRepositoryNabuTokenAdapter(
                 metadataRepository.saveMetadata(
                     it,
                     NabuCredentialsMetadata::class.java,
+                    NabuCredentialsMetadata::class.serializer(),
                     NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                 ).andThen(Maybe.just(it))
             }
@@ -35,6 +39,7 @@ class MetadataRepositoryNabuTokenAdapter(
     private val defer = Maybe.defer {
         metadataRepository.loadMetadata(
             NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+            NabuCredentialsMetadata::class.serializer(),
             NabuCredentialsMetadata::class.java
         )
     }.maybeCache()
