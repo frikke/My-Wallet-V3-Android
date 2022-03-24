@@ -8,21 +8,18 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.notifications.analytics.Analytics
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.databinding.DialogSheetCustomerSupportBinding
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
 import piuk.blockchain.android.util.openUrl
 
-class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), NavigationRouter<CustomerSupportNavigationEvent> {
+class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(),
+    NavigationRouter<CustomerSupportNavigationEvent> {
 
     private lateinit var binding: DialogSheetCustomerSupportBinding
 
     private val viewModel: CustomerSupportViewModel by viewModel()
-
-    val analytics: Analytics by inject()
 
     override fun onStateUpdated(state: CustomerSupportViewState) {
     }
@@ -41,10 +38,6 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), Navigat
         setupViewModel()
     }
 
-    private fun setupViewModel() {
-        bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
-    }
-
     private fun setupViews() {
         with(binding) {
             btnEmail.setOnClickListener {
@@ -58,7 +51,10 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(), Navigat
         }
     }
 
-    // todo move to core
+    private fun setupViewModel() {
+        bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
+    }
+
     private fun viewUrl(url: String) {
         context.openUrl(url)
     }
