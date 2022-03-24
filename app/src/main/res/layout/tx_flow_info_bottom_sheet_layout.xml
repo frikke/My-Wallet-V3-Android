@@ -81,8 +81,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/very_small_margin"
+            android:layout_marginEnd="@dimen/very_small_margin"
+            android:layout_marginTop="@dimen/tiny_margin"
             app:layout_constraintBottom_toTopOf="@+id/guide"
             app:layout_constraintStart_toEndOf="@+id/action_icon"
+            app:layout_constraintEnd_toStartOf="@+id/action_cta"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1"
             tools:text="Get More ETH" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -91,8 +96,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/very_small_margin"
+            android:layout_marginEnd="@dimen/very_small_margin"
+            android:layout_marginBottom="@dimen/tiny_margin"
             app:layout_constraintStart_toEndOf="@+id/action_icon"
             app:layout_constraintTop_toBottomOf="@+id/guide"
+            app:layout_constraintEnd_toStartOf="@+id/action_cta"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0"
             tools:text="Get More ETH" />
 
         <androidx.constraintlayout.widget.Guideline
