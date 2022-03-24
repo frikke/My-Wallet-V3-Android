@@ -86,7 +86,7 @@ class PinActivity :
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
 
-    private val pinHelpSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -136,7 +136,7 @@ class PinActivity :
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
-            pinHelpSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }
     }
 
