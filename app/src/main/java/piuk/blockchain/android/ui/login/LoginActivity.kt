@@ -62,7 +62,7 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
-    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private var state: LoginState? = null
 

@@ -15,6 +15,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.remoteconfig.FeatureFlag
+import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
@@ -26,7 +27,7 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
 
     override val model: LoginModel by scopedInject()
 
-    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentVerifyDeviceBinding =
         FragmentVerifyDeviceBinding.inflate(inflater, container, false)

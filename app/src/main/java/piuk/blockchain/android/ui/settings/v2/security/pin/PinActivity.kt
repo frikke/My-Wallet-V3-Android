@@ -86,7 +86,7 @@ class PinActivity :
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
 
-    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar

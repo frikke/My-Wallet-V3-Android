@@ -76,7 +76,7 @@ class LoginAuthActivity :
     private val walletPrefs: WalletStatus by inject()
     private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
-    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
     private var showCustomerSupportJob: Job? = null
 
     private lateinit var currentState: LoginAuthState

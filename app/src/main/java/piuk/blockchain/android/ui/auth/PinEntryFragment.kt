@@ -108,7 +108,7 @@ class PinEntryFragment :
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val customerSupportSheetFF: FeatureFlag by scopedInject(customerSupportSheetFeatureFlag)
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private val isAfterWalletCreation: Boolean by lazy {
         arguments?.getBoolean(KEY_IS_AFTER_WALLET_CREATION, false) ?: false
