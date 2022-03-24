@@ -19,4 +19,3 @@ class CustomerSupportViewModel(
     override suspend fun handleIntent(modelState: CustomerSupportModelState, intent: CustomerSupportIntents) {
     }
 }
-

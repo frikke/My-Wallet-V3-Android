@@ -54,10 +54,10 @@ import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
-import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.urllinks.APP_STORE_URI
 import piuk.blockchain.android.urllinks.APP_STORE_URL
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL

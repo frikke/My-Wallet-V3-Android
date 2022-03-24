@@ -14,7 +14,8 @@ import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
 import piuk.blockchain.android.util.openUrl
 
-class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(),
+class CustomerSupportSheet :
+    MVIBottomSheet<CustomerSupportViewState>(),
     NavigationRouter<CustomerSupportNavigationEvent> {
 
     private lateinit var binding: DialogSheetCustomerSupportBinding
@@ -66,4 +67,3 @@ class CustomerSupportSheet : MVIBottomSheet<CustomerSupportViewState>(),
         fun newInstance() = CustomerSupportSheet()
     }
 }
-
