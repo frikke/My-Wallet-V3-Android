@@ -6,7 +6,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetCatalogue

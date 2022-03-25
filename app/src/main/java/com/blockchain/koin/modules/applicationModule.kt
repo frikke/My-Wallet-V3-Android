@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
@@ -22,7 +23,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.usd
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
