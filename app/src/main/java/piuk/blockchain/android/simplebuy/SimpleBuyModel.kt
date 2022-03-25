@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
+import com.blockchain.nabu.datamanagers.PaymentError
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
@@ -299,7 +300,7 @@ class SimpleBuyModel(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
             ).subscribeBy(
                 onSuccess = { buySellOrder ->
-                    processOrderStatus(buySellOrder)
+                    processOrderStatus(buySellOrder.value)
                 },
                 onError = {
                     process(SimpleBuyIntent.ErrorIntent())
@@ -370,6 +371,14 @@ class SimpleBuyModel(
             }
             buySellOrder.state.isPending() -> {
                 process(SimpleBuyIntent.PaymentPending)
+            }
+            buySellOrder.state.hasFailed() -> {
+                process(
+                    SimpleBuyIntent.ErrorIntent(
+                        error = if (buySellOrder.paymentError == PaymentError.CARD_PAYMENT_FAILED)
+                            ErrorState.CardPaymentFailed else ErrorState.GenericError
+                    )
+                )
             }
             else -> {
                 when (val cardAttributes = buySellOrder.attributes?.cardAttributes ?: CardAttributes.Empty) {

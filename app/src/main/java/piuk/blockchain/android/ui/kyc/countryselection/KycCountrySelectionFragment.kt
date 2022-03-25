@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.Analytics

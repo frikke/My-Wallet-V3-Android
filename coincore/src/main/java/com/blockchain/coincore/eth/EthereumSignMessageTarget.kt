@@ -24,6 +24,7 @@ class EthereumSignMessageTarget(
         get() = CryptoCurrency.ETHER
     override val address: String
         get() = message.address
+    override val isDomain: Boolean = false
 }
 
 interface WalletConnectTarget : TransactionTarget, CryptoAddress {

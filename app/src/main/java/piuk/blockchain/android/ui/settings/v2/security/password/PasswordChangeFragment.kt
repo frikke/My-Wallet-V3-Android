@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.button.ButtonState

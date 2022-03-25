@@ -20,6 +20,7 @@ class EthereumSendTransactionTarget(
         get() = CryptoCurrency.ETHER
     override val label: String
         get() = dAppName
+    override val isDomain: Boolean = false
     override val address: String
         get() = transaction.to.orEmpty()
     val data: String

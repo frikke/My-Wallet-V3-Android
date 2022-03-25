@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible

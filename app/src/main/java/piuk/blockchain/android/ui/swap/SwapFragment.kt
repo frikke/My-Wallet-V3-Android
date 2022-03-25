@@ -15,7 +15,7 @@ import com.blockchain.coincore.TrendingPair
 import com.blockchain.coincore.TrendingPairsProvider
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -136,7 +136,7 @@ class SwapFragment :
     }
 
     private fun startSwap() = startActivityForResult.launch(
-        TransactionFlowActivity.newInstance(
+        TransactionFlowActivity.newIntent(
             context = requireActivity(),
             action = AssetAction.Swap
         )
@@ -264,7 +264,7 @@ class SwapFragment :
         )
 
         startActivityForResult.launch(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = pair.sourceAccount,
                 target = pair.destinationAccount,

@@ -22,7 +22,7 @@ class PriceView : ConstraintLayout {
         val name: String,
         val displayTicker: String,
         val networkTicker: String,
-        val price: String = "",
+        val price: String = "--",
         val gain: Double = 0.0
     )
 

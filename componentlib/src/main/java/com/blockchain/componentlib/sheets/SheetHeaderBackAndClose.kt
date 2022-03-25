@@ -14,9 +14,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -50,8 +52,11 @@ fun SheetHeaderBackAndClose(
                     onBackPress = onBackPress,
                     backPressContentDescription = backPressContentDescription,
                     modifier = Modifier
-                        .padding(start = 12.dp, top = 16.dp)
-                        .size(24.dp)
+                        .padding(
+                            start = dimensionResource(R.dimen.very_small_margin),
+                            top = dimensionResource(R.dimen.medium_margin)
+                        )
+                        .size(dimensionResource(R.dimen.standard_margin))
                 )
 
                 SheetHeaderTitle(
@@ -59,13 +64,16 @@ fun SheetHeaderBackAndClose(
                     byline = byline,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(top = 16.dp, start = 24.dp)
+                        .padding(
+                            top = dimensionResource(R.dimen.medium_margin),
+                            start = dimensionResource(R.dimen.standard_margin)
+                        )
                 )
 
                 SheetHeaderCloseButton(
                     onClosePress = onClosePress,
                     backPressContentDescription = closePressContentDescription,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(dimensionResource(R.dimen.medium_margin))
                 )
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -85,7 +93,7 @@ private fun SheetHeaderTitle(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (byline == null) {
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(dimensionResource(R.dimen.smallest_margin)))
         }
 
         Text(
@@ -101,7 +109,7 @@ private fun SheetHeaderTitle(
                 color = if (isDarkMode) Dark200 else Grey600,
                 textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(dimensionResource(R.dimen.minuscule_margin)))
         }
     }
 }

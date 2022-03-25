@@ -32,7 +32,6 @@ data class PinStatus(
 )
 
 data class BiometricStatus(
-    val isBiometricsEnabled: Boolean = false,
     val shouldShowFingerprint: Boolean = false,
     val canShowFingerprint: Boolean = true
 )
@@ -95,7 +94,7 @@ enum class PayloadError {
     CREDENTIALS_INVALID,
     SERVER_CONNECTION_EXCEPTION,
     SERVER_TIMEOUT,
-    UNSUPORTTED_VERSION_EXCEPTION,
+    UNSUPPORTED_VERSION_EXCEPTION,
     DECRYPTION_EXCEPTION,
     HD_WALLET_EXCEPTION,
     INVALID_CIPHER_TEXT,

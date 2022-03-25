@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf

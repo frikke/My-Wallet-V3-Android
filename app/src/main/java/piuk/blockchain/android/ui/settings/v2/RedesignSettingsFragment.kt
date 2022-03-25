@@ -16,7 +16,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -437,9 +437,9 @@ class RedesignSettingsFragment :
 
     private fun showLogoutDialog() {
         AlertDialog.Builder(requireContext(), R.style.AlertDialogStyle)
-            .setTitle(R.string.logout_wallet)
-            .setMessage(R.string.ask_you_sure_logout)
-            .setPositiveButton(R.string.btn_logout) { _, _ -> model.process(SettingsIntent.Logout) }
+            .setTitle(R.string.settings_signout_wallet)
+            .setMessage(R.string.settings_ask_you_sure_signout)
+            .setPositiveButton(R.string.settings_btn_signout) { _, _ -> model.process(SettingsIntent.Logout) }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }

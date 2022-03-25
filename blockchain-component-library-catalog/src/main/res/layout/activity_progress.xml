@@ -17,6 +17,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
+            android:text="Loading Table Row"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.system.LoadingTableRowView
+            android:id="@+id/loading_table_row_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:text="Loading Asset Chart"
+            android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
+
+        <com.blockchain.componentlib.system.LoadingChartView
+            android:id="@+id/loading_chart_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
             android:text="Linear Determinate"
             android:textAppearance="@style/TextAppearance.Blockchain.Title2" />
 

@@ -20,8 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Red000
@@ -99,7 +101,7 @@ fun Radio(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(
                             bounded = false,
-                            radius = 24.dp,
+                            radius = dimensionResource(R.dimen.standard_margin),
                         ),
                     ) {
                         onSelectedChanged(
@@ -112,8 +114,8 @@ fun Radio(
                     }
                 }
             }
-            .padding(12.dp)
-            .size(24.dp)
+            .padding(dimensionResource(R.dimen.very_small_margin))
+            .size(dimensionResource(R.dimen.standard_margin))
             .background(
                 color = animateColorAsState(targetValue = radioFillColor).value,
                 shape = CircleShape,

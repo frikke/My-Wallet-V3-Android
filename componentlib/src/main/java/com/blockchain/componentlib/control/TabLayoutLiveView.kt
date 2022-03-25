@@ -19,6 +19,7 @@ class TabLayoutLiveView @JvmOverloads constructor(
     var items: List<String> by mutableStateOf(emptyList())
     var onItemSelected by mutableStateOf({ _: Int -> })
     var selectedItemIndex by mutableStateOf(0)
+    var showLiveIndicator by mutableStateOf(true)
 
     @Composable
     override fun Content() {
@@ -30,7 +31,8 @@ class TabLayoutLiveView @JvmOverloads constructor(
                         selectedItemIndex = index
                         onItemSelected(index)
                     },
-                    selectedItemIndex = selectedItemIndex
+                    selectedItemIndex = selectedItemIndex,
+                    showLiveIndicator = showLiveIndicator
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -10,13 +11,17 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 
 class WalletConnectMetadataRepositoryTest {
 
     private val metadataManager: MetadataManager = mock()
-    private val subject = WalletConnectMetadataRepository(metadataManager)
+    private val featureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.then { Single.just(true) }
+    }
+    private val subject = WalletConnectMetadataRepository(metadataManager, featureFlag)
 
     @Test
     fun `load json sessions from metadata should create the corresponding v1 sessions`() {
@@ -62,6 +67,22 @@ class WalletConnectMetadataRepositoryTest {
         whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
             Maybe.empty()
         )
+
+        val test = subject.retrieve().test()
+
+        test.assertValue { sessions ->
+            sessions.isEmpty()
+        }
+    }
+
+    @Test
+    fun `load json sessions from metadata with featureflag disable should return nothing`() {
+        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
+            Maybe.just(
+                sampleMetadataString
+            )
+        )
+        whenever(featureFlag.enabled).thenReturn(Single.just(false))
 
         val test = subject.retrieve().test()
 

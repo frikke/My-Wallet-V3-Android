@@ -21,10 +21,10 @@ data class AccountV4(
     @JsonProperty("label")
     override var label: String = "",
 
-    @JsonProperty("default_derivation")
+    @field:JsonProperty("default_derivation")
     var defaultType: String = Derivation.SEGWIT_BECH32_TYPE,
 
-    @JsonProperty("archived")
+    @field:JsonProperty("archived")
     override var isArchived: Boolean = false,
 
     @JsonProperty("derivations")

@@ -127,7 +127,7 @@ import thepit.PitLinking
         return notificationUpdater.updateNotificationBackend(notify)
     }
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> =
+    override fun parseAddress(address: String, label: String?, isDomainAddress: Boolean): Maybe<ReceiveAddress> =
         Maybe.fromCallable {
             // Remove any potential trailing white spaces
             val normalisedAddress = address.removePrefix(FormatsUtil.BTC_PREFIX).trim()
@@ -144,7 +144,12 @@ import thepit.PitLinking
                 }
             }
             if (addressPart != null && isValidAddress(addressPart)) {
-                BtcAddress(address = addressPart, label = label ?: address, amount = amountPart)
+                BtcAddress(
+                    address = addressPart,
+                    label = label ?: address,
+                    isDomain = isDomainAddress,
+                    amount = amountPart
+                )
             } else {
                 null
             }
@@ -231,6 +236,7 @@ import thepit.PitLinking
 internal class BtcAddress(
     override val address: String,
     override val label: String = address,
+    override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     override val amount: CryptoValue? = null
 ) : CryptoAddress {

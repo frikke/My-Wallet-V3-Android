@@ -1,12 +1,6 @@
 package info.blockchain.wallet.payload.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
@@ -17,6 +11,7 @@ import info.blockchain.wallet.exceptions.EncryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.NoSuchAddressException;
 import info.blockchain.wallet.keys.SigningKey;
+import info.blockchain.wallet.payload.data.walletdto.WalletDto;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FormatsUtil;
 
@@ -34,70 +29,21 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-@JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.NONE,
-    getterVisibility = Visibility.NONE,
-    setterVisibility = Visibility.NONE,
-    creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE)
+
 public class Wallet {
-
-    @JsonProperty("guid")
-    private String guid;
-
-    @JsonProperty("sharedKey")
-    private String sharedKey;
-
-    @JsonProperty("double_encryption")
-    private boolean doubleEncryption;
-
-    @JsonProperty("dpasswordhash")
-    private String dpasswordhash;
-
-    @JsonProperty("metadataHDNode")
-    private String metadataHDNode;
-
-    @JsonProperty("tx_notes")
-    private Map<String, String> txNotes;
-
-    @JsonProperty("tx_tags")
-    private Map<String, List<Integer>> txTags;
-
-    @JsonProperty("tag_names")
-    private List<Map<Integer, String>> tagNames;
-
-    @JsonProperty("options")
-    private Options options;
-
-    @JsonProperty("wallet_options")
-    private Options walletOptions;
-
-    @JsonProperty("hd_wallets")
-    private List<WalletBody> walletBodies;
-
-    @JsonProperty("keys")
-    private List<ImportedAddress> imported;
-
-    @JsonProperty("address_book")
-    private List<AddressBook> addressBook;
-
-    @JsonIgnore
+    private final WalletDto walletDto;
     private int wrapperVersion;
 
+    private Wallet(WalletDto walletDto) {
+        this.walletDto = walletDto;
+    }
+
     public Wallet() {
-        guid           = UUID.randomUUID().toString();
-        sharedKey      = UUID.randomUUID().toString();
-        txNotes        = new HashMap<>();
-        imported       = new ArrayList<>();
-        options        = Options.getDefaultOptions();
+        walletDto      = new WalletDto();
         wrapperVersion = WalletWrapper.V4;
-        walletBodies   = new ArrayList<>();
     }
 
     public Wallet(String defaultAccountName) throws Exception {
@@ -105,81 +51,73 @@ public class Wallet {
     }
 
     public Wallet(String defaultAccountName, boolean createV4) throws Exception {
-        guid      = UUID.randomUUID().toString();
-        sharedKey = UUID.randomUUID().toString();
-        txNotes   = new HashMap<>();
-        imported  = new ArrayList<>();
-        options   = Options.getDefaultOptions();
-
         WalletBody walletBodyBody = new WalletBody(defaultAccountName, createV4);
-        wrapperVersion = createV4 ? WalletWrapper.V4 : WalletWrapper.V3;
-        walletBodies   = new ArrayList<>();
+        ArrayList<WalletBody> walletBodies = new ArrayList<>();
         walletBodies.add(walletBodyBody);
+        walletDto      = new WalletDto(walletBodies);
+        wrapperVersion = createV4 ? WalletWrapper.V4 : WalletWrapper.V3;
     }
 
     public String getGuid() {
-        return guid;
+        return walletDto.getGuid();
     }
 
     public String getSharedKey() {
-        return sharedKey;
+        return walletDto.getSharedKey();
     }
 
     public boolean isDoubleEncryption() {
-        return doubleEncryption;
+        return walletDto.isDoubleEncryption();
     }
 
     public String getDpasswordhash() {
-        return dpasswordhash;
+        return walletDto.getDpasswordhash();
     }
 
-    public String getMetadataHDNode() {
-        return metadataHDNode;
-    }
 
     public Map<String, String> getTxNotes() {
-        return txNotes;
+        return walletDto.getTxNotes();
     }
 
     public Map<String, List<Integer>> getTxTags() {
-        return txTags;
+        return walletDto.getTxTags();
     }
 
     public List<Map<Integer, String>> getTagNames() {
-        return tagNames;
+        return walletDto.getTagNames();
     }
 
     public Options getOptions() {
         fixPbkdf2Iterations();
-        return options;
+        return walletDto.getOptions();
     }
 
     public Options getWalletOptions() {
-        return walletOptions;
+        return walletDto.getWalletOptions();
     }
 
     @Deprecated
     @Nullable
     public List<WalletBody> getWalletBodies() {
-        return walletBodies;
+        return walletDto.getWalletBodies();
     }
 
     @Nullable
     public WalletBody getWalletBody() {
-        if (walletBodies == null || walletBodies.isEmpty()) {
+        if (walletDto.getWalletBodies() == null || walletDto.getWalletBodies().isEmpty()) {
             return null;
         }
         else {
-            return walletBodies.get(HD_WALLET_INDEX);
+            return walletDto.getWalletBodies().get(HD_WALLET_INDEX);
         }
     }
 
     public List<ImportedAddress> getImportedAddressList() {
-        return imported;
+        return walletDto.getImported();
     }
 
-    public List<AddressBook> getAddressBook() {
-        return addressBook;
+    public List<AddressBook> getAddressBooks() {
+        return walletDto.getAddressBook();
     }
 
     public int getWrapperVersion() {
@@ -187,24 +125,25 @@ public class Wallet {
     }
 
     public void setGuid(String guid) {
-        this.guid = guid;
+        this.walletDto.setGuid(guid);
     }
 
     public void setSharedKey(String sharedKey) {
-        this.sharedKey = sharedKey;
+        this.walletDto.setSharedKey(sharedKey);
     }
 
     @Deprecated
     public void setWalletBodies(List<WalletBody> walletBodies) {
-        this.walletBodies = walletBodies;
+        this.walletDto
+            .setWalletBodies(walletBodies);
     }
 
     public void setWalletBody(WalletBody walletBody) {
-        this.walletBodies = Collections.singletonList(walletBody);
+        this.walletDto.setWalletBodies(Collections.singletonList(walletBody));
     }
 
     public void setImportedAddressList(List<ImportedAddress> keys) {
-        this.imported = keys;
+        this.walletDto.setImported(keys);
     }
 
     public void setWrapperVersion(int wrapperVersion) {
@@ -212,7 +151,7 @@ public class Wallet {
     }
 
     public boolean isUpgradedToV3() {
-        return (walletBodies != null && walletBodies.size() > 0);
+        return (walletDto.getWalletBodies() != null && walletDto.getWalletBodies().size() > 0);
     }
 
     public static Wallet fromJson(String json)
@@ -236,37 +175,35 @@ public class Wallet {
         String json,
         ObjectMapper mapper
     ) throws IOException, HDWalletException {
-        Wallet wallet = mapper.readValue(json, Wallet.class);
+        WalletDto walletDto = mapper.readValue(json, WalletDto.class);
 
-        if (wallet.getWalletBodies() != null) {
+        if (walletDto.getWalletBodies() != null) {
             ArrayList<WalletBody> walletBodyList = new ArrayList<>();
 
-            for (WalletBody walletBody : wallet.getWalletBodies()) {
+            for (WalletBody walletBody : walletDto.getWalletBodies()) {
                 walletBodyList.add(
-                    WalletBody.fromJson(
+                    WalletBody.Companion.fromJson(
                         walletBody.toJson(mapper),
                         mapper
                     )
                 );
             }
 
-            wallet.setWalletBodies(walletBodyList);
+            walletDto.setWalletBodies(walletBodyList);
         }
 
-        return wallet;
+        return new Wallet(walletDto);
     }
 
     public String toJson(ObjectMapper mapper) throws JsonProcessingException {
-        return mapper.writeValueAsString(this);
+        return mapper.writeValueAsString(this.walletDto);
     }
 
     void addHDWallet(WalletBody walletBody) {
-
-        if (walletBodies == null) {
-            walletBodies = new ArrayList<>();
+        if (walletDto.getWalletBodies() == null) {
+            walletDto.setWalletBodies(new ArrayList<>());
         }
-
-        walletBodies.add(walletBody);
+        walletDto.getWalletBodies().add(walletBody);
     }
 
     /**
@@ -394,7 +331,7 @@ public class Wallet {
             address.setPrivateKey(encryptedKey);
 
         }
-        imported.add(address);
+        walletDto.getImported().add(address);
         return address;
     }
 
@@ -403,7 +340,7 @@ public class Wallet {
                                                      String device,
                                                      String apiCode)
         throws Exception {
-        return addImportedAddress(ImportedAddress.fromECKey(key.toECKey(), device, apiCode), secondPassword);
+        return addImportedAddress(ImportedAddress.Companion.fromECKey(key.toECKey(), device, apiCode), secondPassword);
     }
 
     public void decryptHDWallet(String secondPassword)
@@ -414,8 +351,8 @@ public class Wallet {
 
         validateSecondPassword(secondPassword);
 
-        WalletBody walletBody = walletBodies.get(HD_WALLET_INDEX);
-        walletBody.decryptHDWallet(secondPassword, sharedKey, getOptions().getPbkdf2Iterations());
+        WalletBody walletBody = walletDto.getWalletBodies().get(HD_WALLET_INDEX);
+        walletBody.decryptHDWallet(secondPassword, walletDto.getSharedKey(), getOptions().getPbkdf2Iterations());
     }
 
     public void encryptAccount(Account account, String secondPassword)
@@ -424,7 +361,7 @@ public class Wallet {
         if (secondPassword != null) {
             String encryptedPrivateKey = DoubleEncryptionFactory.encrypt(
                 account.getXpriv(),
-                sharedKey,
+                walletDto.getSharedKey(),
                 secondPassword,
                 getOptions().getPbkdf2Iterations()
             );
@@ -443,7 +380,7 @@ public class Wallet {
         //Double decryption if need
         decryptHDWallet(secondPassword);
 
-        WalletBody walletBody = walletBodies.get(HD_WALLET_INDEX);
+        WalletBody walletBody = walletDto.getWalletBodies().get(HD_WALLET_INDEX);
 
         walletBody.setWrapperVersion(version);
 
@@ -510,8 +447,8 @@ public class Wallet {
     @Deprecated
     public List<String> getImportedAddressStringList() {
 
-        List<String> addrs = new ArrayList<>(imported.size());
-        for (ImportedAddress importedAddress : imported) {
+        List<String> addrs = new ArrayList<>(walletDto.getImported().size());
+        for (ImportedAddress importedAddress : walletDto.getImported()) {
             if (!ImportedAddressExtensionsKt.isArchived(importedAddress)) {
                 addrs.add(importedAddress.getAddress());
             }
@@ -522,8 +459,8 @@ public class Wallet {
 
     public List<String> getImportedAddressStringList(long tag) {
 
-        List<String> addrs = new ArrayList<>(imported.size());
-        for (ImportedAddress importedAddress : imported) {
+        List<String> addrs = new ArrayList<>(walletDto.getImported().size());
+        for (ImportedAddress importedAddress : walletDto.getImported()) {
             if (importedAddress.getTag() == tag) {
                 addrs.add(importedAddress.getAddress());
             }
@@ -533,7 +470,8 @@ public class Wallet {
     }
 
     public boolean containsImportedAddress(String addr) {
-        for (ImportedAddress importedAddress : imported) {
+        if (walletDto.getImported() == null) { return false; }
+        for (ImportedAddress importedAddress : walletDto.getImported()) {
             if (importedAddress.getAddress().equals(addr)) {
                 return true;
             }
@@ -553,23 +491,27 @@ public class Wallet {
         int iterations = WalletWrapper.DEFAULT_PBKDF2_ITERATIONS_V2;
 
         //Old wallets may contain 'wallet_options' key - we'll use this now
-        if (walletOptions != null && walletOptions.getPbkdf2Iterations() > 0) {
-            iterations = walletOptions.getPbkdf2Iterations();
-            options.setPbkdf2Iterations(iterations);
+        if (
+            walletDto.getWalletOptions() != null &&
+            walletDto.getWalletOptions().getPbkdf2Iterations() > 0 &&
+            walletDto.getOptions() != null
+        ) {
+            iterations = walletDto.getWalletOptions().getPbkdf2Iterations();
+            walletDto.getOptions().setPbkdf2Iterations(iterations);
         }
 
         //'options' key override wallet_options key - we'll use this now
-        if (options != null && options.getPbkdf2Iterations() > 0) {
-            iterations = options.getPbkdf2Iterations();
+        if (walletDto.getOptions() != null && walletDto.getOptions().getPbkdf2Iterations() > 0) {
+            iterations = walletDto.getOptions().getPbkdf2Iterations();
         }
 
         //If wallet doesn't contain 'option' - use default
-        if (options == null) {
-            options = Options.getDefaultOptions();
+        if (walletDto.getOptions() == null) {
+            walletDto.setOptions(Options.Companion.getDefaultOptions());
         }
 
         //Set iterations
-        options.setPbkdf2Iterations(iterations);
+        walletDto.getOptions().setPbkdf2Iterations(iterations);
 
         return iterations;
     }
@@ -609,5 +551,9 @@ public class Wallet {
         } catch (AddressFormatException e) {
             return false;
         }
+    }
+
+    public void setImportedAddresses(List<ImportedAddress> backup) {
+        walletDto.setImported(backup);
     }
 }

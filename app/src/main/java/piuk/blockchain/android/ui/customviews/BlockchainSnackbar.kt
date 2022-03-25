@@ -4,8 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import com.blockchain.componentlib.alert.abstract.SnackbarAlertView
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarAlertView
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.findSuitableParent
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -45,7 +45,9 @@ class BlockchainSnackbar(
             return BlockchainSnackbar(
                 parent,
                 customView
-            ).setDuration(duration)
+            ).setDuration(duration).apply {
+                this.view.elevation = Float.MAX_VALUE
+            }
         }
 
         fun make(

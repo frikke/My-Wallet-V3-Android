@@ -1,10 +1,6 @@
 package info.blockchain.wallet.payload.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,6 +9,7 @@ import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.EncryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.UnsupportedVersionException;
+import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto;
 import info.blockchain.wallet.util.FormatsUtil;
 
 import java.io.IOException;
@@ -31,66 +28,40 @@ import org.spongycastle.crypto.paddings.ISO7816d4Padding;
 import org.spongycastle.crypto.paddings.ZeroBytePadding;
 import org.spongycastle.util.encoders.Hex;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.NONE,
-        getterVisibility = Visibility.NONE,
-        setterVisibility = Visibility.NONE,
-        creatorVisibility = Visibility.NONE,
-        isGetterVisibility = Visibility.NONE)
+
 public class WalletBase {
 
     private static final int DEFAULT_PBKDF2_ITERATIONS_V1_A = 1;
     private static final int DEFAULT_PBKDF2_ITERATIONS_V1_B = 10;
 
-    //payload could be string in V1
-    //V2 and up is WalletWrapper
-    @JsonProperty("payload")
-    private String payload;
+    private final WalletBaseDto walletBaseDto;
 
-    //V3
-    @JsonProperty("guid")
-    private String guid;
-
-    @JsonProperty("extra_seed")
-    private String extraSeed;
-
-    @JsonProperty("payload_checksum")
-    private String payloadChecksum;
-
-    @JsonProperty("war_checksum")
-    private String warChecksum;
-
-    @JsonProperty("language")
-    private String language;
-
-    @JsonProperty("storage_token")
-    private String storageToken;
-
-    @JsonProperty("sync_pubkeys")
-    private boolean syncPubkeys;
+    private WalletBase(WalletBaseDto walletBaseDto) {
+        this.walletBaseDto = walletBaseDto;
+    }
 
     public WalletBase() {
-        //Empty constructor needed for Jackson
+        walletBaseDto = new WalletBaseDto();
     }
 
     public String getGuid() {
-        return guid;
+        return walletBaseDto.getGuid();
     }
 
     public void setGuid(String guid) {
-        this.guid = guid;
+        walletBaseDto.setGuid(guid);
     }
 
     public void decryptPayload(@Nonnull String password)
-            throws DecryptionException,
-            IOException,
+        throws DecryptionException,
+        IOException,
         UnsupportedVersionException,
         HDWalletException {
 
         if (!isV1Wallet()) {
             walletBody = decryptV3OrV4Wallet(password);
-        } else {
+        }
+        else {
             walletBody = decryptV1Wallet(password);
         }
     }
@@ -100,7 +71,7 @@ public class WalletBase {
         UnsupportedVersionException,
         HDWalletException {
 
-        WalletWrapper walletWrapperBody = WalletWrapper.fromJson(payload);
+        WalletWrapper walletWrapperBody = WalletWrapper.fromJson(walletBaseDto.getPayload());
         return walletWrapperBody.decryptPayload(password);
     }
 
@@ -108,18 +79,18 @@ public class WalletBase {
     No need to encrypt V1 wallet again. We will force user to upgrade to V3
      */
     private Wallet decryptV1Wallet(String password)
-            throws DecryptionException, IOException, HDWalletException {
+        throws DecryptionException, IOException, HDWalletException {
 
         String decrypted = null;
         int succeededIterations = -1000;
 
-        int[] iterations = {DEFAULT_PBKDF2_ITERATIONS_V1_A, DEFAULT_PBKDF2_ITERATIONS_V1_B};
-        int[] modes = {AESUtil.MODE_CBC, AESUtil.MODE_OFB};
+        int[] iterations = { DEFAULT_PBKDF2_ITERATIONS_V1_A, DEFAULT_PBKDF2_ITERATIONS_V1_B };
+        int[] modes = { AESUtil.MODE_CBC, AESUtil.MODE_OFB };
         BlockCipherPadding[] paddings = {
-                new ISO10126d2Padding(),
-                new ISO7816d4Padding(),
-                new ZeroBytePadding(),
-                null // NoPadding
+            new ISO10126d2Padding(),
+            new ISO7816d4Padding(),
+            new ZeroBytePadding(),
+            null // NoPadding
         };
 
         outerloop:
@@ -127,7 +98,13 @@ public class WalletBase {
             for (int mode : modes) {
                 for (BlockCipherPadding padding : paddings) {
                     try {
-                        decrypted = AESUtil.decryptWithSetMode(payload, password, iteration, mode, padding);
+                        decrypted = AESUtil.decryptWithSetMode(
+                            walletBaseDto.getPayload(),
+                            password,
+                            iteration,
+                            mode,
+                            padding
+                        );
                         //Ensure it's parsable
                         new JSONObject(decrypted);
 
@@ -135,7 +112,7 @@ public class WalletBase {
                         break outerloop;
 
                     } catch (Exception e) {
-//                        e.printStackTrace();
+                        //                        e.printStackTrace();
                     }
                 }
             }
@@ -151,75 +128,75 @@ public class WalletBase {
     }
 
     public String getExtraSeed() {
-        return extraSeed;
+        return walletBaseDto.getExtraSeed();
     }
 
     public void setExtraSeed(String extraSeed) {
-        this.extraSeed = extraSeed;
+        walletBaseDto.setExtraSeed(extraSeed);
     }
 
     public String getPayloadChecksum() {
-        return payloadChecksum;
+        return walletBaseDto.getPayloadChecksum();
     }
 
     public void setPayloadChecksum(String payloadChecksum) {
-        this.payloadChecksum = payloadChecksum;
+        walletBaseDto.setPayloadChecksum(payloadChecksum);
     }
 
     public String getWarChecksum() {
-        return warChecksum;
+        return walletBaseDto.getWarChecksum();
     }
 
     public void setWarChecksum(String warChecksum) {
-        this.warChecksum = warChecksum;
+        walletBaseDto.setWarChecksum(warChecksum);
     }
 
     public String getLanguage() {
-        return language;
+        return walletBaseDto.getLanguage();
     }
 
     public void setLanguage(String language) {
-        this.language = language;
+        walletBaseDto.setLanguage(language);
     }
 
     public String getStorageToken() {
-        return storageToken;
+        return walletBaseDto.getStorageToken();
     }
 
     public void setStorageToken(String storageToken) {
-        this.storageToken = storageToken;
+        walletBaseDto.setStorageToken(storageToken);
     }
 
     public boolean isSyncPubkeys() {
-        return syncPubkeys;
+        return walletBaseDto.getSyncPubkeys();
     }
 
     public void setSyncPubkeys(boolean syncPubkeys) {
-        this.syncPubkeys = syncPubkeys;
+        walletBaseDto.setSyncPubkeys(syncPubkeys);
     }
 
     public boolean isV1Wallet() {
-        return !FormatsUtil.isValidJson(payload);
+        return !FormatsUtil.isValidJson(walletBaseDto.getPayload());
     }
 
     public static WalletBase fromJson(String json) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
-                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+                                 .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                                 .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                                 .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                                 .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
 
-        return mapper.readValue(json, WalletBase.class);
+        return new WalletBase(mapper.readValue(json, WalletBaseDto.class));
     }
 
     public String toJson(ObjectMapper mapper) throws JsonProcessingException {
-        return mapper.writeValueAsString(this);
+        return mapper.writeValueAsString(this.walletBaseDto);
     }
 
     public Pair encryptAndWrapPayload(String password)
-            throws JsonProcessingException, UnsupportedEncodingException, EncryptionException, NoSuchAlgorithmException {
+        throws JsonProcessingException, UnsupportedEncodingException, EncryptionException, NoSuchAlgorithmException {
 
         int version = walletBody.getWrapperVersion();
         int iterations = walletBody.getOptions().getPbkdf2Iterations();

@@ -5,7 +5,7 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics

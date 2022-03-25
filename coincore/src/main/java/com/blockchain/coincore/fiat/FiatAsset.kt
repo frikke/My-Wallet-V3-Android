@@ -82,5 +82,9 @@ class FiatAsset(
     override fun transactionTargets(account: SingleAccount): Single<SingleAccountList> =
         Single.just(emptyList())
 
-    override fun parseAddress(address: String, label: String?): Maybe<ReceiveAddress> = Maybe.empty()
+    override fun parseAddress(
+        address: String,
+        label: String?,
+        isDomainAddress: Boolean
+    ): Maybe<ReceiveAddress> = Maybe.empty()
 }

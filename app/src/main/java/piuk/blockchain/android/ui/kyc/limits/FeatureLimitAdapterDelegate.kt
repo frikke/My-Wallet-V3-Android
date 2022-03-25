@@ -178,7 +178,7 @@ class FeatureWithLimitItemViewHolder(
                     Feature.SEND_FROM_TRADING_TO_PRIVATE -> R.drawable.ic_icon_send
                     Feature.RECEIVE_TO_TRADING -> R.drawable.ic_qr_scan
                     Feature.SWAP -> R.drawable.ic_vector_toolbar_swap
-                    Feature.BUY_SELL -> R.drawable.ic_feature_limits_buysell
+                    Feature.BUY_SELL -> R.drawable.ic_fiat_notes
                     Feature.CARD_PURCHASES -> R.drawable.vector_card
                     Feature.FIAT_DEPOSIT -> R.drawable.ic_transfer_bank
                     Feature.FIAT_WITHDRAWAL -> R.drawable.ic_transfer_bank

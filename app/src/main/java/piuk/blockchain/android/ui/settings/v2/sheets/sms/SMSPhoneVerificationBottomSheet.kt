@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetCodeSmsVerificationBinding
@@ -40,13 +40,17 @@ class SMSPhoneVerificationBottomSheet :
     }
 
     override fun render(newState: SMSVerificationState) {
-        when (newState.error) {
-            VerificationError.VerifyPhoneError -> showSnackbar(
-                SnackbarType.Error, R.string.profile_verification_code_error
-            )
-            VerificationError.ResendSmsError ->
-                showSnackbar(SnackbarType.Error, R.string.profile_resend_sms_error)
+        if (newState.error != null) {
+            when (newState.error) {
+                VerificationError.VerifyPhoneError -> showSnackbar(
+                    SnackbarType.Error, R.string.profile_verification_code_error
+                )
+                VerificationError.ResendSmsError ->
+                    showSnackbar(SnackbarType.Error, R.string.profile_resend_sms_error)
+            }
+            model.process(SMSVerificationIntent.ClearErrors)
         }
+
         if (newState.isCodeSmsSent) {
             showSnackbar(SnackbarType.Success, R.string.code_verification_resent_sms)
             model.process(SMSVerificationIntent.ResetCodeSentVerification)

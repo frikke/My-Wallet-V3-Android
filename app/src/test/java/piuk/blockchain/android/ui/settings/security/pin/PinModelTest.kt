@@ -212,7 +212,6 @@ class PinModelTest {
         }.assertValueAt(0) {
             it == PinState(
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = shouldShow,
                     canShowFingerprint = it.biometricStatus.canShowFingerprint
                 )
@@ -413,7 +412,6 @@ class PinModelTest {
                     passwordError = it.passwordStatus?.passwordError ?: PasswordError.NONE
                 ),
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
@@ -466,7 +464,6 @@ class PinModelTest {
                     isPinValidated = it.pinStatus.isPinValidated
                 ),
                 biometricStatus = BiometricStatus(
-                    isBiometricsEnabled = it.biometricStatus.isBiometricsEnabled,
                     shouldShowFingerprint = it.biometricStatus.shouldShowFingerprint,
                     canShowFingerprint = true
                 ),
@@ -623,7 +620,7 @@ class PinModelTest {
             it == PinState(
                 payloadStatus = PayloadStatus(
                     isPayloadCompleted = false,
-                    payloadError = PayloadError.UNSUPORTTED_VERSION_EXCEPTION
+                    payloadError = PayloadError.UNSUPPORTED_VERSION_EXCEPTION
                 ),
                 progressDialog = it.progressDialog
             )
@@ -1218,23 +1215,36 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
+                isLoading = true,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = it.biometricStatus.canShowFingerprint
+                )
+            )
+        }.assertValueAt(2) {
+            it == PinState(
+                isLoading = true,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = true,
                     messageToShow = it.progressDialog?.messageToShow ?: 0
                 )
             )
-        }.assertValueAt(2) {
+        }.assertValueAt(3) {
             it == PinState(
+                isLoading = false,
+                biometricStatus = it.biometricStatus,
                 progressDialog = it.progressDialog,
                 pinStatus = PinStatus(
                     isPinValidated = true,
                     currentPin = it.pinStatus.currentPin,
                     isFromPinCreation = it.pinStatus.isFromPinCreation
                 )
-
             )
-        }.assertValueAt(3) {
+        }.assertValueAt(4) {
             it == PinState(
+                isLoading = false,
+                biometricStatus = it.biometricStatus,
                 pinStatus = it.pinStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = false,
@@ -1260,13 +1270,25 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
+                isLoading = true,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = it.biometricStatus.canShowFingerprint
+                )
+            )
+        }.assertValueAt(2) {
+            it == PinState(
+                isLoading = true,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = true,
                     messageToShow = it.progressDialog?.messageToShow ?: 0
                 )
             )
-        }.assertValueAt(2) {
+        }.assertValueAt(3) {
             it == PinState(
+                isLoading = true,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = false,
                     messageToShow = 0
@@ -1290,19 +1312,33 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
+                isLoading = true,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = it.biometricStatus.canShowFingerprint
+                )
+            )
+        }.assertValueAt(2) {
+            it == PinState(
+                isLoading = true,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = true,
                     messageToShow = it.progressDialog?.messageToShow ?: 0
                 )
             )
-        }.assertValueAt(2) {
+        }.assertValueAt(3) {
             it == PinState(
+                isLoading = false,
+                biometricStatus = it.biometricStatus,
                 progressDialog = it.progressDialog,
                 error = PinError.INVALID_CREDENTIALS
             )
-        }.assertValueAt(3) {
+        }.assertValueAt(4) {
             it == PinState(
+                isLoading = false,
                 error = it.error,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = false,
                     messageToShow = 0
@@ -1326,19 +1362,33 @@ class PinModelTest {
             it == PinState()
         }.assertValueAt(1) {
             it == PinState(
+                isLoading = true,
+                biometricStatus = BiometricStatus(
+                    shouldShowFingerprint = false,
+                    canShowFingerprint = it.biometricStatus.canShowFingerprint
+                )
+            )
+        }.assertValueAt(2) {
+            it == PinState(
+                isLoading = true,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = true,
                     messageToShow = it.progressDialog?.messageToShow ?: 0
                 )
             )
-        }.assertValueAt(2) {
+        }.assertValueAt(3) {
             it == PinState(
+                isLoading = false,
+                biometricStatus = it.biometricStatus,
                 progressDialog = it.progressDialog,
                 error = PinError.ERROR_CONNECTION
             )
-        }.assertValueAt(3) {
+        }.assertValueAt(4) {
             it == PinState(
                 error = it.error,
+                isLoading = false,
+                biometricStatus = it.biometricStatus,
                 progressDialog = ProgressDialogStatus(
                     hasToShow = false,
                     messageToShow = 0

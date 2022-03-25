@@ -169,6 +169,7 @@
 -keep public class info.blockchain.wallet.prices.data.** { *; }
 -keep public class com.blockchain.nabu.api.** { *; }
 -keep public class com.blockchain.nabu.models.** { *; }
+-keep public class com.blockchain.walletconnect.data.** { *; }
 -keepclasseswithmembers class androidx.drawerlayout.widget.DrawerLayout { *; }
 
 # Javapoet

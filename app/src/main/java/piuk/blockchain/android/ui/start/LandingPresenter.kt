@@ -1,14 +1,13 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.coincore.loader.AssetCatalogueImpl
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SecurityPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.balance.isCustodial
@@ -36,8 +35,7 @@ class LandingPresenter(
     private val rootUtil: RootUtil,
     private val apiStatus: ApiStatus,
     private val assetCatalogue: AssetCatalogueImpl,
-    private val exchangeRatesDataManager: ExchangeRatesDataManager,
-    private val landingCtaFF: FeatureFlag
+    private val exchangeRatesDataManager: ExchangeRatesDataManager
 ) : MvpPresenter<LandingView>() {
 
     override val alwaysDisableScreenshots = false
@@ -58,12 +56,7 @@ class LandingPresenter(
 
     fun checkShouldShowLandingCta() {
         if (onboardingPrefs.isLandingCtaDismissed) return
-        compositeDisposable += landingCtaFF.enabled
-            .onErrorReturnItem(false)
-            .filter { enabled -> enabled }
-            .subscribeBy {
-                view?.showLandingCta()
-            }
+        view?.showLandingCta()
     }
 
     fun loadAssets() {
@@ -141,6 +134,5 @@ class LandingPresenter(
 
     companion object {
         private const val NUM_INITIAL_PRICES = 10
-        private const val DEFAULT_FIAT = "USD"
     }
 }

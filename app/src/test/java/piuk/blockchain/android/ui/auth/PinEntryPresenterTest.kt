@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.auth
 
 import android.view.View
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.notifications.analytics.Analytics

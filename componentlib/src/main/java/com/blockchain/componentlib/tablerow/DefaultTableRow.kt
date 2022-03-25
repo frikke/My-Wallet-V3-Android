@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -41,11 +42,15 @@ fun DefaultTableRow(
                 imageResource = startImageResource,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .size(24.dp)
+                    .size(dimensionResource(R.dimen.standard_margin))
             )
         },
         content = {
-            val startPadding = if (startImageResource != ImageResource.None) 16.dp else 0.dp
+            val startPadding = if (startImageResource != ImageResource.None) {
+                dimensionResource(R.dimen.medium_margin)
+            } else {
+                dimensionResource(R.dimen.zero_margin)
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -73,8 +78,8 @@ fun DefaultTableRow(
                 Image(
                     imageResource = endImageResource,
                     modifier = Modifier.requiredSizeIn(
-                        maxWidth = 24.dp,
-                        maxHeight = 24.dp,
+                        maxWidth = dimensionResource(R.dimen.standard_margin),
+                        maxHeight = dimensionResource(R.dimen.standard_margin),
                     ),
                 )
             }
@@ -90,7 +95,7 @@ fun DefaultTableRow(
                         color = AppTheme.colors.body,
                         modifier = Modifier
                             .padding(
-                                top = 4.dp,
+                                top = dimensionResource(R.dimen.smallest_margin),
                                 bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
                     )
@@ -356,8 +361,8 @@ fun DefaultTableRow_Local_With_BackgroundImageStart() {
                 onClick = {},
                 startImageResource = ImageResource.LocalWithBackground(
                     id = R.drawable.ic_blockchain,
-                    filterColorId = R.color.paletteBasePrimary,
-                    tintColorId = R.color.paletteBasePrimaryMuted,
+                    iconTintColour = R.color.paletteBasePrimary,
+                    backgroundColour = R.color.paletteBasePrimaryMuted,
                     contentDescription = null
                 )
             )

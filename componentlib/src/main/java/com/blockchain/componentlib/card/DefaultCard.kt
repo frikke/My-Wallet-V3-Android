@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -35,7 +36,8 @@ fun DefaultCard(
     iconResource: ImageResource = ImageResource.None,
     callToActionButton: CardButton? = null,
     onClose: () -> Unit = {},
-    isDarkTheme: Boolean = isSystemInDarkTheme()
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    isDismissable: Boolean = true
 ) {
 
     val backgroundColor = if (!isDarkTheme) {
@@ -53,7 +55,7 @@ fun DefaultCard(
     ) {
         Surface(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.medium_margin))
                 .background(backgroundColor)
                 .clip(AppTheme.shapes.small)
 
@@ -64,18 +66,21 @@ fun DefaultCard(
                 Row {
                     Image(
                         modifier = Modifier
-                            .size(32.dp),
+                            .size(dimensionResource(R.dimen.large_margin)),
                         imageResource = iconResource
                     )
                     Spacer(
                         modifier = Modifier.weight(1f, true)
                     )
-                    CardCloseButton(onClick = onClose)
+
+                    if (isDismissable) {
+                        CardCloseButton(onClick = onClose)
+                    }
                 }
 
                 Text(
                     modifier = Modifier
-                        .padding(top = 23.dp),
+                        .padding(top = dimensionResource(R.dimen.very_small_margin)),
                     text = title,
                     style = AppTheme.typography.title3,
                     color = AppTheme.colors.title
@@ -83,7 +88,7 @@ fun DefaultCard(
 
                 Text(
                     modifier = Modifier
-                        .padding(top = 8.dp),
+                        .padding(top = dimensionResource(R.dimen.tiny_margin)),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.title
@@ -92,7 +97,7 @@ fun DefaultCard(
                 if (callToActionButton != null) {
                     PrimaryButton(
                         modifier = Modifier
-                            .padding(top = 16.dp)
+                            .padding(top = dimensionResource(R.dimen.very_small_margin))
                             .fillMaxWidth(),
                         defaultBackgroundColor = callToActionButton.backgroundColor,
                         text = callToActionButton.text,

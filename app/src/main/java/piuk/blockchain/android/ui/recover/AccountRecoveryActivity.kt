@@ -7,7 +7,7 @@ import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visibleIf

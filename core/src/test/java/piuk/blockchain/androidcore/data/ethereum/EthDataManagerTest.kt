@@ -73,7 +73,7 @@ class EthDataManagerTest {
     fun fetchEthAddress() {
         // Arrange
         val ethAddress = "ADDRESS"
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn(ethAddress)
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
         val ethAddressResponseMap: EthAddressResponseMap = mock()
         whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
             .thenReturn(Observable.just(ethAddressResponseMap))
@@ -95,8 +95,8 @@ class EthDataManagerTest {
         val ethAddress = "ADDRESS"
         val ethAddressResponseMap: EthAddressResponseMap = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
         val response: EthAddressResponse = mock()
-        whenever(response.balance).thenReturn(BigInteger.TEN)
-        whenever(ethAddressResponseMap.ethAddressResponseMap.values).thenReturn(mutableListOf(response))
+        whenever(response.getBalance()).thenReturn(BigInteger.TEN)
+        whenever(ethAddressResponseMap.getEthAddressResponseMap().values).thenReturn(mutableListOf(response))
         whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
             .thenReturn(Observable.just(ethAddressResponseMap))
         // Act
@@ -151,7 +151,7 @@ class EthDataManagerTest {
         // Arrange
         val ethAddress = "ADDRESS"
         val ethTransaction: EthTransaction = mock()
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn(ethAddress)
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
         whenever(ethAccountApi.getEthTransactions(any()))
             .thenReturn(Single.just(listOf(ethTransaction, ethTransaction, ethTransaction)))
         // Act
@@ -168,7 +168,7 @@ class EthDataManagerTest {
     @Test
     fun `getEthTransactions response not found`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn(null)
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(null)
         // Act
         val testObserver = subject.getEthTransactions().test()
         // Assert
@@ -181,7 +181,7 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is pending when there is at least one transaction pending`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn("Address")
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
 
         whenever(ethAccountApi.getLastEthTransaction(any()))
             .thenReturn(Maybe.just(EthTransaction(state = "PENDING")))
@@ -196,7 +196,7 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is not pending when there is no pending tx`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn("Address")
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
 
         whenever(ethAccountApi.getLastEthTransaction(any()))
             .thenReturn(Maybe.just(EthTransaction(state = "CONFIRMED")))
@@ -211,7 +211,7 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is not pending when there is no tx`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account.address).thenReturn("Address")
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
 
         whenever(ethAccountApi.getLastEthTransaction(any()))
             .thenReturn(Maybe.empty())
@@ -258,7 +258,7 @@ class EthDataManagerTest {
         // Arrange
         val hash = "HASH"
         val notes = "NOTES"
-        whenever(ethDataStore.ethWallet!!.txNotes[hash]).thenReturn(notes)
+        whenever(ethDataStore.ethWallet!!.txNotes?.get(hash)).thenReturn(notes)
         // Act
         val result = subject.getTransactionNotes(hash)
         // Assert

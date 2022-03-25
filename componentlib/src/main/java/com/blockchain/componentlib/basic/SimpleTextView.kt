@@ -20,6 +20,7 @@ class SimpleTextView @JvmOverloads constructor(
     var style by mutableStateOf(ComposeTypographies.Body1)
     var textColor by mutableStateOf(ComposeColors.Medium)
     var gravity by mutableStateOf(ComposeGravities.Start)
+    var onClick by mutableStateOf(null as? (() -> Unit)?)
 
     @Composable
     override fun Content() {
@@ -29,7 +30,8 @@ class SimpleTextView @JvmOverloads constructor(
                     text = text,
                     style = style,
                     color = textColor,
-                    gravity = gravity
+                    gravity = gravity,
+                    onClick = onClick
                 )
             }
         }

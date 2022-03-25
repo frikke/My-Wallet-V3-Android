@@ -10,7 +10,7 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.redesignPart2FeatureFlag
@@ -104,7 +104,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         redesign.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
-                    startActivity(PinActivity.newIntent(this))
+                    startActivity(
+                        PinActivity.newIntent(
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+                            addFlagsToClear = true
+                        )
+                    )
                 } else {
                     startActivity(Intent(this, PinEntryActivity::class.java))
                 }
@@ -112,9 +119,19 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         )
     }
 
-    override fun updateWaitingForAuthDialog(secondsRemaining: Int) {
-        updateProgressDialog(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining)
-    }
+    override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
+        updateProgressDialog(
+            msg = getString(
+                R.string.common_spaced_strings,
+                getString(R.string.check_email_to_auth_login),
+                secondsRemaining.toString()
+            ),
+            onCancel = {
+                presenter.cancelAuthTimer()
+                presenter.cancelPollAuthStatus()
+            },
+            isCancelable = true
+        )
 
     override fun showTwoFactorCodeNeededDialog(
         responseObject: JSONObject,
@@ -163,13 +180,9 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
         super.onDestroy()
     }
 
-    companion object {
-        private const val PREFILLED_GUID = "PREFILLED_GUID"
-        fun newInstance(activity: Activity, guid: String?): Intent {
-            val intent = Intent(activity, ManualPairingActivity::class.java)
-            intent.putExtra(PREFILLED_GUID, guid)
-            return intent
-        }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        presenter.cancelPollAuthStatus()
     }
 
     private fun TextInputEditText.disableInputForDemoAccount() {
@@ -179,5 +192,14 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
                     inputType = InputType.TYPE_NULL
             }
         })
+    }
+
+    companion object {
+        private const val PREFILLED_GUID = "PREFILLED_GUID"
+        fun newInstance(activity: Activity, guid: String?): Intent {
+            val intent = Intent(activity, ManualPairingActivity::class.java)
+            intent.putExtra(PREFILLED_GUID, guid)
+            return intent
+        }
     }
 }

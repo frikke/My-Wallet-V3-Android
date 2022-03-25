@@ -8,13 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
-import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
@@ -39,6 +37,8 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetAddressSheetState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TargetSelectionCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
+import piuk.blockchain.android.util.clearErrorState
+import piuk.blockchain.android.util.setErrorState
 import timber.log.Timber
 
 class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAddressBinding>() {
@@ -53,8 +53,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            addressEntry.addTextChangedListener(addressTextWatcher)
-            btnScan.setOnClickListener { onLaunchAddressScan() }
+            fieldAddress.addTextChangedListener(addressTextWatcher)
+            addressEntry.setEndIconOnClickListener { onLaunchAddressScan() }
 
             walletSelect.apply {
                 onLoadError = {
@@ -65,6 +65,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 }
             }
         }
+        model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowEnterAddressBinding =
@@ -91,6 +92,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
                 setupTransferList(newState)
                 setupLabels(newState)
+                showDomainCardAlert(newState)
             }
             sourceSlot?.update(newState)
 
@@ -102,14 +104,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 hideManualAddressEntry(newState)
             }
 
-            customiser.issueFlashMessage(newState, null).takeIf { it.isNotEmpty() }?.let {
-                addressEntry.setBackgroundColor(
-                    ContextCompat.getColor(requireContext(), R.color.red_000)
-                )
-                errorMsg.apply {
-                    text = it
-                    visible()
-                }
+            customiser.issueFlashMessage(newState, null).takeIf { it.isNotEmpty() }?.let { errorMsg ->
+                addressEntry.setErrorState(errorMsg)
+                warningMessage.gone()
             } ?: hideErrorState()
 
             ctaButton.isEnabled = newState.nextEnabled
@@ -122,18 +119,33 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private fun setupLabels(state: TransactionState) {
         with(binding) {
-            titleFrom.text = customiser.selectTargetSourceLabel(state)
-            titleTo.text = customiser.selectTargetDestinationLabel(state)
+            titleFrom.title = customiser.selectTargetSourceLabel(state)
+            titleTo.title = customiser.selectTargetDestinationLabel(state)
             subtitle.visibleIf { customiser.selectTargetShouldShowSubtitle(state) }
             subtitle.text = customiser.selectTargetSubtitle(state)
+            warningMessage.text = customiser.selectTargetAddressInputWarning(state)
+            titlePick.apply {
+                visibleIf { customiser.selectTargetShouldShowTargetPickTitle(state) }
+                title = customiser.selectTargetAddressTitlePick(state)
+            }
         }
     }
 
     private fun hideErrorState() {
-        binding.errorMsg.invisible()
-        binding.addressEntry.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.grey_000)
-        )
+        binding.addressEntry.clearErrorState()
+        binding.warningMessage.visible()
+    }
+
+    private fun showDomainCardAlert(state: TransactionState) {
+        binding.domainsAlert.apply {
+            title = customiser.sendToDomainCardTitle(state)
+            subtitle = customiser.sendToDomainCardDescription(state)
+            onClose = {
+                model.process(TransactionIntent.DismissSendToDomainBanner(DOMAIN_ALERT_DISMISS_KEY))
+                gone()
+            }
+            visibleIf { customiser.shouldShowSendToDomainBanner(state) }
+        }
     }
 
     private fun showManualAddressEntry(newState: TransactionState) {
@@ -144,8 +156,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
 
         with(binding) {
-            if (address.isNotEmpty() && address != addressEntry.getTextString()) {
-                addressEntry.setText(address, TextView.BufferType.EDITABLE)
+            if (address.isNotEmpty() && address != fieldAddress.getTextString()) {
+                fieldAddress.setText(address, TextView.BufferType.EDITABLE)
             }
             addressEntry.hint = customiser.selectTargetAddressInputHint(newState)
             inputSwitcher.visible()
@@ -166,11 +178,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 }
 
                 titlePick.gone()
-                pickSeparator.gone()
                 inputSwitcher.displayedChild = CUSTODIAL_INPUT
             } else {
                 inputSwitcher.gone()
-                pickSeparator.gone()
                 titlePick.gone()
             }
         }
@@ -240,7 +250,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
         }
 
     private fun setAddressValue(value: String) {
-        with(binding.addressEntry) {
+        with(binding.fieldAddress) {
             removeTextChangedListener(addressTextWatcher)
             setText(value, TextView.BufferType.EDITABLE)
             setSelection(value.length)
@@ -293,7 +303,8 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     companion object {
         private const val NONCUSTODIAL_INPUT = 0
         private const val CUSTODIAL_INPUT = 1
-        private const val ADDRESS_UPDATE_INTERVAL = 500L
+        private const val ADDRESS_UPDATE_INTERVAL = 1000L
+        const val DOMAIN_ALERT_DISMISS_KEY = "SEND_TO_DOMAIN_ALERT_DISMISSED"
 
         fun newInstance(): EnterTargetAddressFragment = EnterTargetAddressFragment()
     }

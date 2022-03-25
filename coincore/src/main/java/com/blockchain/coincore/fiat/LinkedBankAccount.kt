@@ -6,6 +6,7 @@ import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.core.price.ExchangeRate
@@ -62,6 +63,9 @@ class LinkedBankAccount(
         get() = Single.just(emptyList())
 
     override val actions: Single<AvailableActions>
+        get() = Single.just(emptySet())
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())
 
     override val isFunded: Boolean

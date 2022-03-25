@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -95,8 +95,6 @@ class PasswordAuthPresenterTest {
         val response = Response.success(responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(Completable.complete())
 
@@ -121,8 +119,6 @@ class PasswordAuthPresenterTest {
         val response = Response.success(responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(
                 Completable.error(
@@ -150,8 +146,6 @@ class PasswordAuthPresenterTest {
         val response = Response.success(responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(
                 Completable.error(
@@ -179,8 +173,6 @@ class PasswordAuthPresenterTest {
         val response = Response.success(responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(Completable.error(RuntimeException()))
 
@@ -191,7 +183,6 @@ class PasswordAuthPresenterTest {
         verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
         verify(view).dismissProgressDialog()
-        verify(appUtil).clearCredentialsAndRestart()
     }
 
     /**
@@ -205,8 +196,6 @@ class PasswordAuthPresenterTest {
         val response = Response.success(responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(Completable.complete())
 
@@ -233,8 +222,6 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.error(Throwable()))
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
 
         // Act
         subject.verifyPassword(PASSWORD, GUID)
@@ -291,8 +278,6 @@ class PasswordAuthPresenterTest {
         val response = Response.error<ResponseBody>(500, responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just(PasswordAuthPresenter.KEY_AUTH_REQUIRED))
         whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1))
 
         // Act
@@ -311,18 +296,15 @@ class PasswordAuthPresenterTest {
     fun onContinueClickedWaitingForAuthSuccess() {
         // Arrange
         whenever(authDataManager.getSessionId(anyString())).thenReturn(Observable.just("1234567890"))
-        val responseBody = KEY_AUTH_REQUIRED_JSON.toResponseBody("application/json".toMediaTypeOrNull())
-        val response = Response.error<ResponseBody>(500, responseBody)
+        val responseBody = "{}".toResponseBody("application/json".toMediaTypeOrNull())
+        val response = Response.success<ResponseBody>(200, responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("{}"))
         whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(Completable.complete())
         whenever(wallet.guid).thenReturn(GUID)
         whenever(wallet.sharedKey).thenReturn("shared_key")
-
         // Act
         subject.verifyPassword(PASSWORD, GUID)
 
@@ -341,18 +323,16 @@ class PasswordAuthPresenterTest {
         val response = Response.error<ResponseBody>(500, responseBody)
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("{}"))
         whenever(authDataManager.createCheckEmailTimer())
             .thenReturn(Observable.error(Throwable()))
         whenever(payloadDataManager.initializeFromPayload(anyString(), anyString()))
             .thenReturn(Completable.complete())
-
         // Act
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
         verify(view).showSnackbar(any(), any())
+        verify(view).dismissProgressDialog()
         verify(view).resetPasswordField()
     }
 
@@ -403,10 +383,8 @@ class PasswordAuthPresenterTest {
         val response = Response.error<ResponseBody>(500, responseBody)
 
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
-            .thenReturn(Observable.just(response))
-        whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
             .thenReturn(Observable.error(Throwable()))
+        whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(1))
 
         // Act
         subject.verifyPassword(PASSWORD, GUID)
@@ -414,6 +392,7 @@ class PasswordAuthPresenterTest {
         // Assert
         verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
+        verify(view).dismissProgressDialog()
     }
 
     /**
@@ -428,8 +407,6 @@ class PasswordAuthPresenterTest {
         whenever(authDataManager.getEncryptedPayload(anyString(), anyString(), anyBoolean()))
             .thenReturn(Observable.just(response))
         whenever(authDataManager.createCheckEmailTimer()).thenReturn(Observable.just(0))
-        whenever(authDataManager.startPollingAuthStatus(anyString(), anyString()))
-            .thenReturn(Observable.just("1234567890"))
 
         // Act
         subject.verifyPassword(PASSWORD, GUID)
@@ -437,6 +414,7 @@ class PasswordAuthPresenterTest {
         // Assert
         verify(view).showSnackbar(any(), any())
         verify(view).resetPasswordField()
+        verify(view).dismissProgressDialog()
     }
 
     @Test
@@ -504,7 +482,7 @@ class PasswordAuthPresenterTest {
         // Assert
 
         assertEquals(0, subject.compositeDisposable.size().toLong())
-        assertEquals(0, subject.authDisposable.size().toLong())
+        assertEquals(0, subject.timerDisposable.size().toLong())
     }
 
     companion object {

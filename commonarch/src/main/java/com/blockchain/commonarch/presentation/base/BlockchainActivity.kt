@@ -201,9 +201,13 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     @UiThread
-    fun updateProgressDialog(msg: String) {
-        progressDialog?.setMessage(msg)
+    fun updateProgressDialog(msg: String, onCancel: () -> Unit = {}, isCancelable: Boolean = false) {
+    progressDialog?.apply {
+        setCancelable(isCancelable)
+        setMessage(msg)
+        setOnCancelListener(onCancel)
     }
+}
 
     @UiThread
     fun showBottomSheet(bottomSheet: BottomSheetDialogFragment) {

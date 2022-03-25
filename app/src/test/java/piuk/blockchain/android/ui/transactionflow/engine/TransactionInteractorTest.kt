@@ -12,6 +12,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
@@ -21,6 +22,7 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 
@@ -43,6 +45,8 @@ class TransactionInteractorTest {
     private val accountsSorting: AccountsSorting = mock()
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
+    private val dismissRecorder: DismissRecorder = mock()
+    private val showSendToDomainAnnouncementFeatureFlag: IntegratedFeatureFlag = mock()
 
     private lateinit var subject: TransactionInteractor
 
@@ -58,7 +62,9 @@ class TransactionInteractorTest {
             identity,
             accountsSorting,
             linkedBanksFactory,
-            bankLinkingPrefs
+            bankLinkingPrefs,
+            dismissRecorder,
+            showSendToDomainAnnouncementFeatureFlag
         )
     }
 

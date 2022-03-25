@@ -3,8 +3,8 @@ package piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vi
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.blockchain.componentlib.alert.abstract.SnackbarAlertView
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarAlertView
+import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.blockchain_component_library_catalog.R
 
 class SnackbarsActivity : AppCompatActivity() {

@@ -20,6 +20,7 @@ import com.blockchain.componentlib.theme.NoRippleProvider
 
 @Composable
 fun BalanceSectionHeader(
+    labelText: String,
     primaryText: String,
     secondaryText: String,
     iconResource: ImageResource = ImageResource.Local(R.drawable.ic_star, null),
@@ -31,6 +32,12 @@ fun BalanceSectionHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
+            Text(
+                text = labelText,
+                style = AppTheme.typography.caption2,
+                color = AppTheme.colors.title,
+                modifier = Modifier
+            )
             Text(
                 text = primaryText,
                 style = AppTheme.typography.title3,
@@ -61,6 +68,7 @@ private fun BalanceSectionHeaderPreview() {
     AppTheme {
         AppSurface {
             BalanceSectionHeader(
+                labelText = "Your Account Balance",
                 primaryText = "\$12,293.21",
                 secondaryText = "0.1393819 BTC"
             )

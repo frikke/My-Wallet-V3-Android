@@ -19,7 +19,6 @@ import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
-import com.blockchain.koin.stripeAndCheckoutPaymentsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -62,6 +61,8 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CardProviderActivator
 import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapper
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
+import piuk.blockchain.android.data.Mapper
+import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
 import piuk.blockchain.android.data.TradeDataManagerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
@@ -430,6 +431,7 @@ val applicationModule = module {
             QrScanResultProcessor(
                 bitPayDataManager = get(),
                 walletConnectUrlValidator = get(),
+                analytics = get(),
                 featureFlag = get(walletConnectFeatureFlag)
             )
         }
@@ -454,7 +456,6 @@ val applicationModule = module {
                 analytics = get(),
                 exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
-                stripeAndCheckoutPaymentsFeatureFlag = get(stripeAndCheckoutPaymentsFeatureFlag),
                 brokerageDataManager = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
@@ -537,9 +538,16 @@ val applicationModule = module {
                 tradeService = get(),
                 authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
-                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper()
+                nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
+                recurringBuyMapper = get()
             )
         }.bind(TradeDataManager::class)
+
+        factory {
+            RecurringBuyResponseToRecurringBuyMapper(
+                assetCatalogue = get()
+            )
+        }.bind(Mapper::class)
 
         factory {
             SimpleBuyPrefsSerializerImpl(

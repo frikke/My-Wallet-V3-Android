@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.redesignPart2FeatureFlag
@@ -59,12 +59,10 @@ class PasswordRequiredActivity :
         setContentView(binding.root)
 
         with(binding) {
-
             walletIdentifier.apply {
                 labelText = getString(R.string.wallet_id)
                 state = TextInputState.Disabled()
             }
-
             buttonContinue.apply {
                 onClick = {
                     presenter.onContinueClicked(binding.fieldPassword.text.toString())
@@ -84,6 +82,12 @@ class PasswordRequiredActivity :
     override fun onResume() {
         super.onResume()
         presenter.loadWalletGuid()
+        presenter.checkEmailAuth(binding.fieldPassword.text.toString())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        presenter.cancelPollAuthStatus()
     }
 
     override fun showSnackbar(@StringRes messageId: Int, type: SnackbarType) {
@@ -113,7 +117,14 @@ class PasswordRequiredActivity :
         redesign.enabled.onErrorReturnItem(false).subscribeBy(
             onSuccess = { isEnabled ->
                 if (isEnabled) {
-                    startActivity(PinActivity.newIntent(this))
+                    startActivity(
+                        PinActivity.newIntent(
+                            context = this,
+                            startForResult = false,
+                            originScreen = PinActivity.Companion.OriginScreenToPin.PASSWORD_REQUIRED_SCREEN,
+                            addFlagsToClear = true
+                        )
+                    )
                 } else {
                     startActivity(Intent(this, PinEntryActivity::class.java))
                 }
@@ -122,7 +133,18 @@ class PasswordRequiredActivity :
     }
 
     override fun updateWaitingForAuthDialog(secondsRemaining: Int) =
-        updateProgressDialog(getString(R.string.check_email_to_auth_login) + " " + secondsRemaining)
+        updateProgressDialog(
+            msg = getString(
+                R.string.common_spaced_strings,
+                getString(R.string.check_email_to_auth_login),
+                secondsRemaining.toString()
+            ),
+            onCancel = {
+                presenter.cancelAuthTimer()
+                presenter.cancelPollAuthStatus()
+            },
+            isCancelable = true
+        )
 
     override fun showForgetWalletWarning() {
         showAlert(
@@ -133,6 +155,11 @@ class PasswordRequiredActivity :
                 .setNegativeButton(android.R.string.cancel) { _, _ -> }
                 .create()
         )
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        presenter.cancelPollAuthStatus()
     }
 
     override fun showTwoFactorCodeNeededDialog(

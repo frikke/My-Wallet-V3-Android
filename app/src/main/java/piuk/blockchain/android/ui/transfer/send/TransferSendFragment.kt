@@ -97,7 +97,7 @@ class TransferSendFragment : AccountSelectorFragment() {
 
     private fun startTransactionFlow(fromAccount: CryptoAccount) {
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = fromAccount,
                 action = AssetAction.Send

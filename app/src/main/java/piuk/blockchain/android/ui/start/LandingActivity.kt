@@ -9,7 +9,7 @@ import android.os.Looper
 import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible

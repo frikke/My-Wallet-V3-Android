@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -28,7 +29,10 @@ fun Balance(
     Surface(color = AppTheme.colors.background) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.standard_margin),
+                    vertical = dimensionResource(R.dimen.medium_margin)
+                )
                 .fillMaxWidth()
         ) {
             Text(
@@ -49,8 +53,9 @@ fun Balance(
                 )
 
                 Image(
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                        .padding(top = 8.dp, start = 16.dp),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(top = 8.dp, start = dimensionResource(R.dimen.medium_margin)),
                     imageResource = endIcon
                 )
             }

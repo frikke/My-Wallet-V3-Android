@@ -25,7 +25,13 @@ class AnalyticsRequestBody(
 )
 
 @Serializable
-class AnalyticsContext(val device: DeviceInfo, val locale: String, val screen: ScreenInfo, val timezone: String)
+class AnalyticsContext(
+    val device: DeviceInfo,
+    val locale: String,
+    val screen: ScreenInfo,
+    val timezone: String,
+    val traits: Map<String, String> = emptyMap()
+)
 
 @Serializable
 class DeviceInfo(val manufacturer: String?, val model: String, val name: String)

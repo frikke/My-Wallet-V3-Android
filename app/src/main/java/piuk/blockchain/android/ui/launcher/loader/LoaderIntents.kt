@@ -21,6 +21,10 @@ sealed class LoaderIntents : MviIntent<LoaderState> {
         override fun reduce(oldState: LoaderState): LoaderState = oldState
     }
 
+    object OnTermsAndConditionsSigned : LoaderIntents() {
+        override fun reduce(oldState: LoaderState): LoaderState = oldState
+    }
+
     data class DecryptAndSetupMetadata(val secondPassword: String) : LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState
     }

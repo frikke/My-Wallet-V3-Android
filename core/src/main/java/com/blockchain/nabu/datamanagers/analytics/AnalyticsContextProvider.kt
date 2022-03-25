@@ -1,6 +1,9 @@
 package com.blockchain.nabu.datamanagers.analytics
 
+import android.content.Context
+import android.content.Context.ACCESSIBILITY_SERVICE
 import android.content.res.Resources
+import android.view.accessibility.AccessibilityManager
 import com.blockchain.api.analytics.AnalyticsContext
 import com.blockchain.api.analytics.DeviceInfo
 import com.blockchain.api.analytics.ScreenInfo
@@ -11,13 +14,16 @@ interface AnalyticsContextProvider {
     fun context(): AnalyticsContext
 }
 
-class AnalyticsContextProviderImpl : AnalyticsContextProvider {
+class AnalyticsContextProviderImpl constructor(
+    private val context: Context
+) : AnalyticsContextProvider {
     override fun context(): AnalyticsContext {
         return AnalyticsContext(
             device = getDeviceInfo(),
             locale = Locale.getDefault().toString(),
             screen = getScreenInfo(),
-            timezone = TimeZone.getDefault().id
+            timezone = TimeZone.getDefault().id,
+            traits = getTraits()
         )
     }
 
@@ -36,4 +42,12 @@ class AnalyticsContextProviderImpl : AnalyticsContextProvider {
             density = Resources.getSystem().displayMetrics.density
         )
     }
+
+    private fun getTraits() = mapOf(
+        "accessibility_enabled" to "${isAccessibilityEnabled()}"
+    )
+    private fun isAccessibilityEnabled(): Boolean =
+        (context.getSystemService(ACCESSIBILITY_SERVICE) as? AccessibilityManager)?.let {
+            it.isEnabled || it.isTouchExplorationEnabled
+        } ?: false
 }

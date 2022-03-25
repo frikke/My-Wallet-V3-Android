@@ -77,6 +77,7 @@ fun BalanceSectionHeaderPreview() {
     AppTheme {
         AppSurface {
             BalanceSectionHeader(
+                labelText = "A label",
                 primaryText = "\$12,293.21",
                 secondaryText = "0.1393819 BTC"
             )

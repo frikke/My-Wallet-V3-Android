@@ -17,7 +17,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.FlowFragment
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
@@ -200,7 +200,7 @@ class VeriffSplashFragment :
 
     override fun continueToSwap() =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 action = AssetAction.Swap
             )

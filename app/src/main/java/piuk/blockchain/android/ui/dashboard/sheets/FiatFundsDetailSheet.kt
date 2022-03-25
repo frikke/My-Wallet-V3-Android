@@ -2,12 +2,13 @@ package piuk.blockchain.android.ui.dashboard.sheets
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -131,11 +132,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         dismiss()
                         host.startBankTransferWithdrawal(fiatAccount = account)
                     } else {
-                        BlockchainSnackbar.make(
-                            binding.root,
-                            getString(R.string.fiat_funds_detail_pending_withdrawal),
-                            type = SnackbarType.Error
-                        ).show()
+                        showErrorSnackbar(R.string.fiat_funds_detail_pending_withdrawal)
                     }
                 },
                 onError = {
@@ -145,10 +142,10 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
             )
     }
 
-    private fun showErrorSnackbar() {
+    private fun showErrorSnackbar(@StringRes error: Int = R.string.common_error) {
         BlockchainSnackbar.make(
             binding.root,
-            getString(R.string.common_error),
+            getString(error),
             duration = Snackbar.LENGTH_SHORT,
             type = SnackbarType.Error
         ).show()

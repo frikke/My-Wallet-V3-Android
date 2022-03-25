@@ -6,7 +6,7 @@ import android.text.InputType
 import android.text.TextWatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar

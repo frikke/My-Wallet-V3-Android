@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.start
 
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.CrashLogger
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
@@ -31,6 +31,13 @@ class PasswordRequiredPresenter(
                 showSnackbar(R.string.invalid_password, SnackbarType.Error)
                 restartPage()
             }
+        }
+    }
+
+    fun checkEmailAuth(password: String) {
+        if (password.isNotEmpty() && hasTimerStarted()) {
+            val guid = prefs.walletGuid
+            waitForEmailAuth(password, guid)
         }
     }
 

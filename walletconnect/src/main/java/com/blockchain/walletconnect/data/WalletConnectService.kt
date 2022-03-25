@@ -5,18 +5,22 @@ import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectAddressProvider
+import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
+import com.blockchain.walletconnect.domain.toAnalyticsMethod
 import com.trustwallet.walletconnect.WCClient
+import com.trustwallet.walletconnect.WS_CLOSE_NORMAL
 import com.trustwallet.walletconnect.models.WCPeerMeta
 import com.trustwallet.walletconnect.models.ethereum.WCEthereumTransaction
 import com.trustwallet.walletconnect.models.session.WCSession
@@ -43,6 +47,7 @@ class WalletConnectService(
     private val ethRequestSign: EthRequestSign,
     private val ethSendTransactionRequest: EthSendTransactionRequest,
     private val lifecycleObservable: LifecycleObservable,
+    private val analytics: Analytics,
     private val client: OkHttpClient
 ) : WalletConnectServiceAPI, WalletConnectUrlValidator, WebSocketListener() {
 
@@ -64,8 +69,12 @@ class WalletConnectService(
         }
     }
 
-    private fun disconnectAllClients() {
-        disconnectAndClear()
+    private fun disconnectAllClientsTemporarily() {
+        wcClients.forEach { (_, client) ->
+            client.onDisconnect = { _, _ -> }
+            client.disconnect()
+        }
+        wcClients.clear()
     }
 
     override fun init() {
@@ -82,8 +91,9 @@ class WalletConnectService(
 
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->
             when (state) {
-                null -> { } // warning removal
-                AppState.BACKGROUNDED -> disconnectAllClients()
+                null -> {
+                } // warning removal
+                AppState.BACKGROUNDED -> disconnectAllClientsTemporarily() // Close sockets when app gets backgrounded.
                 AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
             }.exhaustive
         }
@@ -102,6 +112,7 @@ class WalletConnectService(
             peerMeta = dAppInfo.toWCPeerMeta()
         )
         wcClients[url] = wcClient
+        wcClient.configureDisconnect(this)
         wcClient.addSignEthHandler(this)
         wcClient.addEthSendTransactionHandler(this)
     }
@@ -117,7 +128,7 @@ class WalletConnectService(
             wcClient.onSessionRequest = { _, peerMeta ->
                 onNewSessionRequested(session, peerMeta, wcClient.remotePeerId.orEmpty(), peerId)
             }
-            wcClient.configureFailureAndDisconnection(session)
+
             wcClients[session.toUri()] = wcClient
             wcClient.connect(
                 session = session,
@@ -133,18 +144,7 @@ class WalletConnectService(
         connectedSessions.add(session)
         wcClients[session.url]?.addSignEthHandler(session)
         wcClients[session.url]?.addEthSendTransactionHandler(session)
-    }
-
-    private fun onSessionConnectFailedOrDisconnected(wcSession: WCSession) {
-        wcClients.remove(wcSession.toUri())
-        compositeDisposable += sessionRepository.retrieve().flatMapCompletable { sessions ->
-            val session = sessions.firstOrNull { it.url == wcSession.toUri() }
-            if (session == null) {
-                Completable.complete()
-            } else {
-                sessionRepository.remove(session)
-            }
-        }.emptySubscribe()
+        wcClients[session.url]?.configureDisconnect(session)
     }
 
     override fun acceptConnection(session: WalletConnectSession): Completable =
@@ -217,17 +217,7 @@ class WalletConnectService(
         )
     }
 
-    private fun WCClient.configureFailureAndDisconnection(wcSession: WCSession) {
-        onFailure = {
-            onSessionConnectFailedOrDisconnected(wcSession)
-        }
-        onDisconnect = { _, _ ->
-            onSessionConnectFailedOrDisconnected(wcSession)
-        }
-    }
-
     companion object {
-
         private val DEFAULT_PEER_META = WCPeerMeta(
             name = "Blockchain.com",
             url = "https://blockchain.com",
@@ -244,18 +234,53 @@ class WalletConnectService(
                     (txResult as? TxResult.HashedTxResult)?.let { result ->
                         Completable.fromCallable {
                             this.approveRequest(id, result.txId)
+                            analytics.logEvent(
+                                WalletConnectAnalytics.DappRequestActioned(
+                                    method = message.toAnalyticsMethod(),
+                                    action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                                    appName = session.dAppInfo.peerMeta.name
+                                )
+                            )
                         }
                     } ?: Completable.complete()
-                },
-                onTxCancelled = {
-                    Completable.fromCallable {
-                        this.rejectRequest(id)
-                    }
                 }
-            ).subscribeBy(onSuccess = {
+            ) {
+                Completable.fromCallable {
+                    analytics.logEvent(
+                        WalletConnectAnalytics.DappRequestActioned(
+                            method = message.toAnalyticsMethod(),
+                            action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                            appName = session.dAppInfo.peerMeta.name
+                        )
+                    )
+                    this.rejectRequest(id)
+                }
+            }.subscribeBy(onSuccess = {
                 _walletConnectUserEvents.onNext(it)
             }, onError = {})
         }
+    }
+
+    private fun WCClient.configureDisconnect(session: WalletConnectSession) {
+        onDisconnect = { code, _ ->
+            if (code == WS_CLOSE_NORMAL) {
+                removeSessionFromRepo(session)
+                killSession()
+                onDisconnect = { _, _ -> }
+            }
+        }
+    }
+
+    private fun removeSessionFromRepo(wcSession: WalletConnectSession) {
+        wcClients.remove(wcSession.url)
+        compositeDisposable += sessionRepository.retrieve().flatMapCompletable { sessions ->
+            val session = sessions.firstOrNull { it.url == wcSession.url }
+            if (session == null) {
+                Completable.complete()
+            } else {
+                sessionRepository.remove(session)
+            }
+        }.emptySubscribe()
     }
 
     private fun WCClient.addEthSendTransactionHandler(session: WalletConnectSession) {
@@ -267,20 +292,35 @@ class WalletConnectService(
     private fun WCClient.ethTransactionHandler(
         method: EthereumSendTransactionTarget.Method,
         session: WalletConnectSession
-    ): (Long, WCEthereumTransaction) -> Unit = { id, message ->
+    ): (Long, WCEthereumTransaction) -> Unit = { id, transaction ->
         compositeDisposable += ethSendTransactionRequest.onSendTransaction(
-            transaction = message,
+            transaction = transaction,
             session = session,
             method = method,
             onTxCompleted = { txResult ->
                 (txResult as? TxResult.HashedTxResult)?.let { result ->
                     Completable.fromCallable {
                         this.approveRequest(id, result.txId)
+
+                        analytics.logEvent(
+                            WalletConnectAnalytics.DappRequestActioned(
+                                method = method.toAnalyticsMethod(),
+                                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
+                                appName = session.dAppInfo.peerMeta.name
+                            )
+                        )
                     }
                 } ?: Completable.complete()
             },
             onTxCancelled = {
                 Completable.fromCallable {
+                    analytics.logEvent(
+                        WalletConnectAnalytics.DappRequestActioned(
+                            method = method.toAnalyticsMethod(),
+                            action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
+                            appName = session.dAppInfo.peerMeta.name
+                        )
+                    )
                     this.rejectRequest(id)
                 }
             }

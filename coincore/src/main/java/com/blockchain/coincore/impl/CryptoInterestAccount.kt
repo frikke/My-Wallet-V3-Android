@@ -1,6 +1,7 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
@@ -9,11 +10,14 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.InterestState
@@ -35,7 +39,8 @@ class CryptoInterestAccount(
     override val label: String,
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    override val exchangeRates: ExchangeRatesDataManager
+    override val exchangeRates: ExchangeRatesDataManager,
+    private val identity: UserIdentity,
 ) : CryptoAccountBase(), InterestAccount {
 
     override val baseActions: Set<AssetAction> = emptySet() // Not used by this class
@@ -155,6 +160,40 @@ class CryptoInterestAccount(
                 AssetAction.ViewStatement.takeIf { hasTransactions },
                 AssetAction.ViewActivity.takeIf { hasTransactions }
             )
+        }
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.zip(
+            identity.getHighestApprovedKycTier(),
+            balance.firstOrError(),
+            isEnabled
+        ) { tier, balance, enabled ->
+            return@zip when (tier) {
+                Tier.BRONZE -> emptySet()
+                Tier.SILVER -> emptySet()
+                Tier.GOLD -> setOf(
+                    StateAwareAction(
+                        if (enabled) ActionState.Available else ActionState.LockedDueToAvailability,
+                        AssetAction.InterestDeposit
+                    ),
+                    StateAwareAction(
+                        if (balance.withdrawable.isPositive) ActionState.Available else ActionState.LockedForBalance,
+                        AssetAction.InterestWithdraw
+                    ),
+                    StateAwareAction(
+                        if (balance.withdrawable.isPositive) ActionState.Available else ActionState.LockedForBalance,
+                        AssetAction.InterestWithdraw
+                    ),
+                    StateAwareAction(
+                        if (hasTransactions) ActionState.Available else ActionState.LockedForOther,
+                        AssetAction.ViewStatement
+                    ),
+                    StateAwareAction(
+                        if (hasTransactions) ActionState.Available else ActionState.LockedForOther,
+                        AssetAction.ViewActivity
+                    )
+                )
+            }
         }
 
     companion object {

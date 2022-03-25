@@ -8,4 +8,4 @@ private fun Wallet.nonArchivedImportedAddresses() =
         .filterNot { it.isArchived }.map { it.address }
 
 fun Wallet.activeXpubs() =
-    walletBody?.activeXpubs ?: emptyList()
+    walletBody?.getActiveXpubs() ?: emptyList()

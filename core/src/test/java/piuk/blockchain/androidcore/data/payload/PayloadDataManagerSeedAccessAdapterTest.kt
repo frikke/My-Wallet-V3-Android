@@ -32,10 +32,10 @@ class PayloadDataManagerSeedAccessAdapterTest {
     fun `if the HD wallet throws HD Exception, returns empty`() {
         val theSeed = byteArrayOf(1, 2, 3)
         val hdWallet = mock<WalletBody> {
-            on { hdSeed }.thenReturn(theSeed)
+            on { getHdSeed() }.thenReturn(theSeed)
         }
         val wallet = mock<Wallet> {
-            on { walletBodies }.thenReturn(listOf(hdWallet))
+            on { walletBodies }.thenReturn(mutableListOf(hdWallet))
         }
         val payloadDataManager = mock<PayloadDataManager> {
             on { this.wallet }.thenReturn(wallet)
@@ -105,7 +105,7 @@ private fun givenADecodedPayload(
     theSeed: ByteArray
 ): PayloadDataManager {
     val hdwallet = mock<WalletBody> {
-        on { hdSeed }.thenReturn(theSeed)
+        on { getHdSeed() }.thenReturn(theSeed)
     }
     val wallet = mock<Wallet> {
         on { walletBody }.thenReturn(hdwallet)

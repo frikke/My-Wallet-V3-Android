@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -28,7 +28,7 @@ fun ButtonContentSmall(
             ButtonLoadingIndicator(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(16.dp),
+                    .size(dimensionResource(R.dimen.medium_margin)),
                 loadingIconResId = loadingIconResId,
             )
         } else {

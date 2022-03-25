@@ -44,6 +44,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
 import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.transactionflow.flow.getLabelForDomain
 import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
@@ -62,6 +63,7 @@ enum class TransactionErrorState {
     NONE,
     INVALID_PASSWORD,
     INVALID_ADDRESS,
+    INVALID_DOMAIN,
     ADDRESS_IS_CONTRACT,
     INSUFFICIENT_FUNDS,
     INVALID_AMOUNT,
@@ -125,7 +127,8 @@ data class TransactionState(
     val availableSources: List<BlockchainAccount> = emptyList(),
     val linkBankState: BankLinkingState = BankLinkingState.NotStarted,
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
-    val locks: FundsLocks? = null
+    val locks: FundsLocks? = null,
+    val shouldShowSendToDomainBanner: Boolean = false
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -173,6 +176,12 @@ data class TransactionState(
                     (it.limits?.max as? TxLimit.Limited)?.amount ?: available
                 )
             } ?: sendingAccount.getZeroAmountForAccount()
+        }
+
+    val selectedTargetLabel: String
+        get() = when {
+            selectedTarget is CryptoAddress && selectedTarget.isDomain -> selectedTarget.getLabelForDomain()
+            else -> selectedTarget.label
         }
 
     private fun availableToAmountCurrency(available: Money, amount: Money): Money =
@@ -254,7 +263,7 @@ class TransactionModel(
                 processValidateAddress(intent.targetAddress, intent.expectedCrypto)
             is TransactionIntent.CancelTransaction -> processCancelTransaction()
             is TransactionIntent.TargetAddressValidated -> null
-            is TransactionIntent.TargetAddressInvalid -> null
+            is TransactionIntent.TargetAddressOrDomainInvalid -> null
             is TransactionIntent.InitialiseWithSourceAndTargetAccount -> {
                 processTargetSelectionConfirmed(
                     sourceAccount = intent.fromAccount,
@@ -311,6 +320,8 @@ class TransactionModel(
                 available = previousState.availableBalance
             )
             TransactionIntent.CheckAvailableOptionsForFiatDeposit -> processFiatDepositOptions(previousState)
+            is TransactionIntent.LoadSendToDomainBannerPref -> processLoadSendToDomainPrefs(intent.prefsKey)
+            is TransactionIntent.DismissSendToDomainBanner -> processDismissSendToDomainPrefs(intent.prefsKey)
             is TransactionIntent.LinkBankInfoSuccess,
             is TransactionIntent.LinkBankFailed,
             is TransactionIntent.ClearBackStack,
@@ -318,6 +329,7 @@ class TransactionModel(
             is TransactionIntent.ClearSelectedTarget,
             TransactionIntent.TransactionApprovalDenied,
             TransactionIntent.ApprovalTriggered,
+            is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
             is TransactionIntent.FiatDepositOptionSelected -> null
         }
@@ -458,7 +470,7 @@ class TransactionModel(
                 onError = { t ->
                     errorLogger.log(TxFlowLogError.AddressFail(t))
                     when (t) {
-                        is TxValidationFailure -> process(TransactionIntent.TargetAddressInvalid(t))
+                        is TxValidationFailure -> process(TransactionIntent.TargetAddressOrDomainInvalid(t))
                         else -> process(TransactionIntent.FatalTransactionError(t))
                     }
                 }
@@ -596,6 +608,28 @@ class TransactionModel(
                 onError = {
                     process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.Error(it)))
                     Timber.e("Error getting Fiat deposit options. $it")
+                }
+            )
+
+    private fun processLoadSendToDomainPrefs(prefsKey: String) =
+        interactor.loadSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
+                }
+            )
+
+    private fun processDismissSendToDomainPrefs(prefsKey: String) =
+        interactor.dismissSendToDomainAnnouncementPref(prefsKey)
+            .subscribeBy(
+                onSuccess = {
+                    process(TransactionIntent.SendToDomainPrefLoaded(it))
+                },
+                onError = {
+                    Timber.e(it)
                 }
             )
 

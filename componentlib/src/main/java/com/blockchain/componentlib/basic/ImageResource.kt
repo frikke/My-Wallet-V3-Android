@@ -23,8 +23,16 @@ sealed class ImageResource(
 
     class LocalWithBackground(
         @DrawableRes val id: Int,
-        @ColorRes val filterColorId: Int,
-        @ColorRes val tintColorId: Int,
+        @ColorRes val iconTintColour: Int,
+        @ColorRes val backgroundColour: Int,
+        val alpha: Float = 0.15F,
+        contentDescription: String? = null
+    ) : ImageResource(contentDescription)
+
+    class LocalWithBackgroundAndExternalResources(
+        @DrawableRes val id: Int,
+        val iconTintColour: String,
+        val backgroundColour: String,
         val alpha: Float = 0.15F,
         contentDescription: String? = null
     ) : ImageResource(contentDescription)

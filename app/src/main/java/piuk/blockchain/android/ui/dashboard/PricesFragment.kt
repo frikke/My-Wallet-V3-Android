@@ -44,7 +44,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
-import piuk.blockchain.android.ui.dashboard.fullscreen.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
 import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
@@ -142,7 +142,7 @@ internal class PricesFragment :
                 when (it) {
                     is TransactionFlow -> {
                         startActivity(
-                            TransactionFlowActivity.newInstance(
+                            TransactionFlowActivity.newIntent(
                                 context = requireActivity(),
                                 sourceAccount = it.txSource,
                                 target = it.txTarget,
@@ -151,7 +151,7 @@ internal class PricesFragment :
                         )
                     }
                     is FullScreenCoinViewFlow -> {
-                        startActivity(CoinViewActivity.newIntent(requireContext()))
+                        startActivity(CoinViewActivity.newIntent(requireContext(), it.asset))
                         model.process(DashboardIntent.ClearActiveFlow)
                     }
                     else -> {
@@ -435,7 +435,7 @@ internal class PricesFragment :
 
     override fun goToSellFrom(account: CryptoAccount) =
         startActivity(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = requireActivity(),
                 sourceAccount = account,
                 action = AssetAction.Sell

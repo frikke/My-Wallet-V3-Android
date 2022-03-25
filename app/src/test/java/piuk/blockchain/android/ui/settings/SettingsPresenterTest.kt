@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.payments.EligiblePaymentMethodType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager

@@ -24,6 +24,8 @@ class BitPayInvoiceTarget(
 
     override val label: String = "BitPay[$merchant]"
 
+    override val isDomain: Boolean = false
+
     val expireTimeMs: Long by lazy {
         expires.fromIso8601ToUtc()?.toLocalTime()?.time ?: throw IllegalStateException("Unknown countdown time")
     }

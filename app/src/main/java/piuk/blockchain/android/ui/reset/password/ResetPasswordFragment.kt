@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -101,7 +101,14 @@ class ResetPasswordFragment :
                 redesign.enabled.onErrorReturnItem(false).subscribeBy(
                     onSuccess = { isEnabled ->
                         if (isEnabled) {
-                            startActivity(PinActivity.newIntent(requireContext()))
+                            startActivity(
+                                PinActivity.newIntent(
+                                    context = requireContext(),
+                                    startForResult = false,
+                                    originScreen = PinActivity.Companion.OriginScreenToPin.RESET_PASSWORD_SCREEN,
+                                    addFlagsToClear = true
+                                )
+                            )
                         } else {
                             start<PinEntryActivity>(requireContext())
                         }

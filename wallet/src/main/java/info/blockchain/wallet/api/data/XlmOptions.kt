@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.ANY,
     getterVisibility = JsonAutoDetect.Visibility.NONE,
     setterVisibility = JsonAutoDetect.Visibility.NONE,
     creatorVisibility = JsonAutoDetect.Visibility.NONE,
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 )
 class XlmOptions {
     @JsonProperty("operationFee")
-    val operationFee: Long = 0
+    var operationFee: Long = 0
     @JsonProperty("sendTimeOutSeconds")
-    val sendTimeOutSeconds: Long = 0
+    var sendTimeOutSeconds: Long = 0
 }

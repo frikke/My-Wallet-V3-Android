@@ -12,8 +12,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 
@@ -82,7 +84,7 @@ private fun SparkLinePreview() {
         AppSurface {
             SparkLine(
                 historicalRates = data,
-                modifier = Modifier.size(64.dp, 16.dp)
+                modifier = Modifier.size(64.dp, dimensionResource(R.dimen.medium_margin))
             )
         }
     }

@@ -81,7 +81,7 @@ class InterestDashboardActivity :
         clearBottomSheet()
         require(toAccount is CryptoAccount)
         startActivityForResult(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = this,
                 target = toAccount,
                 action = AssetAction.InterestDeposit
@@ -94,7 +94,7 @@ class InterestDashboardActivity :
         clearBottomSheet()
         require(fromAccount is CryptoAccount)
         startActivityForResult(
-            TransactionFlowActivity.newInstance(
+            TransactionFlowActivity.newIntent(
                 context = this,
                 sourceAccount = fromAccount,
                 action = AssetAction.InterestWithdraw
@@ -146,7 +146,7 @@ class InterestDashboardActivity :
         fromAccount: SingleAccount,
         toAccount: SingleAccount
     ) = startActivityForResult(
-        TransactionFlowActivity.newInstance(
+        TransactionFlowActivity.newIntent(
             context = this,
             sourceAccount = fromAccount as CryptoAccount,
             target = toAccount,

@@ -8,7 +8,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
@@ -179,7 +179,14 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
                 redesign.enabled.onErrorReturnItem(false).subscribeBy(
                     onSuccess = { isEnabled ->
                         if (isEnabled) {
-                            startActivity(PinActivity.newIntent(this))
+                            startActivity(
+                                PinActivity.newIntent(
+                                    context = this,
+                                    startForResult = false,
+                                    originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
+                                    addFlagsToClear = true,
+                                )
+                            )
                         } else {
                             startActivity(
                                 Intent(this, PinEntryActivity::class.java).apply {

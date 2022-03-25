@@ -11,6 +11,7 @@ object NullCryptoAddress : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.BTC
     override val label: String = ""
     override val address = ""
+    override val isDomain: Boolean = false
 }
 
 // Stub invalid accounts; use as an initialisers to avoid nulls.
@@ -36,6 +37,7 @@ class NullCryptoAccount(
         get() = Single.just(emptyList())
 
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
 
     override val isFunded: Boolean = false
 
@@ -75,6 +77,8 @@ object NullFiatAccount : FiatAccount {
         get() = Single.just(emptyList())
 
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
+
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 
@@ -96,6 +100,7 @@ class NullAccountGroup : AccountGroup {
     override val balance: Observable<AccountBalance> = Observable.error(NotImplementedError())
     override val activity: Single<ActivitySummaryList> = Single.just(emptyList())
     override val actions: Single<AvailableActions> = Single.just(emptySet())
+    override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(emptySet())
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 

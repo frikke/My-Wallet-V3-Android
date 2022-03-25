@@ -16,7 +16,7 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/primary_navy_medium"
+        android:background="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />

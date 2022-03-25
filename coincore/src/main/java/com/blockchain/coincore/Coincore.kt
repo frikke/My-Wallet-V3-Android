@@ -46,6 +46,11 @@ class Coincore internal constructor(
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]
 
+    operator fun get(assetTicker: String): CryptoAsset? =
+        assetCatalogue.assetInfoFromNetworkTicker(assetTicker)?.let {
+            assetLoader[it]
+        }
+
     fun init(): Completable =
         assetLoader.initAndPreload()
             .doOnComplete {

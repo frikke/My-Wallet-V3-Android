@@ -13,7 +13,7 @@ import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible

@@ -6,10 +6,10 @@ import org.junit.Test
 class WalletsNonArchivedImportedAddressesExtensionTest {
 
     private fun importedAddressWithPrivateKey(address: String, privateKey: String = "PRIVATE_KEY") =
-        ImportedAddress().also {
-            it.privateKey = privateKey
-            it.address = address
-        }
+        ImportedAddress(
+            privateKey = privateKey,
+            address = address
+        )
 
     @Test
     fun `empty list`() {
@@ -34,9 +34,7 @@ class WalletsNonArchivedImportedAddressesExtensionTest {
     fun `one without private key`() {
         Wallet().apply {
             importedAddressList.add(
-                ImportedAddress().apply {
-                    address = "Address1"
-                }
+                ImportedAddress(address = "Address1")
             )
         }.nonArchivedImportedAddressStrings() `should be equal to` listOf("Address1")
     }

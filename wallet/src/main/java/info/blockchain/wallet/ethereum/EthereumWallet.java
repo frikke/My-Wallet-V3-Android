@@ -1,12 +1,6 @@
 package info.blockchain.wallet.ethereum;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,23 +14,15 @@ import info.blockchain.balance.AssetInfo;
 import info.blockchain.balance.CryptoCurrency;
 import info.blockchain.wallet.keys.MasterKey;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(fieldVisibility = Visibility.NONE,
-    getterVisibility = Visibility.NONE,
-    setterVisibility = Visibility.NONE,
-    creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE)
 public class EthereumWallet {
 
     public static final int METADATA_TYPE_EXTERNAL = 5;
     private static final int ACCOUNT_INDEX = 0;
 
-    @JsonProperty("ethereum")
-    private EthereumWalletData walletData;
+    private final EthereumWalletDto walletDto;
 
-    public EthereumWallet() {
-        //default constructor for Jackson
+    public EthereumWallet(EthereumWalletDto walletDto) {
+        this.walletDto = walletDto;
     }
 
     /**
@@ -58,11 +44,11 @@ public class EthereumWallet {
             )
         );
 
-        this.walletData = new EthereumWalletData();
-        this.walletData.setHasSeen(false);
-        this.walletData.setDefaultAccountIdx(0);
-        this.walletData.setTxNotes(new HashMap<>());
-        this.walletData.setAccounts(accounts);
+        this.walletDto = new EthereumWalletDto(accounts);
+    }
+
+    public String toJson() throws JsonProcessingException {
+        return walletDto.toJson();
     }
 
     /**
@@ -73,45 +59,28 @@ public class EthereumWallet {
     public static EthereumWallet load(String walletJson) throws IOException {
 
         if (walletJson != null) {
-            EthereumWallet ethereumWallet = fromJson(walletJson);
+            EthereumWalletDto wallet = EthereumWalletDto.fromJson(walletJson);
 
             // Web can store an empty EthereumWalletData object
-            if (ethereumWallet.walletData == null || ethereumWallet.walletData.getAccounts().isEmpty()) {
+            if (wallet.getWalletData() == null || wallet.getWalletData().getAccounts().isEmpty()) {
                 return null;
             } else {
-                return ethereumWallet;
+                return new EthereumWallet(wallet);
             }
         } else {
             return null;
         }
     }
 
-    public String toJson() throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(this);
-    }
-
-    public static EthereumWallet fromJson(String json) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
-            .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-            .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-            .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-            .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
-            .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
-
-        return mapper.readValue(json, EthereumWallet.class);
-    }
-
     public boolean hasSeen() {
-        return walletData.getHasSeen();
+        return walletDto.getWalletData().getHasSeen();
     }
 
     /**
      * Set flag to indicate that user has acknowledged their ether wallet.
      */
     public void setHasSeen(boolean hasSeen) {
-        walletData.setHasSeen(hasSeen);
+        walletDto.getWalletData().setHasSeen(hasSeen);
     }
 
     /**
@@ -119,11 +88,11 @@ public class EthereumWallet {
      */
     public EthereumAccount getAccount() {
 
-        if (walletData.getAccounts().isEmpty()) {
+        if (walletDto.getWalletData().getAccounts().isEmpty()) {
             return null;
         }
 
-        return walletData.getAccounts().get(ACCOUNT_INDEX);
+        return walletDto.getWalletData().getAccounts().get(ACCOUNT_INDEX);
     }
 
     public void renameAccount(String newLabel){
@@ -131,61 +100,36 @@ public class EthereumWallet {
         account.setLabel(newLabel);
         ArrayList<EthereumAccount> accounts = new ArrayList<>();
         accounts.add(account);
-        walletData.setAccounts(accounts);
+        walletDto.getWalletData().setAccounts(accounts);
     }
 
     public HashMap<String, String> getTxNotes() {
-        return walletData.getTxNotes();
+        return walletDto.getWalletData().getTxNotes();
     }
 
     public void putTxNotes(String txHash, String txNote) {
-        HashMap<String, String> notes = walletData.getTxNotes();
+        HashMap<String, String> notes = walletDto.getWalletData().getTxNotes();
         notes.put(txHash, txNote);
     }
 
     public void removeTxNotes(String txHash) {
-        HashMap<String, String> notes = walletData.getTxNotes();
+        HashMap<String, String> notes = walletDto.getWalletData().getTxNotes();
         notes.remove(txHash);
     }
 
     @Deprecated // Eth payload last tx features are no longer used
     public void setLastTransactionHash(String txHash) {
-        walletData.setLastTx(txHash);
+        walletDto.getWalletData().setLastTx(txHash);
     }
 
     @Deprecated // Eth payload last tx features are no longer used
     public void setLastTransactionTimestamp(long timestamp) {
-        walletData.setLastTxTimestamp(timestamp);
+        walletDto.getWalletData().setLastTxTimestamp(timestamp);
     }
 
     @Nullable
     public Erc20TokenData getErc20TokenData(String tokenName) {
-        return walletData.getErc20Tokens().get(tokenName.toLowerCase());
+        return walletDto.getWalletData().getErc20Tokens().get(tokenName.toLowerCase());
     }
 
-    public boolean updateErc20Tokens(
-        AssetCatalogue assetCatalogue,
-        String label
-    ) {
-        boolean wasUpdated = false;
-        if (walletData.getErc20Tokens() == null) {
-            walletData.setErc20Tokens(new HashMap<>());
-            wasUpdated = true;
-        }
-
-        HashMap<String, Erc20TokenData> map = walletData.getErc20Tokens();
-        List<AssetInfo> erc20Tokens = assetCatalogue.supportedL2Assets(CryptoCurrency.ETHER.INSTANCE);
-        for(AssetInfo token: erc20Tokens) {
-            String name = token.getNetworkTicker().toLowerCase();
-
-            if (!map.containsKey(name) || !map.get(name).hasLabelAndAddressStored()) {
-                map.put(
-                    name,
-                    Erc20TokenData.Companion.createTokenData(token, label)
-                );
-                wasUpdated = true;
-            }
-        }
-        return wasUpdated;
-    }
 }

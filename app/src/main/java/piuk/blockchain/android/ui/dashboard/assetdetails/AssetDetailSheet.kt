@@ -14,7 +14,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
-import com.blockchain.componentlib.alert.abstract.SnackbarType
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
@@ -110,7 +110,7 @@ class AssetDetailSheet : MviBottomSheet<
             onGotAssetDetails(assetDisplayMap)
         }
 
-        renderRecurringBuys(newState.recurringBuys, newState.assetDisplayMap ?: emptyMap())
+        renderRecurringBuys(newState.recurringBuys)
 
         configureBuyButton(newState.assetDisplayMap ?: emptyMap(), newState.userBuyAccess)
 
@@ -216,7 +216,7 @@ class AssetDetailSheet : MviBottomSheet<
         adapterDelegate.notifyDataSetChanged()
     }
 
-    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>, assetDisplayMap: AssetDisplayMap) {
+    private fun renderRecurringBuys(recurringBuys: Map<String, RecurringBuy>) {
 
         if (recurringBuys.keys.isNotEmpty()) {
             val recurringBuysItems = recurringBuys.values.map {

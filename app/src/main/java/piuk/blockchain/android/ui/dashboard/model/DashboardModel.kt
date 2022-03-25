@@ -58,7 +58,7 @@ class DashboardModel(
                         process(
                             DashboardIntent.LaunchDetailsFlow(
                                 if (it) {
-                                    FullScreenCoinViewFlow
+                                    FullScreenCoinViewFlow(asset = intent.flow.asset)
                                 } else {
                                     intent.flow
                                 }

@@ -39,7 +39,7 @@ class LoginInteractorTest {
     fun `check login intent when pin exists and no deeplink data sends PIN intent`() {
         whenever(prefs.pinId).thenReturn("12343")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertEquals(LoginIntents.UserLoggedInWithoutDeeplinkData, result)
     }
 
@@ -49,7 +49,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
     }
 
@@ -59,7 +59,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("12345")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
     }
 
@@ -69,7 +69,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("1234")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         val expectedResult = LoginIntents.UserAuthenticationRequired(action, data)
 
         Assert.assertTrue(result is LoginIntents.UserAuthenticationRequired)
@@ -83,7 +83,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
     }
 
@@ -93,7 +93,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("12345")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.ReceivedExternalLoginApprovalRequest)
     }
 
@@ -103,7 +103,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenReturn("1234")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         val expectedResult = LoginIntents.UserAuthenticationRequired(action, data)
 
         Assert.assertTrue(result is LoginIntents.UserAuthenticationRequired)
@@ -118,7 +118,7 @@ class LoginInteractorTest {
         whenever(prefs.sessionId).thenThrow(IllegalStateException())
         whenever(data.fragment).thenReturn("/login/abcd")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.UnknownError)
     }
 
@@ -128,7 +128,7 @@ class LoginInteractorTest {
         whenever(data.fragment).thenReturn("/login/$BASE_64_CORRUPT_PAYLOAD")
         whenever(prefs.sessionId).thenReturn("1234")
 
-        val result = subject.checkSessionDetails(action, data, true)
+        val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.UnknownError)
     }
 
@@ -144,7 +144,7 @@ class LoginInteractorTest {
             on { data }.thenReturn(uri)
         }
 
-        val result = subject.checkSessionDetails(action, intent.data!!, true)
+        val result = subject.checkSessionDetails(action, intent.data!!)
         Assert.assertEquals(LoginIntents.UnknownError, result)
     }
 
