@@ -81,5 +81,5 @@ const val URL_BLOCKCHAIN_CEUR_LEARN_MORE =
 
 const val LIMITS_SUPPORT_CENTER = "https://support.blockchain.com/hc/en-us/articles/4410561005844"
 
-const val URL_CONTACT_SUBMIT_REQUEST = "https://support.blockchain.com/hc/en-us/articles/4410561005844"
+const val URL_CONTACT_SUBMIT_REQUEST = "https://support.blockchain.com/hc/en-us/requests/new"
 const val URL_FAQ = "https://support.blockchain.com/hc/en-us/categories/4416659837460-Wallet"
