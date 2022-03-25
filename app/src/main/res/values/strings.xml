@@ -2536,8 +2536,8 @@
     <string name="dashboard_onboarding_step_link_payment_method_time">2 Minutes</string>
     <string name="dashboard_onboarding_step_link_buy_time">10 Seconds</string>
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
-    <string name="dashboard_onboarding_card_title">Verify to unlock full access</string>
-    <string name="dashboard_onboarding_subtitle">Get full access to buying, swapping, and more</string>
+    <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
+    <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
     <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>

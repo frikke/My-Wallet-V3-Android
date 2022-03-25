@@ -195,6 +195,8 @@ val kycUiNabuModule = module {
             KycAdditionalInfoModel(
                 kycDataManager = get(),
                 stateMachine = StateMachine(),
+                custodialWalletManager = get(),
+                analytics = get(),
                 kycNextStepDecision = get(KycAdditionalInfoNextStepDecision::class)
             )
         }

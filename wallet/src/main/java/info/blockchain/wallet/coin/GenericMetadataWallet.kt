@@ -78,7 +78,7 @@ class GenericMetadataWallet(
         @Throws(IOException::class)
         fun fromJson(json: String, withKotlinX: Boolean): GenericMetadataWallet {
             return if (withKotlinX) {
-                jsonBuilder.decodeFromString(json)
+                jsonBuilder.decodeFromString(serializer(), json)
             } else {
                 ObjectMapper().readValue(json, GenericMetadataWallet::class.java)
             }

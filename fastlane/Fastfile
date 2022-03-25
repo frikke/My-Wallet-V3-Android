@@ -186,13 +186,13 @@ platform :android do
     lane :ci_credentials do
 
       sh("echo \"--------------Cloning Credentials Repo--------------\"")
-      sh("git clone $CREDENTIALS_REPO ../../tmp/credentials")
+      sh("git clone $CREDENTIALS_REPO --branch embrace-io ../../tmp/credentials")
 
       sh("echo \"--------------Unzip Firebase Credentials--------------\"")
-      sh("unzip ../../tmp/credentials/env.zip  -d ../../tmp/credentials/")
+      sh("unzip ../../tmp/credentials/src.zip  -d ../../tmp/credentials/")
 
       sh("echo \"--------------Copying Firebase Credentials--------------\"")
-      sh("cp -r ../../tmp/credentials/env ../app/src")
+      sh("cp -r -v ../../tmp/credentials/src/ ../app")
 
       sh("echo \"--------------Copying Secrets Properties--------------\"")
       sh("cp ../../tmp/credentials/secrets.properties ../app")

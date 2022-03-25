@@ -61,7 +61,7 @@ class KycAdditionalInfoFragment() : MVIFragment<KycAdditionalInfoState>() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        bindViewModel(model, navigator, Args(root))
+        bindViewModel(model, navigator, Args(root, progressListener.campaignType))
 
         progressListener.setHostTitle(R.string.kyc_additional_info_toolbar)
 

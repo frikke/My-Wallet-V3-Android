@@ -134,8 +134,8 @@ object Versions {
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
-
     const val firebaseCrashlyticsPlugin = "2.8.1"
+    const val embraceIO = "4.15.0"
 
     // Debugging
     const val stetho = "1.5.1"
@@ -319,6 +319,8 @@ object Libraries {
     const val firebaseCrashlyticsPlugin =
         "com.google.firebase:firebase-crashlytics-gradle:${Versions.firebaseCrashlyticsPlugin}"
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
+    const val embraceIOSwazzler = "io.embrace:embrace-swazzler:${Versions.embraceIO}"
+    const val embraceIOSDK = "io.embrace:embrace-android-sdk:${Versions.embraceIO}"
 
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"

@@ -454,6 +454,7 @@ val applicationModule = module {
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
                 coincore = get(),
+                userIdentity = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
