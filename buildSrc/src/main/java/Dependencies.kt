@@ -49,7 +49,7 @@ object Versions {
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
-    const val firebaseBom = "29.0.3"
+    const val firebaseBom = "29.2.1"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
@@ -132,8 +132,8 @@ object Versions {
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
-
     const val firebaseCrashlyticsPlugin = "2.8.1"
+    const val embraceIO = "4.15.0"
 
     // Debugging
     const val stetho = "1.5.1"
@@ -312,6 +312,8 @@ object Libraries {
     const val firebaseCrashlyticsPlugin =
         "com.google.firebase:firebase-crashlytics-gradle:${Versions.firebaseCrashlyticsPlugin}"
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics"
+    const val embraceIOSwazzler = "io.embrace:embrace-swazzler:${Versions.embraceIO}"
+    const val embraceIOSDK = "io.embrace:embrace-android-sdk:${Versions.embraceIO}"
 
     // Debugging
     const val stetho = "com.facebook.stetho:stetho:${Versions.stetho}"

@@ -74,7 +74,7 @@ data class SimpleBuyState constructor(
     @Transient val paymentPending: Boolean = false,
     @Transient val paymentFailed: Boolean = false,
     @Transient private val transferLimits: TxLimits? = null,
-    @Transient val transactionsLimit: TransactionsLimit? = null,
+    @Transient override val transactionsLimit: TransactionsLimit? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient val confirmationActionRequested: Boolean = false,
     @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null

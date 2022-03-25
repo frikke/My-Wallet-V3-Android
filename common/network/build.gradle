@@ -1,3 +1,4 @@
+apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 dependencies {
@@ -19,6 +20,7 @@ dependencies {
     implementation Libraries.timber
 
     implementation Libraries.moshiKotlin
+    implementation Libraries.kotlinJson
 
     // Testing
     testImplementation Libraries.junit

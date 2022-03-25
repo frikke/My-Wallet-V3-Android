@@ -10,7 +10,9 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.nhaarman.mockitokotlin2.any
@@ -65,6 +67,8 @@ class MainInteractorTest {
     private val secureChannelManager: SecureChannelManager = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
+    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock()
+    private val onboardingPrefs: OnboardingPrefs = mock()
 
     @Before
     fun setup() {
@@ -88,7 +92,9 @@ class MainInteractorTest {
             qrScanResultProcessor = qrScanResultProcessor,
             secureChannelManager = secureChannelManager,
             cancelOrderUseCase = cancelOrderUseCase,
-            paymentsDataManager = paymentsDataManager
+            paymentsDataManager = paymentsDataManager,
+            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
+            onboardingPrefs = onboardingPrefs,
         )
     }
 

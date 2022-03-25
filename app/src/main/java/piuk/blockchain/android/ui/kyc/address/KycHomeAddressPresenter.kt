@@ -144,7 +144,10 @@ class KycHomeAddressPresenter(
             .zipWith(kycNextStepDecision.nextStep())
             .map { (x, progress) -> x.copy(progressToKycNextStep = progress) }
             .flatMap { state ->
-                if (campaignType?.shouldCheckForSddVerification() == true) {
+                if (
+                    campaignType?.shouldCheckForSddVerification() == true &&
+                    state.progressToKycNextStep !is KycNextStepDecision.NextStep.MissingAdditionalInfo
+                ) {
                     tryToVerifyUserForSdd(state, campaignType)
                 } else Single.just(state)
             }
@@ -187,11 +190,14 @@ class KycHomeAddressPresenter(
                     sddState.stateFinalised
                 }.start(timerInSec = 1, retries = 10).map { sddState ->
                     if (sddState.value.isVerified) {
-                        if (shouldNotContinueToNextKycTier(state, campaignType))
+                        if (shouldNotContinueToNextKycTier(state, campaignType)) {
                             state.copy(progressToKycNextStep = KycNextStepDecision.NextStep.SDDComplete)
-                        else state
-                    } else
+                        } else {
+                            state
+                        }
+                    } else {
                         state
+                    }
                 }
             }
         }

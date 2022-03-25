@@ -12,6 +12,10 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    data class CheckForInitialDialogs(val shouldStartUiTour: Boolean) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
     class CheckForPendingLinks(val appIntent: Intent) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }

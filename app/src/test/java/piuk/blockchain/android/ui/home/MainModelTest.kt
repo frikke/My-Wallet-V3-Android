@@ -63,6 +63,7 @@ class MainModelTest {
     }
 
     private val interactor: MainInteractor = mock()
+    private val uiTourFeatureFlag: FeatureFlag = mock()
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
@@ -82,7 +83,8 @@ class MainModelTest {
             environmentConfig = environmentConfig,
             crashLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
-            interactor = interactor
+            interactor = interactor,
+            uiTourFeatureFlag = uiTourFeatureFlag,
         )
     }
 

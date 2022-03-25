@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.charts.ChartEntry
-import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
@@ -36,7 +35,7 @@ sealed class CoinViewViewState {
         val selectedFiat: FiatCurrency
     ) : CoinViewViewState()
 
-    class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>) : CoinViewViewState()
+    class ShowRecurringBuys(val recurringBuys: List<RecurringBuy>, val shouldShowUpsell: Boolean) : CoinViewViewState()
     class QuickActionsLoaded(
         val startAction: QuickActionCta,
         val endAction: QuickActionCta,
@@ -46,8 +45,14 @@ sealed class CoinViewViewState {
 }
 
 enum class QuickActionCta {
-    Buy, Sell, Send, Receive
+    Buy, Sell, Send, Receive, None
 }
+
+data class QuickActionData(
+    val startAction: QuickActionCta,
+    val endAction: QuickActionCta,
+    val actionableAccount: BlockchainAccount
+)
 
 enum class CoinViewError {
     None,
@@ -74,23 +79,6 @@ sealed class AssetInformation(
     ) : AssetInformation(prices)
 }
 
-sealed class AssetDetailsItem {
-    data class CryptoDetailsInfo(
-        val assetFilter: AssetFilter,
-        val account: BlockchainAccount,
-        val balance: Money,
-        val fiatBalance: Money,
-        val actions: Set<AssetAction>,
-        val interestRate: Double = Double.NaN
-    ) : AssetDetailsItem()
-
-    data class RecurringBuyInfo(
-        val recurringBuy: RecurringBuy
-    ) : AssetDetailsItem()
-
-    object RecurringBuyBanner : AssetDetailsItem()
-}
-
 data class AssetDisplayInfo(
     val account: BlockchainAccount,
     val filter: AssetFilter,
@@ -101,8 +89,28 @@ data class AssetDisplayInfo(
     val interestRate: Double = Double.NaN
 )
 
+sealed class AssetDetailsItemNew {
+    data class CryptoDetailsInfo(
+        val assetFilter: AssetFilter,
+        val account: BlockchainAccount,
+        val balance: Money,
+        val fiatBalance: Money,
+        val actions: Set<StateAwareAction>,
+        val interestRate: Double = Double.NaN
+    ) : AssetDetailsItemNew()
+
+    data class RecurringBuyInfo(
+        val recurringBuy: RecurringBuy
+    ) : AssetDetailsItemNew()
+
+    object RecurringBuyBanner : AssetDetailsItemNew()
+
+    object RecurringBuyError : AssetDetailsItemNew()
+
+    object AccountError : AssetDetailsItemNew()
+}
+
 internal sealed class Details {
-    object NoDetails : Details()
     class DetailsItem(
         val isEnabled: Boolean,
         val account: BlockchainAccount,

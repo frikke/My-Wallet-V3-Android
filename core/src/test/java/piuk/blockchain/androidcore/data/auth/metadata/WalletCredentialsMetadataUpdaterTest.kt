@@ -8,10 +8,13 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
+@OptIn(InternalSerializationApi::class)
 class WalletCredentialsMetadataUpdaterTest {
 
     @get:Rule
@@ -37,7 +40,9 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                WalletCredentialsMetadata::class.serializer(),
+                WalletCredentialsMetadata::class.java
             )
         ).thenReturn(
             Maybe.empty<WalletCredentialsMetadata>()
@@ -52,6 +57,7 @@ class WalletCredentialsMetadataUpdaterTest {
             metadataRepository.saveMetadata(
                 WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
                 WalletCredentialsMetadata::class.java,
+                WalletCredentialsMetadata::class.serializer(),
                 WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(updateResult)
@@ -65,11 +71,13 @@ class WalletCredentialsMetadataUpdaterTest {
 
         verify(metadataRepository).loadMetadata(
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )
         verify(metadataRepository).saveMetadata(
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
         )
 
@@ -87,7 +95,9 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                WalletCredentialsMetadata::class.serializer(),
+                WalletCredentialsMetadata::class.java
             )
         ).thenReturn(
             Maybe.just(
@@ -107,11 +117,13 @@ class WalletCredentialsMetadataUpdaterTest {
 
         verify(metadataRepository).loadMetadata(
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )
         verify(metadataRepository).saveMetadata(
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
         )
         verifyNoMoreInteractions(metadataRepository)
@@ -126,7 +138,9 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE, WalletCredentialsMetadata::class.java
+                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                WalletCredentialsMetadata::class.serializer(),
+                WalletCredentialsMetadata::class.java
             )
         ).thenReturn(
             Maybe.just(
@@ -146,6 +160,7 @@ class WalletCredentialsMetadataUpdaterTest {
 
         verify(metadataRepository).loadMetadata(
             WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )
 

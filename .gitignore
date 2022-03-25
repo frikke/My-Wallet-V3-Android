@@ -53,3 +53,9 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 .env.default
+
+# embrace.io
+app/src/envInternalProd/embrace-config.json
+app/src/envProd/embrace-config.json
+app/src/envStaging/embrace-config.json
+app/src/main/embrace-config.json

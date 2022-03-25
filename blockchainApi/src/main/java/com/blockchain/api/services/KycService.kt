@@ -8,7 +8,7 @@ import com.blockchain.outcome.Outcome
 class KycService(
     private val kycApi: KycApi
 ) {
-    suspend fun getAdditionalInfoForm(authorization: String): Outcome<ApiError, KycAdditionalInfoResponse> =
+    suspend fun getAdditionalInfoForm(authorization: String): Outcome<ApiError, KycAdditionalInfoResponse?> =
         kycApi.getAdditionalInfoForm(authorization)
 
     suspend fun updateAdditionalInfo(

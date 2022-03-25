@@ -5,7 +5,9 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import com.squareup.moshi.Moshi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.WebSocket
 import org.junit.Test
@@ -18,21 +20,22 @@ class OkHttpWebSocketJsonIntegrationTest {
 
     private val subject = OkHttpWebSocket(client, options, null)
 
-    @Suppress("unused")
+    @Serializable
     class ClientMessage(val data1: String, val data2: Int)
 
+    @Serializable
     data class ServerMessage(val data3: String, val data4: Int)
 
-    private val moshi = Moshi.Builder().build()
+    private val json = Json {}
 
     @Test
     fun `can send one message`() {
         val message = ClientMessage(data1 = "Subscribe", data2 = 1)
-        val messageAsJson = moshi.adapter(ClientMessage::class.java).toJson(message)
+        val messageAsJson = json.encodeToString(message)
 
         whenever(client.newWebSocket(any(), any())).thenReturn(socket)
 
-        subject.toJsonSocket<ClientMessage, ServerMessage>(moshi)
+        subject.toJsonSocket(json, ClientMessage.serializer(), ServerMessage.serializer())
             .apply {
                 open()
                 send(message)

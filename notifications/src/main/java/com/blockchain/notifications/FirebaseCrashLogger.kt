@@ -5,9 +5,13 @@ import com.blockchain.logging.CrashLogger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
-@Suppress("ConstantConditionIf")
-internal class CrashLoggerImpl(override val isDebugBuild: Boolean) : CrashLogger {
-    private val firebaseInstance = FirebaseCrashlytics.getInstance()
+class FirebaseCrashLogger : CrashLogger {
+
+    private val firebaseInstance
+        get() = FirebaseCrashlytics.getInstance()
+
+    override val isDebugBuild: Boolean
+        get() = BuildConfig.DEBUG
 
     override fun init(ctx: Any) {
         if (ctx is Context) {

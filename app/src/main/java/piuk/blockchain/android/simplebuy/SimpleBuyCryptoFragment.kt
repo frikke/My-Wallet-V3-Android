@@ -65,6 +65,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoHost
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
 import piuk.blockchain.android.util.getResolvedColor
@@ -298,7 +299,14 @@ class SimpleBuyCryptoFragment :
             binding.inputAmount.showInfo(
                 getString(R.string.tx_enter_amount_orders_limit_info, transactionsLimit.maxTransactionsLeft)
             ) {
-                showBottomSheet(KycUpgradeNowSheet.newInstance(transactionsLimit))
+                val info = bottomSheetInfoCustomiser.info(
+                    InfoBottomSheetType.TRANSACTIONS_LIMIT, newState,
+                    newState.fiatCurrency.type
+                )
+                if (info != null) {
+                    showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
+                    infoActionCallback = handlePossibleInfoAction(info, newState.transactionsLimit)
+                }
             }
         } else {
             binding.inputAmount.hideInfo()
@@ -351,21 +359,42 @@ class SimpleBuyCryptoFragment :
         binding.btnContinue.gone()
         binding.errorLayout.errorMessage.text = state.errorState.message(state)
         errorContainer.visible()
-        val bottomSheetInfo = bottomSheetInfoCustomiser.info(state, state.fiatCurrency.type)
+
+        val infoType = when (state.errorState) {
+            TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
+            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
+            TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
+            // we need to keep those for working with the feature flag off, otherwise we would be based only on the
+            // suggested upgrade
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
+                InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+            else -> null
+        }
+
+        val bottomSheetInfo = infoType?.let { type ->
+            bottomSheetInfoCustomiser.info(type, state, state.fiatCurrency.type)
+        }
         bottomSheetInfo?.let { info ->
             errorContainer.setOnClickListener {
-                TransactionFlowInfoBottomSheet.newInstance(info)
-                    .show(childFragmentManager, "BOTTOM_DIALOG")
-                infoActionCallback = handlePossibleInfoAction(info)
+                showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
+                infoActionCallback =
+                    handlePossibleInfoAction(info, state.transactionsLimit ?: TransactionsLimit.Unlimited)
             }
         } ?: errorContainer.setOnClickListener {}
     }
 
-    private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo): () -> Unit {
+    private fun handlePossibleInfoAction(
+        info: TransactionFlowBottomSheetInfo,
+        transactionsLimit: TransactionsLimit
+    ): () -> Unit {
         val type = info.action?.actionType ?: return {}
         return when (type) {
-            InfoActionType.KYC_UPGRADE -> {
-                { startKyc() }
+            InfoActionType.KYC_UPGRADE -> return {
+                showBottomSheet(
+                    KycUpgradeNowSheet.newInstance(transactionsLimit)
+                )
             }
             InfoActionType.BUY -> {
                 {}

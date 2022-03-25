@@ -171,7 +171,7 @@ class CoinViewModelTest {
 
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.just(assetInfo))
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
-        whenever(interactor.loadQuickActions(eq(asset.assetInfo), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
         localSubject.process(CoinViewIntent.LoadAccounts(asset))
@@ -251,7 +251,7 @@ class CoinViewModelTest {
 
         val priceList: HistoricalRateList = emptyList()
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
-        whenever(interactor.loadQuickActions(eq(asset.assetInfo), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
         localSubject.process(
@@ -483,7 +483,7 @@ class CoinViewModelTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.just(emptyList()))
+        whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.just(Pair(emptyList(), true)))
 
         val test = subject.state.test()
         subject.process(CoinViewIntent.LoadRecurringBuys(asset.assetInfo))
@@ -521,10 +521,14 @@ class CoinViewModelTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(interactor.loadQuickActions(eq(asset.assetInfo), any())).thenReturn(Single.just(Pair(mock(), mock())))
+        whenever(interactor.loadQuickActions(any(), any())).thenReturn(
+            Single.just(
+                QuickActionData(mock(), mock(), mock())
+            )
+        )
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadQuickActions(asset.assetInfo, mock(), mock()))
+        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock()))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -540,10 +544,10 @@ class CoinViewModelTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(interactor.loadQuickActions(eq(asset.assetInfo), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadQuickActions(asset.assetInfo, mock(), mock()))
+        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock()))
 
         test.assertValueAt(0) {
             it == defaultState

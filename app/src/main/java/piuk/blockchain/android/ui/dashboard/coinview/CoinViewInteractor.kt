@@ -2,19 +2,22 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAccountGroup
+import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
-import info.blockchain.balance.AssetCatalogue
-import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -25,8 +28,8 @@ class CoinViewInteractor(
     private val coincore: Coincore,
     private val tradeDataManager: TradeDataManager,
     private val currencyPrefs: CurrencyPrefs,
-    private val assetCatalogue: AssetCatalogue,
-    private val identity: UserIdentity
+    private val identity: UserIdentity,
+    private val custodialWalletManager: CustodialWalletManager
 ) {
 
     fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
@@ -39,32 +42,51 @@ class CoinViewInteractor(
         asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
 
-    fun loadRecurringBuys(asset: AssetInfo): Single<List<RecurringBuy>> =
-        tradeDataManager.getRecurringBuysForAsset(asset)
+    fun loadRecurringBuys(asset: AssetInfo): Single<Pair<List<RecurringBuy>, Boolean>> =
+        Single.zip(
+            tradeDataManager.getRecurringBuysForAsset(asset),
+            custodialWalletManager.isCurrencyAvailableForTrading(asset)
+        ) { rbList, isSupportedPair ->
+            Pair(rbList, isSupportedPair)
+        }
 
-    fun loadQuickActions(asset: AssetInfo, totalCryptoBalance: Money): Single<Pair<QuickActionCta, QuickActionCta>> =
+    fun loadQuickActions(
+        totalCryptoBalance: Money,
+        accountList: List<BlockchainAccount>
+    ): Single<QuickActionData> =
         Single.zip(
             identity.getHighestApprovedKycTier(),
-            identity.isEligibleFor(Feature.SimplifiedDueDiligence)
+            identity.isEligibleFor(Feature.SimplifiedDueDiligence),
         ) { tier, sddEligible ->
-            val assetWithCustodialWallet = assetCatalogue.supportedCustodialAssets.firstOrNull { assetAccount ->
-                assetAccount.networkTicker == asset.networkTicker && assetAccount.categories.contains(
-                    AssetCategory.CUSTODIAL
-                )
-            }
+            val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
+            val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
-            assetWithCustodialWallet?.let {
-                if (tier == Tier.GOLD || sddEligible) {
-                    if (totalCryptoBalance.isPositive) {
-                        Pair(QuickActionCta.Sell, QuickActionCta.Buy)
+            when {
+                custodialAccount != null -> {
+                    if (tier == Tier.GOLD || sddEligible) {
+                        if (totalCryptoBalance.isPositive) {
+                            QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
+                        } else {
+                            QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                        }
                     } else {
-                        Pair(QuickActionCta.Receive, QuickActionCta.Buy)
+                        QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
                     }
-                } else {
-                    Pair(QuickActionCta.Receive, QuickActionCta.Buy)
                 }
-            } ?: run {
-                Pair(QuickActionCta.Receive, QuickActionCta.Send)
+                ncAccount != null -> {
+                    QuickActionData(
+                        QuickActionCta.Receive,
+                        if (totalCryptoBalance.isPositive) QuickActionCta.Send else QuickActionCta.None,
+                        ncAccount
+                    )
+                }
+                else -> {
+                    QuickActionData(
+                        QuickActionCta.None,
+                        QuickActionCta.None,
+                        NullCryptoAccount()
+                    )
+                }
             }
         }
 
@@ -82,15 +104,9 @@ class CoinViewInteractor(
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // custodial endpoint products to see if we support custodial or PK balances as a guideline to
             // asset support
-            val tradeableAsset = assetCatalogue.supportedCustodialAssets.firstOrNull { assetAccount ->
-                assetAccount.networkTicker == asset.assetInfo.networkTicker &&
-                    (
-                        assetAccount.categories.contains(AssetCategory.CUSTODIAL) ||
-                            assetAccount.categories.contains(AssetCategory.NON_CUSTODIAL)
-                        )
-            }
+            val tradeableAsset = nonCustodialAccounts.isNotEmpty() || custodialAccounts.isNotEmpty()
 
-            return@zip if (tradeableAsset == null) {
+            return@zip if (!tradeableAsset) {
                 AssetInformation.NonTradeable(prices)
             } else {
                 val accountsList = mapAccounts(

@@ -2,25 +2,27 @@ package com.blockchain.network.websocket
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
-class MoshiJsonWebSocketDecoratorTest {
+class JsonWebSocketDecoratorTest {
 
-    @Suppress("unused")
+    @Serializable
     class TypeOut(val fieldA: String, val fieldB: Int)
 
+    @Serializable
     data class TypeIn(val fieldC: String, val fieldD: Int)
 
-    private val moshi = Moshi.Builder().build()
+    private val json = Json {}
 
     @Test
     fun `open delegates to inner open`() {
         val inner = mock<WebSocket<String, String>>()
-        inner.toJsonSocket<TypeOut, TypeIn>(moshi)
+        inner.toJsonSocket(json, TypeOut.serializer(), TypeIn.serializer())
             .open()
         verify(inner).open()
     }
@@ -28,7 +30,7 @@ class MoshiJsonWebSocketDecoratorTest {
     @Test
     fun `close delegates to inner close`() {
         val inner = mock<WebSocket<String, String>>()
-        inner.toJsonSocket<TypeOut, TypeIn>(moshi)
+        inner.toJsonSocket(json, TypeOut.serializer(), TypeIn.serializer())
             .close()
         verify(inner).close()
     }
@@ -39,14 +41,14 @@ class MoshiJsonWebSocketDecoratorTest {
         val inner = mock<WebSocket<String, String>> {
             on { connectionEvents }.thenReturn(events)
         }
-        inner.toJsonSocket<TypeOut, TypeIn>(moshi)
+        inner.toJsonSocket(json, TypeOut.serializer(), TypeIn.serializer())
             .connectionEvents `should be` events
     }
 
     @Test
     fun `outgoing message is formatted to json`() {
         val inner = mock<WebSocket<String, String>>()
-        inner.toJsonSocket<TypeOut, TypeIn>(moshi)
+        inner.toJsonSocket(json, TypeOut.serializer(), TypeIn.serializer())
             .send(TypeOut(fieldA = "Message", fieldB = 1234))
         verify(inner).send("{\"fieldA\":\"Message\",\"fieldB\":1234}")
     }
@@ -61,7 +63,7 @@ class MoshiJsonWebSocketDecoratorTest {
                 )
             )
         }
-        inner.toJsonSocket<TypeOut, TypeIn>(moshi)
+        inner.toJsonSocket(json, TypeOut.serializer(), TypeIn.serializer())
             .responses
             .test()
             .values() `should be equal to`

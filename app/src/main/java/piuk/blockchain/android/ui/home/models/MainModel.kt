@@ -48,6 +48,7 @@ class MainModel(
     initialState: MainState,
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
+    private val uiTourFeatureFlag: FeatureFlag,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger
@@ -113,6 +114,18 @@ class MainModel(
                             }
                         }
                     )
+            }
+            is MainIntent.CheckForInitialDialogs -> if (intent.shouldStartUiTour) {
+                uiTourFeatureFlag.enabled.onErrorReturnItem(false)
+                    .subscribe { show ->
+                        if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
+                    }
+            } else {
+                interactor.shouldShowEntitySwitchSilverKycUpsell()
+                    .onErrorReturnItem(false)
+                    .subscribeBy { show ->
+                        if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
+                    }
             }
             is MainIntent.CheckForPendingLinks -> {
                 interactor.checkForDeepLinks(intent.appIntent)

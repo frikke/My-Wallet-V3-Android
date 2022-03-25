@@ -8,18 +8,19 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -47,7 +48,7 @@ class CoinViewInteractorTest {
     private val coincore: Coincore = mock()
     private val tradeDataManager: TradeDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
-    private val assetCatalogue: AssetCatalogue = mock()
+    private val custodialWalletManager: CustodialWalletManager = mock()
     private val identity: UserIdentity = mock()
     private val assetInfo: AssetInfo = object : CryptoCurrency(
         displayTicker = "BTC",
@@ -113,8 +114,8 @@ class CoinViewInteractorTest {
             coincore = coincore,
             tradeDataManager = tradeDataManager,
             currencyPrefs = currencyPrefs,
-            assetCatalogue = assetCatalogue,
-            identity = identity
+            identity = identity,
+            custodialWalletManager = custodialWalletManager
         )
     }
 
@@ -124,9 +125,9 @@ class CoinViewInteractorTest {
             on { assetInfo }.thenReturn(mock())
         }
         whenever(tradeDataManager.getRecurringBuysForAsset(asset.assetInfo)).thenReturn(Single.just(emptyList()))
-
+        whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo)).thenReturn(Single.just(true))
         val test = subject.loadRecurringBuys(asset.assetInfo).test()
-        test.assertValue(emptyList())
+        test.assertValue(Pair(emptyList(), true))
         verify(tradeDataManager).getRecurringBuysForAsset(asset.assetInfo)
     }
 
@@ -138,21 +139,19 @@ class CoinViewInteractorTest {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
         }
         val btcAsset = CryptoCurrency.BTC
+        val account: CustodialTradingAccount = mock()
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(listOf(btcAsset))
 
-        val test = subject.loadQuickActions(asset.assetInfo, totalCryptoBalance).test()
+        val test = subject.loadQuickActions(totalCryptoBalance, listOf(account)).test()
 
         test.assertValue {
-            it.first == QuickActionCta.Sell && it.second == QuickActionCta.Buy
+            it.startAction == QuickActionCta.Sell && it.endAction == QuickActionCta.Buy && it.actionableAccount == account
         }
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
-        verify(assetCatalogue).supportedCustodialAssets
 
         verifyNoMoreInteractions(identity)
-        verifyNoMoreInteractions(assetCatalogue)
     }
 
     @Test
@@ -164,85 +163,75 @@ class CoinViewInteractorTest {
         }
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.zero(btcAsset)
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(listOf(btcAsset))
+        val account: CustodialTradingAccount = mock()
 
-        val test = subject.loadQuickActions(asset.assetInfo, totalCryptoBalance).test()
+        val test = subject.loadQuickActions(totalCryptoBalance, listOf(account)).test()
 
         test.assertValue {
-            it.first == QuickActionCta.Receive && it.second == QuickActionCta.Buy
+            it.startAction == QuickActionCta.Receive && it.endAction == QuickActionCta.Buy && it.actionableAccount == account
         }
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
-        verify(assetCatalogue).supportedCustodialAssets
-
         verifyNoMoreInteractions(identity)
-        verifyNoMoreInteractions(assetCatalogue)
     }
 
     @Test
     fun `load quick actions should return valid actions for non sdd silver user`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
-        val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(CryptoCurrency.BTC)
-        }
+
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(listOf(btcAsset))
 
-        val test = subject.loadQuickActions(asset.assetInfo, totalCryptoBalance).test()
+        val account: CustodialTradingAccount = mock()
+
+        val test = subject.loadQuickActions(totalCryptoBalance, listOf(account)).test()
 
         test.assertValue {
-            it.first == QuickActionCta.Receive && it.second == QuickActionCta.Buy
+            it.startAction == QuickActionCta.Receive && it.endAction == QuickActionCta.Buy && it.actionableAccount == account
         }
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
-        verify(assetCatalogue).supportedCustodialAssets
 
         verifyNoMoreInteractions(identity)
-        verifyNoMoreInteractions(assetCatalogue)
     }
 
     @Test
     fun `load quick actions should return valid actions when no custodial wallet`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
-        val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(CryptoCurrency.BTC)
-        }
+
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(emptyList())
 
-        val test = subject.loadQuickActions(asset.assetInfo, totalCryptoBalance).test()
+        val account: CryptoNonCustodialAccount = mock()
+
+        val test = subject.loadQuickActions(totalCryptoBalance, listOf(account)).test()
 
         test.assertValue {
-            it.first == QuickActionCta.Receive && it.second == QuickActionCta.Send
+            it.startAction == QuickActionCta.Receive && it.endAction == QuickActionCta.Send && it.actionableAccount == account
         }
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
-        verify(assetCatalogue).supportedCustodialAssets
 
         verifyNoMoreInteractions(identity)
-        verifyNoMoreInteractions(assetCatalogue)
     }
 
     @Test
     fun `load account details when asset is non tradeable`() {
-        val testAsset = object : CryptoCurrency(
-            displayTicker = "BTC",
-            networkTicker = "BTC",
-            name = "Not a real thing",
-            categories = setOf(),
-            precisionDp = 8,
-            requiredConfirmations = 3,
-            colour = "000000"
-        ) {}
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(listOf(testAsset))
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
+
+        val asset: CryptoAsset = mock {
+            on { this.assetInfo }.thenReturn(assetInfo)
+            on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.empty())
+            on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.empty())
+            on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.empty())
+            on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
+            on { interestRate() }.thenReturn(Single.just(5.0))
+        }
 
         val test = subject.loadAccountDetails(asset).test()
 
@@ -263,7 +252,6 @@ class CoinViewInteractorTest {
             requiredConfirmations = 3,
             colour = "000000"
         ) {}
-        whenever(assetCatalogue.supportedCustodialAssets).thenReturn(listOf(testAsset))
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
 
         val test = subject.loadAccountDetails(asset).test()

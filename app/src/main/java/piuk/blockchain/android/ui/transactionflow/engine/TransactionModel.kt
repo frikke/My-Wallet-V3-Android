@@ -46,6 +46,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
@@ -136,7 +137,7 @@ data class TransactionState(
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
     val locks: FundsLocks? = null,
     val shouldShowSendToDomainBanner: Boolean = false,
-    val transactionsLimit: TransactionsLimit? = null
+    override val transactionsLimit: TransactionsLimit? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -499,7 +500,15 @@ class TransactionModel(
         target: TransactionTarget
     ): Maybe<FeatureAccess> = when (action) {
         AssetAction.Buy -> interactor.userAccessForFeature(Feature.Buy).toMaybe()
-        AssetAction.Swap -> interactor.userAccessForFeature(Feature.Swap).toMaybe()
+        AssetAction.Swap ->
+            interactor.userAccessForFeature(Feature.Swap)
+                .flatMap { access ->
+                    if (access is FeatureAccess.Granted &&
+                        sourceAccount is NonCustodialAccount &&
+                        target is TradingAccount
+                    ) interactor.userAccessForFeature(Feature.CryptoDeposit)
+                    else Single.just(access)
+                }.toMaybe()
         AssetAction.Send ->
             if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is InterestAccount)) {
                 interactor.userAccessForFeature(Feature.CryptoDeposit).toMaybe()

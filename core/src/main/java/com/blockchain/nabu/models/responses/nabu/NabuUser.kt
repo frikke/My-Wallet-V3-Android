@@ -2,21 +2,31 @@ package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.serialization.JsonSerializable
+import com.blockchain.serializers.PrimitiveSerializer
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.ToJson
 import kotlin.math.max
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
+@Serializable
 data class NabuUser(
-    val firstName: String?,
-    val lastName: String?,
+    val firstName: String? = null,
+    val lastName: String? = null,
     val email: String = "",
     val emailVerified: Boolean = false,
-    val dob: String?,
-    val mobile: String?,
+    val dob: String? = null,
+    val mobile: String? = null,
     val mobileVerified: Boolean,
-    val address: Address?,
+    val address: Address? = null,
     val state: UserState,
     val kycState: KycState,
     private val productsUsed: ProductsUsed? = null,
@@ -30,7 +40,7 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    val tags: Map<String, Map<String, Any>>? = null,
+    val tags: Map<String, Map<String, @Serializable(with = PrimitiveSerializer::class) Any>>? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val walletGuid: String? = null
@@ -83,21 +93,26 @@ data class NabuUser(
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
 }
 
+@Serializable
 data class TierLevels(
-    val current: Int?,
-    val selected: Int?,
-    val next: Int?
+    val current: Int? = null,
+    val selected: Int? = null,
+    val next: Int? = null
 )
 
+@Serializable
 data class Address(
-    val line1: String?,
-    val line2: String?,
-    val city: String?,
-    val state: String?,
-    val postCode: String?,
-    @field:Json(name = "country") val countryCode: String?
+    val line1: String? = null,
+    val line2: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val postCode: String? = null,
+    @SerialName("country")
+    @field:Json(name = "country")
+    val countryCode: String? = null
 )
 
+@Serializable
 data class AddAddressRequest(
     val address: Address
 ) {
@@ -135,6 +150,7 @@ data class AddAddressRequest(
     }
 }
 
+@Serializable(with = KycStateAdapter.KycStateSerializer::class)
 sealed class KycState {
     object None : KycState()
     object Pending : KycState()
@@ -144,6 +160,7 @@ sealed class KycState {
     object Verified : KycState()
 }
 
+@Serializable(with = UserStateAdapter.UserStateSerializer::class)
 sealed class UserState {
     object None : UserState()
     object Created : UserState()
@@ -151,6 +168,8 @@ sealed class UserState {
     object Blocked : UserState()
 }
 
+@Deprecated("Use [KycStateSerializer] instead.")
+// TODO Remove Moshi and migrate KycStateAdapter to KycStateSerializer
 class KycStateAdapter {
 
     @FromJson
@@ -174,6 +193,36 @@ class KycStateAdapter {
         KycState.Verified -> VERIFIED
     }
 
+    object KycStateSerializer : KSerializer<KycState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("KycState", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: KycState) {
+            encoder.encodeString(
+                when (value) {
+                    KycState.None -> NONE
+                    KycState.Pending -> PENDING
+                    KycState.Rejected -> REJECTED
+                    KycState.UnderReview -> UNDER_REVIEW
+                    KycState.Expired -> EXPIRED
+                    KycState.Verified -> VERIFIED
+                }
+            )
+        }
+
+        override fun deserialize(decoder: Decoder): KycState {
+            return when (val input = decoder.decodeString()) {
+                NONE -> KycState.None
+                PENDING -> KycState.Pending
+                UNDER_REVIEW -> KycState.UnderReview
+                REJECTED -> KycState.Rejected
+                EXPIRED -> KycState.Expired
+                VERIFIED -> KycState.Verified
+                else -> throw JsonDataException("Unknown KYC State: $input, unsupported data type")
+            }
+        }
+    }
+
     private companion object {
         private const val NONE = "NONE"
         private const val PENDING = "PENDING"
@@ -184,6 +233,8 @@ class KycStateAdapter {
     }
 }
 
+@Deprecated("Use [UserStateSerializer] instead.")
+// TODO Remove Moshi and migrate UserStateAdapter to UserStateSerializer
 class UserStateAdapter {
 
     @FromJson
@@ -203,6 +254,32 @@ class UserStateAdapter {
         UserState.Blocked -> BLOCKED
     }
 
+    object UserStateSerializer : KSerializer<UserState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("UserState", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: UserState) {
+            encoder.encodeString(
+                when (value) {
+                    UserState.None -> NONE
+                    UserState.Created -> CREATED
+                    UserState.Active -> ACTIVE
+                    UserState.Blocked -> BLOCKED
+                }
+            )
+        }
+
+        override fun deserialize(decoder: Decoder): UserState {
+            return when (val input = decoder.decodeString()) {
+                NONE -> UserState.None
+                CREATED -> UserState.Created
+                ACTIVE -> UserState.Active
+                BLOCKED -> UserState.Blocked
+                else -> throw JsonDataException("Unknown User State: $input, unsupported data type")
+            }
+        }
+    }
+
     private companion object {
         private const val NONE = "NONE"
         private const val CREATED = "CREATED"
@@ -211,10 +288,12 @@ class UserStateAdapter {
     }
 }
 
+@Serializable
 data class ProductsUsed(
-    val exchange: Boolean = false
+    val exchange: Boolean? = false
 )
 
+@Serializable
 data class NabuSettings(
-    val MERCURY_EMAIL_VERIFIED: Boolean
+    val MERCURY_EMAIL_VERIFIED: Boolean? = false
 )

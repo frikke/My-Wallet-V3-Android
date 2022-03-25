@@ -1,7 +1,8 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.koin.deeplinkingFeatureFlag
+import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.uiTourFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
@@ -20,6 +21,7 @@ val mainModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 walletConnectServiceAPI = get(),
+                uiTourFeatureFlag = get(uiTourFeatureFlag),
                 environmentConfig = get(),
                 crashLogger = get(),
             )
@@ -46,7 +48,9 @@ val mainModule = module {
                 credentialsWiper = get(),
                 qrScanResultProcessor = get(),
                 secureChannelManager = get(),
-                cancelOrderUseCase = get()
+                cancelOrderUseCase = get(),
+                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
+                onboardingPrefs = get()
             )
         }
 

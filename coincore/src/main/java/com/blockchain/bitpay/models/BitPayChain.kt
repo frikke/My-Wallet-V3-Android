@@ -1,3 +1,8 @@
 package com.blockchain.bitpay.models
 
-data class BitPayChain(val chain: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class BitPayChain(
+    val chain: String
+)

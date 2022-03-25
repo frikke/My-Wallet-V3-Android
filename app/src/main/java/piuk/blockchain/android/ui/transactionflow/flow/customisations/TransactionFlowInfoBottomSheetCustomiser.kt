@@ -8,6 +8,7 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
+import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimitPeriod
 import info.blockchain.balance.AssetCategory
@@ -16,11 +17,14 @@ import java.io.Serializable
 import java.math.RoundingMode
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 
 interface TransactionFlowInfoBottomSheetCustomiser {
-    fun info(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo?
+    fun info(
+        info: InfoBottomSheetType,
+        state: TransactionFlowStateInfo,
+        input: CurrencyType
+    ): TransactionFlowBottomSheetInfo?
 }
 
 @Parcelize
@@ -43,20 +47,28 @@ enum class InfoActionType {
     BUY, KYC_UPGRADE
 }
 
+enum class InfoBottomSheetType {
+    INSUFFICIENT_FUNDS,
+    BELOW_MIN_LIMIT,
+    OVER_MAX_LIMIT,
+    ABOVE_MAX_PAYMENT_METHOD_LIMIT,
+    TRANSACTIONS_LIMIT
+}
+
 class TransactionFlowInfoBottomSheetCustomiserImpl(
     private val resources: Resources
 ) : TransactionFlowInfoBottomSheetCustomiser {
-    override fun info(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo? {
-        return when (state.errorState) {
-            TransactionErrorState.INSUFFICIENT_FUNDS -> infoForInsufficientFunds(state)
-            TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.BELOW_MIN_LIMIT -> infoForBelowMinLimit(state, input)
-            // we need to keep those for working with the feature flag off, otherwise we would be based only on the
-            // suggested upgrade
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> infoForMaxLimit(state, input)
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> infoForOverMaxPaymentMethodLimit(state, input)
-            else -> null
+    override fun info(
+        info: InfoBottomSheetType,
+        state: TransactionFlowStateInfo,
+        input: CurrencyType
+    ): TransactionFlowBottomSheetInfo? {
+        return when (info) {
+            InfoBottomSheetType.INSUFFICIENT_FUNDS -> infoForInsufficientFunds(state)
+            InfoBottomSheetType.BELOW_MIN_LIMIT -> infoForBelowMinLimit(state, input)
+            InfoBottomSheetType.OVER_MAX_LIMIT -> infoForMaxLimit(state, input)
+            InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> infoForOverMaxPaymentMethodLimit(state, input)
+            InfoBottomSheetType.TRANSACTIONS_LIMIT -> infoForTransactionsLimit(state)
         }
     }
 
@@ -355,6 +367,22 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             )
         }
     }
+
+    private fun infoForTransactionsLimit(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo =
+        TransactionFlowBottomSheetInfo(
+            title = resources.getString(R.string.tx_enter_amount_transactions_limit_info_title),
+            description = resources.getString(
+                R.string.tx_enter_amount_transactions_limit_info_description,
+                (state.transactionsLimit as? TransactionsLimit.Limited)?.maxTransactionsLeft ?: 0
+            ),
+            action = InfoAction(
+                icon = R.drawable.ic_verification_badge,
+                title = resources.getString(R.string.tx_enter_amount_transactions_limit_info_action_title),
+                description = resources.getString(R.string.tx_enter_amount_transactions_limit_info_action_description),
+                ctaActionText = resources.getString(R.string.tx_tier_suggested_upgrade_info_action_cta_button),
+                actionType = InfoActionType.KYC_UPGRADE
+            )
+        )
 
     private fun infoActionForSuggestedUpgrade(state: TransactionFlowStateInfo): InfoAction? =
         state.limits.suggestedUpgrade?.let {

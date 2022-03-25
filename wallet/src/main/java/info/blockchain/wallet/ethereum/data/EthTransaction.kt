@@ -1,7 +1,7 @@
 @file:UseSerializers(BigIntSerializer::class)
 package info.blockchain.wallet.ethereum.data
 
-import com.blockchain.api.serializers.BigIntSerializer
+import com.blockchain.serializers.BigIntSerializer
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude

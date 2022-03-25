@@ -13,7 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.deeplinkingFeatureFlag
+import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -22,6 +22,7 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.usd
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -330,7 +331,8 @@ val applicationModule = module {
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 moshi = get(),
-                analytics = get()
+                json = get(),
+                disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
             )
         }
 
@@ -453,6 +455,7 @@ val applicationModule = module {
                 custodialWalletManager = get(),
                 limitsDataManager = get(),
                 coincore = get(),
+                userIdentity = get(),
                 eligibilityProvider = get(),
                 bankLinkingPrefs = get(),
                 analytics = get(),
@@ -839,7 +842,11 @@ val applicationModule = module {
     }
 
     factory {
-        FirebaseMobileNoticeRemoteConfig(remoteConfig = get())
+        FirebaseMobileNoticeRemoteConfig(
+            remoteConfig = get(),
+            json = get(),
+            disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
+        )
     }.bind(MobileNoticeRemoteConfig::class)
 
     factory {
