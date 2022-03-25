@@ -27,6 +27,7 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -50,7 +51,7 @@ class EthOnChainTxEngineTest : CoincoreTestBase() {
         feeManager = feeManager,
         requireSecondPassword = false,
         walletPreferences = walletPreferences,
-        resolvedAddress = mock()
+        resolvedAddress = Single.just("")
     )
 
     @Before

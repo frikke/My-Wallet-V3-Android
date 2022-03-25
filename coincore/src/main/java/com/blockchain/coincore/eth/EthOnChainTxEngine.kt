@@ -26,6 +26,7 @@ import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.BigInteger
 import org.web3j.crypto.RawTransaction
@@ -100,21 +101,25 @@ class EthOnChainTxEngine(
         )
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
-        feeOptions().map {
-            val gasLimit = if (txTarget.isContract) it.gasLimitContract else it.gasLimit
-            mapOf(
-                FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
-                FeeLevel.Regular to getValueForFeeLevel(gasLimit, it.regularFee),
-                FeeLevel.Priority to getValueForFeeLevel(gasLimit, it.priorityFee),
-                FeeLevel.Custom to getValueForFeeLevel(gasLimit, it.priorityFee)
-            )
-        }
+        feeOptions().zipWith(resolvedHotWalletAddress)
+            .map { (feeOptions, hotWalletAddress) ->
+                val gasLimit = if (txTarget.isContract) feeOptions.gasLimitContract else feeOptions.gasLimit
+                val extraGasForMemo = extraGasLimitIfMemoAvailable(
+                    useHotWallet = hotWalletAddress.isNotEmpty()
+                ).toLong()
+                mapOf(
+                    FeeLevel.None to CryptoValue.zero(CryptoCurrency.ETHER),
+                    FeeLevel.Regular to getValueForFeeLevel(gasLimit, feeOptions.regularFee, extraGasForMemo),
+                    FeeLevel.Priority to getValueForFeeLevel(gasLimit, feeOptions.priorityFee, extraGasForMemo),
+                    FeeLevel.Custom to getValueForFeeLevel(gasLimit, feeOptions.priorityFee, extraGasForMemo)
+                )
+            }
 
-    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long) =
+    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long, extraGasForMemo: Long) =
         CryptoValue.fromMinor(
             CryptoCurrency.ETHER,
             Convert.toWei(
-                BigDecimal.valueOf(gasLimitContract * feeLevel),
+                BigDecimal.valueOf(gasLimitContract * feeLevel + extraGasForMemo),
                 Convert.Unit.GWEI
             )
         )
