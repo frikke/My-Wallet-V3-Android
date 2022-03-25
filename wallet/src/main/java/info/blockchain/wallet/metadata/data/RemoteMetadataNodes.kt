@@ -45,7 +45,7 @@ class RemoteMetadataNodes(
         @JsonIgnore @Throws(IOException::class)
         fun fromJson(json: String, withKotlinX: Boolean): RemoteMetadataNodes {
             return if (withKotlinX) {
-                jsonBuilder.decodeFromString(json)
+                jsonBuilder.decodeFromString(serializer(), json)
             } else {
                 ObjectMapper().readValue(json, RemoteMetadataNodes::class.java)
             }

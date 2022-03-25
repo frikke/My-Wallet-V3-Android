@@ -18,6 +18,9 @@ import com.blockchain.core.payments.model.CardToBeActivated
 import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -57,6 +60,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.rxSingle
@@ -85,6 +89,7 @@ class SimpleBuyInteractor(
     private val eligibilityProvider: SimpleBuyEligibilityProvider,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
+    private val userIdentity: UserIdentity,
     private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
@@ -103,15 +108,17 @@ class SimpleBuyInteractor(
         asset: AssetInfo,
         paymentMethodType: PaymentMethodType
     ): Single<TxLimits> =
-        tierService.tiers().flatMap { tier ->
-            fetchLimits(
-                sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType
-            ).map { limits ->
-                if (tier.isInInitialState()) {
-                    limits.copy(
-                        max = TxLimit.Unlimited
-                    )
-                } else limits
+        Singles.zip(
+            fetchLimits(sourceCurrency = fiat, targetCurrency = asset, paymentMethodType = paymentMethodType),
+            userIdentity.getHighestApprovedKycTier()
+        ).flatMap { (limits, highestTier) ->
+            when (highestTier) {
+                Tier.BRONZE -> Single.just(limits.copy(max = TxLimit.Unlimited))
+                Tier.SILVER -> userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence).map { isSdd ->
+                    if (isSdd) limits
+                    else limits.copy(max = TxLimit.Unlimited)
+                }
+                Tier.GOLD -> Single.just(limits)
             }
         }
 

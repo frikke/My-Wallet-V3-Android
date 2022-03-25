@@ -34,6 +34,8 @@ dependencies {
     implementation Libraries.firebaseDynamicLink
     api Libraries.firebaseMessaging
 
+    implementation Libraries.embraceIOSDK
+
     implementation Libraries.koinAndroid
     implementation Libraries.timber
 
