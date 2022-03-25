@@ -78,7 +78,7 @@ class EthereumWalletDto {
         fun fromJson(json: String, withKotlinX: Boolean): EthereumWalletDto {
             return if (withKotlinX) {
                 val jsonBuilder = Json { ignoreUnknownKeys = true }
-                jsonBuilder.decodeFromString(json)
+                jsonBuilder.decodeFromString(serializer(), json)
             } else {
                 val mapper = ObjectMapper()
                 mapper.setVisibility(
