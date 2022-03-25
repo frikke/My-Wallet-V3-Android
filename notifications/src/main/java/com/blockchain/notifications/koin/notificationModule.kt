@@ -6,8 +6,9 @@ import com.blockchain.koin.nabu
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.logging.CrashLogger
 import com.blockchain.logging.EventLogger
-import com.blockchain.notifications.BuildConfig
-import com.blockchain.notifications.CrashLoggerImpl
+import com.blockchain.notifications.CompoundCrashLogger
+import com.blockchain.notifications.EmbraceCrashLogger
+import com.blockchain.notifications.FirebaseCrashLogger
 import com.blockchain.notifications.FirebaseNotificationTokenProvider
 import com.blockchain.notifications.NotificationService
 import com.blockchain.notifications.NotificationTokenManager
@@ -91,6 +92,11 @@ val notificationModule = module {
         .bind(ABTestExperiment::class)
 
     single {
-        CrashLoggerImpl(BuildConfig.DEBUG)
+        CompoundCrashLogger(
+            listOf(
+                FirebaseCrashLogger(),
+                EmbraceCrashLogger()
+            )
+        )
     }.bind(CrashLogger::class)
 }
