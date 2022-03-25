@@ -77,8 +77,18 @@ sealed class LoginAnalytics(
         event = AnalyticsNames.LOGIN_VIEWED.eventName
     )
 
-    object LoginEmailFailed : LoginAnalytics(
-        event = AnalyticsNames.LOGIN_EMAIL_FAILED.eventName
+    class LoginEmailFailed(httpErrorCode: Int?, errorMessage: String) : LoginAnalytics(
+        event = AnalyticsNames.LOGIN_EMAIL_FAILED.eventName,
+        params = httpErrorCode?.let {
+            mapOf(
+                ERROR_CODE to it,
+                ERROR_MESSAGE to errorMessage
+            )
+        } ?: run {
+            mapOf(
+                ERROR_MESSAGE to errorMessage
+            )
+        }
     )
 
     object LoginFailedIPMismatch : LoginAnalytics(
@@ -110,6 +120,8 @@ sealed class LoginAnalytics(
         private const val LOGIN_METHOD = "method"
         private const val LOGIN_ERROR = "error"
         private const val CANT_VALIDATE_IP = "CANT_VALIDATE_IP"
+        private const val ERROR_CODE = "error_code"
+        private const val ERROR_MESSAGE = "error_message"
 
         private fun LoginAuthInfo?.constructDataMap(): Map<String, Serializable> =
             when (this) {

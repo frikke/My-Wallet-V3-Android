@@ -16,7 +16,8 @@ val loginUiModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
-                interactor = get()
+                interactor = get(),
+                analytics = get()
             )
         }
 
