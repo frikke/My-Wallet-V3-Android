@@ -42,9 +42,15 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             is BlockchainCardModelState.NotOrdered -> {
                 BlockchainCardViewState.OrderOrLinkCard
             }
+
             is BlockchainCardModelState.OrderCard -> {
                 BlockchainCardViewState.OrderCard
             }
+
+            is BlockchainCardModelState.ShowProductDetails -> {
+                BlockchainCardViewState.ShowProductDetails(state.product)
+            }
+
             is BlockchainCardModelState.LinkCard -> {
                 BlockchainCardViewState.LinkCard
             }
@@ -70,8 +76,11 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             }
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
-                if (modelState is BlockchainCardModelState.NotOrdered)
-                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(modelState.product))
+                if (modelState is BlockchainCardModelState.NotOrdered) {
+                    val cardProduct = modelState.cardProduct
+                    updateState { BlockchainCardModelState.ShowProductDetails(cardProduct) }
+                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
+                }
             }
 
             is BlockchainCardIntent.CreateCard -> {

@@ -3,12 +3,15 @@ package com.blockchain.blockchaincard.ui.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,6 +28,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
@@ -38,6 +42,12 @@ import com.blockchain.componentlib.button.AlertButton
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.divider.HorizontalDivider
+import com.blockchain.componentlib.sectionheader.SmallSectionHeader
+import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -77,6 +87,13 @@ fun BlockchainCardNavHost(
     navigator: BlockchainCardNavigationRouter,
     viewModel: BlockchainCardViewModel,
 ) {
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val state by stateFlowLifecycleAware.collectAsState(null)
+
     MviNavHost(
         navigator,
         startDestination = "blockchain_card"
@@ -108,27 +125,8 @@ fun BlockchainCardNavHost(
             )
         }
 
-        bottomSheet("product_details?" +
-            "brand={brand}&" +
-            "type={type}&" +
-            "price={price}",
-            arguments = listOf(
-                navArgument("brand") {
-                    type = NavType.StringType
-                },
-                navArgument("type") {
-                    type = NavType.StringType
-                },
-                navArgument("price") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            ProductDetails(
-                brand = backStackEntry.arguments?.getString("brand"),
-                type = backStackEntry.arguments?.getString("type"),
-                price = backStackEntry.arguments?.getString("price")
-            )
+        bottomSheet("product_details") {
+            ProductDetails((state as BlockchainCardViewState.ShowProductDetails).cardProduct)
         }
     }
 }
@@ -249,35 +247,64 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
 }
 
 @Composable
-private fun ProductDetails(brand: String? = "", type: String? = "", price: String? = "") {
+private fun ProductDetails(cardProduct: BlockchainDebitCardProduct) {
 
-    Column() {
-        brand?.let {
-            SimpleText(
-                text = it,
-                style = ComposeTypographies.Title2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
-        }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+        
+        SheetHeader(onClosePress = { /*TODO*/ }, title = "Card Details")
+        
+        Image(
+            painter = painterResource(id = R.drawable.ic_card),
+            contentDescription = "Blockchain Card",
+            modifier = Modifier.padding(84.dp, 16.dp)
+        )
 
-        type?.let {
-            SimpleText(
-                text = it,
-                style = ComposeTypographies.Title2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
-        }
+        SimpleText(
+            text = "Virtual",
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
 
-        price?.let {
-            SimpleText(
-                text = it,
-                style = ComposeTypographies.Title2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
-        }
+        SmallSectionHeader(text = "Card Benefits (Place Holder)", modifier = Modifier.fillMaxWidth())
+        DefaultTableRow(
+            primaryText = "Cashback Rewards",
+            onClick = {},
+            endTag = TagViewState("1%", TagType.Default())
+        )
+
+        SmallSectionHeader(text = "Fees", modifier = Modifier.fillMaxWidth())
+        DefaultTableRow(
+            primaryText = "Delivery Fee",
+            onClick = {},
+            endTag = TagViewState(cardProduct.price.toStringWithSymbol(), TagType.InfoAlt())
+        )
+
+        SmallSectionHeader(text = "Card (Placeholder)", modifier = Modifier.fillMaxWidth())
+        DefaultTableRow(
+            primaryText = "Contactless Payment",
+            secondaryText = "",
+            onClick = {},
+            endTag = TagViewState("Yes", TagType.Default())
+        )
+        HorizontalDivider()
+        SimpleText(text = "Consumer Financial Protection Bureau", style = ComposeTypographies.Paragraph2, color = ComposeColors.Body, gravity = ComposeGravities.Centre)
+        HorizontalDivider()
+        DefaultTableRow(
+            primaryText = "Short Form Disclosure",
+            onClick = {}
+        )
+        HorizontalDivider()
+        SimpleText(text = "Consumer Financial Protection Bureau", style = ComposeTypographies.Paragraph2, color = ComposeColors.Body, gravity = ComposeGravities.Centre)
+        DefaultTableRow(
+            primaryText = "Terms & Conditions",
+            onClick = {}
+        )
     }
 }
 

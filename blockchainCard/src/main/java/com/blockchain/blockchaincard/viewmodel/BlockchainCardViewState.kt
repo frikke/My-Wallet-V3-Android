@@ -1,5 +1,6 @@
 package com.blockchain.blockchaincard.viewmodel
 
+import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 
 sealed class BlockchainCardViewState : ViewState {
@@ -9,4 +10,5 @@ sealed class BlockchainCardViewState : ViewState {
     object CardCreationSuccess: BlockchainCardViewState()
     object CardCreationFailed: BlockchainCardViewState()
     data class ManageCard(val cardId: String): BlockchainCardViewState()
+    data class ShowProductDetails(val cardProduct: BlockchainDebitCardProduct) : BlockchainCardViewState()
 }
