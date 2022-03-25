@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
@@ -17,6 +18,7 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -45,6 +47,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val lifecycleObservable: LifecycleObservable by inject()
     private var isAppOnForegrounded = true
     private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
+    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     init {
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
@@ -142,12 +145,20 @@ class FcmCallbackService : FirebaseMessagingService() {
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
-                        deeplinkRedirector.processDeeplinkURL(Uri.parse(payload.deeplinkURL), payload).subscribeBy(
-                            onComplete = {
-                                // Nothing to do
-                            },
-                            onError = {
-                                Timber.e(it)
+                        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+                            onSuccess = { isEnabled ->
+                                if (isEnabled) {
+                                    deeplinkRedirector.processDeeplinkURL(
+                                        Uri.parse(payload.deeplinkURL), payload
+                                    ).subscribeBy(
+                                        onComplete = {
+                                            // Nothing to do
+                                        },
+                                        onError = {
+                                            Timber.e(it)
+                                        }
+                                    )
+                                }
                             }
                         )
                     } else {
