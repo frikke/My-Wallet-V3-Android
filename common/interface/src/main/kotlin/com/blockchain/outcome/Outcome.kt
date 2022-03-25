@@ -37,6 +37,16 @@ suspend fun <E, F, R> Outcome<E, R>.flatMapLeft(f: suspend (E) -> Outcome<F, R>)
         is Outcome.Failure -> f(failure)
     }
 
+fun <E, R> Outcome<E, R>.doOnSuccess(f: (R) -> Unit): Outcome<E, R> =
+    this.also {
+        if (this is Outcome.Success) f(this.value)
+    }
+
+fun <E, R> Outcome<E, R>.doOnFailure(f: (E) -> Unit): Outcome<E, R> =
+    this.also {
+        if (this is Outcome.Failure) f(this.failure)
+    }
+
 fun <E, R, T> Outcome<E, R>.fold(onFailure: (E) -> T, onSuccess: (R) -> T): T =
     when (this) {
         is Outcome.Success -> onSuccess(value)
