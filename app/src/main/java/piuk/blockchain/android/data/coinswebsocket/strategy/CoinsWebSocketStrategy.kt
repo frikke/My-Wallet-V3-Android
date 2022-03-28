@@ -4,6 +4,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
@@ -20,8 +21,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.math.BigDecimal
-import java.util.Locale
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.web3j.utils.Convert
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.coinswebsocket.models.BtcBchResponse
@@ -48,6 +50,8 @@ import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
+import java.math.BigDecimal
+import java.util.Locale
 
 data class WebSocketReceiveEvent(
     val address: String,
@@ -71,6 +75,8 @@ class CoinsWebSocketStrategy(
     private val bchDataManager: BchDataManager,
     private val stringUtils: StringUtils,
     private val gson: Gson,
+    private val json: Json,
+    private val replaceGsonKtxFF: FeatureFlag,
     private val rxBus: RxBus,
     private val prefs: PersistentPrefs,
     private val pinRepository: PinRepository,
@@ -93,6 +99,15 @@ class CoinsWebSocketStrategy(
         coinsWebSocket.open()
     }
 
+    private fun sendMessage(message: SocketRequest) {
+        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+            coinsWebSocket.send(
+                if (replaceGsonKtx) json.encodeToString(message)
+                else gson.toJson(message)
+            )
+        }
+    }
+
     private fun subscribeToEvents() {
         compositeDisposable += coinsWebSocket.connectionEvents
             .subscribe { evt ->
@@ -104,14 +119,19 @@ class CoinsWebSocketStrategy(
 
         compositeDisposable += coinsWebSocket.responses.distinctUntilChanged()
             .subscribe { response ->
-                val socketResponse = gson.fromJson(response, SocketResponse::class.java)
-                if (socketResponse.op == "on_change")
-                    checkForWalletChange(socketResponse.checksum)
-                when (socketResponse.coin) {
-                    Coin.ETH -> handleEthTransaction(response)
-                    Coin.BTC -> handleBtcTransaction(response)
-                    Coin.BCH -> handleBchTransaction(response)
-                    else -> {
+                replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+                    val socketResponse: SocketResponse =
+                        if (replaceGsonKtx) json.decodeFromString(response)
+                        else gson.fromJson(response, SocketResponse::class.java)
+
+                    if (socketResponse.op == "on_change")
+                        checkForWalletChange(socketResponse.checksum)
+                    when (socketResponse.coin) {
+                        Coin.ETH -> handleEthTransaction(response)
+                        Coin.BTC -> handleBtcTransaction(response)
+                        Coin.BCH -> handleBchTransaction(response)
+                        else -> {
+                        }
                     }
                 }
             }
@@ -196,47 +216,58 @@ class CoinsWebSocketStrategy(
     }
 
     private fun handleBtcTransaction(response: String) {
-        val btcResponse = gson.fromJson(response, BtcBchResponse::class.java)
-        val transaction = btcResponse.transaction ?: return
+        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
 
-        handleTransactionInputsAndOutputs(
-            transaction.inputs,
-            transaction.outputs,
-            transaction.hash
-        ) { x ->
-            payloadDataManager.wallet?.containsImportedAddress(x)
-        }
+            val btcResponse: BtcBchResponse =
+                if (replaceGsonKtx) json.decodeFromString(response)
+                else gson.fromJson(response, BtcBchResponse::class.java)
 
-        updateBtcBalancesAndTransactions()
-    }
+            val transaction = btcResponse.transaction ?: return@subscribe
 
-    private fun handleBchTransaction(response: String) {
-        val bchResponse = gson.fromJson(response, BtcBchResponse::class.java)
-        val transaction = bchResponse.transaction ?: return
-
-        val (inAddr, totalValue) =
             handleTransactionInputsAndOutputs(
                 transaction.inputs,
                 transaction.outputs,
                 transaction.hash
             ) { x ->
-                bchDataManager.getImportedAddressStringList().contains(x)
+                payloadDataManager.wallet?.containsImportedAddress(x)
             }
 
-        updateBchBalancesAndTransactions()
+            updateBtcBalancesAndTransactions()
+        }
+    }
 
-        val title = stringUtils.getString(R.string.app_name)
+    private fun handleBchTransaction(response: String) {
+        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+            val bchResponse: BtcBchResponse =
+                if (replaceGsonKtx) json.decodeFromString(response)
+                else gson.fromJson(response, BtcBchResponse::class.java)
 
-        if (totalValue > BigDecimal.ZERO) {
-            val amount = CryptoValue.fromMinor(CryptoCurrency.BCH, totalValue)
-            val marquee =
-                stringUtils.getString(R.string.received_bitcoin_cash) + amount.toStringWithSymbol()
+            val transaction = bchResponse.transaction ?: return@subscribe
 
-            var text = marquee
-            text += " ${stringUtils.getString(R.string.common_from).toLowerCase(Locale.US)} $inAddr"
-            messagesSocketHandler?.triggerNotification(
-                title, marquee, text
-            )
+            val (inAddr, totalValue) =
+                handleTransactionInputsAndOutputs(
+                    transaction.inputs,
+                    transaction.outputs,
+                    transaction.hash
+                ) { x ->
+                    bchDataManager.getImportedAddressStringList().contains(x)
+                }
+
+            updateBchBalancesAndTransactions()
+
+            val title = stringUtils.getString(R.string.app_name)
+
+            if (totalValue > BigDecimal.ZERO) {
+                val amount = CryptoValue.fromMinor(CryptoCurrency.BCH, totalValue)
+                val marquee =
+                    stringUtils.getString(R.string.received_bitcoin_cash) + amount.toStringWithSymbol()
+
+                var text = marquee
+                text += " ${stringUtils.getString(R.string.common_from).toLowerCase(Locale.US)} $inAddr"
+                messagesSocketHandler?.triggerNotification(
+                    title, marquee, text
+                )
+            }
         }
     }
 
@@ -257,32 +288,37 @@ class CoinsWebSocketStrategy(
     }
 
     private fun handleEthTransaction(response: String) {
-        val ethResponse = gson.fromJson(response, EthResponse::class.java)
-        val title = stringUtils.getString(R.string.app_name)
+        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+            val ethResponse: EthResponse =
+                if (replaceGsonKtx) json.decodeFromString(response)
+                else gson.fromJson(response, EthResponse::class.java)
 
-        if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
-            val transaction: EthTransaction = ethResponse.transaction
-            val ethAddress = ethAddress()
-            if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
-            ) {
-                val marquee = stringUtils.getString(R.string.received_ethereum) + " " +
-                    Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER) + " ETH"
-                val text = "$marquee " + stringUtils.getString(R.string.common_from)
-                    .toLowerCase(Locale.US) + " " + transaction.from
+            val title = stringUtils.getString(R.string.app_name)
 
-                messagesSocketHandler?.triggerNotification(title, marquee, text)
+            if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
+                val transaction: EthTransaction = ethResponse.transaction
+                val ethAddress = ethAddress()
+                if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
+                ) {
+                    val marquee = stringUtils.getString(R.string.received_ethereum) + " " +
+                        Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER) + " ETH"
+                    val text = "$marquee " + stringUtils.getString(R.string.common_from)
+                        .toLowerCase(Locale.US) + " " + transaction.from
+
+                    messagesSocketHandler?.triggerNotification(title, marquee, text)
+                }
+                updateEthTransactions()
             }
-            updateEthTransactions()
-        }
 
-        if (ethResponse.entity == Entity.TokenAccount &&
-            ethResponse.tokenTransfer != null &&
-            ethResponse.tokenTransfer.to.equals(ethAddress(), true)
-        ) {
-            val tokenTransaction = ethResponse.tokenTransfer
-            val asset = ethResponse.getTokenType()
-            if (asset.isErc20()) {
-                triggerErc20NotificationAndUpdate(asset, tokenTransaction, title)
+            if (ethResponse.entity == Entity.TokenAccount &&
+                ethResponse.tokenTransfer != null &&
+                ethResponse.tokenTransfer.to.equals(ethAddress(), true)
+            ) {
+                val tokenTransaction = ethResponse.tokenTransfer
+                val asset = ethResponse.getTokenType()
+                if (asset.isErc20()) {
+                    triggerErc20NotificationAndUpdate(asset, tokenTransaction, title)
+                }
             }
         }
     }
@@ -333,13 +369,12 @@ class CoinsWebSocketStrategy(
         coinWebSocketInput?.let { input ->
             val updatedList = input.receiveBtcAddresses.toMutableList() + address
             coinWebSocketInput = input.copy(receiveBtcAddresses = updatedList)
-            coinsWebSocket.send(
-                gson.toJson(
-                    SocketRequest.SubscribeRequest(
-                        Entity.Account,
-                        Coin.BTC,
-                        Parameters.SimpleAddress(address = address)
-                    )
+
+            sendMessage(
+                SocketRequest.SubscribeRequest(
+                    Entity.Account,
+                    Coin.BTC,
+                    Parameters.SimpleAddress(address = address)
                 )
             )
         }
@@ -377,41 +412,36 @@ class CoinsWebSocketStrategy(
                 unsubscribeErc20(ethAddress(), asset)
             }
 
-            coinsWebSocket.send(
-                gson.toJson(
-                    SocketRequest.UnSubscribeRequest(
-                        Entity.Wallet,
-                        Coin.None,
-                        Parameters.Guid(input.guid)
-                    )
+            sendMessage(
+                SocketRequest.UnSubscribeRequest(
+                    Entity.Wallet,
+                    Coin.None,
+                    Parameters.Guid(input.guid)
                 )
             )
         }
     }
 
-    private fun unsubscribeAddress(coin: Coin, address: String) =
-        coinsWebSocket.send(
-            gson.toJson(
-                SocketRequest.UnSubscribeRequest(
-                    Entity.Account,
-                    coin,
-                    Parameters.SimpleAddress(address)
-                )
+    private fun unsubscribeAddress(coin: Coin, address: String) {
+        sendMessage(
+            SocketRequest.UnSubscribeRequest(
+                Entity.Account,
+                coin,
+                Parameters.SimpleAddress(address)
             )
         )
+    }
 
     private fun unsubscribeErc20(ethAddress: String?, asset: AssetInfo) {
         ethAddress?.let {
             asset.l2identifier?.let { contractAddr ->
-                coinsWebSocket.send(
-                    gson.toJson(
-                        SocketRequest.UnSubscribeRequest(
-                            Entity.TokenAccount,
-                            Coin.ETH,
-                            Parameters.TokenedAddress(
-                                address = ethAddress,
-                                tokenAddress = contractAddr
-                            )
+                sendMessage(
+                    SocketRequest.UnSubscribeRequest(
+                        Entity.TokenAccount,
+                        Coin.ETH,
+                        Parameters.TokenedAddress(
+                            address = ethAddress,
+                            tokenAddress = contractAddr
                         )
                     )
                 )
@@ -419,16 +449,15 @@ class CoinsWebSocketStrategy(
         }
     }
 
-    private fun unsubscribeXpub(coin: Coin, xpub: String) =
-        coinsWebSocket.send(
-            gson.toJson(
-                SocketRequest.UnSubscribeRequest(
-                    Entity.Xpub,
-                    coin,
-                    Parameters.SimpleAddress(address = xpub)
-                )
+    private fun unsubscribeXpub(coin: Coin, xpub: String) {
+        sendMessage(
+            SocketRequest.UnSubscribeRequest(
+                Entity.Xpub,
+                coin,
+                Parameters.SimpleAddress(address = xpub)
             )
         )
+    }
 
     private fun initInput() {
         coinWebSocketInput = CoinWebSocketInput(
@@ -491,15 +520,13 @@ class CoinsWebSocketStrategy(
     private fun ethAddress(): String =
         ethDataManager.accountAddress
 
-    private fun subscribe() =
+    private fun subscribe() {
         coinWebSocketInput?.let { input ->
-            coinsWebSocket.send(
-                gson.toJson(
-                    SocketRequest.SubscribeRequest(
-                        Entity.Wallet,
-                        Coin.None,
-                        Parameters.Guid(input.guid)
-                    )
+            sendMessage(
+                SocketRequest.SubscribeRequest(
+                    Entity.Wallet,
+                    Coin.None,
+                    Parameters.Guid(input.guid)
                 )
             )
 
@@ -527,49 +554,47 @@ class CoinsWebSocketStrategy(
                 subscribeErc20(input.ethAddress, it)
             }
         }
+    }
 
-    private fun subscribeAddress(coin: Coin, address: String) =
-        coinsWebSocket.send(
-            gson.toJson(
-                SocketRequest.SubscribeRequest(
-                    Entity.Account,
-                    coin,
-                    Parameters.SimpleAddress(address = address)
-                )
+    private fun subscribeAddress(coin: Coin, address: String) {
+        sendMessage(
+            SocketRequest.SubscribeRequest(
+                Entity.Account,
+                coin,
+                Parameters.SimpleAddress(address = address)
             )
         )
+    }
 
-    private fun subscribeXpub(coin: Coin, xpub: String) =
-        coinsWebSocket.send(
-            gson.toJson(
-                SocketRequest.SubscribeRequest(
-                    Entity.Xpub,
-                    coin,
-                    Parameters.SimpleAddress(address = xpub)
-                )
+    private fun subscribeXpub(coin: Coin, xpub: String) {
+        sendMessage(
+            SocketRequest.SubscribeRequest(
+                Entity.Xpub,
+                coin,
+                Parameters.SimpleAddress(address = xpub)
             )
         )
+    }
 
-    private fun subscribeErc20(ethAddress: String?, asset: AssetInfo) =
+    private fun subscribeErc20(ethAddress: String?, asset: AssetInfo) {
         ethAddress?.let {
             asset.l2identifier?.let { contractAddress ->
-                coinsWebSocket.send(
-                    gson.toJson(
-                        SocketRequest.SubscribeRequest(
-                            Entity.TokenAccount,
-                            Coin.ETH,
-                            Parameters.TokenedAddress(
-                                address = ethAddress,
-                                tokenAddress = contractAddress
-                            )
+                sendMessage(
+                    SocketRequest.SubscribeRequest(
+                        Entity.TokenAccount,
+                        Coin.ETH,
+                        Parameters.TokenedAddress(
+                            address = ethAddress,
+                            tokenAddress = contractAddress
                         )
                     )
                 )
             }
         }
+    }
 
     private fun ping() {
-        coinsWebSocket.send(gson.toJson(SocketRequest.PingRequest))
+        sendMessage(SocketRequest.PingRequest)
     }
 
     private fun EthResponse.getTokenType(): AssetInfo {

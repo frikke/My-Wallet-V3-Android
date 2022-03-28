@@ -1,9 +1,13 @@
 package piuk.blockchain.android.data.coinswebsocket.models
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 
+@Serializable
 data class SocketResponse(
     val success: Boolean? = true,
     val entity: Entity? = null,
@@ -14,10 +18,12 @@ data class SocketResponse(
     val op: String? = null
 )
 
+@Serializable
 data class BtcBchResponse(
     val transaction: BtcTransaction?
 )
 
+@Serializable
 data class EthResponse(
     val transaction: EthTransaction?,
     val account: EthAccount? = null,
@@ -28,43 +34,56 @@ data class EthResponse(
     val param: TokenParams? = null
 )
 
+@Serializable
 data class TokenParams(
     val tokenAddress: String? = null,
     val accountAddress: String? = null
 )
 
+@Serializable
 data class BtcTransaction(
     val inputs: List<Input> = emptyList(),
-    @SerializedName("out") val outputs: List<Output> = emptyList(),
+    @SerializedName("out")
+    @SerialName("out")
+    val outputs: List<Output> = emptyList(),
     val hash: String?
 )
 
+@Serializable
 data class Output(
     val spent: Boolean,
     val addr: String?,
     val xpub: String?,
-    val value: BigDecimal?
+    val value: @Contextual BigDecimal?
 )
 
+@Serializable
 data class Input(
     val address: String,
-    val value: BigInteger,
-    @SerializedName("prev_out") val prevOut: Output?
+    val value: @Contextual BigInteger,
+    @SerializedName("prev_out")
+    @SerialName("prev_out")
+    val prevOut: Output?
 )
 
+@Serializable
 data class EthBlock(val hash: String, val parentHash: String, val nonce: String, val gasLimit: Long)
+
+@Serializable
 data class EthAccount(val address: String, val txHash: String, val tx: EthTransaction)
 
+@Serializable
 data class EthTransaction(
     val hash: String,
     val blockHash: String,
     val blockNumber: Long,
     val from: String,
     val to: String,
-    val value: BigInteger,
+    val value: @Contextual BigInteger,
     val state: TransactionState
 )
 
+@Serializable
 data class TokenAccount(
     val accountHash: String,
     val tokenHash: String,
@@ -72,6 +91,7 @@ data class TokenAccount(
     val totalSent: String
 )
 
+@Serializable
 data class TokenTransfer(
     val blockHash: String,
     val transactionHash: String,
@@ -80,20 +100,25 @@ data class TokenTransfer(
     val logIndex: String,
     val from: String,
     val to: String,
-    val value: BigInteger,
+    val value: @Contextual BigInteger,
     val timeStamp: Long
 )
 
+@Serializable
 data class TokenAccountKey(
     val accountHash: String,
     val tokenHash: String
 )
 
+@Serializable
 enum class TransactionState {
     @SerializedName("pending")
+    @SerialName("pending")
     PENDING,
     @SerializedName("replaced")
+    @SerialName("replaced")
     REPLACED,
     @SerializedName("confirmed")
+    @SerialName("confirmed")
     CONFIRMED
 }

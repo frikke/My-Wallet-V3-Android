@@ -5,6 +5,10 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
@@ -20,7 +24,11 @@ import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,6 +43,7 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
+
 @Suppress("ClassName")
 private object DUMMY_ERC20_1 : CryptoCurrency(
     displayTicker = DUMMY_ERC20_1_TICKER,
@@ -49,6 +58,7 @@ private object DUMMY_ERC20_1 : CryptoCurrency(
 )
 
 private const val DUMMY_ERC20_2_TICKER = "FAKE"
+
 @Suppress("ClassName")
 private object DUMMY_ERC20_2 : CryptoCurrency(
     displayTicker = DUMMY_ERC20_2_TICKER,
@@ -143,12 +153,28 @@ class CoinsWebSocketStrategyTest {
     private val mockWebSocket: WebSocket<String, String> = mock()
     private val webSocket = FakeWebSocket(mockWebSocket)
 
+    private val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+        }
+    }
+
+    val replaceGsonKtxFF: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+
     private val strategy = CoinsWebSocketStrategy(
         coinsWebSocket = webSocket,
         ethDataManager = ethDataManager,
         erc20DataManager = erc20DataManager,
         stringUtils = stringUtils,
         gson = Gson(),
+        json = json,
+        replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
         pinRepository = mock(),
