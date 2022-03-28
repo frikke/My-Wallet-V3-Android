@@ -3,6 +3,7 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
+val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
 val redesignPart2FeatureFlag = StringQualifier("ff_redesign_part_2")
 val redesignPart2CoinViewFeatureFlag = StringQualifier("ff_redesign_part_2coinview")
 val walletConnectFeatureFlag = StringQualifier("ff_wallet_connect")

@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import android.content.Context
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
@@ -430,6 +431,10 @@ val coreModule = module {
         PreferenceManager.getDefaultSharedPreferences(
             /* context = */ get()
         )
+    }
+
+    factory(featureFlagsPrefs) {
+        get<Context>().getSharedPreferences("FeatureFlagsPrefs", Context.MODE_PRIVATE)
     }
 
     single {
