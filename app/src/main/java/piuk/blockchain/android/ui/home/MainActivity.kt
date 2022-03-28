@@ -74,6 +74,9 @@ import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -619,6 +622,7 @@ class MainActivity :
                 view.walletConnectSession
             )
             ViewToLaunch.ShowEntitySwitchSilverKycUpsell -> {
+                var ctaClicked = false
                 var alertDialog: AlertDialog? = null
                 val dialog = MaterialAlertDialogBuilder(this, R.style.RoundedCornersDialog)
                 val contentViewBinding = DialogEntitySwitchSilverBinding.inflate(layoutInflater).apply {
@@ -628,12 +632,18 @@ class MainActivity :
                     }
                     verifyNowButton.text = getString(R.string.entity_switch_silver_dialog_verify_now)
                     verifyNowButton.setOnClickListener {
+                        analytics.logEvent(EntitySwitchSilverKycUpsellCtaClicked)
+                        ctaClicked = true
                         alertDialog?.dismiss()
-                        alertDialog = null
                         showBottomSheet(KycUpgradeNowSheet.newInstance())
                     }
                 }
                 dialog.setView(contentViewBinding.root)
+                dialog.setOnDismissListener {
+                    alertDialog = null
+                    if (!ctaClicked) analytics.logEvent(EntitySwitchSilverKycUpsellDismissed)
+                }
+                analytics.logEvent(EntitySwitchSilverKycUpsellViewed)
                 alertDialog = dialog.show()
             }
             ViewToLaunch.ShowUiTour -> {

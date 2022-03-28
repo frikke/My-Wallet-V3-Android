@@ -231,7 +231,22 @@ enum class AnalyticsNames(val eventName: String) {
     COINVIEW_COINVIEW_CLOSE("Coin View Closed"),
     COINVIEW_REMOVED_FROM_WATCHLIST("Coin Removed From Watchlist"),
     COINVIEW_ADDED_WATCHLIST("Coin Added To Watchlist"),
-    COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked");
+    COINVIEW_UPGRADE_VERIFICATION_CLICKED("Upgrade Verification Clicked"),
+    TX_INFO_KYC_UPSELL_CLICKED("Get More Access When You Verify Clicked"),
+    TX_INFO_KYC_UPSELL_DISMISSED("Get More Access When You Verify Dismissed"),
+    KYC_MORE_INFO_VIEWED("Pre Verification Viewed"),
+    KYC_MORE_INFO_CTA_CLICKED("Pre Verification CTA Clicked"),
+    KYC_MORE_INFO_DISMISSED("Pre Verification Dismissed"),
+    KYC_UPGRADE_NOW_VIEWED("Trading Limits Viewed"),
+    KYC_UPGRADE_NOW_GET_BASIC_CLICKED("Trading Limits Get Basic CTA Clicked"),
+    KYC_UPGRADE_NOW_GET_VERIFIED_CLICKED("Trading Limits Get Verified CTA Clicked"),
+    KYC_UPGRADE_NOW_DISMISSED("Trading Limits Dismissed"),
+    ENTITY_SWITCH_SILVER_KYC_UPSELL_VIEWED("Verify Now Pop Up Viewed"),
+    ENTITY_SWITCH_SILVER_KYC_UPSELL_CTA_CLICKED("Verify Now Pop Up CTA Clicked"),
+    ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED("Verify Now Pop Up Dismissed"),
+    KYC_ADDITIONAL_INFO_VIEWED("Account Info Screen Viewed"),
+    KYC_ADDITIONAL_INFO_SUBMITTED("Account Info Submitted")
+    ;
 }
 
 enum class LaunchOrigin {

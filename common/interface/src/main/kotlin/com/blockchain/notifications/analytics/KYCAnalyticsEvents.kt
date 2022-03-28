@@ -46,4 +46,19 @@ sealed class KYCAnalyticsEvents(override val event: String, override val params:
         override val params: Map<String, Serializable>
             get() = emptyMap()
     }
+
+    object MoreInfoViewed : AnalyticsEvent {
+        override val event: String = AnalyticsNames.KYC_MORE_INFO_VIEWED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object MoreInfoCtaClicked : AnalyticsEvent {
+        override val event: String = AnalyticsNames.KYC_MORE_INFO_CTA_CLICKED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
+
+    object MoreInfoDismissed : AnalyticsEvent {
+        override val event: String = AnalyticsNames.KYC_MORE_INFO_DISMISSED.eventName
+        override val params: Map<String, Serializable> = emptyMap()
+    }
 }

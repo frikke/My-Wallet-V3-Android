@@ -6,11 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.componentlib.viewextensions.inflate
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
@@ -24,6 +27,10 @@ class KycMoreInfoSplashFragment : Fragment() {
         this
     )
 
+    private val analytics: Analytics by inject()
+
+    private var ctaClicked = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,6 +40,7 @@ class KycMoreInfoSplashFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycMoreInfo)
+        analytics.logEvent(KYCAnalyticsEvents.MoreInfoViewed)
 
         progressListener.setHostTitle(R.string.kyc_more_info_splash_title)
     }
@@ -45,6 +53,8 @@ class KycMoreInfoSplashFragment : Fragment() {
             .throttledClicks()
             .subscribeBy(
                 onNext = {
+                    ctaClicked = true
+                    analytics.logEvent(KYCAnalyticsEvents.MoreInfoCtaClicked)
                     navigate(
                         KycMoreInfoSplashFragmentDirections.actionKycMoreInfoSplashFragmentToMobileVerification(
                             KycMoreInfoSplashFragmentArgs.fromBundle(arguments ?: Bundle()).countryCode
@@ -58,5 +68,10 @@ class KycMoreInfoSplashFragment : Fragment() {
     override fun onPause() {
         disposable.clear()
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (!ctaClicked) analytics.logEvent(KYCAnalyticsEvents.MoreInfoDismissed)
     }
 }

@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.coincore.AssetAction
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -61,6 +63,8 @@ import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics.Companion.S
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySelectionBottomSheet
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
+import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetDismissed
+import piuk.blockchain.android.ui.transactionflow.analytics.InfoBottomSheetKycUpsellActionClicked
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoBottomSheet
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowInfoHost
@@ -392,6 +396,7 @@ class SimpleBuyCryptoFragment :
         val type = info.action?.actionType ?: return {}
         return when (type) {
             InfoActionType.KYC_UPGRADE -> return {
+                analytics.logEvent(InfoBottomSheetKycUpsellActionClicked(AssetAction.Buy))
                 showBottomSheet(
                     KycUpgradeNowSheet.newInstance(transactionsLimit)
                 )
@@ -663,6 +668,12 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.ClearError)
     }
 
+    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        super<TransactionFlowInfoHost>.onSheetClosed(sheet)
+        if (sheet is TransactionFlowInfoBottomSheet) {
+            analytics.logEvent(InfoBottomSheetDismissed(AssetAction.Buy))
+        }
+    }
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
         if (paymentMethod.canBeUsedForPaying())

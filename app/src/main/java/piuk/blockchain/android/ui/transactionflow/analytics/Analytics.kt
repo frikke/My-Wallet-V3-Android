@@ -22,17 +22,15 @@ import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.Currency
-import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
-import java.io.Serializable
 import java.math.BigDecimal
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
-import timber.log.Timber
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoActionType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 
 const val WALLET_TYPE_NON_CUSTODIAL = "non_custodial"
 const val WALLET_TYPE_CUSTODIAL = "custodial"
@@ -426,6 +424,21 @@ class TxFlowAnalytics(
         }
     }
 
+    fun onInfoBottomSheetActionClicked(info: TransactionFlowBottomSheetInfo, state: TransactionState) {
+        if (
+            info.type == InfoBottomSheetType.TRANSACTIONS_LIMIT &&
+            info.action?.actionType == InfoActionType.KYC_UPGRADE
+        ) {
+            analytics.logEvent(InfoBottomSheetKycUpsellActionClicked(state.action))
+        }
+    }
+
+    fun onInfoBottomSheetDismissed(info: TransactionFlowBottomSheetInfo, state: TransactionState) {
+        if (info.type == InfoBottomSheetType.TRANSACTIONS_LIMIT) {
+            analytics.logEvent(InfoBottomSheetDismissed(state.action))
+        }
+    }
+
     // Confirm sheet
     fun onConfirmationCtaClick(state: TransactionState) {
         when (state.action) {
@@ -681,27 +694,3 @@ private fun FeeLevel.toAnalyticsFee(): AnalyticsFeeType =
 enum class AnalyticsFeeType {
     CUSTOM, NORMAL, PRIORITY, BACKEND
 }
-
-class AmountSwitched(private val action: AssetAction, private val newInput: Currency) : AnalyticsEvent {
-    override val event: String
-        get() = AnalyticsNames.AMOUNT_SWITCHED.eventName
-    override val params: Map<String, Serializable>
-        get() = mapOf(
-            "product" to action.toAnalyticsProduct(),
-            "switch_to" to if (newInput.type == CurrencyType.FIAT) "FIAT" else "CRYPTO"
-        )
-}
-
-private fun AssetAction.toAnalyticsProduct(): String =
-    when (this) {
-        AssetAction.InterestDeposit,
-        AssetAction.InterestWithdraw -> "SAVINGS"
-        AssetAction.Buy -> "BUY"
-        AssetAction.Sell -> "SELL"
-        AssetAction.Send -> "SEND"
-        AssetAction.Swap -> "SWAP"
-        else -> {
-            Timber.e(java.lang.IllegalArgumentException("Product not supported"))
-            ""
-        }
-    }

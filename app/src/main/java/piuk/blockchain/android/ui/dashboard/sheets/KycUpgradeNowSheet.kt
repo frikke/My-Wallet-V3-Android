@@ -11,13 +11,16 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.RoundedCornerTreatment
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.tabs.TabLayoutMediator
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
@@ -45,6 +48,14 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
     private val isHostAssetDetailsFlow: Boolean by lazy {
         arguments?.getBoolean(ARG_IS_HOST_ASSET_DETAILS_FLOW, false) ?: false
+    }
+
+    private var ctaClicked = false
+    private val getHighestTierAndIsSdd: Single<Pair<Tier, Boolean>> by lazy {
+        Singles.zip(
+            userIdentity.getHighestApprovedKycTier(),
+            userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
+        ).cache()
     }
 
     // Only used when isHostAssetDetailsFlow == true, unfortunately we have to manipulate AssetDetailsModel when
@@ -104,9 +115,13 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
         val viewPagerAdapter = KycCtaViewPagerAdapter(
             basicClicked = {
+                ctaClicked = true
+                logAnalytics(AnalyticsType.GetBasicClicked)
                 startKycClicked()
             },
             verifyClicked = {
+                ctaClicked = true
+                logAnalytics(AnalyticsType.GetVerifiedClicked)
                 startKycClicked()
             }
         ).apply {
@@ -124,15 +139,17 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         tabLayoutMediator.attach()
         viewPager.setCurrentItem(ViewPagerTab.values().indexOf(initialTab), false)
 
-        disposables += userIdentity.getHighestApprovedKycTier()
-            .subscribeBy(
-                onSuccess = {
-                    val isAtleastSilver = it != Tier.BRONZE
+        disposables +=
+            getHighestTierAndIsSdd.subscribeBy(
+                onSuccess = { (highestTier, _) ->
+                    val isAtleastSilver = highestTier != Tier.BRONZE
                     val items = ViewPagerTab.values().toList().toItems(isBasicApproved = isAtleastSilver)
                     viewPagerAdapter.submitList(items)
                 },
                 onError = {}
             )
+
+        logAnalytics(AnalyticsType.Viewed)
     }
 
     private fun startKycClicked() {
@@ -152,6 +169,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     override fun onDestroyView() {
+        if (!ctaClicked) logAnalytics(AnalyticsType.Dismissed)
         disposables.dispose()
         tabLayoutMediator.detach()
         super.onDestroyView()
@@ -169,6 +187,25 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             ViewPagerTab.BASIC -> ViewPagerItem.Basic(isBasicApproved, transactionsLimit)
             ViewPagerTab.VERIFIED -> ViewPagerItem.Verified
         }
+    }
+
+    private fun logAnalytics(type: AnalyticsType) {
+        disposables += getHighestTierAndIsSdd.subscribe { (highestTier, isSdd) ->
+            val event = when (type) {
+                AnalyticsType.GetBasicClicked -> KycUpgradeNowGetBasicClicked(highestTier, isSdd)
+                AnalyticsType.GetVerifiedClicked -> KycUpgradeNowGetVerifiedClicked(highestTier, isSdd)
+                AnalyticsType.Viewed -> KycUpgradeNowViewed(highestTier, isSdd)
+                AnalyticsType.Dismissed -> KycUpgradeNowDismissed(highestTier, isSdd)
+            }
+            analytics.logEvent(event)
+        }
+    }
+
+    private enum class AnalyticsType {
+        GetBasicClicked,
+        GetVerifiedClicked,
+        Viewed,
+        Dismissed,
     }
 
     companion object {
