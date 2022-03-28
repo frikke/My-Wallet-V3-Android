@@ -19,7 +19,6 @@ import java.math.BigInteger
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.settings.BankItem
 
 class SettingsInteractor internal constructor(
     private val userIdentity: UserIdentity,

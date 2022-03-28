@@ -9,7 +9,6 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
@@ -23,15 +22,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(redesignPart2FeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_redesign_pt2",
-                "Wallet Redesign Part 2"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(redesignPart2CoinViewFeatureFlag) {
         IntegratedFeatureFlag(

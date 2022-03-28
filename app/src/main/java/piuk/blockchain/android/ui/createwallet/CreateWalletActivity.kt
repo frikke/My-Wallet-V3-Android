@@ -21,12 +21,9 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.eligibility.CountryIso
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.CountryPickerItem
@@ -36,7 +33,6 @@ import piuk.blockchain.android.cards.SearchPickerItemBottomSheet
 import piuk.blockchain.android.cards.StatePickerItem
 import piuk.blockchain.android.databinding.ActivityCreateWalletBinding
 import piuk.blockchain.android.databinding.ViewPasswordStrengthBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.BaseMvpActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
@@ -78,8 +74,6 @@ class CreateWalletActivity :
     private val passwordStrengthBinding: ViewPasswordStrengthBinding by lazy {
         ViewPasswordStrengthBinding.inflate(layoutInflater, binding.root, false)
     }
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -233,22 +227,13 @@ class CreateWalletActivity :
 
     override fun startPinEntryActivity() {
         hideKeyboard()
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    startActivity(
-                        PinActivity.newIntent(
-                            context = this,
-                            startForResult = false,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET,
-                            addFlagsToClear = true,
-                        )
-                    )
-                } else {
-                    PinEntryActivity.startAfterWalletCreation(this)
-                }
-            }
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET,
+                addFlagsToClear = true,
+            )
         )
     }
 

@@ -8,17 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
-import piuk.blockchain.android.ui.auth.KEY_VALIDATING_PIN_FOR_RESULT
-import piuk.blockchain.android.ui.auth.PinEntryActivity
-import piuk.blockchain.android.ui.auth.REQUEST_CODE_VALIDATE_PIN
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.util.scopedInjectActivity
@@ -34,8 +27,6 @@ class BackupWalletStartingFragment :
     override val model: BackupWalletStartingModel by scopedInject()
 
     private var latestStatus: BackupWalletStartingStatus? = null
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     private val onChangePinResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -75,7 +66,7 @@ class BackupWalletStartingFragment :
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            REQUEST_CODE_VALIDATE_PIN -> {
+            PinActivity.REQUEST_CODE_VALIDATE_PIN -> {
                 if (resultCode == RESULT_OK) {
                     pinCodeValidatedForChange()
                 } else {
@@ -121,24 +112,13 @@ class BackupWalletStartingFragment :
     }
 
     private fun showPinForVerification() {
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    onChangePinResult.launch(
-                        PinActivity.newIntent(
-                            context = requireContext(),
-                            startForResult = true,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.BACKUP_PHRASE,
-                            addFlagsToClear = false
-                        )
-                    )
-                } else {
-                    val intent = Intent(activity, PinEntryActivity::class.java)
-                    intent.putExtra(KEY_VALIDATING_PIN_FOR_RESULT, true)
-                    startActivityForResult(intent, REQUEST_CODE_VALIDATE_PIN)
-                }
-            }
+        onChangePinResult.launch(
+            PinActivity.newIntent(
+                context = requireContext(),
+                startForResult = true,
+                originScreen = PinActivity.Companion.OriginScreenToPin.BACKUP_PHRASE,
+                addFlagsToClear = false
+            )
         )
     }
 

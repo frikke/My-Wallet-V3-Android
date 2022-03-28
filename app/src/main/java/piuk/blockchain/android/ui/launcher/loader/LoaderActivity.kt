@@ -14,17 +14,12 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
@@ -47,8 +42,6 @@ class LoaderActivity :
 
     private var state: LoaderState? = null
     private val compositeDisposable = CompositeDisposable()
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -161,22 +154,13 @@ class LoaderActivity :
     }
 
     private fun onRequestPin() {
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    startActivity(
-                        PinActivity.newIntent(
-                            context = this,
-                            startForResult = false,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.LOADER_SCREEN,
-                            addFlagsToClear = true
-                        )
-                    )
-                } else {
-                    startSingleActivity(PinEntryActivity::class.java)
-                }
-            }
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.LOADER_SCREEN,
+                addFlagsToClear = true
+            )
         )
     }
 

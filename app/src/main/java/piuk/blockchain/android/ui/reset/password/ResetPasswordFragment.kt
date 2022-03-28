@@ -8,21 +8,16 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.blockchain.commonarch.presentation.mvi.MviActivity.Companion.start
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.wallet.DefaultLabels
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentPasswordResetBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.recover.AccountRecoveryAnalytics
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
@@ -70,8 +65,6 @@ class ResetPasswordFragment :
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPasswordResetBinding =
         FragmentPasswordResetBinding.inflate(inflater, container, false)
 
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initScreen()
@@ -97,22 +90,13 @@ class ResetPasswordFragment :
             ResetPasswordStatus.SHOW_SUCCESS -> {
                 analytics.logEvent(AccountRecoveryAnalytics.PasswordReset(shouldRecoverAccount))
                 binding.progressBar.gone()
-                // TODO remove ff
-                redesign.enabled.onErrorReturnItem(false).subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            startActivity(
-                                PinActivity.newIntent(
-                                    context = requireContext(),
-                                    startForResult = false,
-                                    originScreen = PinActivity.Companion.OriginScreenToPin.RESET_PASSWORD_SCREEN,
-                                    addFlagsToClear = true
-                                )
-                            )
-                        } else {
-                            start<PinEntryActivity>(requireContext())
-                        }
-                    }
+                startActivity(
+                    PinActivity.newIntent(
+                        context = requireContext(),
+                        startForResult = false,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.RESET_PASSWORD_SCREEN,
+                        addFlagsToClear = true
+                    )
                 )
             }
             ResetPasswordStatus.CREATE_WALLET,

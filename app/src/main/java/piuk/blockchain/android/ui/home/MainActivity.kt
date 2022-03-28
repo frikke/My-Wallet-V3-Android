@@ -46,7 +46,6 @@ import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomShe
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -97,7 +96,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
 import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
@@ -141,8 +139,6 @@ class MainActivity :
 
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
-
-    private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
@@ -266,21 +262,7 @@ class MainActivity :
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
-                    compositeDisposable += settingsScreenLauncher.newIntent(context = this@MainActivity)
-                        .subscribeBy(
-                            onSuccess = {
-                                settingsResultContract.launch(it)
-                            },
-                            onError = {
-                                // this should never happen
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.common_error),
-                                    duration = Snackbar.LENGTH_SHORT,
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                        )
+                    settingsResultContract.launch(SettingsActivity.newIntent(this))
                 }
             )
         )
@@ -941,7 +923,7 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(SettingsActivity.newIntentFor2FA(this))
+        startActivity(SettingsActivity.newIntent(this, true))
     }
 
     override fun launchVerifyEmail() {

@@ -24,7 +24,7 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 
 class DashboardActionAdapterTest {
 
