@@ -1,6 +1,8 @@
 package info.blockchain.balance
 
 import com.blockchain.utils.tryParseBigDecimal
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -34,9 +36,10 @@ private object FiatFormat {
     }
 }
 
+@Serializable
 class FiatValue private constructor(
     override val currency: FiatCurrency,
-    private val amount: BigDecimal
+    private val amount: @Contextual BigDecimal
 ) : Money() {
 
     // ALWAYS for display, so use default Locale

@@ -1,7 +1,10 @@
 apply from: rootProject.file('gradle/local/common-feature.gradle')
+apply plugin: 'kotlinx-serialization'
 
 dependencies {
     implementation Libraries.kotlin
+    implementation Libraries.kotlinJson
+    implementation Libraries.koin
 
     // Testing
     testImplementation project(':testutils')

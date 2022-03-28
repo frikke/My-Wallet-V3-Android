@@ -25,6 +25,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import kotlinx.serialization.Contextual
 import java.io.Serializable
 import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
@@ -37,6 +38,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
  * want to get serialized should be tagged as @Transient
  *
  */
+@kotlinx.serialization.Serializable
 data class SimpleBuyState constructor(
     val id: String? = null,
     val fiatCurrency: FiatCurrency = FiatCurrency.fromCurrencyCode("USD"),
@@ -52,7 +54,7 @@ data class SimpleBuyState constructor(
     val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
     val showRating: Boolean = false,
-    val withdrawalLockPeriod: BigInteger = BigInteger.ZERO,
+    val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
     val showRecurringBuyFirstTimeFlow: Boolean = false,
@@ -60,24 +62,24 @@ data class SimpleBuyState constructor(
     val googlePayTokenizationInfo: Map<String, String>? = null,
     val googlePayBeneficiaryId: String? = null,
     val googlePayMerchantBankCountryCode: String? = null,
-    @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
-    @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
-    @Transient val buyErrorState: ErrorState? = null,
-    @Transient override val fiatRate: ExchangeRate? = null,
-    @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
-    @Transient val isLoading: Boolean = false,
-    @Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
-    @Transient val authorisePaymentUrl: String? = null,
-    @Transient val linkedBank: LinkedBank? = null,
-    @Transient val shouldShowUnlockHigherFunds: Boolean = false,
-    @Transient val linkBankTransfer: LinkBankTransfer? = null,
-    @Transient val paymentPending: Boolean = false,
-    @Transient val paymentFailed: Boolean = false,
-    @Transient private val transferLimits: TxLimits? = null,
-    @Transient override val transactionsLimit: TransactionsLimit? = null,
+    @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
+    @Transient @kotlinx.serialization.Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    @Transient @kotlinx.serialization.Transient val buyErrorState: ErrorState? = null,
+    @Transient @kotlinx.serialization.Transient override val fiatRate: ExchangeRate? = null,
+    @Transient @kotlinx.serialization.Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,
+    @Transient @kotlinx.serialization.Transient val isLoading: Boolean = false,
+    @Transient @kotlinx.serialization.Transient val cardAcquirerCredentials: CardAcquirerCredentials? = null,
+    @Transient @kotlinx.serialization.Transient val authorisePaymentUrl: String? = null,
+    @Transient @kotlinx.serialization.Transient val linkedBank: LinkedBank? = null,
+    @Transient @kotlinx.serialization.Transient val shouldShowUnlockHigherFunds: Boolean = false,
+    @Transient @kotlinx.serialization.Transient val linkBankTransfer: LinkBankTransfer? = null,
+    @Transient @kotlinx.serialization.Transient val paymentPending: Boolean = false,
+    @Transient @kotlinx.serialization.Transient val paymentFailed: Boolean = false,
+    @Transient @kotlinx.serialization.Transient private val transferLimits: TxLimits? = null,
+    @Transient @kotlinx.serialization.Transient override val transactionsLimit: TransactionsLimit? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
-    @Transient val confirmationActionRequested: Boolean = false,
-    @Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
+    @Transient @kotlinx.serialization.Transient val confirmationActionRequested: Boolean = false,
+    @Transient @kotlinx.serialization.Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
 ) : MviState, TransactionFlowStateInfo {
 
     @delegate:Transient
@@ -244,6 +246,7 @@ data class PaymentOptions(
             ?: false
 }
 
+@kotlinx.serialization.Serializable
 data class BuyQuote(
     val id: String? = null,
     val price: FiatValue,
@@ -285,12 +288,14 @@ data class BuyQuote(
     }
 }
 
+@kotlinx.serialization.Serializable
 data class BuyFees(
     val feeBeforePromo: FiatValue,
     val fee: FiatValue,
     val promo: Promo
 )
 
+@kotlinx.serialization.Serializable
 data class SelectedPaymentMethod(
     val id: String,
     val partner: Partner? = null,

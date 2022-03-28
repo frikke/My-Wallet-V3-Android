@@ -1,10 +1,14 @@
 package info.blockchain.balance
 
+import info.blockchain.serializers.AssetTickerKSerializer
+import kotlinx.serialization.Serializable
+
 enum class AssetCategory {
     CUSTODIAL,
     NON_CUSTODIAL
 }
 
+@Serializable(with = AssetTickerKSerializer::class)
 interface AssetInfo : Currency {
     val requiredConfirmations: Int
 

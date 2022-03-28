@@ -30,6 +30,7 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.SerialName
 import java.io.Serializable
 import java.math.BigInteger
 import java.util.Date
@@ -704,6 +705,7 @@ enum class Product {
     TRADE
 }
 
+@kotlinx.serialization.Serializable
 data class BillingAddress(
     val countryCode: String,
     val fullName: String,

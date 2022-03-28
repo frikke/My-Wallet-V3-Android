@@ -1,12 +1,15 @@
 package info.blockchain.balance
 
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Locale
 
+@Serializable
 data class CryptoValue(
     override val currency: AssetInfo,
-    private val amount: BigInteger // Amount in the minor unit of the currency, Satoshi/Wei for example.
+    private val amount: @Contextual BigInteger // Amount in the minor unit of the currency, Satoshi/Wei for example.
 ) : Money() {
 
     override val maxDecimalPlaces: Int = currency.precisionDp

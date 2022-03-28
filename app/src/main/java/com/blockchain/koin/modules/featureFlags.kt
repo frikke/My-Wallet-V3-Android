@@ -10,6 +10,7 @@ import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.redesignPart2FeatureFlag
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
@@ -92,6 +93,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_disable_moshi",
                 "Use Kotlinx Serializer (Moshi)"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(replaceGsonKtxFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_replace_gson_ktxjson",
+                "Use Kotlinx Serializer (Gson)"
             )
         )
     }.bind(FeatureFlag::class)

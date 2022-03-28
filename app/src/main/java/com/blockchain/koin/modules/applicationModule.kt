@@ -22,6 +22,7 @@ import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.redesignPart2FeatureFlag
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -51,7 +52,6 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
@@ -164,6 +164,7 @@ import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
+import java.io.File
 
 val applicationModule = module {
 
@@ -558,7 +559,9 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 
@@ -579,6 +582,8 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivator = get(),
                 gson = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
                 crashLogger = get()
