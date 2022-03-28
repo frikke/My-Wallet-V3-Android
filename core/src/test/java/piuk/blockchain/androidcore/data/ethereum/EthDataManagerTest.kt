@@ -14,7 +14,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
-import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.keys.MasterKey
@@ -74,9 +73,9 @@ class EthDataManagerTest {
         // Arrange
         val ethAddress = "ADDRESS"
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
-        val ethAddressResponseMap: EthAddressResponseMap = mock()
+
         whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
-            .thenReturn(Observable.just(ethAddressResponseMap))
+            .thenReturn(Observable.just(hashMapOf()))
         // Act
         val testObserver = subject.fetchEthAddress().test()
         // Assert
@@ -93,12 +92,18 @@ class EthDataManagerTest {
     fun `get balance found`() {
         // Arrange
         val ethAddress = "ADDRESS"
-        val ethAddressResponseMap: EthAddressResponseMap = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
+
         val response: EthAddressResponse = mock()
         whenever(response.getBalance()).thenReturn(BigInteger.TEN)
-        whenever(ethAddressResponseMap.getEthAddressResponseMap().values).thenReturn(mutableListOf(response))
+
         whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
-            .thenReturn(Observable.just(ethAddressResponseMap))
+            .thenReturn(
+                Observable.just(
+                    hashMapOf(
+                        ethAddress to response
+                    )
+                )
+            )
         // Act
         val testObserver = subject.getBalance(ethAddress).test()
         // Assert

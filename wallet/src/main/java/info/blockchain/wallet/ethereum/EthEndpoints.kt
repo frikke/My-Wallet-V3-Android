@@ -1,6 +1,6 @@
 package info.blockchain.wallet.ethereum
 
-import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
+import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.data.EthTransaction
@@ -16,7 +16,7 @@ import retrofit2.http.Query
 
 internal interface EthEndpoints {
     @GET(EthUrls.ACCOUNT + "/{address}")
-    fun getEthAccount(@Path("address") address: String): Observable<EthAddressResponseMap>
+    fun getEthAccount(@Path("address") address: String): Observable<HashMap<String, EthAddressResponse>>
 
     @GET(EthUrls.ACCOUNT + "/{address}" + EthUrls.IS_CONTRACT)
     fun getIfContract(@Path("address") address: String): Observable<HashMap<String, Boolean>>

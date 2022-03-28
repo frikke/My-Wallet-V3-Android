@@ -4,7 +4,7 @@ import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.internal.createInstance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
+import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import io.reactivex.rxjava3.core.Observable
 import org.junit.Test
@@ -20,7 +20,10 @@ class EthAccountApiTest {
     fun getEthAccount() {
         val addresses = arrayListOf("firstAddress", "secondAddress")
 
-        val expectedResponse: EthAddressResponseMap = mock()
+        val expectedResponse = hashMapOf(
+            addresses[0] to mock<EthAddressResponse>(),
+            addresses[1] to mock()
+        )
 
         whenever(
             ethEndpoints.getEthAccount(addresses.joinToString(","))
