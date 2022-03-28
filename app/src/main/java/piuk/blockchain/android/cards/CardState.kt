@@ -6,7 +6,6 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.FiatCurrency
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import piuk.blockchain.android.R
 

@@ -8,7 +8,6 @@ import com.blockchain.network.websocket.WebSocket
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
-import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any

@@ -1,11 +1,11 @@
 package piuk.blockchain.android.data.coinswebsocket.models
 
 import com.google.gson.annotations.SerializedName
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.math.BigDecimal
-import java.math.BigInteger
 
 @Serializable
 data class SocketResponse(

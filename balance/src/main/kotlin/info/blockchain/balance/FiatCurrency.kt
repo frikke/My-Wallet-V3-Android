@@ -1,6 +1,5 @@
 package info.blockchain.balance
 
-import kotlinx.serialization.SerialName
 import java.io.Serializable
 import java.util.Locale
 

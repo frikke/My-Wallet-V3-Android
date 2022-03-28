@@ -1,8 +1,6 @@
 package info.blockchain.balance
 
 import com.blockchain.utils.tryParseBigDecimal
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
@@ -11,6 +9,8 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 private data class Key(val locale: Locale, val currencyCode: String, val includeSymbol: Boolean)
 

@@ -1,10 +1,10 @@
 package info.blockchain.balance
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Locale
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class CryptoValue(

@@ -12,11 +12,11 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import java.lang.reflect.Type
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import java.lang.reflect.Type
 
 interface SimpleBuyPrefsSerializer {
     fun fetch(): SimpleBuyState?
@@ -98,5 +98,3 @@ private class AssetTickerDeserializer(
         json.asString
     ) ?: throw JsonParseException("Unknown Asset ticker")
 }
-
-
