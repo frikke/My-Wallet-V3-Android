@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
@@ -724,6 +725,11 @@ val applicationModule = module {
                 application = get(),
                 walletConnectServiceAPI = get(),
                 wcFeatureFlag = get(walletConnectFeatureFlag),
+                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
+                deeplinkRedirector = get(),
+                destinationArgs = get(),
+                notificationManager = get(),
+                analytics = get()
             )
         }
 

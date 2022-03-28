@@ -27,7 +27,10 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.Destination
+import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
@@ -69,6 +72,7 @@ import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
@@ -97,6 +101,7 @@ import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
@@ -137,6 +142,9 @@ class MainActivity :
     private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
+    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
+
+    private val destinationArgs: DestinationArgs by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -175,7 +183,15 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            model.process(MainIntent.CheckForPendingLinks(intent))
+            deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+                onSuccess = { isEnabled ->
+                    if (isEnabled) {
+                        model.process(MainIntent.SaveDeeplinkIntent(intent))
+                    } else {
+                        model.process(MainIntent.CheckForPendingLinks(intent))
+                    }
+                }
+            )
         }
 
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
@@ -199,6 +215,10 @@ class MainActivity :
                         originBrowser = it.getString(AuthNewLoginSheet.ORIGIN_BROWSER)
                     )
                 )
+            }
+        } else if (intent.hasExtra(PENDING_DESTINATION)) {
+            intent.getParcelableExtra<Destination>(PENDING_DESTINATION)?.let { destination ->
+                navigateToDeeplinkDestination(destination)
             }
         }
         model.process(MainIntent.CheckForInitialDialogs(startUiTour))
@@ -467,6 +487,7 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
+
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
@@ -628,6 +649,64 @@ class MainActivity :
         }
     }
 
+    private fun navigateToDeeplinkDestination(destination: Destination) {
+        when (destination) {
+            is Destination.AssetViewDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        CoinViewActivity.newIntent(
+                            context = this,
+                            asset = assetInfo
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.AssetBuyDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            preselectedAmount = destination.amount
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.AssetSendDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
+                        onSuccess = { account ->
+                            startActivity(
+                                TransactionFlowActivity.newIntent(
+                                    context = application,
+                                    sourceAccount = account,
+                                    action = AssetAction.Send
+                                )
+                            )
+                        },
+                        onError = {
+                            Timber.e(it)
+                        }
+                    )
+                } ?: run {
+                    Timber.e("Unable to start Send flow from deeplink. AssetInfo is null")
+                }
+            }
+
+            is Destination.ActivityDestination -> {
+                startActivitiesFragment()
+            }
+        }.exhaustive
+
+        model.process(MainIntent.ClearDeepLinkResult)
+    }
+
     private fun launchWalletConnectSessionApproval(walletConnectSession: WalletConnectSession) {
         showBottomSheet(
             WCApproveSessionBottomSheet.newInstance(walletConnectSession)
@@ -682,6 +761,12 @@ class MainActivity :
             reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
+    }
+
+    private fun startSendFragment() {
+        supportFragmentManager.showFragment(
+            fragment = TransferSendFragment.newInstance()
+        )
     }
 
     override fun startDashboardOnboarding() {
@@ -982,6 +1067,7 @@ class MainActivity :
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
+        private const val PENDING_DESTINATION = "PENDING_DESTINATION"
         const val ACCOUNT_EDIT = 2008
         const val SETTINGS_EDIT = 2009
         const val KYC_STARTED = 2011
@@ -1028,6 +1114,11 @@ class MainActivity :
         fun newIntent(context: Context, intentFromNotification: Boolean): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+            }
+
+        fun newIntent(context: Context, pendingDestination: Destination): Intent =
+            Intent(context, MainActivity::class.java).apply {
+                putExtra(PENDING_DESTINATION, pendingDestination)
             }
 
         fun newIntentAsNewTask(context: Context): Intent =

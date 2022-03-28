@@ -23,4 +23,5 @@ include ':app',
         ':blockchain-component-library-catalog',
         ':charts',
         ':walletconnect',
-        ':commonarch'
+        ':commonarch',
+        ':deeplinking'

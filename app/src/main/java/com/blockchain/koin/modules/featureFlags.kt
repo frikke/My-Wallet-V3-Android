@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
@@ -100,6 +101,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_blockchain_card",
                 "Blockchain Card"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(deeplinkingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_deeplinking_v2",
+                "Deeplinking V2"
             )
         )
     }.bind(FeatureFlag::class)

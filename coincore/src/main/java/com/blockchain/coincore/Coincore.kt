@@ -191,7 +191,7 @@ class Coincore internal constructor(
                             else -> NullCryptoAccount()
                         }
                     }
-            }.filter { it != NullCryptoAccount() }
+            }.filter { it !is NullCryptoAccount }
             .toList()
             .flatMapMaybe {
                 if (it.isEmpty())

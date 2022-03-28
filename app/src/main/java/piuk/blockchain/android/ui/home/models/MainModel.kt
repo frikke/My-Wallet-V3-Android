@@ -56,7 +56,7 @@ class MainModel(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    crashLogger,
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -89,7 +89,20 @@ class MainModel(
                 interactor.checkForUserWalletErrors()
                     .subscribeBy(
                         onComplete = {
-                            // Nothing to do here
+                            if (previousState.deeplinkIntent != null) {
+                                previousState.deeplinkIntent.data?.let { uri ->
+                                    interactor.processDeepLinkV2(uri).subscribeBy(
+                                        onComplete = {
+                                            // Nothing to do. Deeplink V2 was parsed successfully
+                                        },
+                                        onError = {
+                                            // Deeplink V2 parsing failed, fallback to legacy
+                                            Timber.e(it)
+                                            process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
+                                        }
+                                    )
+                                }
+                            }
                         },
                         onError = { throwable ->
                             if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
@@ -114,16 +127,24 @@ class MainModel(
                         if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
                     }
             }
-            is MainIntent.CheckForPendingLinks ->
+            is MainIntent.CheckForPendingLinks -> {
                 interactor.checkForDeepLinks(intent.appIntent)
                     .subscribeBy(
                         onSuccess = { linkState ->
-                            if ((intent.appIntent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+                            if ((
+                                intent.appIntent.flags
+                                    and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
+                                ) == 0
+                            ) {
                                 dispatchDeepLink(linkState)
                             }
                         },
                         onError = { Timber.e(it) }
                     )
+            }
+            is MainIntent.ClearDeepLinkResult -> interactor.clearDeepLink()
+                .onErrorComplete()
+                .subscribe()
             is MainIntent.ValidateAccountAction ->
                 interactor.checkIfShouldUpsell(intent.action, intent.account)
                     .subscribeBy(
@@ -187,6 +208,8 @@ class MainModel(
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null
+            is MainIntent.UpdateDeepLinkResult -> null
+            is MainIntent.SaveDeeplinkIntent -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

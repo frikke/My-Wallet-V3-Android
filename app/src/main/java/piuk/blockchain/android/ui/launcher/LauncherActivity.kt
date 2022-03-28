@@ -12,6 +12,8 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.json.JSONException
+import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.auth.PinEntryActivity
@@ -39,14 +41,34 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         }
     }
 
-    override fun getViewIntentData(): ViewIntentData =
-        ViewIntentData(
+    override fun getViewIntentData(): ViewIntentData {
+        val deeplinkURL =
+            when {
+                intent.data != null -> intent.data.toString()
+                intent.hasExtra("data") -> {
+                    try {
+                        val jsonObject = JSONObject(intent.getStringExtra("data"))
+                        if (jsonObject.has("url")) {
+                            jsonObject.getString("url")
+                        } else {
+                            null
+                        }
+                    } catch (e: JSONException) {
+                        Timber.e(e)
+                        null
+                    }
+                }
+                else -> null
+            }
+
+        return ViewIntentData(
             action = intent.action,
             scheme = intent.scheme,
             dataString = intent.dataString,
-            data = intent.data?.toString(),
+            data = deeplinkURL,
             isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
         )
+    }
 
     override fun onNoGuid() {
         Handler(Looper.getMainLooper()).postDelayed({

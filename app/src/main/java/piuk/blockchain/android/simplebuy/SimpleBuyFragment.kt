@@ -14,7 +14,8 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
     fun goToBuyCryptoScreen(
         addToBackStack: Boolean = true,
         preselectedAsset: AssetInfo,
-        preselectedPaymentMethodId: String?
+        preselectedPaymentMethodId: String?,
+        preselectedAmount: String?
     )
     fun goToCheckOutScreen(addToBackStack: Boolean = true)
     fun goToKycVerificationScreen(addToBackStack: Boolean = true)

@@ -35,6 +35,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -101,6 +102,11 @@ class SimpleBuyCryptoFragment :
     private val preselectedMethodId: String?
         get() = arguments?.getString(ARG_PAYMENT_METHOD_ID)
 
+    private val preselectedAmount: FiatValue?
+        get() = arguments?.getString(ARG_AMOUNT)?.let { amount ->
+            FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
+        }
+
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
     }
@@ -143,12 +149,20 @@ class SimpleBuyCryptoFragment :
             }
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
-        compositeDisposable += binding.inputAmount.amount.subscribe {
-            when (it) {
-                is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
-                else -> throw IllegalStateException("CryptoValue is not supported as input yet")
+        preselectedAmount
+
+        compositeDisposable += binding.inputAmount.amount
+            .doOnSubscribe {
+                preselectedAmount?.let { amount ->
+                    model.process(SimpleBuyIntent.AmountUpdated(amount))
+                }
             }
-        }
+            .subscribe {
+                when (it) {
+                    is FiatValue -> model.process(SimpleBuyIntent.AmountUpdated(it))
+                    else -> throw IllegalStateException("CryptoValue is not supported as input yet")
+                }
+            }
 
         binding.btnContinue.setOnClickListener { startBuy() }
 
@@ -721,12 +735,18 @@ class SimpleBuyCryptoFragment :
     companion object {
         private const val ARG_CRYPTO_ASSET = "CRYPTO"
         private const val ARG_PAYMENT_METHOD_ID = "PAYMENT_METHOD_ID"
+        private const val ARG_AMOUNT = "AMOUNT"
 
-        fun newInstance(asset: AssetInfo, preselectedMethodId: String? = null): SimpleBuyCryptoFragment {
+        fun newInstance(
+            asset: AssetInfo,
+            preselectedMethodId: String? = null,
+            preselectedAmount: String? = null
+        ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
+                    preselectedAmount?.let { putString(ARG_AMOUNT, preselectedAmount) }
                 }
             }
         }

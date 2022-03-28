@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.home
 import android.content.Intent
 import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -39,6 +40,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
+import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
 
@@ -46,6 +48,8 @@ class MainInteractorTest {
 
     private lateinit var interactor: MainInteractor
     private val deepLinkProcessor: DeepLinkProcessor = mock()
+    private val deeplinkRedirector: DeeplinkRedirector = mock()
+    private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val exchangeLinking: PitLinking = mock()
     private val exchangePrefs: ThePitLinkingPrefs = mock()
     private val assetCatalogue: AssetCatalogue = mock()
@@ -70,6 +74,8 @@ class MainInteractorTest {
     fun setup() {
         interactor = MainInteractor(
             deepLinkProcessor = deepLinkProcessor,
+            deeplinkRedirector = deeplinkRedirector,
+            deepLinkPersistence = deepLinkPersistence,
             exchangeLinking = exchangeLinking,
             exchangePrefs = exchangePrefs,
             assetCatalogue = assetCatalogue,
