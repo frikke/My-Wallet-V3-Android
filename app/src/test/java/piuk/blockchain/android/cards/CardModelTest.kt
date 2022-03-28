@@ -11,6 +11,7 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.braintreepayments.cardform.utils.CardType
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
@@ -21,7 +22,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Date
+import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -29,6 +30,7 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
+import java.util.Date
 
 class CardModelTest {
 
@@ -65,6 +67,16 @@ class CardModelTest {
             on { toJson(any<CardState>()) }.thenReturn(cardStateString)
         }
 
+        val json = Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
+
+        val replaceGsonKtxFF: IntegratedFeatureFlag = mock {
+            on { enabled }.thenReturn(Single.just(true))
+        }
+
         model = CardModel(
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
@@ -73,7 +85,9 @@ class CardModelTest {
             cardActivator = cardActivator,
             currencyPrefs = currencyPrefs,
             prefs = sbPrefs,
-            gson = gson
+            gson = gson,
+            json = json,
+            replaceGsonKtxFF = replaceGsonKtxFF
         )
     }
 
