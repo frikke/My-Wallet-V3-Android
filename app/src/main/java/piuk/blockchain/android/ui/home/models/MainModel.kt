@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
+import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -13,7 +14,6 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.remoteconfig.FeatureFlag

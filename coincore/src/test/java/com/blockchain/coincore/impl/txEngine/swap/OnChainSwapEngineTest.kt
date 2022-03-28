@@ -1,5 +1,7 @@
 package com.blockchain.coincore.impl.txEngine.swap
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
@@ -27,8 +29,6 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
 import com.blockchain.nabu.datamanagers.TransferQuote
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat

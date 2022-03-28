@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.settings
 
 import android.annotation.SuppressLint
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
@@ -11,8 +13,6 @@ import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs

@@ -2,12 +2,12 @@ package com.blockchain.nabu.datamanagers
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.ApiException
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiExceptionFactory.fromResponseBody
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.core.payments.EligiblePaymentMethodType
 import com.blockchain.core.payments.LinkedPaymentMethod
@@ -9,7 +10,6 @@ import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.nabu.models.responses.nabu.NabuApiException.Companion.fromResponseBody
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.RatingPrefs

@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
-import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.NabuErrorStatusCodes
 
 class TransactionErrorMapper {
     fun mapToTransactionError(exception: Throwable): TransactionError {

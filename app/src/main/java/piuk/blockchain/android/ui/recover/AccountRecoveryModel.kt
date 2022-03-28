@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.recover
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorTypes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorTypes
 import info.blockchain.wallet.bip44.HDWalletFactory
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
