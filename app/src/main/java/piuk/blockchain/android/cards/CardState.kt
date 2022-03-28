@@ -6,18 +6,26 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.FiatCurrency
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import piuk.blockchain.android.R
 
+@Serializable
 data class CardState(
     val fiatCurrency: FiatCurrency,
     val cardId: String? = null,
     val cardStatus: CardStatus? = null,
     val billingAddress: BillingAddress? = null,
     val addCard: Boolean = false,
-    @Transient val authoriseCard: CardAcquirerCredentials? = null,
-    @Transient val cardRequestStatus: CardRequestStatus? = null
+    @Transient
+    @kotlinx.serialization.Transient
+    val authoriseCard: CardAcquirerCredentials? = null,
+    @Transient
+    @kotlinx.serialization.Transient
+    val cardRequestStatus: CardRequestStatus? = null
 ) : MviState
 
+@Serializable
 sealed class CardAcquirerCredentials {
     // This used to be EverypayAuthOptions
     data class Everypay(val paymentLink: String, val exitLink: String) : CardAcquirerCredentials()
@@ -31,6 +39,7 @@ sealed class CardAcquirerCredentials {
     ) : CardAcquirerCredentials()
 }
 
+@Serializable
 sealed class CardRequestStatus {
     class Error(val type: CardError) : CardRequestStatus()
     object Loading : CardRequestStatus()
