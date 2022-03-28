@@ -2,16 +2,20 @@ package piuk.blockchain.android.support
 
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.remoteconfig.FeatureFlag
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 
 class SupportInteractor(
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val isIntercomEnabledFlag: FeatureFlag
 ) {
-    fun loadUserInformation() =
+    fun loadUserInformation(): Single<UserInfo> =
         Singles.zip(
             userIdentity.getHighestApprovedKycTier(),
-            userIdentity.getBasicProfileInformation()
-        ).map { (tier, basicInfo) ->
-            Pair(tier == Tier.GOLD, basicInfo)
+            userIdentity.getBasicProfileInformation(),
+            isIntercomEnabledFlag.enabled
+        ).map { (tier, basicInfo, isIntercomEnabled) ->
+            UserInfo(tier == Tier.GOLD, basicInfo, isIntercomEnabled)
         }
 }

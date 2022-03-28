@@ -12,9 +12,16 @@ sealed class SupportViewState {
     object None : SupportViewState()
     object Loading : SupportViewState()
     class TopicSelected(val topic: String) : SupportViewState()
-    class ShowInfo(val isUserGold: Boolean, val userInfo: BasicProfileInfo) : SupportViewState()
+    class ShowInfo(val userInfo: UserInfo) : SupportViewState()
 }
+
 enum class SupportError {
     None,
     ErrorLoadingProfileInfo
 }
+
+data class UserInfo(
+    val isUserGold: Boolean,
+    val basicInfo: BasicProfileInfo,
+    val isIntercomEnabled: Boolean
+)

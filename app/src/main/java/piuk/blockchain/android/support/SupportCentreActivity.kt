@@ -14,6 +14,8 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
+import io.intercom.android.sdk.Intercom
+import io.intercom.android.sdk.UserAttributes
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivitySupportCentreBinding
@@ -33,6 +35,7 @@ class SupportCentreActivity :
     override val model: SupportModel by scopedInject()
 
     private var userInfo: BasicProfileInfo? = null
+    private var isIntercomEnabled = false
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -49,17 +52,29 @@ class SupportCentreActivity :
 
     override fun render(newState: SupportState) {
         if (newState.viewState != SupportViewState.None) {
-            when (newState.viewState) {
+            when (val state = newState.viewState) {
                 SupportViewState.Loading -> {
                     binding.progress.visible()
                 }
                 is SupportViewState.ShowInfo -> {
-                    userInfo = newState.viewState.userInfo
+                    userInfo = state.userInfo.basicInfo
                     with(binding) {
-                        if (newState.viewState.isUserGold) {
+                        if (state.userInfo.isUserGold) {
                             supportCentreWebview.loadUrl(URL_BLOCKCHAIN_SUPPORT_PORTAL)
                             openChatCta.visible()
-                            setChatVisitorInfo()
+
+                            if (state.userInfo.isIntercomEnabled) {
+                                isIntercomEnabled = true
+                                val userAttributes = UserAttributes.Builder()
+                                    .withName(state.userInfo.basicInfo.firstName)
+                                    .withEmail(state.userInfo.basicInfo.email)
+                                    .build()
+                                Intercom.client().updateUser(userAttributes)
+                                // start intercom right away but leave the old functionality behind it
+                                Intercom.client().displayMessenger()
+                            } else {
+                                setChatVisitorInfo()
+                            }
                         } else {
                             supportCentreWebview.loadUrl(URL_CONTACT_SUPPORT)
                         }
@@ -69,7 +84,7 @@ class SupportCentreActivity :
                     // do nothing
                 }
                 is SupportViewState.TopicSelected -> {
-                    setupChat(newState.viewState.topic)
+                    setupChat(state.topic)
                 }
             }
 
@@ -145,14 +160,17 @@ class SupportCentreActivity :
     }
 
     private fun setupChat(note: String) {
-        Chat.INSTANCE.providers()?.profileProvider()?.apply {
-            setVisitorNote(note)
-            appendVisitorNote(note)
-            addVisitorTags(listOf(note), null)
-        }
+        if (isIntercomEnabled) {
+            Intercom.client().displayMessenger()
+        } else {
+            Chat.INSTANCE.providers()?.profileProvider()?.apply {
+                setVisitorNote(note)
+                appendVisitorNote(note)
+                addVisitorTags(listOf(note), null)
+            }
 
-        startChat()
-        finish()
+            startChat()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

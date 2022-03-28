@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
@@ -253,7 +254,8 @@ val redesignSettingsModule = module {
 
         factory {
             SupportInteractor(
-                userIdentity = get()
+                userIdentity = get(),
+                isIntercomEnabledFlag = get(intercomChatFeatureFlag)
             )
         }
     }

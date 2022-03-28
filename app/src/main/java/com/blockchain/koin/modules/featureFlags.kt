@@ -7,6 +7,7 @@ import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
@@ -136,6 +137,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_kyc_additional_info",
                 "KYC Additional Info"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(intercomChatFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_intercom",
+                "Show intercom chat"
             )
         )
     }.bind(FeatureFlag::class)

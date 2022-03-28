@@ -34,6 +34,7 @@ class SupportCentreTopicSheet : SlidingModalBottomDialog<BottomSheetSupportTopic
             zendeskContinue.setOnClickListener {
                 val checkedButton = zendeskOptions.findViewById<RadioButton>(zendeskOptions.checkedRadioButtonId)
                 host.onTopicSelected(checkedButton.text.toString())
+                dismiss()
             }
         }
     }
