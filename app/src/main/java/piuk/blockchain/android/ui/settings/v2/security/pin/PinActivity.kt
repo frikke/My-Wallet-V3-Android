@@ -81,6 +81,7 @@ class PinActivity :
     private val util: AppUtil by inject()
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
+    private var isBiometricsVisible = false
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -895,7 +896,15 @@ class PinActivity :
         }
 
     private fun askToUseBiometrics() {
-        BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BOTTOM_SHEET")
+        // This doesn't work
+        //        val tempFragment = supportFragmentManager.findFragmentByTag("BIOMETRICS_BOTTOM_SHEET")
+        //        if (tempFragment == null) {
+        //            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
+        //        }
+        if (!isBiometricsVisible) {
+            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
+            isBiometricsVisible = true
+        }
     }
 
     private fun handleIncorrectPassword(triesRemaining: Int, isFromPinCreation: Boolean) {
