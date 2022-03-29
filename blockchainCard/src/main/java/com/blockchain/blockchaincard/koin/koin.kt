@@ -5,14 +5,10 @@ import com.blockchain.api.getBaseUrl
 import com.blockchain.blockchaincard.data.BcCardDataRepository
 import com.blockchain.blockchaincard.data.BcCardService
 import com.blockchain.blockchaincard.domain.BcCardApi
-import com.blockchain.blockchaincard.ui.BlockchainCardModel
-import com.blockchain.blockchaincard.ui.navigation.BlockchainCardNavigator
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -56,21 +52,6 @@ val bcCardsApiModule = module {
                 bcCardService = get(),
                 authenticator = get()
             )
-        }
-
-        factory {
-            BlockchainCardModel(
-                uiSchedulers = AndroidSchedulers.mainThread(),
-                enviromentConfig = get(),
-                crashLogger = get(),
-                bcCardDataRepository = get(),
-                bcCardService = get(),
-                navigator = get()
-            )
-        }
-
-        factory {
-            BlockchainCardNavigator()
         }
 
         factory {
