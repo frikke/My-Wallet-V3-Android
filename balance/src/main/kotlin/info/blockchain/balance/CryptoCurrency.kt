@@ -1,7 +1,5 @@
 package info.blockchain.balance
 
-import kotlinx.serialization.Serializable
-
 enum class AssetCategory {
     CUSTODIAL,
     NON_CUSTODIAL
