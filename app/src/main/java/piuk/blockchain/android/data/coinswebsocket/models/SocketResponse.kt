@@ -20,12 +20,12 @@ data class SocketResponse(
 
 @Serializable
 data class BtcBchResponse(
-    val transaction: BtcTransaction?
+    val transaction: BtcTransaction? = null
 )
 
 @Serializable
 data class EthResponse(
-    val transaction: EthTransaction?,
+    val transaction: EthTransaction? = null,
     val account: EthAccount? = null,
     val entity: Entity? = null,
     val tokenTransfer: TokenTransfer? = null,
@@ -46,15 +46,15 @@ data class BtcTransaction(
     @SerializedName("out")
     @SerialName("out")
     val outputs: List<Output> = emptyList(),
-    val hash: String?
+    val hash: String? = null
 )
 
 @Serializable
 data class Output(
     val spent: Boolean,
-    val addr: String?,
-    val xpub: String?,
-    val value: @Contextual BigDecimal?
+    val addr: String? = null,
+    val xpub: String? = null,
+    val value: @Contextual BigDecimal? = null
 )
 
 @Serializable
@@ -63,7 +63,7 @@ data class Input(
     val value: @Contextual BigInteger,
     @SerializedName("prev_out")
     @SerialName("prev_out")
-    val prevOut: Output?
+    val prevOut: Output? = null
 )
 
 @Serializable
