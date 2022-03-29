@@ -31,7 +31,7 @@ class FiatAsset(
             AssetFilter.All,
             AssetFilter.Custodial -> fetchFiatWallets()
             AssetFilter.NonCustodial,
-            AssetFilter.Interest -> Maybe.empty() // Only support single accounts
+            AssetFilter.Rewards -> Maybe.empty() // Only support single accounts
         }
 
     private fun setSelectedFiatFirst(fiatList: List<FiatCurrency>): List<FiatCurrency> {

@@ -288,8 +288,9 @@ android {
         viewBinding true
         compose true
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion Versions.compose
         kotlinCompilerVersion Versions.composeKotlinCompile
     }
 
@@ -441,6 +442,10 @@ dependencies {
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.composeCoil
+    implementation Libraries.composeCoilSvg
+    implementation Libraries.constraintLayoutCompose
 
     // Stripe
     implementation(Libraries.stripe) {

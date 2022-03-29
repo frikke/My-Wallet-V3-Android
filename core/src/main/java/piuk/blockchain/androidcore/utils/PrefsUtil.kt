@@ -88,6 +88,14 @@ class PrefsUtil(
         get() = getValue(KEY_CUSTODIAL_INTRO_SEEN, false)
         set(seen) = setValue(KEY_CUSTODIAL_INTRO_SEEN, seen)
 
+    override var isPrivateKeyIntroSeen: Boolean
+        get() = getValue(KEY_PRIVATE_KEY_INTRO_SEEN, false)
+        set(seen) = setValue(KEY_PRIVATE_KEY_INTRO_SEEN, seen)
+
+    override var isRewardsIntroSeen: Boolean
+        get() = getValue(KEY_REWARDS_INTRO_SEEN, false)
+        set(seen) = setValue(KEY_REWARDS_INTRO_SEEN, seen)
+
     override var remainingSendsWithoutBackup: Int
         get() = getValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, MAX_ALLOWED_SENDS)
         set(remaining) = setValue(KEY_REMAINING_SENDS_WITHOUT_BACKUP, remaining)
@@ -616,6 +624,8 @@ class PrefsUtil(
         private const val KEY_ONE_TIME_TOKEN_PATH = "KEY_ONE_TIME_TOKEN_PATH"
 
         private const val KEY_CUSTODIAL_INTRO_SEEN = "key_custodial_balance_intro_seen"
+        private const val KEY_PRIVATE_KEY_INTRO_SEEN = "key_private_key_intro_seen"
+        private const val KEY_REWARDS_INTRO_SEEN = "key_rewards_intro_seen"
         private const val KEY_REMAINING_SENDS_WITHOUT_BACKUP = "key_remaining_sends_without_backup"
         private const val MAX_ALLOWED_SENDS = 5
         private const val KEY_TAPPED_FAB = "key_tapped_fab"

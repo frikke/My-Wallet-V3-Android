@@ -260,10 +260,10 @@ class AssetDetailSheet : MviBottomSheet<
             )
         }
 
-        assetDetails[AssetFilter.Interest]?.let {
+        assetDetails[AssetFilter.Rewards]?.let {
             itemList.add(
                 AssetDetailsItem.CryptoDetailsInfo(
-                    assetFilter = AssetFilter.Interest,
+                    assetFilter = AssetFilter.Rewards,
                     account = it.account,
                     balance = it.amount,
                     fiatBalance = it.fiatValue,

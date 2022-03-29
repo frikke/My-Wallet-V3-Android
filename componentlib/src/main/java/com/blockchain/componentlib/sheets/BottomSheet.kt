@@ -34,8 +34,8 @@ fun BottomSheet(
     imageResource: ImageResource,
     title: String,
     subtitle: String = "",
-    topButton: BottomSheetButton?,
-    bottomButton: BottomSheetButton?,
+    topButton: BottomSheetButton? = null,
+    bottomButton: BottomSheetButton? = null,
     isDarkTheme: Boolean = isSystemInDarkTheme()
 ) {
     val backgroundColor = if (!isDarkTheme) {
