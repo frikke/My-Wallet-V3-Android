@@ -73,7 +73,6 @@ class LoginAuthActivity :
     private val walletPrefs: WalletStatus by inject()
 
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
-    private var showCustomerSupportJob: Job? = null
 
     private lateinit var currentState: LoginAuthState
 
@@ -243,10 +242,7 @@ class LoginAuthActivity :
             AuthStatus.GetPayload -> binding.progressBar.gone()
             AuthStatus.Submit2FA,
             AuthStatus.VerifyPassword,
-            AuthStatus.UpdateMobileSetup -> {
-                binding.progressBar.visible()
-                startShowCustomerSupportJob()
-            }
+            AuthStatus.UpdateMobileSetup -> binding.progressBar.visible()
             AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
             AuthStatus.Complete -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
@@ -264,7 +260,6 @@ class LoginAuthActivity :
             AuthStatus.InvalidPassword -> {
                 analytics.logEvent(LoginAnalytics.LoginPasswordDenied(analyticsInfo))
                 binding.progressBar.gone()
-                cancelShowCustomerSupportJob()
                 binding.passwordTextLayout.setErrorState(getString(R.string.invalid_password))
             }
             AuthStatus.AuthFailed -> {
@@ -276,7 +271,6 @@ class LoginAuthActivity :
             AuthStatus.Invalid2FACode -> {
                 analytics.logEvent(LoginAnalytics.LoginTwoFaDenied(analyticsInfo))
                 binding.progressBar.gone()
-                cancelShowCustomerSupportJob()
                 binding.codeTextLayout.setErrorState(getString(R.string.invalid_two_fa_code))
             }
             AuthStatus.ShowManualPairing -> {
@@ -506,20 +500,6 @@ class LoginAuthActivity :
         showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
-    private fun startShowCustomerSupportJob() {
-        if (showCustomerSupportJob == null) {
-            showCustomerSupportJob = lifecycleScope.launch {
-                delay(SHOW_CUSTOMER_SUPPORT_DELAY_MS)
-                showCustomerSupportSheet()
-            }
-        }
-    }
-
-    private fun cancelShowCustomerSupportJob() {
-        showCustomerSupportJob?.cancel()
-        showCustomerSupportJob = null
-    }
-
     companion object {
         fun newInstance(
             context: Activity,
@@ -541,10 +521,5 @@ class LoginAuthActivity :
         private const val SECOND_PASSWORD_LINK_ANNOTATION = "learn_more"
         private const val RESET_2FA_LINK_ANNOTATION = "reset_2fa"
         private const val UNIFICATION_WALLET_URL = "${BuildConfig.WEB_WALLET_URL}?product=wallet&platform=android"
-
-        /**
-         * if the login is taking more than 10 seconds -> show support sheet
-         */
-        private const val SHOW_CUSTOMER_SUPPORT_DELAY_MS = 10 * 1000L
     }
 }
