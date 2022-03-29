@@ -1,8 +1,17 @@
 package com.blockchain.commonarch.presentation.mvi_v2.compose
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,9 +20,11 @@ import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.componentlib.R
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import kotlinx.coroutines.launch
 
 interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
     var navController: NavHostController
@@ -26,11 +37,12 @@ interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
 */
 open class ComposeNavigationEvent(val name: String) : NavigationEvent
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun MviNavHost(
     navigationRouter: ComposeNavigationRouter,
     startDestination: String,
+    onCollapse: () -> Unit,
     modifier: Modifier = Modifier,
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
@@ -38,7 +50,14 @@ fun MviNavHost(
     val bottomSheetNavigator = rememberBottomSheetNavigator()
     navigationRouter.navController = rememberNavController()
     navigationRouter.navController.navigatorProvider += bottomSheetNavigator
-    ModalBottomSheetLayout(bottomSheetNavigator) {
+
+    ModalBottomSheetLayout(
+        bottomSheetNavigator = bottomSheetNavigator,
+        sheetShape = RoundedCornerShape(
+            topEnd = dimensionResource(R.dimen.small_margin),
+            topStart = dimensionResource(R.dimen.small_margin)
+        )
+    ) {
         NavHost(
             navigationRouter.navController,
             remember(route, startDestination, builder) {
@@ -46,5 +65,13 @@ fun MviNavHost(
             },
             modifier
         )
+
+        if (bottomSheetNavigator.navigatorSheetState.currentValue != ModalBottomSheetValue.Hidden) {
+            DisposableEffect(Unit) {
+                onDispose {
+                    onCollapse()
+                }
+            }
+        }
     }
 }

@@ -38,6 +38,7 @@ dependencies {
 
     implementation Libraries.composeUi
     implementation Libraries.composeNavigation
+    implementation Libraries.composeMaterial
     implementation Libraries.accompanistNavigationMaterial
 
     // Logging

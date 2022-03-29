@@ -1,6 +1,9 @@
 package com.blockchain.blockchaincard.ui.composables
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,18 +11,33 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -37,21 +55,32 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.AlertButton
+import com.blockchain.componentlib.button.Button
+import com.blockchain.componentlib.button.ButtonLoadingIndicator
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.InfoButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
+import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Dark800
+import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey900
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.bottomSheet
+import timber.log.Timber
 
 @Composable
 fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
@@ -81,7 +110,7 @@ fun BlockchainCardScreen(viewModel: BlockchainCardViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun BlockchainCardNavHost(
     navigator: BlockchainCardNavigationRouter,
@@ -93,10 +122,12 @@ fun BlockchainCardNavHost(
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
     val state by stateFlowLifecycleAware.collectAsState(null)
-
     MviNavHost(
         navigator,
-        startDestination = "blockchain_card"
+        startDestination = "blockchain_card",
+        onCollapse = {
+            viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+        }
     ) {
 
         composable("blockchain_card") {
@@ -123,6 +154,18 @@ fun BlockchainCardNavHost(
                     )
                 }
             )
+        }
+
+        composable("create_card_in_progress") {
+            CardCreationInProgress()
+        }
+
+        composable("create_card_success") {
+            CardCreationSuccess()
+        }
+
+        composable("create_card_failed") {
+            CardCreationFailed()
         }
 
         bottomSheet("product_details") {
@@ -206,9 +249,9 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
             modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_card),
+                painter = painterResource(id = R.drawable.card),
                 contentDescription = "Blockchain Card",
-                modifier = Modifier.padding(0.dp, AppTheme.dimensions.paddingLarge, AppTheme.dimensions.paddingMedium, 0.dp)
+                modifier = Modifier.padding(AppTheme.dimensions.paddingMedium, AppTheme.dimensions.paddingLarge, AppTheme.dimensions.paddingMedium, 0.dp)
             )
 
             SimpleText(
@@ -225,7 +268,7 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
                 gravity = ComposeGravities.Centre
             )
 
-            AlertButton(
+            InfoButton(
                 text = "See Card Details",
                 onClick = onSeeProductDetails,
                 state = ButtonState.Enabled,
@@ -246,32 +289,53 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
     }
 }
 
+
 @Composable
 private fun ProductDetails(cardProduct: BlockchainDebitCardProduct) {
+
+    val backgroundColor = if (!isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Dark800
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
+            .background(backgroundColor)
     ) {
         
         SheetHeader(onClosePress = { /*TODO*/ }, title = "Card Details")
-        
-        Image(
-            painter = painterResource(id = R.drawable.ic_card),
-            contentDescription = "Blockchain Card",
-            modifier = Modifier.padding(84.dp, 16.dp)
-        )
 
-        SimpleText(
-            text = "Virtual",
-            style = ComposeTypographies.Title3,
-            color = ComposeColors.Title,
-            gravity = ComposeGravities.Centre
-        )
+        Column(modifier = Modifier.background(Color(0xFFFAFBFF))) {
+            Image(
+                painter = painterResource(id = R.drawable.card),
+                contentDescription = "Blockchain Card",
+                modifier = Modifier.padding(
+                    84.dp,
+                    AppTheme.dimensions.paddingMedium,
+                    84.dp,
+                    0.dp
+                )
+            )
 
-        SmallSectionHeader(text = "Card Benefits (Place Holder)", modifier = Modifier.fillMaxWidth())
+            SimpleText(
+                text = "Virtual",
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre,
+                modifier = Modifier.padding(
+                    0.dp,
+                    0.dp,
+                    0.dp,
+                    AppTheme.dimensions.paddingMedium
+                )
+            )
+        }
+
+        SmallSectionHeader(text = "Card Benefits", modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = "Cashback Rewards",
             onClick = {},
@@ -280,27 +344,31 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct) {
 
         SmallSectionHeader(text = "Fees", modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
+            primaryText = "Annual Fee",
+            onClick = {},
+            endTag = TagViewState("No Fee", TagType.Success())
+        )
+        DefaultTableRow(
             primaryText = "Delivery Fee",
             onClick = {},
-            endTag = TagViewState(cardProduct.price.toStringWithSymbol(), TagType.InfoAlt())
+            endTag = TagViewState("No Fee", TagType.Success())
         )
 
         SmallSectionHeader(text = "Card (Placeholder)", modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = "Contactless Payment",
-            secondaryText = "",
             onClick = {},
             endTag = TagViewState("Yes", TagType.Default())
         )
-        HorizontalDivider()
-        SimpleText(text = "Consumer Financial Protection Bureau", style = ComposeTypographies.Paragraph2, color = ComposeColors.Body, gravity = ComposeGravities.Centre)
-        HorizontalDivider()
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = "Consumer Financial Protection Bureau", modifier = Modifier.fillMaxWidth())
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = "Short Form Disclosure",
             onClick = {}
         )
-        HorizontalDivider()
-        SimpleText(text = "Consumer Financial Protection Bureau", style = ComposeTypographies.Paragraph2, color = ComposeColors.Body, gravity = ComposeGravities.Centre)
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = "Consumer Financial Protection Bureau", modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = "Terms & Conditions",
             onClick = {}
@@ -315,6 +383,45 @@ private fun PreviewSelectCardForOrder() {
         AppSurface {
             SelectCardForOrder({}, {})
         }
+    }
+}
+
+@Composable
+private fun CardCreationInProgress() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = CenterHorizontally
+    ) {
+        CircularProgressIndicator()
+        SimpleText(
+            text = "Processing", style = ComposeTypographies.Title3, color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewCardCreationInProgress() {
+    AppTheme(darkTheme = false) {
+        AppSurface {
+            CircularProgressBar()
+        }
+    }
+}
+
+@Composable
+private fun CardCreationSuccess() {
+    Column(Modifier.fillMaxWidth()) {
+        SimpleText(text = "SUCCESS", style = ComposeTypographies.Title2, color = ComposeColors.Success, gravity = ComposeGravities.Centre)
+    }
+}
+
+@Composable
+private fun CardCreationFailed() {
+    Column(Modifier.fillMaxWidth()) {
+        SimpleText(text = "FAILED", style = ComposeTypographies.Title2, color = ComposeColors.Error, gravity = ComposeGravities.Centre)
     }
 }
 

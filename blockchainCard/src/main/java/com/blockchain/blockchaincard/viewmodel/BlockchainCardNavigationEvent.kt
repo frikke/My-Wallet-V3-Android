@@ -8,6 +8,8 @@ sealed class BlockchainCardNavigationEvent(name: String) : ComposeNavigationEven
 
     object OrderOrLinkCardDestination : BlockchainCardNavigationEvent(name = "order_or_link_card")
 
+    object CreateCardInProgressDestination : BlockchainCardNavigationEvent(name = "create_card_in_progress")
+
     object CreateCardSuccessDestination : BlockchainCardNavigationEvent(name = "create_card_success")
 
     object CreateCardFailedDestination : BlockchainCardNavigationEvent(name = "create_card_failed")

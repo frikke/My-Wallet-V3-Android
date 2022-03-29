@@ -8,4 +8,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     data class CreateCard(val productCode: String, val ssn: String) : BlockchainCardIntent()
     object OnSeeProductDetails : BlockchainCardIntent()
     object ManageCard : BlockchainCardIntent()
+    object HideBottomSheet : BlockchainCardIntent()
 }

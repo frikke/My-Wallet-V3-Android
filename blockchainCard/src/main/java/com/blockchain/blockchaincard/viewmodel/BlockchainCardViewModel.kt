@@ -84,7 +84,9 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                bcCardDataRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).subscribeBy(
+                bcCardDataRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).doOnSubscribe {
+                    navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
+                }.subscribeBy(
                     onSuccess = {
                         updateState { BlockchainCardModelState.CardCreationSuccess }
                         navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
@@ -94,6 +96,12 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
                         navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
                     }
                 )
+            }
+
+            is BlockchainCardIntent.HideBottomSheet -> {
+                if (modelState is BlockchainCardModelState.ShowProductDetails) {
+                    updateState { BlockchainCardModelState.NotOrdered(modelState.product) }
+                }
             }
         }
 
