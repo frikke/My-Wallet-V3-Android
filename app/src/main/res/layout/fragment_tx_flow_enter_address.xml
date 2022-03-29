@@ -152,10 +152,9 @@
         layout="@layout/funds_locked_summary_item"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/domains_alert"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_switcher" />
+        app:layout_constraintTop_toBottomOf="@+id/input_switcher" />
 
     <com.blockchain.componentlib.alert.CardAlertView
         android:id="@+id/domains_alert"
@@ -194,6 +193,8 @@
         app:layout_constraintVertical_bias="0"
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_goneMarginBottom="@dimen/standard_margin"
+        tools:listitem="@layout/item_account_select_crypto"
+        tools:itemCount="1"
         tools:visibility="visible" />
     <Button
         android:id="@+id/cta_button"

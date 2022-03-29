@@ -35,7 +35,8 @@ import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber
 
-class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
+class LoginActivity :
+    LoginIntentCoordinator, MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
 
     override val model: LoginModel by scopedInject()
 
@@ -149,6 +150,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         super.onPause()
     }
 
+    override fun onBackPressed() {
+        model.process(LoginIntents.ResetState)
+        super.onBackPressed()
+    }
+
     override fun onDestroy() {
         recaptchaClient.close()
         super.onDestroy()
@@ -160,6 +166,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
+
+    override fun process(intent: LoginIntents) = model.process(intent)
 
     override fun render(newState: LoginState) {
         updateUI(newState)
@@ -299,13 +307,13 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private fun returnToEmailInput() {
         supportFragmentManager.run {
-            this.findFragmentByTag(VerifyDeviceFragment::class.simpleName)?.let { fragment ->
+            fragments.forEach { fragment ->
                 beginTransaction()
                     .remove(fragment)
                     .commitAllowingStateLoss()
-                model.process(LoginIntents.RevertToEmailInput)
             }
         }
+        model.process(LoginIntents.RevertToEmailInput)
     }
 
     private fun updateUI(newState: LoginState) {
@@ -324,9 +332,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private fun navigateToVerifyDevice(newState: LoginState) {
         supportFragmentManager.run {
-            if (this.findFragmentByTag(VerifyDeviceFragment::class.simpleName) != null) {
-                return // don't add multiple instances
-            }
             beginTransaction()
                 .replace(
                     R.id.content_frame,
