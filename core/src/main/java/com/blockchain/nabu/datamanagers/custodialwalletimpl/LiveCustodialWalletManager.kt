@@ -71,7 +71,6 @@ import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuy
 import com.blockchain.nabu.models.responses.simplebuy.toRecurringBuyOrder
 import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
-import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -98,6 +97,7 @@ class LiveCustodialWalletManager(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val pairsCache: BuyPairsCache,
     private val buyOrdersCache: BuyOrdersCache,
+    private val paymentMethodsEligibilityCache: PaymentMethodsEligibilityCache,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val kycFeatureEligibility: FeatureEligibility,
     private val interestRepository: InterestRepository,
@@ -550,9 +550,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
-        return authenticator.authenticate {
-            paymentMethods(it, fiatCurrency, true)
-        }.map { methods ->
+        return paymentMethods(fiatCurrency, true).map { methods ->
             methods.filter {
                 it.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
                     SUPPORTED_FUNDS_CURRENCIES.contains(it.currency) && it.eligible
@@ -572,15 +570,15 @@ class LiveCustodialWalletManager(
      * Any payment method with the flag visible=false should be discarded.
      */
     private fun paymentMethods(
-        sessionToken: NabuSessionTokenResponse,
         currency: Currency,
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false
-    ) = nabuService.paymentMethods(
-        sessionToken = sessionToken,
-        currency = currency.networkTicker,
-        eligibleOnly = eligibleOnly,
-        tier = if (shouldFetchSddLimits) SDD_ELIGIBLE_TIER else null
+    ) = paymentMethodsEligibilityCache.cached(
+        PaymentMethodsEligibilityCache.Request(
+            currency,
+            eligibleOnly,
+            shouldFetchSddLimits
+        )
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }
     }
