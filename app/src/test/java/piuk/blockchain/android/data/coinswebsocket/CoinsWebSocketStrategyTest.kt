@@ -16,7 +16,6 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthereumWallet
-import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -91,7 +90,7 @@ class CoinsWebSocketStrategyTest {
             Erc20TokenData.createTokenData(DUMMY_ERC20_2, "")
         )
         on { fetchEthAddress() }.thenReturn(
-            Observable.just(CombinedEthModel(EthAddressResponseMap()))
+            Observable.just(CombinedEthModel(hashMapOf()))
         )
         on { accountAddress }.thenReturn("0x4058a004dd718babab47e14dd0d744742e5b9903")
     }

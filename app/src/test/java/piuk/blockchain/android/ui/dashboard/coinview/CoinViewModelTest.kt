@@ -2,12 +2,15 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -19,6 +22,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.assetdetails.CheckBuyStatus
 
 class CoinViewModelTest {
 
@@ -555,6 +559,99 @@ class CoinViewModelTest {
             it.viewState == CoinViewViewState.LoadingQuickActions
         }.assertValueAt(2) {
             it.error == CoinViewError.QuickActionsFailed
+        }
+    }
+
+    @Test
+    fun `when user can buy and there is no buy warning nothing should happen`() {
+        whenever(interactor.userCanBuy()).thenReturn(Single.just(FeatureAccess.Granted()))
+
+        val testState = subject.state.test()
+        subject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }
+    }
+
+    @Test
+    fun `when userCanBuy fails nothing should happen`() {
+        whenever(interactor.userCanBuy()).thenReturn(Single.error(Throwable()))
+
+        val testState = subject.state.test()
+        subject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }
+    }
+
+    @Test
+    fun `when userCanBuy and hasActionBuyWarning warning then state reflects update`() {
+        whenever(interactor.userCanBuy())
+            .thenReturn(
+                Single.just(
+                    FeatureAccess.Blocked(
+                        BlockedReason.TooManyInFlightTransactions(3)
+                    )
+                )
+            )
+
+        val testState = subject.state.test()
+        subject.process(CoinViewIntent.CheckBuyStatus)
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it == defaultState.copy(hasActionBuyWarning = true)
+        }
+    }
+
+    @Test
+    fun `when CheckScreenToOpen returns ShowAccountActionSheet then state is updated`() {
+        val selectedAccount = mock<BlockchainAccount>()
+        val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
+            on { account }.thenReturn(selectedAccount)
+        }
+        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
+            .thenReturn(CoinViewViewState.ShowAccountActionSheet)
+
+        val testState = subject.state.test()
+        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+        }.assertValueAt(2) {
+            it == defaultState.copy(
+                selectedCryptoAccount = assetDetailsItemNew,
+                viewState = CoinViewViewState.ShowAccountActionSheet
+            )
+        }
+    }
+
+    @Test
+    fun `whenCheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
+        val selectedAccount = mock<BlockchainAccount>()
+        val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
+            on { account }.thenReturn(selectedAccount)
+        }
+        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
+            .thenReturn(CoinViewViewState.ShowAccountExplainerSheet)
+
+        val testState = subject.state.test()
+        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
+
+        testState.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+        }.assertValueAt(2) {
+            it == defaultState.copy(
+                selectedCryptoAccount = assetDetailsItemNew,
+                viewState = CoinViewViewState.ShowAccountExplainerSheet
+            )
         }
     }
 }

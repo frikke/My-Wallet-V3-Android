@@ -5,6 +5,7 @@ import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
+import com.blockchain.deeplinking.koin.deeplinkModule
 import com.blockchain.koin.modules.apiInterceptorsModule
 import com.blockchain.koin.modules.appProperties
 import com.blockchain.koin.modules.applicationModule
@@ -101,6 +102,7 @@ object KoinStarter {
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
+                    deeplinkModule,
                     customerSupportModule
                 )
             )

@@ -12,10 +12,12 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -48,6 +50,7 @@ class CoinViewInteractorTest {
     private val coincore: Coincore = mock()
     private val tradeDataManager: TradeDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
+    private val dashboardPrefs: DashboardPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val identity: UserIdentity = mock()
     private val assetInfo: AssetInfo = object : CryptoCurrency(
@@ -103,7 +106,7 @@ class CoinViewInteractorTest {
         on { this.assetInfo }.thenReturn(assetInfo)
         on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
         on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
-        on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
+        on { accountGroup(AssetFilter.Rewards) }.thenReturn(Maybe.just(interestGroup))
         on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
         on { interestRate() }.thenReturn(Single.just(5.0))
     }
@@ -114,6 +117,7 @@ class CoinViewInteractorTest {
             coincore = coincore,
             tradeDataManager = tradeDataManager,
             currencyPrefs = currencyPrefs,
+            dashboardPrefs = dashboardPrefs,
             identity = identity,
             custodialWalletManager = custodialWalletManager
         )
@@ -228,7 +232,7 @@ class CoinViewInteractorTest {
             on { this.assetInfo }.thenReturn(assetInfo)
             on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.empty())
             on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.empty())
+            on { accountGroup(AssetFilter.Rewards) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
         }
@@ -271,5 +275,20 @@ class CoinViewInteractorTest {
                 it.accountsList[3].account is CryptoNonCustodialAccount &&
                 it.accountsList[3].account.label == "second nc account"
         }
+    }
+
+    @Test
+    fun `CheckBuyStatus then can userCanBuy Granted`() {
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(Single.just(FeatureAccess.Granted()))
+
+        val test = subject.userCanBuy().test()
+
+        test.assertValue {
+            it == FeatureAccess.Granted()
+        }
+
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
+
+        verifyNoMoreInteractions(identity)
     }
 }

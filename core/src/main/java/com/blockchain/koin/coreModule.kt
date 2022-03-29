@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import android.content.Context
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.BuildConfig
@@ -38,6 +39,7 @@ import com.blockchain.logging.Logger
 import com.blockchain.logging.NullLogger
 import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
@@ -183,6 +185,10 @@ val coreModule = module {
 
         scoped {
             BuyOrdersCache(authenticator = get(), nabuService = get())
+        }
+
+        scoped {
+            PaymentMethodsEligibilityCache(authenticator = get(), service = get())
         }
 
         scoped {
@@ -430,6 +436,10 @@ val coreModule = module {
         PreferenceManager.getDefaultSharedPreferences(
             /* context = */ get()
         )
+    }
+
+    factory(featureFlagsPrefs) {
+        get<Context>().getSharedPreferences("FeatureFlagsPrefs", Context.MODE_PRIVATE)
     }
 
     single {

@@ -17,19 +17,16 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.customerSupportSheetFeatureFlag
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
@@ -61,7 +58,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         GoogleReCaptchaClient(this, environmentConfig)
     }
 
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private var state: LoginState? = null
@@ -205,34 +201,18 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
-                // TODO remove ff
-                redesign.enabled.onErrorReturnItem(false).subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            startActivity(
-                                PinActivity.newIntent(
-                                    context = this,
-                                    startForResult = false,
-                                    originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
-                                    addFlagsToClear = true,
-                                )
-                            )
-                        } else {
-                            startActivity(
-                                Intent(this, PinEntryActivity::class.java).apply {
-                                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                            )
-                        }
-                    }
+                startActivity(
+                    PinActivity.newIntent(
+                        context = this,
+                        startForResult = false,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
+                        addFlagsToClear = true,
+                    )
                 )
             }
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice(newState)
             LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
-            LoginStep.SHOW_EMAIL_ERROR -> {
-                analytics.logEvent(LoginAnalytics.LoginEmailFailed)
-                showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
-            }
+            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))

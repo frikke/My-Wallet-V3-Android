@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.notifications.analytics.Analytics
@@ -142,7 +142,7 @@ class VeriffSplashPresenterTest {
                 "{\"message\":\"Totes Nope\"}"
             )
         )
-        val httpError = NabuApiException.fromResponseBody(HttpException(body))
+        val httpError = NabuApiExceptionFactory.fromResponseBody(HttpException(body))
 
         whenever(nabuDataManager.startVeriffSession(TOKEN_RESPONSE))
             .thenReturn(Single.error(httpError))

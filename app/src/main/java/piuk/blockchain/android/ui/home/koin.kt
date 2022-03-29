@@ -23,13 +23,15 @@ val mainModule = module {
                 walletConnectServiceAPI = get(),
                 uiTourFeatureFlag = get(uiTourFeatureFlag),
                 environmentConfig = get(),
-                crashLogger = get()
+                crashLogger = get(),
             )
         }
 
         factory {
             MainInteractor(
                 deepLinkProcessor = get(),
+                deeplinkRedirector = get(),
+                deepLinkPersistence = get(),
                 exchangeLinking = get(),
                 exchangePrefs = get(),
                 assetCatalogue = get(),

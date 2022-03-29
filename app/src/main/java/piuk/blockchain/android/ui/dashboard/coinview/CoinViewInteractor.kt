@@ -5,19 +5,23 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -28,6 +32,7 @@ class CoinViewInteractor(
     private val coincore: Coincore,
     private val tradeDataManager: TradeDataManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager
 ) {
@@ -90,6 +95,36 @@ class CoinViewInteractor(
             }
         }
 
+    fun checkPreferencesAndNavigateTo(selectedAccount: BlockchainAccount): CoinViewViewState {
+        return when (selectedAccount) {
+            is NonCustodialAccount -> {
+                if (dashboardPrefs.isPrivateKeyIntroSeen) {
+                    CoinViewViewState.ShowAccountActionSheet
+                } else {
+                    dashboardPrefs.isPrivateKeyIntroSeen = true
+                    CoinViewViewState.ShowAccountExplainerSheet
+                }
+            }
+            is TradingAccount -> {
+                if (dashboardPrefs.isCustodialIntroSeen) {
+                    CoinViewViewState.ShowAccountActionSheet
+                } else {
+                    dashboardPrefs.isCustodialIntroSeen = true
+                    CoinViewViewState.ShowAccountExplainerSheet
+                }
+            }
+            is InterestAccount -> {
+                if (dashboardPrefs.isRewardsIntroSeen) {
+                    CoinViewViewState.ShowAccountActionSheet
+                } else {
+                    dashboardPrefs.isRewardsIntroSeen = true
+                    CoinViewViewState.ShowAccountExplainerSheet
+                }
+            }
+            else -> CoinViewViewState.ShowAccountExplainerSheet
+        }
+    }
+
     private fun load24hPriceDelta(asset: CryptoAsset) =
         asset.getPricesWith24hDelta()
 
@@ -98,7 +133,7 @@ class CoinViewInteractor(
             splitAccountsInGroup(asset, AssetFilter.NonCustodial),
             load24hPriceDelta(asset),
             splitAccountsInGroup(asset, AssetFilter.Custodial),
-            splitAccountsInGroup(asset, AssetFilter.Interest),
+            splitAccountsInGroup(asset, AssetFilter.Rewards),
             asset.interestRate()
         ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
@@ -124,6 +159,9 @@ class CoinViewInteractor(
             }
         }
     }
+
+    fun userCanBuy(): Single<FeatureAccess> =
+        identity.userAccessForFeature(Feature.SimpleBuy)
 
     private fun mapAccounts(
         nonCustodialAccounts: List<Details.DetailsItem>,
@@ -153,7 +191,7 @@ class CoinViewInteractor(
             interestAccounts.map {
                 AssetDisplayInfo(
                     account = it.account,
-                    filter = AssetFilter.Interest,
+                    filter = AssetFilter.Rewards,
                     amount = it.balance,
                     fiatValue = exchangeRate.convert(it.balance),
                     pendingAmount = it.pendingBalance,

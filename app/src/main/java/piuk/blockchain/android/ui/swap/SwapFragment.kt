@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.swap
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -161,6 +162,7 @@ class SwapFragment :
     override fun onSheetClosed() {
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
         when (sheet) {
             is KycBenefitsBottomSheet -> walletPrefs.setSeenSwapPromo()

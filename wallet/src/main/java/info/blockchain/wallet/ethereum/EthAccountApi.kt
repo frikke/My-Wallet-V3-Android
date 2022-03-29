@@ -1,7 +1,6 @@
 package info.blockchain.wallet.ethereum
 
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
-import info.blockchain.wallet.ethereum.data.EthAddressResponseMap
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthPushTxRequest
@@ -30,7 +29,7 @@ class EthAccountApi internal constructor(
      * @param addresses The ETH addresses to be queried
      * @return An [Observable] wrapping an [EthAddressResponse]
      */
-    fun getEthAddress(addresses: List<String>): Observable<EthAddressResponseMap> {
+    fun getEthAddress(addresses: List<String>): Observable<HashMap<String, EthAddressResponse>> {
         return ethEndpoints.getEthAccount(addresses.joinToString(","))
     }
 

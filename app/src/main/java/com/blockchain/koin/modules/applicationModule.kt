@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
@@ -20,7 +21,6 @@ import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -110,7 +110,6 @@ import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.auth.PinEntryPresenter
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
@@ -141,8 +140,6 @@ import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
-import piuk.blockchain.android.ui.settings.SettingsPresenter
-import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
 import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
@@ -616,49 +613,6 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            SettingsPresenter(
-                authDataManager = get(),
-                settingsDataManager = get(),
-                emailUpdater = get(),
-                payloadManager = get(),
-                payloadDataManager = get(),
-                prefs = get(),
-                pinRepository = get(),
-                getAvailablePaymentMethodsTypesUseCase = get(),
-                paymentsDataManager = get(),
-                notificationTokenManager = get(),
-                exchangeRates = get(),
-                kycStatusHelper = get(),
-                pitLinking = get(),
-                analytics = get(),
-                biometricsController = get(),
-                ratingPrefs = get(),
-                qrProcessor = get(),
-                secureChannelManager = get(),
-                securityPrefs = get()
-            )
-        }
-
-        factory {
-            PinEntryPresenter(
-                authDataManager = get(),
-                appUtil = get(),
-                prefs = get(),
-                payloadDataManager = get(),
-                defaultLabels = get(),
-                pinRepository = get(),
-                walletOptionsDataManager = get(),
-                specificAnalytics = get(),
-                mobileNoticeRemoteConfig = get(),
-                crashLogger = get(),
-                analytics = get(),
-                apiStatus = get(),
-                credentialsWiper = get(),
-                biometricsController = get()
-            )
-        }
-
         scoped {
             PitLinkingImpl(
                 nabu = get(),
@@ -724,6 +678,11 @@ val applicationModule = module {
                 application = get(),
                 walletConnectServiceAPI = get(),
                 wcFeatureFlag = get(walletConnectFeatureFlag),
+                deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
+                deeplinkRedirector = get(),
+                destinationArgs = get(),
+                notificationManager = get(),
+                analytics = get()
             )
         }
 
@@ -799,12 +758,6 @@ val applicationModule = module {
         scoped {
             PlacesClientProvider(
                 context = get()
-            )
-        }
-
-        factory {
-            SettingsScreenLauncher(
-                redesignPart2FeatureFlag = get(redesignPart2FeatureFlag)
             )
         }
 

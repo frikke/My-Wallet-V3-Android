@@ -21,14 +21,12 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.customerSupportSheetFeatureFlag
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.CrashLogger
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,7 +35,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
@@ -74,7 +71,6 @@ class LoginAuthActivity :
 
     private val crashLogger: CrashLogger by inject()
     private val walletPrefs: WalletStatus by inject()
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
     private var showCustomerSupportJob: Job? = null
@@ -254,21 +250,13 @@ class LoginAuthActivity :
             AuthStatus.AskForAccountUnification -> showUnificationBottomSheet(newState.accountType)
             AuthStatus.Complete -> {
                 analytics.logEvent(LoginAnalytics.LoginRequestApproved(analyticsInfo))
-                redesign.enabled.onErrorReturnItem(false).subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            startActivity(
-                                PinActivity.newIntent(
-                                    context = this,
-                                    startForResult = false,
-                                    originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_AUTH_SCREEN,
-                                    addFlagsToClear = true
-                                )
-                            )
-                        } else {
-                            startActivity(Intent(this, PinEntryActivity::class.java))
-                        }
-                    }
+                startActivity(
+                    PinActivity.newIntent(
+                        context = this,
+                        startForResult = false,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_AUTH_SCREEN,
+                        addFlagsToClear = true
+                    )
                 )
                 null
             }

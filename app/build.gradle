@@ -102,6 +102,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
@@ -130,6 +131,9 @@ android {
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
 
+            buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
+            buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -144,6 +148,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['prodDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['prodDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['prodLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
@@ -169,6 +174,10 @@ android {
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['prodLoginPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreProdDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreProdDemoWalletId']}\""
+
+            buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
+            buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
             applicationId "com.blockchain.wallet.internal"
 
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
@@ -186,6 +195,7 @@ android {
                     DYNAMIC_LINK_HOST  : buildProperties.secrets['stagingDynamicLink'].toString(),
                     DYNAMIC_LINK_HOST_2: buildProperties.secrets['stagingDynamicLink2'].toString(),
                     LOGIN_LINK_HOST    : buildProperties.secrets['stagingLoginLink'].toString(),
+                    DEEPLINKING_URL    : buildProperties.secrets['deepLinkingURL'].toString(),
             ]
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['stagingExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
@@ -211,6 +221,9 @@ android {
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_EMAIL", "\"${buildProperties.secrets['playstoreStagingDemoEmail']}\""
             buildConfigField "String", "PLAY_STORE_DEMO_WALLET_ID", "\"${buildProperties.secrets['playstoreStagingDemoWalletId']}\""
+
+            buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
+            buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -275,8 +288,9 @@ android {
         viewBinding true
         compose true
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion Versions.compose
         kotlinCompilerVersion Versions.composeKotlinCompile
     }
 
@@ -321,6 +335,7 @@ dependencies {
     implementation project(':payments:stripe')
     implementation project(':payments:googlepay')
     implementation project(':payments:core')
+    implementation project(':deeplinking')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
@@ -417,6 +432,9 @@ dependencies {
     implementation Libraries.zendeskChat
     implementation Libraries.zendeskMessaging
 
+    // Imtercom
+    implementation Libraries.intercom
+
     // Checkout.com
     implementation Libraries.checkoutCom
 
@@ -424,6 +442,10 @@ dependencies {
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.composeCoil
+    implementation Libraries.composeCoilSvg
+    implementation Libraries.constraintLayoutCompose
 
     // Stripe
     implementation(Libraries.stripe) {

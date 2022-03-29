@@ -13,6 +13,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.eligibility.models.TransactionsLimit
@@ -316,6 +317,7 @@ class EnterAmountFragment :
     }
 
     private fun handlePossibleInfoAction(info: TransactionFlowBottomSheetInfo, state: TransactionState): () -> Unit {
+        analyticsHooks.onInfoBottomSheetActionClicked(info, state)
         info.action?.actionType?.let { type ->
             when (type) {
                 InfoActionType.BUY -> {
@@ -515,6 +517,13 @@ class EnterAmountFragment :
     }
 
     override fun onSheetClosed() {
+    }
+
+    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        super<TransactionFlowInfoHost>.onSheetClosed(sheet)
+        if (sheet is TransactionFlowInfoBottomSheet) {
+            analyticsHooks.onInfoBottomSheetDismissed(sheet.info, state)
+        }
     }
 }
 

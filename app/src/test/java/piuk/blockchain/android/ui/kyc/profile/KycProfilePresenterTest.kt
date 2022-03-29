@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
@@ -323,7 +323,7 @@ class KycProfilePresenterTest {
             )
         ).thenReturn(
             Completable.error {
-                NabuApiException.fromResponseBody(
+                NabuApiExceptionFactory.fromResponseBody(
                     HttpException(Response.error<Unit>(409, responseBody))
                 )
             }

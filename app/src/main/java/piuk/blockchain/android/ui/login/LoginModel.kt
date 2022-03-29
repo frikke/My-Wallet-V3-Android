@@ -4,6 +4,7 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.network.PollResult
+import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -23,6 +24,7 @@ class LoginModel(
     environmentConfig: EnvironmentConfig,
     crashLogger: CrashLogger,
     private val interactor: LoginInteractor,
+    private val analytics: Analytics
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {
@@ -212,6 +214,21 @@ class LoginModel(
                 },
                 onError = { throwable ->
                     Timber.e(throwable)
+                    if (throwable is HttpException) {
+                        analytics.logEvent(
+                            LoginAnalytics.LoginEmailFailed(
+                                httpErrorCode = throwable.code(),
+                                errorMessage = throwable.message()
+                            )
+                        )
+                    } else {
+                        analytics.logEvent(
+                            LoginAnalytics.LoginEmailFailed(
+                                httpErrorCode = null,
+                                errorMessage = throwable.message.toString()
+                            )
+                        )
+                    }
                     process(LoginIntents.ShowEmailFailed)
                 }
             )

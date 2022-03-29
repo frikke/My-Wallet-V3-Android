@@ -2831,6 +2831,24 @@
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
 
+    <!-- Bottom sheet explainers -->
+    <string name="explainer_custodial_title">Trading Account</string>
+    <string name="explainer_custodial_description">Your Trading Account is a custodial wallet hosted by Blockchain.com. Your trading account allows you to trade with cheaper fees and buy and sell crypto in seconds.</string>
+    <string name="explainer_non_custodial_title">Private Key Wallet</string>
+    <string name="explainer_non_custodial_description">Your Private Key Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
+    <string name="explainer_rewards_title">Rewards Account</string>
+    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
+    <string name="explainer_exchange_title">Exchange Account</string>
+    <string name="explainer_exchange_description">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
+    <string name="explainer_button">I Understand</string>
+    <string name="explainer_exchange_button">Connect</string>
+
+    <!-- Bottom sheet actions -->
+    <string name="actions_sheet_title_private_key">Private Key Wallet</string>
+    <string name="actions_sheet_title_custodial">Trading Account</string>
+    <string name="actions_sheet_title_rewards">Rewards Account</string>
+    <string name="actions_sheet_percentage_rewards">%s%% APR</string>
+
     <!-- Pin help -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>

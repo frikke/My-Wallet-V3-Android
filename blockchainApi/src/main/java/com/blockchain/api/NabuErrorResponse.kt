@@ -1,10 +1,14 @@
 package com.blockchain.api
 
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import retrofit2.HttpException
 
 @Serializable
@@ -23,75 +27,85 @@ private data class NabuErrorResponse(
     val description: String = ""
 )
 
-class NabuApiException internal constructor(message: String) : Throwable(message) {
+class NabuApiException internal constructor(
+    message: String,
+    private val httpErrorCode: Int,
+    private val errorType: String?,
+    private val errorCode: Int?,
+    private val errorDescription: String?
+) : Throwable(message) {
 
-    internal constructor(
-        message: String,
-        httpErrorCode: Int,
-        error: String,
-        errorCode: Int,
-        errorDescription: String
-    ) : this(message) {
-        _httpErrorCode = httpErrorCode
-        _error = error
-        _errorCode = errorCode
-        _errorDescription = errorDescription
-    }
+    private constructor(message: String, code: Int) : this(
+        message = message,
+        httpErrorCode = code,
+        errorType = null,
+        errorCode = null,
+        errorDescription = null
+    )
 
-    private var _httpErrorCode: Int = -1
-    private var _errorCode: Int = -1
-    private lateinit var _error: String
-    private lateinit var _errorDescription: String
+    fun getErrorCode(): NabuErrorCodes = errorCode?.let {
+        NabuErrorCodes.fromErrorCode(it)
+    } ?: NabuErrorCodes.Unknown
 
-    fun getErrorCode(): NabuErrorCodes = NabuErrorCodes.fromErrorCode(_errorCode)
+    fun getErrorStatusCode(): NabuErrorStatusCodes = NabuErrorStatusCodes.fromErrorCode(httpErrorCode)
 
-    fun getErrorStatusCode(): NabuErrorStatusCodes = NabuErrorStatusCodes.fromErrorCode(_httpErrorCode)
-
-    fun getErrorType(): NabuErrorTypes = NabuErrorTypes.fromErrorStatus(_error)
+    fun getErrorType(): NabuErrorTypes = errorType?.let {
+        NabuErrorTypes.fromErrorStatus(it)
+    } ?: NabuErrorTypes.Unknown
 
     /**
      * Returns a human-readable error message.
      */
-    fun getErrorDescription(): String = _errorDescription
+    fun getErrorDescription(): String = errorDescription.orEmpty()
 
     // TODO: Replace prefix checking with a proper error code -> needs backend changes
     fun isUserWalletLinkError(): Boolean = getErrorDescription().startsWith(USER_WALLET_LINK_ERROR_PREFIX)
 
     companion object {
         const val USER_WALLET_LINK_ERROR_PREFIX = "User linked to another wallet"
+
+        fun fromErrorMessageAndCode(message: String, code: Int): NabuApiException =
+            NabuApiException(message, code)
     }
 }
 
-object NabuApiExceptionFactory : KoinComponent {
+object NabuApiExceptionFactory {
 
-    private val json: Json by inject()
-
-    fun fromResponseBody(exception: Throwable?): NabuApiException {
-        return if (exception is HttpException) {
-            exception.response()?.errorBody()?.string()?.let { errorBody ->
-                val errorResponse = try {
-                    json.decodeFromString<NabuErrorResponse>(errorBody)
-                } catch (ex: Exception) {
-                    null
-                }
-                errorResponse?.let {
-                    val httpErrorCode = exception.code()
-                    val error = it.type
-                    val errorDescription = it.description
-                    val errorCode = it.code
-                    val path = exception.response()?.raw()?.request?.url?.pathSegments?.joinToString(" , ")
-
-                    NabuApiException(
-                        "$httpErrorCode: $error - $errorDescription - $errorCode - $path",
-                        httpErrorCode,
-                        error,
-                        errorCode,
-                        errorDescription
-                    )
-                }
-            } ?: NabuApiException(exception.message())
-        } else {
-            NabuApiException(exception?.message ?: "Unknown exception")
+    @OptIn(ExperimentalSerializationApi::class)
+    private val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+            contextual(IsoDateSerializer)
         }
+    }
+
+    fun fromResponseBody(exception: HttpException): NabuApiException {
+        return exception.response()?.errorBody()?.string()?.let { errorBody ->
+            val errorResponse = try {
+                json.decodeFromString<NabuErrorResponse>(errorBody)
+            } catch (ex: Exception) {
+                null
+            }
+            errorResponse?.let {
+                val httpErrorCode = exception.code()
+                val errorType = it.type
+                val errorDescription = it.description
+                val errorCode = it.code
+                val path = exception.response()?.raw()?.request?.url?.pathSegments?.joinToString(" , ")
+
+                NabuApiException(
+                    "$httpErrorCode: $errorType - $errorDescription - $errorCode - $path",
+                    httpErrorCode,
+                    errorType,
+                    errorCode,
+                    errorDescription
+                )
+            }
+        } ?: NabuApiException.fromErrorMessageAndCode(exception.message(), exception.code())
     }
 }
