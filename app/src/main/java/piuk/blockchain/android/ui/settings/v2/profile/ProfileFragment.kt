@@ -24,7 +24,7 @@ import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity
+import piuk.blockchain.android.ui.settings.v2.SettingsActivity
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.util.StringUtils
 
@@ -44,13 +44,13 @@ class ProfileFragment :
         )
 
     private val basicProfileInfo by lazy {
-        arguments?.getSerializable(RedesignSettingsPhase2Activity.BASIC_INFO) as BasicProfileInfo
+        arguments?.getSerializable(SettingsActivity.BASIC_INFO) as BasicProfileInfo
     }
 
     override fun onBackPressed(): Boolean = true
 
     private val userTier by lazy {
-        arguments?.getSerializable(RedesignSettingsPhase2Activity.USER_TIER) as Tier
+        arguments?.getSerializable(SettingsActivity.USER_TIER) as Tier
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -194,8 +194,8 @@ class ProfileFragment :
         fun newInstance(basicProfileInfo: BasicProfileInfo, tier: Tier) =
             ProfileFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(RedesignSettingsPhase2Activity.BASIC_INFO, basicProfileInfo)
-                    putSerializable(RedesignSettingsPhase2Activity.USER_TIER, tier)
+                    putSerializable(SettingsActivity.BASIC_INFO, basicProfileInfo)
+                    putSerializable(SettingsActivity.USER_TIER, tier)
                 }
             }
     }

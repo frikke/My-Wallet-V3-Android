@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.security.pin
 
+import androidx.annotation.VisibleForTesting
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatus
@@ -8,6 +9,8 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.tasks.Task
 import info.blockchain.wallet.api.data.UpdateType
+import io.intercom.android.sdk.Intercom
+import io.intercom.android.sdk.identity.Registration
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -98,12 +101,20 @@ class PinInteractor internal constructor(
         authDataManager.validatePin(pin)
             .firstOrError()
             .flatMap { validatedPin ->
+                registerIntercomUser()
+
                 if (isForValidatingPinForResult) {
                     authDataManager.verifyCloudBackup().toSingle { validatedPin }
                 } else {
                     Single.just(validatedPin)
                 }
             }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun registerIntercomUser() {
+        val registration = Registration.create().withUserId(authPrefs.walletGuid)
+        Intercom.client().registerIdentifiedUser(registration)
+    }
 
     private fun verifyCloudBackup(): Completable =
         authDataManager.verifyCloudBackup()

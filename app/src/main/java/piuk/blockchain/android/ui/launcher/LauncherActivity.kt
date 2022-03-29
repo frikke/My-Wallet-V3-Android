@@ -7,16 +7,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAppOpened
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
@@ -26,7 +22,6 @@ import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
     private val dataWiper: DataWiper by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,22 +72,13 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     }
 
     override fun onRequestPin() {
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    startActivity(
-                        PinActivity.newIntent(
-                            context = this,
-                            startForResult = false,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.LAUNCHER_SCREEN,
-                            addFlagsToClear = true
-                        )
-                    )
-                } else {
-                    startSingleActivity(PinEntryActivity::class.java, null)
-                }
-            }
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.LAUNCHER_SCREEN,
+                addFlagsToClear = true
+            )
         )
     }
 

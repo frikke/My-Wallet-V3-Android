@@ -119,6 +119,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     }
 
     override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        super<SimpleBuyNavigator>.onSheetClosed(sheet)
         if (sheet is KycUpgradeNowSheet) exitSimpleBuyFlow()
         else subscribeForNavigation(true)
     }

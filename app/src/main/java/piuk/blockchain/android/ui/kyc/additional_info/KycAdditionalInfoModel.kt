@@ -58,6 +58,7 @@ class KycAdditionalInfoModel(
     >(KycAdditionalInfoModelState()) {
 
     override fun viewCreated(args: Args) {
+        analytics.logEvent(KycAdditionalInfoViewed)
         updateState { it.copy(campaignType = args.campaignType) }
         stateMachine.onStateChanged = { nodes ->
             updateState { prevState ->
@@ -103,6 +104,7 @@ class KycAdditionalInfoModel(
                 val nodes = stateMachine.getRoot().toDomain()
                 when (val result = kycDataManager.updateAdditionalInfo(nodes)) {
                     is Outcome.Success -> {
+                        analytics.logEvent(KycAdditionalInfoSubmitted)
                         when (val result = verifySddAndGetNextStep()) {
                             is Outcome.Success -> navigate(result.value.toNavigation())
                             is Outcome.Failure -> updateState {

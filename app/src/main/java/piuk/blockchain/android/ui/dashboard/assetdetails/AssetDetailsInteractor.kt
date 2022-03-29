@@ -132,7 +132,7 @@ class AssetDetailsInteractor(
             asset.getPricesWith24hDelta(),
             asset.accountGroup(AssetFilter.NonCustodial).mapDetails(),
             asset.accountGroup(AssetFilter.Custodial).mapDetails(),
-            asset.accountGroup(AssetFilter.Interest).mapDetails(),
+            asset.accountGroup(AssetFilter.Rewards).mapDetails(),
             asset.interestRate()
         ) { prices, nonCustodial, custodial, interest, interestRate ->
             makeAssetDisplayMap(
@@ -160,7 +160,7 @@ class AssetDetailsInteractor(
 
         (interest as? Details.DetailsItem)?.let { item ->
             if (item.isEnabled || item.balance.isPositive) {
-                addToDisplayMap(this, AssetFilter.Interest, interest, fiatRate, interestRate)
+                addToDisplayMap(this, AssetFilter.Rewards, interest, fiatRate, interestRate)
             }
         }
     }

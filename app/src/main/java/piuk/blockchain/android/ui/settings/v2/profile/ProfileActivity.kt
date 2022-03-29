@@ -13,8 +13,8 @@ import com.blockchain.nabu.Tier
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityProfileBinding
 import piuk.blockchain.android.ui.base.showFragment
-import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.BASIC_INFO
-import piuk.blockchain.android.ui.settings.v2.RedesignSettingsPhase2Activity.Companion.USER_TIER
+import piuk.blockchain.android.ui.settings.v2.SettingsActivity.Companion.BASIC_INFO
+import piuk.blockchain.android.ui.settings.v2.SettingsActivity.Companion.USER_TIER
 import piuk.blockchain.android.ui.settings.v2.profile.email.UpdateEmailFragment
 import piuk.blockchain.android.ui.settings.v2.profile.phone.UpdatePhoneFragment
 

@@ -62,9 +62,7 @@ class EthDataManager(
      */
     fun fetchEthAddress(): Observable<CombinedEthModel> =
         ethAccountApi.getEthAddress(listOf(accountAddress))
-            .map {
-                CombinedEthModel(it)
-            }
+            .map(::CombinedEthModel)
             .doOnNext {
                 ethDataStore.ethAddressResponse = it
             }

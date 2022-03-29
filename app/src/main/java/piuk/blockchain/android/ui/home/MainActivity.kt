@@ -46,7 +46,6 @@ import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomShe
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -74,6 +73,9 @@ import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
+import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
@@ -94,7 +96,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.SettingsScreenLauncher
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
 import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
@@ -138,8 +139,6 @@ class MainActivity :
 
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
-
-    private val settingsScreenLauncher: SettingsScreenLauncher by scopedInject()
 
     private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
@@ -263,21 +262,7 @@ class MainActivity :
                 },
                 NavigationBarButton.Icon(R.drawable.ic_bank_user) {
                     showLoading()
-                    compositeDisposable += settingsScreenLauncher.newIntent(context = this@MainActivity)
-                        .subscribeBy(
-                            onSuccess = {
-                                settingsResultContract.launch(it)
-                            },
-                            onError = {
-                                // this should never happen
-                                BlockchainSnackbar.make(
-                                    binding.root,
-                                    getString(R.string.common_error),
-                                    duration = Snackbar.LENGTH_SHORT,
-                                    type = SnackbarType.Error
-                                ).show()
-                            }
-                        )
+                    settingsResultContract.launch(SettingsActivity.newIntent(this))
                 }
             )
         )
@@ -619,6 +604,7 @@ class MainActivity :
                 view.walletConnectSession
             )
             ViewToLaunch.ShowEntitySwitchSilverKycUpsell -> {
+                var ctaClicked = false
                 var alertDialog: AlertDialog? = null
                 val dialog = MaterialAlertDialogBuilder(this, R.style.RoundedCornersDialog)
                 val contentViewBinding = DialogEntitySwitchSilverBinding.inflate(layoutInflater).apply {
@@ -628,12 +614,18 @@ class MainActivity :
                     }
                     verifyNowButton.text = getString(R.string.entity_switch_silver_dialog_verify_now)
                     verifyNowButton.setOnClickListener {
+                        analytics.logEvent(EntitySwitchSilverKycUpsellCtaClicked)
+                        ctaClicked = true
                         alertDialog?.dismiss()
-                        alertDialog = null
                         showBottomSheet(KycUpgradeNowSheet.newInstance())
                     }
                 }
                 dialog.setView(contentViewBinding.root)
+                dialog.setOnDismissListener {
+                    alertDialog = null
+                    if (!ctaClicked) analytics.logEvent(EntitySwitchSilverKycUpsellDismissed)
+                }
+                analytics.logEvent(EntitySwitchSilverKycUpsellViewed)
                 alertDialog = dialog.show()
             }
             ViewToLaunch.ShowUiTour -> {
@@ -931,7 +923,7 @@ class MainActivity :
     }
 
     override fun launchSetup2Fa() {
-        startActivity(SettingsActivity.newIntentFor2FA(this))
+        startActivity(SettingsActivity.newIntent(this, true))
     }
 
     override fun launchVerifyEmail() {

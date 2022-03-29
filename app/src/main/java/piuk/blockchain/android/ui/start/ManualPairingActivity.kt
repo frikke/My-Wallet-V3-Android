@@ -13,18 +13,14 @@ import androidx.annotation.StringRes
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.material.textfield.TextInputEditText
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityManualPairingBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
@@ -46,8 +42,6 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     override val view: ManualPairingView = this
     override val presenter: ManualPairingPresenter by scopedInject()
     private val walletPrefs: WalletStatus by inject()
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -100,22 +94,13 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
     }
 
     override fun goToPinPage() {
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    startActivity(
-                        PinActivity.newIntent(
-                            context = this,
-                            startForResult = false,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.MANUAL_PAIRING_SCREEN,
-                            addFlagsToClear = true
-                        )
-                    )
-                } else {
-                    startActivity(Intent(this, PinEntryActivity::class.java))
-                }
-            }
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.MANUAL_PAIRING_SCREEN,
+                addFlagsToClear = true
+            )
         )
     }
 

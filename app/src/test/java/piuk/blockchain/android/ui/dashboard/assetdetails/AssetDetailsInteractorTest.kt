@@ -49,7 +49,7 @@ class AssetDetailsInteractorTest {
         on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(totalGroup))
         on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
         on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
-        on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
+        on { accountGroup(AssetFilter.Rewards) }.thenReturn(Maybe.just(interestGroup))
     }
 
     private val userIdentity = mock<UserIdentity>()
@@ -110,7 +110,7 @@ class AssetDetailsInteractorTest {
                 custodialFiat,
                 emptySet()
             ),
-            AssetFilter.Interest to AssetDisplayInfo(
+            AssetFilter.Rewards to AssetDisplayInfo(
                 interestGroup,
                 interestBalance.total,
                 interestBalance.pending,
@@ -190,7 +190,7 @@ class AssetDetailsInteractorTest {
         )
 
         whenever(asset.getPricesWith24hDelta()).thenReturn(Single.just(prices))
-        whenever(asset.accountGroup(AssetFilter.Interest)).thenReturn(Maybe.error(Throwable()))
+        whenever(asset.accountGroup(AssetFilter.Rewards)).thenReturn(Maybe.error(Throwable()))
 
         whenever(nonCustodialGroup.balance).thenReturn(Observable.just(nonCustodialGroupBalance))
         whenever(custodialGroup.balance).thenReturn(Observable.just(custodialCrypto))

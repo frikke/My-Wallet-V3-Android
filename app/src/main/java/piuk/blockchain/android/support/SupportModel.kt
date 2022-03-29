@@ -28,7 +28,7 @@ class SupportModel(
                 interactor.loadUserInformation()
                     .subscribeBy(
                         onSuccess = {
-                            process(SupportIntent.UpdateViewState(SupportViewState.ShowInfo(it.first, it.second)))
+                            process(SupportIntent.UpdateViewState(SupportViewState.ShowInfo(it)))
                         },
                         onError = {
                             process(SupportIntent.UpdateErrorState(SupportError.ErrorLoadingProfileInfo))

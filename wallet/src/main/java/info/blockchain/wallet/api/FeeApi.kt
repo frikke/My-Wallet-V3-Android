@@ -12,21 +12,21 @@ data class FeeApi(private val feeEndpoints: FeeEndpoints) {
      * fee option, both listed in Satoshis per byte.
      */
     val btcFeeOptions: Observable<FeeOptions>
-        get() = byCache("BTC") { feeEndpoints.btcFeeOptions }
+        get() = byCache("BTC") { feeEndpoints.getBtcFeeOptions() }
 
     /**
      * Returns a [FeeOptions] object for BCH which contains both a "regular" and a "priority"
      * fee option, both listed in Satoshis per byte.
      */
     val bchFeeOptions: Observable<FeeOptions>
-        get() = byCache("BCH") { feeEndpoints.bchFeeOptions }
+        get() = byCache("BCH") { feeEndpoints.getBchFeeOptions() }
 
     /**
      * Returns a [FeeOptions] object for ETH which contains both a "regular" and a "priority"
      * fee option.
      */
     val ethFeeOptions: Observable<FeeOptions>
-        get() = byCache("ETH") { feeEndpoints.ethFeeOptions }
+        get() = byCache("ETH") { feeEndpoints.getEthFeeOptions() }
 
     /**
      * Returns a [FeeOptions] object for XLM which contains both a "regular" and a "priority"

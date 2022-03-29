@@ -7,7 +7,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
-import piuk.blockchain.android.ui.settings.BankItem
 
 data class SettingsState(
     val basicProfileInfo: BasicProfileInfo? = null,

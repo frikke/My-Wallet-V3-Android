@@ -101,7 +101,7 @@ import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.BankLinkingHost
+import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents

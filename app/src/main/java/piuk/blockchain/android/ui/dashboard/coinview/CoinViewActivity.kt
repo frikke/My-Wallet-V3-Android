@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.SnackbarType
@@ -45,8 +45,12 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.dashboard.assetdetails.interstitials.AccountActionsBottomSheet
+import piuk.blockchain.android.ui.dashboard.assetdetails.interstitials.AccountExplainerBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
+import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -56,7 +60,9 @@ import piuk.blockchain.android.util.StringUtils
 
 class CoinViewActivity :
     MviActivity<CoinViewModel, CoinViewIntent, CoinViewState, ActivityCoinviewBinding>(),
-    RecurringBuyDetailsSheet.Host {
+    RecurringBuyDetailsSheet.Host,
+    AccountExplainerBottomSheet.Host,
+    AccountActionsBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -67,11 +73,11 @@ class CoinViewActivity :
     override val model: CoinViewModel by scopedInject()
 
     private val assetTicker: String by lazy {
-        intent.getStringExtra(ASSET_TICKER) ?: ""
+        intent.getStringExtra(ASSET_TICKER).orEmpty()
     }
 
     private val assetName: String by lazy {
-        intent.getStringExtra(ASSET_NAME) ?: ""
+        intent.getStringExtra(ASSET_NAME).orEmpty()
     }
 
     private val labels: DefaultLabels by inject()
@@ -96,7 +102,13 @@ class CoinViewActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar(toolbarTitle = assetName, backAction = { onBackPressed() })
+        updateToolbar(toolbarTitle = assetName, backAction = {
+            analytics.logEvent(
+                CoinViewAnalytics
+                    .CoinViewClosed(closingMethod = CoinViewAnalytics.Companion.ClosingMethod.BACK_BUTTON)
+            )
+            onBackPressed()
+        })
         initUI()
     }
 
@@ -408,6 +420,33 @@ class CoinViewActivity :
                     renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
                 }
             }
+            CoinViewViewState.ShowAccountExplainerSheet -> {
+                require(newState.selectedCryptoAccount != null)
+                with(newState.selectedCryptoAccount) {
+                    showBottomSheet(
+                        AccountExplainerBottomSheet.newInstance(
+                            selectedAccount = account,
+                            networkTicker = assetTicker,
+                            interestRate = interestRate,
+                        )
+                    )
+                }
+            }
+            CoinViewViewState.ShowAccountActionSheet -> {
+                require(newState.selectedCryptoAccount != null)
+                with(newState.selectedCryptoAccount) {
+                    showBottomSheet(
+                        AccountActionsBottomSheet.newInstance(
+                            selectedAccount = account,
+                            balanceFiat = fiatBalance,
+                            balanceCrypto = balance,
+                            interestRate = interestRate,
+                            stateAwareActions = actions,
+                            hasWarning = newState.hasActionBuyWarning
+                        )
+                    )
+                }
+            }
             CoinViewViewState.None -> {
                 // do nothing
             }
@@ -505,6 +544,58 @@ class CoinViewActivity :
         }
     }
 
+    private fun startBuy(asset: AssetInfo) {
+        startActivity(
+            SimpleBuyActivity.newIntent(
+                context = this,
+                asset = asset
+            )
+        )
+    }
+
+    private fun startSell(highestBalanceWallet: BlockchainAccount) {
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.Sell,
+                sourceAccount = highestBalanceWallet
+            )
+        )
+    }
+
+    private fun startSend(highestBalanceWallet: BlockchainAccount) {
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.Send,
+                sourceAccount = highestBalanceWallet
+            )
+        )
+    }
+
+    private fun startSwap() {
+        startActivity(
+            TransactionFlowActivity.newIntent(
+                context = this,
+                action = AssetAction.Swap
+            )
+        )
+    }
+
+    private fun startReceive(highestBalanceWallet: BlockchainAccount) {
+        showBottomSheet(ReceiveDetailSheet.newInstance(highestBalanceWallet as CryptoAccount))
+    }
+
+    private fun startViewSummary() {
+        startActivity(
+            InterestDashboardActivity.newInstance(this)
+        )
+    }
+
+    private fun startActivity() {
+        // TODO https://blockchain.atlassian.net/browse/AND-5968
+    }
+
     private fun getQuickActionUi(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
@@ -527,12 +618,7 @@ class CoinViewActivity :
                         type = CoinViewAnalytics.Companion.Type.BUY
                     )
                 )
-                startActivity(
-                    SimpleBuyActivity.newIntent(
-                        context = this,
-                        asset = asset
-                    )
-                )
+                startBuy(asset)
             }
             QuickActionCta.Sell -> QuickAction(
                 getString(R.string.common_sell),
@@ -550,13 +636,7 @@ class CoinViewActivity :
                         type = CoinViewAnalytics.Companion.Type.SELL
                     )
                 )
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        context = this,
-                        action = AssetAction.Sell,
-                        sourceAccount = highestBalanceWallet
-                    )
-                )
+                startSell(highestBalanceWallet)
             }
             QuickActionCta.Send -> QuickAction(
                 getString(R.string.common_send),
@@ -574,13 +654,7 @@ class CoinViewActivity :
                         type = CoinViewAnalytics.Companion.Type.SEND
                     )
                 )
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        context = this,
-                        action = AssetAction.Send,
-                        sourceAccount = highestBalanceWallet
-                    )
-                )
+                startSend(highestBalanceWallet)
             }
             QuickActionCta.Receive -> QuickAction(
                 getString(R.string.common_receive),
@@ -598,7 +672,7 @@ class CoinViewActivity :
                         type = CoinViewAnalytics.Companion.Type.RECEIVE
                     )
                 )
-                showBottomSheet(ReceiveDetailSheet.newInstance(highestBalanceWallet as CryptoAccount))
+                startReceive(highestBalanceWallet)
             }
             QuickActionCta.None -> {
                 // do nothing
@@ -706,16 +780,11 @@ class CoinViewActivity :
         updateList()
     }
 
-    private fun onAccountSelected(account: BlockchainAccount, assetFilter: AssetFilter) {
-        // clearList()
-
-        if (account is CryptoAccount && assetFilter == AssetFilter.Custodial) {
-            analytics.logEvent(CustodialBalanceClicked(account.currency))
+    private fun onAccountSelected(accountDetails: AssetDetailsItemNew.CryptoDetailsInfo) {
+        if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
+            analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
         }
-
-        //        model.process(
-        //            ShowAssetActionsIntent(account)
-        //        )
+        model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
     }
 
     private fun openOnboardingForRecurringBuy() {
@@ -731,7 +800,7 @@ class CoinViewActivity :
 
     private fun onRecurringBuyClicked(recurringBuy: RecurringBuy) {
         recurringBuy.asset.let {
-            // TODO one of these 2 has to go - awaiting confirmation
+            // TOASK one of these 2 has to go - awaiting confirmation -> I've been ignored,
             analytics.logEvent(
                 RecurringBuyAnalytics.RecurringBuyDetailsClicked(
                     LaunchOrigin.CURRENCY_PAGE,
@@ -755,6 +824,27 @@ class CoinViewActivity :
     private fun updateList() {
         adapterDelegate.items = listItems
         adapterDelegate.notifyDataSetChanged()
+    }
+
+    override fun navigateToActionSheet() {
+        model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet))
+    }
+
+    override fun navigateToKyc() {
+        showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    override fun navigateToAction(action: AssetAction, selectedAccount: BlockchainAccount, assetInfo: AssetInfo) {
+        when (action) {
+            AssetAction.Send -> startSend(selectedAccount)
+            AssetAction.Receive -> startReceive(selectedAccount)
+            AssetAction.Swap -> startSwap()
+            AssetAction.Sell -> startSell(selectedAccount)
+            AssetAction.ViewStatement -> startViewSummary()
+            AssetAction.ViewActivity -> startActivity()
+            AssetAction.Buy -> startBuy(assetInfo)
+            else -> throw IllegalStateException("Action is not supported in this flow")
+        }
     }
 
     override fun onSheetClosed() {

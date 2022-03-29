@@ -8,16 +8,12 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityPasswordRequiredBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
@@ -51,8 +47,6 @@ class PasswordRequiredActivity :
             }
         }
     }
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,22 +107,13 @@ class PasswordRequiredActivity :
     }
 
     override fun goToPinPage() {
-        // TODO remove ff
-        redesign.enabled.onErrorReturnItem(false).subscribeBy(
-            onSuccess = { isEnabled ->
-                if (isEnabled) {
-                    startActivity(
-                        PinActivity.newIntent(
-                            context = this,
-                            startForResult = false,
-                            originScreen = PinActivity.Companion.OriginScreenToPin.PASSWORD_REQUIRED_SCREEN,
-                            addFlagsToClear = true
-                        )
-                    )
-                } else {
-                    startActivity(Intent(this, PinEntryActivity::class.java))
-                }
-            }
+        startActivity(
+            PinActivity.newIntent(
+                context = this,
+                startForResult = false,
+                originScreen = PinActivity.Companion.OriginScreenToPin.PASSWORD_REQUIRED_SCREEN,
+                addFlagsToClear = true
+            )
         )
     }
 

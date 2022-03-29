@@ -7,9 +7,9 @@ import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
@@ -24,15 +24,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(redesignPart2FeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_redesign_pt2",
-                "Wallet Redesign Part 2"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(redesignPart2CoinViewFeatureFlag) {
         IntegratedFeatureFlag(
@@ -156,6 +147,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_kyc_additional_info",
                 "KYC Additional Info"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(intercomChatFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_intercom",
+                "Show intercom chat"
             )
         )
     }.bind(FeatureFlag::class)

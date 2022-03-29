@@ -50,7 +50,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
-import piuk.blockchain.android.ui.settings.LinkablePaymentMethods
+import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.android.ui.transfer.AccountsSorting
 import piuk.blockchain.androidcore.utils.extensions.mapList
 import timber.log.Timber
