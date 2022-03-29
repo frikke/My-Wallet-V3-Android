@@ -41,6 +41,7 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetHostLayout
+import com.blockchain.componentlib.sheets.BottomSheetText
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
@@ -201,8 +202,8 @@ private fun ConfirmaActionBottomSheet(
 ) {
     BottomSheet(
         onCloseClick = closeSheet,
-        title = stringResource(R.string.are_you_sure),
-        subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
+        title = BottomSheetText(stringResource(R.string.are_you_sure)),
+        subtitle = BottomSheetText(stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name)),
         imageResource = ImageResource.Local(R.drawable.ic_warning),
         topButton = BottomSheetButton(
             text = stringResource(R.string.common_disconnect),
@@ -225,8 +226,8 @@ private fun DisconnectBottomSheet(
 ) {
     BottomSheet(
         onCloseClick = closeSheet,
-        title = session.dAppInfo.peerMeta.name,
-        subtitle = session.dAppInfo.peerMeta.description,
+        title = BottomSheetText(session.dAppInfo.peerMeta.name),
+        subtitle = BottomSheetText(session.dAppInfo.peerMeta.description),
         imageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
         topButton = BottomSheetButton(
             text = stringResource(R.string.common_disconnect),
