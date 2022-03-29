@@ -30,10 +30,6 @@ abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragmen
             }
         }
     }
-
-    open fun setSheetCancelable(cancelable: Boolean = true) {
-        isCancelable = cancelable
-    }
 }
 
 fun <TIntent : Intent<TModelState>,
