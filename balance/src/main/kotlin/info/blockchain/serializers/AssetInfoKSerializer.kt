@@ -2,6 +2,7 @@ package info.blockchain.serializers
 
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -11,8 +12,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-object AssetTickerKSerializer : KSerializer<AssetInfo>, KoinComponent {
-    private val assetCatalogue: AssetCatalogue by inject()
+class AssetInfoKSerializer(private val assetCatalogue: AssetCatalogue) : KSerializer<AssetInfo>, KoinComponent {
 
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("AssetInfo", PrimitiveKind.STRING)
 

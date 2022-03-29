@@ -19,6 +19,7 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
@@ -43,16 +44,22 @@ import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.blockchain.serializers.AssetInfoKSerializer
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -161,6 +168,7 @@ import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
+import java.io.File
 
 val applicationModule = module {
 
@@ -213,6 +221,19 @@ val applicationModule = module {
             beaconKey = BuildConfig.SIFT_BEACON_KEY
         )
     }.bind(DigitalTrust::class)
+
+    single(kotlinJsonAssetTicker) {
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(BigDecimalSerializer)
+                contextual(BigIntSerializer)
+                contextual(IsoDateSerializer)
+                contextual(AssetInfoKSerializer(assetCatalogue = get()))
+            }
+        }
+    }
 
     scope(payloadScopeQualifier) {
 
@@ -558,7 +579,7 @@ val applicationModule = module {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
                 assetCatalogue = get(),
-                json = get(),
+                json = get(kotlinJsonAssetTicker),
                 replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
