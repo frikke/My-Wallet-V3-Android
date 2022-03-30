@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +67,7 @@ import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.InfoButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -73,6 +77,7 @@ import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.theme.AppDimensions
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -161,7 +166,11 @@ fun BlockchainCardNavHost(
         }
 
         composable("create_card_success") {
-            CardCreationSuccess()
+            CardCreationSuccess(
+                onFinish = {
+                    viewModel.onIntent(BlockchainCardIntent.ManageCard)
+                }
+            )
         }
 
         composable("create_card_failed") {
@@ -245,7 +254,7 @@ private fun PreviewOrderCardScreen() {
 private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = CenterHorizontally,
             modifier = Modifier.padding(AppTheme.dimensions.paddingLarge)
         ) {
             Image(
@@ -300,7 +309,7 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct) {
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
@@ -412,9 +421,57 @@ private fun PreviewCardCreationInProgress() {
 }
 
 @Composable
-private fun CardCreationSuccess() {
-    Column(Modifier.fillMaxWidth()) {
-        SimpleText(text = "SUCCESS", style = ComposeTypographies.Title2, color = ComposeColors.Success, gravity = ComposeGravities.Centre)
+private fun CardCreationSuccess(onFinish: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.xxxPaddingLarge),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = CenterHorizontally
+        ) {
+            SimpleText(
+                text = "Card Created!",
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+            SimpleText(
+                text = "Your card is now linked to your Blockchain.com Wallet.",
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Centre
+            )
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            androidx.compose.material.Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.paddingSmall),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_gpay_save_card),
+                    contentDescription = "Google Pay Save to Phone",
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            MinimalButton(
+                text = "Do it later",
+                state = ButtonState.Enabled,
+                onClick = onFinish,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.paddingSmall)
+            )
+        }
     }
 }
 
