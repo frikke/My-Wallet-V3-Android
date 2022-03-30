@@ -198,10 +198,10 @@ private fun OrderOrLinkCardContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewOrderCardScreen() {
+private fun PreviewOrderOrLinkCardContent() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            // OrderOrLinkCard(BlockchainCardModel())
+            OrderOrLinkCardContent({ }, {})
         }
     }
 }
