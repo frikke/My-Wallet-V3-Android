@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.blockchaincard.R
-import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter

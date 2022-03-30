@@ -1,13 +1,13 @@
-package com.blockchain.blockchaincard.data
+package com.blockchain.blockchaincard.domain
 
-import com.blockchain.blockchaincard.domain.BcCardApi
-import com.blockchain.blockchaincard.domain.CardCreationRequestBody
-import com.blockchain.blockchaincard.domain.CardsResponse
-import com.blockchain.blockchaincard.domain.ProductsResponse
+import com.blockchain.api.blockchainCard.api.BlockchainCardApi
+import com.blockchain.api.blockchainCard.api.CardCreationRequestBody
+import com.blockchain.api.blockchainCard.api.CardsResponse
+import com.blockchain.api.blockchainCard.api.ProductsResponse
 import io.reactivex.rxjava3.core.Single
 
-class BcCardService internal constructor(
-    private val api: BcCardApi
+class BlockchainCardService internal constructor(
+    private val api: BlockchainCardApi
 ) {
     fun getProducts(authHeader: String): Single<List<ProductsResponse>> =
         api.getProducts(authHeader)

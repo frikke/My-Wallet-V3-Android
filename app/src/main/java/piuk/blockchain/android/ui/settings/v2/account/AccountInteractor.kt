@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
-import com.blockchain.blockchaincard.data.BcCardDataRepository
-import com.blockchain.blockchaincard.data.BcCardStatus
+import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
@@ -14,7 +14,7 @@ import thepit.PitLinking
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val bcCardDataRepository: BcCardDataRepository,
+    private val blockchainCardRepository: BlockchainCardRepositoryImpl,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: PitLinking
 ) {
@@ -46,13 +46,13 @@ class AccountInteractor internal constructor(
         }
 
     fun getDebitCardState(): Single<BlockchainCardState> =
-        bcCardDataRepository.getCards().flatMap { cards ->
-            val activeCards = cards.filter { it.cardStatus != BcCardStatus.TERMINATED }
+        blockchainCardRepository.getCards().flatMap { cards ->
+            val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
             if (activeCards.isNotEmpty()) {
                 // TODO For now we only allow 1 card, but in the future we must pass the full list here
                 Single.just(BlockchainCardState.Ordered(activeCards.first().cardId))
             } else {
-                bcCardDataRepository.getProducts().map { products ->
+                blockchainCardRepository.getProducts().map { products ->
                     if (products.isNotEmpty())
                         BlockchainCardState.Eligible(products)
                     else

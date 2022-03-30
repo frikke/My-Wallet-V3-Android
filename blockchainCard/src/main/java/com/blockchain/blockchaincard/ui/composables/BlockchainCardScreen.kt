@@ -34,7 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
-import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter

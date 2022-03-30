@@ -1,4 +1,4 @@
-package com.blockchain.blockchaincard.domain
+package com.blockchain.api.blockchainCard.api
 
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
@@ -10,7 +10,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-interface BcCardApi {
+interface BlockchainCardApi {
 
     @GET("products")
     fun getProducts(

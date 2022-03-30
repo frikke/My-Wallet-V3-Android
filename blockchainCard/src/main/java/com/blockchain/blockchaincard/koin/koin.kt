@@ -2,9 +2,9 @@ package com.blockchain.blockchaincard.koin
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.getBaseUrl
-import com.blockchain.blockchaincard.data.BcCardDataRepository
-import com.blockchain.blockchaincard.data.BcCardService
-import com.blockchain.blockchaincard.domain.BcCardApi
+import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainCardService
+import com.blockchain.api.blockchainCard.api.BlockchainCardApi
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.koin.payloadScopeQualifier
@@ -41,15 +41,15 @@ val bcCardsApiModule = module {
 
     scope(payloadScopeQualifier) {
         factory {
-            val api = get<Retrofit>(bcCardGateway).create(BcCardApi::class.java)
-            BcCardService(
+            val api = get<Retrofit>(bcCardGateway).create(BlockchainCardApi::class.java)
+            BlockchainCardService(
                 api
             )
         }
 
         factory {
-            BcCardDataRepository(
-                bcCardService = get(),
+            BlockchainCardRepositoryImpl(
+                blockchainCardService = get(),
                 authenticator = get()
             )
         }
@@ -59,7 +59,7 @@ val bcCardsApiModule = module {
         }
 
         viewModel {
-            BlockchainCardViewModel(bcCardDataRepository = get())
+            BlockchainCardViewModel(blockchainCardRepository = get())
         }
     }
 }

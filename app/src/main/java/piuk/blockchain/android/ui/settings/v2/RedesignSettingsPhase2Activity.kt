@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardFragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.FlowFragment

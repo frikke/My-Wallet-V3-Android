@@ -1,7 +1,7 @@
 package com.blockchain.blockchaincard.viewmodel
 
-import com.blockchain.blockchaincard.data.BcCardDataRepository
-import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
@@ -17,7 +17,7 @@ sealed class BlockchainDebitCardArgs : ModelConfigArgs.ParcelableArgs {
     data class ProductArgs(val product: BlockchainDebitCardProduct) : ModelConfigArgs.ParcelableArgs
 }
 
-class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataRepository) :
+class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCardRepositoryImpl) :
     MviViewModel<
         BlockchainCardIntent,
         BlockchainCardViewState,
@@ -58,7 +58,7 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                bcCardDataRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).doOnSubscribe {
+                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).doOnSubscribe {
                     navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
                 }.subscribeBy(
                     onSuccess = { card ->
@@ -78,7 +78,7 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
 
             is BlockchainCardIntent.DeleteCard -> {
                 modelState.cardId?.let { cardId ->
-                    bcCardDataRepository.deleteCard(cardId).subscribeBy(
+                    blockchainCardRepository.deleteCard(cardId).subscribeBy(
                         onSuccess = {
                             Timber.d("Card deleted")
                         },
