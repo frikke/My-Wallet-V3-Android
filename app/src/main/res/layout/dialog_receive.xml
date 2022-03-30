@@ -114,12 +114,10 @@
                 android:orientation="vertical" />
         </androidx.core.widget.NestedScrollView>
 
-        <Button
+        <com.blockchain.componentlib.button.PrimaryButtonView
             android:id="@+id/share_button"
-            style="@style/CtaButton.NoMargin.Blue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/receive_share"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
