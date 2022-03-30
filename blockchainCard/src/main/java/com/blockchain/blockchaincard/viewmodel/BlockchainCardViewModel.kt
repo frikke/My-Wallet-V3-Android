@@ -7,7 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
-
+import timber.log.Timber
 
 sealed class BlockchainDebitCardArgs : ModelConfigArgs.ParcelableArgs {
     @Parcelize
@@ -23,48 +23,25 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
         BlockchainCardViewState,
         BlockchainCardModelState,
         ComposeNavigationEvent,
-        ModelConfigArgs> (BlockchainCardModelState.Unknown) {
+        ModelConfigArgs> (BlockchainCardModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs) {
         when (args) {
             is BlockchainDebitCardArgs.CardArgs -> {
-                updateState { BlockchainCardModelState.Created(args.cardId)}
+                updateState { it.copy(cardId = args.cardId) }
             }
 
             is BlockchainDebitCardArgs.ProductArgs -> {
-                updateState { BlockchainCardModelState.NotOrdered(args.product) }
+                updateState { it.copy(cardProduct = args.product) }
             }
         }
     }
 
-    override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState =
-        when (state) {
-            is BlockchainCardModelState.NotOrdered -> {
-                BlockchainCardViewState.OrderOrLinkCard
-            }
+    override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
+        cardId = state.cardId,
+        cardProduct = state.cardProduct
+    )
 
-            is BlockchainCardModelState.OrderCard -> {
-                BlockchainCardViewState.OrderCard
-            }
-
-            is BlockchainCardModelState.ShowProductDetails -> {
-                BlockchainCardViewState.ShowProductDetails(state.product)
-            }
-
-            is BlockchainCardModelState.LinkCard -> {
-                BlockchainCardViewState.LinkCard
-            }
-
-            is BlockchainCardModelState.CardCreationSuccess -> {
-                BlockchainCardViewState.CardCreationSuccess
-            }
-
-            is BlockchainCardModelState.CardCreationFailed -> {
-                BlockchainCardViewState.CardCreationFailed
-            }
-            is BlockchainCardModelState.Created -> BlockchainCardViewState.ManageCard(state.cardId)
-            is BlockchainCardModelState.Unknown -> BlockchainCardViewState.OrderCard
-        }
 
     override suspend fun handleIntent(
         modelState: BlockchainCardModelState,
@@ -76,32 +53,28 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             }
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
-                if (modelState is BlockchainCardModelState.NotOrdered) {
-                    val cardProduct = modelState.cardProduct
-                    updateState { BlockchainCardModelState.ShowProductDetails(cardProduct) }
-                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
-                }
+                    modelState.cardProduct?.let { cardProduct ->
+                        navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
+                    } ?: Timber.w("Unable to show product details, no product info")
             }
 
             is BlockchainCardIntent.CreateCard -> {
                 bcCardDataRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).doOnSubscribe {
                     navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
                 }.subscribeBy(
-                    onSuccess = {
-                        updateState { BlockchainCardModelState.CardCreationSuccess }
+                    onSuccess = { card ->
+                        updateState { it.copy(cardId = card.cardId) }
                         navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
                     },
                     onError = {
-                        updateState { BlockchainCardModelState.CardCreationFailed }
+                        // Todo update state's error here OR pass it to the destination
                         navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
                     }
                 )
             }
 
-            is BlockchainCardIntent.HideBottomSheet -> {
-                if (modelState is BlockchainCardModelState.ShowProductDetails) {
-                    updateState { BlockchainCardModelState.NotOrdered(modelState.product) }
-                }
+            is BlockchainCardIntent.HideProductDetailsBottomSheet -> {
+                navigate(BlockchainCardNavigationEvent.HideBottomSheet)
             }
         }
 

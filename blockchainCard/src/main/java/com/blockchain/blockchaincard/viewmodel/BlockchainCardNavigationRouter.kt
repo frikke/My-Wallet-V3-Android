@@ -15,7 +15,10 @@ class BlockchainCardNavigationRouter : ComposeNavigationRouter {
             navController.popBackStack(BlockchainCardNavigationEvent.SelectCardForOrder.name, false)
         }
 
-        navController.navigate(navigationEvent.name)
+        if (navigationEvent is BlockchainCardNavigationEvent.HideBottomSheet)
+            navController.popBackStack()
+        else
+            navController.navigate(navigationEvent.name)
     }
 
     override lateinit var navController: NavHostController

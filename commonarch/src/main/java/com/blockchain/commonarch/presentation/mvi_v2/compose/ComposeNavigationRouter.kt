@@ -42,8 +42,8 @@ open class ComposeNavigationEvent(val name: String) : NavigationEvent
 fun MviNavHost(
     navigationRouter: ComposeNavigationRouter,
     startDestination: String,
-    onCollapse: () -> Unit,
     modifier: Modifier = Modifier,
+    onCollapse: () -> Unit = {},
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
