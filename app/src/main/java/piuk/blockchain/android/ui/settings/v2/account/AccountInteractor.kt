@@ -49,7 +49,8 @@ class AccountInteractor internal constructor(
         bcCardDataRepository.getCards().flatMap { cards ->
             val activeCards = cards.filter { it.cardStatus != BcCardStatus.TERMINATED }
             if (activeCards.isNotEmpty()) {
-                Single.just(BlockchainCardState.Ordered(activeCards.first().cardId)) // TODO if multiple should pass the list
+                // TODO For now we only allow 1 card, but in the future we must pass the full list here
+                Single.just(BlockchainCardState.Ordered(activeCards.first().cardId))
             } else {
                 bcCardDataRepository.getProducts().map { products ->
                     if (products.isNotEmpty())

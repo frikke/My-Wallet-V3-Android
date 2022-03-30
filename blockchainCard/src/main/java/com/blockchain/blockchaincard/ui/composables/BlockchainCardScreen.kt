@@ -121,7 +121,9 @@ fun BlockchainCardNavHost(
         bottomSheet("product_details") {
             ProductDetails(
                 cardProduct = state?.cardProduct,
-                onCloseProductDetailsBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideProductDetailsBottomSheet) }
+                onCloseProductDetailsBottomSheet = {
+                    viewModel.onIntent(BlockchainCardIntent.HideProductDetailsBottomSheet)
+                }
             )
         }
 
@@ -138,7 +140,7 @@ private fun OrderOrLinkCard(
 ) {
     OrderOrLinkCardContent(
         onOrderCard = { viewModel.onIntent(BlockchainCardIntent.OrderCard) },
-        onLinkCard =  { viewModel.onIntent(BlockchainCardIntent.LinkCard) },
+        onLinkCard = { viewModel.onIntent(BlockchainCardIntent.LinkCard) },
     )
 }
 
@@ -154,7 +156,12 @@ private fun OrderOrLinkCardContent(
         Image(
             painter = painterResource(id = R.drawable.ic_graphic_cards),
             contentDescription = "Blockchain Card",
-            modifier = Modifier.padding(0.dp, AppTheme.dimensions.xxxPaddingLarge, AppTheme.dimensions.paddingMedium, 0.dp)
+            modifier = Modifier.padding(
+                0.dp,
+                AppTheme.dimensions.xxxPaddingLarge,
+                AppTheme.dimensions.paddingMedium,
+                0.dp
+            )
         )
 
         SimpleText(
@@ -209,7 +216,12 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
             Image(
                 painter = painterResource(id = R.drawable.card),
                 contentDescription = "Blockchain Card",
-                modifier = Modifier.padding(AppTheme.dimensions.paddingMedium, AppTheme.dimensions.paddingLarge, AppTheme.dimensions.paddingMedium, 0.dp)
+                modifier = Modifier.padding(
+                    AppTheme.dimensions.paddingMedium,
+                    AppTheme.dimensions.paddingLarge,
+                    AppTheme.dimensions.paddingMedium,
+                    0.dp
+                )
             )
 
             SimpleText(
@@ -247,7 +259,6 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
     }
 }
 
-
 @Composable
 private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProductDetailsBottomSheet: () -> Unit) {
 
@@ -264,7 +275,7 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProd
             .verticalScroll(rememberScrollState())
             .background(backgroundColor)
     ) {
-        
+
         SheetHeader(onClosePress = onCloseProductDetailsBottomSheet, title = "Card Details")
 
         Column(modifier = Modifier.background(Color(0xFFFAFBFF))) {
@@ -429,7 +440,12 @@ private fun CardCreationSuccess(onFinish: () -> Unit) {
 @Composable
 private fun CardCreationFailed() {
     Column(Modifier.fillMaxWidth()) {
-        SimpleText(text = "FAILED", style = ComposeTypographies.Title2, color = ComposeColors.Error, gravity = ComposeGravities.Centre)
+        SimpleText(
+            text = "FAILED",
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Error,
+            gravity = ComposeGravities.Centre
+        )
     }
 }
 
@@ -450,4 +466,3 @@ private fun ManageCard(cardId: String?, onDeleteCard: () -> Unit) {
         DestructivePrimaryButton(text = "Delete Card", onClick = onDeleteCard)
     }
 }
-

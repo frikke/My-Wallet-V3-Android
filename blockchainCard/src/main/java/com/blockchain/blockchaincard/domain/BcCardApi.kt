@@ -33,7 +33,6 @@ interface BcCardApi {
         @Path("cardId") cardId: String,
         @Header("authorization") authorization: String
     ): Single<CardsResponse>
-
 }
 
 @Serializable

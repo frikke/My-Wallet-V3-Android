@@ -7,5 +7,3 @@ data class BlockchainCardModelState(
     val cardId: String? = null,
     val cardProduct: BlockchainDebitCardProduct? = null
 ) : ModelState
-
-

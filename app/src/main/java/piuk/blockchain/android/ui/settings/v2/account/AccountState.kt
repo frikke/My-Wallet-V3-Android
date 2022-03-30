@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
-import com.blockchain.blockchaincard.data.BlockchainDebitCard
 import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi.MviState
 import info.blockchain.balance.FiatCurrency
@@ -27,9 +26,9 @@ enum class ExchangeLinkingState {
 
 sealed class BlockchainCardState {
     object NotEligible : BlockchainCardState()
-    data class Eligible(val cardProducts: List<BlockchainDebitCardProduct>): BlockchainCardState()
-    data class Ordered(val blockchainDebitCardId: String): BlockchainCardState()
-    object Unknown: BlockchainCardState()
+    data class Eligible(val cardProducts: List<BlockchainDebitCardProduct>) : BlockchainCardState()
+    data class Ordered(val blockchainDebitCardId: String) : BlockchainCardState()
+    object Unknown : BlockchainCardState()
 }
 
 data class AccountInformation(

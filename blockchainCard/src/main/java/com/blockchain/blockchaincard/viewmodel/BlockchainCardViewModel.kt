@@ -42,7 +42,6 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
         cardProduct = state.cardProduct
     )
 
-
     override suspend fun handleIntent(
         modelState: BlockchainCardModelState,
         intent: BlockchainCardIntent
@@ -53,9 +52,9 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             }
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
-                    modelState.cardProduct?.let { cardProduct ->
-                        navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
-                    } ?: Timber.w("Unable to show product details, no product info")
+                modelState.cardProduct?.let { cardProduct ->
+                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
+                } ?: Timber.w("Unable to show product details, no product info")
             }
 
             is BlockchainCardIntent.CreateCard -> {
@@ -94,6 +93,5 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
                 navigate(BlockchainCardNavigationEvent.ManageCardDestination)
             }
         }
-
     }
 }

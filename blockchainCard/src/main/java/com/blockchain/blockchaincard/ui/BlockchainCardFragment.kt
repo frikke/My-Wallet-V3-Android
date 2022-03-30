@@ -57,7 +57,6 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
                     putParcelable(BLOCKCHAIN_PRODUCT, blockchainDebitCardProduct)
                 }
             }
-
     }
 
     override fun onResume() {

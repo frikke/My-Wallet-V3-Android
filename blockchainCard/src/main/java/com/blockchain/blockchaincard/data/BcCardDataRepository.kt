@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.data
 
-
 import android.os.Parcelable
 import com.blockchain.blockchaincard.domain.CardsResponse
 import com.blockchain.blockchaincard.domain.ProductsResponse
@@ -8,8 +7,8 @@ import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
-import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
+import kotlinx.parcelize.Parcelize
 
 class BcCardDataRepository(
     val bcCardService: BcCardService,
