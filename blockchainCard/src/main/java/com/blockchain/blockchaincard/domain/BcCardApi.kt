@@ -4,9 +4,11 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface BcCardApi {
 
@@ -24,6 +26,12 @@ interface BcCardApi {
     fun createCard(
         @Header("authorization") authorization: String,
         @Body cardCreationRequest: CardCreationRequestBody
+    ): Single<CardsResponse>
+
+    @DELETE("cards/{cardId}")
+    fun deleteCard(
+        @Path("cardId") cardId: String,
+        @Header("authorization") authorization: String
     ): Single<CardsResponse>
 
 }

@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.ui
 
-import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
@@ -21,10 +21,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel
-import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragment {
 
@@ -79,8 +77,12 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
 
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
+            val startDestination =
+                if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardNavigationEvent.ManageCardDestination
+                else BlockchainCardNavigationEvent.OrderOrLinkCardDestination
             setContent {
-                BlockchainCardNavHost(navigator = navigator, viewModel = viewModel)
+                BlockchainCardNavHost(navigator = navigator, viewModel = viewModel, startDestination)
             }
         }
     }

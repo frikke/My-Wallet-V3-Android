@@ -36,6 +36,7 @@ import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.data.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
@@ -44,6 +45,7 @@ import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.InfoButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
@@ -65,6 +67,7 @@ import com.google.accompanist.navigation.material.bottomSheet
 fun BlockchainCardNavHost(
     navigator: BlockchainCardNavigationRouter,
     viewModel: BlockchainCardViewModel,
+    startDestination: BlockchainCardNavigationEvent,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -74,7 +77,7 @@ fun BlockchainCardNavHost(
     val state by stateFlowLifecycleAware.collectAsState(null)
     MviNavHost(
         navigator,
-        startDestination = "order_or_link_card",
+        startDestination = startDestination.name,
     ) {
 
         composable("order_or_link_card") {
@@ -120,6 +123,11 @@ fun BlockchainCardNavHost(
                 cardProduct = state?.cardProduct,
                 onCloseProductDetailsBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideProductDetailsBottomSheet) }
             )
+        }
+
+        // Manage Card Screens
+        composable("manage_card") {
+            ManageCard(cardId = state?.cardId, onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
         }
     }
 }
@@ -365,7 +373,9 @@ private fun PreviewCardCreationInProgress() {
 private fun CardCreationSuccess(onFinish: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(AppTheme.dimensions.xxxPaddingLarge),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(AppTheme.dimensions.xxxPaddingLarge),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = CenterHorizontally
         ) {
@@ -424,12 +434,20 @@ private fun CardCreationFailed() {
 }
 
 @Composable
-private fun ManageCard(cardId: String) {
-    SimpleText(
-        text = "Card ID: $cardId",
-        style = ComposeTypographies.Title1,
-        color = ComposeColors.Title,
-        gravity = ComposeGravities.Centre
-    )
+private fun ManageCard(cardId: String?, onDeleteCard: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = CenterHorizontally
+    ) {
+        SimpleText(
+            text = "Card ID: $cardId",
+            style = ComposeTypographies.Title1,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        DestructivePrimaryButton(text = "Delete Card", onClick = onDeleteCard)
+    }
 }
 

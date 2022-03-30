@@ -48,6 +48,16 @@ class BcCardDataRepository(
                 card.toDomainModel()
             }
         }
+
+    fun deleteCard(cardId: String): Single<BlockchainDebitCard> =
+        authenticator.authenticate { tokenResponse ->
+            bcCardService.deleteCard(
+                authHeader = tokenResponse.authHeader,
+                cardId = cardId
+            ).map { card ->
+                card.toDomainModel()
+            }
+        }
 }
 
 private fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =

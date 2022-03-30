@@ -26,4 +26,12 @@ class BcCardService internal constructor(
             ssn = ssn
         )
     )
+
+    fun deleteCard(
+        authHeader: String,
+        cardId: String
+    ): Single<CardsResponse> = api.deleteCard(
+        authorization = authHeader,
+        cardId = cardId
+    )
 }

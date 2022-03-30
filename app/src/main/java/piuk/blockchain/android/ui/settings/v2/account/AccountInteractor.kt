@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
 import com.blockchain.blockchaincard.data.BcCardDataRepository
+import com.blockchain.blockchaincard.data.BcCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
@@ -46,12 +47,13 @@ class AccountInteractor internal constructor(
 
     fun getDebitCardState(): Single<BlockchainCardState> =
         bcCardDataRepository.getCards().flatMap { cards ->
-            if (cards.isNotEmpty()) {
-                Single.just(BlockchainCardState.Ordered(cards.first().cardId)) // TODO if multiple should pass the list
+            val activeCards = cards.filter { it.cardStatus != BcCardStatus.TERMINATED }
+            if (activeCards.isNotEmpty()) {
+                Single.just(BlockchainCardState.Ordered(activeCards.first().cardId)) // TODO if multiple should pass the list
             } else {
                 bcCardDataRepository.getProducts().map { products ->
                     if (products.isNotEmpty())
-                        BlockchainCardState.Eligible
+                        BlockchainCardState.Eligible(products)
                     else
                         BlockchainCardState.NotEligible
                 }

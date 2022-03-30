@@ -9,4 +9,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object OnSeeProductDetails : BlockchainCardIntent()
     object ManageCard : BlockchainCardIntent()
     object HideProductDetailsBottomSheet : BlockchainCardIntent()
+    object DeleteCard: BlockchainCardIntent()
 }

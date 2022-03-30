@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
@@ -17,8 +18,11 @@ class BlockchainCardNavigationRouter : ComposeNavigationRouter {
 
         if (navigationEvent is BlockchainCardNavigationEvent.HideBottomSheet)
             navController.popBackStack()
-        else
+        else {
+            if (navigationEvent is BlockchainCardNavigationEvent.ManageCardDestination)
+                navController.popBackStack(BlockchainCardNavigationEvent.OrderOrLinkCardDestination.name, true)
             navController.navigate(navigationEvent.name)
+        }
     }
 
     override lateinit var navController: NavHostController

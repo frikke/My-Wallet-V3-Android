@@ -76,6 +76,23 @@ class BlockchainCardViewModel(private val bcCardDataRepository: BcCardDataReposi
             is BlockchainCardIntent.HideProductDetailsBottomSheet -> {
                 navigate(BlockchainCardNavigationEvent.HideBottomSheet)
             }
+
+            is BlockchainCardIntent.DeleteCard -> {
+                modelState.cardId?.let { cardId ->
+                    bcCardDataRepository.deleteCard(cardId).subscribeBy(
+                        onSuccess = {
+                            Timber.d("Card deleted")
+                        },
+                        onError = {
+                            Timber.d("Card delete FAILED")
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.ManageCard -> {
+                navigate(BlockchainCardNavigationEvent.ManageCardDestination)
+            }
         }
 
     }
