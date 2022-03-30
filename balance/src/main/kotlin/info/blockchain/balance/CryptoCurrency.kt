@@ -101,7 +101,7 @@ open class CryptoCurrency(
     object ETHER : CryptoCurrency(
         displayTicker = "ETH",
         networkTicker = "ETH",
-        name = "Ether",
+        name = "Ethereum",
         categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
         precisionDp = 18,
         requiredConfirmations = 12,

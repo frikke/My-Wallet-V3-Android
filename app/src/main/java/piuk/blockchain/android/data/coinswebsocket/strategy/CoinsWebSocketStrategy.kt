@@ -265,7 +265,7 @@ class CoinsWebSocketStrategy(
             val ethAddress = ethAddress()
             if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
             ) {
-                val marquee = stringUtils.getString(R.string.received_ethereum) + " " +
+                val marquee = stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name) + " " +
                     Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER) + " ETH"
                 val text = "$marquee " + stringUtils.getString(R.string.common_from)
                     .toLowerCase(Locale.US) + " " + transaction.from
