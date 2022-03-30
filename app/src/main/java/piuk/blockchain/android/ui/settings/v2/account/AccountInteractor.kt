@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
 import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
-import com.blockchain.blockchaincard.domain.BlockchainCardStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency

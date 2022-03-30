@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.kyc.profile
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata

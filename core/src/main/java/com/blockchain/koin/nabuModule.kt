@@ -37,6 +37,7 @@ import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.nabu.datamanagers.repositories.interest.CustodialAssetsEligibilityCache
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
@@ -120,7 +121,8 @@ val nabuModule = module {
                 transactionErrorMapper = get(),
                 currencyPrefs = get(),
                 buyOrdersCache = get(),
-                pairsCache = get()
+                pairsCache = get(),
+                paymentMethodsEligibilityCache = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -163,11 +165,17 @@ val nabuModule = module {
             )
         }.bind(InterestAvailabilityProvider::class)
 
+        scoped {
+            CustodialAssetsEligibilityCache(
+                authenticator = get(),
+                assetCatalogue = get(),
+                service = get()
+            )
+        }
+
         factory {
             InterestEligibilityProviderImpl(
-                assetCatalogue = get(),
-                nabuService = get(),
-                authenticator = get()
+                custodialAssetsEligibilityCache = get()
             )
         }.bind(InterestEligibilityProvider::class)
 

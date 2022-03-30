@@ -105,28 +105,6 @@
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level R (current min is 23): `android.provider.Settings#ACTION_BIOMETRIC_ENROLL`"
-        errorLine1="                            android.provider.Settings.ACTION_BIOMETRIC_ENROLL"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/piuk/blockchain/android/ui/settings/SettingsFragment.kt"
-            line="652"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level R (current min is 23): `android.provider.Settings#ACTION_BIOMETRIC_ENROLL`"
-        errorLine1="                                android.provider.Settings.ACTION_BIOMETRIC_ENROLL"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/piuk/blockchain/android/ui/settings/SettingsFragment.kt"
-            line="698"
-            column="33"/>
-    </issue>
-
-    <issue
         id="UnusedAttribute"
         message="Attribute `networkSecurityConfig` is only used in API level 24 and higher (current min is 23)"
         errorLine1="    &lt;application android:networkSecurityConfig=&quot;@xml/charles_network_security_config&quot; />"
@@ -8269,17 +8247,6 @@
             file="src/main/res/layout/include_sms_update.xml"
             line="24"
             column="14"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="        binding?.textViewVersionCode?.text = &quot;${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})&quot;"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/piuk/blockchain/android/ui/auth/PinEntryFragment.kt"
-            line="159"
-            column="46"/>
     </issue>
 
     <issue

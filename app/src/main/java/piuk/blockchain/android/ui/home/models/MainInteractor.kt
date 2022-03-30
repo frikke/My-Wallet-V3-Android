@@ -9,6 +9,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -41,6 +42,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
+import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
@@ -51,6 +53,8 @@ import timber.log.Timber
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
+    private val deeplinkRedirector: DeeplinkRedirector,
+    private val deepLinkPersistence: DeepLinkPersistence,
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
     private val assetCatalogue: AssetCatalogue,
@@ -186,4 +190,12 @@ class MainInteractor internal constructor(
                     Single.just(false)
                 }
             }
+
+    fun processDeepLinkV2(url: Uri): Completable =
+        deeplinkRedirector.processDeeplinkURL(url)
+
+    fun clearDeepLink(): Completable =
+        Completable.fromAction {
+            deepLinkPersistence.popDataFromSharedPrefs()
+        }
 }

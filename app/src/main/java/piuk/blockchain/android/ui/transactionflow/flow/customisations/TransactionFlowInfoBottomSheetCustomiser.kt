@@ -21,7 +21,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInf
 
 interface TransactionFlowInfoBottomSheetCustomiser {
     fun info(
-        info: InfoBottomSheetType,
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
     ): TransactionFlowBottomSheetInfo?
@@ -29,6 +29,7 @@ interface TransactionFlowInfoBottomSheetCustomiser {
 
 @Parcelize
 data class TransactionFlowBottomSheetInfo(
+    val type: InfoBottomSheetType,
     val title: String,
     val description: CharSequence,
     val action: InfoAction? = null
@@ -59,20 +60,24 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     private val resources: Resources
 ) : TransactionFlowInfoBottomSheetCustomiser {
     override fun info(
-        info: InfoBottomSheetType,
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
     ): TransactionFlowBottomSheetInfo? {
-        return when (info) {
-            InfoBottomSheetType.INSUFFICIENT_FUNDS -> infoForInsufficientFunds(state)
-            InfoBottomSheetType.BELOW_MIN_LIMIT -> infoForBelowMinLimit(state, input)
-            InfoBottomSheetType.OVER_MAX_LIMIT -> infoForMaxLimit(state, input)
-            InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> infoForOverMaxPaymentMethodLimit(state, input)
-            InfoBottomSheetType.TRANSACTIONS_LIMIT -> infoForTransactionsLimit(state)
+        return when (type) {
+            InfoBottomSheetType.INSUFFICIENT_FUNDS -> infoForInsufficientFunds(type, state)
+            InfoBottomSheetType.BELOW_MIN_LIMIT -> infoForBelowMinLimit(type, state, input)
+            InfoBottomSheetType.OVER_MAX_LIMIT -> infoForMaxLimit(type, state, input)
+            InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> infoForOverMaxPaymentMethodLimit(type, state, input)
+            InfoBottomSheetType.TRANSACTIONS_LIMIT -> infoForTransactionsLimit(type, state)
         }
     }
 
-    private fun infoForMaxLimit(state: TransactionFlowStateInfo, input: CurrencyType): TransactionFlowBottomSheetInfo? {
+    private fun infoForMaxLimit(
+        type: InfoBottomSheetType,
+        state: TransactionFlowStateInfo,
+        input: CurrencyType
+    ): TransactionFlowBottomSheetInfo? {
         val limits = state.limits
         val maxLimit = (limits.max as? TxLimit.Limited)?.amount ?: throw IllegalStateException(
             "Max limit should be specified for error state ${state.errorState}"
@@ -92,13 +97,14 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
 
         return if (state.limits.suggestedUpgrade != null) {
             // user can be upgraded
-            infoForOverMaxLimitWithUpgradeAvailable(state, availableAmount, limitPeriodText, effectiveLimitAmount)
+            infoForOverMaxLimitWithUpgradeAvailable(type, state, availableAmount, limitPeriodText, effectiveLimitAmount)
         } else {
-            infoForOverMaxLimitWithoutUpgrade(state, availableAmount, limitPeriodText, effectiveLimitAmount)
+            infoForOverMaxLimitWithoutUpgrade(type, state, availableAmount, limitPeriodText, effectiveLimitAmount)
         }
     }
 
     private fun infoForOverMaxLimitWithUpgradeAvailable(
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         availableAmount: String,
         limitPeriodText: String,
@@ -107,6 +113,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
 
         return when (state.action) {
             AssetAction.Send -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
                     R.string.send_enter_amount_max_limit_from_custodial_info,
@@ -117,6 +124,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 action = infoActionForSuggestedUpgrade(state)
             )
             AssetAction.Swap -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
                     when (state.sourceAccountType) {
@@ -130,6 +138,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 action = infoActionForSuggestedUpgrade(state)
             )
             AssetAction.Buy -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.over_your_limit),
                 description = infoDescriptionForPeriodicLimits(
                     R.string.buy_enter_amount_max_limit_suggested_tier_upgrade_info,
@@ -148,6 +157,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     }
 
     private fun infoForOverMaxLimitWithoutUpgrade(
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         availableAmount: String,
         limitPeriodText: String,
@@ -155,6 +165,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     ): TransactionFlowBottomSheetInfo? {
         return when (state.action) {
             AssetAction.Send -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.maximum_with_value, availableAmount),
                 description = infoDescriptionForPeriodicLimits(
                     R.string.send_enter_amount_max_limit_from_custodial_info,
@@ -164,6 +175,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             )
             AssetAction.Withdraw -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.maximum_with_value, availableAmount),
                 description = infoDescriptionForPeriodicLimits(
                     R.string.withdrawal_max_limit_info,
@@ -176,6 +188,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 val asset = state.sendingAsset
                 require(asset != null)
                 TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.maximum_with_value, availableAmount),
                     description = infoDescriptionForPeriodicLimits(
                         R.string.max_swap_amount_description,
@@ -189,6 +202,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 val asset = state.sendingAsset
                 require(asset != null)
                 TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.maximum_with_value, availableAmount),
                     description = infoDescriptionForPeriodicLimits(
                         R.string.max_sell_amount_description,
@@ -199,6 +213,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             }
             AssetAction.Buy -> TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(R.string.maximum_with_value, availableAmount),
                 description = infoDescriptionForPeriodicLimits(
                     R.string.buy_enter_amount_max_limit_without_upgrade_info,
@@ -245,6 +260,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     }
 
     private fun infoForBelowMinLimit(
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
     ): TransactionFlowBottomSheetInfo? {
@@ -256,6 +272,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.Send -> null // TODO("Missing Designs- Replace once available")
             AssetAction.Withdraw -> {
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(
                         R.string.minimum_with_value,
                         min
@@ -266,6 +283,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             }
             AssetAction.Swap -> return TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(
                     R.string.minimum_with_value,
                     min
@@ -275,6 +293,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             )
             AssetAction.Buy -> return TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(
                     R.string.minimum_with_value,
                     min
@@ -284,6 +303,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             )
             AssetAction.Sell -> return TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(
                     R.string.minimum_with_value,
                     min
@@ -293,6 +313,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 )
             )
             AssetAction.FiatDeposit -> return TransactionFlowBottomSheetInfo(
+                type = type,
                 title = resources.getString(
                     R.string.minimum_with_value,
                     min
@@ -306,6 +327,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
     }
 
     private fun infoForOverMaxPaymentMethodLimit(
+        type: InfoBottomSheetType,
         state: TransactionFlowStateInfo,
         input: CurrencyType
     ): TransactionFlowBottomSheetInfo {
@@ -338,6 +360,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     )
                 }
                 TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = title,
                     description = description,
                     action = infoActionForSuggestedUpgrade(state)
@@ -357,6 +380,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     )
                 }
                 TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = title,
                     description = description,
                     action = infoActionForSuggestedUpgrade(state)
@@ -368,8 +392,12 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         }
     }
 
-    private fun infoForTransactionsLimit(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo =
+    private fun infoForTransactionsLimit(
+        type: InfoBottomSheetType,
+        state: TransactionFlowStateInfo
+    ): TransactionFlowBottomSheetInfo =
         TransactionFlowBottomSheetInfo(
+            type = type,
             title = resources.getString(R.string.tx_enter_amount_transactions_limit_info_title),
             description = resources.getString(
                 R.string.tx_enter_amount_transactions_limit_info_description,
@@ -406,7 +434,10 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             )
         }
 
-    private fun infoForInsufficientFunds(state: TransactionFlowStateInfo): TransactionFlowBottomSheetInfo? {
+    private fun infoForInsufficientFunds(
+        type: InfoBottomSheetType,
+        state: TransactionFlowStateInfo
+    ): TransactionFlowBottomSheetInfo? {
         val balance = state.availableBalance ?: throw IllegalArgumentException("Missing available balance")
         val sendingCurrencyTicker = state.amount.currencyCode
         val action = state.action.toHumanReadable().lowercase()
@@ -416,6 +447,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     state.sendingAsset ?: throw IllegalArgumentException("Missing source crypto currency")
                 val diff = (state.amount - balance).toStringWithSymbol()
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.not_enough_funds_send, balance.toStringWithSymbol(),
@@ -432,6 +464,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             }
             AssetAction.Sell -> {
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
@@ -441,6 +474,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             }
             AssetAction.Withdraw -> {
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
@@ -450,6 +484,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             }
             AssetAction.Swap -> {
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,
@@ -459,6 +494,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             }
             AssetAction.Buy -> {
                 return TransactionFlowBottomSheetInfo(
+                    type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
                     description = resources.getString(
                         R.string.common_actions_not_enough_funds, sendingCurrencyTicker, action,

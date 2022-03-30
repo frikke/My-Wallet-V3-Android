@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.logging.DigitalTrust
 import info.blockchain.wallet.payload.PayloadScopeWiper
+import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -28,6 +29,8 @@ class AppUtil(
                 action = BlockchainActivity.LOGOUT_ACTION
             }
         )
+
+        Intercom.client().logout()
     }
 
     fun unpairWallet() {

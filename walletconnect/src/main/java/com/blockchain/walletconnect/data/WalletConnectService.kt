@@ -6,7 +6,6 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest
@@ -26,14 +25,11 @@ import com.trustwallet.walletconnect.models.ethereum.WCEthereumTransaction
 import com.trustwallet.walletconnect.models.session.WCSession
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.subjects.PublishSubject
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import java.util.UUID
 import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
@@ -43,7 +39,6 @@ import piuk.blockchain.androidcore.utils.extensions.then
 class WalletConnectService(
     private val walletConnectAccountProvider: WalletConnectAddressProvider,
     private val sessionRepository: SessionRepository,
-    private val featureFlag: IntegratedFeatureFlag,
     private val ethRequestSign: EthRequestSign,
     private val ethSendTransactionRequest: EthSendTransactionRequest,
     private val lifecycleObservable: LifecycleObservable,
@@ -78,11 +73,10 @@ class WalletConnectService(
     }
 
     override fun init() {
-        compositeDisposable += featureFlag.enabled.flatMap { enabled ->
-            if (enabled)
-                sessionRepository.retrieve()
-            else Single.just(emptyList())
-        }.zipWith(walletConnectAccountProvider.address()).subscribe { (sessions, _) ->
+        compositeDisposable += Singles.zip(
+            sessionRepository.retrieve(),
+            walletConnectAccountProvider.address()
+        ).subscribe { (sessions, address) ->
             sessions.forEach { session ->
                 session.connect()
                 connectedSessions.add(session)

@@ -24,4 +24,5 @@ include ':app',
         ':charts',
         ':walletconnect',
         ':commonarch',
+        ':deeplinking',
         ':blockchainCard'

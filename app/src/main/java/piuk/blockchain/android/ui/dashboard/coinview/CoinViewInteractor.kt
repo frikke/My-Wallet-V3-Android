@@ -1,35 +1,46 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.StateAwareAction
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.extensions.minus
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 
 class CoinViewInteractor(
     private val coincore: Coincore,
     private val tradeDataManager: TradeDataManager,
     private val currencyPrefs: CurrencyPrefs,
+    private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
-    private val custodialWalletManager: CustodialWalletManager
+    private val custodialWalletManager: CustodialWalletManager,
+    private val assetActionsComparator: StateAwareActionsComparator
 ) {
 
     fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
@@ -90,6 +101,59 @@ class CoinViewInteractor(
             }
         }
 
+    internal fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> =
+        Singles.zip(account.stateAwareActions, account.isEnabled).map { (actions, enabled) ->
+            val sortedActions = when (account) {
+                is InterestAccount -> {
+                    when {
+                        !enabled && account.isFunded -> {
+                            actions.minus { it.action == AssetAction.InterestDeposit } +
+                                StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
+                        }
+                        else -> {
+                            actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
+                        }
+                    }
+                }
+                else -> actions.minus { it.action == AssetAction.InterestDeposit }
+            }.sortedWith(assetActionsComparator).toTypedArray()
+            return@map if (checkShouldShowExplainerSheet(account)) {
+                CoinViewViewState.ShowAccountExplainerSheet(sortedActions)
+            } else {
+                CoinViewViewState.ShowAccountActionSheet(sortedActions)
+            }
+        }
+
+    private fun checkShouldShowExplainerSheet(selectedAccount: BlockchainAccount): Boolean {
+        return when (selectedAccount) {
+            is NonCustodialAccount -> {
+                if (dashboardPrefs.isPrivateKeyIntroSeen) {
+                    false
+                } else {
+                    dashboardPrefs.isPrivateKeyIntroSeen = true
+                    true
+                }
+            }
+            is TradingAccount -> {
+                if (dashboardPrefs.isCustodialIntroSeen) {
+                    false
+                } else {
+                    dashboardPrefs.isCustodialIntroSeen = true
+                    true
+                }
+            }
+            is InterestAccount -> {
+                if (dashboardPrefs.isRewardsIntroSeen) {
+                    false
+                } else {
+                    dashboardPrefs.isRewardsIntroSeen = true
+                    true
+                }
+            }
+            else -> true
+        }
+    }
+
     private fun load24hPriceDelta(asset: CryptoAsset) =
         asset.getPricesWith24hDelta()
 
@@ -124,6 +188,9 @@ class CoinViewInteractor(
             }
         }
     }
+
+    fun userCanBuy(): Single<FeatureAccess> =
+        identity.userAccessForFeature(Feature.SimpleBuy)
 
     private fun mapAccounts(
         nonCustodialAccounts: List<Details.DetailsItem>,

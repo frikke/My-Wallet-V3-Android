@@ -26,6 +26,20 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         )
     }
 
+    object CheckBuyStatus : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState
+    }
+
+    object BuyHasWarning : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(hasActionBuyWarning = true)
+    }
+
+    class CheckScreenToOpen(val cryptoAccountSelected: AssetDetailsItemNew.CryptoDetailsInfo) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(selectedCryptoAccount = cryptoAccountSelected)
+    }
+
     class LoadQuickActions(
         val totalCryptoBalance: Money,
         val accountList: List<BlockchainAccount>

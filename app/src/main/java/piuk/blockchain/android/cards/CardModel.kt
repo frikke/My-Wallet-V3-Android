@@ -1,11 +1,11 @@
 package piuk.blockchain.android.cards
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorCodes
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.gson.Gson

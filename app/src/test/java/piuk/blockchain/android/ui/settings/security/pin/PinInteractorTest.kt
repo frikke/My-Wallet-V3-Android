@@ -4,7 +4,9 @@ import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
+import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -44,19 +46,21 @@ class PinInteractorTest {
         whenever(authPrefs.sharedKey).thenReturn("1234")
         whenever(authPrefs.walletGuid).thenReturn("4321")
 
-        interactor = PinInteractor(
-            walletOptionsDataManager = walletOptionsDataManager,
-            credentialsWiper = credentialsWiper,
-            payloadManager = payloadDataManager,
-            pinRepository = pinRepository,
-            biometricsController = biometricsController,
-            mobileNoticeRemoteConfig = mobileNoticeRemoteConfig,
-            authDataManager = authDataManager,
-            apiStatus = apiStatus,
-            authPrefs = authPrefs,
-            persistentPrefs = persistentPrefs,
-            walletStatus = walletStatus,
-            defaultLabels = defaultLabels
+        interactor = spy(
+            PinInteractor(
+                walletOptionsDataManager = walletOptionsDataManager,
+                credentialsWiper = credentialsWiper,
+                payloadManager = payloadDataManager,
+                pinRepository = pinRepository,
+                biometricsController = biometricsController,
+                mobileNoticeRemoteConfig = mobileNoticeRemoteConfig,
+                authDataManager = authDataManager,
+                apiStatus = apiStatus,
+                authPrefs = authPrefs,
+                persistentPrefs = persistentPrefs,
+                walletStatus = walletStatus,
+                defaultLabels = defaultLabels
+            )
         )
     }
 
@@ -64,7 +68,7 @@ class PinInteractorTest {
     fun `validatePIN then call validatePin`() {
         val pin = "1234"
         whenever(authDataManager.validatePin(pin)).thenReturn(Observable.just(pin))
-
+        doNothing().whenever(interactor).registerIntercomUser()
         val test = interactor.validatePIN(pin).test()
         test.assertValue {
             it == pin

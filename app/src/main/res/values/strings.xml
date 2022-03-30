@@ -2558,7 +2558,7 @@
     <string name="settings_title_about_app">About App</string>
     <string name="settings_subtitle_about_app">Support, Policies and more</string>
     <string name="settings_sign_out">Sign Out</string>
-    <string name="settings_initials">%1s%2s</string>
+    <string name="settings_initials">%1$s %2$s</string>
     <string name="settings_add_payment_method">Add Payment Method</string>
     <string name="settings_bank_transfer_blurb">Send funds directly from your bank to your Blockchain Wallet. Once we receive the wire transfer, we’ll complete your purchase.</string>
     <string name="settings_logout_error">There was an issue while logging you out, please try again!</string>
@@ -2787,6 +2787,7 @@
     <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
     <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
+    <string name="coinview_actions_error">There was an issue getting your available actions, please try again</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
 
@@ -2834,4 +2835,23 @@
 
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
+
+    <!-- Bottom sheet explainers -->
+    <string name="explainer_custodial_title">Trading Account</string>
+    <string name="explainer_custodial_description">Your Trading Account is a custodial wallet hosted by Blockchain.com. Your trading account allows you to trade with cheaper fees and buy and sell crypto in seconds.</string>
+    <string name="explainer_non_custodial_title">Private Key Wallet</string>
+    <string name="explainer_non_custodial_description">Your Private Key Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
+    <string name="explainer_rewards_title">Rewards Account</string>
+    <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
+    <string name="explainer_exchange_title">Exchange Account</string>
+    <string name="explainer_exchange_description">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
+    <string name="explainer_button">I Understand</string>
+    <string name="explainer_exchange_button">Connect</string>
+
+    <!-- Bottom sheet actions -->
+    <string name="actions_sheet_title_private_key">Private Key Wallet</string>
+    <string name="actions_sheet_title_custodial">Trading Account</string>
+    <string name="actions_sheet_title_rewards">Rewards Account</string>
+    <string name="actions_sheet_percentage_rewards">%s%% APR</string>
+
 </resources>

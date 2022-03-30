@@ -13,7 +13,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 
 class TransactionFlowInfoBottomSheet : SlidingModalBottomDialog<TxFlowInfoBottomSheetLayoutBinding>() {
 
-    private val info: TransactionFlowBottomSheetInfo by lazy {
+    val info: TransactionFlowBottomSheetInfo by lazy {
         arguments?.getParcelable(INFO) as? TransactionFlowBottomSheetInfo ?: throw IllegalStateException(
             "Missing Required Info"
         )

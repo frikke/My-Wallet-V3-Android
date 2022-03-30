@@ -22,7 +22,7 @@ class FeeApiTest {
     @Test
     fun `get btc fee options`() {
         whenever(
-            feeEndpoints.btcFeeOptions
+            feeEndpoints.getBtcFeeOptions()
         ).thenReturn(
             Observable.just(feeOptions)
         )
@@ -39,7 +39,7 @@ class FeeApiTest {
     @Test
     fun `get eth fee options`() {
         whenever(
-            feeEndpoints.ethFeeOptions
+            feeEndpoints.getEthFeeOptions()
         ).thenReturn(
             Observable.just(feeOptions)
         )

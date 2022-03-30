@@ -117,7 +117,7 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_EXPLAINER_ACCEPTED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TIME_INTERVAL to accountType.name,
+                ACCOUNT_TYPE to accountType.name,
             )
         )
 
@@ -130,7 +130,7 @@ sealed class CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_EXPLAINER_VIEWED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                TIME_INTERVAL to accountType.name,
+                ACCOUNT_TYPE to accountType.name,
             )
         )
 
@@ -259,7 +259,8 @@ sealed class CoinViewAnalytics(
         }
 
         enum class ClosingMethod {
-            CLICKED_GREY_AREA, DRAGGED_DOWN, X_BUTTON
+            CLICKED_GREY_AREA, DRAGGED_DOWN, X_BUTTON,
+            BACK_BUTTON
         }
 
         enum class Selection {

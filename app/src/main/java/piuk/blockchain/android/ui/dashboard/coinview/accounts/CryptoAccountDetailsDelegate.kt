@@ -26,7 +26,7 @@ import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 
 class CryptoAccountDetailsDelegate(
-    private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
+    private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : AdapterDelegate<AssetDetailsItemNew> {
@@ -53,7 +53,7 @@ class CryptoAccountDetailsDelegate(
 
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
-    private val onAccountSelected: (BlockchainAccount, AssetFilter) -> Unit,
+    private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -65,6 +65,9 @@ private class AssetWalletViewHolder(
         val asset = getAsset(item.account, item.balance.currencyCode)
 
         with(binding) {
+            assetDetailsAvailable.onClick = {
+                onAccountSelected(item)
+            }
             val walletLabel = when (item.assetFilter) {
                 AssetFilter.NonCustodial -> item.account.label
                 AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
@@ -138,10 +141,6 @@ private class AssetWalletViewHolder(
             walletsLabel.apply {
                 visibleIf { isFirstItemOfCategory }
                 title = context.getString(R.string.coinview_accounts_label)
-            }
-
-            root.setOnClickListener {
-                onAccountSelected(item.account, item.assetFilter)
             }
         }
     }

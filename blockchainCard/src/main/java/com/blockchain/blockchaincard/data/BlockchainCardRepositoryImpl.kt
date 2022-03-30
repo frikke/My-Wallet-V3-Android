@@ -2,9 +2,9 @@ package com.blockchain.blockchaincard.data
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.BlockchainCardService
-import com.blockchain.blockchaincard.domain.BlockchainDebitCard
-import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
-import com.blockchain.blockchaincard.domain.toDomainModel
+import com.blockchain.blockchaincard.domain.models.BlockchainDebitCard
+import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.models.toDomainModel
 import com.blockchain.nabu.Authenticator
 import io.reactivex.rxjava3.core.Single
 

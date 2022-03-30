@@ -15,10 +15,12 @@ import info.blockchain.balance.Money
 data class CoinViewState(
     val asset: CryptoAsset? = null,
     val selectedFiat: FiatCurrency? = null,
+    val selectedCryptoAccount: AssetDetailsItemNew.CryptoDetailsInfo? = null,
     val viewState: CoinViewViewState = CoinViewViewState.None,
     val assetDisplay: List<AssetDisplayInfo> = emptyList(),
     val error: CoinViewError = CoinViewError.None,
-    val assetPrices: Prices24HrWithDelta? = null
+    val assetPrices: Prices24HrWithDelta? = null,
+    val hasActionBuyWarning: Boolean = false
 ) : MviState
 
 sealed class CoinViewViewState {
@@ -41,7 +43,10 @@ sealed class CoinViewViewState {
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
     ) : CoinViewViewState()
+
     object NonTradeableAccount : CoinViewViewState()
+    class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
+    class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
 }
 
 enum class QuickActionCta {
@@ -61,7 +66,8 @@ enum class CoinViewError {
     ChartLoadError,
     RecurringBuysLoadError,
     QuickActionsFailed,
-    MissingSelectedFiat
+    MissingSelectedFiat,
+    ActionsLoadError
 }
 
 sealed class AssetInformation(

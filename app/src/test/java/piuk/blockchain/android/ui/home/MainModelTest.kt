@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.core.payments.model.BankTransferDetails
@@ -11,7 +13,6 @@ import com.blockchain.extensions.valueOf
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.blockchain.network.PollResult
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
@@ -104,7 +105,7 @@ class MainModelTest {
 
         whenever(interactor.checkForUserWalletErrors()).thenReturn(
             Completable.error(
-                NabuApiException.fromResponseBody(
+                NabuApiExceptionFactory.fromResponseBody(
                     HttpException(
                         Response.error<Unit>(
                             500,

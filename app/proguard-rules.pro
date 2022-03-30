@@ -233,15 +233,34 @@
 -keep public class com.blockchain.api.** { *; }
 -keep public class com.blockchain.payments.googlepay.** { *; }
 
--keepattributes *Annotation*, InnerClasses, AnnotationDefault
+-keepattributes *Annotation*, InnerClasses, AnnotationDefault, RuntimeVisibleAnnotations
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
-# kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
--keepclassmembers class kotlinx.serialization.** {
-    *** Companion;
+# Keep `Companion` object fields of serializable classes.
+# This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    static <1>$Companion Companion;
 }
--keepclasseswithmembers class kotlinx.serialization.** {
+
+# Keep `serializer()` on companion objects (both default and named) of serializable classes.
+-if @kotlinx.serialization.Serializable class ** {
+    static **$* *;
+}
+-keepclassmembers class <2>$<3> {
     kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Keep `INSTANCE.serializer()` of serializable objects.
+-if @kotlinx.serialization.Serializable class ** {
+    public static ** INSTANCE;
+}
+-keepclassmembers class <1> {
+    public static <1> INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+    static <1>$$serializer INSTANCE;
 }
 
 -keep public class com.mukesh.countrypicker.** { *; }

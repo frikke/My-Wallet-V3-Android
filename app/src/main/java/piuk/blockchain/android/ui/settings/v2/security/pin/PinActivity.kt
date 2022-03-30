@@ -50,7 +50,6 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityPinBinding
 import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
@@ -81,6 +80,7 @@ class PinActivity :
     private val util: AppUtil by inject()
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
+    private var isBiometricsVisible = false
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -816,7 +816,7 @@ class PinActivity :
             appUpdateInfo,
             AppUpdateType.FLEXIBLE,
             this,
-            PinEntryActivity.REQUEST_CODE_UPDATE
+            REQUEST_CODE_UPDATE
         )
     }
 
@@ -828,7 +828,7 @@ class PinActivity :
             appUpdateInfo,
             AppUpdateType.IMMEDIATE,
             this,
-            PinEntryActivity.REQUEST_CODE_UPDATE
+            REQUEST_CODE_UPDATE
         )
     }
 
@@ -895,7 +895,15 @@ class PinActivity :
         }
 
     private fun askToUseBiometrics() {
-        BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BOTTOM_SHEET")
+        // This doesn't work
+        //        val tempFragment = supportFragmentManager.findFragmentByTag("BIOMETRICS_BOTTOM_SHEET")
+        //        if (tempFragment == null) {
+        //            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
+        //        }
+        if (!isBiometricsVisible) {
+            BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")
+            isBiometricsVisible = true
+        }
     }
 
     private fun handleIncorrectPassword(triesRemaining: Int, isFromPinCreation: Boolean) {
@@ -1013,6 +1021,10 @@ class PinActivity :
         const val KEY_VALIDATING_PIN_FOR_RESULT = "validating_pin"
         const val KEY_VALIDATED_PIN = "validated_pin"
         private const val PIN_LENGTH = 4
+        private const val REQUEST_CODE_UPDATE = 188
+        const val KEY_ORIGIN_SETTINGS = "pin_from_settings"
+        const val KEY_VALIDATING_PIN_FOR_RESULT_AND_PAYLOAD = "validating_pin_and_payload"
+        const val REQUEST_CODE_VALIDATE_PIN = 88
 
         fun newIntent(
             context: Context,

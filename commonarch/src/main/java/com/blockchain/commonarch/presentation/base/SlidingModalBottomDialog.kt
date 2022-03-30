@@ -17,6 +17,7 @@ import org.koin.android.ext.android.inject
 interface HostedBottomSheet {
     interface Host {
         fun onSheetClosed()
+        @CallSuper
         fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
             onSheetClosed()
         }

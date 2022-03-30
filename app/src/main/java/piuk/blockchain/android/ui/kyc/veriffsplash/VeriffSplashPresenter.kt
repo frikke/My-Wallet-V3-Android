@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
-import com.blockchain.nabu.models.responses.nabu.NabuErrorStatusCodes
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.veriff.VeriffApplicantAndToken

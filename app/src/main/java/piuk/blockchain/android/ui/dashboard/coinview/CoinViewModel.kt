@@ -6,16 +6,19 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import timber.log.Timber
 
 class CoinViewModel(
     initialState: CoinViewState,
     mainScheduler: Scheduler,
     private val interactor: CoinViewInteractor,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    private val crashLogger: CrashLogger
 ) : MviModel<CoinViewState, CoinViewIntent>(
     initialState,
     mainScheduler,
@@ -50,8 +53,31 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
+            is CoinViewIntent.CheckScreenToOpen -> {
+                interactor.getAccountActions(intent.cryptoAccountSelected.account)
+                    .subscribeBy(
+                        onSuccess = { screenToNavigate ->
+                            process(CoinViewIntent.UpdateViewState(screenToNavigate))
+                        },
+                        onError = {
+                            Timber.e("***> Error Loading account actions: $it")
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ActionsLoadError))
+                        }
+                    )
+            }
+            is CoinViewIntent.CheckBuyStatus -> interactor.userCanBuy().subscribeBy(
+                onSuccess = {
+                    if ((it as? FeatureAccess.Blocked)?.reason is BlockedReason.TooManyInFlightTransactions) {
+                        process(CoinViewIntent.BuyHasWarning)
+                    }
+                },
+                onError = {
+                    crashLogger.logException(it, "CoinViewModel userCanBuy failed")
+                }
+            )
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
+            CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
             is CoinViewIntent.AssetLoaded -> null

@@ -1,18 +1,18 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
+import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -22,15 +22,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(redesignPart2FeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_redesign_pt2",
-                "Wallet Redesign Part 2"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(redesignPart2CoinViewFeatureFlag) {
         IntegratedFeatureFlag(
@@ -46,15 +37,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_gpay",
                 "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(walletConnectFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_wallet_connect",
-                "Wallet connect"
             )
         )
     }.bind(FeatureFlag::class)
@@ -104,6 +86,15 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(deeplinkingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_deeplinking_v2",
+                "Deeplinking V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(termsAndConditionsFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -136,6 +127,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_kyc_additional_info",
                 "KYC Additional Info"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(intercomChatFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_intercom",
+                "Show intercom chat"
             )
         )
     }.bind(FeatureFlag::class)

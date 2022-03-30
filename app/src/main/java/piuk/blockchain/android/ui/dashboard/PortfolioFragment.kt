@@ -101,12 +101,13 @@ import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.BankLinkingHost
+import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
+import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
@@ -175,6 +176,14 @@ class PortfolioFragment :
     private var state: DashboardState? =
         null // Hold the 'current' display state, to enable optimising of state updates
 
+    private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+                goToActivityFor(account)
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -236,7 +245,7 @@ class PortfolioFragment :
                         )
                     }
                     is FullScreenCoinViewFlow -> {
-                        startActivity(CoinViewActivity.newIntent(requireContext(), it.asset))
+                        activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), it.asset))
                         model.process(DashboardIntent.ClearActiveFlow)
                     }
                     else -> {

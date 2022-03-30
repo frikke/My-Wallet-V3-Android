@@ -19,7 +19,10 @@ class SupportInteractorTest {
     @Before
     fun setup() {
         interactor = SupportInteractor(
-            userIdentity = userIdentity
+            userIdentity = userIdentity,
+            isIntercomEnabledFlag = mock {
+                on { this.enabled }.thenReturn(Single.just(false))
+            }
         )
     }
 
@@ -31,7 +34,7 @@ class SupportInteractorTest {
 
         val result = interactor.loadUserInformation().test()
         result.assertValue {
-            it.first && it.second == userInfo
+            it.isUserGold && it.basicInfo == userInfo
         }
 
         verify(userIdentity).getHighestApprovedKycTier()
@@ -47,7 +50,7 @@ class SupportInteractorTest {
 
         val result = interactor.loadUserInformation().test()
         result.assertValue {
-            !it.first && it.second == userInfo
+            !it.isUserGold && it.basicInfo == userInfo
         }
 
         verify(userIdentity).getHighestApprovedKycTier()

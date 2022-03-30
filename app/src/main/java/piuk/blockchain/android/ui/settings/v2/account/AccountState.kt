@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
-import com.blockchain.blockchaincard.domain.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi.MviState
 import info.blockchain.balance.FiatCurrency
 

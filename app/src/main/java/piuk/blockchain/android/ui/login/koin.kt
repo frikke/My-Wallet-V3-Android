@@ -10,13 +10,14 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthState
 val loginUiModule = module {
 
     scope(payloadScopeQualifier) {
-        scoped {
+        factory {
             LoginModel(
                 initialState = LoginState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 crashLogger = get(),
-                interactor = get()
+                interactor = get(),
+                analytics = get()
             )
         }
 

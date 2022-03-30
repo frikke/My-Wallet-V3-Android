@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.reset.password
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.nabu.models.responses.nabu.NabuApiException
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
@@ -206,7 +206,7 @@ class ResetPasswordModelTest {
         )
         whenever(interactor.resetUserKyc()).thenReturn(
             Completable.error(
-                NabuApiException.fromResponseBody(
+                NabuApiExceptionFactory.fromResponseBody(
                     HttpException(
                         Response.error<Unit>(
                             409,

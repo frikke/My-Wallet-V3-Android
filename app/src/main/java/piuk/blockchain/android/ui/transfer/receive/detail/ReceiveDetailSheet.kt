@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -54,7 +55,10 @@ internal class ReceiveDetailSheet :
         } ?: dismiss()
 
         with(binding) {
-            shareButton.isEnabled = false
+            shareButton.apply {
+                text = getString(R.string.receive_share)
+                buttonState = ButtonState.Disabled
+            }
             copyButton.isEnabled = false
             progressbar.visible()
             qrImage.invisible()
@@ -78,7 +82,7 @@ internal class ReceiveDetailSheet :
             receiveTitle.text = getString(R.string.tx_title_receive, newState.account.currency.displayTicker)
             val addressAvailable = newState.qrUri != null
             if (addressAvailable) {
-                shareButton.setOnClickListener { shareAddress() }
+                shareButton.onClick = { shareAddress() }
                 copyButton.setOnClickListener {
                     analytics.logEvent(
                         TransferAnalyticsEvent.ReceiveDetailsCopied(
@@ -91,10 +95,10 @@ internal class ReceiveDetailSheet :
                     copyAddress(newState.cryptoAddress.address)
                 }
             } else {
-                shareButton.setOnClickListener { }
+                shareButton.onClick = {}
                 copyButton.setOnClickListener { }
             }
-            shareButton.isEnabled = addressAvailable
+            shareButton.buttonState = if (addressAvailable) ButtonState.Enabled else ButtonState.Disabled
             copyButton.isEnabled = addressAvailable
 
             progressbar.visibleIf { addressAvailable.not() }

@@ -17,7 +17,6 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
@@ -53,10 +52,10 @@ class AccountFragment :
     override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
-    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)
 
     private val compositeDisposable = CompositeDisposable()
+
     private lateinit var walletId: String
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -66,10 +65,6 @@ class AccountFragment :
             toolbarTitle = getString(R.string.account_toolbar),
             menuItems = emptyList()
         )
-
-        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            binding.settingsWalletConnect.visibleIf { enabled }
-        }
 
         with(binding) {
             settingsLimits.apply {
@@ -326,11 +321,6 @@ class AccountFragment :
 
     override fun onSheetClosed() {
         // do nothing
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.clear()
     }
 
     companion object {

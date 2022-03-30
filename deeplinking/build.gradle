@@ -1,0 +1,55 @@
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-parcelize'
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation Libraries.koin
+    implementation Libraries.timber
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
+
+    api platform(Libraries.firebaseBom)
+
+    implementation(Libraries.firebaseConfig) {
+        exclude group: 'com.google.protobuf', module: 'protobuf-lite'
+    }
+    implementation Libraries.firebaseCrashlytics
+    implementation Libraries.firebaseAnalytics
+    implementation Libraries.firebaseDynamicLink
+    api Libraries.firebaseMessaging
+
+    implementation project(':common:interface')
+    implementation project(':common-mp:utils')
+    implementation project(':commonarch')
+    implementation project(':core')
+    implementation project(':notifications')
+    implementation project(':coincore')
+
+    // Unit Test dependencies
+    testImplementation(Libraries.robolectric) {
+        exclude group: 'com.google.guava'
+        exclude group: 'com.google.protobuf'
+    }
+    testImplementation Libraries.junit
+    testImplementation Libraries.mockito
+    testImplementation Libraries.koinTest
+    testImplementation Libraries.hamcrestJunit
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kluent
+    testImplementation Libraries.jacksonKotlin
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
+    testImplementation project(':testutils')
+    testImplementation project(':testutils-android')
+}

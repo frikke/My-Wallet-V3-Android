@@ -28,6 +28,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
+import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -88,6 +89,8 @@ open class BlockchainApplication : Application() {
         crashLogger.init(this)
         crashLogger.userLanguageLocale(resources.configuration.locale.language)
         initLifecycleListener()
+
+        Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)

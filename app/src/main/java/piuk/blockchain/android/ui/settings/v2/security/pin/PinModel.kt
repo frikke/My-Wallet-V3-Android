@@ -322,7 +322,10 @@ class PinModel(
     private fun Completable.handleProgress(@StringRes msg: Int) =
         this.doOnSubscribe {
             process(PinIntent.HandleProgressDialog(true, msg))
-        }.doFinally { process(PinIntent.HandleProgressDialog(false)) }
+        }.doFinally {
+            // This is what causes the render being call again and trigge biometrics bottomSheet second time.
+            process(PinIntent.HandleProgressDialog(false))
+        }
 
     private fun <T> Single<T>.handleProgress(@StringRes msg: Int) =
         this.doOnSubscribe { process(PinIntent.HandleProgressDialog(true, msg)) }

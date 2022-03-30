@@ -170,6 +170,7 @@ class AssetActionsSheet :
                     asset = asset,
                     action = stateAwareAction
                 ) {
+                    // send both events, marketing uses the first event, DS uses the second one
                     logActionEvent(AssetDetailsAnalytics.SEND_CLICKED, asset)
                     processAction(stateAwareAction)
                     analytics.logEvent(

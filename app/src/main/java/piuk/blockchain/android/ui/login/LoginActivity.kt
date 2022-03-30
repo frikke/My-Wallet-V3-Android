@@ -15,19 +15,15 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.koin.redesignPart2FeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
-import piuk.blockchain.android.ui.auth.PinEntryActivity
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
@@ -39,7 +35,8 @@ import piuk.blockchain.android.ui.start.ManualPairingActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import timber.log.Timber
 
-class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
+class LoginActivity :
+    LoginIntentCoordinator, MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
 
     override val model: LoginModel by scopedInject()
 
@@ -56,8 +53,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
     }
-
-    private val redesign: FeatureFlag by inject(redesignPart2FeatureFlag)
 
     private var state: LoginState? = null
 
@@ -155,6 +150,11 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
         super.onPause()
     }
 
+    override fun onBackPressed() {
+        model.process(LoginIntents.ResetState)
+        super.onBackPressed()
+    }
+
     override fun onDestroy() {
         recaptchaClient.close()
         super.onDestroy()
@@ -166,6 +166,8 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
     }
 
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
+
+    override fun process(intent: LoginIntents) = model.process(intent)
 
     override fun render(newState: LoginState) {
         updateUI(newState)
@@ -182,34 +184,18 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
             }
             LoginStep.ENTER_PIN -> {
                 showLoginApprovalStatePrompt(newState.loginApprovalState)
-                // TODO remove ff
-                redesign.enabled.onErrorReturnItem(false).subscribeBy(
-                    onSuccess = { isEnabled ->
-                        if (isEnabled) {
-                            startActivity(
-                                PinActivity.newIntent(
-                                    context = this,
-                                    startForResult = false,
-                                    originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
-                                    addFlagsToClear = true,
-                                )
-                            )
-                        } else {
-                            startActivity(
-                                Intent(this, PinEntryActivity::class.java).apply {
-                                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                            )
-                        }
-                    }
+                startActivity(
+                    PinActivity.newIntent(
+                        context = this,
+                        startForResult = false,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.LOGIN_SCREEN,
+                        addFlagsToClear = true,
+                    )
                 )
             }
             LoginStep.VERIFY_DEVICE -> navigateToVerifyDevice(newState)
             LoginStep.SHOW_SESSION_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_failed_session_id_error)
-            LoginStep.SHOW_EMAIL_ERROR -> {
-                analytics.logEvent(LoginAnalytics.LoginEmailFailed)
-                showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
-            }
+            LoginStep.SHOW_EMAIL_ERROR -> showSnackbar(SnackbarType.Error, R.string.login_send_email_error)
             LoginStep.NAVIGATE_FROM_DEEPLINK -> {
                 newState.intentUri?.let { uri ->
                     startActivity(Intent(newState.intentAction, uri, this, LoginAuthActivity::class.java))
@@ -321,13 +307,13 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private fun returnToEmailInput() {
         supportFragmentManager.run {
-            this.findFragmentByTag(VerifyDeviceFragment::class.simpleName)?.let { fragment ->
+            fragments.forEach { fragment ->
                 beginTransaction()
                     .remove(fragment)
                     .commitAllowingStateLoss()
-                model.process(LoginIntents.RevertToEmailInput)
             }
         }
+        model.process(LoginIntents.RevertToEmailInput)
     }
 
     private fun updateUI(newState: LoginState) {
@@ -346,9 +332,6 @@ class LoginActivity : MviActivity<LoginModel, LoginIntents, LoginState, Activity
 
     private fun navigateToVerifyDevice(newState: LoginState) {
         supportFragmentManager.run {
-            if (this.findFragmentByTag(VerifyDeviceFragment::class.simpleName) != null) {
-                return // don't add multiple instances
-            }
             beginTransaction()
                 .replace(
                     R.id.content_frame,

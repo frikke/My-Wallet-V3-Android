@@ -41,7 +41,13 @@ class SupportModelTest {
     @Test
     fun `when load user info then state is updated`() {
         val userInfo: BasicProfileInfo = mock()
-        whenever(interactor.loadUserInformation()).thenReturn(Single.just(Pair(true, userInfo)))
+        whenever(interactor.loadUserInformation()).thenReturn(
+            Single.just(
+                UserInfo(
+                    true, userInfo, false
+                )
+            )
+        )
 
         val test = model.state.test()
         model.process(SupportIntent.LoadUserInfo)
@@ -52,8 +58,9 @@ class SupportModelTest {
             it.viewState == SupportViewState.Loading
         }.assertValueAt(2) {
             it.viewState is SupportViewState.ShowInfo &&
-                (it.viewState as SupportViewState.ShowInfo).isUserGold &&
-                (it.viewState as SupportViewState.ShowInfo).userInfo == userInfo
+                (it.viewState as SupportViewState.ShowInfo).userInfo.isUserGold &&
+                (it.viewState as SupportViewState.ShowInfo).userInfo.basicInfo == userInfo &&
+                !(it.viewState as SupportViewState.ShowInfo).userInfo.isIntercomEnabled
         }
     }
 

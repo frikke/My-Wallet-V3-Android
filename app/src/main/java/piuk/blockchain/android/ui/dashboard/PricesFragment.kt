@@ -7,6 +7,7 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
@@ -63,11 +64,12 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
-import piuk.blockchain.android.ui.settings.BankLinkingHost
+import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
 import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
+import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 
@@ -111,6 +113,14 @@ internal class PricesFragment :
     // Hold the 'current' display state, to enable optimising of state updates
     private var state: DashboardState? = null
 
+    private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+                goToActivityFor(account)
+            }
+        }
+    }
+
     @UiThread
     override fun render(newState: DashboardState) {
         try {
@@ -151,7 +161,7 @@ internal class PricesFragment :
                         )
                     }
                     is FullScreenCoinViewFlow -> {
-                        startActivity(CoinViewActivity.newIntent(requireContext(), it.asset))
+                        activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), it.asset))
                         model.process(DashboardIntent.ClearActiveFlow)
                     }
                     else -> {
