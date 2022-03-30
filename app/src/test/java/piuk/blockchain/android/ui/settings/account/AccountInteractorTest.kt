@@ -36,7 +36,7 @@ class AccountInteractorTest {
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             exchangeLinkingState = exchangeLinkingState,
-            bcCardDataRepository = blockchainCardRepository
+            blockchainCardRepository = blockchainCardRepository
         )
     }
 
