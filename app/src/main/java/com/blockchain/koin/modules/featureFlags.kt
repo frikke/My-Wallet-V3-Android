@@ -13,7 +13,6 @@ import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.koin.uiTourFeatureFlag
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -38,15 +37,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_gpay",
                 "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(walletConnectFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_wallet_connect",
-                "Wallet connect"
             )
         )
     }.bind(FeatureFlag::class)

@@ -1,6 +1,5 @@
 package com.blockchain.walletconnect.data
 
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
@@ -15,8 +14,7 @@ import kotlinx.serialization.json.Json
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 
 class WalletConnectMetadataRepository(
-    private val metadataManager: MetadataManager,
-    private val featureFlag: IntegratedFeatureFlag
+    private val metadataManager: MetadataManager
 ) : SessionRepository {
 
     override fun contains(session: WalletConnectSession): Single<Boolean> = loadSessions().map {
@@ -28,30 +26,25 @@ class WalletConnectMetadataRepository(
         explicitNulls = false
     }
 
-    private fun loadSessions(): Single<List<WalletConnectSession>> {
-        return featureFlag.enabled.flatMap { enabled ->
-            if (enabled) {
-                metadataManager.fetchMetadata(METADATA_WALLET_CONNECT).map { json ->
-                    jsonBuilder.decodeFromString<WalletConnectMetadata>(json)
-                }.map { walletConnectMetadata ->
-                    walletConnectMetadata.sessions.v1.map { dapp ->
-                        WalletConnectSession(
-                            url = dapp.url,
-                            dAppInfo = DAppInfo(
-                                peerId = dapp.dAppInfo.peerId,
-                                peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
-                                chainId = dapp.dAppInfo.chainId ?: DEFAULT_WALLET_CONNECT_CHAIN_ID
-                            ),
-                            walletInfo = WalletInfo(
-                                clientId = dapp.walletInfo.clientId,
-                                sourcePlatform = dapp.walletInfo.sourcePlatform
-                            )
-                        )
-                    }
-                }.switchIfEmpty(Single.just(emptyList()))
-            } else Single.just(emptyList())
-        }
-    }
+    private fun loadSessions(): Single<List<WalletConnectSession>> =
+        metadataManager.fetchMetadata(METADATA_WALLET_CONNECT).map { json ->
+            jsonBuilder.decodeFromString<WalletConnectMetadata>(json)
+        }.map { walletConnectMetadata ->
+            walletConnectMetadata.sessions.v1.map { dapp ->
+                WalletConnectSession(
+                    url = dapp.url,
+                    dAppInfo = DAppInfo(
+                        peerId = dapp.dAppInfo.peerId,
+                        peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
+                        chainId = dapp.dAppInfo.chainId ?: DEFAULT_WALLET_CONNECT_CHAIN_ID
+                    ),
+                    walletInfo = WalletInfo(
+                        clientId = dapp.walletInfo.clientId,
+                        sourcePlatform = dapp.walletInfo.sourcePlatform
+                    )
+                )
+            }
+        }.switchIfEmpty(Single.just(emptyList()))
 
     private fun updateRemoteSessions(sessions: List<WalletConnectSession>): Completable =
         metadataManager.saveToMetadata(sessions.toJsonMetadata(), METADATA_WALLET_CONNECT)

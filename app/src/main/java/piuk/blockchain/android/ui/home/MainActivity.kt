@@ -32,7 +32,6 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -140,7 +139,6 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
-    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val destinationArgs: DestinationArgs by scopedInject()
@@ -269,15 +267,10 @@ class MainActivity :
     }
 
     private fun tryToLaunchQrScan() {
-        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            if (
-                enabled &&
-                !isCameraPermissionGranted()
-            ) {
-                showScanAndConnectBottomSheet()
-            } else {
-                launchQrScan()
-            }
+        if (!isCameraPermissionGranted()) {
+            showScanAndConnectBottomSheet()
+        } else {
+            launchQrScan()
         }
         analytics.logEvent(SendAnalytics.QRButtonClicked)
     }
