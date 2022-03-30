@@ -20,7 +20,7 @@ fun SingleAccountList.makeAccountGroup(
             buildNonCustodialGroup(asset, labels, this)
         AssetFilter.Custodial ->
             buildCustodialGroup(labels, this)
-        AssetFilter.Rewards ->
+        AssetFilter.Interest ->
             buildInterestGroup(labels, this)
     }.exhaustive
 

@@ -11,6 +11,7 @@ import com.blockchain.nabu.FeatureAccess
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import timber.log.Timber
 
 class CoinViewModel(
     initialState: CoinViewState,
@@ -53,9 +54,16 @@ class CoinViewModel(
             is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.CheckScreenToOpen -> {
-                val screenToNavigate = interactor.checkPreferencesAndNavigateTo(intent.cryptoAccountSelected.account)
-                process(CoinViewIntent.UpdateViewState(screenToNavigate))
-                null
+                interactor.getAccountActions(intent.cryptoAccountSelected.account)
+                    .subscribeBy(
+                        onSuccess = { screenToNavigate ->
+                            process(CoinViewIntent.UpdateViewState(screenToNavigate))
+                        },
+                        onError = {
+                            Timber.e("***> Error Loading account actions: $it")
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ActionsLoadError))
+                        }
+                    )
             }
             is CoinViewIntent.CheckBuyStatus -> interactor.userCanBuy().subscribeBy(
                 onSuccess = {

@@ -43,9 +43,10 @@ sealed class CoinViewViewState {
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
     ) : CoinViewViewState()
+
     object NonTradeableAccount : CoinViewViewState()
-    object ShowAccountActionSheet : CoinViewViewState()
-    object ShowAccountExplainerSheet : CoinViewViewState()
+    class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
+    class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
 }
 
 enum class QuickActionCta {
@@ -65,7 +66,8 @@ enum class CoinViewError {
     ChartLoadError,
     RecurringBuysLoadError,
     QuickActionsFailed,
-    MissingSelectedFiat
+    MissingSelectedFiat,
+    ActionsLoadError
 }
 
 sealed class AssetInformation(

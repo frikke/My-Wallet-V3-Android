@@ -101,7 +101,6 @@ import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
-import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
@@ -160,6 +159,14 @@ class MainActivity :
             ActionActivity.ActivityResult.StartReceive -> launchReceive()
             ActionActivity.ActivityResult.StartBuyIntro -> launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY)
             null -> {
+            }
+        }
+    }
+
+    private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+                startActivitiesFragment(account)
             }
         }
     }
@@ -638,7 +645,7 @@ class MainActivity :
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    startActivity(
+                    activityResultsContract.launch(
                         CoinViewActivity.newIntent(
                             context = this,
                             asset = assetInfo
@@ -746,12 +753,6 @@ class MainActivity :
             reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
-    }
-
-    private fun startSendFragment() {
-        supportFragmentManager.showFragment(
-            fragment = TransferSendFragment.newInstance()
-        )
     }
 
     override fun startDashboardOnboarding() {

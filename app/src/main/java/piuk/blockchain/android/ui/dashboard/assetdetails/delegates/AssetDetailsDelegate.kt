@@ -73,7 +73,7 @@ private class AssetWalletViewHolder(
             assetSubtitle.text = when (item.assetFilter) {
                 AssetFilter.NonCustodial,
                 AssetFilter.Custodial -> labels.getAssetMasterWalletLabel(asset as AssetInfo)
-                AssetFilter.Rewards -> context.resources.getString(
+                AssetFilter.Interest -> context.resources.getString(
                     R.string.dashboard_asset_balance_rewards, item.interestRate
                 )
                 else -> throw IllegalArgumentException("Not supported filter")
@@ -82,7 +82,7 @@ private class AssetWalletViewHolder(
             walletName.text = when (item.assetFilter) {
                 AssetFilter.NonCustodial -> labels.getDefaultNonCustodialWalletLabel()
                 AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
-                AssetFilter.Rewards -> labels.getDefaultInterestWalletLabel()
+                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Not supported filter")
             }
 
@@ -92,7 +92,7 @@ private class AssetWalletViewHolder(
 
             when (item.assetFilter) {
                 AssetFilter.NonCustodial,
-                AssetFilter.Rewards,
+                AssetFilter.Interest,
                 AssetFilter.Custodial -> {
                     assetWithAccount.visible()
                     assetWithAccount.updateIcon(

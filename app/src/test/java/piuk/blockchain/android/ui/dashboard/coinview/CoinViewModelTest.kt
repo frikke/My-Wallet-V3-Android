@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -22,7 +23,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.dashboard.assetdetails.CheckBuyStatus
 
 class CoinViewModelTest {
 
@@ -613,8 +613,9 @@ class CoinViewModelTest {
         val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
-        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
-            .thenReturn(CoinViewViewState.ShowAccountActionSheet)
+        val actions = setOf<StateAwareAction>().toTypedArray()
+        whenever(interactor.getAccountActions(selectedAccount))
+            .thenReturn(Single.just(CoinViewViewState.ShowAccountActionSheet(actions)))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
@@ -622,23 +623,22 @@ class CoinViewModelTest {
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+            it.selectedCryptoAccount == assetDetailsItemNew
         }.assertValueAt(2) {
-            it == defaultState.copy(
-                selectedCryptoAccount = assetDetailsItemNew,
-                viewState = CoinViewViewState.ShowAccountActionSheet
-            )
+            it.viewState is CoinViewViewState.ShowAccountActionSheet &&
+                (it.viewState as CoinViewViewState.ShowAccountActionSheet).actions.contentEquals(actions)
         }
     }
 
     @Test
-    fun `whenCheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
+    fun `when CheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
         val selectedAccount = mock<BlockchainAccount>()
         val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
-        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
-            .thenReturn(CoinViewViewState.ShowAccountExplainerSheet)
+        val actions = setOf<StateAwareAction>().toTypedArray()
+        whenever(interactor.getAccountActions(selectedAccount))
+            .thenReturn(Single.just(CoinViewViewState.ShowAccountExplainerSheet(actions)))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
@@ -646,12 +646,10 @@ class CoinViewModelTest {
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+            it.selectedCryptoAccount == assetDetailsItemNew
         }.assertValueAt(2) {
-            it == defaultState.copy(
-                selectedCryptoAccount = assetDetailsItemNew,
-                viewState = CoinViewViewState.ShowAccountExplainerSheet
-            )
+            it.viewState is CoinViewViewState.ShowAccountExplainerSheet &&
+                (it.viewState as CoinViewViewState.ShowAccountExplainerSheet).actions.contentEquals(actions)
         }
     }
 }
