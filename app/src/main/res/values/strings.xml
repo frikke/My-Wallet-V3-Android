@@ -2783,6 +2783,7 @@
     <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
     <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
+    <string name="coinview_watchlist_toggle_fail">Failed to update the Watchlist, please try again</string>
     <string name="coinview_actions_error">There was an issue getting your available actions, please try again</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>

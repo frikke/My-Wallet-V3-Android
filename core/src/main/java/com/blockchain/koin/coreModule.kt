@@ -32,6 +32,8 @@ import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
+import com.blockchain.core.user.WatchlistDataManager
+import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -370,6 +372,14 @@ val coreModule = module {
                 cardsCache = get()
             )
         }.bind(PaymentsDataManager::class)
+
+        scoped {
+            WatchlistDataManagerImpl(
+                authenticator = get(),
+                watchlistService = get(),
+                assetCatalogue = get()
+            )
+        }.bind(WatchlistDataManager::class)
     }
 
     single {

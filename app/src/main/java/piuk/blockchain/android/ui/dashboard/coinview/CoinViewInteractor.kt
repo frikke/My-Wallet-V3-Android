@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.api.services.AssetTag
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
@@ -16,6 +17,8 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.user.WatchlistDataManager
+import com.blockchain.core.user.WatchlistInfo
 import com.blockchain.extensions.minus
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -26,8 +29,10 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.domain.repositories.TradeDataManager
@@ -40,6 +45,7 @@ class CoinViewInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager,
+    private val watchlistDataManager: WatchlistDataManager,
     private val assetActionsComparator: StateAwareActionsComparator
 ) {
 
@@ -61,27 +67,43 @@ class CoinViewInteractor(
             Pair(rbList, isSupportedPair)
         }
 
+    fun removeFromWatchlist(asset: Currency): Completable =
+        watchlistDataManager.removeFromWatchList(asset, listOf(AssetTag.Favourite))
+
+    fun addToWatchlist(asset: Currency): Single<WatchlistInfo> =
+        watchlistDataManager.addToWatchlist(asset, listOf(AssetTag.Favourite))
+
     fun loadQuickActions(
         totalCryptoBalance: Money,
-        accountList: List<BlockchainAccount>
+        accountList: List<BlockchainAccount>,
+        asset: CryptoAsset
     ): Single<QuickActionData> =
         Single.zip(
             identity.getHighestApprovedKycTier(),
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
-        ) { tier, sddEligible ->
+            custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
+        ) { tier, sddEligible, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             when {
                 custodialAccount != null -> {
-                    if (tier == Tier.GOLD || sddEligible) {
-                        if (totalCryptoBalance.isPositive) {
-                            QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
+                    if (isSupportedPair) {
+                        if (tier == Tier.GOLD || sddEligible) {
+                            if (totalCryptoBalance.isPositive) {
+                                QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
+                            } else {
+                                QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                            }
                         } else {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
                         }
                     } else {
-                        QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                        if (totalCryptoBalance.isPositive) {
+                            QuickActionData(QuickActionCta.Receive, QuickActionCta.Send, custodialAccount)
+                        } else {
+                            QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
+                        }
                     }
                 }
                 ncAccount != null -> {
@@ -163,15 +185,18 @@ class CoinViewInteractor(
             load24hPriceDelta(asset),
             splitAccountsInGroup(asset, AssetFilter.Custodial),
             splitAccountsInGroup(asset, AssetFilter.Interest),
-            asset.interestRate()
-        ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate ->
+            asset.interestRate(),
+            watchlistDataManager.isAssetInWatchlist(asset.assetInfo)
+        ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
-            // custodial endpoint products to see if we support custodial or PK balances as a guideline to
-            // asset support
+            // available accounts to see if we support custodial or PK balances as a guideline to asset support
             val tradeableAsset = nonCustodialAccounts.isNotEmpty() || custodialAccounts.isNotEmpty()
 
             return@zip if (!tradeableAsset) {
-                AssetInformation.NonTradeable(prices)
+                AssetInformation.NonTradeable(
+                    isAddedToWatchlist = isAddedToWatchlist,
+                    prices = prices
+                )
             } else {
                 val accountsList = mapAccounts(
                     nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate
@@ -183,7 +208,11 @@ class CoinViewInteractor(
                     totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
                 }
                 AssetInformation.AccountsInfo(
-                    prices, accountsList, totalCryptoBalance, totalFiatBalance
+                    isAddedToWatchlist = isAddedToWatchlist,
+                    prices = prices,
+                    accountsList = accountsList,
+                    totalCryptoBalance = totalCryptoBalance,
+                    totalFiatBalance = totalFiatBalance
                 )
             }
         }
