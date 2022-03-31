@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
-import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -14,7 +14,7 @@ import thepit.PitLinking
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val blockchainCardRepository: BlockchainCardRepositoryImpl,
+    private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: PitLinking
 ) {

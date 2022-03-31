@@ -1,7 +1,7 @@
 package com.blockchain.blockchaincard.data
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
-import com.blockchain.blockchaincard.domain.BlockchainCardService
+import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCard
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.domain.models.toDomainModel

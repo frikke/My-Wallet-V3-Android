@@ -1,4 +1,4 @@
-package com.blockchain.blockchaincard.domain
+package com.blockchain.api.services
 
 import com.blockchain.api.blockchainCard.api.BlockchainCardApi
 import com.blockchain.api.blockchainCard.api.CardCreationRequestBody

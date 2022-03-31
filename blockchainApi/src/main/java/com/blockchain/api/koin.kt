@@ -8,6 +8,7 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.blockchainCard.api.BlockchainCardApi
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.eligibility.ProductEligibilityApi
@@ -22,6 +23,7 @@ import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
@@ -57,6 +59,7 @@ val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
+val bcCardGateway = StringQualifier("card-issuing")
 
 private val json = Json {
     explicitNulls = false
@@ -126,6 +129,16 @@ val blockchainApiModule = module {
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
+            .build()
+    }
+
+    single(bcCardGateway) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("card-issuing"))
+            .client(get())
+            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(jsonConverter)
             .build()
     }
 
@@ -255,6 +268,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
         TxLimitsService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(bcCardGateway).create(BlockchainCardApi::class.java)
+        BlockchainCardService(
+            api
         )
     }
 }
