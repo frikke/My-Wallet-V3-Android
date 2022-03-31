@@ -136,7 +136,6 @@ val blockchainApiModule = module {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("card-issuing"))
             .client(get())
-            .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(jsonConverter)
             .build()

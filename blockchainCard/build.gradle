@@ -35,17 +35,12 @@ dependencies {
     implementation Libraries.gson
     implementation Libraries.timber
     implementation Libraries.retrofit
-    implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
-    implementation Libraries.rxJava
-    implementation Libraries.rxKotlin
-    implementation Libraries.rxAndroid
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
     implementation Libraries.composeActivity
-    implementation Libraries.composeRx
     implementation Libraries.composeNavigation
     implementation Libraries.design
     implementation Libraries.appCompat
