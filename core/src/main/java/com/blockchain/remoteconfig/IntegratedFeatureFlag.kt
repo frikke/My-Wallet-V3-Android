@@ -18,5 +18,9 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
         }
 
     override val isEnabled: Boolean
-        get() = remoteFlag.isEnabled
+        get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
+            FeatureFlagState.ENABLED -> true
+            FeatureFlagState.DISABLED -> false
+            FeatureFlagState.REMOTE -> remoteFlag.isEnabled
+        }
 }

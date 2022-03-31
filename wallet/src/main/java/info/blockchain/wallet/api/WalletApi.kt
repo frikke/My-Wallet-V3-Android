@@ -13,6 +13,8 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.net.URLEncoder
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import retrofit2.Call
@@ -70,8 +72,10 @@ class WalletApi(
         creatorVisibility = JsonAutoDetect.Visibility.NONE,
         isGetterVisibility = JsonAutoDetect.Visibility.NONE
     )
+    @Serializable
     class IPResponse {
         @JsonProperty("ip")
+        @SerialName("ip")
         var ip: String = ""
     }
 
