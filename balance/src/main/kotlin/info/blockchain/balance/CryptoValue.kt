@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CryptoValue(
-    override val currency: AssetInfo,
+    override val currency: @Contextual AssetInfo,
     private val amount: @Contextual BigInteger // Amount in the minor unit of the currency, Satoshi/Wei for example.
 ) : Money() {
 
