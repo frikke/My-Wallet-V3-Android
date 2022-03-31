@@ -8,7 +8,7 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
-import com.blockchain.api.blockchainCard.api.BlockchainCardApi
+import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.eligibility.ProductEligibilityApi
@@ -59,7 +59,7 @@ val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
-val bcCardGateway = StringQualifier("card-issuing")
+val blockchainCardGateway = StringQualifier("card-issuing")
 
 private val json = Json {
     explicitNulls = false
@@ -132,7 +132,7 @@ val blockchainApiModule = module {
             .build()
     }
 
-    single(bcCardGateway) {
+    single(blockchainCardGateway) {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("card-issuing"))
             .client(get())
@@ -272,7 +272,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(bcCardGateway).create(BlockchainCardApi::class.java)
+        val api = get<Retrofit>(blockchainCardGateway).create(BlockchainCardApi::class.java)
         BlockchainCardService(
             api
         )

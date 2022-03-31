@@ -1,8 +1,8 @@
 package com.blockchain.blockchaincard.domain.models
 
 import android.os.Parcelable
-import com.blockchain.api.blockchainCard.api.CardsResponse
-import com.blockchain.api.blockchainCard.api.ProductsResponse
+import com.blockchain.api.blockchainCard.data.CardsResponse
+import com.blockchain.api.blockchainCard.data.ProductsResponse
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal

@@ -170,7 +170,7 @@ class AccountFragment :
         }
 
         renderExchangeInformation(newState.exchangeLinkingState)
-        renderDebitCardInformation(newState.bcCardState)
+        renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
     }
 
@@ -188,28 +188,28 @@ class AccountFragment :
             }
         }
 
-    private fun renderDebitCardInformation(blockchainCardState: BlockchainCardState) =
-        when (blockchainCardState) {
-            is BlockchainCardState.Unknown -> {
+    private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
+        when (blockchainCardOrderState) {
+            is BlockchainCardOrderState.Unknown -> {
                 binding.settingsDebitCard.secondaryText = ""
             }
-            is BlockchainCardState.NotEligible -> {
+            is BlockchainCardOrderState.NotEligible -> {
                 binding.settingsDebitCard.secondaryText = getString(R.string.account_not_eligible)
             }
-            is BlockchainCardState.Eligible -> {
+            is BlockchainCardOrderState.Eligible -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToOrderBlockchainDebitCard(blockchainCardState.cardProducts.first())
+                        navigator().goToOrderBlockchainDebitCard(blockchainCardOrderState.cardProducts.first())
                     }
                 }
             }
-            is BlockchainCardState.Ordered -> {
+            is BlockchainCardOrderState.Ordered -> {
                 with(binding.settingsDebitCard) {
                     secondaryText = null
                     onClick = {
-                        navigator().goToManageBlockchainDebitCard(blockchainCardState.blockchainDebitCardId)
+                        navigator().goToManageBlockchainDebitCard(blockchainCardOrderState.blockchainDebitCardId)
                     }
                 }
             }

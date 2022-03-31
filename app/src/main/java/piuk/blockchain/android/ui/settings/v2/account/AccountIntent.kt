@@ -59,9 +59,10 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    class UpdateBCCardOrderState(private val bcCardState: BlockchainCardState) : AccountIntent() {
+    class UpdateBlockchainCardOrderState(private val blockchainCardOrderState: BlockchainCardOrderState) :
+        AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
-            bcCardState = bcCardState
+            blockchainCardOrderState = blockchainCardOrderState
         )
     }
 }

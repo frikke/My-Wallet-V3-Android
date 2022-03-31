@@ -45,18 +45,18 @@ class AccountInteractor internal constructor(
             }
         }
 
-    fun getDebitCardState(): Single<BlockchainCardState> =
+    fun getDebitCardState(): Single<BlockchainCardOrderState> =
         blockchainCardRepository.getCards().flatMap { cards ->
             val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
             if (activeCards.isNotEmpty()) {
                 // TODO For now we only allow 1 card, but in the future we must pass the full list here
-                Single.just(BlockchainCardState.Ordered(activeCards.first().cardId))
+                Single.just(BlockchainCardOrderState.Ordered(activeCards.first().cardId))
             } else {
                 blockchainCardRepository.getProducts().map { products ->
                     if (products.isNotEmpty())
-                        BlockchainCardState.Eligible(products)
+                        BlockchainCardOrderState.Eligible(products)
                     else
-                        BlockchainCardState.NotEligible
+                        BlockchainCardOrderState.NotEligible
                 }
             }
         }

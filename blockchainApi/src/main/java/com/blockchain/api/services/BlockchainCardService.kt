@@ -1,9 +1,9 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.blockchainCard.api.BlockchainCardApi
-import com.blockchain.api.blockchainCard.api.CardCreationRequestBody
-import com.blockchain.api.blockchainCard.api.CardsResponse
-import com.blockchain.api.blockchainCard.api.ProductsResponse
+import com.blockchain.api.blockchainCard.BlockchainCardApi
+import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
+import com.blockchain.api.blockchainCard.data.CardsResponse
+import com.blockchain.api.blockchainCard.data.ProductsResponse
 import io.reactivex.rxjava3.core.Single
 
 class BlockchainCardService internal constructor(

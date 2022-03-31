@@ -60,7 +60,7 @@ class AccountModel(
                 interactor.getDebitCardState()
                     .subscribeBy(
                         onSuccess = {
-                            process(AccountIntent.UpdateBCCardOrderState(it))
+                            process(AccountIntent.UpdateBlockchainCardOrderState(it))
                         },
                         onError = {
                             process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
@@ -102,6 +102,6 @@ class AccountModel(
             is AccountIntent.UpdateViewToLaunch,
             is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateExchangeInformation,
-            is AccountIntent.UpdateBCCardOrderState -> null
+            is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive
 }

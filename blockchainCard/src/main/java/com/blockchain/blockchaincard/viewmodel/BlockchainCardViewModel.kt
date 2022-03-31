@@ -58,18 +58,19 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).doOnSubscribe {
-                    navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
-                }.subscribeBy(
-                    onSuccess = { card ->
-                        updateState { it.copy(cardId = card.cardId) }
-                        navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
-                    },
-                    onError = {
-                        // Todo update state's error here OR pass it to the destination
-                        navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
-                    }
-                )
+                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn)
+                    .doOnSubscribe {
+                        navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
+                    }.subscribeBy(
+                        onSuccess = { card ->
+                            updateState { it.copy(cardId = card.cardId) }
+                            navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
+                        },
+                        onError = {
+                            // Todo update state's error here OR pass it to the destination
+                            navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
+                        }
+                    )
             }
 
             is BlockchainCardIntent.HideProductDetailsBottomSheet -> {
