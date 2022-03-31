@@ -245,8 +245,9 @@ enum class AnalyticsNames(val eventName: String) {
     ENTITY_SWITCH_SILVER_KYC_UPSELL_CTA_CLICKED("Verify Now Pop Up CTA Clicked"),
     ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED("Verify Now Pop Up Dismissed"),
     KYC_ADDITIONAL_INFO_VIEWED("Account Info Screen Viewed"),
-    KYC_ADDITIONAL_INFO_SUBMITTED("Account Info Submitted")
-    ;
+    KYC_ADDITIONAL_INFO_SUBMITTED("Account Info Submitted"),
+    PUSH_NOTIFICATION_RECEIVED("Push Notification Received"),
+    PUSH_NOTIFICATION_TAPPED("Push Notification Tapped");
 }
 
 enum class LaunchOrigin {

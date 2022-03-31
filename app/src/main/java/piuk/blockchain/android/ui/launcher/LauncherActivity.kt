@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import org.json.JSONException
 import org.json.JSONObject
@@ -33,6 +34,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped)
         }
     }
 
