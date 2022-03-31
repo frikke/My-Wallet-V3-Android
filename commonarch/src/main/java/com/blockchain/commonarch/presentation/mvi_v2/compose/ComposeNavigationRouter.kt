@@ -32,12 +32,9 @@ interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
     var navController: NavHostController
 }
 
-/* TODO
-    How can we provide this as an interface and keep the "name" parameter while keeping the code clean?
-   (by clean I mean -> not forcing implementation classes to override the "name" in the class body.
-    Would be cleaner if it could be overridden in the constructor itself)
-*/
-open class ComposeNavigationEvent(val name: String) : NavigationEvent
+interface ComposeNavigationEvent : NavigationEvent {
+    val name: String
+}
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
