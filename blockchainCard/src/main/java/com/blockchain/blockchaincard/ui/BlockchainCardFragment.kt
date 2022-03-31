@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
@@ -79,8 +80,8 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
             val startDestination =
-                if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardNavigationEvent.ManageCardDestination
-                else BlockchainCardNavigationEvent.OrderOrLinkCardDestination
+                if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
+                else BlockchainCardDestination.OrderOrLinkCardDestination
             setContent {
                 BlockchainCardNavHost(navigator = navigator, viewModel = viewModel, startDestination)
             }

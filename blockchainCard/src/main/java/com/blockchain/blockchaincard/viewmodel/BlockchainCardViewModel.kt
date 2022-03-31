@@ -4,7 +4,7 @@ import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
@@ -22,7 +22,7 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
         BlockchainCardIntent,
         BlockchainCardViewState,
         BlockchainCardModelState,
-        ComposeNavigationEvent,
+        NavigationEvent,
         ModelConfigArgs> (BlockchainCardModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs) {
@@ -53,22 +53,22 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
                 modelState.cardProduct?.let {
-                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails)
+                    navigate(BlockchainCardNavigationEvent.SeeProductDetails)
                 } ?: Timber.w("Unable to show product details, no product info")
             }
 
             is BlockchainCardIntent.CreateCard -> {
                 blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn)
                     .doOnSubscribe {
-                        navigate(BlockchainCardNavigationEvent.CreateCardInProgressDestination)
+                        navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
                     }.subscribeBy(
                         onSuccess = { card ->
                             updateState { it.copy(cardId = card.cardId) }
-                            navigate(BlockchainCardNavigationEvent.CreateCardSuccessDestination)
+                            navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
                         },
                         onError = {
                             // Todo update state's error here OR pass it to the destination
-                            navigate(BlockchainCardNavigationEvent.CreateCardFailedDestination)
+                            navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                         }
                     )
             }
@@ -91,7 +91,7 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
             }
 
             is BlockchainCardIntent.ManageCard -> {
-                navigate(BlockchainCardNavigationEvent.ManageCardDestination)
+                navigate(BlockchainCardNavigationEvent.ManageCard)
             }
         }
     }

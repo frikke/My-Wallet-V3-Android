@@ -28,11 +28,11 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 
-interface ComposeNavigationRouter : NavigationRouter<ComposeNavigationEvent> {
+interface ComposeNavigationRouter : NavigationRouter<NavigationEvent> {
     var navController: NavHostController
 }
 
-interface ComposeNavigationEvent : NavigationEvent {
+interface ComposeNavigationDestination {
     val name: String
 }
 
@@ -76,7 +76,7 @@ fun MviNavHost(
 }
 
 fun NavGraphBuilder.composable(
-    navigationEvent: ComposeNavigationEvent,
+    navigationEvent: ComposeNavigationDestination,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable (NavBackStackEntry) -> Unit
@@ -96,7 +96,7 @@ fun NavGraphBuilder.composable(
 
 @ExperimentalMaterialNavigationApi
 fun NavGraphBuilder.bottomSheet(
-    navigationEvent: ComposeNavigationEvent,
+    navigationEvent: ComposeNavigationDestination,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable ColumnScope.(backstackEntry: NavBackStackEntry) -> Unit

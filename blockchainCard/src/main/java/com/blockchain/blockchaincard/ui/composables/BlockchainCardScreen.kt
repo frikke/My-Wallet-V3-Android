@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
@@ -67,7 +68,7 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 fun BlockchainCardNavHost(
     navigator: BlockchainCardNavigationRouter,
     viewModel: BlockchainCardViewModel,
-    startDestination: BlockchainCardNavigationEvent,
+    startDestination: BlockchainCardDestination,
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -80,11 +81,11 @@ fun BlockchainCardNavHost(
         startDestination = startDestination.name,
     ) {
 
-        composable(BlockchainCardNavigationEvent.OrderOrLinkCardDestination) {
+        composable(BlockchainCardDestination.OrderOrLinkCardDestination) {
             OrderOrLinkCard(viewModel)
         }
 
-        composable(BlockchainCardNavigationEvent.SelectCardForOrder) {
+        composable(BlockchainCardDestination.SelectCardForOrderDestination) {
             SelectCardForOrder(
                 onCreateCard = {
                     viewModel.onIntent(
@@ -102,11 +103,11 @@ fun BlockchainCardNavHost(
             )
         }
 
-        composable(BlockchainCardNavigationEvent.CreateCardInProgressDestination) {
+        composable(BlockchainCardDestination.CreateCardInProgressDestination) {
             CardCreationInProgress()
         }
 
-        composable(BlockchainCardNavigationEvent.CreateCardSuccessDestination) {
+        composable(BlockchainCardDestination.CreateCardSuccessDestination) {
             CardCreationSuccess(
                 onFinish = {
                     viewModel.onIntent(BlockchainCardIntent.ManageCard)
@@ -114,11 +115,11 @@ fun BlockchainCardNavHost(
             )
         }
 
-        composable(BlockchainCardNavigationEvent.CreateCardFailedDestination) {
+        composable(BlockchainCardDestination.CreateCardFailedDestination) {
             CardCreationFailed()
         }
 
-        bottomSheet(BlockchainCardNavigationEvent.OnSeeProductDetails) {
+        bottomSheet(BlockchainCardDestination.SeeProductDetailsDestination) {
             ProductDetails(
                 cardProduct = state?.cardProduct,
                 onCloseProductDetailsBottomSheet = {
@@ -128,7 +129,7 @@ fun BlockchainCardNavHost(
         }
 
         // Manage Card Screens
-        composable(BlockchainCardNavigationEvent.ManageCardDestination) {
+        composable(BlockchainCardDestination.ManageCardDestination) {
             ManageCard(cardId = state?.cardId, onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
         }
     }
