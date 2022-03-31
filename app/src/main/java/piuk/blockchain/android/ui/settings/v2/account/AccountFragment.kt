@@ -156,7 +156,7 @@ class AccountFragment :
 
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             binding.settingsDebitCard.visibleIf { enabled }
-            model.process(AccountIntent.LoadBCDebitCardInformation)
+            if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
         }
     }
 
