@@ -5,10 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -17,7 +15,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
-import com.blockchain.componentlib.sheets.BottomSheetText
 import com.blockchain.componentlib.sheets.ButtonType
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
@@ -60,16 +57,10 @@ class CustomerSupportSheet :
     @Composable
     private fun SheetContent() {
         BottomSheet(
-            title = BottomSheetText(
-                text = stringResource(id = R.string.customer_support_title),
-                textAlign = TextAlign.Start
-            ),
-            subtitle = BottomSheetText(
-                text = stringResource(id = R.string.customer_support_description),
-                textAlign = TextAlign.Start
-            ),
-            alignment = Alignment.Start,
-            imageResource = ImageResource.None,
+            onCloseClick = { dismiss() },
+            title = stringResource(id = R.string.customer_support_title),
+            subtitle = stringResource(id = R.string.customer_support_description),
+            imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
             topButton = BottomSheetButton(
                 text = stringResource(id = R.string.customer_support_contact_us),
                 onClick = {

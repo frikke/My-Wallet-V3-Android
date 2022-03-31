@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,7 +32,7 @@ fun SheetHeader(
     title: String? = null,
     byline: String? = null,
     startImageResource: ImageResource = ImageResource.None,
-    onClosePress: (() -> Unit)? = null,
+    onClosePress: () -> Unit,
     closePressContentDescription: String? = null,
     isDarkMode: Boolean = isSystemInDarkTheme(),
 ) {
@@ -59,34 +58,25 @@ fun SheetHeader(
                     Spacer(Modifier.width(8.dp))
                 }
 
-                if (title.isNullOrBlank()) {
-                    Spacer(
-                        Modifier
-                            .height(dimensionResource(R.dimen.medium_margin))
-                            .weight(1f))
-                } else {
-                    SheetHeaderTitle(
-                        title = title,
-                        byline = byline,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(
-                                top = dimensionResource(R.dimen.standard_margin),
-                                bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
-                            )
-                    )
-                }
-
-                onClosePress?.let {
-                    SheetHeaderCloseButton(
-                        onClosePress = onClosePress,
-                        backPressContentDescription = closePressContentDescription,
-                        modifier = Modifier.padding(
-                            top = dimensionResource(R.dimen.medium_margin),
-                            end = dimensionResource(R.dimen.medium_margin)
+                SheetHeaderTitle(
+                    title = title,
+                    byline = byline,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(
+                            top = dimensionResource(R.dimen.standard_margin),
+                            bottom = if (byline.isNullOrBlank()) 10.dp else 5.dp
                         )
+                )
+
+                SheetHeaderCloseButton(
+                    onClosePress = onClosePress,
+                    backPressContentDescription = closePressContentDescription,
+                    modifier = Modifier.padding(
+                        top = dimensionResource(R.dimen.medium_margin),
+                        end = dimensionResource(R.dimen.medium_margin)
                     )
-                }
+                )
             }
             title?.let {
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -135,16 +125,6 @@ private fun SheetHeaderPreview() {
                 title = "Title",
                 onClosePress = { /* no-op */ },
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun SheetHeaderPreviewNoCloseNoTitle() {
-    AppTheme {
-        AppSurface {
-            SheetHeader()
         }
     }
 }

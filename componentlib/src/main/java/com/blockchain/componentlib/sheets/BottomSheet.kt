@@ -30,11 +30,10 @@ import com.blockchain.componentlib.theme.Dark800
 
 @Composable
 fun BottomSheet(
-    onCloseClick: (() -> Unit)? = null,
+    onCloseClick: () -> Unit,
     imageResource: ImageResource,
-    title: BottomSheetText,
-    subtitle: BottomSheetText? = null,
-    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    title: String,
+    subtitle: String = "",
     topButton: BottomSheetButton? = null,
     bottomButton: BottomSheetButton? = null,
     isDarkTheme: Boolean = isSystemInDarkTheme()
@@ -46,44 +45,29 @@ fun BottomSheet(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(backgroundColor),
-        horizontalAlignment = alignment
+        modifier = Modifier.fillMaxWidth().background(backgroundColor),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
             onClosePress = onCloseClick
         )
-
-        if (imageResource != ImageResource.None) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
-        }
-
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         Image(
             imageResource = imageResource,
             modifier = Modifier.size(dimensionResource(R.dimen.size_huge))
         )
-
-        if (imageResource != ImageResource.None) {
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
-        }
+        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
 
         Text(
-            modifier = Modifier.padding(
-                start = dimensionResource(R.dimen.standard_margin),
-                end = dimensionResource(R.dimen.standard_margin)
-            ),
-            text = title.text,
-            textAlign = title.textAlign,
+            text = title,
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title,
         )
-
-        if (subtitle != null)
+        if (subtitle.isNotEmpty())
             Text(
-                text = subtitle.text,
+                text = subtitle,
                 style = AppTheme.typography.paragraph1,
-                textAlign = subtitle.textAlign,
+                textAlign = TextAlign.Center,
                 color = AppTheme.colors.title,
                 modifier = Modifier.padding(
                     start = dimensionResource(R.dimen.standard_margin),
@@ -116,12 +100,10 @@ fun BottomSheet(
 
 @Composable
 private fun BottomSheetButton.toBottomSheetButtonComposable(): @Composable (ColumnScope.() -> Unit) {
-    val modifier = Modifier
-        .fillMaxWidth()
-        .padding(
-            start = dimensionResource(R.dimen.standard_margin),
-            end = dimensionResource(R.dimen.standard_margin)
-        )
+    val modifier = Modifier.fillMaxWidth().padding(
+        start = dimensionResource(R.dimen.standard_margin),
+        end = dimensionResource(R.dimen.standard_margin)
+    )
     return {
         when (type) {
             ButtonType.PRIMARY -> PrimaryButton(
@@ -149,11 +131,6 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(): @Composable (Colu
     }
 }
 
-data class BottomSheetText(
-    val text: String,
-    val textAlign: TextAlign = TextAlign.Center
-)
-
 data class BottomSheetButton(
     val type: ButtonType,
     val onClick: () -> Unit,
@@ -171,9 +148,9 @@ fun NoButtonBottomSheet() {
         AppSurface {
             BottomSheet(
                 onCloseClick = {},
-                title = BottomSheetText("NoButtonBottomSheet"),
-                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = BottomSheetText("NoButtonBottomSheetSubtitle"),
+                title = "NoButtonBottomSheet",
+                imageResource = ImageResource.None,
+                subtitle = " NoButtonBottomSheetSubtitle",
                 topButton = null,
                 bottomButton = null
             )
@@ -188,9 +165,9 @@ fun OnlyPrimaryTopButtonBottomSheet() {
         AppSurface {
             BottomSheet(
                 onCloseClick = {},
-                title = BottomSheetText("OnlyPrimaryTopButtonBottomSheet"),
+                title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = BottomSheetText("OnlyPrimaryTopButtonBottomSheet"),
+                subtitle = " NoButtonBottomSheetSubtitle",
                 topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
                 bottomButton = null
             )
@@ -205,7 +182,7 @@ fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
         AppSurface {
             BottomSheet(
                 onCloseClick = {},
-                title = BottomSheetText("OnlyPrimaryTopButtonBottomSheetWithNoSubtitle"),
+                title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
                 bottomButton = null
@@ -221,28 +198,11 @@ fun TopAndBottomButtonsSheet() {
         AppSurface {
             BottomSheet(
                 onCloseClick = {},
-                title = BottomSheetText("TopAndBottomButtonsSheet"),
+                title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                subtitle = BottomSheetText("TopAndBottomButtonsSheet"),
+                subtitle = "NoButtonBottomSheetSubtitle",
                 topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
                 bottomButton = BottomSheetButton(type = ButtonType.DESTRUCTIVE_MINIMAL, onClick = {}, text = "Cancel")
-            )
-        }
-    }
-}
-
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun TopAndBottomButtonsSheetStartAligned() {
-    AppTheme {
-        AppSurface {
-            BottomSheet(
-                imageResource = ImageResource.None,
-                title = BottomSheetText("TopAndBottomButtonsSheetStartAligned", TextAlign.Start),
-                subtitle = BottomSheetText("TopAndBottomButtonsSheetStartAligned", TextAlign.Start),
-                alignment = Alignment.Start,
-                topButton = BottomSheetButton(type = ButtonType.MINIMAL, onClick = {}, text = "OK"),
-                bottomButton = BottomSheetButton(type = ButtonType.DESTRUCTIVE_PRIMARY, onClick = {}, text = "Cancel")
             )
         }
     }

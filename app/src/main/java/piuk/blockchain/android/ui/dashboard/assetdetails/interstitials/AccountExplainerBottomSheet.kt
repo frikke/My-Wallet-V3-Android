@@ -14,7 +14,6 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
-import com.blockchain.componentlib.sheets.BottomSheetText
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -57,8 +56,8 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 BottomSheet(
-                    title = BottomSheetText(account.title),
-                    subtitle = BottomSheetText(account.description),
+                    title = account.title,
+                    subtitle = account.description,
                     imageResource = ImageResource.Local(account.icon),
                     onCloseClick = {
                         dismiss()

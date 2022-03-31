@@ -41,7 +41,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetHostLayout
-import com.blockchain.componentlib.sheets.BottomSheetText
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
@@ -124,49 +123,49 @@ class DappsListFragment :
                     )
                 }
             }, content = {
-            state?.let {
-                if (it.connectedSessions.isEmpty()) {
-                    renderNoDapps()
-                } else {
-                    DappsList(it.connectedSessions) { session ->
-                        currentBottomSheet = SessionBottomSheet.Disconnect(
-                            session = session,
-                            onDisconnectClick = {
-                                currentBottomSheet = SessionBottomSheet.Confirmation(
-                                    session,
-                                    onConfirmClick = {
-                                        model.process(DappsListIntent.Disconnect(session))
-                                        bottomSheetState = ModalBottomSheetValue.Hidden
-                                        analytics.logEvent(
-                                            WalletConnectAnalytics.ConnectedDappActioned(
-                                                dappName = session.dAppInfo.peerMeta.name,
-                                                action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                state?.let {
+                    if (it.connectedSessions.isEmpty()) {
+                        renderNoDapps()
+                    } else {
+                        DappsList(it.connectedSessions) { session ->
+                            currentBottomSheet = SessionBottomSheet.Disconnect(
+                                session = session,
+                                onDisconnectClick = {
+                                    currentBottomSheet = SessionBottomSheet.Confirmation(
+                                        session,
+                                        onConfirmClick = {
+                                            model.process(DappsListIntent.Disconnect(session))
+                                            bottomSheetState = ModalBottomSheetValue.Hidden
+                                            analytics.logEvent(
+                                                WalletConnectAnalytics.ConnectedDappActioned(
+                                                    dappName = session.dAppInfo.peerMeta.name,
+                                                    action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT_INTENT
+                                                )
                                             )
-                                        )
-                                    }
-                                )
-                                bottomSheetState = ModalBottomSheetValue.Hidden
-                                bottomSheetState = ModalBottomSheetValue.Expanded
-
-                                analytics.logEvent(
-                                    WalletConnectAnalytics.ConnectedDappActioned(
-                                        dappName = session.dAppInfo.peerMeta.name,
-                                        action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        }
                                     )
-                                )
-                            }
-                        )
-                        bottomSheetState = ModalBottomSheetValue.Expanded
+                                    bottomSheetState = ModalBottomSheetValue.Hidden
+                                    bottomSheetState = ModalBottomSheetValue.Expanded
 
-                        analytics.logEvent(
-                            WalletConnectAnalytics.ConnectedDappClicked(
-                                dappName = session.dAppInfo.peerMeta.name
+                                    analytics.logEvent(
+                                        WalletConnectAnalytics.ConnectedDappActioned(
+                                            dappName = session.dAppInfo.peerMeta.name,
+                                            action = WalletConnectAnalytics.DappConnectionAction.DISCONNECT
+                                        )
+                                    )
+                                }
                             )
-                        )
+                            bottomSheetState = ModalBottomSheetValue.Expanded
+
+                            analytics.logEvent(
+                                WalletConnectAnalytics.ConnectedDappClicked(
+                                    dappName = session.dAppInfo.peerMeta.name
+                                )
+                            )
+                        }
                     }
                 }
-            }
-        },
+            },
             onCollapse = {
                 bottomSheetState = ModalBottomSheetValue.Hidden
             }
@@ -202,8 +201,8 @@ private fun ConfirmaActionBottomSheet(
 ) {
     BottomSheet(
         onCloseClick = closeSheet,
-        title = BottomSheetText(stringResource(R.string.are_you_sure)),
-        subtitle = BottomSheetText(stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name)),
+        title = stringResource(R.string.are_you_sure),
+        subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
         imageResource = ImageResource.Local(R.drawable.ic_warning),
         topButton = BottomSheetButton(
             text = stringResource(R.string.common_disconnect),
@@ -226,8 +225,8 @@ private fun DisconnectBottomSheet(
 ) {
     BottomSheet(
         onCloseClick = closeSheet,
-        title = BottomSheetText(session.dAppInfo.peerMeta.name),
-        subtitle = BottomSheetText(session.dAppInfo.peerMeta.description),
+        title = session.dAppInfo.peerMeta.name,
+        subtitle = session.dAppInfo.peerMeta.description,
         imageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
         topButton = BottomSheetButton(
             text = stringResource(R.string.common_disconnect),
