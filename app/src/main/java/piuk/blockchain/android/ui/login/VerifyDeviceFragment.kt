@@ -15,8 +15,8 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.remoteconfig.FeatureFlag
-import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics

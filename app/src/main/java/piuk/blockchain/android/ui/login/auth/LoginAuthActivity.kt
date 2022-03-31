@@ -11,7 +11,6 @@ import android.text.method.DigitsKeyListener
 import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -28,9 +27,6 @@ import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
