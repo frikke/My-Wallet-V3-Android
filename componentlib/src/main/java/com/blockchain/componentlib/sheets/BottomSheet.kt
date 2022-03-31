@@ -36,7 +36,8 @@ fun BottomSheet(
     subtitle: String = "",
     topButton: BottomSheetButton? = null,
     bottomButton: BottomSheetButton? = null,
-    isDarkTheme: Boolean = isSystemInDarkTheme()
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    shouldShowHeaderDivider: Boolean = true
 ) {
     val backgroundColor = if (!isDarkTheme) {
         Color.White
@@ -45,11 +46,14 @@ fun BottomSheet(
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().background(backgroundColor),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(backgroundColor),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetHeader(
-            onClosePress = onCloseClick
+            onClosePress = onCloseClick,
+            shouldShowDivider = shouldShowHeaderDivider
         )
         Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         Image(
@@ -63,7 +67,8 @@ fun BottomSheet(
             style = AppTheme.typography.title3,
             color = AppTheme.colors.title,
         )
-        if (subtitle.isNotEmpty())
+        if (subtitle.isNotEmpty()) {
+            Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
             Text(
                 text = subtitle,
                 style = AppTheme.typography.paragraph1,
@@ -74,6 +79,7 @@ fun BottomSheet(
                     end = dimensionResource(R.dimen.standard_margin)
                 )
             )
+        }
 
         val noButtons = topButton == null && bottomButton == null
 
@@ -100,10 +106,12 @@ fun BottomSheet(
 
 @Composable
 private fun BottomSheetButton.toBottomSheetButtonComposable(): @Composable (ColumnScope.() -> Unit) {
-    val modifier = Modifier.fillMaxWidth().padding(
-        start = dimensionResource(R.dimen.standard_margin),
-        end = dimensionResource(R.dimen.standard_margin)
-    )
+    val modifier = Modifier
+        .fillMaxWidth()
+        .padding(
+            start = dimensionResource(R.dimen.standard_margin),
+            end = dimensionResource(R.dimen.standard_margin)
+        )
     return {
         when (type) {
             ButtonType.PRIMARY -> PrimaryButton(

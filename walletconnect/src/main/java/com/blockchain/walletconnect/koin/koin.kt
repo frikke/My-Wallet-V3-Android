@@ -1,7 +1,6 @@
 package com.blockchain.walletconnect.koin
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.walletconnect.data.EthWalletAddressProvider
 import com.blockchain.walletconnect.data.SignRequestHandler
 import com.blockchain.walletconnect.data.WalletConnectMetadataRepository
@@ -29,7 +28,6 @@ val walletConnectModule = module {
                 analytics = get(),
                 ethRequestSign = get(),
                 lifecycleObservable = get(),
-                featureFlag = get(walletConnectFeatureFlag),
                 walletConnectAccountProvider = get(),
                 ethSendTransactionRequest = get()
             )
@@ -51,8 +49,7 @@ val walletConnectModule = module {
 
         factory {
             WalletConnectMetadataRepository(
-                metadataManager = get(),
-                featureFlag = get(walletConnectFeatureFlag),
+                metadataManager = get()
             )
         }.bind(SessionRepository::class)
 

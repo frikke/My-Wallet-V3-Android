@@ -51,12 +51,12 @@ data class InterestAmount(
 
 @Serializable
 data class InterestAttributes(
-    val address: String?,
-    val confirmations: Int?,
-    val hash: String?,
-    val id: String,
-    val txHash: String,
-    val beneficiary: InterestBeneficiary?
+    val address: String? = null,
+    val confirmations: Int? = 0,
+    val hash: String? = null,
+    val id: String? = null,
+    val txHash: String? = null,
+    val beneficiary: InterestBeneficiary? = null
 )
 
 @Serializable

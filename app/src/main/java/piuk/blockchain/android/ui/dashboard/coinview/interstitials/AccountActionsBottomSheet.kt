@@ -1,17 +1,15 @@
-package piuk.blockchain.android.ui.dashboard.assetdetails.interstitials
+package piuk.blockchain.android.ui.dashboard.coinview.interstitials
 
+import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,6 +36,8 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -53,12 +53,17 @@ import piuk.blockchain.android.util.putAccount
 
 class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
-    private lateinit var composeView: ComposeView
     private val analytics: Analytics by inject()
 
     private val selectedAccount by lazy {
         arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount
     }
+
+    private val stateAwareActions by lazy { arguments?.getSerializable(STATE_AWARE_ACTIONS) as Array<StateAwareAction> }
+    private val balanceFiat by lazy { arguments?.getSerializable(BALANCE_FIAT) as Money }
+    private val balanceCrypto by lazy { arguments?.getSerializable(BALANCE_CRYPTO) as Money }
+    private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
+    private val hasWarning by lazy { arguments?.getBoolean(HAS_WARNING) ?: false }
 
     interface Host {
         fun navigateToAction(
@@ -73,23 +78,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             ?: throw IllegalStateException("Host activity is not a AccountActionsBottomSheet.Host")
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        composeView = ComposeView(requireContext())
-        return composeView
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val stateAwareActions = arguments?.getSerializable(STATE_AWARE_ACTIONS) as Array<StateAwareAction>
-        val balanceFiat = arguments?.getSerializable(BALANCE_FIAT) as Money
-        val balanceCrypto = arguments?.getSerializable(BALANCE_CRYPTO) as Money
-        val interestRate = arguments?.getDouble(INTEREST_RATE) as Double
-        val hasWarning = arguments?.getBoolean(HAS_WARNING) ?: false
-
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = BottomSheetDialog(requireActivity())
         val items =
             stateAwareActions.filter { it.state == ActionState.Available || it.state == ActionState.LockedForTier }
                 .map { action ->
@@ -102,39 +92,47 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
         val assetColor = items.first().color
 
-        composeView.apply {
-            setContent {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    SheetHeader(
-                        title = getTitle(selectedAccount),
-                        onClosePress = { dismiss() },
-                        startImageResource = getToolbarIcon(selectedAccount, assetColor)
-                    )
-                    DefaultTableRow(
-                        primaryText = balanceFiat.toStringWithSymbol(),
-                        secondaryText = balanceCrypto.toStringWithSymbol(),
-                        endTag = if (selectedAccount is InterestAccount) {
-                            TagViewState(
-                                getString(R.string.actions_sheet_percentage_rewards, interestRate.toString()),
-                                TagType.Success()
-                            )
-                        } else null,
-                        endImageResource = ImageResource.None,
-                        onClick = { }
-                    )
-                    Divider(color = AppTheme.colors.light, thickness = 1.dp)
-                    Spacer(
-                        Modifier.size(dimensionResource(com.blockchain.componentlib.R.dimen.small_margin)),
-                    )
-                    ActionsList(items)
+        dialog.setContentView(
+            ComposeView(requireContext()).apply {
+                setContent {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        SheetHeader(
+                            title = getTitle(selectedAccount),
+                            onClosePress = { dismiss() },
+                            startImageResource = getToolbarIcon(selectedAccount, assetColor),
+                            shouldShowDivider = false
+                        )
+                        DefaultTableRow(
+                            primaryText = balanceFiat.toStringWithSymbol(),
+                            secondaryText = balanceCrypto.toStringWithSymbol(),
+                            endTag = if (selectedAccount is InterestAccount) {
+                                TagViewState(
+                                    getString(R.string.actions_sheet_percentage_rewards, interestRate.toString()),
+                                    TagType.Success()
+                                )
+                            } else null,
+                            endImageResource = ImageResource.None,
+                            onClick = { }
+                        )
+                        Divider(color = AppTheme.colors.light, thickness = 1.dp)
+                        ActionsList(items)
+                    }
                 }
             }
+        )
+
+        dialog.setOnShowListener {
+            val d = it as BottomSheetDialog
+            val layout =
+                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
+            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
+        return dialog
     }
 
     private fun getTitle(selectedAccount: CryptoAccount): String =
@@ -427,7 +425,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             balanceFiat: Money,
             balanceCrypto: Money,
             interestRate: Double,
-            stateAwareActions: Set<StateAwareAction>,
+            stateAwareActions: Array<StateAwareAction>,
             hasWarning: Boolean
         ): AccountActionsBottomSheet {
             return AccountActionsBottomSheet().apply {
@@ -436,7 +434,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     putSerializable(BALANCE_FIAT, balanceFiat)
                     putSerializable(BALANCE_CRYPTO, balanceCrypto)
                     putDouble(INTEREST_RATE, interestRate)
-                    putSerializable(STATE_AWARE_ACTIONS, stateAwareActions.toTypedArray())
+                    putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                     putBoolean(HAS_WARNING, hasWarning)
                 }
             }

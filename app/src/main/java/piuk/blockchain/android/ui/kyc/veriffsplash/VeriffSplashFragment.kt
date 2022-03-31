@@ -93,6 +93,7 @@ class VeriffSplashFragment :
 
     private val compositeDisposable = CompositeDisposable()
     private var progressDialog: MaterialProgressDialog? = null
+    private var ctaClicked = false
 
     override val nextClick: Observable<Unit>
         get() = binding.btnNext.throttledClicks()
@@ -112,6 +113,7 @@ class VeriffSplashFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycVerifyIdentity)
+        analytics.logEvent(KYCAnalyticsEvents.MoreInfoViewed)
 
         checkCameraPermissions()
         setupTextLinks()
@@ -120,6 +122,7 @@ class VeriffSplashFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (!ctaClicked) analytics.logEvent(KYCAnalyticsEvents.MoreInfoDismissed)
         _binding = null
     }
 
@@ -185,6 +188,8 @@ class VeriffSplashFragment :
     @SuppressLint("InflateParams")
     override fun continueToVeriff(applicant: VeriffApplicantAndToken) {
         launchVeriff(applicant)
+        ctaClicked = true
+        analytics.logEvent(KYCAnalyticsEvents.MoreInfoCtaClicked)
         logEvent(KYCAnalyticsEvents.VeriffInfoStarted)
     }
 

@@ -11,6 +11,7 @@ import com.blockchain.nabu.FeatureAccess
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import timber.log.Timber
 
 class CoinViewModel(
     initialState: CoinViewState,
@@ -52,10 +53,42 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
+            is CoinViewIntent.ToggleWatchlist -> {
+                previousState.asset?.assetInfo?.let {
+                    if (previousState.isAddedToWatchlist) {
+                        interactor.removeFromWatchlist(it)
+                            .subscribeBy(
+                                onComplete = {
+                                    process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = false))
+                                },
+                                onError = {
+                                    process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
+                                }
+                            )
+                    } else {
+                        interactor.addToWatchlist(it)
+                            .subscribeBy(
+                                onSuccess = {
+                                    process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = true))
+                                },
+                                onError = {
+                                    process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
+                                }
+                            )
+                    }
+                }
+            }
             is CoinViewIntent.CheckScreenToOpen -> {
-                val screenToNavigate = interactor.checkPreferencesAndNavigateTo(intent.cryptoAccountSelected.account)
-                process(CoinViewIntent.UpdateViewState(screenToNavigate))
-                null
+                interactor.getAccountActions(intent.cryptoAccountSelected.account)
+                    .subscribeBy(
+                        onSuccess = { screenToNavigate ->
+                            process(CoinViewIntent.UpdateViewState(screenToNavigate))
+                        },
+                        onError = {
+                            Timber.e("***> Error Loading account actions: $it")
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ActionsLoadError))
+                        }
+                    )
             }
             is CoinViewIntent.CheckBuyStatus -> interactor.userCanBuy().subscribeBy(
                 onSuccess = {
@@ -69,6 +102,7 @@ class CoinViewModel(
             )
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
+            is CoinViewIntent.UpdateWatchlistState,
             CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
@@ -91,7 +125,7 @@ class CoinViewModel(
             )
 
     private fun loadQuickActions(intent: CoinViewIntent.LoadQuickActions) =
-        interactor.loadQuickActions(intent.totalCryptoBalance, intent.accountList)
+        interactor.loadQuickActions(intent.totalCryptoBalance, intent.accountList, intent.asset)
             .subscribeBy(
                 onSuccess = { actions ->
                     process(
@@ -174,19 +208,23 @@ class CoinViewModel(
                         CoinViewIntent.UpdateAccountDetails(
                             viewState = when (accountInfo) {
                                 is AssetInformation.AccountsInfo -> CoinViewViewState.ShowAccountInfo(
-                                    accountInfo
+                                    accountInfo, accountInfo.isAddedToWatchlist
                                 )
-                                is AssetInformation.NonTradeable -> CoinViewViewState.NonTradeableAccount
+                                is AssetInformation.NonTradeable -> CoinViewViewState.NonTradeableAccount(
+                                    accountInfo.isAddedToWatchlist
+                                )
                             },
                             assetInformation = accountInfo,
-                            asset = intent.asset
+                            asset = intent.asset,
+                            isAddedToWatchlist = accountInfo.isAddedToWatchlist
                         )
                     )
 
                     if (accountInfo is AssetInformation.AccountsInfo) {
                         process(
                             CoinViewIntent.LoadQuickActions(
-                                accountInfo.totalCryptoBalance, accountInfo.accountsList.map { it.account }
+                                accountInfo.totalCryptoBalance, accountInfo.accountsList.map { it.account },
+                                intent.asset
                             )
                         )
                     }

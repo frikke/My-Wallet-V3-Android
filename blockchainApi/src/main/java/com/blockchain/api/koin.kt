@@ -35,9 +35,11 @@ import com.blockchain.api.services.ProductEligibilityService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.api.services.WatchlistService
 import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
+import com.blockchain.api.watchlist.WatchlistApi
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
@@ -254,6 +256,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(nabuApi).create(TxLimitsApi::class.java)
         TxLimitsService(
+            api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(WatchlistApi::class.java)
+        WatchlistService(
             api = api
         )
     }

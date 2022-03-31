@@ -9,28 +9,27 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
-import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
-import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import java.util.concurrent.atomic.AtomicBoolean
 
-class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, FragmentVerifyDeviceBinding>() {
+class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java) {
 
-    override val model: LoginModel by scopedInject()
+    private var _binding: FragmentVerifyDeviceBinding? = null
+
+    val binding get() = _binding!!
 
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
-
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentVerifyDeviceBinding =
-        FragmentVerifyDeviceBinding.inflate(inflater, container, false)
 
     private val isTimerRunning = AtomicBoolean(false)
     private val timer = object : CountDownTimer(RESEND_TIMEOUT, TIMER_STEP) {
@@ -58,15 +57,20 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
         arguments?.getString(CAPTCHA) ?: throw IllegalArgumentException("No captcha specified")
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentVerifyDeviceBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         with(binding) {
             backButton.setOnClickListener {
-                model.process(LoginIntents.RevertToEmailInput)
+                (requireActivity() as LoginIntentCoordinator).process(LoginIntents.RevertToEmailInput)
+                requireActivity().supportFragmentManager.popBackStack()
             }
             customerSupport.setOnClickListener {
-                analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
             customerSupportSheetFF.enabled.onErrorReturn { false }
@@ -82,23 +86,20 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
             resendEmailButton.setOnClickListener {
                 if (!isTimerRunning.get()) {
                     timer.start()
-                    model.process(LoginIntents.SendEmail(sessionId, email, captcha))
+                    (requireActivity() as LoginIntentCoordinator)
+                        .process(LoginIntents.SendEmail(sessionId, email, captcha))
                     BlockchainSnackbar.make(
-                        binding.root, getString(R.string.verify_device_email_resent),
+                        root, getString(R.string.verify_device_email_resent),
                         type = SnackbarType.Success
                     ).show()
                 } else {
                     BlockchainSnackbar.make(
-                        binding.root, getString(R.string.verify_device_resend_blocked),
+                        root, getString(R.string.verify_device_resend_blocked),
                         type = SnackbarType.Error
                     ).show()
                 }
             }
         }
-    }
-
-    override fun render(newState: LoginState) {
-        // do nothing
     }
 
     override fun onPause() {
@@ -114,6 +115,11 @@ class VerifyDeviceFragment : MviFragment<LoginModel, LoginIntents, LoginState, F
         if (isTimerRunning.get()) {
             timer.start()
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     private fun showCustomerSupportSheet() {

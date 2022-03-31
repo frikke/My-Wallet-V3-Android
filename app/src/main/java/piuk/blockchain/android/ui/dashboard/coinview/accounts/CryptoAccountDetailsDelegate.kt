@@ -71,7 +71,7 @@ private class AssetWalletViewHolder(
             val walletLabel = when (item.assetFilter) {
                 AssetFilter.NonCustodial -> item.account.label
                 AssetFilter.Custodial -> labels.getDefaultCustodialWalletLabel()
-                AssetFilter.Rewards -> labels.getDefaultInterestWalletLabel()
+                AssetFilter.Interest -> labels.getDefaultInterestWalletLabel()
                 else -> throw IllegalArgumentException("Filer not supported for account label")
             }
             val account = when (item.account) {
@@ -95,7 +95,7 @@ private class AssetWalletViewHolder(
                             when (item.assetFilter) {
                                 AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_desc)
                                 AssetFilter.Custodial -> context.getString(R.string.coinview_c_available_desc)
-                                AssetFilter.Rewards -> {
+                                AssetFilter.Interest -> {
                                     val interestFormat = DecimalFormat("0.#")
                                     val interestRate = interestFormat.format(item.interestRate)
                                     binding.root.context.getString(
@@ -120,7 +120,7 @@ private class AssetWalletViewHolder(
                     secondaryText = when (item.assetFilter) {
                         AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_desc)
                         AssetFilter.Custodial -> context.getString(R.string.coinview_c_unavailable_desc, asset.name)
-                        AssetFilter.Rewards -> {
+                        AssetFilter.Interest -> {
                             val interestFormat = DecimalFormat("0.#")
                             val interestRate = interestFormat.format(item.interestRate)
                             context.getString(

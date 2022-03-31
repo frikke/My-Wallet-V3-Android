@@ -1,15 +1,15 @@
-package piuk.blockchain.android.ui.dashboard.assetdetails.interstitials
+package piuk.blockchain.android.ui.dashboard.coinview.interstitials
 
+import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
@@ -17,6 +17,8 @@ import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -28,7 +30,7 @@ import piuk.blockchain.android.util.putAccount
 class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     interface Host {
-        fun navigateToActionSheet()
+        fun navigateToActionSheet(actions: Array<StateAwareAction>)
         fun navigateToKyc()
     }
 
@@ -39,41 +41,53 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     val analytics: Analytics by inject()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val selectedAccount = arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount
-        val networkTicker = arguments?.getString(NETWORK_TICKER).orEmpty()
-        // TODO get the highest interest rate from all available before opening this sheet
-        val interestRate = arguments?.getDouble(INTEREST_RATE) as Double
+    private val accountActions by lazy {
+        arguments?.getSerializable(STATE_AWARE_ACTIONS) as Array<StateAwareAction>
+    }
+
+    private val selectedAccount by lazy { arguments?.getAccount(SELECTED_ACCOUNT) as CryptoAccount }
+    private val networkTicker by lazy { arguments?.getString(NETWORK_TICKER).orEmpty() }
+    // TODO get the highest interest rate from all available before opening this sheet
+    private val interestRate by lazy { arguments?.getDouble(INTEREST_RATE) as Double }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = BottomSheetDialog(requireActivity())
 
         explainerViewedToAnalytics(selectedAccount, networkTicker)
-
         val account = getAccountExplainerDetails(selectedAccount, interestRate)
 
-        return ComposeView(requireContext()).apply {
-            setContent {
-                BottomSheet(
-                    title = account.title,
-                    subtitle = account.description,
-                    imageResource = ImageResource.Local(account.icon),
-                    onCloseClick = {
-                        dismiss()
-                    },
-                    topButton = BottomSheetButton(
-                        text = account.buttonText,
-                        onClick = {
-                            host.navigateToActionSheet()
-                            explainerAcceptedToAnalytics(selectedAccount, networkTicker)
-                            super.dismiss()
+        dialog.setContentView(
+            ComposeView(requireContext()).apply {
+                setContent {
+                    BottomSheet(
+                        title = account.title,
+                        subtitle = account.description,
+                        imageResource = ImageResource.Local(account.icon),
+                        onCloseClick = {
+                            dismiss()
                         },
-                        type = ButtonType.PRIMARY
+                        topButton = BottomSheetButton(
+                            text = account.buttonText,
+                            onClick = {
+                                host.navigateToActionSheet(accountActions)
+                                explainerAcceptedToAnalytics(selectedAccount, networkTicker)
+                                super.dismiss()
+                            },
+                            type = ButtonType.PRIMARY
+                        ),
+                        shouldShowHeaderDivider = false
                     )
-                )
+                }
             }
+        )
+
+        dialog.setOnShowListener {
+            val d = it as BottomSheetDialog
+            val layout =
+                d.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
+            BottomSheetBehavior.from(layout).state = BottomSheetBehavior.STATE_EXPANDED
         }
+        return dialog
     }
 
     private fun getAccountExplainerDetails(
@@ -162,17 +176,20 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         private const val SELECTED_ACCOUNT = "selected_account"
         private const val NETWORK_TICKER = "network_ticker"
         private const val INTEREST_RATE = "interest_rate"
+        private const val STATE_AWARE_ACTIONS = "state_aware_actions"
 
         fun newInstance(
             selectedAccount: BlockchainAccount,
             networkTicker: String,
-            interestRate: Double
+            interestRate: Double,
+            stateAwareActions: Array<StateAwareAction>,
         ): AccountExplainerBottomSheet {
             return AccountExplainerBottomSheet().apply {
                 arguments = Bundle().apply {
                     putAccount(SELECTED_ACCOUNT, selectedAccount)
                     putString(NETWORK_TICKER, networkTicker)
                     putDouble(INTEREST_RATE, interestRate)
+                    putSerializable(STATE_AWARE_ACTIONS, stateAwareActions)
                 }
             }
         }
