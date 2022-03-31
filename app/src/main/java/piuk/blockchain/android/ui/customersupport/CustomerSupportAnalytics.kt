@@ -17,7 +17,7 @@ sealed class CustomerSupportAnalytics(
         event = AnalyticsNames.CUSTOMER_SUPPORT_SHEET_SHOWN.eventName
     )
 
-    object EmailClicked : CustomerSupportAnalytics(
+    object ContactUsClicked : CustomerSupportAnalytics(
         event = AnalyticsNames.CUSTOMER_SUPPORT_EMAIL_CLICKED.eventName
     )
 

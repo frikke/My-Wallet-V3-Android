@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragment() {
-    val analytics: Analytics by inject()
 
     abstract fun onStateUpdated(state: TViewState)
 

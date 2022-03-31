@@ -16,7 +16,9 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.notifications.analytics.Analytics
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_CONTACT_SUBMIT_REQUEST
 import piuk.blockchain.android.urllinks.URL_FAQ
@@ -24,7 +26,8 @@ import piuk.blockchain.android.util.openUrl
 
 class CustomerSupportSheet :
     MVIBottomSheet<CustomerSupportViewState>(),
-    NavigationRouter<CustomerSupportNavigationEvent> {
+    NavigationRouter<CustomerSupportNavigationEvent>,
+    Analytics by get(Analytics::class.java) {
 
     private lateinit var composeView: ComposeView
 
@@ -40,7 +43,7 @@ class CustomerSupportSheet :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        analytics.logEvent(CustomerSupportAnalytics.SheetShown)
+        logEvent(CustomerSupportAnalytics.SheetShown)
 
         setupViews()
         setupViewModel()
@@ -63,18 +66,12 @@ class CustomerSupportSheet :
             imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
             topButton = BottomSheetButton(
                 text = stringResource(id = R.string.customer_support_contact_us),
-                onClick = {
-                    analytics.logEvent(CustomerSupportAnalytics.EmailClicked)
-                    viewUrl(URL_CONTACT_SUBMIT_REQUEST)
-                },
+                onClick = ::contactUsClicked,
                 type = ButtonType.MINIMAL
             ),
             bottomButton = BottomSheetButton(
                 text = stringResource(id = R.string.customer_support_faq),
-                onClick = {
-                    analytics.logEvent(CustomerSupportAnalytics.FaqClicked)
-                    viewUrl(URL_FAQ)
-                },
+                onClick = ::faqClicked,
                 type = ButtonType.MINIMAL
             )
         )
@@ -82,6 +79,16 @@ class CustomerSupportSheet :
 
     private fun setupViewModel() {
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
+    }
+
+    private fun contactUsClicked() {
+        logEvent(CustomerSupportAnalytics.ContactUsClicked)
+        viewUrl(URL_CONTACT_SUBMIT_REQUEST)
+    }
+
+    private fun faqClicked() {
+        logEvent(CustomerSupportAnalytics.FaqClicked)
+        viewUrl(URL_FAQ)
     }
 
     private fun viewUrl(url: String) {
