@@ -32,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.compose.composable
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -40,6 +39,8 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
+import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
+import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -60,7 +61,6 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.bottomSheet
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -80,11 +80,11 @@ fun BlockchainCardNavHost(
         startDestination = startDestination.name,
     ) {
 
-        composable("order_or_link_card") {
+        composable(BlockchainCardNavigationEvent.OrderOrLinkCardDestination) {
             OrderOrLinkCard(viewModel)
         }
 
-        composable("select_card_for_order") {
+        composable(BlockchainCardNavigationEvent.SelectCardForOrder) {
             SelectCardForOrder(
                 onCreateCard = {
                     viewModel.onIntent(
@@ -102,11 +102,11 @@ fun BlockchainCardNavHost(
             )
         }
 
-        composable("create_card_in_progress") {
+        composable(BlockchainCardNavigationEvent.CreateCardInProgressDestination) {
             CardCreationInProgress()
         }
 
-        composable("create_card_success") {
+        composable(BlockchainCardNavigationEvent.CreateCardSuccessDestination) {
             CardCreationSuccess(
                 onFinish = {
                     viewModel.onIntent(BlockchainCardIntent.ManageCard)
@@ -114,11 +114,11 @@ fun BlockchainCardNavHost(
             )
         }
 
-        composable("create_card_failed") {
+        composable(BlockchainCardNavigationEvent.CreateCardFailedDestination) {
             CardCreationFailed()
         }
 
-        bottomSheet("product_details") {
+        bottomSheet(BlockchainCardNavigationEvent.OnSeeProductDetails) {
             ProductDetails(
                 cardProduct = state?.cardProduct,
                 onCloseProductDetailsBottomSheet = {
@@ -128,7 +128,7 @@ fun BlockchainCardNavHost(
         }
 
         // Manage Card Screens
-        composable("manage_card") {
+        composable(BlockchainCardNavigationEvent.ManageCardDestination) {
             ManageCard(cardId = state?.cardId, onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
         }
     }

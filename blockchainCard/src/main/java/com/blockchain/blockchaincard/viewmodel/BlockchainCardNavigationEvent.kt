@@ -17,8 +17,7 @@ sealed class BlockchainCardNavigationEvent(name: String) : ComposeNavigationEven
 
     object HideBottomSheet : BlockchainCardNavigationEvent(name = "hide_bottom_sheet")
 
-    data class OnSeeProductDetails(val cardProduct: BlockchainDebitCardProduct) :
-        BlockchainCardNavigationEvent(name = "product_details")
+    object OnSeeProductDetails : BlockchainCardNavigationEvent(name = "product_details")
 
     object ManageCardDestination : BlockchainCardNavigationEvent(name = "manage_card")
 }

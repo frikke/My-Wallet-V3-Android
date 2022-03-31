@@ -52,8 +52,8 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
             }
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
-                modelState.cardProduct?.let { cardProduct ->
-                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails(cardProduct))
+                modelState.cardProduct?.let {
+                    navigate(BlockchainCardNavigationEvent.OnSeeProductDetails)
                 } ?: Timber.w("Unable to show product details, no product info")
             }
 
