@@ -5,8 +5,8 @@ import com.blockchain.api.blockchainCard.api.CardsResponse
 import com.blockchain.api.blockchainCard.api.ProductsResponse
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
-import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
+import kotlinx.parcelize.Parcelize
 
 fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =
     BlockchainDebitCardProduct(

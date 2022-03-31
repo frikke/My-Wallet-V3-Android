@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.viewmodel
 
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationEvent
 
 sealed class BlockchainCardNavigationEvent(name: String) : ComposeNavigationEvent(name) {
