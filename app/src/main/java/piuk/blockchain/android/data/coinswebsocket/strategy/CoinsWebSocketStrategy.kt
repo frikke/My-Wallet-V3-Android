@@ -4,6 +4,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.utils.appendSpaced
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
@@ -265,12 +266,17 @@ class CoinsWebSocketStrategy(
             val ethAddress = ethAddress()
             if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
             ) {
-                val marquee = stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name) + " " +
-                    Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER) + " ETH"
-                val text = "$marquee " + stringUtils.getString(R.string.common_from)
-                    .toLowerCase(Locale.US) + " " + transaction.from
+                val marqueeBuilder = StringBuilder()
+                    .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
+                    .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
+                    .appendSpaced(CryptoCurrency.ETHER.displayTicker)
 
-                messagesSocketHandler?.triggerNotification(title, marquee, text)
+                val textBuilder = StringBuilder()
+                    .append(marqueeBuilder)
+                    .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
+                    .appendSpaced(transaction.from)
+
+                messagesSocketHandler?.triggerNotification(title, marqueeBuilder.toString(), textBuilder.toString())
             }
             updateEthTransactions()
         }
