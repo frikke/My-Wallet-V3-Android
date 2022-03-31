@@ -1,6 +1,6 @@
 package com.blockchain.blockchaincard.viewmodel
 
-import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -17,7 +17,7 @@ sealed class BlockchainDebitCardArgs : ModelConfigArgs.ParcelableArgs {
     data class ProductArgs(val product: BlockchainDebitCardProduct) : ModelConfigArgs.ParcelableArgs
 }
 
-class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCardRepositoryImpl) :
+class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) :
     MviViewModel<
         BlockchainCardIntent,
         BlockchainCardViewState,

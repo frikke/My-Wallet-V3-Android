@@ -8,7 +8,7 @@ import com.blockchain.blockchaincard.domain.models.toDomainModel
 import com.blockchain.nabu.Authenticator
 import io.reactivex.rxjava3.core.Single
 
-class BlockchainCardRepositoryImpl(
+internal class BlockchainCardRepositoryImpl(
     val blockchainCardService: BlockchainCardService,
     private val authenticator: Authenticator
 ) : BlockchainCardRepository {
