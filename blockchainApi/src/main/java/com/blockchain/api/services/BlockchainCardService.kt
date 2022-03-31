@@ -1,25 +1,27 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Single
 
 class BlockchainCardService internal constructor(
     private val api: BlockchainCardApi
 ) {
-    fun getProducts(authHeader: String): Single<List<ProductsResponse>> =
+    suspend fun getProducts(authHeader: String): Outcome<ApiError, List<ProductsResponse>> =
         api.getProducts(authHeader)
 
-    fun getCards(authHeader: String): Single<List<CardsResponse>> =
+    suspend fun getCards(authHeader: String): Outcome<ApiError, List<CardsResponse>> =
         api.getCards(authHeader)
 
-    fun createCard(
+    suspend fun createCard(
         authHeader: String,
         productCode: String,
         ssn: String
-    ): Single<CardsResponse> = api.createCard(
+    ): Outcome<ApiError, CardsResponse> = api.createCard(
         authorization = authHeader,
         cardCreationRequest = CardCreationRequestBody(
             productCode = productCode,
@@ -27,10 +29,10 @@ class BlockchainCardService internal constructor(
         )
     )
 
-    fun deleteCard(
+    suspend fun deleteCard(
         authHeader: String,
         cardId: String
-    ): Single<CardsResponse> = api.deleteCard(
+    ): Outcome<ApiError, CardsResponse> = api.deleteCard(
         authorization = authHeader,
         cardId = cardId
     )

@@ -1,15 +1,18 @@
 package com.blockchain.blockchaincard.domain
 
+import com.blockchain.api.adapters.ApiError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCard
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Single
 
 interface BlockchainCardRepository {
-    fun getProducts(): Single<List<BlockchainDebitCardProduct>>
+    suspend fun getProducts():Outcome<BlockchainCardError, List<BlockchainDebitCardProduct>>
 
-    fun getCards(): Single<List<BlockchainDebitCard>>
+    suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainDebitCard>>
 
-    fun createCard(productCode: String, ssn: String): Single<BlockchainDebitCard>
+    suspend fun createCard(productCode: String, ssn: String): Outcome<BlockchainCardError, BlockchainDebitCard>
 
-    fun deleteCard(cardId: String): Single<BlockchainDebitCard>
+    suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainDebitCard>
 }

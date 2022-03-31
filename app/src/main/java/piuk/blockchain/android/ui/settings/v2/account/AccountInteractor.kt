@@ -1,8 +1,14 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.map
+import com.blockchain.outcome.mapLeft
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
@@ -45,19 +51,41 @@ class AccountInteractor internal constructor(
             }
         }
 
-    fun getDebitCardState(): Single<BlockchainCardOrderState> =
-        blockchainCardRepository.getCards().flatMap { cards ->
+    /*suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
+        blockchainCardRepository.getCards()
+            .mapLeft { BlockchainCardError.RequestFailed }
+            .flatMap { cards ->
             val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
             if (activeCards.isNotEmpty()) {
                 // TODO For now we only allow 1 card, but in the future we must pass the full list here
-                Single.just(BlockchainCardOrderState.Ordered(activeCards.first().cardId))
+                BlockchainCardOrderState.Ordered(activeCards.first().cardId)
             } else {
-                blockchainCardRepository.getProducts().map { products ->
+                blockchainCardRepository.getProducts().mapLeft { BlockchainCardError.RequestFailed }.map { products ->
                     if (products.isNotEmpty())
                         BlockchainCardOrderState.Eligible(products)
                     else
                         BlockchainCardOrderState.NotEligible
                 }
             }
-        }
+        }*/
+
+    suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
+        blockchainCardRepository.getCards()
+            .mapLeft { BlockchainCardError.RequestFailed }
+            .flatMap { cards ->
+                val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
+                if (activeCards.isNotEmpty()) {
+                    // TODO For now we only allow 1 card, but in the future we must pass the full list here
+                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first().cardId))
+                } else {
+                    blockchainCardRepository.getProducts()
+                        .mapLeft { BlockchainCardError.RequestFailed }
+                        .map { products ->
+                            if (products.isNotEmpty())
+                                BlockchainCardOrderState.Eligible(products)
+                            else
+                                BlockchainCardOrderState.NotEligible
+                        }
+                }
+            }
 }

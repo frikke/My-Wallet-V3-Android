@@ -8,6 +8,10 @@ import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
 import kotlinx.parcelize.Parcelize
 
+sealed class BlockchainCardError {
+    object RequestFailed : BlockchainCardError()
+}
+
 fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =
     BlockchainDebitCardProduct(
         productCode = productCode,

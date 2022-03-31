@@ -4,9 +4,11 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.CrashLogger
+import com.blockchain.outcome.fold
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
 
 class AccountModel(
     initialState: AccountState,
@@ -57,15 +59,20 @@ class AccountModel(
             }
 
             is AccountIntent.LoadBCDebitCardInformation -> {
-                interactor.getDebitCardState()
-                    .subscribeBy(
-                        onSuccess = {
-                            process(AccountIntent.UpdateBlockchainCardOrderState(it))
-                        },
-                        onError = {
-                            process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
-                        }
-                    )
+                rxSingle {
+                    interactor.getDebitCardState()
+                }.subscribeBy(
+                    onSuccess = { outcome ->
+                        outcome.fold(
+                            onSuccess = {
+                                process(AccountIntent.UpdateBlockchainCardOrderState(it))
+                            },
+                            onFailure = {
+                                process(AccountIntent.UpdateErrorState(AccountError.BLOCKCHAIN_CARD_LOAD_FAIL))
+                            }
+                        )
+                    }
+                )
             }
             is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
                 .subscribeBy(

@@ -5,6 +5,8 @@ import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.fold
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
@@ -58,19 +60,17 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn)
-                    .doOnSubscribe {
-                        navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
-                    }.subscribeBy(
-                        onSuccess = { card ->
-                            updateState { it.copy(cardId = card.cardId) }
-                            navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
-                        },
-                        onError = {
-                            // Todo update state's error here OR pass it to the destination
-                            navigate(BlockchainCardNavigationEvent.CreateCardFailed)
-                        }
-                    )
+                navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
+                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn).fold(
+                    onFailure = {
+                        // Todo update state's error here OR pass it to the destination
+                        navigate(BlockchainCardNavigationEvent.CreateCardFailed)
+                    },
+                    onSuccess = { card ->
+                        updateState { it.copy(cardId = card.cardId) }
+                        navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
+                    }
+                )
             }
 
             is BlockchainCardIntent.HideProductDetailsBottomSheet -> {
@@ -79,12 +79,12 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
 
             is BlockchainCardIntent.DeleteCard -> {
                 modelState.cardId?.let { cardId ->
-                    blockchainCardRepository.deleteCard(cardId).subscribeBy(
+                    blockchainCardRepository.deleteCard(cardId).fold(
+                        onFailure = {
+                            Timber.d("Card delete FAILED")
+                        },
                         onSuccess = {
                             Timber.d("Card deleted")
-                        },
-                        onError = {
-                            Timber.d("Card delete FAILED")
                         }
                     )
                 }

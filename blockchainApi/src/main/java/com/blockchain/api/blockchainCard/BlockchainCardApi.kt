@@ -1,8 +1,10 @@
 package com.blockchain.api.blockchainCard
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -14,24 +16,24 @@ import retrofit2.http.Path
 internal interface BlockchainCardApi {
 
     @GET("products")
-    fun getProducts(
+    suspend fun getProducts(
         @Header("authorization") authorization: String,
-    ): Single<List<ProductsResponse>>
+    ): Outcome<ApiError, List<ProductsResponse>>
 
     @GET("cards")
-    fun getCards(
+    suspend fun getCards(
         @Header("authorization") authorization: String,
-    ): Single<List<CardsResponse>>
+    ):Outcome<ApiError, List<CardsResponse>>
 
     @POST("cards")
-    fun createCard(
+    suspend fun createCard(
         @Header("authorization") authorization: String,
         @Body cardCreationRequest: CardCreationRequestBody
-    ): Single<CardsResponse>
+    ): Outcome<ApiError, CardsResponse>
 
     @DELETE("cards/{cardId}")
-    fun deleteCard(
+    suspend fun deleteCard(
         @Path("cardId") cardId: String,
         @Header("authorization") authorization: String
-    ): Single<CardsResponse>
+    ): Outcome<ApiError, CardsResponse>
 }
