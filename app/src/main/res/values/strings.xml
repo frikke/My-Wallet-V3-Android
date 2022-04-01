@@ -2787,6 +2787,8 @@
     <string name="coinview_actions_error">There was an issue getting your available actions, please try again</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
+    <string name="coinview_asset_info_cta">Visit Website →</string>
+    <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
@@ -2850,5 +2852,6 @@
     <string name="actions_sheet_title_custodial">Trading Account</string>
     <string name="actions_sheet_title_rewards">Rewards Account</string>
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
+
 
 </resources>

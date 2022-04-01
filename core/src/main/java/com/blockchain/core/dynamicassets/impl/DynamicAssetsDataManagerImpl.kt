@@ -1,16 +1,19 @@
 package com.blockchain.core.dynamicassets.impl
 
 import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.api.services.DynamicAsset
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.dynamicassets.CryptoAssetList
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
+import com.blockchain.outcome.fold
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.rxSingle
 
 internal class DynamicAssetsDataManagerImpl(
     private val discoveryService: AssetDiscoveryService
@@ -31,6 +34,22 @@ internal class DynamicAssetsDataManagerImpl(
     override fun availableFiatAssets(): Single<FiatAssetList> =
         discoveryService.getFiatAssets()
             .map { list -> list.map { it.toFiatCurrency() } }
+
+    override fun getAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation> =
+        rxSingle {
+            discoveryService.getAssetInformation(assetTicker = asset.networkTicker).fold(
+                onFailure = {
+                    throw it.throwable
+                },
+                onSuccess = { info ->
+                    DetailedAssetInformation(
+                        description = info?.description.orEmpty(),
+                        website = info?.website.orEmpty(),
+                        whitepaper = info?.whitepaper.orEmpty()
+                    )
+                }
+            )
+        }
 }
 
 private fun DynamicAsset.hasSupport() =

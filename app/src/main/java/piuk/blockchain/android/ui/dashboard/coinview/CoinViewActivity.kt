@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
@@ -126,27 +127,7 @@ class CoinViewActivity :
 
             assetPricesLoading.showIconLoader = false
             assetBalancesLoading.showIconLoader = false
-
-            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
-            assetAboutTitle.apply {
-                text = getString(R.string.coinview_about_asset, assetName)
-                textColor = ComposeColors.Title
-                style = ComposeTypographies.Body2
-                gone()
-            }
-
-            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
-            assetAboutBlurb.apply {
-                text =
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut" +
-                    " labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " +
-                    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in" +
-                    " voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat " +
-                    "cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                textColor = ComposeColors.Title
-                style = ComposeTypographies.Paragraph1
-                gone()
-            }
+            assetInfoLoading.showIconLoader = false
 
             assetBalance.apply {
                 shouldShowIcon = true
@@ -155,23 +136,17 @@ class CoinViewActivity :
                 }
             }
 
-            // TODO (dserrano-bc): AND-5668 - asset information, pending BE implementation
-            assetWebsite.apply {
-                gone()
-                text = "Visit Website ->"
-                textColor = ComposeColors.Primary
-                style = ComposeTypographies.Paragraph2
-                onClick = {
-                    analytics.logEvent(
-                        CoinViewAnalytics.HyperlinkClicked(
-                            origin = LaunchOrigin.COIN_VIEW,
-                            currency = assetTicker,
-                            selection = CoinViewAnalytics.Companion.Selection.LEARN_MORE
-                        )
-                    )
-                    BlockchainSnackbar.make(binding.root, "Website link clicked").show()
-                }
+            assetAboutTitle.apply {
+                textColor = ComposeColors.Title
+                style = ComposeTypographies.Body2
             }
+
+            assetAboutBlurb.apply {
+                textColor = ComposeColors.Title
+                style = ComposeTypographies.Paragraph1
+            }
+
+            assetWebsite.text = getString(R.string.coinview_asset_info_cta)
 
             initNoAssetError()
             initAssetChart()
@@ -269,6 +244,7 @@ class CoinViewActivity :
         assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
         assetPricesSwitcher.displayedChild = PRICES_LOADING
         assetBalancesSwitcher.displayedChild = BALANCES_LOADING
+        assetInformationSwitcher.displayedChild = INFO_LOADING
     }
 
     private fun getTimeIntervalItems(): List<String> =
@@ -383,6 +359,7 @@ class CoinViewActivity :
             CoinViewError.None -> {
                 // do nothing
             }
+            CoinViewError.AssetDetailsLoadError -> binding.assetInformationSwitcher.gone()
         }
 
     private fun renderUiState(newState: CoinViewState) {
@@ -391,6 +368,9 @@ class CoinViewActivity :
             CoinViewViewState.LoadingRecurringBuys -> {
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
             }
+            CoinViewViewState.LoadingChart -> binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
+            CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
+            CoinViewViewState.LoadingAssetDetails -> binding.assetInformationSwitcher.displayedChild = INFO_LOADING
             is CoinViewViewState.ShowAccountInfo -> {
                 renderAccountsDetails(state.assetInfo.accountsList)
                 renderBalanceInformation(
@@ -399,10 +379,7 @@ class CoinViewActivity :
 
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
-            is CoinViewViewState.NonTradeableAccount -> renderNonTradeableAsset(newState, state.isAddedToWatchlist)
-            CoinViewViewState.LoadingChart -> {
-                binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
-            }
+            is CoinViewViewState.ShowNonTradeableAccount -> renderNonTradeableAsset(newState, state.isAddedToWatchlist)
             is CoinViewViewState.ShowAssetInfo -> {
                 with(binding) {
                     assetChartViewSwitcher.displayedChild = CHART_VIEW
@@ -415,7 +392,6 @@ class CoinViewActivity :
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
             }
             is CoinViewViewState.ShowRecurringBuys -> renderRecurringBuys(state.recurringBuys, state.shouldShowUpsell)
-            CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
             is CoinViewViewState.QuickActionsLoaded -> {
                 newState.asset?.let { asset ->
                     renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
@@ -450,12 +426,75 @@ class CoinViewActivity :
                     )
                 }
             }
+            is CoinViewViewState.ShowAssetDetails -> renderAssetInfo(state)
             CoinViewViewState.None -> {
                 // do nothing
             }
         }
 
         model.process(CoinViewIntent.ResetViewState)
+    }
+
+    private fun renderAssetInfo(state: CoinViewViewState.ShowAssetDetails) {
+        with(binding) {
+            assetAboutTitle.apply {
+                text = getString(R.string.coinview_about_asset, assetName)
+                textColor = ComposeColors.Title
+                style = ComposeTypographies.Body2
+                visible()
+            }
+
+            when {
+                state.details.description.isNotEmpty() && state.details.website.isNotEmpty() -> {
+                    assetAboutBlurb.apply {
+                        text = state.details.description
+                        visible()
+                    }
+                    assetWebsite.apply {
+                        onClick = {
+                            goToAssetWebsite(state.details.website)
+                        }
+                        visible()
+                    }
+                }
+                state.details.description.isEmpty() && state.details.website.isNotEmpty() -> {
+                    assetAboutBlurb.apply {
+                        text = getString(R.string.coinview_no_asset_description)
+                        visible()
+                    }
+                    assetWebsite.apply {
+                        onClick = {
+                            goToAssetWebsite(state.details.website)
+                        }
+                        visible()
+                    }
+                }
+                state.details.description.isNotEmpty() && state.details.website.isEmpty() -> {
+                    assetAboutBlurb.apply {
+                        text = state.details.description
+                        visible()
+                    }
+                    assetWebsite.gone()
+                }
+                else -> {
+                    assetInformationSwitcher.gone()
+                }
+            }
+
+            assetInformationSwitcher.displayedChild = INFO_VIEW
+        }
+    }
+
+    private fun goToAssetWebsite(url: String) {
+        analytics.logEvent(
+            CoinViewAnalytics.HyperlinkClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = assetTicker,
+                selection = CoinViewAnalytics.Companion.Selection.LEARN_MORE
+            )
+        )
+
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     private fun renderWatchlistIcon(state: CoinViewViewState.UpdatedWatchlist) {
@@ -922,6 +961,8 @@ class CoinViewActivity :
         private const val PRICES_VIEW = 1
         private const val BALANCES_LOADING = 0
         private const val BALANCES_VIEW = 1
+        private const val INFO_LOADING = 0
+        private const val INFO_VIEW = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
         private const val PATTERN_HOURS = "HH:mm"

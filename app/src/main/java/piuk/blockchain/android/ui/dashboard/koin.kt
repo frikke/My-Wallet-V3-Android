@@ -135,8 +135,9 @@ val dashboardModule = module {
                 dashboardPrefs = get(),
                 identity = get(),
                 custodialWalletManager = get(),
+                assetActionsComparator = get(),
+                assetsManager = get(),
                 watchlistDataManager = get(),
-                assetActionsComparator = get()
             )
         }
 

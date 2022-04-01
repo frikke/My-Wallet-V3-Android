@@ -11,6 +11,7 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.core.user.WatchlistDataManager
@@ -53,6 +54,7 @@ class CoinViewInteractorTest {
     private lateinit var subject: CoinViewInteractor
     private val coincore: Coincore = mock()
     private val tradeDataManager: TradeDataManager = mock()
+    private val assetManager: DynamicAssetsDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val dashboardPrefs: DashboardPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -127,7 +129,8 @@ class CoinViewInteractorTest {
             identity = identity,
             custodialWalletManager = custodialWalletManager,
             watchlistDataManager = watchlistDataManager,
-            assetActionsComparator = actionsComparator
+            assetActionsComparator = actionsComparator,
+            assetsManager = assetManager
         )
     }
 
@@ -351,7 +354,7 @@ class CoinViewInteractorTest {
     fun `when CheckBuyStatus then show userCanBuy Granted`() {
         whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(Single.just(FeatureAccess.Granted()))
 
-        val test = subject.userCanBuy().test()
+        val test = subject.checkIfUserCanBuy().test()
 
         test.assertValue {
             it == FeatureAccess.Granted()

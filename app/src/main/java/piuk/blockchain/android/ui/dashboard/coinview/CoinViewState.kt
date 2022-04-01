@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -29,6 +30,7 @@ sealed class CoinViewViewState {
     object LoadingWallets : CoinViewViewState()
     object LoadingChart : CoinViewViewState()
     object LoadingRecurringBuys : CoinViewViewState()
+    object LoadingAssetDetails : CoinViewViewState()
     object LoadingQuickActions : CoinViewViewState()
     class ShowAccountInfo(val assetInfo: AssetInformation.AccountsInfo, val isAddedToWatchlist: Boolean) :
         CoinViewViewState()
@@ -46,7 +48,9 @@ sealed class CoinViewViewState {
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
     ) : CoinViewViewState()
-    class NonTradeableAccount(val isAddedToWatchlist: Boolean) : CoinViewViewState()
+
+    class ShowAssetDetails(val details: DetailedAssetInformation) : CoinViewViewState()
+    class ShowNonTradeableAccount(val isAddedToWatchlist: Boolean) : CoinViewViewState()
     class UpdatedWatchlist(val addedToWatchlist: Boolean) : CoinViewViewState()
     class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
     class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
@@ -70,8 +74,9 @@ enum class CoinViewError {
     RecurringBuysLoadError,
     QuickActionsFailed,
     MissingSelectedFiat,
-    WatchlistUpdateFailed,
-    ActionsLoadError
+    ActionsLoadError,
+    AssetDetailsLoadError,
+    WatchlistUpdateFailed
 }
 
 sealed class AssetInformation(

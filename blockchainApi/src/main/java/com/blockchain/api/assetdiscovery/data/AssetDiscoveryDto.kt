@@ -87,3 +87,17 @@ internal data class DynamicCurrencyList(
     @SerialName("currencies")
     val currencies: List<DynamicCurrency>
 )
+
+@Serializable
+internal data class AssetInformationResponse(
+    @SerialName("currencyInfo")
+    val assetInfo: DynamicCurrency,
+    @SerialName("description")
+    val description: String?,
+    @SerialName("whitepaper")
+    val whitepaper: String?,
+    @SerialName("website")
+    val website: String?,
+    @SerialName("language")
+    val language: String?
+)
