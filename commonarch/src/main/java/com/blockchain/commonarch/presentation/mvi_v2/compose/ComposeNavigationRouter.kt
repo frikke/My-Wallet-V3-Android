@@ -48,7 +48,7 @@ fun MviNavHost(
 ) {
     val bottomSheetNavigator = rememberBottomSheetNavigator()
     navigationRouter.navController = rememberNavController()
-    navigationRouter.navController.navigatorProvider += bottomSheetNavigator
+    navigationRouter.navController.navigatorProvider.addNavigator(bottomSheetNavigator)
 
     ModalBottomSheetLayout(
         bottomSheetNavigator = bottomSheetNavigator,
