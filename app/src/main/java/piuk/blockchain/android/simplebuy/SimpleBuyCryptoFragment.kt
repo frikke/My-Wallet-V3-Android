@@ -500,11 +500,7 @@ class SimpleBuyCryptoFragment :
             paymentMethodDetailsRoot.visible()
             paymentMethodDetailsRoot.setOnClickListener {
                 showPaymentMethodsBottomSheet(
-                    state = if (state.paymentOptions.availablePaymentMethods.any { it.canBeUsedForPaying() }) {
-                        PaymentMethodsChooserState.AVAILABLE_TO_PAY
-                    } else {
-                        PaymentMethodsChooserState.AVAILABLE_TO_ADD
-                    },
+                    state = state.paymentOptions.availablePaymentMethods.toPaymentMethodChooserState(),
                     paymentOptions = state.paymentOptions
                 )
             }
@@ -519,6 +515,20 @@ class SimpleBuyCryptoFragment :
             is PaymentMethod.GooglePay -> renderGooglePayPayment(selectedPaymentMethod)
             else -> {
                 // Nothing to do here.
+            }
+        }
+    }
+
+    private fun List<PaymentMethod>.toPaymentMethodChooserState(): PaymentMethodsChooserState {
+        with(filter { it.canBeUsedForPaying() }) {
+            return if (
+                this.isEmpty() ||
+                // Show AVAILABLE_TO_ADD if GooglePay is the only method that can be used for paying
+                (this.size == 1 && this.singleOrNull { it is PaymentMethod.GooglePay } != null)
+            ) {
+                PaymentMethodsChooserState.AVAILABLE_TO_ADD
+            } else {
+                PaymentMethodsChooserState.AVAILABLE_TO_PAY
             }
         }
     }
@@ -673,6 +683,7 @@ class SimpleBuyCryptoFragment :
             analytics.logEvent(InfoBottomSheetDismissed(AssetAction.Buy))
         }
     }
+
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
         if (paymentMethod.canBeUsedForPaying())
