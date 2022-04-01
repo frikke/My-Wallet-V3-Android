@@ -1,6 +1,8 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
+import androidx.navigation.navOptions
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
@@ -32,23 +34,23 @@ class BlockchainCardNavigationRouter : ComposeNavigationRouter {
             }
 
             is BlockchainCardNavigationEvent.CreateCardSuccess -> {
-                navController.popBackStack(BlockchainCardDestination.OrderOrLinkCardDestination.name, true)
+                navController.popBackStack(BlockchainCardDestination.OrderOrLinkCardDestination.route, true)
                 destination = BlockchainCardDestination.CreateCardSuccessDestination
             }
 
             is BlockchainCardNavigationEvent.CreateCardFailed -> {
-                navController.popBackStack(BlockchainCardDestination.SelectCardForOrderDestination.name, false)
+                navController.popBackStack(BlockchainCardDestination.SelectCardForOrderDestination.route, false)
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
             is BlockchainCardNavigationEvent.ManageCard -> {
-                navController.popBackStack(BlockchainCardDestination.OrderOrLinkCardDestination.name, true)
+                navController.popBackStack(BlockchainCardDestination.CreateCardSuccessDestination.route, true)
                 destination = BlockchainCardDestination.ManageCardDestination
             }
         }
 
         if (destination !is BlockchainCardDestination.NoDestination)
-            navController.navigate(destination.name)
+            navController.navigate(destination.route)
     }
 
     override lateinit var navController: NavHostController
@@ -72,21 +74,21 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object ManageCard : BlockchainCardNavigationEvent()
 }
 
-sealed class BlockchainCardDestination(override val name: String) : ComposeNavigationDestination {
+sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
 
-    object NoDestination : BlockchainCardDestination(name = "")
+    object NoDestination : BlockchainCardDestination(route = "")
 
-    object OrderOrLinkCardDestination : BlockchainCardDestination(name = "order_or_link_card")
+    object OrderOrLinkCardDestination : BlockchainCardDestination(route = "order_or_link_card")
 
-    object CreateCardInProgressDestination : BlockchainCardDestination(name = "create_card_in_progress")
+    object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 
-    object CreateCardSuccessDestination : BlockchainCardDestination(name = "create_card_success")
+    object CreateCardSuccessDestination : BlockchainCardDestination(route = "create_card_success")
 
-    object CreateCardFailedDestination : BlockchainCardDestination(name = "create_card_failed")
+    object CreateCardFailedDestination : BlockchainCardDestination(route = "create_card_failed")
 
-    object SelectCardForOrderDestination : BlockchainCardDestination(name = "select_card_for_order")
+    object SelectCardForOrderDestination : BlockchainCardDestination(route = "select_card_for_order")
 
-    object SeeProductDetailsDestination : BlockchainCardDestination(name = "product_details")
+    object SeeProductDetailsDestination : BlockchainCardDestination(route = "product_details")
 
-    object ManageCardDestination : BlockchainCardDestination(name = "manage_card")
+    object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
 }

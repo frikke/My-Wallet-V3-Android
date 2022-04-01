@@ -36,7 +36,6 @@ import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
@@ -78,7 +77,7 @@ fun BlockchainCardNavHost(
     val state by stateFlowLifecycleAware.collectAsState(null)
     MviNavHost(
         navigator,
-        startDestination = startDestination.name,
+        startDestination = startDestination,
     ) {
 
         composable(BlockchainCardDestination.OrderOrLinkCardDestination) {

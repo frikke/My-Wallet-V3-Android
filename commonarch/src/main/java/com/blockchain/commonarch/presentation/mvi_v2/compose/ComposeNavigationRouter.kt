@@ -33,14 +33,14 @@ interface ComposeNavigationRouter : NavigationRouter<NavigationEvent> {
 }
 
 interface ComposeNavigationDestination {
-    val name: String
+    val route: String
 }
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun MviNavHost(
     navigationRouter: ComposeNavigationRouter,
-    startDestination: String,
+    startDestination: ComposeNavigationDestination,
     modifier: Modifier = Modifier,
     onCollapse: () -> Unit = {},
     route: String? = null,
@@ -59,8 +59,8 @@ fun MviNavHost(
     ) {
         NavHost(
             navigationRouter.navController,
-            remember(route, startDestination, builder) {
-                navigationRouter.navController.createGraph(startDestination, route, builder)
+            remember(route, startDestination.route, builder) {
+                navigationRouter.navController.createGraph(startDestination.route, route, builder)
             },
             modifier
         )
@@ -83,7 +83,7 @@ fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
-            this.route = navigationEvent.name
+            this.route = navigationEvent.route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
@@ -106,7 +106,7 @@ fun NavGraphBuilder.bottomSheet(
             provider[BottomSheetNavigator::class],
             content
         ).apply {
-            this.route = navigationEvent.name
+            this.route = navigationEvent.route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
