@@ -53,6 +53,31 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
+            is CoinViewIntent.ToggleWatchlist -> {
+                previousState.asset?.assetInfo?.let {
+                    if (previousState.isAddedToWatchlist) {
+                        interactor.removeFromWatchlist(it)
+                            .subscribeBy(
+                                onComplete = {
+                                    process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = false))
+                                },
+                                onError = {
+                                    process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
+                                }
+                            )
+                    } else {
+                        interactor.addToWatchlist(it)
+                            .subscribeBy(
+                                onSuccess = {
+                                    process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = true))
+                                },
+                                onError = {
+                                    process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
+                                }
+                            )
+                    }
+                }
+            }
             is CoinViewIntent.CheckScreenToOpen -> {
                 interactor.getAccountActions(intent.cryptoAccountSelected.account)
                     .subscribeBy(
@@ -77,6 +102,7 @@ class CoinViewModel(
             )
             CoinViewIntent.ResetErrorState,
             CoinViewIntent.ResetViewState,
+            is CoinViewIntent.UpdateWatchlistState,
             CoinViewIntent.BuyHasWarning,
             is CoinViewIntent.UpdateErrorState,
             is CoinViewIntent.UpdateViewState,
@@ -99,7 +125,7 @@ class CoinViewModel(
             )
 
     private fun loadQuickActions(intent: CoinViewIntent.LoadQuickActions) =
-        interactor.loadQuickActions(intent.totalCryptoBalance, intent.accountList)
+        interactor.loadQuickActions(intent.totalCryptoBalance, intent.accountList, intent.asset)
             .subscribeBy(
                 onSuccess = { actions ->
                     process(
@@ -182,19 +208,23 @@ class CoinViewModel(
                         CoinViewIntent.UpdateAccountDetails(
                             viewState = when (accountInfo) {
                                 is AssetInformation.AccountsInfo -> CoinViewViewState.ShowAccountInfo(
-                                    accountInfo
+                                    accountInfo, accountInfo.isAddedToWatchlist
                                 )
-                                is AssetInformation.NonTradeable -> CoinViewViewState.NonTradeableAccount
+                                is AssetInformation.NonTradeable -> CoinViewViewState.NonTradeableAccount(
+                                    accountInfo.isAddedToWatchlist
+                                )
                             },
                             assetInformation = accountInfo,
-                            asset = intent.asset
+                            asset = intent.asset,
+                            isAddedToWatchlist = accountInfo.isAddedToWatchlist
                         )
                     )
 
                     if (accountInfo is AssetInformation.AccountsInfo) {
                         process(
                             CoinViewIntent.LoadQuickActions(
-                                accountInfo.totalCryptoBalance, accountInfo.accountsList.map { it.account }
+                                accountInfo.totalCryptoBalance, accountInfo.accountsList.map { it.account },
+                                intent.asset
                             )
                         )
                     }

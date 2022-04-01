@@ -59,12 +59,12 @@ class OutcomeCall<R>(
             !isSuccessful -> Outcome.Failure(this.toApiError())
             // Http success response with body
             body != null -> Outcome.Success(body)
-            code() == HttpStatus.NO_CONTENT -> Outcome.Success(null as R)
             // if we defined Unit as success type it means we expected no response body
             // e.g. in case of 204 No Content
             successType == Unit::class.java ->
                 @Suppress("UNCHECKED_CAST")
                 Outcome.Success(Unit) as Outcome<ApiError, R>
+            code() == HttpStatus.NO_CONTENT -> Outcome.Success(null as R)
             else -> Outcome.Failure(ApiError.UnknownApiError(throwable = Throwable(errorBody()?.toString() ?: "")))
         }
     }

@@ -95,6 +95,21 @@ class AddressFactoryImpl(
             }
         }
 
+    // When the input contains a '.' it can either be a domain (like name.blockchain) or a BIP21/EIP-681
+    // payment link (ethereum:valid1Address/transfer?address=valid2Address&uint256=0.1"). To avoid processing
+    // the latter as a domain we look for the absence '?' as well.
     private fun isDomainAddress(address: String): Single<Boolean> =
-        Single.just(address.contains('.') && !address.contains('?'))
+        Single.just(
+            (address.contains('.') && !address.contains('?')) || !alphaNumericAndAscii.matches(address)
+        )
+
+    companion object {
+        // It's easier to define what is not an emoji than what it is. At the time of writing the only way to tell
+        // if the input contains emojis is by checking the unicodes of each character within the range of the
+        // currently existing emojis (which keeps expanding every time a new one is created). Instead let's match
+        // the input against a regular expression which matches alpha-numerics and characters of ASCII (to include
+        // the symbols of the payment protocols like '&'). If the input can't be matched against this formula,
+        // we should try to resolve it as a domain given that it can't be an address.
+        private val alphaNumericAndAscii = Regex("^[\\p{Alnum}\\p{ASCII}]+")
+    }
 }
