@@ -25,12 +25,12 @@ fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =
 
 fun CardsResponse.toDomainModel(): BlockchainDebitCard =
     BlockchainDebitCard(
-        cardId = cardId,
+        id = id,
         type = BlockchainCardType.valueOf(type),
         last4 = last4,
         expiry = expiry,
         brand = BlockchainCardBrand.valueOf(brand),
-        cardStatus = BlockchainCardStatus.valueOf(cardStatus),
+        status = BlockchainCardStatus.valueOf(status),
         createdAt = createdAt
     )
 
@@ -43,12 +43,12 @@ data class BlockchainDebitCardProduct(
 ) : Parcelable
 
 data class BlockchainDebitCard(
-    val cardId: String,
+    val id: String,
     val type: BlockchainCardType,
     val last4: String,
     val expiry: String,
     val brand: BlockchainCardBrand,
-    val cardStatus: BlockchainCardStatus,
+    val status: BlockchainCardStatus,
     val createdAt: String
 )
 

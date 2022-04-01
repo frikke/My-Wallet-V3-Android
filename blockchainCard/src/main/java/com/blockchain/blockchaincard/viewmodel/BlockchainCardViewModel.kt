@@ -5,9 +5,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
-import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 
@@ -67,7 +65,7 @@ class BlockchainCardViewModel(private val blockchainCardRepository: BlockchainCa
                         navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                     },
                     onSuccess = { card ->
-                        updateState { it.copy(cardId = card.cardId) }
+                        updateState { it.copy(cardId = card.id) }
                         navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
                     }
                 )

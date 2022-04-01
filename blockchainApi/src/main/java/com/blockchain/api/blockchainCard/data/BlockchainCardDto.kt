@@ -12,12 +12,12 @@ data class ProductsResponse(
 
 @Serializable
 data class CardsResponse(
-    val cardId: String,
+    val id: String,
     val type: String,
     val last4: String,
     val expiry: String,
     val brand: String,
-    val cardStatus: String,
+    val status: String,
     val createdAt: String
 )
 

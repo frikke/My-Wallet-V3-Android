@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
@@ -73,10 +72,10 @@ class AccountInteractor internal constructor(
         blockchainCardRepository.getCards()
             .mapLeft { BlockchainCardError.RequestFailed }
             .flatMap { cards ->
-                val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
+                val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
                 if (activeCards.isNotEmpty()) {
                     // TODO For now we only allow 1 card, but in the future we must pass the full list here
-                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first().cardId))
+                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first().id))
                 } else {
                     blockchainCardRepository.getProducts()
                         .mapLeft { BlockchainCardError.RequestFailed }
