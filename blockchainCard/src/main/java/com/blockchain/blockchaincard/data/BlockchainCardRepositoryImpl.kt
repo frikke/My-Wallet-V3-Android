@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.data
 
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
@@ -12,7 +11,6 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
-import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class BlockchainCardRepositoryImpl(

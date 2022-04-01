@@ -1,8 +1,6 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.navOptions
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter

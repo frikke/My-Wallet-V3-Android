@@ -5,7 +5,6 @@ import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.outcome.Outcome
-import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -23,7 +22,7 @@ internal interface BlockchainCardApi {
     @GET("cards")
     suspend fun getCards(
         @Header("authorization") authorization: String,
-    ):Outcome<ApiError, List<CardsResponse>>
+    ): Outcome<ApiError, List<CardsResponse>>
 
     @POST("cards")
     suspend fun createCard(

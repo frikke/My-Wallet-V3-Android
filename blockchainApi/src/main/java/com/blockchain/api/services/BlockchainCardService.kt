@@ -6,7 +6,6 @@ import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.outcome.Outcome
-import io.reactivex.rxjava3.core.Single
 
 class BlockchainCardService internal constructor(
     private val api: BlockchainCardApi
