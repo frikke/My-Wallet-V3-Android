@@ -147,7 +147,6 @@ class SimpleBuyCryptoFragment :
         )
         model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
         compositeDisposable += entitySwitchSilverEligibilityFF.enabled
-            .onErrorReturnItem(false)
             .subscribe { enabled ->
                 if (enabled) model.process(SimpleBuyIntent.FetchEligibility)
             }

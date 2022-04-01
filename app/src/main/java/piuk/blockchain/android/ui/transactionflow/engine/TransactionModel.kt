@@ -537,7 +537,6 @@ class TransactionModel(
         action: AssetAction
     ): Disposable =
         entitySwitchSilverEligibilityFeatureFlag.enabled
-            .onErrorReturnItem(false)
             .flatMapMaybe { enabled ->
                 if (enabled) fetchProductEligibility(action, sourceAccount, transactionTarget)
                 else Maybe.empty()

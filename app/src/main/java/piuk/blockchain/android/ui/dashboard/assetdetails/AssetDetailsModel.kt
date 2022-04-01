@@ -233,7 +233,6 @@ class AssetDetailsModel(
 
     private fun accountActions(account: BlockchainAccount): Disposable =
         entitySwitchSilverEligibilityFeatureFlag.enabled
-            .onErrorReturnItem(false)
             .flatMap { enabled ->
                 if (enabled) {
                     Singles.zip(account.stateAwareActions, account.isEnabled)

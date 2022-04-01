@@ -145,7 +145,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
-                        deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+                        deeplinkingV2FF.enabled.subscribeBy(
                             onSuccess = { isEnabled ->
                                 if (isEnabled) {
                                     deeplinkRedirector.processDeeplinkURL(

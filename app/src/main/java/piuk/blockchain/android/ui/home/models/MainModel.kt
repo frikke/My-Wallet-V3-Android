@@ -116,10 +116,9 @@ class MainModel(
                     )
             }
             is MainIntent.CheckForInitialDialogs -> if (intent.shouldStartUiTour) {
-                uiTourFeatureFlag.enabled.onErrorReturnItem(false)
-                    .subscribe { show ->
-                        if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
-                    }
+                uiTourFeatureFlag.enabled.subscribe { show ->
+                    if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
+                }
             } else {
                 interactor.shouldShowEntitySwitchSilverKycUpsell()
                     .onErrorReturnItem(false)
