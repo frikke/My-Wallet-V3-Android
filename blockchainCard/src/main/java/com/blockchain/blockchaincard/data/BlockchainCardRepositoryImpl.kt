@@ -13,7 +13,7 @@ import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
-internal class BlockchainCardRepositoryImpl(
+class BlockchainCardRepositoryImpl(
     val blockchainCardService: BlockchainCardService,
     private val authenticator: Authenticator
 ) : BlockchainCardRepository {
