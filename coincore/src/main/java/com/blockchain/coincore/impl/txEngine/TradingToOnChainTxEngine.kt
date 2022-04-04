@@ -1,6 +1,9 @@
 package com.blockchain.coincore.impl.txEngine
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
@@ -24,6 +27,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -85,21 +89,20 @@ class TradingToOnChainTxEngine(
                             get() = null
                     }
                 }
-            ),
-            { balance, cryptoFee, limits ->
-                val fees = Money.fromMinor(sourceAsset, cryptoFee.fee)
-                PendingTx(
-                    amount = Money.zero(sourceAsset),
-                    totalBalance = balance.total,
-                    availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset)),
-                    feeForFullAvailable = fees,
-                    feeAmount = fees,
-                    feeSelection = FeeSelection(),
-                    selectedFiat = userFiat,
-                    limits = limits
-                )
-            }
-        )
+            )
+        ) { balance, cryptoFee, limits ->
+            val fees = Money.fromMinor(sourceAsset, cryptoFee.fee)
+            PendingTx(
+                amount = Money.zero(sourceAsset),
+                totalBalance = balance.total,
+                availableBalance = Money.max(balance.withdrawable - fees, Money.zero(sourceAsset)),
+                feeForFullAvailable = fees,
+                feeAmount = fees,
+                feeSelection = FeeSelection(),
+                selectedFiat = userFiat,
+                limits = limits
+            )
+        }
     }
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
@@ -241,9 +244,28 @@ class TradingToOnChainTxEngine(
 
         return walletManager.transferFundsToWallet(
             pendingTx.amount as CryptoValue, address
-        )
+        ).updateTxValidation()
             .map {
                 TxResult.UnHashedTxResult(pendingTx.amount)
             }
+    }
+}
+
+private fun Single<String>.updateTxValidation(): Single<String> {
+    return this.onErrorResumeNext {
+        val nabuException = it as? NabuApiException ?: return@onErrorResumeNext Single.error(it)
+        return@onErrorResumeNext when (nabuException.getErrorStatusCode()) {
+            NabuErrorStatusCodes.Forbidden -> {
+                if (nabuException.getErrorCode() == NabuErrorCodes.WithdrawLocked) {
+                    Single.error(TransactionError.WithdrawalBalanceLocked)
+                } else {
+                    Single.error(TransactionError.WithdrawalAlreadyPending)
+                }
+            }
+            NabuErrorStatusCodes.Conflict -> Single.error(
+                TransactionError.WithdrawalInsufficientFunds
+            )
+            else -> Single.error(nabuException)
+        }
     }
 }

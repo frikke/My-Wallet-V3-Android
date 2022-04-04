@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
@@ -490,9 +491,7 @@ sealed class TransactionError : Throwable() {
     object WithdrawalAlreadyPending : TransactionError()
     object WithdrawalBalanceLocked : TransactionError()
     object WithdrawalInsufficientFunds : TransactionError()
-    object UnexpectedError : TransactionError()
     object InternalServerError : TransactionError()
-    object AlbertExecutionError : TransactionError()
     object TradingTemporarilyDisabled : TransactionError()
     object InsufficientBalance : TransactionError()
     object OrderBelowMin : TransactionError()
@@ -509,7 +508,10 @@ sealed class TransactionError : Throwable() {
     object IneligibleForSwap : TransactionError()
     object InvalidDestinationAmount : TransactionError()
     object InvalidPostcode : TransactionError()
+    object TransactionDenied : TransactionError()
     object ExecutionFailed : TransactionError()
+    object InternetConnectionError : TransactionError()
+    class HttpError(val nabuApiException: NabuApiException) : TransactionError()
 }
 
 sealed class PaymentMethod(

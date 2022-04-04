@@ -1155,7 +1155,6 @@ Nota: no podrá enviar ni retirar estos fondos desde su monedero en los próximo
     <string name="trading_withdrawal_balance_locked">¡Vaya! Por razones de seguridad, su saldo está bloqueado en este momento. Inténtelo de nuevo más tarde.</string>
     <string name="trading_withdrawal_insufficient_funds">¡Vaya! No tiene suficientes fondos para retirar</string>
     <string name="trading_internal_server_error">¡Vaya! Este servicio no está disponible en este momento. Inténtelo de nuevo más tarde.</string>
-    <string name="trading_albert_error">¡Vaya! Algo salió mal. Vuelva a intentarlo.</string>
     <string name="trading_service_temp_disabled">Este servicio volverá a estar disponible pronto. Estamos actualizando y arreglando algunos errores en este momento.</string>
     <string name="trading_insufficient_balance">¡Vaya! No tiene suficiente saldo para %1$s.</string>
     <string name="trading_amount_below_min">¡Vaya! El importe seleccionado está por debajo del límite mínimo de %1$s.</string>
@@ -1832,7 +1831,6 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="activity_state_canceled">Cancelada</string>
     <string name="fiat_funds_detail_withdraw_title">Retirado</string>
     <string name="withdrawing_amount_message">Estamos completando su retirada en este momento.</string>
-    <string name="send_progress_error_title">¡Vaya! Algo salió mal. Vuelva a intentarlo.</string>
     <string name="send_progress_error_subtitle">No se preocupe, su dinero está a salvo. Vuelva a intentarlo o póngase en contacto con nuestro servicio de asistencia para recibir ayuda.</string>
     <string name="send_enter_insufficient_gas">No tiene suficiente ETH para procesar esta transacción.</string>
     <string name="swap_select_target_title">Nuevo intercambio</string>

@@ -1185,7 +1185,6 @@ Remarque : Vous ne pourrez pas envoyer ou retirer ces fonds de votre Portefeuill
     <string name="trading_withdrawal_balance_locked">Oups ! Pour des raisons de sécurité, votre solde est actuellement bloqué, veuillez réessayer plus tard.</string>
     <string name="trading_withdrawal_insufficient_funds">Oups ! Vous n\'avez pas assez de fonds pour faire un Retrait</string>
     <string name="trading_internal_server_error">Oups ! Ce service est actuellement indisponible, veuillez réessayer plus tard.</string>
-    <string name="trading_albert_error">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="trading_service_temp_disabled">Ce service sera bientôt de retour. Nous mettons à jour et corrigeons quelques bugs en ce moment même.</string>
     <string name="trading_insufficient_balance">Oups ! Votre solde est insuffisant pour %1$s.</string>
     <string name="trading_amount_below_min">Oups ! Le montant que vous avez sélectionné est inférieur à la limite minimale de %1$s.</string>
@@ -1865,7 +1864,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="activity_state_canceled">Annulé</string>
     <string name="fiat_funds_detail_withdraw_title">Retirés</string>
     <string name="withdrawing_amount_message">Nous sommes en train de finaliser votre retrait.</string>
-    <string name="send_progress_error_title">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="send_progress_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
     <string name="send_enter_insufficient_gas">Vous ne disposez pas de suffisamment d\'ETH pour traiter cette transaction.</string>
     <string name="swap_select_target_title">Nouvelle Conversion</string>

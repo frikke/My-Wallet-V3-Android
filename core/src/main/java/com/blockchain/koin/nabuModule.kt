@@ -111,7 +111,6 @@ val nabuModule = module {
                 assetCatalogue = get(),
                 nabuService = get(),
                 authenticator = get(),
-                simpleBuyPrefs = get(),
                 paymentAccountMapperMappers = mapOf(
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),

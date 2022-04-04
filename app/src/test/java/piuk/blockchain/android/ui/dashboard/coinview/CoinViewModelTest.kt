@@ -22,7 +22,6 @@ import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -467,14 +466,18 @@ class CoinViewModelTest {
             Single.just(priceList)
         )
 
-        // for some reason using @Test(expected = IllegalStateException::class) isn't working in this case,
-        // so this is a workaround to test for exceptions
-        try {
-            localSubject.process(
-                CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
-            )
-        } catch (e: Exception) {
-            Assert.assertTrue(e is java.lang.IllegalStateException)
+        val test = localSubject.state.test()
+
+        localSubject.process(
+            CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
+        )
+
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.viewState == CoinViewViewState.LoadingChart
+        }.assertValueAt(2) {
+            it.error == CoinViewError.MissingAssetPrices
         }
     }
 
@@ -503,15 +506,20 @@ class CoinViewModelTest {
             Single.just(priceList)
         )
 
-        // for some reason using @Test(expected = IllegalStateException::class) isn't working in this case,
-        // so this is a workaround to test for exceptions
-        try {
-            localSubject.process(
-                CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
-            )
-        } catch (e: Exception) {
-            Assert.assertTrue(e is java.lang.IllegalStateException)
+        val test = localSubject.state.test()
+
+        localSubject.process(
+            CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
+        )
+
+        test.assertValueAt(0) {
+            it == state
         }
+            .assertValueAt(1) {
+                it.viewState == CoinViewViewState.LoadingChart
+            }.assertValueAt(2) {
+                it.error == CoinViewError.MissingSelectedFiat
+            }
     }
 
     @Test

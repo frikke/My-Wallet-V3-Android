@@ -227,7 +227,7 @@ class PinModel(
     private fun upgradeApp(updateType: UpdateType, appUpdateManager: AppUpdateManager) {
         when (updateType) {
             UpdateType.FORCE -> {
-                interactor.updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
+                interactor.updateInfo(appUpdateManager).subscribeBy(onNext = { appUpdateInfoTask ->
                     if (canTriggerAnUpdateOfType(AppUpdateType.IMMEDIATE, appUpdateInfoTask)) {
                         process(
                             PinIntent.AppNeedsUpgrade(
@@ -240,10 +240,12 @@ class PinModel(
                     } else {
                         process(PinIntent.AppNeedsUpgrade(AppUpgradeStatus(UpgradeAppMethod.FORCED_STORE)))
                     }
-                }
+                }, onError = {
+                    Timber.e(it)
+                })
             }
             UpdateType.RECOMMENDED -> {
-                interactor.updateInfo(appUpdateManager).subscribe { appUpdateInfoTask ->
+                interactor.updateInfo(appUpdateManager).subscribeBy(onNext = { appUpdateInfoTask ->
                     if (canTriggerAnUpdateOfType(AppUpdateType.FLEXIBLE, appUpdateInfoTask)) {
                         process(
                             PinIntent.AppNeedsUpgrade(
@@ -254,9 +256,12 @@ class PinModel(
                             )
                         )
                     }
-                }
+                }, onError = {
+                    Timber.e(it)
+                })
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 

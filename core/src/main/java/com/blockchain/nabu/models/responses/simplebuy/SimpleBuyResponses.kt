@@ -44,7 +44,7 @@ data class SimpleBuyQuoteResponse(
 
 @Serializable
 data class BankAccountResponse(
-    val address: String? = null,
+    val address: String,
     val agent: BankAgentResponse,
     val currency: String
 )

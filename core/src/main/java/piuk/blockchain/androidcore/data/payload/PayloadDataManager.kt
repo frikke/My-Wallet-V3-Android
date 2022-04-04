@@ -30,7 +30,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
-import java.util.LinkedHashMap
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters

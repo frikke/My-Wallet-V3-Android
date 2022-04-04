@@ -170,25 +170,30 @@ class CoinViewModel(
     ) = interactor.loadHistoricPrices(it, intent.timePeriod)
         .subscribeBy(
             onSuccess = { historicalRates ->
-                process(
-                    CoinViewIntent.UpdateViewState(
-                        CoinViewViewState.ShowAssetInfo(
-                            entries = historicalRates.map { point ->
-                                ChartEntry(
-                                    point.timestamp.toFloat(),
-                                    point.rate.toFloat()
+                when {
+                    previousState.assetPrices == null -> process(
+                        CoinViewIntent.UpdateErrorState(CoinViewError.MissingAssetPrices)
+                    )
+                    previousState.selectedFiat == null -> process(
+                        CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat)
+                    )
+                    else ->
+                        process(
+                            CoinViewIntent.UpdateViewState(
+                                CoinViewViewState.ShowAssetInfo(
+                                    entries = historicalRates.map { point ->
+                                        ChartEntry(
+                                            point.timestamp.toFloat(),
+                                            point.rate.toFloat()
+                                        )
+                                    },
+                                    prices = previousState.assetPrices,
+                                    historicalRateList = historicalRates,
+                                    selectedFiat = previousState.selectedFiat
                                 )
-                            },
-                            prices = previousState.assetPrices ?: throw IllegalStateException(
-                                "previousState prices can't be null"
-                            ),
-                            historicalRateList = historicalRates,
-                            selectedFiat = previousState.selectedFiat ?: throw IllegalStateException(
-                                "previousState selectedFiat can't be null"
                             )
                         )
-                    )
-                )
+                }
             },
             onError = {
                 process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))

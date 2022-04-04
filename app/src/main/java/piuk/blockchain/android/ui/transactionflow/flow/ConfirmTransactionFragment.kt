@@ -16,7 +16,6 @@ import piuk.blockchain.android.databinding.FragmentTxFlowConfirmBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.flow.adapter.ConfirmTransactionDelegateAdapter
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
@@ -63,8 +62,6 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! ConfirmTransactionFragment")
-        require(newState.currentStep == TransactionStep.CONFIRM_DETAIL)
-
         // We _should_ always have a pending Tx when we get here
         newState.pendingTx?.let {
             listAdapter.items = newState.pendingTx.confirmations.toList()

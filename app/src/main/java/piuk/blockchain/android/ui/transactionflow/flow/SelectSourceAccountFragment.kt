@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
@@ -66,11 +67,13 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             updateSources(newState)
             binding.depositTooltip.root.apply {
                 visibleIf { customiser.selectSourceShouldShowDepositTooltip(newState) }
-                binding.depositTooltip.paymentMethodTitle.text = binding.root.context.getString(
-                    StringLocalizationUtil.getBankDepositTitle(newState.receivingAsset.networkTicker)
-                )
-                setOnClickListener {
-                    showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
+                if (newState.selectedTarget != NullAddress) {
+                    binding.depositTooltip.paymentMethodTitle.text = binding.root.context.getString(
+                        StringLocalizationUtil.getBankDepositTitle(newState.receivingAsset.networkTicker)
+                    )
+                    setOnClickListener {
+                        showBottomSheet(WireTransferAccountDetailsBottomSheet.newInstance())
+                    }
                 }
             }
         }

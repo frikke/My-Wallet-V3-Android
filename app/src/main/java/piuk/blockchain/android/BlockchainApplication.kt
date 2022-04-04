@@ -31,9 +31,13 @@ import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.exceptions.CompositeException
+import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException
+import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.lang.RuntimeException
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
@@ -97,7 +101,19 @@ open class BlockchainApplication : Application() {
         }
 
         UncaughtExceptionHandler.install(appUtils)
-        RxJavaPlugins.setErrorHandler { throwable -> Timber.tag(RX_ERROR_TAG).e(throwable) }
+
+        RxJavaPlugins.setErrorHandler { _throwable ->
+            val exception = when {
+                (_throwable is CompositeException) -> _throwable.exceptions[0]
+                (_throwable is OnErrorNotImplementedException) -> _throwable.cause
+                (_throwable is UndeliverableException) -> _throwable.cause
+                else -> _throwable
+            }
+            if (exception is RuntimeException) {
+                throw exception
+            }
+            Timber.tag(RX_ERROR_TAG).e(exception)
+        }
 
         ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 

@@ -764,9 +764,6 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.NOT_ENOUGH_GAS -> resources.getString(
                 R.string.send_enter_insufficient_gas
             )
-            TransactionErrorState.UNEXPECTED_ERROR -> resources.getString(
-                R.string.send_enter_unexpected_error
-            )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
             TransactionErrorState.BELOW_MIN_LIMIT -> {
                 val fiatRate = state.fiatRate ?: return ""
@@ -787,7 +784,6 @@ class TransactionFlowCustomiserImpl(
             } ?: ""
             TransactionErrorState.TRANSACTION_IN_FLIGHT -> resources.getString(R.string.send_error_tx_in_flight)
             TransactionErrorState.TX_OPTION_INVALID -> resources.getString(R.string.send_error_tx_option_invalid)
-            TransactionErrorState.UNKNOWN_ERROR -> resources.getString(R.string.send_error_tx_option_invalid)
             TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED ->
                 resources.getString(R.string.too_many_pending_orders_error_message, state.sendingAsset.displayTicker)
         }
@@ -918,69 +914,78 @@ class TransactionFlowCustomiserImpl(
 
     override fun transactionProgressExceptionMessage(state: TransactionState): String {
         require(state.executionStatus is TxExecutionStatus.Error)
-        return (state.executionStatus.exception as? TransactionError)?.let {
-            when (it) {
-                TransactionError.OrderLimitReached -> resources.getString(
-                    R.string.trading_order_limit, getActionStringResource(state.action)
+        require(state.executionStatus.exception is TransactionError)
+        val error = state.executionStatus.exception
+
+        return when (error) {
+            TransactionError.OrderLimitReached -> resources.getString(
+                R.string.trading_order_limit, getActionStringResource(state.action)
+            )
+            TransactionError.OrderNotCancelable -> resources.getString(
+                R.string.trading_order_not_cancelable, getActionStringResource(state.action)
+            )
+            TransactionError.WithdrawalAlreadyPending -> resources.getString(
+                R.string.trading_pending_withdrawal
+            )
+            TransactionError.WithdrawalBalanceLocked -> resources.getString(
+                R.string.trading_withdrawal_balance_locked
+            )
+            TransactionError.WithdrawalInsufficientFunds -> resources.getString(
+                R.string.trading_withdrawal_insufficient_funds
+            )
+            TransactionError.InternalServerError -> resources.getString(R.string.trading_internal_server_error)
+            TransactionError.TradingTemporarilyDisabled -> resources.getString(
+                R.string.trading_service_temp_disabled
+            )
+            TransactionError.InsufficientBalance -> {
+                resources.getString(
+                    R.string.trading_insufficient_balance, getActionStringResource(state.action)
                 )
-                TransactionError.OrderNotCancelable -> resources.getString(
-                    R.string.trading_order_not_cancelable, getActionStringResource(state.action)
-                )
-                TransactionError.WithdrawalAlreadyPending -> resources.getString(
-                    R.string.trading_pending_withdrawal
-                )
-                TransactionError.WithdrawalBalanceLocked -> resources.getString(
-                    R.string.trading_withdrawal_balance_locked
-                )
-                TransactionError.WithdrawalInsufficientFunds -> resources.getString(
-                    R.string.trading_withdrawal_insufficient_funds
-                )
-                TransactionError.InternalServerError -> resources.getString(R.string.trading_internal_server_error)
-                TransactionError.AlbertExecutionError -> resources.getString(R.string.trading_albert_error)
-                TransactionError.TradingTemporarilyDisabled -> resources.getString(
-                    R.string.trading_service_temp_disabled
-                )
-                TransactionError.InsufficientBalance -> {
-                    resources.getString(
-                        R.string.trading_insufficient_balance, getActionStringResource(state.action)
-                    )
-                }
-                TransactionError.OrderBelowMin -> resources.getString(
-                    R.string.trading_amount_below_min, getActionStringResource(state.action)
-                )
-                TransactionError.OrderAboveMax -> resources.getString(
-                    R.string.trading_amount_above_max, getActionStringResource(state.action)
-                )
-                TransactionError.SwapDailyLimitExceeded -> resources.getString(
-                    R.string.trading_daily_limit_exceeded, getActionStringResource(state.action)
-                )
-                TransactionError.SwapWeeklyLimitExceeded -> resources.getString(
-                    R.string.trading_weekly_limit_exceeded, getActionStringResource(state.action)
-                )
-                TransactionError.SwapYearlyLimitExceeded -> resources.getString(
-                    R.string.trading_yearly_limit_exceeded, getActionStringResource(state.action)
-                )
-                TransactionError.InvalidCryptoAddress -> resources.getString(R.string.trading_invalid_address)
-                TransactionError.InvalidCryptoCurrency -> resources.getString(R.string.trading_invalid_currency)
-                TransactionError.InvalidFiatCurrency -> resources.getString(R.string.trading_invalid_fiat)
-                TransactionError.OrderDirectionDisabled -> resources.getString(R.string.trading_direction_disabled)
-                TransactionError.InvalidOrExpiredQuote -> resources.getString(
-                    R.string.trading_quote_invalid_or_expired
-                )
-                TransactionError.IneligibleForSwap -> resources.getString(R.string.trading_ineligible_for_swap)
-                TransactionError.InvalidDestinationAmount -> resources.getString(
-                    R.string.trading_invalid_destination_amount
-                )
-                TransactionError.InvalidPostcode -> resources.getString(
-                    R.string.kyc_postcode_error
-                )
-                is TransactionError.ExecutionFailed -> resources.getString(
-                    R.string.executing_transaction_error, state.sendingAsset.displayTicker
-                )
-                TransactionError.UnexpectedError -> resources.getString(R.string.send_progress_error_title)
-                else -> resources.getString(R.string.send_progress_error_title)
             }
-        } ?: resources.getString(R.string.send_progress_error_title)
+            TransactionError.OrderBelowMin -> resources.getString(
+                R.string.trading_amount_below_min, getActionStringResource(state.action)
+            )
+            TransactionError.OrderAboveMax -> resources.getString(
+                R.string.trading_amount_above_max, getActionStringResource(state.action)
+            )
+            TransactionError.SwapDailyLimitExceeded -> resources.getString(
+                R.string.trading_daily_limit_exceeded, getActionStringResource(state.action)
+            )
+            TransactionError.SwapWeeklyLimitExceeded -> resources.getString(
+                R.string.trading_weekly_limit_exceeded, getActionStringResource(state.action)
+            )
+            TransactionError.SwapYearlyLimitExceeded -> resources.getString(
+                R.string.trading_yearly_limit_exceeded, getActionStringResource(state.action)
+            )
+            TransactionError.InvalidCryptoAddress -> resources.getString(R.string.trading_invalid_address)
+            TransactionError.InvalidCryptoCurrency -> resources.getString(R.string.trading_invalid_currency)
+            TransactionError.InvalidFiatCurrency -> resources.getString(R.string.trading_invalid_fiat)
+            TransactionError.OrderDirectionDisabled -> resources.getString(R.string.trading_direction_disabled)
+            TransactionError.InvalidOrExpiredQuote -> resources.getString(
+                R.string.trading_quote_invalid_or_expired
+            )
+            TransactionError.IneligibleForSwap -> resources.getString(R.string.trading_ineligible_for_swap)
+            TransactionError.InvalidDestinationAmount -> resources.getString(
+                R.string.trading_invalid_destination_amount
+            )
+            TransactionError.InvalidPostcode -> resources.getString(
+                R.string.kyc_postcode_error
+            )
+            is TransactionError.ExecutionFailed -> resources.getString(
+                R.string.executing_transaction_error, state.sendingAsset.displayTicker
+            )
+            is TransactionError.InternetConnectionError -> resources.getString(
+                R.string.executing_connection_error
+            )
+            is TransactionError.HttpError -> resources.getString(
+                R.string.common_http_error_with_message,
+                error.nabuApiException.getErrorDescription()
+            )
+            TransactionError.InvalidDomainAddress -> resources.getString(
+                R.string.invalid_domain_address
+            )
+            TransactionError.TransactionDenied -> resources.getString(R.string.transaction_denied)
+        }
     }
 
     private fun getActionStringResource(action: AssetAction): String =

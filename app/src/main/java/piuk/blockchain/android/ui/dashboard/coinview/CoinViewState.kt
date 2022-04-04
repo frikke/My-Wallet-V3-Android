@@ -74,9 +74,10 @@ enum class CoinViewError {
     RecurringBuysLoadError,
     QuickActionsFailed,
     MissingSelectedFiat,
+    MissingAssetPrices,
+    WatchlistUpdateFailed,
     ActionsLoadError,
-    AssetDetailsLoadError,
-    WatchlistUpdateFailed
+    AssetDetailsLoadError
 }
 
 sealed class AssetInformation(

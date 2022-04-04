@@ -18,7 +18,9 @@ class AccountRecoveryModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val interactor: AccountRecoveryInteractor = mock()
+    private val interactor: AccountRecoveryInteractor = mock {
+        on { recoverWallet() }.thenReturn(Completable.complete())
+    }
 
     @get:Rule
     val rx = rxInit {
@@ -50,12 +52,16 @@ class AccountRecoveryModelTest {
         model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
 
         // Assert
-        testState.assertValues(
-            AccountRecoveryState(),
+        testState.assertValueAt(0, AccountRecoveryState())
+        testState.assertValueAt(
+            1,
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
                 status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
-            ),
+            )
+        )
+        testState.assertValueAt(
+            2,
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
                 status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
@@ -72,17 +78,27 @@ class AccountRecoveryModelTest {
         whenever(interactor.recoverCredentials(expectedCorrectedPhrase)).thenReturn(
             Completable.complete()
         )
+        whenever(interactor.recoverWallet()).thenReturn(
+            Completable.complete()
+        )
 
         val testState = model.state.test()
         model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
 
         // Assert
-        testState.assertValues(
-            AccountRecoveryState(),
+        testState.assertValueAt(
+            0,
+            AccountRecoveryState()
+        )
+        testState.assertValueAt(
+            1,
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
                 status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
-            ),
+            )
+        )
+        testState.assertValueAt(
+            2,
             AccountRecoveryState(
                 seedPhrase = expectedCorrectedPhrase,
                 status = AccountRecoveryStatus.RECOVERING_CREDENTIALS
@@ -104,12 +120,16 @@ class AccountRecoveryModelTest {
         model.process(AccountRecoveryIntents.VerifySeedPhrase(seedPhrase))
 
         // Assert
-        testState.assertValues(
-            AccountRecoveryState(),
+        testState.assertValueAt(0, AccountRecoveryState())
+        testState.assertValueAt(
+            1,
             AccountRecoveryState(
                 seedPhrase = seedPhrase,
                 status = AccountRecoveryStatus.VERIFYING_SEED_PHRASE
-            ),
+            )
+        )
+        testState.assertValueAt(
+            2,
             AccountRecoveryState(
                 seedPhrase = expectedCorrectedPhrase,
                 status = AccountRecoveryStatus.RECOVERING_CREDENTIALS

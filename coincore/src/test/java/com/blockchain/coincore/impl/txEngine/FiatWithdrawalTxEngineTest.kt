@@ -271,9 +271,9 @@ class FiatWithdrawalTxEngineTest : CoincoreTestBase() {
         subject.doValidateAmount(
             pendingTx
         ).test()
-            .assertComplete()
-            .assertValue {
-                it.validationState == ValidationState.UNKNOWN_ERROR
+            .assertNotComplete()
+            .assertError {
+                it is MissingLimitsException
             }
     }
 

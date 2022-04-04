@@ -8,6 +8,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
+import com.blockchain.coincore.impl.txEngine.MissingLimitsException
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
@@ -63,9 +64,7 @@ abstract class SellTxEngineBase(
                     }
                 } else {
                     Completable.error(
-                        TxValidationFailure(
-                            ValidationState.UNKNOWN_ERROR
-                        )
+                        MissingLimitsException(action = AssetAction.Sell, source = sourceAccount, target = txTarget)
                     )
                 }
             } else {

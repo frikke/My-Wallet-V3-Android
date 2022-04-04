@@ -6,6 +6,7 @@ import com.blockchain.logging.CrashLogger
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import javax.net.ssl.HttpsURLConnection
@@ -120,7 +121,7 @@ class LoginModel(
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
         }
-        return interactor.pollForAuth(previousState.sessionId, jsonBuilder)
+        return Single.defer { interactor.pollForAuth(previousState.sessionId, jsonBuilder) }
             .subscribeBy(
                 onSuccess = {
                     when (it) {

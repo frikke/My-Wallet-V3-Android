@@ -36,7 +36,6 @@ import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
-import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawRequestBody
@@ -478,15 +477,7 @@ class NabuService internal constructor(
         sessionToken.authHeader,
         request
     ).map {
-        when (it.code()) {
-            200 -> it.body()?.id.orEmpty()
-            403 -> if (it.body()?.code == TransferFundsResponse.ERROR_WITHDRAWL_LOCKED)
-                throw TransactionError.WithdrawalBalanceLocked
-            else
-                throw TransactionError.WithdrawalAlreadyPending
-            409 -> throw TransactionError.WithdrawalInsufficientFunds
-            else -> throw TransactionError.UnexpectedError
-        }
+        it.id
     }.wrapErrorMessage()
 
     fun paymentMethods(

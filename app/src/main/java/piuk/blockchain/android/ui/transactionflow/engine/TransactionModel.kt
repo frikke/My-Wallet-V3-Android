@@ -82,10 +82,8 @@ enum class TransactionErrorState {
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
     NOT_ENOUGH_GAS,
-    UNEXPECTED_ERROR,
     TRANSACTION_IN_FLIGHT,
-    TX_OPTION_INVALID,
-    UNKNOWN_ERROR
+    TX_OPTION_INVALID
 }
 
 sealed class BankLinkingState {
@@ -396,7 +394,7 @@ class TransactionModel(
                     process(TransactionIntent.AvailableAccountsListUpdated(it))
                 },
                 onError = {
-                    Timber.e("Error getting target accounts $it")
+                    process(TransactionIntent.FatalTransactionError(it))
                 }
             )
         } else {
@@ -419,15 +417,9 @@ class TransactionModel(
                 }
             },
             onError = {
-                Timber.e("Error getting available accounts for action $action")
+                process(TransactionIntent.FatalTransactionError(it))
             }
         )
-
-    override fun onScanLoopError(t: Throwable) {
-        super.onScanLoopError(TxFlowLogError.LoopFail(t))
-        Timber.e(t, "!TRANSACTION!> Transaction Model: state error")
-        throw t
-    }
 
     override fun onStateUpdate(s: TransactionState) {
         Timber.v("!TRANSACTION!> Transaction Model: state update -> %s", s)
@@ -473,7 +465,7 @@ class TransactionModel(
                         }
                     )
                 },
-                onError = { /* Error! What to do? Abort? Or... */ }
+                onError = { process(TransactionIntent.FatalTransactionError(it)) }
             )
 
     private fun processValidateAddress(

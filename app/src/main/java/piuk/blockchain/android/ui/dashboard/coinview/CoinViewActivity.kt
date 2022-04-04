@@ -347,9 +347,18 @@ class CoinViewActivity :
                     primaryCta.gone()
                 }
             }
-            CoinViewError.MissingSelectedFiat -> BlockchainSnackbar.make(
-                binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Warning
-            ).show()
+            CoinViewError.MissingSelectedFiat -> {
+                binding.noAssetError.visible()
+                BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_fiat_missing), type = SnackbarType.Warning
+                ).show()
+            }
+            CoinViewError.MissingAssetPrices -> {
+                binding.noAssetError.visible()
+                BlockchainSnackbar.make(
+                    binding.root, getString(R.string.coinview_prices_missing), type = SnackbarType.Warning
+                ).show()
+            }
             CoinViewError.WatchlistUpdateFailed -> BlockchainSnackbar.make(
                 binding.root, getString(R.string.coinview_watchlist_toggle_fail), type = SnackbarType.Warning
             ).show()

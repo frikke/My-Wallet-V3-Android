@@ -350,7 +350,7 @@ internal interface Nabu {
     fun transferFunds(
         @Header("authorization") authorization: String,
         @Body request: TransferRequest
-    ): Single<Response<TransferFundsResponse>>
+    ): Single<TransferFundsResponse>
 
     @GET(NABU_INTEREST_RATES)
     fun getInterestRates(

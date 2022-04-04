@@ -1,6 +1,5 @@
 package com.blockchain.commonarch.presentation.mvi
 
-import androidx.annotation.CallSuper
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.CrashLogger
 import com.jakewharton.rxrelay3.BehaviorRelay
@@ -78,8 +77,9 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
                 .subscribeBy(
                     onNext = { newState ->
                         _state.accept(newState)
-                    },
-                    onError = ::onScanLoopError
+                    }, onError = { throwable ->
+                    throw throwable
+                }
                 )
     }
 
@@ -91,15 +91,6 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
 
     protected open fun distinctIntentFilter(previousIntent: I, nextIntent: I): Boolean {
         return previousIntent == nextIntent
-    }
-
-    @CallSuper
-    protected open fun onScanLoopError(t: Throwable) {
-        Timber.e("***> Scan loop failed: $t")
-        crashLogger.logException(t)
-        if (environmentConfig.isRunningInDebugMode()) {
-            throw t
-        }
     }
 
     protected open fun onStateUpdate(s: S) {}
