@@ -32,11 +32,9 @@ class PaymentsService internal constructor(
 private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetails {
     return when (this.paymentMethodType) {
         PAYMENT_CARD -> {
-            check(this.cardDetails != null) { "CardDetails not present" }
-            check(this.cardDetails.card != null) { "Card not present" }
             PaymentMethodDetails(
-                label = cardDetails.card.label,
-                endDigits = cardDetails.card.number
+                label = cardDetails?.card?.label,
+                endDigits = cardDetails?.card?.number
             )
         }
         BANK_TRANSFER -> {
