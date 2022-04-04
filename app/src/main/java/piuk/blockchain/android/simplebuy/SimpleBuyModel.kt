@@ -624,7 +624,6 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
-
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             preselectedId = preselectedId,
@@ -856,6 +855,9 @@ class SimpleBuyModel(
                 NabuErrorCodes.CardPaymentDeclined -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
                 )
+                NabuErrorCodes.DebitCardOnlyPayment -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.DebitCardOnly)
+                )
                 else -> process(SimpleBuyIntent.ErrorIntent())
             }
         } else {
@@ -1025,7 +1027,13 @@ class SimpleBuyModel(
             .mapNotNull { method ->
                 when (method.type) {
                     PaymentMethodType.PAYMENT_CARD ->
-                        PaymentMethod.UndefinedCard(method.limits, method.canBeUsedForPayment)
+                        PaymentMethod.UndefinedCard(
+                            method.limits,
+                            method.canBeUsedForPayment,
+                            PaymentMethod.UndefinedCard.mapCardFundSources(
+                                availableMap[PaymentMethodType.PAYMENT_CARD]?.cardFundSources
+                            )
+                        )
                     PaymentMethodType.GOOGLE_PAY ->
                         PaymentMethod.GooglePay(method.limits, method.canBeUsedForPayment)
                     PaymentMethodType.BANK_TRANSFER ->

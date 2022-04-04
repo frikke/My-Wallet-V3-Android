@@ -3,7 +3,9 @@ package piuk.blockchain.android.cards
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.fragment.app.FragmentManager
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -33,10 +35,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
         setContentView(binding.root)
         updateToolbar { onSupportNavigateUp() }
         if (savedInstanceState == null) {
-            simpleBuyPrefs.clearCardState()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, AddNewCardFragment(), AddNewCardFragment::class.simpleName)
-                .commitAllowingStateLoss()
+            navigateToCardDetails()
         }
     }
 
@@ -52,8 +51,18 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
         onBackPressed()
     }
 
+    override fun navigateToCardDetails() {
+        simpleBuyPrefs.clearCardState()
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(R.id.content_frame, AddNewCardFragment(), AddNewCardFragment::class.simpleName)
+            .commitAllowingStateLoss()
+    }
+
     override fun navigateToBillingDetails() {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, BillingAddressFragment(), BillingAddressFragment::class.simpleName)
             .addToBackStack(BillingAddressFragment::class.simpleName)
             .commitAllowingStateLoss()
@@ -61,6 +70,7 @@ class CardDetailsActivity : BlockchainActivity(), AddCardNavigator, CardDetailsP
 
     override fun navigateToCardVerification() {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(R.id.content_frame, CardVerificationFragment(), CardVerificationFragment::class.simpleName)
             .addToBackStack(CardVerificationFragment::class.simpleName)
             .commitAllowingStateLoss()

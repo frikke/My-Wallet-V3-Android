@@ -544,12 +544,33 @@ sealed class PaymentMethod(
 
     data class UndefinedCard(
         override val limits: PaymentLimits,
-        override val isEligible: Boolean
+        override val isEligible: Boolean,
+        val cardFundSources: List<CardFundSource>?
     ) : PaymentMethod(
         UNDEFINED_CARD_PAYMENT_ID, PaymentMethodType.PAYMENT_CARD, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
         isEligible
     ),
-        UndefinedPaymentMethod
+        UndefinedPaymentMethod {
+
+        enum class CardFundSource {
+            PREPAID,
+            CREDIT,
+            DEBIT,
+            UNKNOWN
+        }
+
+        companion object {
+            fun mapCardFundSources(sources: List<String>?): List<CardFundSource>? =
+                sources?.map {
+                    when (it) {
+                        CardFundSource.CREDIT.name -> CardFundSource.CREDIT
+                        CardFundSource.DEBIT.name -> CardFundSource.DEBIT
+                        CardFundSource.PREPAID.name -> CardFundSource.PREPAID
+                        else -> CardFundSource.UNKNOWN
+                    }
+                }
+        }
+    }
 
     data class Funds(
         val balance: Money,

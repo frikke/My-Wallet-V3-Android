@@ -21,6 +21,7 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.nabu.datamanagers.PaymentMethod.UndefinedCard.CardFundSource
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -201,7 +202,8 @@ class SimpleBuyCryptoFragment :
                                 method.canBeAdded()
                             },
                         mode = PaymentMethodChooserBottomSheet.DisplayMode.PAYMENT_METHOD_TYPES,
-                        canAddNewPayment = true
+                        canAddNewPayment = true,
+                        canUseCreditCards = canUseCreditCards()
                     )
             }
         )
@@ -603,7 +605,8 @@ class SimpleBuyCryptoFragment :
         with(binding) {
             paymentMethodBankInfo.gone()
             paymentMethodIcon.setImageResource(R.drawable.ic_payment_card)
-            paymentMethodTitle.text = getString(R.string.credit_or_debit_card)
+            paymentMethodTitle.text = if (canUseCreditCards())
+                getString(R.string.credit_or_debit_card) else getString(R.string.add_debit_card)
             paymentMethodLimit.text =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
         }
@@ -751,6 +754,21 @@ class SimpleBuyCryptoFragment :
                 preselectedId
             )
         )
+    }
+
+    private fun canUseCreditCards(): Boolean {
+        val paymentMethods = lastState?.paymentOptions?.availablePaymentMethods
+
+        paymentMethods?.filterIsInstance<PaymentMethod.UndefinedCard>()?.forEach { card ->
+            card.cardFundSources?.let { it ->
+                val sources = it.toHashSet()
+                // Credit cards are supported by default, unless they are explicitly missing from CardFundSources
+                return sources.isEmpty() ||
+                    (sources.size == 1 && sources.contains(CardFundSource.UNKNOWN)) ||
+                    sources.contains(CardFundSource.CREDIT)
+            }
+        }
+        return true
     }
 
     companion object {

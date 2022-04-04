@@ -149,7 +149,11 @@ class DashboardOnboardingModel(
     private fun AvailablePaymentMethodType.toPaymentMethod(): PaymentMethod? =
         when (type) {
             PaymentMethodType.PAYMENT_CARD ->
-                PaymentMethod.UndefinedCard(limits, canBeUsedForPayment)
+                PaymentMethod.UndefinedCard(
+                    limits,
+                    canBeUsedForPayment,
+                    PaymentMethod.UndefinedCard.mapCardFundSources(cardFundSources)
+                )
             PaymentMethodType.GOOGLE_PAY -> PaymentMethod.GooglePay(limits, canBeUsedForPayment)
             PaymentMethodType.BANK_TRANSFER ->
                 PaymentMethod.UndefinedBankTransfer(limits, canBeUsedForPayment)

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.enviroment.EnvironmentConfig
@@ -39,8 +40,13 @@ class CardVerificationFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.card_verification))
-        binding.okBtn.setOnClickListener {
-            navigator.exitWithError()
+
+        with(binding.primaryBtn) {
+            buttonState = ButtonState.Enabled
+            text = getString(R.string.common_ok)
+            onClick = {
+                navigator.exitWithError()
+            }
         }
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
@@ -129,7 +135,8 @@ class CardVerificationFragment :
         with(binding) {
             progress.visibility = View.VISIBLE
             icon.visibility = View.GONE
-            okBtn.visibility = View.GONE
+            primaryBtn.visibility = View.GONE
+            secondaryBtn.visibility = View.GONE
             title.text = getString(R.string.linking_card_title)
             subtitle.text = getString(R.string.linking_card_subtitle)
         }
@@ -139,8 +146,10 @@ class CardVerificationFragment :
         with(binding) {
             progress.visibility = View.GONE
             icon.visibility = View.VISIBLE
-            okBtn.visibility = View.VISIBLE
-            title.text = getString(R.string.linking_card_error_title)
+            primaryBtn.visibility = View.VISIBLE
+
+            if (error == CardError.DEBIT_CARD_ONLY) renderCreditCardNotSupportedError() else renderError()
+
             subtitle.text = getString(
                 when (error) {
                     CardError.CREATION_FAILED -> R.string.could_not_save_card
@@ -149,8 +158,38 @@ class CardVerificationFragment :
                     CardError.LINK_FAILED -> R.string.card_link_failed
                     CardError.INSUFFICIENT_CARD_BALANCE -> R.string.sb_checkout_card_insufficient_funds_blurb
                     CardError.CARD_PAYMENT_DECLINED -> R.string.sb_checkout_card_declined_blurb
+                    CardError.DEBIT_CARD_ONLY -> R.string.card_activation_debit_only_blurb
                 }
             )
+        }
+    }
+
+    private fun renderCreditCardNotSupportedError() {
+        with(binding) {
+            title.text = getString(R.string.card_activation_debit_only_title)
+            with(primaryBtn) {
+                buttonState = ButtonState.Enabled
+                text = getString(R.string.card_activation_debit_only_cta_primary)
+                onClick = { navigator.navigateToCardDetails() }
+            }
+            with(secondaryBtn) {
+                visibility = View.VISIBLE
+                buttonState = ButtonState.Enabled
+                text = getString(R.string.common_cancel)
+                onClick = { navigator.exitWithError() }
+            }
+        }
+    }
+
+    private fun renderError() {
+        with(binding) {
+            title.text = getString(R.string.linking_card_error_title)
+            with(primaryBtn) {
+                buttonState = ButtonState.Enabled
+                text = getString(R.string.common_ok)
+                onClick = { navigator.exitWithError() }
+            }
+            secondaryBtn.visibility = View.GONE
         }
     }
 

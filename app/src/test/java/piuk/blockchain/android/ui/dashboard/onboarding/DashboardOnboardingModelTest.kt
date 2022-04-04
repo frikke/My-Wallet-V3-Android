@@ -238,7 +238,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
 
         val paymentMethods = listOf(
-            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
+            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null),
             PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
         )
         state.assertValueAt(2) {

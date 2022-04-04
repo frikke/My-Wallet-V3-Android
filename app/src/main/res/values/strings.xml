@@ -1881,6 +1881,9 @@
     <string name="could_not_activate_card">We could not activate your card. Please contact support.</string>
     <string name="card_still_pending">We waited two minutes and did not receive an update from our card provider. Your card may still be approved later. Please contact support if you have any questions.</string>
     <string name="card_link_failed">Card failed to link. Please try again or contact support if you believe this occurred in error.</string>
+    <string name="card_activation_debit_only_title">Only debit cards are supported</string>
+    <string name="card_activation_debit_only_blurb">Use any Visa or Mastercard debit card.</string>
+    <string name="card_activation_debit_only_cta_primary">Try another card</string>
     <string name="unable_to_verify_id">Unable to Verify Your ID</string>
     <string name="unable_to_verify_id_description">We were unable to verify your identity. This can happen for a few reasons.</string>
     <string name="invalid_id">Invalid ID</string>
@@ -2046,6 +2049,7 @@
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
     <string name="trading_invalid_destination_amount">Oops! Looks like that isn’t a valid amount, please try again.</string>
     <string name="add_credit_or_debit_card_1">Credit or Debit Card</string>
+    <string name="add_debit_card">Debit Card</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="as_it_shows_in_id">As shown on your government issued ID or Passport</string>
@@ -2091,6 +2095,9 @@
     <string name="sb_checkout_card_declined_title">Payment declined</string>
     <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
     <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
+    <string name="sb_checkout_card_debit_only_title">Try a debit card instead</string>
+    <string name="sb_checkout_card_debit_only_blurb">Having trouble with your Credit card?\n Try any Visa or Mastercard debit card instead.</string>
+    <string name="sb_checkout_card_debit_only_cta">Try A Different Payment Method</string>
 
     <!-- Yapily -->
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>

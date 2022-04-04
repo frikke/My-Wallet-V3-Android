@@ -92,6 +92,9 @@ class CardModel(
                         NabuErrorCodes.CardPaymentDeclined -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DECLINED))
                         )
+                        NabuErrorCodes.DebitCardOnlyCreate -> process(
+                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.DEBIT_CARD_ONLY))
+                        )
                         else -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL))
                         )

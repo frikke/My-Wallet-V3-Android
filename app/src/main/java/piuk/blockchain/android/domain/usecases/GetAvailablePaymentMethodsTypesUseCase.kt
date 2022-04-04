@@ -39,7 +39,8 @@ class GetAvailablePaymentMethodsTypesUseCase(
                             type = it.type,
                             limits = it.limits,
                             currency = it.currency,
-                            linkAccess = linkAccessForTier(it.eligible, tier)
+                            linkAccess = linkAccessForTier(it.eligible, tier),
+                            cardFundSources = it.cardFundSources
                         )
                     }
                 )
@@ -54,11 +55,13 @@ class GetAvailablePaymentMethodsTypesUseCase(
                                         type = it.type,
                                         limits = it.limits,
                                         currency = it.currency,
-                                        linkAccess = if (
-                                            cards.isNotEmpty() &&
-                                            it.type == PaymentMethodType.PAYMENT_CARD
-                                        ) LinkAccess.BLOCKED
-                                        else linkAccessForTier(it.eligible, tier)
+                                        linkAccess =
+                                        if (cards.isNotEmpty() && it.type == PaymentMethodType.PAYMENT_CARD) {
+                                            LinkAccess.BLOCKED
+                                        } else {
+                                            linkAccessForTier(it.eligible, tier)
+                                        },
+                                        cardFundSources = it.cardFundSources
                                     )
                                 }
                             }
@@ -70,7 +73,8 @@ class GetAvailablePaymentMethodsTypesUseCase(
                                         type = it.type,
                                         limits = it.limits,
                                         currency = it.currency,
-                                        linkAccess = linkAccessForTier(it.eligible, tier)
+                                        linkAccess = linkAccessForTier(it.eligible, tier),
+                                        cardFundSources = it.cardFundSources
                                     )
                                 }
                             )
@@ -92,7 +96,8 @@ data class AvailablePaymentMethodType(
     val linkAccess: LinkAccess,
     val currency: FiatCurrency,
     val type: PaymentMethodType,
-    val limits: PaymentLimits
+    val limits: PaymentLimits,
+    val cardFundSources: List<String>? = null
 )
 
 /**

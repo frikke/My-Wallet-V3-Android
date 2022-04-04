@@ -128,7 +128,10 @@ enum class NabuErrorCodes(val code: Int) {
     InvalidPostcode(158),
 
     InsufficientCardFunds(10000),
-    CardPaymentDeclined(10001);
+    CardPaymentDeclined(10001),
+
+    DebitCardOnlyCreate(10011),
+    DebitCardOnlyPayment(10012);
 
     companion object {
 
