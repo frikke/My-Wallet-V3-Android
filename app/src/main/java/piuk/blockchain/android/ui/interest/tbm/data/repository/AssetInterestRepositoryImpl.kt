@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.interest.tbm.data.repository
 
-import com.blockchain.coincore.NullCryptoAddress.asset
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -27,15 +26,12 @@ class AssetInterestRepositoryImpl(
 
     override suspend fun getInterestDetail(): Result<InterestDetail> {
         return coroutineScope {
-            val deferredTiers = async { kycTierService.tiers().await() }
-            val deferredEnabledAssets = async { custodialWalletManager.getInterestEnabledAssets().await() }
+            val deferredTiers = async(dispatcher) { kycTierService.tiers().await() }
+            val deferredEnabledAssets = async(dispatcher) { custodialWalletManager.getInterestEnabledAssets().await() }
 
             try {
                 val tiers = deferredTiers.await()
                 val enabledAssets = deferredEnabledAssets.await()
-
-                println("------ $tiers")
-                println("------ $enabledAssets")
 
                 Result.success(InterestDetail(tiers = tiers, enabledAssets = enabledAssets))
             } catch (e: Throwable) {
@@ -55,13 +51,10 @@ class AssetInterestRepositoryImpl(
 
     private suspend fun getAssetInterestInfo(assetInfo: AssetInfo): AssetInterestInfo {
         return coroutineScope {
-            val deferredBalance = async(dispatcher) { interestBalance.getBalanceForAsset(asset).awaitFirst() }
-            val deferredExchangeRate =
-                async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(asset).awaitFirst() }
-            val deferredInterestRate =
-                async(dispatcher) { custodialWalletManager.getInterestAccountRates(asset).await() }
-            val deferredEligibility =
-                async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(asset).await() }
+            val deferredBalance = async(dispatcher) { interestBalance.getBalanceForAsset(assetInfo).awaitFirst() }
+            val deferredExchangeRate = async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(assetInfo).awaitFirst() }
+            val deferredInterestRate = async(dispatcher) { custodialWalletManager.getInterestAccountRates(assetInfo).await() }
+            val deferredEligibility = async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(assetInfo).await() }
 
             val assetInterestDetail: AssetInterestDetail? = try {
                 val balance = deferredBalance.await()

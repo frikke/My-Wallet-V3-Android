@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -53,6 +55,8 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.interestDashboardList. adapter = listAdapter
+
         bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
     }
 
@@ -82,6 +86,7 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
+        println("------ cryptoCurrency: $cryptoCurrency")
 //        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
 //            val interestAccount = it.accounts.first() as CryptoInterestAccount
 //            if (hasBalance) {
