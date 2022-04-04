@@ -289,7 +289,7 @@
     <string name="name">Name</string>
 
     <string name="next">Next</string>
-    <string name="received_ethereum">Received Ether</string>
+    <string name="received_ethereum">Received %1$s</string>
 
     <!-- "Received {ETHER} {10.2 ETH}" -->
     <string name="received_erc20_marquee">Received %1$s %2$s</string>

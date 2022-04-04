@@ -99,7 +99,7 @@ class CoinsWebSocketStrategyTest {
 
     private val stringUtils: StringUtils = mock {
         on { getString(R.string.app_name) }.thenReturn("Blockchain")
-        on { getString(R.string.received_ethereum) }.thenReturn("Received Ether")
+        on { getString(R.string.received_ethereum) }.thenReturn("Received Ethereum")
         on { getString(R.string.common_from) }.thenReturn("From")
         on { getString(R.string.received_erc20_marquee) }.thenReturn("Received %1\$s %2\$s")
         on { getString(R.string.received_erc20_text) }.thenReturn("Received %1\$s %2\$s from %3\$s")
@@ -170,8 +170,8 @@ class CoinsWebSocketStrategyTest {
         verify(mockWebSocket).open()
         verify(messagesSocketHandler).triggerNotification(
             "Blockchain",
-            "Received Ether 0.00604741 ETH",
-            "Received Ether 0.00604741 ETH from 0x4058a004dd718babab47e14dd0d744742e5b9903"
+            "Received Ethereum 0.00604741 ETH",
+            "Received Ethereum 0.00604741 ETH from 0x4058a004dd718babab47e14dd0d744742e5b9903"
         )
     }
 
