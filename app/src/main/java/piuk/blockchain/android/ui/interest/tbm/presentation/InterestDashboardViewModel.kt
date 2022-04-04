@@ -1,0 +1,73 @@
+package piuk.blockchain.android.ui.interest.tbm.presentation
+
+import androidx.lifecycle.viewModelScope
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetAssetInterestInfoUseCase
+import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetInterestDetailUseCase
+import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
+import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
+import timber.log.Timber
+
+class InterestDashboardViewModel(
+    private val getAssetInterestInfoUseCase: GetAssetInterestInfoUseCase,
+    private val getInterestDetailUseCase: GetInterestDetailUseCase
+) : MviViewModel<InterestDashboardIntents,
+    InterestDashboardViewState,
+    InterestDashboardModelState,
+    NavigationEvent,
+    ModelConfigArgs.NoArgs>(InterestDashboardModelState()) {
+
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+        loadInterestDetail()
+    }
+
+    override suspend fun handleIntent(modelState: InterestDashboardModelState, intent: InterestDashboardIntents) {
+    }
+
+    override fun reduce(state: InterestDashboardModelState): InterestDashboardViewState {
+        return InterestDashboardViewState(
+            isLoading = state.isLoadingData,
+            isError = state.isError,
+            data = state.data
+        )
+    }
+
+    private fun loadInterestDetail() {
+        viewModelScope.launch {
+            updateState { it.copy(isLoadingData = true) }
+
+            getInterestDetailUseCase().let { result ->
+                result.getOrNull()?.let { interestDetail ->
+                    println("------ $interestDetail")
+                    loadAssets(interestDetail)
+                } ?: kotlin.run {
+                    updateState { it.copy(isLoadingData = false, isError = true) }
+                    Timber.e("Error loading interest summary details ${result.exceptionOrNull()}")
+                }
+            }
+        }
+    }
+
+    private fun loadAssets(interestDetail: InterestDetail) {
+        viewModelScope.launch {
+
+            getAssetInterestInfoUseCase(interestDetail.enabledAssets).let { result ->
+                result.getOrNull()?.let { assetInterestInfoList ->
+                    updateState {
+                        it.copy(
+                            isLoadingData = false, isError = false,
+                            data = assetInterestInfoList.map { assetInterestInfo ->
+                                InterestDashboardItem.InterestAssetInfoItem(true, assetInterestInfo)
+                            })
+                    }
+                } ?: kotlin.run {
+                    updateState { it.copy(isLoadingData = false, isError = true) }
+                    Timber.e("Error loading interest info list ${result.exceptionOrNull()}")
+                }
+            }
+        }
+    }
+}
