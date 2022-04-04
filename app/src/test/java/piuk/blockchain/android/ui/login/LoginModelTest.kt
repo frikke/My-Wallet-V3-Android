@@ -44,7 +44,7 @@ class LoginModelTest {
             initialState = LoginState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             analytics = mock()
         )

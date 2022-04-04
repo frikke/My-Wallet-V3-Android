@@ -13,7 +13,7 @@ val kycAutocompleteModule = module {
                 initialState = KycAutocompleteAddressState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }

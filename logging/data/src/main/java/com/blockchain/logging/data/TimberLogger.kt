@@ -1,5 +1,6 @@
-package com.blockchain.logging
+package com.blockchain.logging.data
 
+import com.blockchain.logging.Logger
 import timber.log.Timber
 
 internal class TimberLogger : Logger {

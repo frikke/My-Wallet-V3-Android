@@ -30,7 +30,7 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.remoteconfig.FeatureFlag
@@ -230,12 +230,12 @@ class TransactionModel(
     private val errorLogger: TxFlowErrorReporting,
     private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<TransactionState, TransactionIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable? {

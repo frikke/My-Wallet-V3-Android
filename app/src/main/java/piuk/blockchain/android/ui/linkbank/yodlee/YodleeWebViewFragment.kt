@@ -21,7 +21,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.payments.model.YodleeAttributes
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.google.gson.Gson
 import java.net.URLEncoder
@@ -49,7 +49,7 @@ class YodleeWebViewFragment :
         get() = _binding!!
 
     private val analytics: Analytics by inject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private var isViewLoaded: Boolean = false
 
     private val attributes: YodleeAttributes by lazy {
@@ -182,7 +182,7 @@ class YodleeWebViewFragment :
             binding.yodleeWebview.visible()
             updateViewsVisibility(false)
         } catch (e: NullPointerException) {
-            crashLogger.logException(e, "Underlying binding is null")
+            remoteLogger.logException(e, "Underlying binding is null")
             BlockchainSnackbar.make(
                 binding.root,
                 getString(R.string.common_error),

@@ -60,7 +60,7 @@ class ProfileModelTest {
             initialState = ProfileState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             _activityIndicator = mock()
         )

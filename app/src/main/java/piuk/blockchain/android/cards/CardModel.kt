@@ -4,7 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -24,7 +24,7 @@ class CardModel(
     private val cardActivator: CardActivator,
     private val gson: Gson,
     val environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
     initialState = gson.fromJson(prefs.cardState(), CardState::class.java)
         ?: CardState(
@@ -32,7 +32,7 @@ class CardModel(
         ),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger
+    remoteLogger = remoteLogger
 ) {
 
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =

@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
@@ -22,12 +22,12 @@ class DashboardOnboardingModel(
     private val currencyPrefs: CurrencyPrefs,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<DashboardOnboardingState, DashboardOnboardingIntent>(
     initialState = DashboardOnboardingState(steps = initialSteps),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger,
+    remoteLogger = remoteLogger,
 ) {
 
     override fun performAction(

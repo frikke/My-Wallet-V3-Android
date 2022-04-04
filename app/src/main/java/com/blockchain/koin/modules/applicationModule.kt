@@ -297,7 +297,7 @@ val applicationModule = module {
                 initialState = PairingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 qrCodeDataManager = get(),
                 payloadDataManager = get(),
                 authDataManager = get(),
@@ -343,7 +343,7 @@ val applicationModule = module {
                 initialState = BackupWalletStartingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -373,7 +373,7 @@ val applicationModule = module {
                 initialState = AccountRecoveryState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -476,7 +476,7 @@ val applicationModule = module {
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
@@ -562,7 +562,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -575,7 +575,7 @@ val applicationModule = module {
                 gson = get(),
                 prefs = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -661,7 +661,7 @@ val applicationModule = module {
                 settingsDataManager = get(),
                 coincore = get(),
                 exchangeRates = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 globalEventHandler = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
@@ -695,7 +695,7 @@ val applicationModule = module {
                 nabuToken = get(),
                 nabu = get(),
                 assetCatalogue = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -723,7 +723,7 @@ val applicationModule = module {
                 biometricDataRepository = get(),
                 biometricManager = get(),
                 cryptographyManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }.binds(arrayOf(BiometricAuth::class, BiometricsController::class))
 
@@ -736,7 +736,7 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

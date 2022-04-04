@@ -34,6 +34,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':common-mp:utils')
+    implementation project(':logging:domain')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')

@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.isNull
@@ -45,7 +45,7 @@ class PayloadDataManagerTest {
     private val privateKeyFactory: PrivateKeyFactory = mock()
     private val bitcoinApi: NonCustodialBitcoinService = mock()
 
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
     private val testScheduler = TestScheduler()
 
     private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
@@ -65,7 +65,7 @@ class PayloadDataManagerTest {
             bitcoinApi,
             privateKeyFactory,
             payloadManager,
-            crashLogger,
+            remoteLogger,
             kotlinSerializerFeatureFlag
         )
     }

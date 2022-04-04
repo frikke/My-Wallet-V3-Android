@@ -1,4 +1,4 @@
-package com.blockchain.notifications.analytics
+package com.blockchain.logging.data
 
 import android.content.Context
 import android.os.Bundle

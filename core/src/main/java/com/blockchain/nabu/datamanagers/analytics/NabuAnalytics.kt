@@ -4,7 +4,7 @@ import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.NabuAnalyticsEvent
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsEvent
@@ -27,7 +27,7 @@ class NabuAnalytics(
     private val analyticsService: AnalyticsService,
     private val prefs: Lazy<PersistentPrefs>,
     private val localAnalyticsPersistence: AnalyticsLocalPersistence,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     lifecycleObservable: LifecycleObservable,
     private val analyticsContextProvider: AnalyticsContextProvider,
     private val tokenStore: NabuSessionTokenStore
@@ -51,7 +51,7 @@ class NabuAnalytics(
         compositeDisposable += localAnalyticsPersistence.save(nabuEvent)
             .subscribeOn(Schedulers.computation())
             .doOnError {
-                crashLogger.logException(it)
+                remoteLogger.logException(it)
             }
             .onErrorComplete()
             .then {

@@ -50,7 +50,7 @@ class LoaderModelTest {
             initialState = LoaderState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = mock(),
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,

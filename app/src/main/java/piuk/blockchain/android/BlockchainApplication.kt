@@ -17,7 +17,7 @@ import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
@@ -63,12 +63,12 @@ open class BlockchainApplication : Application() {
     private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
     private val analytics: Analytics by inject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent, crashLogger)
+        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
     }
 
     override fun onCreate() {
@@ -90,8 +90,7 @@ open class BlockchainApplication : Application() {
 
         // Build the DI graphs:
         KoinStarter.start(this)
-        crashLogger.init(this)
-        crashLogger.userLanguageLocale(resources.configuration.locale.language)
+        initRemoteLogger()
         initLifecycleListener()
 
         Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
@@ -221,6 +220,11 @@ open class BlockchainApplication : Application() {
             notificationManager.createNotificationChannel(channel2FA)
             notificationManager.createNotificationChannel(channelPayments)
         }
+    }
+
+    private fun initRemoteLogger() {
+        remoteLogger.init(this)
+        remoteLogger.userLanguageLocale(resources.configuration.locale.language)
     }
 
     /**

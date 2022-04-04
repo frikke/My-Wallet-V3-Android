@@ -43,6 +43,8 @@ dependencies {
     implementation Libraries.walletConnect
     implementation project(':common:interface')
     implementation project(':common-mp:utils')
+    implementation project(':logging:domain')
+    implementation Libraries.okHttp
     implementation Libraries.constraintLayout
     implementation Libraries.appCompat
     implementation Libraries.glide

@@ -62,7 +62,7 @@ class DashboardOnboardingModelTest {
             currencyPrefs = currencyPrefs,
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 

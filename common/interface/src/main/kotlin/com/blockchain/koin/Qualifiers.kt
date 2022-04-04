@@ -17,6 +17,7 @@ val entitySwitchSilverEligibilityFeatureFlag = StringQualifier("ff_entity_switch
 val deeplinkingFeatureFlag = StringQualifier("ff_deeplinking")
 val kycAdditionalInfoFeatureFlag = StringQualifier("ff_kyc_additional_info")
 val sendToDomainsAnnouncementFeatureFlag = StringQualifier("ff_send_domain_announcement")
+val embraceFeatureFlag = StringQualifier("ff_embrace")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

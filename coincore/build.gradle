@@ -26,6 +26,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':core')
     implementation project(':blockchainApi')
+    implementation project(':logging:domain')
 
     api project(':balance')
 

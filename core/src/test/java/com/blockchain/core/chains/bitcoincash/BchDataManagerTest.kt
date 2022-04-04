@@ -3,7 +3,7 @@ package com.blockchain.core.chains.bitcoincash
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
@@ -49,7 +49,7 @@ class BchDataManagerTest {
 
     private val payloadDataManager: PayloadDataManager = mock()
     private var bchDataStore: BchDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
     private val bitcoinApi: NonCustodialBitcoinService = mock()
     private val defaultLabels: DefaultLabels = mock()
     private val metadataManager: MetadataManager = mock()
@@ -63,7 +63,7 @@ class BchDataManagerTest {
             bitcoinApi,
             defaultLabels,
             metadataManager,
-            crashLogger,
+            remoteLogger,
             kotlinSerializerFeatureFlag
         )
     }
@@ -488,7 +488,7 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock(),
+            remoteLogger = mock(),
             kotlinSerializerFeatureFlag = mock()
         ).getBalance(xpubs)
             .test()
@@ -508,7 +508,7 @@ class BchDataManagerTest {
             bitcoinApi = mock(),
             defaultLabels = mock(),
             metadataManager = mock(),
-            crashLogger = mock(),
+            remoteLogger = mock(),
             kotlinSerializerFeatureFlag = mock()
         ).getBalance(xpubs)
             .test()

@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.pairingcode
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.PairingEvent
 import com.blockchain.notifications.analytics.PairingMethod
@@ -18,12 +18,12 @@ class PairingModel(
     initialState: PairingState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val qrCodeDataManager: QrCodeDataManager,
     private val analytics: Analytics,
     private val payloadDataManager: PayloadDataManager,
     private val authDataManager: AuthDataManager
-) : MviModel<PairingState, PairingIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<PairingState, PairingIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: PairingState, intent: PairingIntents): Disposable? {
         return when (intent) {

@@ -4,6 +4,7 @@ apply from: rootProject.file('gradle/local/common-feature.gradle')
 dependencies {
     implementation project(":balance")
     implementation project(":common:interface")
+    implementation project(':logging:domain')
     implementation Libraries.kotlin
     implementation Libraries.rxKotlin
     implementation Libraries.koin

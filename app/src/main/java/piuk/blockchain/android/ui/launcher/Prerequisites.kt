@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.launcher
 
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
@@ -25,7 +25,7 @@ class Prerequisites(
     private val settingsDataManager: SettingsDataManager,
     private val coincore: Coincore,
     private val exchangeRates: ExchangeRatesDataManager,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val flushables: List<AppStartUpFlushable>,
@@ -43,7 +43,7 @@ class Prerequisites(
                 } else
                     Completable.error(MetadataInitException(it))
             }.then {
-                coincore.init() // Coincore signals the crash logger internally
+                coincore.init() // Coincore signals the remote logger internally
             }.then {
                 simpleBuySync.performSync()
                     .logAndCompleteOnError(SIMPLE_BUY_SYNC)
@@ -67,7 +67,7 @@ class Prerequisites(
 
     private fun Completable.logOnError(tag: String): Completable =
         this.doOnError {
-            crashLogger.logException(
+            remoteLogger.logException(
                 CustomLogMessagedException(tag, it)
             )
         }

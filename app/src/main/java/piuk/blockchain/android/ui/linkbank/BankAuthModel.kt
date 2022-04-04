@@ -8,7 +8,7 @@ import com.blockchain.core.payments.model.LinkedBankErrorState
 import com.blockchain.core.payments.model.LinkedBankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
@@ -23,12 +23,12 @@ class BankAuthModel(
     initialState: BankAuthState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<BankAuthState, BankAuthIntent>(
     initialState,
     uiScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {

@@ -10,7 +10,7 @@ import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.extensions.valueOf
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -51,12 +51,12 @@ class MainModel(
     private val uiTourFeatureFlag: FeatureFlag,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger,
+    remoteLogger,
 ) {
 
     private val compositeDisposable = CompositeDisposable()

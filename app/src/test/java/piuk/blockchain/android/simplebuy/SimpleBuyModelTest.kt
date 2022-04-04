@@ -96,7 +96,7 @@ class SimpleBuyModelTest {
         ratingPrefs = ratingPrefs,
         onboardingPrefs = mock(),
         environmentConfig = environmentConfig,
-        crashLogger = mock(),
+        remoteLogger = mock(),
         _activityIndicator = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),

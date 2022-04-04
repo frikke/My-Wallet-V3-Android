@@ -145,7 +145,7 @@ val kycUiModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

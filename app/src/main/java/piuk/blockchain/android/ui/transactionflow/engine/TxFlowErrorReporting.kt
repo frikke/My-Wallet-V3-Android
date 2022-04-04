@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 
-class TxFlowErrorReporting(private val crashLogger: CrashLogger) {
+class TxFlowErrorReporting(private val remoteLogger: RemoteLogger) {
     fun log(error: TxFlowLogError) {
-        crashLogger.logException(error)
+        remoteLogger.logException(error)
     }
 }
 

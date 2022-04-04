@@ -25,7 +25,7 @@ val startupUiModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 analytics = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -35,7 +35,7 @@ val startupUiModule = module {
                 prefs = get(),
                 authDataManager = get(),
                 payloadDataManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
     }

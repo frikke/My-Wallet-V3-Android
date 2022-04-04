@@ -5,7 +5,7 @@ import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
@@ -107,9 +107,9 @@ class ActivityDetailsModel(
     uiScheduler: Scheduler,
     private val interactor: ActivityDetailsInteractor,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<ActivityDetailState, ActivityDetailsIntents>(
-    initialState, uiScheduler, environmentConfig, crashLogger
+    initialState, uiScheduler, environmentConfig, remoteLogger
 ) {
     override fun performAction(
         previousState: ActivityDetailState,

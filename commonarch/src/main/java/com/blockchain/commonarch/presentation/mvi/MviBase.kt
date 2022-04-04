@@ -1,7 +1,7 @@
 package com.blockchain.commonarch.presentation.mvi
 
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.jakewharton.rxrelay3.BehaviorRelay
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
@@ -25,7 +25,7 @@ abstract class MviModel<S : MviState, I : MviIntent<S>>(
     initialState: S,
     uiScheduler: Scheduler,
     private val environmentConfig: EnvironmentConfig,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) {
 
     private val _state: BehaviorRelay<S> = BehaviorRelay.createDefault(initialState)

@@ -13,7 +13,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -51,7 +51,7 @@ internal class DynamicAssetLoader(
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val pitLinking: PitLinking,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val identity: UserIdentity,
     private val formatUtils: FormatUtilities,
     private val identityAddressResolver: IdentityAddressResolver,
@@ -76,7 +76,7 @@ internal class DynamicAssetLoader(
 
     override fun initAndPreload(): Completable =
         assetCatalogue.initialise()
-            .doOnSubscribe { crashLogger.logEvent("Coincore init started") }
+            .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
             .flatMap { supportedAssets ->
                 // We need to make sure than any l1 assets - notably ETH - is initialised before
                 // create any l2s. So that things like balance calls will work
@@ -102,7 +102,7 @@ internal class DynamicAssetLoader(
                 .map { asset ->
                     Completable.defer { asset.initToken() }
                         .doOnError {
-                            crashLogger.logException(
+                            remoteLogger.logException(
                                 CoincoreInitFailure(
                                     "Failed init: ${(asset as CryptoAsset).assetInfo.networkTicker}", it
                                 )
@@ -182,7 +182,7 @@ internal class DynamicAssetLoader(
             currencyPrefs = currencyPrefs,
             labels = labels,
             pitLinking = pitLinking,
-            crashLogger = crashLogger,
+            remoteLogger = remoteLogger,
             identity = identity,
             addressValidation = defaultCustodialAddressValidation,
             availableActions = assetActions,
@@ -203,7 +203,7 @@ internal class DynamicAssetLoader(
             custodialManager = custodialManager,
             tradingBalances = tradingBalances,
             interestBalances = interestBalances,
-            crashLogger = crashLogger,
+            remoteLogger = remoteLogger,
             labels = labels,
             pitLinking = pitLinking,
             walletPreferences = walletPreferences,

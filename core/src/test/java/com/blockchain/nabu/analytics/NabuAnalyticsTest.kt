@@ -56,7 +56,7 @@ class NabuAnalyticsTest {
 
     private val subject = NabuAnalytics(
         localAnalyticsPersistence = localAnalyticsPersistence, prefs = prefs,
-        crashLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
+        remoteLogger = mock(), analyticsService = analyticsService, tokenStore = tokenStore,
         analyticsContextProvider = analyticsContextProvider,
         lifecycleObservable = lifecycleObservable
     )

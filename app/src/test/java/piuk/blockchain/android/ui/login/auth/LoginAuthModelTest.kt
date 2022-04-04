@@ -41,7 +41,7 @@ class LoginAuthModelTest {
             initialState = LoginAuthState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

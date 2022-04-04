@@ -4,18 +4,12 @@ import android.app.NotificationManager
 import android.content.Context
 import com.blockchain.koin.nabu
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.logging.CrashLogger
-import com.blockchain.logging.EventLogger
-import com.blockchain.notifications.CompoundCrashLogger
-import com.blockchain.notifications.EmbraceCrashLogger
-import com.blockchain.notifications.FirebaseCrashLogger
 import com.blockchain.notifications.FirebaseNotificationTokenProvider
 import com.blockchain.notifications.NotificationService
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.notifications.NotificationTokenProvider
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AnalyticsImpl
-import com.blockchain.notifications.analytics.InjectableLogging
 import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.notifications.analytics.UserAnalytics
 import com.blockchain.notifications.analytics.UserAnalyticsImpl
@@ -39,7 +33,7 @@ val notificationModule = module {
                 notificationService = get(),
                 payloadManager = get(),
                 prefs = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 authPrefs = get(),
                 notificationTokenProvider = get()
             )
@@ -72,8 +66,6 @@ val notificationModule = module {
     factory { UserAnalyticsImpl(get()) }
         .bind(UserAnalytics::class)
 
-    factory { InjectableLogging(get()) }.bind(EventLogger::class)
-
     single {
         val config = FirebaseRemoteConfigSettings.Builder()
             .build()
@@ -90,13 +82,4 @@ val notificationModule = module {
         )
     }.bind(RemoteConfig::class)
         .bind(ABTestExperiment::class)
-
-    single {
-        CompoundCrashLogger(
-            listOf(
-                FirebaseCrashLogger(),
-                EmbraceCrashLogger()
-            )
-        )
-    }.bind(CrashLogger::class)
 }

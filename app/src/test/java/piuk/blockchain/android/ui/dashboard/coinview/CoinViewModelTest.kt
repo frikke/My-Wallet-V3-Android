@@ -51,7 +51,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 
@@ -136,7 +136,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val assetInfo = AssetInformation.NonTradeable(prices = prices, isAddedToWatchlist = true)
@@ -177,7 +177,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -258,7 +258,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -401,7 +401,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -458,7 +458,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -498,7 +498,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -620,7 +620,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.just(mock()))
@@ -664,7 +664,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.error(Exception()))
@@ -729,7 +729,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.complete())
@@ -784,7 +784,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.error(Exception()))

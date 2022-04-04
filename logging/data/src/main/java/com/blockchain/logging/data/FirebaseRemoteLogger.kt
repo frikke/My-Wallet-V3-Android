@@ -1,11 +1,10 @@
-package com.blockchain.notifications
+package com.blockchain.logging.data
 
 import android.content.Context
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import timber.log.Timber
 
-class FirebaseCrashLogger : CrashLogger {
+class FirebaseRemoteLogger : RemoteLogger {
 
     private val firebaseInstance
         get() = FirebaseCrashlytics.getInstance()
@@ -13,10 +12,9 @@ class FirebaseCrashLogger : CrashLogger {
     override val isDebugBuild: Boolean
         get() = BuildConfig.DEBUG
 
-    override fun init(ctx: Any) {
-        if (ctx is Context) {
+    override fun init(context: Any) {
+        if (context is Context) {
             if (BuildConfig.USE_CRASHLYTICS) {
-                // Init crash reporting
                 firebaseInstance.setCrashlyticsCollectionEnabled(true)
             } else {
                 firebaseInstance.setCrashlyticsCollectionEnabled(false)
@@ -26,10 +24,9 @@ class FirebaseCrashLogger : CrashLogger {
         }
     }
 
-    override fun logEvent(msg: String) {
-        Timber.e(msg)
+    override fun logEvent(message: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
-            firebaseInstance.log(msg)
+            firebaseInstance.log(message)
         }
     }
 
@@ -51,15 +48,14 @@ class FirebaseCrashLogger : CrashLogger {
         }
     }
 
-    override fun logException(throwable: Throwable, logMsg: String) {
+    override fun logException(throwable: Throwable, logMessage: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
             firebaseInstance.recordException(throwable)
         }
-        Timber.e(throwable, logMsg)
     }
 
-    override fun logAndRethrowException(throwable: Throwable, logMsg: String) {
-        logException(throwable, logMsg)
+    override fun logAndRethrowException(throwable: Throwable, logMessage: String) {
+        logException(throwable, logMessage)
         throw throwable
     }
 

@@ -14,7 +14,7 @@ import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -73,7 +73,7 @@ class SimpleBuyModel(
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
@@ -82,7 +82,7 @@ class SimpleBuyModel(
     ),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger
+    remoteLogger = remoteLogger
 ) {
 
     private val activityIndicator: ActivityIndicator? by unsafeLazy {

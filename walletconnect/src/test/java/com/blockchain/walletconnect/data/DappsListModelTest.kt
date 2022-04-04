@@ -2,7 +2,7 @@ package com.blockchain.walletconnect.data
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
@@ -28,7 +28,7 @@ class DappsListModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val crashLogger = mock<CrashLogger>()
+    private val remoteLogger = mock<RemoteLogger>()
     private var sessionsRepository = mock<SessionRepository>()
     private var walletConnectServiceAPI = mock<WalletConnectServiceAPI>()
 
@@ -44,7 +44,7 @@ class DappsListModelTest {
         subject = DappsListModel(
             Schedulers.io(),
             enviromentConfig,
-            crashLogger,
+            remoteLogger,
             sessionsRepository,
             walletConnectServiceAPI
         )

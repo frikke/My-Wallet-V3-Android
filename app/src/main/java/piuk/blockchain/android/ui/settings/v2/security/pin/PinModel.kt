@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.settings.v2.security.pin
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.blockchain.notifications.analytics.WalletUpgradeEvent
@@ -35,13 +35,13 @@ class PinModel(
     private val interactor: PinInteractor,
     private val specificAnalytics: ProviderSpecificAnalytics,
     environmentConfig: EnvironmentConfig,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val analytics: Analytics,
 ) : MviModel<PinState, PinIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     override fun performAction(
@@ -116,7 +116,7 @@ class PinModel(
                         onComplete = {
                             process(PinIntent.UpdatePasswordErrorState(true))
                             interactor.clearPin()
-                            crashLogger.logEvent("new password. pin reset")
+                            remoteLogger.logEvent("new password. pin reset")
                         },
                         onError = { throwable -> handlePasswordValidatedError(throwable) }
                     )
@@ -177,7 +177,7 @@ class PinModel(
                             analytics.logEvent(WalletUpgradeEvent(true))
                         },
                         onError = { throwable ->
-                            crashLogger.logException(throwable)
+                            remoteLogger.logException(throwable)
                             process(PinIntent.UpgradeWalletResponse(false))
                             analytics.logEvent(WalletUpgradeEvent(false))
                         }
@@ -266,7 +266,7 @@ class PinModel(
     }
 
     private fun handlePasswordValidatedError(throwable: Throwable) {
-        crashLogger.logException(throwable, "Pin Model")
+        remoteLogger.logException(throwable, "Pin Model")
         when (throwable) {
             is ServerConnectionException ->
                 process(PinIntent.UpdatePasswordErrorState(errorState = PasswordError.SERVER_CONNECTION_EXCEPTION))
@@ -298,7 +298,7 @@ class PinModel(
 
     private fun handlePayloadUpdateError(throwable: Throwable) {
         specificAnalytics.logLogin(false)
-        crashLogger.logException(throwable, "Pin Model")
+        remoteLogger.logException(throwable, "Pin Model")
         when (throwable) {
             is InvalidCredentialsException ->
                 process(PinIntent.UpdatePayloadErrorState(PayloadError.CREDENTIALS_INVALID))

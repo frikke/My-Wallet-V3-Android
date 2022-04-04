@@ -61,7 +61,7 @@ class PhoneModelTest {
             initialState = PhoneState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             _activityIndicator = mock()
         )

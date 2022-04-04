@@ -55,7 +55,7 @@ class BankAuthModelTest {
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 
@@ -1225,7 +1225,7 @@ class BankAuthModelTest {
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 }

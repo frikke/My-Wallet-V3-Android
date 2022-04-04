@@ -5,7 +5,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import io.reactivex.rxjava3.core.Scheduler
@@ -18,12 +18,12 @@ class CoinViewModel(
     mainScheduler: Scheduler,
     private val interactor: CoinViewInteractor,
     environmentConfig: EnvironmentConfig,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) : MviModel<CoinViewState, CoinViewIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
     override fun performAction(previousState: CoinViewState, intent: CoinViewIntent): Disposable? =
         when (intent) {
@@ -125,7 +125,7 @@ class CoinViewModel(
             }
         },
         onError = {
-            crashLogger.logException(it, "CoinViewModel userCanBuy failed")
+            remoteLogger.logException(it, "CoinViewModel userCanBuy failed")
         }
     )
 

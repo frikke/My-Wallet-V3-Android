@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.airdrops
 
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.AirdropStatus
@@ -33,7 +33,7 @@ class AirdropCentrePresenter(
     private val nabuToken: NabuToken,
     private val nabu: NabuDataManager,
     private val assetCatalogue: AssetCatalogue,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) : MvpPresenter<AirdropCentreView>() {
 
     override val alwaysDisableScreenshots: Boolean = false
@@ -53,7 +53,7 @@ class AirdropCentrePresenter(
             .subscribeBy(
                 onSuccess = { renderUi(it) },
                 onError = {
-                    crashLogger.logException(it)
+                    remoteLogger.logException(it)
                     view?.renderListUnavailable()
                 }
             )

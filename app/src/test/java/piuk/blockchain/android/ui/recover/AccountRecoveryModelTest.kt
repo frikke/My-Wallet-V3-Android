@@ -34,7 +34,7 @@ class AccountRecoveryModelTest {
             initialState = AccountRecoveryState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

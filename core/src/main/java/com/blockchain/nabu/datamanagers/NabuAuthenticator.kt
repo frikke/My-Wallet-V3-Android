@@ -1,7 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -13,7 +13,7 @@ import java.lang.IllegalStateException
 internal class NabuAuthenticator(
     private val nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) : Authenticator, AuthHeaderProvider {
 
     override fun <T> authenticateSingle(singleFunction: (Single<NabuSessionTokenResponse>) -> Single<T>): Single<T> =
@@ -54,7 +54,7 @@ internal class NabuAuthenticator(
 
     private fun logMessageIfNeeded(message: String) {
         if (message.contains("BLOCKED_IP", ignoreCase = true))
-            crashLogger.logException(BlockedIpException(message))
+            remoteLogger.logException(BlockedIpException(message))
     }
 
     override fun getAuthHeader(): Single<String> {

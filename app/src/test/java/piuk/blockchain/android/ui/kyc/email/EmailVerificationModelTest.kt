@@ -38,7 +38,7 @@ class EmailVerificationModelTest {
             interactor = interactor,
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 

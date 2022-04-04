@@ -1,4 +1,4 @@
-package com.blockchain.logging
+package com.blockchain.logging.data
 
 import com.blockchain.testutils.after
 import com.blockchain.testutils.before

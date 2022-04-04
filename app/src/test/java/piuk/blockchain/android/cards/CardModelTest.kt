@@ -68,7 +68,7 @@ class CardModelTest {
         model = CardModel(
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             cardActivator = cardActivator,
             currencyPrefs = currencyPrefs,

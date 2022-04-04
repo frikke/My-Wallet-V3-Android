@@ -53,7 +53,7 @@ class DashboardActionAdapterTest {
             payloadManager = mock(),
             custodialWalletManager = custodialWalletManager,
             linkedBanksFactory = linkedBanksFactory,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             analytics = mock(),
             simpleBuyPrefs = mock(),
             currencyPrefs = currencyPrefs,
