@@ -5,6 +5,7 @@ import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.outcome.Outcome
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -16,8 +17,10 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import org.junit.Assert.assertEquals
@@ -25,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 
 class Erc20DataManagerTest {
 
@@ -36,8 +38,8 @@ class Erc20DataManagerTest {
         ioTrampoline()
     }
 
-    private val ethDataManager: EthDataManager = mock {
-        on { accountAddress }.thenReturn(ACCOUNT_HASH)
+    private val ethDataManager: EthDataManager = mockk {
+        every { accountAddress } returns ACCOUNT_HASH
     }
 
     private val balanceCallCache: Erc20BalanceCallCache = mock()
@@ -57,23 +59,21 @@ class Erc20DataManagerTest {
 
         assertEquals(ACCOUNT_HASH, result)
 
-        verify(ethDataManager).accountAddress
-        verifyNoMoreInteractions(ethDataManager)
+        io.mockk.verify { ethDataManager.accountAddress }
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
     fun `requireSecondPassword delegates to eth manager`() {
-        whenever(ethDataManager.requireSecondPassword).thenReturn(true)
+        val expectedResult = true
+        every { ethDataManager.requireSecondPassword } returns expectedResult
 
         val result = subject.requireSecondPassword
 
-        assertEquals(true, result)
+        assertEquals(expectedResult, result)
 
-        verify(ethDataManager).requireSecondPassword
-
-        verifyNoMoreInteractions(ethDataManager)
+        io.mockk.verify { ethDataManager.requireSecondPassword }
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -82,22 +82,12 @@ class Erc20DataManagerTest {
     fun `eth balance is fetched from eth data manager`() {
 
         val ethBalance = 1001.toBigInteger()
-        val mockEthResult: CombinedEthModel = mock {
-            on { getTotalBalance() }.thenReturn(ethBalance)
-        }
 
-        whenever(ethDataManager.fetchEthAddress()).thenReturn(Observable.just(mockEthResult))
+        coEvery { ethDataManager.getBalance() } returns Outcome.Success(ethBalance)
 
         val expectedResult = CryptoValue.fromMinor(CryptoCurrency.ETHER, ethBalance)
-        subject.getEthBalance()
-            .test()
-            .assertValue(expectedResult)
-
-        verify(ethDataManager).fetchEthAddress()
-
-        verifyNoMoreInteractions(ethDataManager)
-        verifyNoMoreInteractions(balanceCallCache)
-        verifyNoMoreInteractions(historyCallCache)
+        val result = subject.getEthBalance().blockingGet()
+        assertEquals(expectedResult, result)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -117,9 +107,8 @@ class Erc20DataManagerTest {
             .assertValue(mockBalance)
 
         verify(balanceCallCache).getBalances(ACCOUNT_HASH)
-        verify(ethDataManager).accountAddress
+        io.mockk.verify { ethDataManager.accountAddress }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -136,9 +125,8 @@ class Erc20DataManagerTest {
             .assertValue { it.balance.isZero }
 
         verify(balanceCallCache).getBalances(ACCOUNT_HASH)
-        verify(ethDataManager).accountAddress
+        io.mockk.verify { ethDataManager.accountAddress }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -161,9 +149,8 @@ class Erc20DataManagerTest {
             .assertValue(mockEventList)
 
         verify(historyCallCache).fetch(ACCOUNT_HASH, ERC20_TOKEN)
-        verify(ethDataManager).accountAddress
+        io.mockk.verify { ethDataManager.accountAddress }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -176,7 +163,7 @@ class Erc20DataManagerTest {
     @Test
     fun `createErc20Transaction correctly constructs a transaction`() {
         val nonce = 1001.toBigInteger()
-        whenever(ethDataManager.getNonce()).thenReturn(Single.just(nonce))
+        every { ethDataManager.getNonce() } returns Single.just(nonce)
         whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(false))
 
         val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
@@ -204,9 +191,8 @@ class Erc20DataManagerTest {
                     raw.data == expectedPayload
             }
 
-        verify(ethDataManager).getNonce()
+        io.mockk.verify { ethDataManager.getNonce() }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -215,8 +201,8 @@ class Erc20DataManagerTest {
     fun `createErc20Transaction correctly constructs a transaction using hot wallet`() {
         val nonce = 1001.toBigInteger()
         val extraGasLimit = 1.toBigInteger()
-        whenever(ethDataManager.getNonce()).thenReturn(Single.just(nonce))
-        whenever(ethDataManager.extraGasLimitForMemo()).thenReturn(extraGasLimit)
+        every { ethDataManager.getNonce() } returns Single.just(nonce)
+        every { ethDataManager.extraGasLimitForMemo() } returns extraGasLimit
         whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(true))
 
         val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
@@ -246,10 +232,9 @@ class Erc20DataManagerTest {
                     raw.data == expectedPayload
             }
 
-        verify(ethDataManager).getNonce()
-        verify(ethDataManager).extraGasLimitForMemo()
+        io.mockk.verify { ethDataManager.getNonce() }
+        io.mockk.verify { ethDataManager.extraGasLimitForMemo() }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -260,16 +245,14 @@ class Erc20DataManagerTest {
         val secondPassword = "SecondPassword"
         val result = "This Is The Signed tx bytes".toByteArray()
 
-        whenever(ethDataManager.signEthTransaction(rawTx, secondPassword))
-            .thenReturn(Single.just(result))
+        every { ethDataManager.signEthTransaction(rawTx, secondPassword) } returns Single.just(result)
 
         subject.signErc20Transaction(rawTx, secondPassword)
             .test()
             .assertValue { it.contentEquals(result) }
 
-        verify(ethDataManager).signEthTransaction(rawTx, secondPassword)
+        io.mockk.verify { ethDataManager.signEthTransaction(rawTx, secondPassword) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -277,15 +260,14 @@ class Erc20DataManagerTest {
     @Test
     fun `pushErc20Transaction delegates to eth data manager`() {
         val signedBytes = "This Is The Signed tx bytes".toByteArray()
-        whenever(ethDataManager.pushEthTx(signedBytes)).thenReturn(Observable.just(TX_HASH))
+        every { ethDataManager.pushTx(signedBytes) } returns Single.just(TX_HASH)
 
         subject.pushErc20Transaction(signedBytes)
             .test()
             .assertValue { it == TX_HASH }
 
-        verify(ethDataManager).pushEthTx(signedBytes)
+        io.mockk.verify { ethDataManager.pushTx(signedBytes) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -305,15 +287,14 @@ class Erc20DataManagerTest {
         val tokenData: Erc20TokenData = mock {
             on { txNotes }.thenReturn(notesMap)
         }
-        whenever(ethDataManager.getErc20TokenData(ERC20_TOKEN)).thenReturn(tokenData)
+        every { ethDataManager.getErc20TokenData(ERC20_TOKEN) } returns tokenData
 
         val result = subject.getErc20TxNote(ERC20_TOKEN, TX_HASH)
 
         assertEquals(note, result)
 
-        verify(ethDataManager).getErc20TokenData(ERC20_TOKEN)
+        io.mockk.verify { ethDataManager.getErc20TokenData(ERC20_TOKEN) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -327,36 +308,34 @@ class Erc20DataManagerTest {
     fun `putErc20TxNote delegates to eth data manager`() {
         val note = "This is a note"
 
-        whenever(
+        every {
             ethDataManager.updateErc20TransactionNotes(
                 ERC20_TOKEN,
                 TX_HASH,
                 note
             )
-        ).thenReturn(Completable.complete())
+        } returns Completable.complete()
 
         subject.putErc20TxNote(ERC20_TOKEN, TX_HASH, note)
             .test()
             .assertComplete()
 
-        verify(ethDataManager).updateErc20TransactionNotes(ERC20_TOKEN, TX_HASH, note)
+        io.mockk.verify { ethDataManager.updateErc20TransactionNotes(ERC20_TOKEN, TX_HASH, note) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
     fun `hasUnconfirmedTransactions delegates to eth data manager`() {
-        whenever(ethDataManager.isLastTxPending()).thenReturn(Single.just(true))
+        every { ethDataManager.isLastTxPending() } returns Single.just(true)
 
         subject.hasUnconfirmedTransactions()
             .test()
             .assertValue { it == true }
 
-        verify(ethDataManager).isLastTxPending()
+        io.mockk.verify { ethDataManager.isLastTxPending() }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -368,45 +347,42 @@ class Erc20DataManagerTest {
         val lastBlock: EthLatestBlockNumber = mock {
             on { number }.thenReturn(blockNumber)
         }
-        whenever(ethDataManager.getLatestBlockNumber()).thenReturn(Single.just(lastBlock))
+        every { ethDataManager.getLatestBlockNumber() } returns Single.just(lastBlock)
 
         subject.latestBlockNumber()
             .test()
             .assertValue { it == blockNumber }
 
-        verify(ethDataManager).getLatestBlockNumber()
+        io.mockk.verify { ethDataManager.getLatestBlockNumber() }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
     fun `isContractAddress delegates for contract address`() {
-        whenever(ethDataManager.isContractAddress(CONTRACT_ADDRESS)).thenReturn(Single.just(true))
+        every { ethDataManager.isContractAddress(CONTRACT_ADDRESS) } returns Single.just(true)
 
         subject.isContractAddress(CONTRACT_ADDRESS)
             .test()
             .assertValue(true)
 
-        verify(ethDataManager).isContractAddress(CONTRACT_ADDRESS)
+        io.mockk.verify { ethDataManager.isContractAddress(CONTRACT_ADDRESS) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
     fun `isContractAddress delegates for non-contract address`() {
-        whenever(ethDataManager.isContractAddress(ACCOUNT_HASH)).thenReturn(Single.just(false))
+        every { ethDataManager.isContractAddress(ACCOUNT_HASH) } returns Single.just(false)
 
         subject.isContractAddress(ACCOUNT_HASH)
             .test()
             .assertValue(false)
 
-        verify(ethDataManager).isContractAddress(ACCOUNT_HASH)
+        io.mockk.verify { ethDataManager.isContractAddress(ACCOUNT_HASH) }
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }
@@ -423,7 +399,6 @@ class Erc20DataManagerTest {
         verify(balanceCallCache).flush(ERC20_TOKEN)
         verify(historyCallCache).flush(ERC20_TOKEN)
 
-        verifyNoMoreInteractions(ethDataManager)
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
     }

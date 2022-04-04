@@ -1,6 +1,9 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -11,6 +14,10 @@ import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.data.TransactionState
+import info.blockchain.wallet.ethereum.node.EthChainError
+import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
+import info.blockchain.wallet.ethereum.node.RequestType
+import info.blockchain.wallet.ethereum.util.EthUtils
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
@@ -20,7 +27,7 @@ import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
-import org.spongycastle.util.encoders.Hex
+import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Utf8String
 import org.web3j.crypto.RawTransaction
@@ -29,7 +36,6 @@ import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
-import timber.log.Timber
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
@@ -68,14 +74,15 @@ class EthDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    fun getBalance(account: String): Single<BigInteger> =
-        ethAccountApi.getEthAddress(listOf(account))
-            .map(::CombinedEthModel)
-            .map { it.getTotalBalance() }
-            .firstOrError()
-            .doOnError(Timber::e)
-            .onErrorReturn { BigInteger.ZERO }
-            .subscribeOn(Schedulers.io())
+    suspend fun getBalance(): Outcome<EthChainError, BigInteger> {
+        return ethAccountApi.postEthNodeRequest(
+            requestType = RequestType.GET_BALANCE,
+            accountAddress,
+            EthJsonRpcRequest.defaultBlock
+        ).map { response ->
+            EthUtils.convertHexToBigInteger(response.result)
+        }
+    }
 
     fun updateAccountLabel(label: String): Completable {
         require(label.isNotEmpty())
@@ -136,8 +143,23 @@ class EthDataManager(
         ethAccountApi.latestBlockNumber.applySchedulers()
 
     fun isContractAddress(address: String): Single<Boolean> =
-        ethAccountApi.getIfContract(address)
-            .applySchedulers().firstOrError()
+        rxSingle {
+            ethAccountApi.postEthNodeRequest(
+                requestType = RequestType.IS_CONTRACT,
+                address,
+                EthJsonRpcRequest.defaultBlock
+            )
+                .fold(
+                    onSuccess = { response ->
+                        // In order to distinguish between these two addresses we need to call eth_getCode,
+                        // which will return contract code if it's a contract and nothing if it's a wallet
+                        response.result.isNotEmpty()
+                    },
+                    onFailure = { error ->
+                        throw error.throwable
+                    }
+                )
+        }.applySchedulers()
 
     private fun String.toLocalState() =
         when (this) {
@@ -223,16 +245,38 @@ class EthDataManager(
         data
     )
 
-    fun getTransaction(hash: String): Observable<EthTransaction> =
+    suspend fun getTransaction(hash: String): Outcome<EthChainError, EthTransaction> =
         ethAccountApi.getTransaction(hash)
-            .applySchedulers()
-
-    fun getNonce(): Single<BigInteger> =
-        fetchEthAddress()
-            .singleOrError()
-            .map {
-                it.getNonce()
+            .map { response ->
+                EthTransaction(
+                    blockNumber = response.result.blockNumber,
+                    hash = response.result.hash,
+                    nonce = response.result.nonce,
+                    blockHash = response.result.blockHash,
+                    transactionIndex = response.result.transactionIndex,
+                    from = response.result.from,
+                    to = response.result.to,
+                    value = response.result.value,
+                    gasPrice = response.result.gasPrice,
+                    gasUsed = response.result.gasUsed
+                )
             }
+
+    fun getNonce(): Single<BigInteger> = rxSingle {
+        ethAccountApi.postEthNodeRequest(
+            requestType = RequestType.GET_NONCE,
+            accountAddress,
+            EthJsonRpcRequest.defaultBlock
+        )
+            .fold(
+                onSuccess = { response ->
+                    EthUtils.convertHexToBigInteger(response.result)
+                },
+                onFailure = { error ->
+                    throw error.throwable
+                }
+            )
+    }
 
     fun signEthTransaction(rawTransaction: RawTransaction, secondPassword: String = ""): Single<ByteArray> =
         Single.fromCallable {
@@ -265,23 +309,33 @@ class EthDataManager(
 
     private fun String.decodeHex(): ByteArray {
         check(length % 2 == 0) { "Must have an even length" }
-        return removePrefix("0x")
+        return removePrefix(EthUtils.PREFIX)
             .chunked(2)
-            .map { it.toInt(16).toByte() }
+            .map { it.toInt(EthUtils.RADIX).toByte() }
             .toByteArray()
     }
 
-    fun pushEthTx(signedTxBytes: ByteArray): Observable<String> =
-        ethAccountApi.pushTx("0x" + String(Hex.encode(signedTxBytes)))
+    fun pushTx(signedTxBytes: ByteArray): Single<String> =
+        rxSingle {
+            ethAccountApi.postEthNodeRequest(
+                requestType = RequestType.PUSH_TRANSACTION,
+                EthUtils.decorateAndEncode(signedTxBytes)
+            )
+                .fold(
+                    onSuccess = { response ->
+                        response.result
+                    },
+                    onFailure = { error ->
+                        throw error.throwable
+                    }
+                )
+        }
             .flatMap {
                 lastTxUpdater.updateLastTxTime()
                     .onErrorComplete()
-                    .andThen(Observable.just(it))
+                    .andThen(Single.just(it))
             }
             .applySchedulers()
-
-    fun pushTx(signedTxBytes: ByteArray): Single<String> =
-        pushEthTx(signedTxBytes).singleOrError()
 
     private fun fetchOrCreateEthereumWallet(
         assetCatalogue: AssetCatalogue,

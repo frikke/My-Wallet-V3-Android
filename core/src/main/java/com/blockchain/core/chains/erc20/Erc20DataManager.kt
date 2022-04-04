@@ -4,6 +4,7 @@ import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.outcome.fold
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -14,6 +15,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
+import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
@@ -72,10 +74,15 @@ internal class Erc20DataManagerImpl(
         get() = ethDataManager.requireSecondPassword
 
     override fun getEthBalance(): Single<CryptoValue> =
-        ethDataManager.fetchEthAddress()
-            .firstOrError()
-            .map { CryptoValue(CryptoCurrency.ETHER, it.getTotalBalance()) }
-            .map { it }
+        rxSingle {
+            ethDataManager.getBalance()
+                .fold(
+                    onFailure = { throw it.throwable },
+                    onSuccess = { value ->
+                        CryptoValue(CryptoCurrency.ETHER, value)
+                    }
+                )
+        }
 
     override fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance> {
         require(asset.isErc20())
@@ -175,7 +182,7 @@ internal class Erc20DataManagerImpl(
         ethDataManager.signEthTransaction(rawTransaction, secondPassword)
 
     override fun pushErc20Transaction(signedTxBytes: ByteArray): Single<String> =
-        ethDataManager.pushEthTx(signedTxBytes).singleOrError()
+        ethDataManager.pushTx(signedTxBytes)
 
     override fun hasUnconfirmedTransactions(): Single<Boolean> =
         ethDataManager.isLastTxPending()

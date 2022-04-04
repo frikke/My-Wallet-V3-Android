@@ -17,13 +17,13 @@ import com.blockchain.coincore.updateTxValidity
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigDecimal
 import java.math.BigInteger
-import org.spongycastle.util.encoders.Hex
 import org.web3j.utils.Convert
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
@@ -211,7 +211,7 @@ class WalletConnectTransactionEngine(
                 EthereumSendTransactionTarget.Method.SIGN ->
                     Single.just(
                         TxResult.HashedTxResult(
-                            txId = "0x" + String(Hex.encode(signed)), amount = pendingTx.amount
+                            txId = EthUtils.decorateAndEncode(signed), amount = pendingTx.amount
                         )
                     )
             }

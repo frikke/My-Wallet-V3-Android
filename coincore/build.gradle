@@ -36,6 +36,8 @@ dependencies {
     implementation Libraries.gson
     implementation Libraries.timber
 
+    implementation Libraries.rxjava3Coroutines
+
     coreLibraryDesugaring Libraries.desugaring
 
     // Unit Test dependencies
