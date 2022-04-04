@@ -4,11 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetAssetInterestInfoUseCase
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetInterestDetailUseCase
-import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
-import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
 import timber.log.Timber
 
 class InterestDashboardViewModel(
@@ -31,6 +31,7 @@ class InterestDashboardViewModel(
         return InterestDashboardViewState(
             isLoading = state.isLoadingData,
             isError = state.isError,
+            isKycGold = state.isKycGold,
             data = state.data
         )
     }
@@ -58,10 +59,11 @@ class InterestDashboardViewModel(
                 result.getOrNull()?.let { assetInterestInfoList ->
                     updateState {
                         it.copy(
-                            isLoadingData = false, isError = false,
-                            data = assetInterestInfoList.map { assetInterestInfo ->
-                                InterestDashboardItem.InterestAssetInfoItem(true, assetInterestInfo)
-                            })
+                            isLoadingData = false,
+                            isError = false,
+                            isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD),
+                            data = assetInterestInfoList
+                        )
                     }
                 } ?: kotlin.run {
                     updateState { it.copy(isLoadingData = false, isError = true) }
