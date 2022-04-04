@@ -50,24 +50,6 @@ class AccountInteractor internal constructor(
             }
         }
 
-    /*suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
-        blockchainCardRepository.getCards()
-            .mapLeft { BlockchainCardError.RequestFailed }
-            .flatMap { cards ->
-            val activeCards = cards.filter { it.cardStatus != BlockchainCardStatus.TERMINATED }
-            if (activeCards.isNotEmpty()) {
-                // TODO For now we only allow 1 card, but in the future we must pass the full list here
-                BlockchainCardOrderState.Ordered(activeCards.first().cardId)
-            } else {
-                blockchainCardRepository.getProducts().mapLeft { BlockchainCardError.RequestFailed }.map { products ->
-                    if (products.isNotEmpty())
-                        BlockchainCardOrderState.Eligible(products)
-                    else
-                        BlockchainCardOrderState.NotEligible
-                }
-            }
-        }*/
-
     suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
         blockchainCardRepository.getCards()
             .mapLeft { BlockchainCardError.RequestFailed }
