@@ -84,6 +84,14 @@ class CoinViewInteractorTest {
         on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
+    private val archivedNcAccount: CryptoNonCustodialAccount = mock {
+        on { isDefault }.thenReturn(false)
+        on { label }.thenReturn("second nc account")
+        on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
+        on { isEnabled }.thenReturn(Single.just(true))
+        on { stateAwareActions }.thenReturn(Single.just(setOf()))
+        on { isArchived }.thenReturn(true)
+    }
     private val custodialAccount: FiatCustodialAccount = mock {
         on { label }.thenReturn("default c account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
@@ -97,7 +105,7 @@ class CoinViewInteractorTest {
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val nonCustodialGroup: AccountGroup = mock {
-        on { accounts }.thenReturn(listOf(defaultNcAccount, secondNcAccount))
+        on { accounts }.thenReturn(listOf(defaultNcAccount, secondNcAccount, archivedNcAccount))
     }
     private val custodialGroup: AccountGroup = mock {
         on { accounts }.thenReturn(listOf(custodialAccount))
@@ -346,7 +354,11 @@ class CoinViewInteractorTest {
                 it.accountsList[2].account is CryptoInterestAccount &&
                 it.accountsList[2].account.label == "default i account" &&
                 it.accountsList[3].account is CryptoNonCustodialAccount &&
-                it.accountsList[3].account.label == "second nc account"
+                it.accountsList[3].account.label == "second nc account" &&
+                it.accountsList.firstOrNull {
+                it.account is CryptoNonCustodialAccount &&
+                    (it.account as CryptoNonCustodialAccount).isArchived
+            } == null
         }
     }
 

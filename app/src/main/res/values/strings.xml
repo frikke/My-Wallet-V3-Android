@@ -2855,10 +2855,5 @@
     <string name="explainer_exchange_button">Connect</string>
 
     <!-- Bottom sheet actions -->
-    <string name="actions_sheet_title_private_key">Private Key Wallet</string>
-    <string name="actions_sheet_title_custodial">Trading Account</string>
-    <string name="actions_sheet_title_rewards">Rewards Account</string>
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
-
-
 </resources>

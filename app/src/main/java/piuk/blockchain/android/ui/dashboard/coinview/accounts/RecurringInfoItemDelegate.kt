@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.card.ButtonType
 import com.blockchain.componentlib.card.CardButton
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyInfoBinding
@@ -36,7 +37,10 @@ private class RecurringBuyInfoCardViewHolder(
     fun bind(onCardClicked: () -> Unit) {
         binding.rbInfoCard.apply {
             isDismissable = false
-            callToActionButton = CardButton(context.getString(R.string.learn_more)) { onCardClicked() }
+            callToActionButton = CardButton(
+                context.getString(R.string.learn_more),
+                type = ButtonType.Minimal
+            ) { onCardClicked() }
             title = context.getString(R.string.coinview_rb_card_title)
             subtitle = context.getString(R.string.coinview_rb_card_blurb)
             iconResource =

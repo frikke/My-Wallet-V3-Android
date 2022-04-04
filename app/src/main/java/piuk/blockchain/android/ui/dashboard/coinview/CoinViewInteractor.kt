@@ -14,6 +14,7 @@ import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.price.ExchangeRate
@@ -309,7 +310,13 @@ class CoinViewInteractor(
 
     private fun splitAccountsInGroup(asset: CryptoAsset, filter: AssetFilter) =
         asset.accountGroup(filter).defaultIfEmpty(NullAccountGroup()).flatMap { accountGroup ->
-            accountGroup.accounts.map { account ->
+            accountGroup.accounts.filter {
+                if (filter == AssetFilter.NonCustodial) {
+                    !(it as CryptoNonCustodialAccount).isArchived
+                } else {
+                    true
+                }
+            }.map { account ->
                 Single.zip(
                     account.balance.firstOrError(),
                     account.isEnabled,
