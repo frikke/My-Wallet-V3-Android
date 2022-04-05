@@ -9,9 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -25,8 +25,11 @@ import piuk.blockchain.android.ui.interest.tbm.presentation.composables.Interest
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardLoading
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerification
+import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
-class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), NavigationRouter<NavigationEvent> {
+class InterestDashboardFragment :
+    MVIFragment<InterestDashboardViewState>(),
+    NavigationRouter<InterestDashboardNavigationEvent> {
 
     val host: InterestDashboardHost by lazy {
         activity as? InterestDashboardHost
@@ -100,7 +103,8 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
                                     InterestDashboardAssetItem(
                                         assetInfo = it.assetInterestInfo.assetInfo,
                                         assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
-                                        isKycGold = state.value.isKycGold
+                                        isKycGold = state.value.isKycGold,
+                                        interestItemClicked = ::interestItemClicked
                                     )
                                 }
 
@@ -138,25 +142,28 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
         }
     }
 
-    override fun route(navigationEvent: NavigationEvent) {
+    override fun route(navigationEvent: InterestDashboardNavigationEvent) {
+        when (navigationEvent) {
+            is InterestDashboardNavigationEvent.NavigateToInterestSummarySheet -> {
+                host.showInterestSummarySheet(navigationEvent.account)
+            }
+
+            is InterestDashboardNavigationEvent.NavigateToTransactionFlow -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = requireContext(),
+                        target = navigationEvent.account,
+                        action = AssetAction.InterestDeposit
+                    )
+                )
+            }
+        }
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
-        println("------ cryptoCurrency: $cryptoCurrency")
-        //        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
-        //            val interestAccount = it.accounts.first() as CryptoInterestAccount
-        //            if (hasBalance) {
-        //                host.showInterestSummarySheet(interestAccount)
-        //            } else {
-        //                startActivity(
-        //                    TransactionFlowActivity.newIntent(
-        //                        context = requireContext(),
-        //                        target = it.accounts.first(),
-        //                        action = AssetAction.InterestDeposit
-        //                    )
-        //                )
-        //            }
-        //        }
+        viewModel.onIntent(
+            InterestDashboardIntents.InterestItemClicked(cryptoCurrency = cryptoCurrency, hasBalance = hasBalance)
+        )
     }
 
     private fun loadData() {

@@ -6,7 +6,8 @@ val interestDashboardPresentationModule = module {
     single {
         InterestDashboardViewModel(
             getAssetInterestInfoUseCase = get(),
-            getInterestDetailUseCase = get()
+            getInterestDetailUseCase = get(),
+            getAccountGroupUseCase = get()
         )
     }
 }

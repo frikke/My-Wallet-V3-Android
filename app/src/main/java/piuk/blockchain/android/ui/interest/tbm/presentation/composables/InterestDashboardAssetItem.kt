@@ -35,7 +35,12 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestDetail
 
 @Composable
-fun InterestDashboardAssetItem(assetInfo: AssetInfo, assetInterestDetail: AssetInterestDetail?, isKycGold: Boolean) {
+fun InterestDashboardAssetItem(
+    assetInfo: AssetInfo,
+    assetInterestDetail: AssetInterestDetail?,
+    isKycGold: Boolean,
+    interestItemClicked: (AssetInfo, Boolean) -> Unit
+) {
     Column(modifier = Modifier.padding(dimensionResource(R.dimen.standard_margin))) {
 
         AssetName(assetInfo)
@@ -67,7 +72,11 @@ fun InterestDashboardAssetItem(assetInfo: AssetInfo, assetInterestDetail: AssetI
                     else -> R.string.rewards_dashboard_item_action_earn
                 }
             ),
-            enabled = (isKycGold && assetInterestDetail?.eligible == true) || assetInterestDetail?.totalBalance?.isPositive == true
+            enabled = (isKycGold && assetInterestDetail?.eligible == true) || assetInterestDetail?.totalBalance?.isPositive == true,
+            onClick = {
+                if (assetInterestDetail != null)
+                    interestItemClicked(assetInfo, assetInterestDetail.totalBalance.isPositive)
+            }
         )
 
         if (assetInterestDetail == null || assetInterestDetail.ineligibilityReason != IneligibilityReason.NONE) {
@@ -128,12 +137,12 @@ private fun InterestApy(assetInfo: AssetInfo, assetInterestDetail: AssetInterest
 }
 
 @Composable
-private fun InterestCta(ctaText: String, enabled: Boolean) {
+private fun InterestCta(ctaText: String, enabled: Boolean, onClick: () -> Unit) {
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
         text = ctaText,
         state = if (enabled) ButtonState.Enabled else ButtonState.Disabled,
-        onClick = { },
+        onClick = onClick,
     )
 }
 
@@ -195,7 +204,7 @@ private fun PreviewAssetInterestItemError() {
         CryptoCurrency.BTC,
         null,
         true
-    )
+    ) { _, _ -> }
 }
 
 @Preview
@@ -212,5 +221,5 @@ private fun PreviewAssetInterestItem() {
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 3.toBigDecimal())
         ),
         true
-    )
+    ) { _, _ -> }
 }

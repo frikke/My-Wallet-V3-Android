@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.interest.tbm.data.repository
 
+import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.AssetFilter
+import com.blockchain.coincore.Coincore
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -10,6 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.awaitFirst
+import kotlinx.coroutines.rx3.awaitSingle
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestInfo
 import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
@@ -21,6 +25,7 @@ class AssetInterestRepositoryImpl(
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
+    private val coincore: Coincore,
     private val dispatcher: CoroutineDispatcher
 ) : AssetInterestRepository {
 
@@ -79,6 +84,15 @@ class AssetInterestRepositoryImpl(
                 assetInfo = assetInfo,
                 assetInterestDetail = assetInterestDetail
             )
+        }
+    }
+
+    override suspend fun getAccountGroup(cryptoCurrency: AssetInfo, filter: AssetFilter): Result<AccountGroup> {
+        return try {
+            coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).awaitSingle()
+                .run { Result.success(this) }
+        } catch (e: Throwable) {
+            Result.failure(e)
         }
     }
 }

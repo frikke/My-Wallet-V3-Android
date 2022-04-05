@@ -13,6 +13,7 @@ val interestDashboardDataModule = module {
             interestBalance = payloadScope.get(),
             custodialWalletManager = payloadScope.get(),
             exchangeRatesDataManager = get(),
+            coincore = payloadScope.get(),
             dispatcher = Dispatchers.IO
         )
     }
