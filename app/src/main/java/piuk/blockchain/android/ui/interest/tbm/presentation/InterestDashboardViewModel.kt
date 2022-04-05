@@ -22,10 +22,12 @@ class InterestDashboardViewModel(
     ModelConfigArgs.NoArgs>(InterestDashboardModelState()) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        loadInterestDetail()
     }
 
     override suspend fun handleIntent(modelState: InterestDashboardModelState, intent: InterestDashboardIntents) {
+        when (intent) {
+            InterestDashboardIntents.LoadData -> loadInterestDetail()
+        }
     }
 
     override fun reduce(state: InterestDashboardModelState): InterestDashboardViewState {
@@ -68,7 +70,8 @@ class InterestDashboardViewModel(
                             isLoadingData = false,
                             isError = false,
                             isKycGold = isKycGold,
-                            data = initialData + assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) }
+                            data = initialData +
+                                assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) }
                         )
                     }
                 } ?: kotlin.run {

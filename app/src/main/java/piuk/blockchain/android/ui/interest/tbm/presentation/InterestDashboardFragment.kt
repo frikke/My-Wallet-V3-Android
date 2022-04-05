@@ -65,6 +65,8 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
 
         setupViews()
         bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
+
+        loadData()
     }
 
     private fun setupViews() {
@@ -85,7 +87,7 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
             }
 
             state.value.isError -> {
-                InterestDashboardError()
+                InterestDashboardError(::loadData)
             }
 
             state.value.isLoading.not() && state.value.isError.not() -> {
@@ -155,6 +157,10 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
         //                )
         //            }
         //        }
+    }
+
+    private fun loadData() {
+        viewModel.onIntent(InterestDashboardIntents.LoadData)
     }
 
     private fun startKyc() {
