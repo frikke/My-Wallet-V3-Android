@@ -14,7 +14,7 @@ import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -73,7 +73,7 @@ class SimpleBuyModel(
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
@@ -82,7 +82,7 @@ class SimpleBuyModel(
     ),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger
+    remoteLogger = remoteLogger
 ) {
 
     private val activityIndicator: ActivityIndicator? by unsafeLazy {
@@ -624,7 +624,6 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
-
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             preselectedId = preselectedId,
@@ -856,6 +855,9 @@ class SimpleBuyModel(
                 NabuErrorCodes.CardPaymentDeclined -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
                 )
+                NabuErrorCodes.DebitCardOnlyPayment -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.DebitCardOnly)
+                )
                 else -> process(SimpleBuyIntent.ErrorIntent())
             }
         } else {
@@ -1025,7 +1027,13 @@ class SimpleBuyModel(
             .mapNotNull { method ->
                 when (method.type) {
                     PaymentMethodType.PAYMENT_CARD ->
-                        PaymentMethod.UndefinedCard(method.limits, method.canBeUsedForPayment)
+                        PaymentMethod.UndefinedCard(
+                            method.limits,
+                            method.canBeUsedForPayment,
+                            PaymentMethod.UndefinedCard.mapCardFundSources(
+                                availableMap[PaymentMethodType.PAYMENT_CARD]?.cardFundSources
+                            )
+                        )
                     PaymentMethodType.GOOGLE_PAY ->
                         PaymentMethod.GooglePay(method.limits, method.canBeUsedForPayment)
                     PaymentMethodType.BANK_TRANSFER ->

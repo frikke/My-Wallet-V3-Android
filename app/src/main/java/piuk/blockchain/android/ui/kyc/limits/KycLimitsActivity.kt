@@ -49,7 +49,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
 
     override fun onResume() {
         super.onResume()
-        disposables += entitySwitchSilverEligibilityFF.enabled.onErrorReturnItem(false)
+        disposables += entitySwitchSilverEligibilityFF.enabled
             .flatMap { enabled ->
                 if (enabled) userIdentity.getHighestApprovedKycTier()
                 else Single.just(Tier.GOLD)

@@ -14,7 +14,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.minus
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -69,9 +69,9 @@ class AssetDetailsModel(
     private val assetActionsComparator: Comparator<StateAwareAction>,
     private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<AssetDetailsState, AssetDetailsIntent>(
-    initialState, mainScheduler, environmentConfig, crashLogger
+    initialState, mainScheduler, environmentConfig, remoteLogger
 ) {
     override fun performAction(
         previousState: AssetDetailsState,
@@ -233,7 +233,6 @@ class AssetDetailsModel(
 
     private fun accountActions(account: BlockchainAccount): Disposable =
         entitySwitchSilverEligibilityFeatureFlag.enabled
-            .onErrorReturnItem(false)
             .flatMap { enabled ->
                 if (enabled) {
                     Singles.zip(account.stateAwareActions, account.isEnabled)

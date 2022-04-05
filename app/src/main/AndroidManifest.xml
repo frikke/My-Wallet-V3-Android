@@ -5,6 +5,13 @@
     package="piuk.blockchain.android"
     android:installLocation="auto">
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -285,6 +292,7 @@
         <receiver
             android:name=".ui.linkbank.ChooserReceiver"
             android:exported="false" />
+
     </application>
 
 </manifest>

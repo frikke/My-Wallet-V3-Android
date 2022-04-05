@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.isInternetConnectionError
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -19,10 +22,12 @@ import com.blockchain.core.payments.model.FundsLocks
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
 import java.util.Stack
+import retrofit2.HttpException
 
 sealed class TransactionIntent : MviIntent<TransactionState> {
 
@@ -402,14 +407,23 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
     }
 
     class FatalTransactionError(
-        private val error: Throwable
+        private val _error: Throwable
     ) : TransactionIntent() {
-        override fun reduce(oldState: TransactionState): TransactionState =
-            oldState.copy(
+        override fun reduce(oldState: TransactionState): TransactionState {
+
+            val error = when {
+                _error is TransactionError -> _error
+                _error is NabuApiException -> TransactionError.HttpError(_error)
+                _error is HttpException -> TransactionError.HttpError(NabuApiExceptionFactory.fromResponseBody(_error))
+                _error.isInternetConnectionError() -> TransactionError.InternetConnectionError
+                else -> throw _error
+            }
+            return oldState.copy(
                 nextEnabled = true,
                 currentStep = TransactionStep.IN_PROGRESS,
                 executionStatus = TxExecutionStatus.Error(error)
             ).updateBackstack(oldState)
+        }
     }
 
     class ApprovalRequired(
@@ -514,7 +528,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
                 nextEnabled = true,
-                executionStatus = TxExecutionStatus.Error(IllegalStateException("Authorisation required"))
+                executionStatus = TxExecutionStatus.Error(TransactionError.TransactionDenied)
             )
     }
 
@@ -633,6 +647,5 @@ private fun ValidationState.mapToTransactionError() =
         ValidationState.OVER_SILVER_TIER_LIMIT -> TransactionErrorState.OVER_SILVER_TIER_LIMIT
         ValidationState.OVER_GOLD_TIER_LIMIT -> TransactionErrorState.OVER_GOLD_TIER_LIMIT
         ValidationState.ABOVE_PAYMENT_METHOD_LIMIT -> TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT
-        ValidationState.INVOICE_EXPIRED, // We shouldn't see this here
-        ValidationState.UNKNOWN_ERROR -> TransactionErrorState.UNKNOWN_ERROR
+        ValidationState.INVOICE_EXPIRED -> TransactionErrorState.INVALID_ADDRESS
     }

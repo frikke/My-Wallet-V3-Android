@@ -19,7 +19,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toFiat
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetInfo
@@ -466,7 +466,7 @@ class BtcOnChainTxEngine(
 
     override fun doOnTransactionFailed(pendingTx: PendingTx, e: Throwable) {
         Timber.e("BTC Send failed: $e")
-        crashLogger.logException(e)
+        remoteLogger.logException(e)
     }
 
     // Update balance immediately after spend - until refresh from server
@@ -498,13 +498,13 @@ class BtcOnChainTxEngine(
     }
 
     // TEMP diagnostics - TODO Remove this once we're stable
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
 
     private fun Completable.logValidityFailure(): Completable =
-        this.doOnError { crashLogger.logException(it) }
+        this.doOnError { remoteLogger.logException(it) }
 
     private fun fatalError(e: Throwable): Throwable {
-        crashLogger.logException(e)
+        remoteLogger.logException(e)
         return e
     }
 }

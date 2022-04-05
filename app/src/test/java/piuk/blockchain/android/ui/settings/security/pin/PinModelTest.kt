@@ -71,7 +71,7 @@ class PinModelTest {
             initialState = PinState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             specificAnalytics = specificAnalytics,
             analytics = analytics

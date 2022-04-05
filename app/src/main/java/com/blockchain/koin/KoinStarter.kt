@@ -18,6 +18,7 @@ import com.blockchain.koin.modules.nabuUrlModule
 import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.xlmModule
+import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
@@ -101,7 +102,8 @@ object KoinStarter {
                     mainModule,
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
-                    deeplinkModule
+                    deeplinkModule,
+                    loggingModule
                 )
             )
         }

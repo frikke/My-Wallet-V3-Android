@@ -13,7 +13,7 @@ enum class AssetFilter {
     All,
     NonCustodial,
     Custodial,
-    Rewards
+    Interest
 }
 
 enum class ActionOrigin {

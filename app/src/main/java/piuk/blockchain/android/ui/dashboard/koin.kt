@@ -35,7 +35,7 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -51,7 +51,7 @@ val dashboardModule = module {
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
                 analytics = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 linkedBanksFactory = get(),
                 getDashboardOnboardingStepsUseCase = get(),
                 redesignCoinViewFlag = get(redesignPart2CoinViewFeatureFlag)
@@ -66,7 +66,7 @@ val dashboardModule = module {
                 assetActionsComparator = get(),
                 entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -105,7 +105,7 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -124,7 +124,7 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
         factory {
@@ -134,7 +134,10 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 dashboardPrefs = get(),
                 identity = get(),
-                custodialWalletManager = get()
+                custodialWalletManager = get(),
+                assetActionsComparator = get(),
+                assetsManager = get(),
+                watchlistDataManager = get(),
             )
         }
 
@@ -144,7 +147,7 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

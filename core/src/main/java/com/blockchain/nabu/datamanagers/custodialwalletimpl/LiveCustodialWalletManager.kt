@@ -73,7 +73,6 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
@@ -94,7 +93,6 @@ class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
-    private val simpleBuyPrefs: SimpleBuyPrefs,
     private val pairsCache: BuyPairsCache,
     private val buyOrdersCache: BuyOrdersCache,
     private val paymentMethodsEligibilityCache: PaymentMethodsEligibilityCache,

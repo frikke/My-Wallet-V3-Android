@@ -2,6 +2,7 @@ package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.outcome.Outcome
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -13,15 +14,24 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthereumWallet
-import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
+import info.blockchain.wallet.ethereum.node.EthChainError
+import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
+import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
+import info.blockchain.wallet.ethereum.node.RequestType
 import info.blockchain.wallet.keys.MasterKey
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
 import org.junit.Rule
@@ -41,7 +51,7 @@ class EthDataManagerTest {
     }
 
     private val payloadManager: PayloadDataManager = mock()
-    private val ethAccountApi: EthAccountApi = mock()
+    private val ethAccountApi: EthAccountApi = mockk()
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
@@ -74,8 +84,7 @@ class EthDataManagerTest {
         val ethAddress = "ADDRESS"
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
 
-        whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
-            .thenReturn(Observable.just(hashMapOf()))
+        every { ethAccountApi.getEthAddress(listOf(ethAddress)) } returns Observable.just(hashMapOf())
         // Act
         val testObserver = subject.fetchEthAddress().test()
         // Assert
@@ -84,50 +93,51 @@ class EthDataManagerTest {
         verify(ethDataStore, atLeastOnce()).ethWallet
         verify(ethDataStore).ethAddressResponse = any()
         verifyZeroInteractions(ethDataStore)
-        verify(ethAccountApi).getEthAddress(listOf(ethAddress))
-        verifyNoMoreInteractions(ethAccountApi)
+        io.mockk.verify { ethAccountApi.getEthAddress(listOf(ethAddress)) }
     }
 
+    @ExperimentalCoroutinesApi
     @Test
     fun `get balance found`() {
-        // Arrange
-        val ethAddress = "ADDRESS"
+        runTest {
+            // Arrange
+            val ethAddress = "ADDRESS"
+            val requestType = RequestType.GET_BALANCE
+            val response: EthJsonRpcResponse = mock {
+                on { result }.thenReturn("0xA")
+            }
+            val expected = Outcome.Success(BigInteger.TEN)
+            whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+            coEvery {
+                ethAccountApi.postEthNodeRequest(requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
+            } returns Outcome.Success(response)
 
-        val response: EthAddressResponse = mock()
-        whenever(response.getBalance()).thenReturn(BigInteger.TEN)
+            // Act
+            val result = subject.getBalance()
 
-        whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
-            .thenReturn(
-                Observable.just(
-                    hashMapOf(
-                        ethAddress to response
-                    )
-                )
-            )
-        // Act
-        val testObserver = subject.getBalance(ethAddress).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(BigInteger.TEN)
-        verify(ethAccountApi).getEthAddress(listOf(ethAddress))
-        verifyNoMoreInteractions(ethAccountApi)
+            // Assert
+            result `should be equal to` expected
+        }
     }
 
+    @ExperimentalCoroutinesApi
     @Test
     fun `get balance error, still returns value`() {
-        // Arrange
-        val ethAddress = "ADDRESS"
-        whenever(ethAccountApi.getEthAddress(listOf(ethAddress)))
-            .thenReturn(Observable.error(Exception()))
-        // Act
-        val testObserver = subject.getBalance(ethAddress).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(BigInteger.ZERO)
-        verify(ethAccountApi).getEthAddress(listOf(ethAddress))
-        verifyNoMoreInteractions(ethAccountApi)
+        runTest {
+            // Arrange
+            val ethAddress = "ADDRESS"
+            val requestType = RequestType.GET_BALANCE
+            val errorResponse = Outcome.Failure(EthChainError.UnknownError(Exception()))
+            whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+            coEvery {
+                ethAccountApi.postEthNodeRequest(requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
+            } returns errorResponse
+
+            // Act
+            val result = subject.getBalance()
+            // Assert
+            result `should be equal to` errorResponse
+        }
     }
 
     @Test
@@ -157,8 +167,8 @@ class EthDataManagerTest {
         val ethAddress = "ADDRESS"
         val ethTransaction: EthTransaction = mock()
         whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
-        whenever(ethAccountApi.getEthTransactions(any()))
-            .thenReturn(Single.just(listOf(ethTransaction, ethTransaction, ethTransaction)))
+        every { ethAccountApi.getEthTransactions(listOf(ethAddress)) } returns
+            Single.just(listOf(ethTransaction, ethTransaction, ethTransaction))
         // Act
         val testObserver = subject.getEthTransactions().test()
         // Assert
@@ -186,10 +196,10 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is pending when there is at least one transaction pending`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
-
-        whenever(ethAccountApi.getLastEthTransaction(any()))
-            .thenReturn(Maybe.just(EthTransaction(state = "PENDING")))
+        val ethAddress = "Address"
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns
+            Maybe.just(EthTransaction(state = "PENDING"))
         // Act
         val result = subject.isLastTxPending().test()
         // Assert
@@ -201,10 +211,10 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is not pending when there is no pending tx`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
-
-        whenever(ethAccountApi.getLastEthTransaction(any()))
-            .thenReturn(Maybe.just(EthTransaction(state = "CONFIRMED")))
+        val ethAddress = "Address"
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns
+            Maybe.just(EthTransaction(state = "CONFIRMED"))
         // Act
         val result = subject.isLastTxPending().test()
         // Assert
@@ -216,10 +226,10 @@ class EthDataManagerTest {
     @Test
     fun `lastTx is not pending when there is no tx`() {
         // Arrange
-        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn("Address")
+        val ethAddress = "Address"
+        whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
+        every { ethAccountApi.getLastEthTransaction(listOf(ethAddress)) } returns Maybe.empty()
 
-        whenever(ethAccountApi.getLastEthTransaction(any()))
-            .thenReturn(Maybe.empty())
         // Act
         val result = subject.isLastTxPending().test()
         // Assert
@@ -232,30 +242,32 @@ class EthDataManagerTest {
     fun getLatestBlock() {
         // Arrange
         val latestBlock = EthLatestBlockNumber()
-        whenever(ethAccountApi.latestBlockNumber).thenReturn(Single.just(latestBlock))
+        every { ethAccountApi.latestBlockNumber } returns Single.just(latestBlock)
         // Act
         val testObserver = subject.getLatestBlockNumber().test()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(latestBlock)
-        verify(ethAccountApi).latestBlockNumber
-        verifyNoMoreInteractions(ethAccountApi)
+        io.mockk.verify { ethAccountApi.latestBlockNumber }
     }
 
     @Test
     fun getIfContract() {
         // Arrange
         val address = "ADDRESS"
-        whenever(ethAccountApi.getIfContract(address)).thenReturn(Observable.just(true))
+        val requestType = RequestType.IS_CONTRACT
+        val response: EthJsonRpcResponse = mockk {
+            coEvery { result } returns "contract"
+        }
+        coEvery {
+            ethAccountApi.postEthNodeRequest(requestType, address, EthJsonRpcRequest.defaultBlock)
+        }.returns(Outcome.Success(response))
         // Act
-        val testObserver = subject.isContractAddress(address).test()
+        val result = subject.isContractAddress(address).blockingGet()
         // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(true)
-        verify(ethAccountApi).getIfContract(address)
-        verifyNoMoreInteractions(ethAccountApi)
+        result `should be equal to` true
+        coVerify { ethAccountApi.postEthNodeRequest(requestType, address, EthJsonRpcRequest.defaultBlock) }
     }
 
     @Test
@@ -353,16 +365,17 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        whenever(ethAccountApi.pushTx(any())).thenReturn(Observable.just(hash))
+        val requestType = RequestType.PUSH_TRANSACTION
+        val response: EthJsonRpcResponse = mockk {
+            coEvery { result } returns hash
+        }
+        coEvery { ethAccountApi.postEthNodeRequest(requestType, any()) } returns Outcome.Success(response)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.complete())
         // Act
-        val testObserver = subject.pushEthTx(byteArray).test()
+        val result = subject.pushTx(byteArray).blockingGet()
         // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(hash)
-        verify(ethAccountApi).pushTx(any())
-        verifyNoMoreInteractions(ethAccountApi)
+        result `should be equal to` hash
+        coVerify { ethAccountApi.postEthNodeRequest(requestType, any()) }
     }
 
     @Test
@@ -370,17 +383,18 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        whenever(ethAccountApi.pushTx(any())).thenReturn(Observable.just(hash))
+        val requestType = RequestType.PUSH_TRANSACTION
+        val response: EthJsonRpcResponse = mockk {
+            coEvery { result } returns hash
+        }
+        coEvery { ethAccountApi.postEthNodeRequest(requestType, any()) } returns Outcome.Success(response)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.error(Exception()))
 
         // Act
-        val testObserver = subject.pushEthTx(byteArray).test()
+        val result = subject.pushTx(byteArray).blockingGet()
 
         // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(hash)
-        verify(ethAccountApi).pushTx(any())
-        verifyNoMoreInteractions(ethAccountApi)
+        result `should be equal to` hash
+        coVerify { ethAccountApi.postEthNodeRequest(requestType, any()) }
     }
 }

@@ -96,14 +96,18 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class GooglePayInfoReceived(
         private val tokenizationData: Map<String, String>,
         private val beneficiaryId: String,
-        private val merchantBankCountryCode: String
+        private val merchantBankCountryCode: String,
+        private val allowPrepaidCards: Boolean,
+        private val allowCreditCards: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(
                 isLoading = false,
                 googlePayTokenizationInfo = tokenizationData,
                 googlePayBeneficiaryId = beneficiaryId,
-                googlePayMerchantBankCountryCode = merchantBankCountryCode
+                googlePayMerchantBankCountryCode = merchantBankCountryCode,
+                googlePayAllowPrepaidCards = allowPrepaidCards,
+                googlePayAllowCreditCards = allowCreditCards
             )
         }
     }

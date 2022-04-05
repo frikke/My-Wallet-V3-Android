@@ -17,7 +17,7 @@ import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
@@ -31,9 +31,13 @@ import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.exceptions.CompositeException
+import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException
+import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.lang.RuntimeException
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
@@ -59,12 +63,12 @@ open class BlockchainApplication : Application() {
     private val currentContextAccess: CurrentContextAccess by inject()
     private val appUtils: AppUtil by inject()
     private val analytics: Analytics by inject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val coinsWebSocketService: CoinsWebSocketService by inject()
     private val trust: SiftDigitalTrust by inject()
 
     private val lifecycleListener: AppLifecycleListener by lazy {
-        AppLifecycleListener(lifeCycleInterestedComponent, crashLogger)
+        AppLifecycleListener(lifeCycleInterestedComponent, remoteLogger)
     }
 
     override fun onCreate() {
@@ -86,8 +90,7 @@ open class BlockchainApplication : Application() {
 
         // Build the DI graphs:
         KoinStarter.start(this)
-        crashLogger.init(this)
-        crashLogger.userLanguageLocale(resources.configuration.locale.language)
+        initRemoteLogger()
         initLifecycleListener()
 
         Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
@@ -97,7 +100,19 @@ open class BlockchainApplication : Application() {
         }
 
         UncaughtExceptionHandler.install(appUtils)
-        RxJavaPlugins.setErrorHandler { throwable -> Timber.tag(RX_ERROR_TAG).e(throwable) }
+
+        RxJavaPlugins.setErrorHandler { _throwable ->
+            val exception = when {
+                (_throwable is CompositeException) -> _throwable.exceptions[0]
+                (_throwable is OnErrorNotImplementedException) -> _throwable.cause
+                (_throwable is UndeliverableException) -> _throwable.cause
+                else -> _throwable
+            }
+            if (exception is RuntimeException) {
+                throw exception
+            }
+            Timber.tag(RX_ERROR_TAG).e(exception)
+        }
 
         ConnectivityManager.getInstance().registerNetworkListener(this, rxBus)
 
@@ -205,6 +220,11 @@ open class BlockchainApplication : Application() {
             notificationManager.createNotificationChannel(channel2FA)
             notificationManager.createNotificationChannel(channelPayments)
         }
+    }
+
+    private fun initRemoteLogger() {
+        remoteLogger.init(this)
+        remoteLogger.userLanguageLocale(resources.configuration.locale.language)
     }
 
     /**

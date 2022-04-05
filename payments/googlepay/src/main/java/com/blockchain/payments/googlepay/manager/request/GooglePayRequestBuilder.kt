@@ -9,7 +9,9 @@ object GooglePayRequestBuilder {
                         allowedAuthMethods = allowedAuthMethods,
                         allowedCardNetworks = allowedCardNetworks,
                         billingAddressRequired = true,
-                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters()
+                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters(),
+                        allowPrepaidCards = true,
+                        allowCreditCards = true
                     )
                 )
             )
@@ -21,7 +23,9 @@ object GooglePayRequestBuilder {
         gatewayTokenizationParameters: Map<String, String>,
         totalPrice: String,
         countryCode: String,
-        currencyCode: String
+        currencyCode: String,
+        allowPrepaidCards: Boolean,
+        allowCreditCards: Boolean
     ): GooglePayRequest =
         GooglePayRequest(
             allowedPaymentMethods = listOf(
@@ -30,7 +34,9 @@ object GooglePayRequestBuilder {
                         allowedAuthMethods = allowedAuthMethods,
                         allowedCardNetworks = allowedCardNetworks,
                         billingAddressRequired = false,
-                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters()
+                        billingAddressParameters = CardPaymentMethod.CardPaymentParameters.BillingAddressParameters(),
+                        allowPrepaidCards = allowPrepaidCards,
+                        allowCreditCards = allowCreditCards
                     ),
                     tokenizationSpecification = CardPaymentMethod.TokenizationSpecification(
                         parameters = gatewayTokenizationParameters

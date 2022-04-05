@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
@@ -490,9 +491,7 @@ sealed class TransactionError : Throwable() {
     object WithdrawalAlreadyPending : TransactionError()
     object WithdrawalBalanceLocked : TransactionError()
     object WithdrawalInsufficientFunds : TransactionError()
-    object UnexpectedError : TransactionError()
     object InternalServerError : TransactionError()
-    object AlbertExecutionError : TransactionError()
     object TradingTemporarilyDisabled : TransactionError()
     object InsufficientBalance : TransactionError()
     object OrderBelowMin : TransactionError()
@@ -509,7 +508,10 @@ sealed class TransactionError : Throwable() {
     object IneligibleForSwap : TransactionError()
     object InvalidDestinationAmount : TransactionError()
     object InvalidPostcode : TransactionError()
+    object TransactionDenied : TransactionError()
     object ExecutionFailed : TransactionError()
+    object InternetConnectionError : TransactionError()
+    class HttpError(val nabuApiException: NabuApiException) : TransactionError()
 }
 
 sealed class PaymentMethod(
@@ -544,12 +546,33 @@ sealed class PaymentMethod(
 
     data class UndefinedCard(
         override val limits: PaymentLimits,
-        override val isEligible: Boolean
+        override val isEligible: Boolean,
+        val cardFundSources: List<CardFundSource>?
     ) : PaymentMethod(
         UNDEFINED_CARD_PAYMENT_ID, PaymentMethodType.PAYMENT_CARD, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
         isEligible
     ),
-        UndefinedPaymentMethod
+        UndefinedPaymentMethod {
+
+        enum class CardFundSource {
+            PREPAID,
+            CREDIT,
+            DEBIT,
+            UNKNOWN
+        }
+
+        companion object {
+            fun mapCardFundSources(sources: List<String>?): List<CardFundSource>? =
+                sources?.map {
+                    when (it) {
+                        CardFundSource.CREDIT.name -> CardFundSource.CREDIT
+                        CardFundSource.DEBIT.name -> CardFundSource.DEBIT
+                        CardFundSource.PREPAID.name -> CardFundSource.PREPAID
+                        else -> CardFundSource.UNKNOWN
+                    }
+                }
+        }
+    }
 
     data class Funds(
         val balance: Money,

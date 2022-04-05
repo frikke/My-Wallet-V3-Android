@@ -64,7 +64,7 @@ class PairingModelTest {
             initialState = PairingState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             qrCodeDataManager = qrCodeDataManager,
             payloadDataManager = payloadDataManager,
             authDataManager = authDataManager,

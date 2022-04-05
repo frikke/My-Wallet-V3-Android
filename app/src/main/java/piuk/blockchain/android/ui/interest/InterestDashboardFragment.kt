@@ -170,7 +170,7 @@ class InterestDashboardFragment : Fragment() {
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
-        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Rewards).subscribe {
+        compositeDisposable += coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).subscribe {
             val interestAccount = it.accounts.first() as CryptoInterestAccount
             if (hasBalance) {
                 host.showInterestSummarySheet(interestAccount)

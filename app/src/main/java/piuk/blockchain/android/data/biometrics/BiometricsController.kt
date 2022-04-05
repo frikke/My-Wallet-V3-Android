@@ -13,7 +13,7 @@ import com.blockchain.biometrics.BiometricsCallback
 import com.blockchain.biometrics.BiometricsType
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.PromptInfo
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import java.util.concurrent.Executor
 import org.koin.core.component.KoinComponent
 import piuk.blockchain.android.R
@@ -34,7 +34,7 @@ class BiometricsControllerImpl(
     biometricDataRepository: BiometricDataRepository,
     biometricManager: BiometricManager,
     cryptographyManager: CryptographyManager,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : BiometricsController, KoinComponent {
 
     private val androidBiometricsController: AndroidBiometricsController<WalletBiometricData> by lazy {
@@ -44,7 +44,7 @@ class BiometricsControllerImpl(
             biometricDataRepository,
             biometricManager,
             cryptographyManager,
-            crashLogger
+            remoteLogger
         )
     }
 

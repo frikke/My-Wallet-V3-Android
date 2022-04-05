@@ -5,6 +5,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.utils.appendSpaced
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
@@ -295,20 +296,25 @@ class CoinsWebSocketStrategy(
 
             val title = stringUtils.getString(R.string.app_name)
 
-            if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
-                val transaction: EthTransaction = ethResponse.transaction
-                val ethAddress = ethAddress()
-                if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
-                ) {
-                    val marquee = stringUtils.getString(R.string.received_ethereum) + " " +
-                        Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER) + " ETH"
-                    val text = "$marquee " + stringUtils.getString(R.string.common_from)
-                        .toLowerCase(Locale.US) + " " + transaction.from
+        if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
+            val transaction: EthTransaction = ethResponse.transaction
+            val ethAddress = ethAddress()
+            if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
+            ) {
+                val marqueeBuilder = StringBuilder()
+                    .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
+                    .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
+                    .appendSpaced(CryptoCurrency.ETHER.displayTicker)
 
-                    messagesSocketHandler?.triggerNotification(title, marquee, text)
-                }
-                updateEthTransactions()
+                val textBuilder = StringBuilder()
+                    .append(marqueeBuilder)
+                    .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
+                    .appendSpaced(transaction.from)
+
+                messagesSocketHandler?.triggerNotification(title, marqueeBuilder.toString(), textBuilder.toString())
             }
+            updateEthTransactions()
+        }
 
             if (ethResponse.entity == Entity.TokenAccount &&
                 ethResponse.tokenTransfer != null &&

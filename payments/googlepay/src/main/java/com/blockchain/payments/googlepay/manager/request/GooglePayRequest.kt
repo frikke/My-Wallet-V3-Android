@@ -39,7 +39,11 @@ data class CardPaymentMethod(
         @SerialName("billingAddressRequired")
         val billingAddressRequired: Boolean = true,
         @SerialName("billingAddressParameters")
-        val billingAddressParameters: BillingAddressParameters
+        val billingAddressParameters: BillingAddressParameters,
+        @SerialName("allowPrepaidCards")
+        val allowPrepaidCards: Boolean,
+        @SerialName("allowCreditCards")
+        val allowCreditCards: Boolean
     ) {
         @Serializable
         data class BillingAddressParameters(

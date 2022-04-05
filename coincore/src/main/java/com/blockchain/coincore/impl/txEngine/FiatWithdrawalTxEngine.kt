@@ -57,20 +57,19 @@ class FiatWithdrawalTxEngine(
                 sourceAccountType = AssetCategory.CUSTODIAL,
                 targetAccountType = AssetCategory.NON_CUSTODIAL,
                 legacyLimits = withdrawFeeAndMinLimit.map { it as LegacyLimits }
-            ),
-            { balance, withdrawalFee, limits ->
-                PendingTx(
-                    amount = zeroFiat,
-                    limits = limits,
-                    availableBalance = Money.max(balance.withdrawable - withdrawalFee.fee, zeroFiat),
-                    feeForFullAvailable = zeroFiat,
-                    totalBalance = balance.total,
-                    feeAmount = withdrawalFee.fee,
-                    selectedFiat = userFiat,
-                    feeSelection = FeeSelection()
-                )
-            }
-        )
+            )
+        ) { balance, withdrawalFee, limits ->
+            PendingTx(
+                amount = zeroFiat,
+                limits = limits,
+                availableBalance = Money.max(balance.withdrawable - withdrawalFee.fee, zeroFiat),
+                feeForFullAvailable = zeroFiat,
+                totalBalance = balance.total,
+                feeAmount = withdrawalFee.fee,
+                selectedFiat = userFiat,
+                feeSelection = FeeSelection()
+            )
+        }
     }
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
@@ -151,7 +150,13 @@ class FiatWithdrawalTxEngine(
                     else -> Completable.complete()
                 }
             } else {
-                throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                Completable.error(
+                    MissingLimitsException(
+                        action = AssetAction.Withdraw,
+                        source = sourceAccount,
+                        target = txTarget
+                    )
+                )
             }
         }
 }

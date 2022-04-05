@@ -4,7 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -30,7 +30,7 @@ class CardModel(
     private val json: Json,
     private val replaceGsonKtxFF: FeatureFlag,
     val environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
     initialState = prefs.cardState()?.run {
         if (replaceGsonKtxFF.isEnabled) json.decodeFromString<CardState>(this)
@@ -38,7 +38,7 @@ class CardModel(
     } ?: CardState(fiatCurrency = currencyPrefs.selectedFiatCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger
+    remoteLogger = remoteLogger
 ) {
 
     override fun performAction(previousState: CardState, intent: CardIntent): Disposable? =
@@ -97,6 +97,9 @@ class CardModel(
                         )
                         NabuErrorCodes.CardPaymentDeclined -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DECLINED))
+                        )
+                        NabuErrorCodes.DebitCardOnlyCreate -> process(
+                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.DEBIT_CARD_ONLY))
                         )
                         else -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL))

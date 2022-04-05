@@ -525,7 +525,9 @@ class SimpleBuyInteractor(
             SimpleBuyIntent.GooglePayInfoReceived(
                 tokenizationData = Json.decodeFromString(StringMapSerializer, it.googlePayParameters),
                 beneficiaryId = it.beneficiaryID,
-                merchantBankCountryCode = it.merchantBankCountryCode
+                merchantBankCountryCode = it.merchantBankCountryCode,
+                allowPrepaidCards = it.allowPrepaidCards ?: true,
+                allowCreditCards = it.allowCreditCards ?: true
             )
         }
 

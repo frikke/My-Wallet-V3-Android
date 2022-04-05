@@ -31,7 +31,6 @@ import timber.log.Timber
 class GlobalEventHandler(
     private val application: Application,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val wcFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkFeatureFlag: IntegratedFeatureFlag,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val destinationArgs: DestinationArgs,
@@ -42,10 +41,7 @@ class GlobalEventHandler(
 
     fun init() {
         compositeDisposable.clear()
-        compositeDisposable += wcFeatureFlag.enabled.flatMapObservable { enabled ->
-            if (enabled) walletConnectServiceAPI.userEvents
-            else Observable.empty()
-        }.subscribe { event ->
+        compositeDisposable += walletConnectServiceAPI.userEvents.subscribe { event ->
             startTransactionFlowForSigning(event)
         }
 

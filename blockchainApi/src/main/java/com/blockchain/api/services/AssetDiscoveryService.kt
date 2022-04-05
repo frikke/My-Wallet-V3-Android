@@ -1,14 +1,17 @@
 package com.blockchain.api.services
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.assetdiscovery.AssetDiscoveryApiInterface
+import com.blockchain.api.assetdiscovery.data.AssetInformationResponse
 import com.blockchain.api.assetdiscovery.data.CeloTokenAsset
 import com.blockchain.api.assetdiscovery.data.CoinAsset
 import com.blockchain.api.assetdiscovery.data.DynamicCurrency
 import com.blockchain.api.assetdiscovery.data.Erc20Asset
 import com.blockchain.api.assetdiscovery.data.FiatAsset
 import com.blockchain.api.assetdiscovery.data.UnsupportedAsset
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalStateException
 
 enum class DynamicAssetProducts {
     PrivateKey,
@@ -32,6 +35,12 @@ data class DynamicAsset(
     val minConfirmations: Int = 0,
     val parentChain: String? = null,
     val chainIdentifier: String? = null
+)
+
+data class DetailedAssetInformation(
+    val description: String,
+    val website: String,
+    val whitepaper: String
 )
 
 typealias DynamicAssetList = List<DynamicAsset>
@@ -63,6 +72,22 @@ class AssetDiscoveryService internal constructor(
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
+
+    suspend fun getAssetInformation(assetTicker: String): Outcome<ApiError, DetailedAssetInformation?> =
+        api.getAssetInfo(assetTicker).map {
+            it.toAssetInfo()
+        }
+
+    private fun AssetInformationResponse.toAssetInfo(): DetailedAssetInformation? =
+        if (description != null && website != null) {
+            DetailedAssetInformation(
+                description = description,
+                website = website,
+                whitepaper = whitepaper.orEmpty()
+            )
+        } else {
+            null
+        }
 
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {

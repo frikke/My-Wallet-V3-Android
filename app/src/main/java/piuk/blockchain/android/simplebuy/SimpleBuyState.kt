@@ -62,6 +62,8 @@ data class SimpleBuyState constructor(
     val googlePayTokenizationInfo: Map<String, String>? = null,
     val googlePayBeneficiaryId: String? = null,
     val googlePayMerchantBankCountryCode: String? = null,
+    val googlePayAllowPrepaidCards: Boolean? = true,
+    val googlePayAllowCreditCards: Boolean? = true,
     @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient @kotlinx.serialization.Transient
     override val errorState: TransactionErrorState = TransactionErrorState.NONE,
@@ -226,6 +228,7 @@ sealed class ErrorState : Serializable {
     object InsufficientCardFunds : ErrorState()
     object CardPaymentDeclined : ErrorState()
     object CardPaymentFailed : ErrorState()
+    object DebitCardOnly : ErrorState()
 }
 
 data class SimpleBuyOrder(

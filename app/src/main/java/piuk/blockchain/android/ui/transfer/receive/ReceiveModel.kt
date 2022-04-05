@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.transfer.receive
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
@@ -17,10 +17,10 @@ class ReceiveModel(
     initialState: ReceiveState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val getAvailableCryptoAssetsUseCase: GetAvailableCryptoAssetsUseCase,
     private val getReceiveAccountsForAssetUseCase: GetReceiveAccountsForAssetUseCase
-) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, crashLogger) {
+) : MviModel<ReceiveState, ReceiveIntent>(initialState, uiScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: ReceiveState, intent: ReceiveIntent): Disposable? {
         return when (intent) {

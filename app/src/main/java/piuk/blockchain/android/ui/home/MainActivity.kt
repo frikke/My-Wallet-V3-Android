@@ -32,9 +32,9 @@ import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAppOpened
 import com.blockchain.notifications.analytics.SendAnalytics
 import com.blockchain.notifications.analytics.activityShown
@@ -102,7 +102,6 @@ import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
-import piuk.blockchain.android.ui.transfer.send.TransferSendFragment
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
@@ -140,7 +139,6 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
-    private val walletConnectFF: FeatureFlag by scopedInject(walletConnectFeatureFlag)
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val destinationArgs: DestinationArgs by scopedInject()
@@ -166,6 +164,14 @@ class MainActivity :
         }
     }
 
+    private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
+                startActivitiesFragment(account)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -179,10 +185,11 @@ class MainActivity :
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped)
         }
 
         if (savedInstanceState == null) {
-            deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+            deeplinkingV2FF.enabled.subscribeBy(
                 onSuccess = { isEnabled ->
                     if (isEnabled) {
                         model.process(MainIntent.SaveDeeplinkIntent(intent))
@@ -269,15 +276,10 @@ class MainActivity :
     }
 
     private fun tryToLaunchQrScan() {
-        compositeDisposable += walletConnectFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            if (
-                enabled &&
-                !isCameraPermissionGranted()
-            ) {
-                showScanAndConnectBottomSheet()
-            } else {
-                launchQrScan()
-            }
+        if (!isCameraPermissionGranted()) {
+            showScanAndConnectBottomSheet()
+        } else {
+            launchQrScan()
         }
         analytics.logEvent(SendAnalytics.QRButtonClicked)
     }
@@ -645,7 +647,7 @@ class MainActivity :
         when (destination) {
             is Destination.AssetViewDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
-                    startActivity(
+                    activityResultsContract.launch(
                         CoinViewActivity.newIntent(
                             context = this,
                             asset = assetInfo
@@ -753,12 +755,6 @@ class MainActivity :
             reloadFragment = reload
         )
         analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
-    }
-
-    private fun startSendFragment() {
-        supportFragmentManager.showFragment(
-            fragment = TransferSendFragment.newInstance()
-        )
     }
 
     override fun startDashboardOnboarding() {

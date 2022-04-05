@@ -34,7 +34,7 @@ fun SheetHeader(
     startImageResource: ImageResource = ImageResource.None,
     onClosePress: () -> Unit,
     closePressContentDescription: String? = null,
-    isDarkMode: Boolean = isSystemInDarkTheme(),
+    shouldShowDivider: Boolean = true,
 ) {
     Box(
         modifier = modifier
@@ -78,7 +78,7 @@ fun SheetHeader(
                     )
                 )
             }
-            title?.let {
+            if (shouldShowDivider) {
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
             }
         }

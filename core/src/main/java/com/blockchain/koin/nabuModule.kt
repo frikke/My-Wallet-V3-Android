@@ -111,7 +111,6 @@ val nabuModule = module {
                 assetCatalogue = get(),
                 nabuService = get(),
                 authenticator = get(),
-                simpleBuyPrefs = get(),
                 paymentAccountMapperMappers = mapOf(
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
@@ -310,7 +309,7 @@ val nabuModule = module {
             prefs = lazy { get() },
             analyticsContextProvider = get(),
             localAnalyticsPersistence = get(),
-            crashLogger = get(),
+            remoteLogger = get(),
             tokenStore = get(),
             lifecycleObservable = get()
         )
@@ -337,7 +336,7 @@ val authenticationModule = module {
             NabuAuthenticator(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }.bind(Authenticator::class).bind(AuthHeaderProvider::class)
     }

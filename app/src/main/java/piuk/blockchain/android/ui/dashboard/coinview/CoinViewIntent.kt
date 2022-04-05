@@ -26,6 +26,12 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         )
     }
 
+    class LoadAssetDetails(val asset: AssetInfo) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
+            viewState = CoinViewViewState.LoadingAssetDetails
+        )
+    }
+
     object CheckBuyStatus : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
     }
@@ -42,7 +48,8 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
 
     class LoadQuickActions(
         val totalCryptoBalance: Money,
-        val accountList: List<BlockchainAccount>
+        val accountList: List<BlockchainAccount>,
+        val asset: CryptoAsset
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
             viewState = CoinViewViewState.LoadingQuickActions
@@ -71,17 +78,29 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
     class UpdateAccountDetails(
         private val viewState: CoinViewViewState,
         val assetInformation: AssetInformation,
-        val asset: CryptoAsset
+        val asset: CryptoAsset,
+        private val isAddedToWatchlist: Boolean
     ) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(
-                viewState = viewState, assetPrices = assetInformation.prices
+                viewState = viewState,
+                assetPrices = assetInformation.prices,
+                isAddedToWatchlist = isAddedToWatchlist
             )
     }
 
     class UpdateViewState(private val viewState: CoinViewViewState) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(viewState = viewState)
+    }
+
+    object ToggleWatchlist : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState
+    }
+
+    class UpdateWatchlistState(private val isAddedToWatchlist: Boolean) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState =
+            oldState.copy(isAddedToWatchlist = isAddedToWatchlist)
     }
 
     object ResetViewState : CoinViewIntent() {

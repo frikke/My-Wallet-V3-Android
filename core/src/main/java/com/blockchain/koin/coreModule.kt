@@ -3,7 +3,6 @@ package com.blockchain.koin
 import android.content.Context
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
-import com.blockchain.core.BuildConfig
 import com.blockchain.core.Database
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
@@ -32,12 +31,11 @@ import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
+import com.blockchain.core.user.WatchlistDataManager
+import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
-import com.blockchain.logging.Logger
-import com.blockchain.logging.NullLogger
-import com.blockchain.logging.TimberLogger
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
@@ -240,7 +238,7 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
@@ -258,7 +256,7 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
@@ -279,7 +277,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
             )
         }
@@ -332,7 +330,7 @@ val coreModule = module {
                 walletAuthService = get(),
                 pinRepository = get(),
                 aesUtilWrapper = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -370,6 +368,14 @@ val coreModule = module {
                 cardsCache = get()
             )
         }.bind(PaymentsDataManager::class)
+
+        scoped {
+            WatchlistDataManagerImpl(
+                authenticator = get(),
+                watchlistService = get(),
+                assetCatalogue = get()
+            )
+        }.bind(WatchlistDataManager::class)
     }
 
     single {
@@ -441,14 +447,6 @@ val coreModule = module {
     factory(featureFlagsPrefs) {
         get<Context>().getSharedPreferences("FeatureFlagsPrefs", Context.MODE_PRIVATE)
     }
-
-    single {
-        if (BuildConfig.DEBUG) {
-            TimberLogger()
-        } else {
-            NullLogger
-        }
-    }.bind(Logger::class)
 
     single {
         PinRepositoryImpl()

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.charts.ChartEntry
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -20,6 +21,7 @@ data class CoinViewState(
     val assetDisplay: List<AssetDisplayInfo> = emptyList(),
     val error: CoinViewError = CoinViewError.None,
     val assetPrices: Prices24HrWithDelta? = null,
+    val isAddedToWatchlist: Boolean = false,
     val hasActionBuyWarning: Boolean = false
 ) : MviState
 
@@ -28,8 +30,11 @@ sealed class CoinViewViewState {
     object LoadingWallets : CoinViewViewState()
     object LoadingChart : CoinViewViewState()
     object LoadingRecurringBuys : CoinViewViewState()
+    object LoadingAssetDetails : CoinViewViewState()
     object LoadingQuickActions : CoinViewViewState()
-    class ShowAccountInfo(val assetInfo: AssetInformation.AccountsInfo) : CoinViewViewState()
+    class ShowAccountInfo(val assetInfo: AssetInformation.AccountsInfo, val isAddedToWatchlist: Boolean) :
+        CoinViewViewState()
+
     class ShowAssetInfo(
         val entries: List<ChartEntry>,
         val prices: Prices24HrWithDelta,
@@ -43,9 +48,12 @@ sealed class CoinViewViewState {
         val endAction: QuickActionCta,
         val actionableAccount: BlockchainAccount
     ) : CoinViewViewState()
-    object NonTradeableAccount : CoinViewViewState()
-    object ShowAccountActionSheet : CoinViewViewState()
-    object ShowAccountExplainerSheet : CoinViewViewState()
+
+    class ShowAssetDetails(val details: DetailedAssetInformation) : CoinViewViewState()
+    class ShowNonTradeableAccount(val isAddedToWatchlist: Boolean) : CoinViewViewState()
+    class UpdatedWatchlist(val addedToWatchlist: Boolean) : CoinViewViewState()
+    class ShowAccountActionSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
+    class ShowAccountExplainerSheet(val actions: Array<StateAwareAction>) : CoinViewViewState()
 }
 
 enum class QuickActionCta {
@@ -65,22 +73,29 @@ enum class CoinViewError {
     ChartLoadError,
     RecurringBuysLoadError,
     QuickActionsFailed,
-    MissingSelectedFiat
+    MissingSelectedFiat,
+    MissingAssetPrices,
+    WatchlistUpdateFailed,
+    ActionsLoadError,
+    AssetDetailsLoadError
 }
 
 sealed class AssetInformation(
     open val prices: Prices24HrWithDelta,
+    open val isAddedToWatchlist: Boolean
 ) {
     data class AccountsInfo(
+        override val isAddedToWatchlist: Boolean,
         override val prices: Prices24HrWithDelta,
         val accountsList: List<AssetDisplayInfo>,
         val totalCryptoBalance: Money,
         val totalFiatBalance: Money
-    ) : AssetInformation(prices)
+    ) : AssetInformation(prices, isAddedToWatchlist)
 
     class NonTradeable(
+        override val isAddedToWatchlist: Boolean,
         override val prices: Prices24HrWithDelta,
-    ) : AssetInformation(prices)
+    ) : AssetInformation(prices, isAddedToWatchlist)
 }
 
 data class AssetDisplayInfo(

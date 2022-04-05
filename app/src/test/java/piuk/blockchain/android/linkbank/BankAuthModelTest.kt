@@ -55,7 +55,7 @@ class BankAuthModelTest {
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 
@@ -109,6 +109,35 @@ class BankAuthModelTest {
                 source = source
             )
         ).thenReturn(Completable.complete())
+
+        whenever(
+            interactor.pollForLinkedBankState(
+                partner = any(),
+                id = any(),
+            )
+        ).thenReturn(
+            Single.just(
+                PollResult.FinalResult(
+                    LinkedBank(
+                        id = linkingBankId,
+                        currency = GBP,
+                        partner = BankPartner.YAPILY,
+                        accountName = "name", bankName = "bankName",
+                        accountNumber = "123",
+                        state = LinkedBankState.BLOCKED,
+                        errorStatus = LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED,
+                        accountType = "",
+                        authorisationUrl = "url",
+                        sortCode = "123",
+                        accountIban = "123",
+                        bic = "123",
+                        entity = "entity",
+                        iconUrl = "iconUrl",
+                        callbackPath = ""
+                    )
+                )
+            )
+        )
 
         val test = model.state.test()
         model.process(intent)
@@ -1196,7 +1225,7 @@ class BankAuthModelTest {
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 }

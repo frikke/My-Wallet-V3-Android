@@ -1,9 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -15,14 +17,14 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.dashboard.assetdetails.CheckBuyStatus
 
 class CoinViewModelTest {
 
@@ -49,20 +51,25 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 
     @Test
     fun `load asset details should fire other intents succeeds`() {
         val ticker = "BTC"
-        val asset: CryptoAsset = mock {
-            on { assetInfo }.thenReturn(mock())
+        val assetInfo: AssetInfo = mock {
+            on { networkTicker }.thenReturn(ticker)
         }
+        val asset: CryptoAsset = mock {
+            on { this.assetInfo }.thenReturn(assetInfo)
+        }
+
         val selectedFiat: FiatCurrency = FiatCurrency.Dollars
-        whenever(interactor.loadAssetDetails(ticker)).thenReturn(Pair(asset, selectedFiat))
+        whenever(interactor.loadAssetDetails(ticker)).thenReturn(Single.just(Pair(asset, selectedFiat)))
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.error(Exception()))
         whenever(interactor.loadRecurringBuys(asset.assetInfo)).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
         subject.process(CoinViewIntent.LoadAsset(ticker))
@@ -75,15 +82,33 @@ class CoinViewModelTest {
             it.viewState == CoinViewViewState.LoadingWallets
         }.assertValueAt(3) {
             it.viewState == CoinViewViewState.LoadingRecurringBuys
+        }.assertValueAt(4) {
+            it.viewState == CoinViewViewState.LoadingAssetDetails
         }
     }
 
     @Test
-    fun `load asset details should fire other intents fails with unknown asset`() {
+    fun `load asset details should not fire other intents when fails fetching asset`() {
+        val ticker = "BTC"
+
+        whenever(interactor.loadAssetDetails(ticker)).thenReturn(Single.error(Exception()))
+
+        val test = subject.state.test()
+        subject.process(CoinViewIntent.LoadAsset(ticker))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.error == CoinViewError.UnknownAsset
+        }
+    }
+
+    @Test
+    fun `load asset details should not fire other intents when fails with unknown asset`() {
         val ticker = "BTC"
 
         val selectedFiat: FiatCurrency = FiatCurrency.Dollars
-        whenever(interactor.loadAssetDetails(ticker)).thenReturn(Pair(null, selectedFiat))
+        whenever(interactor.loadAssetDetails(ticker)).thenReturn(Single.just(Pair(null, selectedFiat)))
 
         val test = subject.state.test()
         subject.process(CoinViewIntent.LoadAsset(ticker))
@@ -111,10 +136,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
-        val assetInfo = AssetInformation.NonTradeable(prices = prices)
+        val assetInfo = AssetInformation.NonTradeable(prices = prices, isAddedToWatchlist = true)
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.just(assetInfo))
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
 
@@ -127,8 +152,8 @@ class CoinViewModelTest {
         }.assertValueAt(1) {
             it.viewState == CoinViewViewState.LoadingWallets
         }.assertValueAt(2) {
-            it.viewState == CoinViewViewState.NonTradeableAccount &&
-                it.assetPrices == assetInfo.prices
+            it.viewState is CoinViewViewState.ShowNonTradeableAccount &&
+                it.assetPrices == assetInfo.prices && it.isAddedToWatchlist
         }.assertValueAt(3) {
             it.viewState == CoinViewViewState.LoadingChart
         }.assertValueAt(4) {
@@ -152,7 +177,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -170,12 +195,13 @@ class CoinViewModelTest {
             prices = prices,
             accountsList = list,
             totalCryptoBalance = mock(),
-            totalFiatBalance = mock()
+            totalFiatBalance = mock(),
+            isAddedToWatchlist = true
         )
 
         whenever(interactor.loadAccountDetails(asset)).thenReturn(Single.just(assetInfo))
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
-        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
         localSubject.process(CoinViewIntent.LoadAccounts(asset))
@@ -186,7 +212,7 @@ class CoinViewModelTest {
             it.viewState == CoinViewViewState.LoadingWallets
         }.assertValueAt(2) {
             it.viewState is CoinViewViewState.ShowAccountInfo &&
-                it.assetPrices == assetInfo.prices
+                it.assetPrices == assetInfo.prices && it.isAddedToWatchlist
         }.assertValueAt(3) {
             it.viewState == CoinViewViewState.LoadingQuickActions
         }.assertValueAt(4) {
@@ -232,7 +258,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -250,23 +276,26 @@ class CoinViewModelTest {
             prices = prices,
             accountsList = list,
             totalCryptoBalance = mock(),
-            totalFiatBalance = mock()
+            totalFiatBalance = mock(),
+            isAddedToWatchlist = true
         )
 
         val priceList: HistoricalRateList = emptyList()
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
-        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
 
         localSubject.process(
-            CoinViewIntent.UpdateAccountDetails(CoinViewViewState.ShowAccountInfo(assetInfo), assetInfo, asset)
+            CoinViewIntent.UpdateAccountDetails(
+                CoinViewViewState.ShowAccountInfo(assetInfo, isAddedToWatchlist = true), assetInfo, asset, true
+            )
         )
 
         test.assertValueAt(0) {
             it == state
         }.assertValueAt(1) {
             it.viewState is CoinViewViewState.ShowAccountInfo &&
-                it.assetPrices == assetInfo.prices
+                it.assetPrices == assetInfo.prices && it.isAddedToWatchlist
         }.assertValueAt(2) {
             it.viewState == CoinViewViewState.LoadingChart
         }.assertValueAt(3) {
@@ -285,20 +314,23 @@ class CoinViewModelTest {
             prices = prices,
             accountsList = emptyList(),
             totalCryptoBalance = mock(),
-            totalFiatBalance = mock()
+            totalFiatBalance = mock(),
+            isAddedToWatchlist = true
         )
 
         val test = subject.state.test()
 
         subject.process(
-            CoinViewIntent.UpdateAccountDetails(CoinViewViewState.ShowAccountInfo(assetInfo), assetInfo, asset)
+            CoinViewIntent.UpdateAccountDetails(
+                CoinViewViewState.ShowAccountInfo(assetInfo, isAddedToWatchlist = true), assetInfo, asset, true
+            )
         )
 
         test.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
             it.viewState is CoinViewViewState.ShowAccountInfo &&
-                it.assetPrices == assetInfo.prices
+                it.assetPrices == assetInfo.prices && it.isAddedToWatchlist
         }.assertValueAt(2) {
             it.error == CoinViewError.MissingSelectedFiat
         }
@@ -334,7 +366,6 @@ class CoinViewModelTest {
             on { assetInfo }.thenReturn(mock())
         }
         val prices: Prices24HrWithDelta = mock()
-        val priceList: HistoricalRateList = emptyList()
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
@@ -370,7 +401,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -427,7 +458,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -435,14 +466,18 @@ class CoinViewModelTest {
             Single.just(priceList)
         )
 
-        // for some reason using @Test(expected = IllegalStateException::class) isn't working in this case,
-        // so this is a workaround to test for exceptions
-        try {
-            localSubject.process(
-                CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
-            )
-        } catch (e: Exception) {
-            Assert.assertTrue(e is java.lang.IllegalStateException)
+        val test = localSubject.state.test()
+
+        localSubject.process(
+            CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
+        )
+
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.viewState == CoinViewViewState.LoadingChart
+        }.assertValueAt(2) {
+            it.error == CoinViewError.MissingAssetPrices
         }
     }
 
@@ -463,7 +498,7 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -471,15 +506,20 @@ class CoinViewModelTest {
             Single.just(priceList)
         )
 
-        // for some reason using @Test(expected = IllegalStateException::class) isn't working in this case,
-        // so this is a workaround to test for exceptions
-        try {
-            localSubject.process(
-                CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
-            )
-        } catch (e: Exception) {
-            Assert.assertTrue(e is java.lang.IllegalStateException)
+        val test = localSubject.state.test()
+
+        localSubject.process(
+            CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
+        )
+
+        test.assertValueAt(0) {
+            it == state
         }
+            .assertValueAt(1) {
+                it.viewState == CoinViewViewState.LoadingChart
+            }.assertValueAt(2) {
+                it.error == CoinViewError.MissingSelectedFiat
+            }
     }
 
     @Test
@@ -525,14 +565,14 @@ class CoinViewModelTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(interactor.loadQuickActions(any(), any())).thenReturn(
+        whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(
             Single.just(
                 QuickActionData(mock(), mock(), mock())
             )
         )
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock()))
+        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock(), asset))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -548,10 +588,10 @@ class CoinViewModelTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(interactor.loadQuickActions(any(), any())).thenReturn(Single.error(Exception()))
+        whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
 
         val test = subject.state.test()
-        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock()))
+        subject.process(CoinViewIntent.LoadQuickActions(mock(), mock(), asset))
 
         test.assertValueAt(0) {
             it == defaultState
@@ -563,8 +603,40 @@ class CoinViewModelTest {
     }
 
     @Test
+    fun `toggle watchlist should add successfully`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            selectedFiat = FiatCurrency.Dollars,
+            assetPrices = mock(),
+            isAddedToWatchlist = false
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock()
+        )
+
+        whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.just(mock()))
+
+        val test = localSubject.state.test()
+        localSubject.process(CoinViewIntent.ToggleWatchlist)
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.isAddedToWatchlist
+        }
+    }
+
+    @Test
     fun `when user can buy and there is no buy warning nothing should happen`() {
-        whenever(interactor.userCanBuy()).thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(interactor.checkIfUserCanBuy()).thenReturn(Single.just(FeatureAccess.Granted()))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckBuyStatus)
@@ -575,8 +647,40 @@ class CoinViewModelTest {
     }
 
     @Test
+    fun `toggle watchlist should remove failure`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            selectedFiat = FiatCurrency.Dollars,
+            assetPrices = mock(),
+            isAddedToWatchlist = true
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock()
+        )
+
+        whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.error(Exception()))
+
+        val test = localSubject.state.test()
+        localSubject.process(CoinViewIntent.ToggleWatchlist)
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.error == CoinViewError.WatchlistUpdateFailed
+        }
+    }
+
+    @Test
     fun `when userCanBuy fails nothing should happen`() {
-        whenever(interactor.userCanBuy()).thenReturn(Single.error(Throwable()))
+        whenever(interactor.checkIfUserCanBuy()).thenReturn(Single.error(Throwable()))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckBuyStatus)
@@ -588,7 +692,7 @@ class CoinViewModelTest {
 
     @Test
     fun `when userCanBuy and hasActionBuyWarning warning then state reflects update`() {
-        whenever(interactor.userCanBuy())
+        whenever(interactor.checkIfUserCanBuy())
             .thenReturn(
                 Single.just(
                     FeatureAccess.Blocked(
@@ -608,13 +712,46 @@ class CoinViewModelTest {
     }
 
     @Test
+    fun `toggle watchlist should remove`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            selectedFiat = FiatCurrency.Dollars,
+            assetPrices = mock(),
+            isAddedToWatchlist = true
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock()
+        )
+
+        whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.complete())
+
+        val test = localSubject.state.test()
+        localSubject.process(CoinViewIntent.ToggleWatchlist)
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            !it.isAddedToWatchlist
+        }
+    }
+
+    @Test
     fun `when CheckScreenToOpen returns ShowAccountActionSheet then state is updated`() {
         val selectedAccount = mock<BlockchainAccount>()
         val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
-        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
-            .thenReturn(CoinViewViewState.ShowAccountActionSheet)
+        val actions = setOf<StateAwareAction>().toTypedArray()
+        whenever(interactor.getAccountActions(selectedAccount))
+            .thenReturn(Single.just(CoinViewViewState.ShowAccountActionSheet(actions)))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
@@ -622,23 +759,54 @@ class CoinViewModelTest {
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+            it.selectedCryptoAccount == assetDetailsItemNew
         }.assertValueAt(2) {
-            it == defaultState.copy(
-                selectedCryptoAccount = assetDetailsItemNew,
-                viewState = CoinViewViewState.ShowAccountActionSheet
-            )
+            it.viewState is CoinViewViewState.ShowAccountActionSheet &&
+                (it.viewState as CoinViewViewState.ShowAccountActionSheet).actions.contentEquals(actions)
         }
     }
 
     @Test
-    fun `whenCheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
+    fun `toggle watchlist add should fail`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+
+        val state = CoinViewState(
+            asset = asset,
+            selectedFiat = FiatCurrency.Dollars,
+            assetPrices = mock(),
+            isAddedToWatchlist = false
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock()
+        )
+
+        whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.error(Exception()))
+
+        val test = localSubject.state.test()
+        localSubject.process(CoinViewIntent.ToggleWatchlist)
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.error == CoinViewError.WatchlistUpdateFailed
+        }
+    }
+
+    @Test
+    fun `when CheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
         val selectedAccount = mock<BlockchainAccount>()
         val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
-        whenever(interactor.checkPreferencesAndNavigateTo(selectedAccount))
-            .thenReturn(CoinViewViewState.ShowAccountExplainerSheet)
+        val actions = setOf<StateAwareAction>().toTypedArray()
+        whenever(interactor.getAccountActions(selectedAccount))
+            .thenReturn(Single.just(CoinViewViewState.ShowAccountExplainerSheet(actions)))
 
         val testState = subject.state.test()
         subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
@@ -646,12 +814,53 @@ class CoinViewModelTest {
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it == defaultState.copy(selectedCryptoAccount = assetDetailsItemNew)
+            it.selectedCryptoAccount == assetDetailsItemNew
         }.assertValueAt(2) {
-            it == defaultState.copy(
-                selectedCryptoAccount = assetDetailsItemNew,
-                viewState = CoinViewViewState.ShowAccountExplainerSheet
-            )
+            it.viewState is CoinViewViewState.ShowAccountExplainerSheet &&
+                (it.viewState as CoinViewViewState.ShowAccountExplainerSheet).actions.contentEquals(actions)
+        }
+    }
+
+    @Test
+    fun `load asset info details succeding should fire state update`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+        val assetDetails = DetailedAssetInformation("", "", "")
+        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.just(assetDetails))
+
+        val test = subject.state.test()
+
+        subject.process(CoinViewIntent.LoadAssetDetails(asset.assetInfo))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.viewState == CoinViewViewState.LoadingAssetDetails
+        }
+            .assertValueAt(2) {
+                it.viewState is CoinViewViewState.ShowAssetDetails &&
+                    (it.viewState as CoinViewViewState.ShowAssetDetails).details == assetDetails
+            }
+    }
+
+    @Test
+    fun `load asset info details failing should fire error update`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+        whenever(interactor.loadAssetInformation(asset.assetInfo)).thenReturn(Single.error(Exception()))
+
+        val test = subject.state.test()
+
+        subject.process(CoinViewIntent.LoadAssetDetails(asset.assetInfo))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.viewState == CoinViewViewState.LoadingAssetDetails
+        }.assertValueAt(2) {
+            it.error == CoinViewError.AssetDetailsLoadError
         }
     }
 }

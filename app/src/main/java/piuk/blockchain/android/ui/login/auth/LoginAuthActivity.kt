@@ -19,7 +19,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -60,7 +60,7 @@ class LoginAuthActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatus by inject()
 
     private lateinit var currentState: LoginAuthState
@@ -139,7 +139,7 @@ class LoginAuthActivity :
             LoginAuthIntents.InitLoginAuthInfo(json)
         } catch (ex: Exception) {
             Timber.e(ex)
-            crashLogger.logException(ex)
+            remoteLogger.logException(ex)
             // Fall back to legacy manual pairing
             LoginAuthIntents.ShowManualPairing(null)
         }

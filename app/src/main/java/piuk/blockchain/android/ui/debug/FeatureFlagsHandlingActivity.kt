@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.koin.scopedInject
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.android.material.snackbar.Snackbar
@@ -30,7 +30,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val prefs: PersistentPrefs by inject()
     private val appUtil: AppUtil by inject()
     private val loginState: PinRepository by inject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -129,7 +129,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private fun onResetPrefs() {
         prefs.clear()
 
-        crashLogger.logEvent("debug clear prefs. Pin reset")
+        remoteLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()
 
         showSnackbar("Prefs Reset")

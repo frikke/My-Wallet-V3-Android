@@ -57,7 +57,7 @@ class SettingsModelTest {
             initialState = SettingsState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }
@@ -160,7 +160,7 @@ class SettingsModelTest {
             initialState = SettingsState(paymentMethodInfo = initialPaymentMethods),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
 

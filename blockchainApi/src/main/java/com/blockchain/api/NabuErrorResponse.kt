@@ -3,6 +3,8 @@ package com.blockchain.api
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
+import java.io.IOException
+import java.net.SocketTimeoutException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -49,6 +51,8 @@ class NabuApiException internal constructor(
 
     fun getErrorStatusCode(): NabuErrorStatusCodes = NabuErrorStatusCodes.fromErrorCode(httpErrorCode)
 
+    fun getHttpErrorCode(): Int = httpErrorCode
+
     fun getErrorType(): NabuErrorTypes = errorType?.let {
         NabuErrorTypes.fromErrorStatus(it)
     } ?: NabuErrorTypes.Unknown
@@ -56,7 +60,7 @@ class NabuApiException internal constructor(
     /**
      * Returns a human-readable error message.
      */
-    fun getErrorDescription(): String = errorDescription.orEmpty()
+    fun getErrorDescription(): String = errorDescription ?: httpErrorCode.toString()
 
     // TODO: Replace prefix checking with a proper error code -> needs backend changes
     fun isUserWalletLinkError(): Boolean = getErrorDescription().startsWith(USER_WALLET_LINK_ERROR_PREFIX)
@@ -109,3 +113,7 @@ object NabuApiExceptionFactory {
         } ?: NabuApiException.fromErrorMessageAndCode(exception.message(), exception.code())
     }
 }
+
+fun Throwable.isInternetConnectionError(): Boolean =
+    this is SocketTimeoutException ||
+        this is IOException

@@ -10,7 +10,7 @@ class TimedCacheRequest<T>(
     private val refreshFn: () -> Single<T>
 ) {
     private val expired = AtomicBoolean(true)
-    private var current = refreshFn.invoke()
+    private lateinit var current: Single<T>
 
     fun getCachedSingle(): Single<T> =
         Single.defer {

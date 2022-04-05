@@ -27,7 +27,7 @@ class QuoteResponse(
 data class CustodialOrderResponse(
     val id: String,
     val state: String,
-    val quote: OrderQuote,
+    val quote: OrderQuote? = null,
     val kind: OrderKind,
     val pair: String,
     val priceFunnel: PriceFunnel,

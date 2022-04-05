@@ -1,16 +1,25 @@
 package info.blockchain.wallet.ethereum
 
+import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.fold
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
-import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.data.EthTransaction
+import info.blockchain.wallet.ethereum.node.EthChainError
+import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
+import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
+import info.blockchain.wallet.ethereum.node.EthTransactionResponse
+import info.blockchain.wallet.ethereum.node.RequestType
+import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.rxSingle
 
 class EthAccountApi internal constructor(
     private val ethEndpoints: EthEndpoints,
+    private val ethNodeEndpoints: EthNodeEndpoints,
     private val apiCode: String
 ) {
     /**
@@ -19,7 +28,24 @@ class EthAccountApi internal constructor(
      * @return An [Single] wrapping an [EthLatestBlock]
      */
     val latestBlockNumber: Single<EthLatestBlockNumber>
-        get() = ethEndpoints.latestBlockNumber()
+        get() = rxSingle {
+            ethNodeEndpoints.processRequest(
+                request = EthJsonRpcRequest.create(
+                    params = arrayOf(),
+                    type = RequestType.LATEST_BLOCK_NUMBER
+                )
+            )
+                .fold(
+                    onSuccess = { response ->
+                        EthLatestBlockNumber().apply {
+                            number = EthUtils.convertHexToBigInteger(response.result)
+                        }
+                    },
+                    onFailure = {
+                        throw it.throwable
+                    }
+                )
+        }
 
     /**
      * Returns an [EthAddressResponse] object for a list of given ETH addresses as an [ ].
@@ -47,37 +73,35 @@ class EthAccountApi internal constructor(
     }
 
     /**
-     * Returns true if a given ETH address is associated with an Ethereum contract, which is
-     * currently unsupported. This should be used to validate any proposed destination address for
-     * funds.
-     *
-     * @param address The ETH address to be queried
-     * @return An [Observable] returning true or false based on the address's contract status
-     */
-    fun getIfContract(address: String): Observable<Boolean> {
-        return ethEndpoints.getIfContract(address)
-            .map { map -> map["contract"] }
-    }
-
-    /**
-     * Executes signed eth transaction and returns transaction hash.
-     *
-     * @param rawTx The ETH address to be queried
-     * @return An [Observable] returning the transaction hash of a completed transaction.
-     */
-    fun pushTx(rawTx: String): Observable<String> {
-        val request = EthPushTxRequest(rawTx, apiCode)
-        return ethEndpoints.pushTx(request)
-            .map { map -> map["txHash"]!! }
-    }
-
-    /**
-     * Returns an [EthTransaction] containing information about a specific ETH transaction.
+     * Returns an [EthTransactionResponse] containing information about a specific ETH transaction.
      *
      * @param hash The hash of the transaction you wish to check
-     * @return An [Observable] wrapping an [EthTransaction]
+     * @return An [Outcome] wrapping an [EthTransactionResponse]
      */
-    fun getTransaction(hash: String): Observable<EthTransaction> {
-        return ethEndpoints.getTransaction(hash)
+    suspend fun getTransaction(hash: String): Outcome<EthChainError, EthTransactionResponse> {
+        return ethNodeEndpoints.getTransaction(
+            request = EthJsonRpcRequest.create(
+                params = arrayOf(hash),
+                type = RequestType.GET_TRANSACTION
+            )
+        )
     }
+
+    /**
+     * Returns an [EthJsonRpcResponse] containing information about the specified ETH address or the blockchain itself.
+     *
+     * @param requestType The type of the request containing the name of the method to be called on the blockchain
+     * @param params The parameters required for the request
+     * @return An [Outcome] wrapping an [EthJsonRpcResponse]
+     */
+    suspend fun postEthNodeRequest(
+        requestType: RequestType,
+        vararg params: String
+    ): Outcome<EthChainError, EthJsonRpcResponse> =
+        ethNodeEndpoints.processRequest(
+            request = EthJsonRpcRequest.create(
+                params = params,
+                type = requestType
+            )
+        )
 }

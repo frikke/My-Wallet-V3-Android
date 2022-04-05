@@ -31,7 +31,7 @@ class BackupWalletStartingModelTest {
             initialState = BackupWalletStartingState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

@@ -10,7 +10,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -46,7 +46,7 @@ internal class XlmAsset(
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     identity: UserIdentity,
     addressResolver: IdentityAddressResolver
@@ -59,7 +59,7 @@ internal class XlmAsset(
     interestBalances,
     tradingBalances,
     pitLinking,
-    crashLogger,
+    remoteLogger,
     identity,
     addressResolver
 ) {

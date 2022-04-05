@@ -14,7 +14,6 @@ import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap
-import java.lang.UnsupportedOperationException
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics

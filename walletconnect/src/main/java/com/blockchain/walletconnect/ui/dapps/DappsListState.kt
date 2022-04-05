@@ -4,7 +4,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletconnect.domain.SessionRepository
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -19,15 +19,15 @@ data class DappsListState(
 
 class DappsListModel(
     uiSchedulers: Scheduler,
-    enviromentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    environmentConfig: EnvironmentConfig,
+    remoteLogger: RemoteLogger,
     private val sessionsRepository: SessionRepository,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
 ) : MviModel<DappsListState, DappsListIntent>(
     initialState = DappsListState(),
     uiScheduler = uiSchedulers,
-    environmentConfig = enviromentConfig,
-    crashLogger = crashLogger
+    environmentConfig = environmentConfig,
+    remoteLogger = remoteLogger
 ) {
     override fun performAction(previousState: DappsListState, intent: DappsListIntent): Disposable? {
         return when (intent) {

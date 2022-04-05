@@ -14,7 +14,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -46,7 +46,7 @@ internal class Erc20Asset(
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     identity: UserIdentity,
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
@@ -61,7 +61,7 @@ internal class Erc20Asset(
     interestBalances,
     tradingBalances,
     pitLinking,
-    crashLogger,
+    remoteLogger,
     identity,
     addressResolver
 ) {

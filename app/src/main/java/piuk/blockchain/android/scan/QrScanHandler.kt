@@ -20,7 +20,6 @@ import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.koin.payloadScope
 import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -74,7 +73,6 @@ class QrScanError(val errorCode: ErrorCode, msg: String) : Exception(msg) {
 class QrScanResultProcessor(
     private val bitPayDataManager: BitPayDataManager,
     private val walletConnectUrlValidator: WalletConnectUrlValidator,
-    private val featureFlag: IntegratedFeatureFlag,
     private val analytics: Analytics
 ) {
 
@@ -86,12 +84,7 @@ class QrScanResultProcessor(
                     ScanResult.TxTarget(setOf(it), isDeeplinked)
                 }
             scanResult.isJson() -> Single.just(ScanResult.SecuredChannelLogin(scanResult))
-            walletConnectUrlValidator.isUrlValid(scanResult) -> featureFlag.enabled.map { enabled ->
-                if (enabled)
-                    ScanResult.WalletConnectRequest(scanResult)
-                else
-                    throw QrScanError(QrScanError.ErrorCode.ScanFailed, "Not Supported")
-            }
+            walletConnectUrlValidator.isUrlValid(scanResult) -> Single.just(ScanResult.WalletConnectRequest(scanResult))
             else -> {
                 val addressParser: AddressFactory = payloadScope.get()
                 addressParser.parse(scanResult)

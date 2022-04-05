@@ -33,7 +33,6 @@ class EligibilityDataManagerImpl(
 
     private fun getProductsEligibility(): Single<List<ProductEligibility>> =
         entitySwitchSilverEligibilityFeatureFlag.enabled
-            .onErrorReturnItem(false)
             .flatMap { enabled ->
                 if (enabled) {
                     productsEligibilityCache.productsEligibility()

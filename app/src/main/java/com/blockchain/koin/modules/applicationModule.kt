@@ -24,7 +24,6 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
-import com.blockchain.koin.walletConnectFeatureFlag
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
@@ -322,7 +321,7 @@ val applicationModule = module {
                 initialState = PairingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 qrCodeDataManager = get(),
                 payloadDataManager = get(),
                 authDataManager = get(),
@@ -368,7 +367,7 @@ val applicationModule = module {
                 initialState = BackupWalletStartingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -398,7 +397,7 @@ val applicationModule = module {
                 initialState = AccountRecoveryState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -455,8 +454,7 @@ val applicationModule = module {
             QrScanResultProcessor(
                 bitPayDataManager = get(),
                 walletConnectUrlValidator = get(),
-                analytics = get(),
-                featureFlag = get(walletConnectFeatureFlag)
+                analytics = get()
             )
         }
 
@@ -502,7 +500,7 @@ val applicationModule = module {
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
@@ -590,7 +588,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -605,7 +603,7 @@ val applicationModule = module {
                 replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -691,7 +689,7 @@ val applicationModule = module {
                 settingsDataManager = get(),
                 coincore = get(),
                 exchangeRates = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 globalEventHandler = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
@@ -705,7 +703,6 @@ val applicationModule = module {
             GlobalEventHandler(
                 application = get(),
                 walletConnectServiceAPI = get(),
-                wcFeatureFlag = get(walletConnectFeatureFlag),
                 deeplinkFeatureFlag = get(deeplinkingFeatureFlag),
                 deeplinkRedirector = get(),
                 destinationArgs = get(),
@@ -726,7 +723,7 @@ val applicationModule = module {
                 nabuToken = get(),
                 nabu = get(),
                 assetCatalogue = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -754,7 +751,7 @@ val applicationModule = module {
                 biometricDataRepository = get(),
                 biometricManager = get(),
                 cryptographyManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }.binds(arrayOf(BiometricAuth::class, BiometricsController::class))
 
@@ -767,7 +764,7 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
