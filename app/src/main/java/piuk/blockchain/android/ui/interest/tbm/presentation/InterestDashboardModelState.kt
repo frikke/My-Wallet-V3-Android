@@ -8,5 +8,5 @@ data class InterestDashboardModelState(
     val isLoadingData: Boolean = false,
     val isError: Boolean = false,
     val isKycGold: Boolean = false,
-    val data: List<AssetInterestInfo> = emptyList()
+    val data: List<InterestDashboardItem> = emptyList()
 ) : ModelState

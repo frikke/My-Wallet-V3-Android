@@ -4,22 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
 import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardAdapter
+import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
 
 class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), NavigationRouter<NavigationEvent> {
 
@@ -65,26 +71,51 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
     private fun setupViews() {
         composeView.apply {
             setContent {
-                SheetContent()
+                ScreenContent()
             }
         }
     }
 
     @Composable
-    private fun SheetContent() {
+    private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
 
-        LazyColumn {
-            items(
-                items = state.value.data,
-                itemContent = {
-                    AssetInterestItem(
-                        assetInfo = it.assetInfo,
-                        assetInterestDetail = it.assetInterestDetail,
-                        isKycGold = state.value.isKycGold
+        when {
+            state.value.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressBar()
+                }
+            }
+
+            state.value.isError -> {
+            }
+
+            state.value.isLoading.not() && state.value.isError.not() -> {
+                LazyColumn {
+                    items(
+                        items = state.value.data,
+                        itemContent = {
+                            when (it) {
+                                is InterestDashboardItem.InterestAssetInfoItem -> {
+                                    AssetInterestItem(
+                                        assetInfo = it.assetInterestInfo.assetInfo,
+                                        assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
+                                        isKycGold = state.value.isKycGold
+                                    )
+                                }
+
+                                InterestDashboardItem.InterestIdentityVerificationItem -> {
+                                    InterestDashboardVerificationItem {}
+                                }
+                            }
+                        }
                     )
                 }
-            )
+            }
+
         }
     }
 

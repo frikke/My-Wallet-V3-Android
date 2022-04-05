@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetAssetInterestInfoUseCase
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetInterestDetailUseCase
+import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
 import timber.log.Timber
 
 class InterestDashboardViewModel(
@@ -55,14 +56,19 @@ class InterestDashboardViewModel(
     private fun loadAssets(interestDetail: InterestDetail) {
         viewModelScope.launch {
 
+            val isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD)
+
+            val initialData = mutableListOf<InterestDashboardItem>()
+            if (isKycGold.not()) initialData.add(InterestDashboardItem.InterestIdentityVerificationItem)
+
             getAssetInterestInfoUseCase(interestDetail.enabledAssets).let { result ->
                 result.getOrNull()?.let { assetInterestInfoList ->
                     updateState {
                         it.copy(
                             isLoadingData = false,
                             isError = false,
-                            isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD),
-                            data = assetInterestInfoList
+                            isKycGold = isKycGold,
+                            data = initialData + assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) }
                         )
                     }
                 } ?: kotlin.run {
