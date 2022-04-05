@@ -3,6 +3,7 @@ package info.blockchain.balance
 import java.io.Serializable
 import java.util.Locale
 
+@kotlinx.serialization.Serializable
 class FiatCurrency private constructor(
     private val currencyCode: String
 ) : Currency, Serializable {

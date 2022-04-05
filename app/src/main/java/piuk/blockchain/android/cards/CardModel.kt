@@ -8,10 +8,14 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
@@ -23,13 +27,15 @@ class CardModel(
     private val prefs: SimpleBuyPrefs,
     private val cardActivator: CardActivator,
     private val gson: Gson,
+    private val json: Json,
+    private val replaceGsonKtxFF: FeatureFlag,
     val environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
-    initialState = gson.fromJson(prefs.cardState(), CardState::class.java)
-        ?: CardState(
-            fiatCurrency = currencyPrefs.selectedFiatCurrency
-        ),
+    initialState = prefs.cardState()?.run {
+        if (replaceGsonKtxFF.isEnabled) json.decodeFromString<CardState>(this)
+        else gson.fromJson(this, CardState::class.java)
+    } ?: CardState(fiatCurrency = currencyPrefs.selectedFiatCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     remoteLogger = remoteLogger
@@ -157,6 +163,9 @@ class CardModel(
     }
 
     override fun onStateUpdate(s: CardState) {
-        prefs.updateCardState(gson.toJson(s))
+        prefs.updateCardState(
+            if (replaceGsonKtxFF.isEnabled) json.encodeToString(s)
+            else gson.toJson(s)
+        )
     }
 }

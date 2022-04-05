@@ -5,6 +5,9 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.websocket.MessagesSocketHandler
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
@@ -19,7 +22,11 @@ import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,6 +41,7 @@ import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
+
 @Suppress("ClassName")
 private object DUMMY_ERC20_1 : CryptoCurrency(
     displayTicker = DUMMY_ERC20_1_TICKER,
@@ -48,6 +56,7 @@ private object DUMMY_ERC20_1 : CryptoCurrency(
 )
 
 private const val DUMMY_ERC20_2_TICKER = "FAKE"
+
 @Suppress("ClassName")
 private object DUMMY_ERC20_2 : CryptoCurrency(
     displayTicker = DUMMY_ERC20_2_TICKER,
@@ -142,12 +151,28 @@ class CoinsWebSocketStrategyTest {
     private val mockWebSocket: WebSocket<String, String> = mock()
     private val webSocket = FakeWebSocket(mockWebSocket)
 
+    private val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+        }
+    }
+
+    val replaceGsonKtxFF: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+
     private val strategy = CoinsWebSocketStrategy(
         coinsWebSocket = webSocket,
         ethDataManager = ethDataManager,
         erc20DataManager = erc20DataManager,
         stringUtils = stringUtils,
         gson = Gson(),
+        json = json,
+        replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
         pinRepository = mock(),
@@ -280,7 +305,7 @@ class CoinsWebSocketStrategyTest {
             "ionHash\":\"0x3cd2e95358c58af6e9ecd2f0af6739c3db945e2259bf2a4bc91fb5e2f397ad89\",\"blockNumber\":83" +
             "62036,\"tokenHash\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\",\"logIndex\":67,\"from\":\"0x4058" +
             "a004dd718babab47e14dd0d744742e5b9903\",\"to\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"val" +
-            "ue\":1210000000000000000,\"decimals\":18,\"timestamp\":0}}"
+            "ue\":1210000000000000000,\"decimals\":18,\"timeStamp\":0}}"
 
     private val btcTransaction = "{\"coin\":\"btc\",\"entity\":\"xpub\",\"transaction\":" +
         "{\"lock_time\":0,\"ver\":1,\"size\":225,\"inputs\":[{\"address\":\"1Cox48WAm4NKTYbSjQ8DEswpaBNCfFwo9x" +

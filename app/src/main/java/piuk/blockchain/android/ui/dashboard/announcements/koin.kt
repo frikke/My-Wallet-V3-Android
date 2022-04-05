@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -51,7 +52,9 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             AnnouncementConfigAdapterImpl(
-                config = get()
+                config = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag)
             )
         }.bind(AnnouncementConfigAdapter::class)
 

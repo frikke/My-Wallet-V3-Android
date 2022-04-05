@@ -727,6 +727,7 @@ enum class Product {
     TRADE
 }
 
+@kotlinx.serialization.Serializable
 data class BillingAddress(
     val countryCode: String,
     val fullName: String,

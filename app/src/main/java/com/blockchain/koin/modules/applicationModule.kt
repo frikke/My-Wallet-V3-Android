@@ -19,8 +19,10 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -41,16 +43,23 @@ import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.blockchain.serializers.AssetInfoKSerializer
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -212,6 +221,19 @@ val applicationModule = module {
         )
     }.bind(DigitalTrust::class)
 
+    single(kotlinJsonAssetTicker) {
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(BigDecimalSerializer)
+                contextual(BigIntSerializer)
+                contextual(IsoDateSerializer)
+                contextual(AssetInfoKSerializer(assetCatalogue = get()))
+            }
+        }
+    }
+
     scope(payloadScopeQualifier) {
 
         factory {
@@ -272,6 +294,8 @@ val applicationModule = module {
                 bchDataManager = get(),
                 stringUtils = get(),
                 gson = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 payloadDataManager = get(),
                 rxBus = get(),
                 prefs = get(),
@@ -553,7 +577,9 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                json = get(kotlinJsonAssetTicker),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 
@@ -574,6 +600,8 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivator = get(),
                 gson = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
                 remoteLogger = get()
