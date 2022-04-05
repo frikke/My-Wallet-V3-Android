@@ -14,6 +14,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
+import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
@@ -21,7 +22,6 @@ import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
-import java.util.concurrent.atomic.AtomicBoolean
 
 class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java) {
 
