@@ -296,25 +296,25 @@ class CoinsWebSocketStrategy(
 
             val title = stringUtils.getString(R.string.app_name)
 
-        if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
-            val transaction: EthTransaction = ethResponse.transaction
-            val ethAddress = ethAddress()
-            if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
-            ) {
-                val marqueeBuilder = StringBuilder()
-                    .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
-                    .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
-                    .appendSpaced(CryptoCurrency.ETHER.displayTicker)
+            if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
+                val transaction: EthTransaction = ethResponse.transaction
+                val ethAddress = ethAddress()
+                if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
+                ) {
+                    val marqueeBuilder = StringBuilder()
+                        .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
+                        .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
+                        .appendSpaced(CryptoCurrency.ETHER.displayTicker)
 
-                val textBuilder = StringBuilder()
-                    .append(marqueeBuilder)
-                    .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
-                    .appendSpaced(transaction.from)
+                    val textBuilder = StringBuilder()
+                        .append(marqueeBuilder)
+                        .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
+                        .appendSpaced(transaction.from)
 
-                messagesSocketHandler?.triggerNotification(title, marqueeBuilder.toString(), textBuilder.toString())
+                    messagesSocketHandler?.triggerNotification(title, marqueeBuilder.toString(), textBuilder.toString())
+                }
+                updateEthTransactions()
             }
-            updateEthTransactions()
-        }
 
             if (ethResponse.entity == Entity.TokenAccount &&
                 ethResponse.tokenTransfer != null &&
