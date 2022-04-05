@@ -11,8 +11,7 @@ class TransactionErrorMapper {
                 NabuErrorStatusCodes.InternalServerError -> {
                     when (exception.getErrorCode()) {
                         NabuErrorCodes.InternalServerError -> TransactionError.InternalServerError
-                        NabuErrorCodes.AlbertExecutionError -> TransactionError.AlbertExecutionError
-                        else -> TransactionError.UnexpectedError
+                        else -> TransactionError.HttpError(exception)
                     }
                 }
                 NabuErrorStatusCodes.Conflict -> {
@@ -20,7 +19,7 @@ class TransactionErrorMapper {
                         NabuErrorCodes.TradingTemporarilyDisabled -> TransactionError.TradingTemporarilyDisabled
                         NabuErrorCodes.InsufficientBalance -> TransactionError.InsufficientBalance
                         NabuErrorCodes.IneligibleForSwap -> TransactionError.IneligibleForSwap
-                        else -> TransactionError.UnexpectedError
+                        else -> TransactionError.HttpError(exception)
                     }
                 }
                 NabuErrorStatusCodes.BadRequest -> {
@@ -37,14 +36,12 @@ class TransactionErrorMapper {
                         NabuErrorCodes.OrderDirectionDisabled -> TransactionError.OrderDirectionDisabled
                         NabuErrorCodes.InvalidOrExpiredQuote -> TransactionError.InvalidOrExpiredQuote
                         NabuErrorCodes.InvalidDestinationAmount -> TransactionError.InvalidDestinationAmount
-                        else -> TransactionError.UnexpectedError
+                        else -> TransactionError.HttpError(exception)
                     }
                 }
                 NabuErrorStatusCodes.Forbidden -> TransactionError.WithdrawalAlreadyPending
-                else -> TransactionError.UnexpectedError
+                else -> TransactionError.HttpError(exception)
             }
-        } else {
-            TransactionError.UnexpectedError
-        }
+        } else throw IllegalStateException("Unknown error type $exception")
     }
 }

@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState
-import com.blockchain.nabu.datamanagers.featureflags.Feature
-import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -17,7 +17,7 @@ class FiatFundsKycAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val kycFeatureEligibility: KycFeatureEligibility = mock()
+    private val userIdentity: UserIdentity = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
 
     private lateinit var subject: FiatFundsKycAnnouncement
@@ -30,7 +30,7 @@ class FiatFundsKycAnnouncementTest {
         subject =
             FiatFundsKycAnnouncement(
                 dismissRecorder = dismissRecorder,
-                featureEligibility = kycFeatureEligibility,
+                userIdentity = userIdentity,
                 paymentsDataManager = paymentsDataManager
             )
     }
@@ -49,7 +49,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should show, when not already shown and user is kyc gold without linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
+        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(true))
 
         whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))
@@ -64,7 +64,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is kyc gold but has linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
+        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(true))
 
         whenever(paymentsDataManager.getLinkedBanks()).thenReturn(
@@ -85,7 +85,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is not kyc gold and has no linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
+        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(false))
 
         whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))

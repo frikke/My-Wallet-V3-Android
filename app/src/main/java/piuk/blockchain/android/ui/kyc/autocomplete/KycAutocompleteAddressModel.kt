@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.autocomplete
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -11,13 +11,13 @@ class KycAutocompleteAddressModel(
     initialState: KycAutocompleteAddressState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val interactor: KycAutocompleteAddressInteractor
 ) : MviModel<KycAutocompleteAddressState, KycAutocompleteAddressIntents>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     override fun performAction(

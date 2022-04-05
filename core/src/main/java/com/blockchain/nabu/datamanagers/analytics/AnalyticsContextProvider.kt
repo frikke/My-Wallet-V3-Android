@@ -48,6 +48,6 @@ class AnalyticsContextProviderImpl constructor(
     )
     private fun isAccessibilityEnabled(): Boolean =
         (context.getSystemService(ACCESSIBILITY_SERVICE) as? AccessibilityManager)?.let {
-            it.isEnabled || it.isTouchExplorationEnabled
+            it.isTouchExplorationEnabled
         } ?: false
 }

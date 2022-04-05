@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -40,6 +41,7 @@ class NabuDataManagerTest {
     private val walletReporter: WalletReporter = mock()
     private val digitalTrust: DigitalTrust = mock()
     private val prefs: PersistentPrefs = mock()
+    private val userCache: UserCache = mock()
     private val appVersion = "6.23.2"
     private val deviceId = "DEVICE_ID"
     private val email = "EMAIL"
@@ -65,7 +67,8 @@ class NabuDataManagerTest {
             walletReporter,
             digitalTrust,
             payloadDataManager,
-            prefs
+            prefs,
+            userCache
         )
     }
 
@@ -206,17 +209,15 @@ class NabuDataManagerTest {
         val offlineToken = NabuOfflineTokenResponse(USER_ID, "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(nabuService.getUser(sessionToken))
-            .thenReturn(Single.just(userObject))
+        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
+        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
         // Act
         val testObserver = subject.getUser(offlineToken).test()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(userObject)
-        verify(nabuService).getUser(sessionToken)
+        verify(userCache).cached(sessionToken)
         verify(walletReporter).reportWalletGuid(payloadDataManager.guid)
         verify(userReporter).reportUser(userObject)
         verify(userReporter).reportUserId(USER_ID)
@@ -232,17 +233,15 @@ class NabuDataManagerTest {
         val offlineToken = NabuOfflineTokenResponse("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(nabuService.getUser(sessionToken))
-            .thenReturn(Single.just(userObject))
+        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
+        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
         // Act
         val testObserver = subject.getCampaignList(offlineToken).test()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(listOf("campaign"))
-        verify(nabuService).getUser(sessionToken)
+        verify(userCache).cached(sessionToken)
     }
 
     @Test
@@ -252,17 +251,15 @@ class NabuDataManagerTest {
         val offlineToken = NabuOfflineTokenResponse("", "")
         val sessionToken = FakeNabuSessionTokenFactory.any
         whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken())
-            .thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(nabuService.getUser(sessionToken))
-            .thenReturn(Single.just(userObject))
+        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
+        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
         // Act
         val testObserver = subject.getCampaignList(offlineToken).test()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(emptyList())
-        verify(nabuService).getUser(sessionToken)
+        verify(userCache).cached(sessionToken)
     }
 
     @Test

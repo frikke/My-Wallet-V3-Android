@@ -3,7 +3,7 @@ apply from: rootProject.file('gradle/local/common-feature.gradle')
 
 dependencies {
     implementation project(':balance')
-    api project(':common-mp:interface')
+    implementation project(':logging:domain')
 
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson

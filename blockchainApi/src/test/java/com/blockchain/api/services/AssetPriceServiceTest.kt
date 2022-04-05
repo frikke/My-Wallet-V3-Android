@@ -45,7 +45,7 @@ class AssetPriceServiceTest {
         val symbolEth = PriceSymbolDto(
             code = TEST_CRYPTO_ETH,
             ticker = TEST_CRYPTO_ETH,
-            name = "Ether",
+            name = "Ethereum",
             precisionDp = 18,
             isFiat = false
         )

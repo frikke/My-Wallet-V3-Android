@@ -24,7 +24,11 @@ class BuyOrdersCache(private val authenticator: Authenticator, private val nabuS
 
     fun orders(): Single<BuyOrderListResponse> = cache.getCachedSingle()
 
+    fun invalidate() {
+        cache.invalidate()
+    }
+
     companion object {
-        private const val CACHE_LIFETIME = 10L
+        private const val CACHE_LIFETIME = 1 * 60L
     }
 }

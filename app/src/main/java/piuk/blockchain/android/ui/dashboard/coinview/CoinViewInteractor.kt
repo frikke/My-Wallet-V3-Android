@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.api.services.AssetTag
+import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
@@ -13,7 +14,9 @@ import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
+import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -45,12 +48,13 @@ class CoinViewInteractor(
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
     private val custodialWalletManager: CustodialWalletManager,
+    private val assetActionsComparator: StateAwareActionsComparator,
+    private val assetsManager: DynamicAssetsDataManager,
     private val watchlistDataManager: WatchlistDataManager,
-    private val assetActionsComparator: StateAwareActionsComparator
 ) {
 
-    fun loadAssetDetails(assetTicker: String): Pair<CryptoAsset?, FiatCurrency> =
-        Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency)
+    fun loadAssetDetails(assetTicker: String): Single<Pair<CryptoAsset?, FiatCurrency>> =
+        Single.just(Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency))
 
     fun loadAccountDetails(asset: CryptoAsset): Single<AssetInformation> =
         getAssetDisplayDetails(asset)
@@ -58,6 +62,9 @@ class CoinViewInteractor(
     fun loadHistoricPrices(asset: CryptoAsset, timeSpan: HistoricalTimeSpan): Single<HistoricalRateList> =
         asset.historicRateSeries(timeSpan)
             .onErrorResumeNext { Single.just(emptyList()) }
+
+    fun loadAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation> =
+        assetsManager.getAssetInformation(asset)
 
     fun loadRecurringBuys(asset: AssetInfo): Single<Pair<List<RecurringBuy>, Boolean>> =
         Single.zip(
@@ -218,7 +225,7 @@ class CoinViewInteractor(
         }
     }
 
-    fun userCanBuy(): Single<FeatureAccess> =
+    fun checkIfUserCanBuy(): Single<FeatureAccess> =
         identity.userAccessForFeature(Feature.SimpleBuy)
 
     private fun mapAccounts(
@@ -303,7 +310,13 @@ class CoinViewInteractor(
 
     private fun splitAccountsInGroup(asset: CryptoAsset, filter: AssetFilter) =
         asset.accountGroup(filter).defaultIfEmpty(NullAccountGroup()).flatMap { accountGroup ->
-            accountGroup.accounts.map { account ->
+            accountGroup.accounts.filter {
+                if (filter == AssetFilter.NonCustodial) {
+                    !(it as CryptoNonCustodialAccount).isArchived
+                } else {
+                    true
+                }
+            }.map { account ->
                 Single.zip(
                     account.balance.firstOrError(),
                     account.isEnabled,

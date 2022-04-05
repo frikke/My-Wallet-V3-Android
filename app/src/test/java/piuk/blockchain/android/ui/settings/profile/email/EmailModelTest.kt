@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.profile.email
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.WalletSettingsService
+import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -25,7 +26,27 @@ class EmailModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val interactor: EmailInteractor = mock()
+    val settings: Settings = mock {
+        on { email }.thenReturn("lmiguelez@blockchain.com")
+        on { isEmailVerified }.thenReturn(true)
+        on { smsNumber }.thenReturn("3465589125")
+        on { isSmsVerified }.thenReturn(false)
+        on { smsDialCode }.thenReturn("34")
+        on { authType }.thenReturn(0)
+    }
+
+    private val userInfoSettings = WalletSettingsService.UserInfoSettings(
+        email = settings.email,
+        emailVerified = settings.isEmailVerified,
+        mobileWithPrefix = settings.smsNumber,
+        mobileVerified = settings.isSmsVerified,
+        smsDialCode = settings.smsDialCode,
+        authType = settings.authType
+    )
+
+    private val interactor: EmailInteractor = mock {
+        on { fetchProfileSettings() }.thenReturn(Single.just(userInfoSettings))
+    }
 
     @get:Rule
     val rx = rxInit {
@@ -34,37 +55,24 @@ class EmailModelTest {
         computationTrampoline()
     }
 
+    private val activityIndicator: Lazy<ActivityIndicator> = mock {
+        on { value }.thenReturn(ActivityIndicator())
+    }
+
     @Before
     fun setUp() {
         model = EmailModel(
             initialState = EmailState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
-            _activityIndicator = mock()
+            _activityIndicator = activityIndicator
         )
     }
 
     @Test
     fun `when LoadProfile is successfully loaded from Cache then state will update user settings`() {
-        val settings: Settings = mock {
-            on { email }.thenReturn("lmiguelez@blockchain.com")
-            on { isEmailVerified }.thenReturn(true)
-            on { smsNumber }.thenReturn("3465589125")
-            on { isSmsVerified }.thenReturn(false)
-            on { smsDialCode }.thenReturn("34")
-            on { authType }.thenReturn(0)
-        }
-
-        val userInfoSettings = WalletSettingsService.UserInfoSettings(
-            email = settings.email,
-            emailVerified = settings.isEmailVerified,
-            mobileWithPrefix = settings.smsNumber,
-            mobileVerified = settings.isSmsVerified,
-            smsDialCode = settings.smsDialCode,
-            authType = settings.authType
-        )
 
         whenever(interactor.cachedSettings).thenReturn(Single.just(settings))
 
@@ -105,9 +113,6 @@ class EmailModelTest {
 
     @Test
     fun `when FetchProfile is successfully then state will update user settings`() {
-        val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
-
-        whenever(interactor.fetchProfileSettings()).thenReturn(Single.just(userInfoSettings))
 
         val testState = model.state.test()
         model.process(EmailIntent.FetchProfile)

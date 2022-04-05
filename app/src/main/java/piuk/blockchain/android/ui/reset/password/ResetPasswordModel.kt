@@ -4,7 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorTypes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -14,13 +14,13 @@ class ResetPasswordModel(
     initialState: ResetPasswordState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val interactor: ResetPasswordInteractor
 ) : MviModel<ResetPasswordState, ResetPasswordIntents>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
     override fun performAction(previousState: ResetPasswordState, intent: ResetPasswordIntents): Disposable? {
         return when (intent) {

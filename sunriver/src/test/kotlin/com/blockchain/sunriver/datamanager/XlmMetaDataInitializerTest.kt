@@ -1,6 +1,6 @@
 package com.blockchain.sunriver.datamanager
 
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.serialization.fromJson
 import com.blockchain.wallet.DefaultLabels
@@ -27,7 +27,7 @@ import org.junit.Test
 @InternalSerializationApi
 class XlmMetaDataInitializerTest {
 
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     @Test
     fun `no interactions before subscribe`() {
@@ -39,7 +39,7 @@ class XlmMetaDataInitializerTest {
             defaultLabels,
             repository,
             seedAccess,
-            crashLogger
+            remoteLogger
         ).apply {
             initWalletMaybePrompt
             initWalletMaybe
@@ -70,7 +70,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -81,7 +81,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -109,7 +109,7 @@ class XlmMetaDataInitializerTest {
             givenSeedPresentOnlyWithSecondPasswordFor(
                 mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"
             ),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybePrompt
             .test()
@@ -120,7 +120,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -149,7 +149,7 @@ class XlmMetaDataInitializerTest {
                 mnemonic = "resource asthma orphan phone ice canvas " +
                     "fire useful arch jewel impose vague theory cushion top"
             ),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -160,7 +160,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -186,7 +186,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -197,7 +197,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -223,7 +223,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenNoSeed(),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybePrompt
             .test()
@@ -234,7 +234,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -256,13 +256,13 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
             .assertFailure(Exception::class.java)
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -277,7 +277,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenNoSeed(),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -287,7 +287,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -302,7 +302,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenNoSeed(),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybePrompt
             .test()
@@ -312,7 +312,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -338,7 +338,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenNoSeed(),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -349,7 +349,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -380,7 +380,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -391,7 +391,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -422,7 +422,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -433,7 +433,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -463,7 +463,7 @@ class XlmMetaDataInitializerTest {
                 mnemonic = "bench hurt jump file august wise shallow faculty impulse spring exact slush " +
                     "thunder author capable act festival slice deposit sauce coconut afford frown better"
             ),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -474,7 +474,7 @@ class XlmMetaDataInitializerTest {
         repository.assertSaved(expectedData)
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -503,7 +503,7 @@ class XlmMetaDataInitializerTest {
                 mnemonic = "cable spray genius state float twenty onion head street palace net private " +
                     "method loan turn phrase state blanket interest dry amazing dress blast tube"
             ),
-            crashLogger
+            remoteLogger
         )
             .initWalletMaybe
             .test()
@@ -514,7 +514,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verify(crashLogger).logException(any<Throwable>(), any())
+        verify(remoteLogger).logException(any<Throwable>(), any())
 
         assertSingleMetaDataLoad(repository)
     }
@@ -540,7 +540,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenNoSeed(),
-            crashLogger
+            remoteLogger
         )
 
         (1..2).forEach {
@@ -562,7 +562,7 @@ class XlmMetaDataInitializerTest {
         repository.assertNothingSaved()
         repository.assertLoaded()
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
 
         assertSingleMetaDataLoad(repository)
     }
@@ -588,7 +588,7 @@ class XlmMetaDataInitializerTest {
             givenDefaultXlmLabel("My Lumen Wallet"),
             repository,
             givenSeedFor(mnemonic = "illness spike retreat truth genius clock brain pass fit cave bargain toe"),
-            crashLogger
+            remoteLogger
         )
 
         (1..5).forEach {
@@ -608,7 +608,7 @@ class XlmMetaDataInitializerTest {
             any(), eq(XlmMetaData::class.serializer()), eq(XlmMetaData::class.java)
         )
 
-        verifyNoMoreInteractions(crashLogger)
+        verifyNoMoreInteractions(remoteLogger)
     }
 
     private fun givenSeedFor(mnemonic: String): SeedAccess =

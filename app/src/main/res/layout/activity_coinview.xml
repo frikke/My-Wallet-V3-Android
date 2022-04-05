@@ -170,32 +170,59 @@
                     app:layout_constrainedHeight="true" />
             </ViewSwitcher>
 
-            <com.blockchain.componentlib.basic.SimpleTextView
-                android:id="@+id/asset_about_title"
+            <ViewSwitcher
+                android:id="@+id/asset_information_switcher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                android:visibility="gone" />
+                android:inAnimation="@anim/fade_in"
+                android:measureAllChildren="false"
+                android:outAnimation="@anim/fade_out">
 
-            <com.blockchain.componentlib.basic.SimpleTextView
-                android:id="@+id/asset_about_blurb"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                android:visibility="gone" />
+                <com.blockchain.componentlib.system.LoadingTableRowView
+                    android:id="@+id/asset_info_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <com.blockchain.componentlib.basic.SimpleTextView
-                android:id="@+id/asset_website"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_margin"
-                android:layout_marginTop="@dimen/tiny_margin"
-                android:layout_marginEnd="@dimen/standard_margin"
-                android:paddingBottom="@dimen/very_small_margin"
-                android:visibility="gone" />
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.blockchain.componentlib.basic.SimpleTextView
+                        android:id="@+id/asset_about_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_margin"
+                        android:layout_marginEnd="@dimen/standard_margin"
+                        android:visibility="gone" />
+
+                    <com.blockchain.componentlib.basic.SimpleTextView
+                        android:id="@+id/asset_about_blurb"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_margin"
+                        android:layout_marginTop="@dimen/tiny_margin"
+                        android:layout_marginEnd="@dimen/standard_margin"
+                        android:paddingBottom="@dimen/tiny_margin"
+                        android:visibility="gone" />
+
+                    <com.blockchain.componentlib.button.SmallMinimalButtonView
+                        android:id="@+id/asset_website"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_margin"
+                        android:layout_marginEnd="@dimen/standard_margin"
+                        android:paddingBottom="@dimen/very_small_margin"
+                        android:visibility="gone" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </ViewSwitcher>
+
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.core.widget.NestedScrollView>
 

@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.MoveCandidate
 import com.blockchain.api.services.NonCustodialBitcoinService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.bip44.HDWalletFactory
@@ -30,7 +30,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
-import java.util.LinkedHashMap
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
 import org.bitcoinj.core.NetworkParameters
@@ -56,7 +55,7 @@ class PayloadDataManager internal constructor(
     @MoveCandidate("Move this down to the PayloadManager layer, with the other crypto tools")
     private val privateKeyFactory: PrivateKeyFactory,
     private val payloadManager: PayloadManager,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
 ) {
 
@@ -266,46 +265,46 @@ class PayloadDataManager internal constructor(
 
     private fun logWalletUpgradeStats() {
         payloadManager.payload?.let { payload ->
-            crashLogger.logState("doubleEncrypt", payload.isDoubleEncryption.toString())
+            remoteLogger.logState("doubleEncrypt", payload.isDoubleEncryption.toString())
             // There should only ever be one wallet body, but there have been historical bugs, so check:
-            crashLogger.logState("body count", (payload.walletBodies?.size ?: 0).toString())
-            crashLogger.logState("account count", (payload.walletBody?.accounts?.size ?: 0).toString())
-            crashLogger.logState("imported count", payload.importedAddressList.size.toString())
+            remoteLogger.logState("body count", (payload.walletBodies?.size ?: 0).toString())
+            remoteLogger.logState("account count", (payload.walletBody?.accounts?.size ?: 0).toString())
+            remoteLogger.logState("imported count", payload.importedAddressList.size.toString())
         }
     }
 
     private fun logWalletStats(hasRecoveredDerivations: Boolean) {
         logWalletUpgradeStats()
-        crashLogger.logState("tried recovering derivations", hasRecoveredDerivations.toString())
+        remoteLogger.logState("tried recovering derivations", hasRecoveredDerivations.toString())
         payloadManager.payload?.let { payload ->
-            crashLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
-            crashLogger.logState("wallet has second password", isDoubleEncrypted.toString())
+            remoteLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
+            remoteLogger.logState("wallet has second password", isDoubleEncrypted.toString())
             payload.walletBody?.accounts?.map { account ->
-                crashLogger.logState("account is archived", account.isArchived.toString())
+                remoteLogger.logState("account is archived", account.isArchived.toString())
                 val hasNullOrEmptyXPub = account.xpubs.allAddresses().find { address ->
                     address.isNullOrEmpty()
                 } != null
-                crashLogger.logState("account has null or empty xpub", hasNullOrEmptyXPub.toString())
+                remoteLogger.logState("account has null or empty xpub", hasNullOrEmptyXPub.toString())
                 when (account) {
                     is AccountV3 -> {
-                        crashLogger.logState("account type", "V3")
-                        crashLogger.logState(
+                        remoteLogger.logState("account type", "V3")
+                        remoteLogger.logState(
                             "accountV3 is legacy xpub empty",
                             account.legacyXpub.isEmpty().toString()
                         )
                     }
                     is AccountV4 -> {
-                        crashLogger.logState("account type", "V4")
+                        remoteLogger.logState("account type", "V4")
                         // Address labels returns empty if the derivation is null
-                        crashLogger.logState(
+                        remoteLogger.logState(
                             "accountV4 derivation is null",
                             account.addressLabels.isEmpty().toString()
                         )
-                        crashLogger.logState("accountV4 derivations count", account.derivations.size.toString())
+                        remoteLogger.logState("accountV4 derivations count", account.derivations.size.toString())
                         val hasEmptyXPub = account.derivations.find {
                             it.xpub.isEmpty()
                         } != null
-                        crashLogger.logState("accountV4 has empty xpub", hasEmptyXPub.toString())
+                        remoteLogger.logState("accountV4 has empty xpub", hasEmptyXPub.toString())
                     }
                     else -> {
                         // Do nothing

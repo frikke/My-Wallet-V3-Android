@@ -21,7 +21,7 @@ val activitiesModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -41,7 +41,7 @@ val activitiesModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

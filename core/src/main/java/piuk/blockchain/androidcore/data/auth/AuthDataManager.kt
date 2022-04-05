@@ -2,7 +2,7 @@ package piuk.blockchain.androidcore.data.auth
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.AuthApiService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
@@ -30,7 +30,7 @@ class AuthDataManager(
     private val walletAuthService: WalletAuthService,
     private val pinRepository: PinRepository,
     private val aesUtilWrapper: AESUtilWrapper,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) {
 
     @VisibleForTesting
@@ -164,7 +164,7 @@ class AuthDataManager(
             return Observable.error(IllegalArgumentException("Invalid PIN"))
         } else {
             pinRepository.setPin(passedPin)
-            crashLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
+            remoteLogger.logEvent("validatePin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
         return walletAuthService.validateAccess(key, passedPin)
@@ -229,7 +229,7 @@ class AuthDataManager(
             return Completable.error(IllegalArgumentException("Invalid PIN"))
         } else {
             pinRepository.setPin(passedPin)
-            crashLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
+            remoteLogger.logEvent("createPin. pin set. validity: ${passedPin.isValidPin()}")
         }
 
         return Completable.create { subscriber ->

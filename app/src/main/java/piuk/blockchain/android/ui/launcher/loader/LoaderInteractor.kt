@@ -91,7 +91,6 @@ class LoaderInteractor(
                 }
             }.thenMaybe {
                 termsAndConditionsFeatureFlag.enabled
-                    .onErrorReturnItem(false)
                     .flatMapMaybe { enabled ->
                         if (enabled) checkNewTermsAndConditions(isAfterWalletCreation)
                         else Maybe.empty()

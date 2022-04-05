@@ -250,6 +250,7 @@ class PinActivity :
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
     override fun afterTextChanged(currentPin: Editable?) {
+        if (::lastState.isInitialized.not()) return
         currentPin?.let {
             when {
                 it.length > pinLastLength -> onPadClicked()

@@ -21,7 +21,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
@@ -65,7 +65,7 @@ class LoginAuthActivity :
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatus by inject()
 
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
@@ -143,7 +143,7 @@ class LoginAuthActivity :
             LoginAuthIntents.InitLoginAuthInfo(json)
         } catch (ex: Exception) {
             Timber.e(ex)
-            crashLogger.logException(ex)
+            remoteLogger.logException(ex)
             // Fall back to legacy manual pairing
             LoginAuthIntents.ShowManualPairing(null)
         }

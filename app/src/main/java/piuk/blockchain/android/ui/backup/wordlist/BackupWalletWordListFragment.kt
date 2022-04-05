@@ -13,7 +13,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -29,7 +29,7 @@ class BackupWalletWordListFragment :
     BackupWalletWordListView {
 
     private val backupWalletWordListPresenter: BackupWalletWordListPresenter by scopedInject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val analytics: Analytics by inject()
 
     private val animEnterFromRight: Animation by unsafeLazy {
@@ -98,7 +98,7 @@ class BackupWalletWordListFragment :
             presenter.getWordForIndex(currentWordIndex)?.let {
                 textviewCurrentWord.text = it
             } ?: kotlin.run {
-                crashLogger.logEvent("Mnemonic word for position $currentWordIndex was null")
+                remoteLogger.logEvent("Mnemonic word for position $currentWordIndex was null")
                 BlockchainSnackbar.make(
                     binding.root,
                     getString(R.string.common_error),

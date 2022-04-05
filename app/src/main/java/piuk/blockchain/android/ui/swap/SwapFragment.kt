@@ -188,7 +188,7 @@ class SwapFragment :
                 coincore.allWalletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap),
-                entitySwitchSilverEligibilityFF.enabled.onErrorReturnItem(false)
+                entitySwitchSilverEligibilityFF.enabled
             ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,

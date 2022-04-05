@@ -1,6 +1,6 @@
 package piuk.blockchain.androidcore.data.metadata
 
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.metadata.Metadata
@@ -34,7 +34,7 @@ class MetadataManager(
     private val payloadDataManager: PayloadDataManager,
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
 ) {
     private val credentials: MetadataCredentials
@@ -77,7 +77,7 @@ class MetadataManager(
 
     private fun logPaddingError(e: Throwable, metadataType: Int) {
         if (e is InvalidCipherTextException) {
-            crashLogger.logException(
+            remoteLogger.logException(
                 MetadataBadPaddingTracker(metadataType, e)
             )
         }

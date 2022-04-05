@@ -23,7 +23,7 @@ val mainModule = module {
                 walletConnectServiceAPI = get(),
                 uiTourFeatureFlag = get(uiTourFeatureFlag),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
             )
         }
 
@@ -60,7 +60,7 @@ val mainModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

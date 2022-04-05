@@ -195,7 +195,9 @@ class SimpleBuyCheckoutFragment :
                         gatewayTokenizationParameters = tokenizationMap,
                         totalPrice = newState.amount.toStringWithoutSymbol(),
                         countryCode = newState.googlePayMerchantBankCountryCode.orEmpty(),
-                        currencyCode = newState.fiatCurrency.networkTicker
+                        currencyCode = newState.fiatCurrency.networkTicker,
+                        allowPrepaidCards = newState.googlePayAllowPrepaidCards ?: true,
+                        allowCreditCards = newState.googlePayAllowCreditCards ?: true
                     ),
                     requireActivity()
                 )
@@ -467,6 +469,15 @@ class SimpleBuyCheckoutFragment :
                         getString(R.string.sb_checkout_card_insufficient_funds_title),
                         getString(R.string.sb_checkout_card_insufficient_funds_blurb),
                         getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.DebitCardOnly -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_debit_only_title),
+                        getString(R.string.sb_checkout_card_debit_only_blurb),
+                        getString(R.string.sb_checkout_card_debit_only_cta)
                     )
                 )
             )

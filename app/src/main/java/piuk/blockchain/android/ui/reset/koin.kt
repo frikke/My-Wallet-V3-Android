@@ -16,7 +16,7 @@ val resetAccountModule = module {
                 initialState = ResetAccountState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -25,7 +25,7 @@ val resetAccountModule = module {
                 initialState = ResetPasswordState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }

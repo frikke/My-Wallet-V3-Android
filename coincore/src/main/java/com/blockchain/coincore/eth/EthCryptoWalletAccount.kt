@@ -11,19 +11,22 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.outcome.fold
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.EthereumAccount
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import timber.log.Timber
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
     payloadManager: PayloadDataManager,
@@ -51,8 +54,19 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     private val hasFunds = AtomicBoolean(false)
 
     override fun getOnChainBalance(): Observable<Money> =
-        ethDataManager.fetchEthAddress()
-            .map { CryptoValue(currency, it.getTotalBalance()) as Money }
+        rxSingle {
+            ethDataManager.getBalance()
+                .fold(
+                    onSuccess = { Money.fromMinor(currency, it) },
+                    onFailure = { error ->
+                        // TODO AND-5913 Use result/either and coroutines
+                        // for getting the balance for non-custodial account
+                        Timber.e(error.throwable)
+                        Money.fromMajor(currency, BigDecimal.ZERO)
+                    }
+                )
+        }
+            .toObservable()
             .doOnNext { hasFunds.set(it.isPositive) }
 
     override val isFunded: Boolean

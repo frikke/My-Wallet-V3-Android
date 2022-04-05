@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.settings.v2.account
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -13,12 +13,12 @@ class AccountModel(
     mainScheduler: Scheduler,
     private val interactor: AccountInteractor,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<AccountState, AccountIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     override fun performAction(

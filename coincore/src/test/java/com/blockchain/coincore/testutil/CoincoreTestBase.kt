@@ -4,7 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.AssetCategory
@@ -41,7 +41,7 @@ open class CoincoreTestBase {
         on { selectedFiatCurrency }.thenReturn(TEST_USER_FIAT)
     }
 
-    private val mockedCrashLogger: CrashLogger = mock()
+    private val mockedRemoteLogger: RemoteLogger = mock()
 
     private val userFiatToUserFiat = ExchangeRate(
         from = TEST_USER_FIAT,
@@ -69,8 +69,8 @@ open class CoincoreTestBase {
                     }
                 }
                 factory {
-                    mockedCrashLogger
-                }.bind(CrashLogger::class)
+                    mockedRemoteLogger
+                }.bind(RemoteLogger::class)
             }
         )
     }

@@ -289,7 +289,7 @@
     <string name="name">Name</string>
 
     <string name="next">Next</string>
-    <string name="received_ethereum">Received Ether</string>
+    <string name="received_ethereum">Received %1$s</string>
 
     <!-- "Received {ETHER} {10.2 ETH}" -->
     <string name="received_erc20_marquee">Received %1$s %2$s</string>
@@ -1754,7 +1754,6 @@
     <string name="rewards_enter_amount_error_insufficient_funds_for_fees">Not enough %1$s in your wallet to transfer with current network fees.</string>
     <string name="send_progress_complete_subtitle">Your %1$s has been successfully sent.</string>
     <string name="send_progress_awaiting_subtitle">Your send is being verified now by the %s network. You can check the progress of this transaction in the Activity section.</string>
-    <string name="send_progress_error_title">Oops! Something Went Wrong. Please try again.</string>
     <string name="send_progress_error_subtitle">Don’t worry. Your money is safe. Please try again or contact our Support Team for help.</string>
     <string name="send_enter_asset_address_hint">%1s Address</string>
     <string name="send_enter_asset_address_or_domain_hint">Address or domain</string>
@@ -1881,6 +1880,9 @@
     <string name="could_not_activate_card">We could not activate your card. Please contact support.</string>
     <string name="card_still_pending">We waited two minutes and did not receive an update from our card provider. Your card may still be approved later. Please contact support if you have any questions.</string>
     <string name="card_link_failed">Card failed to link. Please try again or contact support if you believe this occurred in error.</string>
+    <string name="card_activation_debit_only_title">Only debit cards are supported</string>
+    <string name="card_activation_debit_only_blurb">Use any Visa or Mastercard debit card.</string>
+    <string name="card_activation_debit_only_cta_primary">Try another card</string>
     <string name="unable_to_verify_id">Unable to Verify Your ID</string>
     <string name="unable_to_verify_id_description">We were unable to verify your identity. This can happen for a few reasons.</string>
     <string name="invalid_id">Invalid ID</string>
@@ -2029,7 +2031,6 @@
     <string name="trading_withdrawal_balance_locked">Oops! For security reasons, your balance is currently locked, please try again later.</string>
     <string name="trading_withdrawal_insufficient_funds">Oops! You don’t have enough funds to Withdraw</string>
     <string name="trading_internal_server_error">Oops! This service is currently unavailable, please try again later.</string>
-    <string name="trading_albert_error">Oops! Something Went Wrong. Please try again.</string>
     <string name="trading_service_temp_disabled">This service will be back soon. We’re updating &amp; fixing some bugs right now.</string>
     <string name="trading_insufficient_balance">Oops! You don’t have enough balance to %1$s.</string>
     <string name="trading_amount_below_min">Oops! The amount you selected is below the minimum %1$s limit.</string>
@@ -2043,9 +2044,13 @@
     <string name="trading_direction_disabled">Oops! That service isn’t available at the moment, please try again later.</string>
     <string name="trading_quote_invalid_or_expired">Oops! The amount we quoted you is no longer valid, please try again.</string>
     <string name="executing_transaction_error">Oops! Something went wrong while executing the %1$s on-chain transaction.</string>
+    <string name="executing_connection_error">Looks like there is an issue with your internet connection. Please check and try again.</string>
+    <string name="common_http_error_with_message">Oops! Something went wrong %1$s.</string>
+    <string name="invalid_domain_address">Invalid domain Address</string>
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
     <string name="trading_invalid_destination_amount">Oops! Looks like that isn’t a valid amount, please try again.</string>
     <string name="add_credit_or_debit_card_1">Credit or Debit Card</string>
+    <string name="add_debit_card">Debit Card</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="as_it_shows_in_id">As shown on your government issued ID or Passport</string>
@@ -2091,6 +2096,9 @@
     <string name="sb_checkout_card_declined_title">Payment declined</string>
     <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
     <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
+    <string name="sb_checkout_card_debit_only_title">Try a debit card instead</string>
+    <string name="sb_checkout_card_debit_only_blurb">Having trouble with your Credit card?\n Try any Visa or Mastercard debit card instead.</string>
+    <string name="sb_checkout_card_debit_only_cta">Try A Different Payment Method</string>
 
     <!-- Yapily -->
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>
@@ -2783,10 +2791,13 @@
     <string name="coinview_account_load_error_title">Failed to Load Wallets and Accounts</string>
     <string name="coinview_account_load_error_subtitle">There was a problem fetching your Wallets and Accounts. Don’t worry, your funds are safe. Reload or exit and return to the page.</string>
     <string name="coinview_fiat_missing">Invalid Fiat currency selected</string>
+    <string name="coinview_prices_missing">There was an issue getting token data</string>
     <string name="coinview_watchlist_toggle_fail">Failed to update the Watchlist, please try again</string>
     <string name="coinview_actions_error">There was an issue getting your available actions, please try again</string>
     <string name="coinview_no_asset_blurb">Looks like we don’t have any data on this asset. If this continues, <annotation link="contact_support">contact support.</annotation></string>
     <string name="coinview_no_asset_title">Unknown Asset</string>
+    <string name="coinview_asset_info_cta">Visit Website →</string>
+    <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
@@ -2832,6 +2843,7 @@
 
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
+    <string name="transaction_denied">Transaction denied</string>
 
     <!-- Bottom sheet explainers -->
     <string name="explainer_custodial_title">Trading Account</string>
@@ -2846,12 +2858,9 @@
     <string name="explainer_exchange_button">Connect</string>
 
     <!-- Bottom sheet actions -->
-    <string name="actions_sheet_title_private_key">Private Key Wallet</string>
-    <string name="actions_sheet_title_custodial">Trading Account</string>
-    <string name="actions_sheet_title_rewards">Rewards Account</string>
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>
 
-    <!-- Pin help -->
+    <!-- Customer Support -->
     <string name="customer_support_title">Having Trouble Logging In?</string>
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>

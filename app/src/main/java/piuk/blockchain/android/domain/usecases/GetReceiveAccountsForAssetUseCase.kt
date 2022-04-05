@@ -20,7 +20,6 @@ class GetReceiveAccountsForAssetUseCase(
     override fun execute(parameter: AssetInfo): Single<SingleAccountList> =
         coincore[parameter].accountGroup(AssetFilter.All).flatMapSingle { accountGroup ->
             entitySwitchSilverEligibilityFeatureFlag.enabled
-                .onErrorReturnItem(false)
                 .flatMap { enabled ->
                     if (enabled) {
                         accountGroup.accounts.filterByActionAndState(

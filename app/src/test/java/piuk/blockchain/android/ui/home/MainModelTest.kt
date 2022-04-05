@@ -82,7 +82,7 @@ class MainModelTest {
             initialState = MainState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
             uiTourFeatureFlag = uiTourFeatureFlag,

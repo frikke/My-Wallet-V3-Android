@@ -14,7 +14,7 @@ val receiveCryptoModule = module {
                 initialState = ReceiveDetailState(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -23,7 +23,7 @@ val receiveCryptoModule = module {
                 initialState = ReceiveState(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 getAvailableCryptoAssetsUseCase = get(),
                 getReceiveAccountsForAssetUseCase = get()
             )

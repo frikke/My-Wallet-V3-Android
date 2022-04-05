@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.limits
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -13,8 +13,8 @@ class KycLimitsModel(
     private val interactor: KycLimitsInteractor,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
-) : MviModel<KycLimitsState, KycLimitsIntent>(KycLimitsState(), uiScheduler, environmentConfig, crashLogger) {
+    remoteLogger: RemoteLogger
+) : MviModel<KycLimitsState, KycLimitsIntent>(KycLimitsState(), uiScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: KycLimitsState, intent: KycLimitsIntent): Disposable? = when (intent) {
         KycLimitsIntent.FetchLimitsAndTiers -> fetchLimitsAndTiers()

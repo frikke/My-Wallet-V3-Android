@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -37,7 +37,7 @@ class TestAuthPresenter(
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
     override val prefs: PersistentPrefs,
-    override val crashLogger: CrashLogger
+    override val remoteLogger: RemoteLogger
 ) : PasswordAuthPresenter<PasswordAuthView>() {
     override fun onAuthFailed() {
         super.onAuthFailed()
@@ -60,7 +60,7 @@ class PasswordAuthPresenterTest {
     private val payloadDataManager: PayloadDataManager = mock()
     private val wallet: Wallet = mock()
     private val prefsUtil: PrefsUtil = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -75,7 +75,7 @@ class PasswordAuthPresenterTest {
             authDataManager,
             payloadDataManager,
             prefsUtil,
-            crashLogger
+            remoteLogger
         )
         subject.attachView(view)
 
@@ -349,7 +349,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(crashLogger).logState("initial_error", "This is an error")
+        verify(remoteLogger).logState("initial_error", "This is an error")
         verify(view).showErrorSnackbarWithParameter(R.string.common_replaceable_value, "This is an error")
     }
 
@@ -366,7 +366,7 @@ class PasswordAuthPresenterTest {
         subject.verifyPassword(PASSWORD, GUID)
 
         // Assert
-        verify(crashLogger).logState(eq("initial_error"), any())
+        verify(remoteLogger).logState(eq("initial_error"), any())
         verify(view).showSnackbar(R.string.common_error, SnackbarType.Error)
     }
 

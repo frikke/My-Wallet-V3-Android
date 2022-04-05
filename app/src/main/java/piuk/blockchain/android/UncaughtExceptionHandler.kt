@@ -1,7 +1,6 @@
 package piuk.blockchain.android
 
 import piuk.blockchain.android.util.AppUtil
-import timber.log.Timber
 
 class UncaughtExceptionHandler private constructor(val appUtil: AppUtil) : Thread.UncaughtExceptionHandler {
 
@@ -12,12 +11,7 @@ class UncaughtExceptionHandler private constructor(val appUtil: AppUtil) : Threa
     }
 
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
-        if (!BuildConfig.DEBUG) {
-            // Don't restart when debugging - it unhelpfully spams logcat
-            appUtil.restartApp()
-        } else {
-            Timber.e(throwable)
-        }
+        appUtil.restartApp()
 
         // Re-throw the exception so that the system can fail as it normally would, and so that
         // Firebase can log the exception automatically

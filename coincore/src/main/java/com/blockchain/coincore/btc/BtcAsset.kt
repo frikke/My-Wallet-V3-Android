@@ -13,7 +13,7 @@ import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -50,7 +50,7 @@ import thepit.PitLinking
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     identity: UserIdentity,
@@ -64,7 +64,7 @@ import thepit.PitLinking
     interestBalances,
     tradingBalances,
     pitLinking,
-    crashLogger,
+    remoteLogger,
     identity,
     addressResolver
 ) {

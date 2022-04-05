@@ -13,7 +13,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 import timber.log.Timber
@@ -35,7 +34,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! TransactionProgressFragment")
-        require(newState.currentStep == TransactionStep.IN_PROGRESS)
 
         customiser.transactionProgressStandardIcon(newState)?.let {
             binding.txProgressView.setAssetIcon(it)

@@ -5,7 +5,7 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,12 +18,12 @@ class DashboardModel(
     mainScheduler: Scheduler,
     private val interactor: DashboardActionAdapter,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
     override fun performAction(
         previousState: DashboardState,

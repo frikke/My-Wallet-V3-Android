@@ -5,6 +5,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.InterestState
@@ -77,7 +78,7 @@ class ActivityDetailsModelTest {
         timeStampMs = 1L,
         value = CryptoValue.zero(CryptoCurrency.BTC),
         status = InterestState.COMPLETE,
-        account = mock(),
+        account = NullCryptoAccount(),
         type = TransactionSummary.TransactionType.INTEREST_EARNED,
         confirmations = 0,
         accountRef = "",

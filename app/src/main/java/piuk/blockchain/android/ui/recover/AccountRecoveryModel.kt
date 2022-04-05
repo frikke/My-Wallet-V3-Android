@@ -4,7 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorTypes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import info.blockchain.wallet.bip44.HDWalletFactory
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -19,13 +19,13 @@ class AccountRecoveryModel(
     initialState: AccountRecoveryState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val interactor: AccountRecoveryInteractor
 ) : MviModel<AccountRecoveryState, AccountRecoveryIntents>(
     initialState,
     mainScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     private val mnemonicChecker: MnemonicCode by unsafeLazy {

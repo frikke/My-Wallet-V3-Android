@@ -37,7 +37,7 @@ class ResetPasswordModelTest {
             initialState = ResetPasswordState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }
