@@ -136,7 +136,8 @@ class PinActivity :
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
-            customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupportSheetFF.enabled.onErrorReturn { false }
+                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }
     }
 
