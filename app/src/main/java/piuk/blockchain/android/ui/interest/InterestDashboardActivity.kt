@@ -17,6 +17,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
+import piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardHost
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -26,7 +27,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class InterestDashboardActivity :
     BlockchainActivity(),
     InterestSummarySheet.Host,
-    InterestDashboardFragment.InterestDashboardHost {
+    InterestDashboardFragment.InterestDashboardHost ,
+    InterestDashboardHost {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
@@ -37,7 +39,8 @@ class InterestDashboardActivity :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
-    private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
+//    private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
+    private val fragment: piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment.newInstance() }
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -157,7 +160,7 @@ class InterestDashboardActivity :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == TX_FLOW_REQUEST) {
-            fragment.refreshBalances()
+//            fragment.refreshBalances()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

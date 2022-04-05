@@ -105,7 +105,7 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
                                 }
 
                                 InterestDashboardItem.InterestIdentityVerificationItem -> {
-                                    InterestDashboardVerification {}
+                                    InterestDashboardVerification(::startKyc)
                                 }
                             }
                         }
