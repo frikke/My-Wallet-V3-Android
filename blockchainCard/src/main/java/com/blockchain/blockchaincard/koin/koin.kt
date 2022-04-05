@@ -18,12 +18,12 @@ val blockchainCardModule = module {
             )
         }.bind(BlockchainCardRepository::class)
 
-        factory {
-            BlockchainCardNavigationRouter()
-        }
-
         viewModel {
             BlockchainCardViewModel(blockchainCardRepository = get())
         }
+    }
+
+    factory {
+        BlockchainCardNavigationRouter()
     }
 }
