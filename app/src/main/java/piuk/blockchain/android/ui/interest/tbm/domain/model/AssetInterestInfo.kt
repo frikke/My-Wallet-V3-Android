@@ -7,17 +7,7 @@ import info.blockchain.balance.Money
 data class AssetInterestInfo(
     val assetInfo: AssetInfo,
     val assetInterestDetail: AssetInterestDetail?
-) {
-    fun getAssetName() = assetInfo.name
-    fun getAssetLogo() = assetInfo.logo
-    fun getAssetDisplayTicker() = assetInfo.displayTicker
-
-    fun hasDetail() = assetInterestDetail != null
-
-    fun getInterestRate() = assetInterestDetail?.rate
-    fun getBalance() = assetInterestDetail?.totalBalance
-    fun getInligibilityReason() = assetInterestDetail?.ineligibilityReason
-}
+)
 
 data class AssetInterestDetail(
     val totalInterest: Money,
