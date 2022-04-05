@@ -1,8 +1,11 @@
-package com.blockchain.nabu.datamanagers.repositories.interest
+package com.blockchain.nabu.cache
 
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.datamanagers.repositories.interest.AssetInterestEligibility
+import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
+import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.AssetCatalogue
 import io.reactivex.rxjava3.core.Single
 

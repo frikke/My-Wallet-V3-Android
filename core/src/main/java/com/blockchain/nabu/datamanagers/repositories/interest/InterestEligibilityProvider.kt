@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories.interest
 
+import com.blockchain.nabu.cache.CustodialAssetsEligibilityCache
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 

@@ -8,6 +8,7 @@ import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList

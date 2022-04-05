@@ -38,7 +38,7 @@ import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodsEligibilityCache
+import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs

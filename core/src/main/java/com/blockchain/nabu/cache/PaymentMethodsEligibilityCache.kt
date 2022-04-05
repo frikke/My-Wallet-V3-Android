@@ -1,4 +1,4 @@
-package com.blockchain.nabu.datamanagers.custodialwalletimpl
+package com.blockchain.nabu.cache
 
 import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.Authenticator
