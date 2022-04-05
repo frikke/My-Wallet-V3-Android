@@ -15,10 +15,10 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
-import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
+import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -229,28 +229,28 @@ data class InterestActivityItem(
     val insertedAt: Date,
     val state: InterestState,
     val type: TransactionSummary.TransactionType,
-    val extraAttributes: InterestAttributes?
+    val extraAttributes: TransactionAttributesResponse?
 ) {
     companion object {
         fun toInterestState(state: String): InterestState =
             when (state) {
-                InterestActivityItemResponse.FAILED -> InterestState.FAILED
-                InterestActivityItemResponse.REJECTED -> InterestState.REJECTED
-                InterestActivityItemResponse.PROCESSING -> InterestState.PROCESSING
-                InterestActivityItemResponse.CREATED,
-                InterestActivityItemResponse.COMPLETE -> InterestState.COMPLETE
-                InterestActivityItemResponse.PENDING -> InterestState.PENDING
-                InterestActivityItemResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
-                InterestActivityItemResponse.CLEARED -> InterestState.CLEARED
-                InterestActivityItemResponse.REFUNDED -> InterestState.REFUNDED
+                TransactionResponse.FAILED -> InterestState.FAILED
+                TransactionResponse.REJECTED -> InterestState.REJECTED
+                TransactionResponse.PROCESSING -> InterestState.PROCESSING
+                TransactionResponse.CREATED,
+                TransactionResponse.COMPLETE -> InterestState.COMPLETE
+                TransactionResponse.PENDING -> InterestState.PENDING
+                TransactionResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
+                TransactionResponse.CLEARED -> InterestState.CLEARED
+                TransactionResponse.REFUNDED -> InterestState.REFUNDED
                 else -> InterestState.UNKNOWN
             }
 
         fun toTransactionType(type: String) =
             when (type) {
-                InterestActivityItemResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
-                InterestActivityItemResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
-                InterestActivityItemResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
+                TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
+                TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
+                TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
                 else -> TransactionSummary.TransactionType.UNKNOWN
             }
     }

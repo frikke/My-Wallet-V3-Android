@@ -8,6 +8,7 @@ import com.blockchain.banking.BankTransferAction
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.model.BankPartner
@@ -64,6 +65,7 @@ class SimpleBuyModel(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
     private val onboardingPrefs: OnboardingPrefs,
+    private val buyOrdersCache: BuyOrdersCache,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
@@ -816,6 +818,7 @@ class SimpleBuyModel(
     ): Disposable {
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
             .trackProgress(activityIndicator)
+            .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED

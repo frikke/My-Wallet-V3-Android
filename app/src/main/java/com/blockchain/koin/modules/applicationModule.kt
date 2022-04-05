@@ -471,6 +471,7 @@ val applicationModule = module {
                 ratingPrefs = get(),
                 onboardingPrefs = get(),
                 prefs = get(),
+                buyOrdersCache = get(),
                 simpleBuyPrefs = get(),
                 serializer = get(),
                 cardActivator = get(),

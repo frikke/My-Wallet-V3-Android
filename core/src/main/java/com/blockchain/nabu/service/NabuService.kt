@@ -34,7 +34,6 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
 import com.blockchain.nabu.models.responses.simplebuy.WithdrawLocksCheckRequestBody
@@ -320,31 +319,18 @@ class NabuService internal constructor(
             sessionToken.authHeader, SimpleBuyCurrency(currency)
         ).wrapErrorMessage()
 
-    internal fun getSimpleBuyQuote(
-        sessionToken: NabuSessionTokenResponse,
-        action: String,
-        currencyPair: String,
-        currency: String,
-        amount: String
-    ): Single<SimpleBuyQuoteResponse> = nabu.getSimpleBuyQuote(
-        authorization = sessionToken.authHeader,
-        action = action,
-        currencyPair = currencyPair,
-        currency = currency,
-        amount = amount
-    )
-
     internal fun getTransactions(
         sessionToken: NabuSessionTokenResponse,
         currency: String,
         product: String,
         type: String?
-    ): Single<TransactionsResponse> = nabu.getTransactions(
-        sessionToken.authHeader,
-        currency,
-        product,
-        type
-    ).wrapErrorMessage()
+    ): Single<TransactionsResponse> =
+        nabu.getTransactions(
+            sessionToken.authHeader,
+            currency,
+            product,
+            type
+        ).wrapErrorMessage()
 
     internal fun isEligibleForSimpleBuy(
         sessionToken: NabuSessionTokenResponse,
@@ -516,12 +502,6 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         currency: String
     ) = nabu.getInterestAddress(authorization = sessionToken.authHeader, currency = currency)
-        .wrapErrorMessage()
-
-    fun getInterestActivity(
-        sessionToken: NabuSessionTokenResponse,
-        currency: String
-    ) = nabu.getInterestActivity(authorization = sessionToken.authHeader, product = "savings", currency = currency)
         .wrapErrorMessage()
 
     fun getInterestLimits(

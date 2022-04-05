@@ -4,6 +4,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
+import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.bitcoincash.BchDataManager
@@ -172,6 +173,12 @@ val coreModule = module {
 
         scoped {
             BuyPairsCache(nabuService = get())
+        }
+        scoped {
+            TransactionsCache(
+                nabuService = get(),
+                authenticator = get()
+            )
         }
 
         scoped {

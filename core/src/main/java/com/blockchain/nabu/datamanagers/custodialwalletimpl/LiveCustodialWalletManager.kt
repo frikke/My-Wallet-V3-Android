@@ -1,6 +1,8 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.TransactionsCache
+import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
@@ -36,8 +38,6 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.TransferLimits
-import com.blockchain.nabu.datamanagers.featureflags.Feature
-import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
@@ -47,7 +47,6 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.WithdrawFeeRequest
 import com.blockchain.nabu.models.responses.cards.PaymentCardAcquirerResponse
 import com.blockchain.nabu.models.responses.cards.PaymentMethodResponse
-import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
 import com.blockchain.nabu.models.responses.interest.InterestRateResponse
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody
 import com.blockchain.nabu.models.responses.nabu.State
@@ -94,10 +93,10 @@ class LiveCustodialWalletManager(
     private val nabuService: NabuService,
     private val authenticator: Authenticator,
     private val pairsCache: BuyPairsCache,
+    private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
     private val paymentMethodsEligibilityCache: PaymentMethodsEligibilityCache,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
-    private val kycFeatureEligibility: FeatureEligibility,
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
@@ -242,24 +241,28 @@ class LiveCustodialWalletManager(
         product: Product,
         type: String?
     ): Single<List<FiatTransaction>> =
-        authenticator.authenticate { token ->
-            nabuService.getTransactions(token, fiatCurrency.networkTicker, product.toRequestString(), type)
-                .map { response ->
-                    response.items.filterNot {
-                        it.hasCardOrBankFailure()
-                    }.mapNotNull {
-                        val state = it.state.toTransactionState() ?: return@mapNotNull null
-                        val txType = it.type.toTransactionType() ?: return@mapNotNull null
-                        FiatTransaction(
-                            id = it.id,
-                            amount = Money.fromMinor(fiatCurrency, it.amountMinor.toBigInteger()) as FiatValue,
-                            date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                            state = state,
-                            type = txType,
-                            paymentId = it.beneficiaryId
-                        )
-                    }
-                }
+        transactionsCache.transactions(
+            TransactionsRequest(
+                currency = fiatCurrency.networkTicker,
+                product = product.toRequestString(),
+                type = type
+
+            )
+        ).map { response ->
+            response.items.filterNot {
+                it.hasCardOrBankFailure()
+            }.mapNotNull {
+                val state = it.state.toTransactionState() ?: return@mapNotNull null
+                val txType = it.type.toTransactionType() ?: return@mapNotNull null
+                FiatTransaction(
+                    id = it.id,
+                    amount = Money.fromMinor(fiatCurrency, it.amountMinor.toBigInteger()) as FiatValue,
+                    date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+                    state = state,
+                    type = txType,
+                    paymentId = it.beneficiaryId
+                )
+            }
         }
 
     override fun getCustodialCryptoTransactions(
@@ -267,28 +270,33 @@ class LiveCustodialWalletManager(
         product: Product,
         type: String?
     ): Single<List<CryptoTransaction>> =
-        authenticator.authenticate { token ->
-            nabuService.getTransactions(token, asset.networkTicker, product.toRequestString(), type).map { response ->
-                response.items.mapNotNull {
-                    val crypto = assetCatalogue.fromNetworkTicker(it.amount.symbol) ?: return@mapNotNull null
-                    val state = it.state.toTransactionState() ?: return@mapNotNull null
-                    val txType = it.type.toTransactionType() ?: return@mapNotNull null
 
-                    CryptoTransaction(
-                        id = it.id,
-                        amount = Money.fromMinor(crypto, it.amountMinor.toBigInteger()),
-                        date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
-                        state = state,
-                        type = txType,
-                        fee = it.feeMinor?.let { fee ->
-                            Money.fromMinor(crypto, fee.toBigInteger())
-                        } ?: Money.zero(crypto),
-                        receivingAddress = it.extraAttributes?.beneficiary?.accountRef.orEmpty(),
-                        txHash = it.txHash.orEmpty(),
-                        currency = currencyPrefs.selectedFiatCurrency,
-                        paymentId = it.beneficiaryId
-                    )
-                }
+        transactionsCache.transactions(
+            TransactionsRequest(
+                currency = asset.networkTicker,
+                product = product.toRequestString(),
+                type = type
+            )
+        ).map { response ->
+            response.items.mapNotNull {
+                val crypto = assetCatalogue.fromNetworkTicker(it.amount.symbol) ?: return@mapNotNull null
+                val state = it.state.toTransactionState() ?: return@mapNotNull null
+                val txType = it.type.toTransactionType() ?: return@mapNotNull null
+
+                CryptoTransaction(
+                    id = it.id,
+                    amount = Money.fromMinor(crypto, it.amountMinor.toBigInteger()),
+                    date = it.insertedAt.fromIso8601ToUtc()?.toLocalTime() ?: Date(),
+                    state = state,
+                    type = txType,
+                    fee = it.feeMinor?.let { fee ->
+                        Money.fromMinor(crypto, fee.toBigInteger())
+                    } ?: Money.zero(crypto),
+                    receivingAddress = it.extraAttributes?.beneficiary?.accountRef.orEmpty(),
+                    txHash = it.txHash.orEmpty(),
+                    currency = currencyPrefs.selectedFiatCurrency,
+                    paymentId = it.beneficiaryId
+                )
             }
         }
 
@@ -505,23 +513,18 @@ class LiveCustodialWalletManager(
         }
 
     override fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>> =
-        kycFeatureEligibility.isEligibleFor(Feature.INTEREST_RATES)
-            .onErrorReturnItem(false)
-            .flatMap { eligible ->
-                if (eligible) {
-                    authenticator.authenticate { sessionToken ->
-                        nabuService.getInterestActivity(sessionToken, asset.networkTicker)
-                            .map { interestActivityResponse ->
-                                interestActivityResponse.items.map {
-                                    val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
-                                    it.toInterestActivityItem(ccy)
-                                }
-                            }
-                    }
-                } else {
-                    Single.just(emptyList())
-                }
+        transactionsCache.transactions(
+            TransactionsRequest(
+                currency = asset.networkTicker,
+                product = "savings",
+                type = null
+            )
+        ).map { interestActivityResponse ->
+            interestActivityResponse.items.map {
+                val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
+                it.toInterestActivityItem(ccy)
             }
+        }
 
     override fun getInterestLimits(asset: AssetInfo): Single<InterestLimits> =
         interestRepository.getLimitForAsset(asset)
@@ -989,8 +992,8 @@ private fun String.toApprovalError(): ApprovalErrorStatus =
         BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.INVALID
         BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.FAILED
         BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.DECLINED
-        BuySellOrderResponse.APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.REJECTED
-        BuySellOrderResponse.APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.EXPIRED
+        APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.REJECTED
+        APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.EXPIRED
         BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LIMITED_EXCEEDED
         BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FAILED_INTERNAL
         BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.INSUFFICIENT_FUNDS
@@ -1005,7 +1008,7 @@ fun String.toPaymentMethodType(): PaymentMethodType =
         else -> PaymentMethodType.UNKNOWN
     }
 
-private fun InterestActivityItemResponse.toInterestActivityItem(cryptoCurrency: AssetInfo) =
+private fun TransactionResponse.toInterestActivityItem(cryptoCurrency: AssetInfo) =
     InterestActivityItem(
         value = CryptoValue.fromMinor(cryptoCurrency, amountMinor.toBigInteger()),
         cryptoCurrency = cryptoCurrency,

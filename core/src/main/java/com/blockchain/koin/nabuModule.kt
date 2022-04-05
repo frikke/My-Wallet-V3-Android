@@ -31,10 +31,7 @@ import com.blockchain.nabu.datamanagers.analytics.AnalyticsFileLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
-import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
-import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
-import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.CustodialAssetsEligibilityCache
@@ -114,7 +111,7 @@ val nabuModule = module {
                 paymentAccountMapperMappers = mapOf(
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
-                kycFeatureEligibility = get(),
+                transactionsCache = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
@@ -234,14 +231,6 @@ val nabuModule = module {
         )
 
         factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
-
-        scoped { KycFeatureEligibility(userRepository = get()) }.bind(FeatureEligibility::class)
-
-        scoped {
-            NabuUserRepository(
-                nabuDataUserProvider = get()
-            )
-        }
 
         scoped {
             CustodialRepository(

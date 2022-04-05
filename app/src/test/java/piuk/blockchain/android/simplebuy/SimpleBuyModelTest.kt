@@ -100,6 +100,7 @@ class SimpleBuyModelTest {
         _activityIndicator = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
+        buyOrdersCache = mock(),
         getEligibilityAndNextPaymentDateUseCase = mock(),
         bankPartnerCallbackProvider = mock(),
         userIdentity = mock {
