@@ -9,8 +9,24 @@ import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestRe
 class GetAssetInterestInfoUseCase(private val repository: AssetInterestRepository) {
     suspend operator fun invoke(assets: List<AssetInfo>): Outcome<Throwable, List<AssetInterestInfo>> =
         repository.getAssetsInterestInfo(assets).map {
-            it.sortedByDescending { assetInterestInfo ->
-                assetInterestInfo.assetInterestDetail?.totalBalanceFiat?.toBigDecimal()
-            }
+            it.sortedWith(
+                compareByDescending<AssetInterestInfo> { asset ->
+                    asset.assetInterestDetail?.totalBalanceFiat?.toBigDecimal()
+                }.thenBy(nullsLast()) { asset ->
+                    prioritizedCurrencies.find { it.name == asset.assetInfo.networkTicker }?.priority
+                }.thenBy { asset ->
+                    asset.assetInfo.name
+                }
+            )
         }
+
+    private data class AssetInfoPriority(val name: String, val priority: Int)
+
+    private val prioritizedCurrencies = listOf(
+        AssetInfoPriority(name = "BTC", priority = 1),
+        AssetInfoPriority(name = "ETH", priority = 2),
+        AssetInfoPriority(name = "USDC", priority = 3),
+        AssetInfoPriority(name = "USDT", priority = 4),
+    )
 }
+
