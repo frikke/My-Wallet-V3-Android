@@ -7,6 +7,7 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.service.TierService
+import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -29,7 +30,7 @@ class AssetInterestRepositoryImpl(
     private val dispatcher: CoroutineDispatcher
 ) : AssetInterestRepository {
 
-    override suspend fun getInterestDetail(): Result<InterestDetail> {
+    override suspend fun getInterestDetail(): Outcome<Throwable, InterestDetail> {
         return coroutineScope {
             val deferredTiers = async(dispatcher) { kycTierService.tiers().await() }
             val deferredEnabledAssets = async(dispatcher) { custodialWalletManager.getInterestEnabledAssets().await() }
@@ -38,28 +39,33 @@ class AssetInterestRepositoryImpl(
                 val tiers = deferredTiers.await()
                 val enabledAssets = deferredEnabledAssets.await()
 
-                Result.success(InterestDetail(tiers = tiers, enabledAssets = enabledAssets))
+                Outcome.Success(InterestDetail(tiers = tiers, enabledAssets = enabledAssets))
             } catch (e: Throwable) {
-                Result.failure(e)
+                Outcome.Failure(e)
             }
-
         }
     }
 
-    override suspend fun getAssetsInterestInfo(assets: List<AssetInfo>): Result<List<AssetInterestInfo>> {
+    override suspend fun getAssetsInterestInfo(
+        cryptoCurrencies: List<AssetInfo>
+    ): Outcome<Throwable, List<AssetInterestInfo>> {
         return coroutineScope {
-            assets.map { asset -> async(dispatcher) { getAssetInterestInfo(asset) } }
+            cryptoCurrencies.map { asset -> async(dispatcher) { getAssetInterestInfo(asset) } }
                 .map { deferred -> deferred.await() }
-                .run { Result.success(this) }
+                .run { Outcome.Success(this) }
         }
     }
 
-    private suspend fun getAssetInterestInfo(assetInfo: AssetInfo): AssetInterestInfo {
+    private suspend fun getAssetInterestInfo(cryptoCurrency: AssetInfo): AssetInterestInfo {
         return coroutineScope {
-            val deferredBalance = async(dispatcher) { interestBalance.getBalanceForAsset(assetInfo).awaitFirst() }
-            val deferredExchangeRate = async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(assetInfo).awaitFirst() }
-            val deferredInterestRate = async(dispatcher) { custodialWalletManager.getInterestAccountRates(assetInfo).await() }
-            val deferredEligibility = async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(assetInfo).await() }
+            val deferredBalance =
+                async(dispatcher) { interestBalance.getBalanceForAsset(cryptoCurrency).awaitFirst() }
+            val deferredExchangeRate =
+                async(dispatcher) { exchangeRatesDataManager.exchangeRateToUserFiat(cryptoCurrency).awaitFirst() }
+            val deferredInterestRate =
+                async(dispatcher) { custodialWalletManager.getInterestAccountRates(cryptoCurrency).await() }
+            val deferredEligibility =
+                async(dispatcher) { custodialWalletManager.getInterestEligibilityForAsset(cryptoCurrency).await() }
 
             val assetInterestDetail: AssetInterestDetail? = try {
                 val balance = deferredBalance.await()
@@ -76,23 +82,26 @@ class AssetInterestRepositoryImpl(
                     totalBalanceFiat = exchangeRate.convert(balance.totalBalance)
                 )
             } catch (e: Throwable) {
-                Timber.e("Error loading interest dashboard item: $assetInfo")
+                Timber.e("Error loading interest dashboard item: $cryptoCurrency")
                 null
             }
 
             AssetInterestInfo(
-                assetInfo = assetInfo,
+                assetInfo = cryptoCurrency,
                 assetInterestDetail = assetInterestDetail
             )
         }
     }
 
-    override suspend fun getAccountGroup(cryptoCurrency: AssetInfo, filter: AssetFilter): Result<AccountGroup> {
+    override suspend fun getAccountGroup(
+        cryptoCurrency: AssetInfo,
+        filter: AssetFilter
+    ): Outcome<Throwable, AccountGroup> {
         return try {
             coincore[cryptoCurrency].accountGroup(AssetFilter.Interest).awaitSingle()
-                .run { Result.success(this) }
+                .run { Outcome.Success(this) }
         } catch (e: Throwable) {
-            Result.failure(e)
+            Outcome.Failure(e)
         }
     }
 }

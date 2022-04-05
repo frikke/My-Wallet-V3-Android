@@ -6,6 +6,8 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
@@ -53,11 +55,11 @@ class InterestDashboardViewModel(
             updateState { it.copy(isLoadingData = true) }
 
             getInterestDetailUseCase().let { result ->
-                result.getOrNull()?.let { interestDetail ->
+                result.doOnSuccess { interestDetail ->
                     loadAssets(interestDetail)
-                } ?: kotlin.run {
+                }.doOnFailure { error ->
                     updateState { it.copy(isLoadingData = false, isError = true) }
-                    Timber.e("Error loading interest summary details ${result.exceptionOrNull()}")
+                    Timber.e("Error loading interest summary details $error")
                 }
             }
         }
@@ -72,7 +74,7 @@ class InterestDashboardViewModel(
             if (isKycGold.not()) initialData.add(InterestDashboardItem.InterestIdentityVerificationItem)
 
             getAssetInterestInfoUseCase(interestDetail.enabledAssets).let { result ->
-                result.getOrNull()?.let { assetInterestInfoList ->
+                result.doOnSuccess { assetInterestInfoList ->
                     updateState {
                         it.copy(
                             isLoadingData = false,
@@ -82,9 +84,9 @@ class InterestDashboardViewModel(
                                 assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) }
                         )
                     }
-                } ?: kotlin.run {
+                }.doOnFailure { error ->
                     updateState { it.copy(isLoadingData = false, isError = true) }
-                    Timber.e("Error loading interest info list ${result.exceptionOrNull()}")
+                    Timber.e("Error loading interest info list $error")
                 }
             }
         }
@@ -93,7 +95,7 @@ class InterestDashboardViewModel(
     private fun handleInterestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
         viewModelScope.launch {
             getAccountGroupUseCase(cryptoCurrency = cryptoCurrency, filter = AssetFilter.Interest).let { result ->
-                result.getOrNull()?.let {
+                result.doOnSuccess {
                     val interestAccount = it.accounts.first() as CryptoInterestAccount
                     navigate(
                         if (hasBalance) {
