@@ -12,7 +12,6 @@ import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetAccountGroupUseCase
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetAssetInterestInfoUseCase
 import piuk.blockchain.android.ui.interest.tbm.domain.usecase.GetInterestDetailUseCase
-import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
 import timber.log.Timber
 
 class InterestDashboardViewModel(

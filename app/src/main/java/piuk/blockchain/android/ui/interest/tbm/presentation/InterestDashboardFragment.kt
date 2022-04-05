@@ -14,59 +14,40 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
-import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardAdapter
-import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardAssetItem
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardLoading
-import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerification
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerificationItem
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     NavigationRouter<InterestDashboardNavigationEvent> {
 
-    val host: InterestDashboardHost by lazy {
-        activity as? InterestDashboardHost
+    val host: piuk.blockchain.android.ui.interest.InterestDashboardFragment.InterestDashboardHost by lazy {
+        activity as? piuk.blockchain.android.ui.interest.InterestDashboardFragment.InterestDashboardHost
             ?: error("Host fragment is not a InterestDashboardFragment.InterestDashboardHost")
     }
 
     private lateinit var composeView: ComposeView
 
-    private var _binding: FragmentInterestDashboardBinding? = null
-    private val binding: FragmentInterestDashboardBinding
-        get() = _binding!!
-
     private val viewModel: InterestDashboardViewModel by viewModel()
-
-    private val listAdapter: InterestDashboardAdapter by lazy {
-        InterestDashboardAdapter(
-            verificationClicked = ::startKyc,
-            itemClicked = ::interestItemClicked
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentInterestDashboardBinding.inflate(inflater, container, false)
-
         return ComposeView(requireContext()).also { composeView = it }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.interestDashboardList.adapter = listAdapter
-
         setupViews()
+
         bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
 
         loadData()
@@ -109,37 +90,17 @@ class InterestDashboardFragment :
                                 }
 
                                 InterestDashboardItem.InterestIdentityVerificationItem -> {
-                                    InterestDashboardVerification(::startKyc)
+                                    InterestDashboardVerificationItem(::startKyc)
                                 }
                             }
                         }
                     )
                 }
             }
-
         }
     }
 
     override fun onStateUpdated(state: InterestDashboardViewState) {
-        with(binding) {
-            interestDashboardProgress.visibleIf { state.isLoading }
-
-            interestDashboardList.visibleIf { state.isLoading.not() && state.isError.not() }
-
-            interestError.setDetails(
-                title = R.string.rewards_error_title,
-                description = R.string.rewards_error_desc,
-                contactSupportEnabled = true
-            ) {
-                //                loadInterestDetails()
-            }
-            interestError.visibleIf { state.isError }
-
-            println("------ data: ${state.data}")
-
-            listAdapter.items = state.data
-            listAdapter.notifyDataSetChanged()
-        }
     }
 
     override fun route(navigationEvent: InterestDashboardNavigationEvent) {

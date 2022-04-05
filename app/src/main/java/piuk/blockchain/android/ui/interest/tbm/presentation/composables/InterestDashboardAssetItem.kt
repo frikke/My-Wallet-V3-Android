@@ -45,6 +45,7 @@ fun InterestDashboardAssetItem(
 
         AssetName(assetInfo)
 
+        // if no details available, don't show the balance and apy views
         if (assetInterestDetail != null) {
             Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
