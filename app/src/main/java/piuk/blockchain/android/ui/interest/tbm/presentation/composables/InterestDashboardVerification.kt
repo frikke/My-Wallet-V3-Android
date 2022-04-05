@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.interest.tbm.presentation
+package piuk.blockchain.android.ui.interest.tbm.presentation.composables
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -9,7 +9,7 @@ import piuk.blockchain.android.ui.customviews.VerifyIdentityBenefitsView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 
 @Composable
-fun InterestDashboardVerificationItem(verificationClicked: () -> Unit) {
+fun InterestDashboardVerification(verificationClicked: () -> Unit) {
     AndroidView(
         factory = { context ->
             VerifyIdentityBenefitsView(context).apply {
@@ -43,6 +43,6 @@ fun InterestDashboardVerificationItem(verificationClicked: () -> Unit) {
 @Preview
 @Composable
 fun PreviewInterestDashboardVerificationItem() {
-    InterestDashboardVerificationItem {}
+    InterestDashboardVerification {}
 }
 

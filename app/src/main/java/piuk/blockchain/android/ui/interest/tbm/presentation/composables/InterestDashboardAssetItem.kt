@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.interest.tbm.presentation
+package piuk.blockchain.android.ui.interest.tbm.presentation.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +35,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestDetail
 
 @Composable
-fun AssetInterestItem(assetInfo: AssetInfo, assetInterestDetail: AssetInterestDetail?, isKycGold: Boolean) {
+fun InterestDashboardAssetItem(assetInfo: AssetInfo, assetInterestDetail: AssetInterestDetail?, isKycGold: Boolean) {
     Column(modifier = Modifier.padding(dimensionResource(R.dimen.standard_margin))) {
 
         AssetName(assetInfo)
@@ -191,7 +191,7 @@ private fun InterestExplainer(explanation: String) {
 @Preview
 @Composable
 private fun PreviewAssetInterestItemError() {
-    AssetInterestItem(
+    InterestDashboardAssetItem(
         CryptoCurrency.BTC,
         null,
         true
@@ -201,7 +201,7 @@ private fun PreviewAssetInterestItemError() {
 @Preview
 @Composable
 private fun PreviewAssetInterestItem() {
-    AssetInterestItem(
+    InterestDashboardAssetItem(
         CryptoCurrency.BTC,
         AssetInterestDetail(
             totalInterest = Money.fromMajor(CryptoCurrency.BTC, 1.toBigDecimal()),

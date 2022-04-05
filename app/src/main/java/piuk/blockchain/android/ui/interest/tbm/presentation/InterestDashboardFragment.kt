@@ -4,21 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.viewextensions.visibleIf
 import info.blockchain.balance.AssetInfo
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -26,6 +21,10 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentInterestDashboardBinding
 import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardAdapter
 import piuk.blockchain.android.ui.interest.tbm.presentation.adapter.InterestDashboardItem
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardAssetItem
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardLoading
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerification
 
 class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), NavigationRouter<NavigationEvent> {
 
@@ -82,15 +81,11 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
 
         when {
             state.value.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressBar()
-                }
+                InterestDashboardLoading()
             }
 
             state.value.isError -> {
+                InterestDashboardError()
             }
 
             state.value.isLoading.not() && state.value.isError.not() -> {
@@ -100,7 +95,7 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
                         itemContent = {
                             when (it) {
                                 is InterestDashboardItem.InterestAssetInfoItem -> {
-                                    AssetInterestItem(
+                                    InterestDashboardAssetItem(
                                         assetInfo = it.assetInterestInfo.assetInfo,
                                         assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
                                         isKycGold = state.value.isKycGold
@@ -108,7 +103,7 @@ class InterestDashboardFragment : MVIFragment<InterestDashboardViewState>(), Nav
                                 }
 
                                 InterestDashboardItem.InterestIdentityVerificationItem -> {
-                                    InterestDashboardVerificationItem {}
+                                    InterestDashboardVerification {}
                                 }
                             }
                         }
