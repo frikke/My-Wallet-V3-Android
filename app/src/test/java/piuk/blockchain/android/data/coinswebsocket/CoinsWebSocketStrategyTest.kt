@@ -305,7 +305,7 @@ class CoinsWebSocketStrategyTest {
             "ionHash\":\"0x3cd2e95358c58af6e9ecd2f0af6739c3db945e2259bf2a4bc91fb5e2f397ad89\",\"blockNumber\":83" +
             "62036,\"tokenHash\":\"0x8e870d67f660d95d5be530380d0ec0bd388289e1\",\"logIndex\":67,\"from\":\"0x4058" +
             "a004dd718babab47e14dd0d744742e5b9903\",\"to\":\"0x4058a004dd718babab47e14dd0d744742e5b9903\",\"val" +
-            "ue\":1210000000000000000,\"decimals\":18,\"timestamp\":0}}"
+            "ue\":1210000000000000000,\"decimals\":18,\"timeStamp\":0}}"
 
     private val btcTransaction = "{\"coin\":\"btc\",\"entity\":\"xpub\",\"transaction\":" +
         "{\"lock_time\":0,\"ver\":1,\"size\":225,\"inputs\":[{\"address\":\"1Cox48WAm4NKTYbSjQ8DEswpaBNCfFwo9x" +
