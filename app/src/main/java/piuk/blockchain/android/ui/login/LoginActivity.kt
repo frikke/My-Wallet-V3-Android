@@ -10,12 +10,15 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,6 +27,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
@@ -54,6 +59,8 @@ class LoginActivity :
         GoogleReCaptchaClient(this, environmentConfig)
     }
 
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
+
     private var state: LoginState? = null
 
     override val toolbarBinding: ToolbarGeneralBinding
@@ -61,10 +68,8 @@ class LoginActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
-            backAction = { onBackPressed() }
-        )
+
+        setupToolbar()
         recaptchaClient.initReCaptcha()
         checkExistingSessionOrDeeplink(intent)
     }
@@ -166,6 +171,26 @@ class LoginActivity :
     }
 
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
+
+    private fun setupToolbar() {
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
+            backAction = { onBackPressed() }
+        )
+
+        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (enabled) {
+                updateToolbarMenuItems(
+                    listOf(
+                        NavigationBarButton.Icon(R.drawable.ic_question) {
+                            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                            showCustomerSupportSheet()
+                        }
+                    )
+                )
+            }
+        }
+    }
 
     override fun process(intent: LoginIntents) = model.process(intent)
 
@@ -358,6 +383,10 @@ class LoginActivity :
             },
             onError = { showSnackbar(SnackbarType.Error, R.string.common_error) }
         )
+    }
+
+    private fun showCustomerSupportSheet() {
+        showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     private val emailRegex = Regex(

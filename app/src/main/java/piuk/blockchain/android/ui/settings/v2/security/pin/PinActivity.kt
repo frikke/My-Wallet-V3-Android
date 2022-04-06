@@ -30,8 +30,10 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -50,6 +52,8 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityPinBinding
 import piuk.blockchain.android.ui.auth.BiometricsEnrollmentBottomSheet
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.home.MobileNoticeDialogFragment
 import piuk.blockchain.android.ui.launcher.loader.LoaderActivity
@@ -81,6 +85,8 @@ class PinActivity :
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
+
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -126,6 +132,12 @@ class PinActivity :
             root.setOnClickListener {
                 this@PinActivity.showKeyboard()
             }
+            customerSupport.setOnClickListener {
+                analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                showCustomerSupportSheet()
+            }
+            customerSupportSheetFF.enabled.onErrorReturn { false }
+                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
         }
     }
 
@@ -1015,6 +1027,10 @@ class PinActivity :
     private fun hideBiometricsUi() {
         binding.keyboard.requestFocus()
         binding.fingerprintLogo.gone()
+    }
+
+    private fun showCustomerSupportSheet() {
+        showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     companion object {

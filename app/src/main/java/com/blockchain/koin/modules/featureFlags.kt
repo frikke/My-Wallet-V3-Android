@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.embraceFeatureFlag
@@ -156,6 +157,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_embrace",
                 "Embrace.io"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(customerSupportSheetFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_customer_support_sheet",
+                "Customer Support Sheet"
             )
         )
     }.bind(FeatureFlag::class)

@@ -33,6 +33,7 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
@@ -103,7 +104,8 @@ object KoinStarter {
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
                     deeplinkModule,
-                    loggingModule
+                    loggingModule,
+                    customerSupportModule
                 )
             )
         }

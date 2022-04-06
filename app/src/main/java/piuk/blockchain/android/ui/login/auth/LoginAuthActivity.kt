@@ -14,13 +14,16 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -28,6 +31,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginAuthBinding
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.login.LoginAnalytics
@@ -62,6 +67,8 @@ class LoginAuthActivity :
 
     private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatus by inject()
+
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private lateinit var currentState: LoginAuthState
 
@@ -99,10 +106,7 @@ class LoginAuthActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        updateToolbar(
-            toolbarTitle = getString(R.string.login_title),
-            backAction = { clearKeyboardAndFinish() }
-        )
+        setupToolbar()
         initControls()
     }
 
@@ -157,7 +161,7 @@ class LoginAuthActivity :
                 }
             })
             forgotPasswordButton.setOnClickListener {
-                launchPasswordRecoveryFlow()
+                showCustomerSupportSheet()
             }
 
             continueButton.setOnClickListener {
@@ -192,6 +196,26 @@ class LoginAuthActivity :
     }
 
     override fun initBinding(): ActivityLoginAuthBinding = ActivityLoginAuthBinding.inflate(layoutInflater)
+
+    private fun setupToolbar() {
+        updateToolbar(
+            toolbarTitle = getString(R.string.login_title),
+            backAction = { clearKeyboardAndFinish() }
+        )
+
+        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (enabled) {
+                updateToolbarMenuItems(
+                    listOf(
+                        NavigationBarButton.Icon(R.drawable.ic_question) {
+                            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                            showCustomerSupportSheet()
+                        }
+                    )
+                )
+            }
+        }
+    }
 
     override fun render(newState: LoginAuthState) {
         renderAuthStatus(newState)
@@ -411,7 +435,7 @@ class LoginAuthActivity :
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.second_password_hint)
                     forgotSecondPasswordButton.visible()
-                    forgotSecondPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
+                    forgotSecondPasswordButton.setOnClickListener { showCustomerSupportSheet() }
                     setup2FANotice(
                         textId = R.string.second_password_notice,
                         annotationForLink = SECOND_PASSWORD_LINK_ANNOTATION,
@@ -466,6 +490,10 @@ class LoginAuthActivity :
             putExtra(RECOVERY_TOKEN, recoveryToken)
         }
         startActivity(intent)
+    }
+
+    private fun showCustomerSupportSheet() {
+        showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     companion object {

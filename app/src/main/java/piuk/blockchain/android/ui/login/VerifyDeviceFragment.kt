@@ -8,17 +8,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.SnackbarType
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.koin.customerSupportSheetFeatureFlag
+import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.remoteconfig.FeatureFlag
 import java.util.concurrent.atomic.AtomicBoolean
+import org.koin.android.ext.android.inject
+import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
+import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
-class VerifyDeviceFragment : Fragment() {
+class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java) {
 
     private var _binding: FragmentVerifyDeviceBinding? = null
 
     val binding get() = _binding!!
+
+    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private val isTimerRunning = AtomicBoolean(false)
     private val timer = object : CountDownTimer(RESEND_TIMEOUT, TIMER_STEP) {
@@ -58,6 +69,12 @@ class VerifyDeviceFragment : Fragment() {
                 (requireActivity() as LoginIntentCoordinator).process(LoginIntents.RevertToEmailInput)
                 requireActivity().supportFragmentManager.popBackStack()
             }
+            customerSupport.setOnClickListener {
+                logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                showCustomerSupportSheet()
+            }
+            customerSupportSheetFF.enabled.onErrorReturn { false }
+                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
             verifyDeviceDescription.text = getString(R.string.verify_device_desc)
             openEmailButton.setOnClickListener {
                 Intent(Intent.ACTION_MAIN).apply {
@@ -103,6 +120,10 @@ class VerifyDeviceFragment : Fragment() {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    private fun showCustomerSupportSheet() {
+        (requireActivity() as BlockchainActivity).showBottomSheet(CustomerSupportSheet.newInstance())
     }
 
     companion object {
