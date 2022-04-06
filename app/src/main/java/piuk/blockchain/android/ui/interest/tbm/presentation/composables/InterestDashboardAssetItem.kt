@@ -36,12 +36,13 @@ import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestDetail
 
 @Composable
 fun InterestDashboardAssetItem(
+    modifier: Modifier = Modifier,
     assetInfo: AssetInfo,
     assetInterestDetail: AssetInterestDetail?,
     isKycGold: Boolean,
     interestItemClicked: (AssetInfo, Boolean) -> Unit
 ) {
-    Column(modifier = Modifier.padding(dimensionResource(R.dimen.standard_margin))) {
+    Column(modifier = modifier.padding(dimensionResource(R.dimen.standard_margin))) {
 
         AssetName(assetInfo)
 
@@ -202,9 +203,9 @@ private fun InterestExplainer(explanation: String) {
 @Composable
 private fun PreviewAssetInterestItemError() {
     InterestDashboardAssetItem(
-        CryptoCurrency.BTC,
-        null,
-        true
+        assetInfo = CryptoCurrency.BTC,
+        assetInterestDetail = null,
+        isKycGold = true
     ) { _, _ -> }
 }
 
@@ -212,8 +213,8 @@ private fun PreviewAssetInterestItemError() {
 @Composable
 private fun PreviewAssetInterestItem() {
     InterestDashboardAssetItem(
-        CryptoCurrency.BTC,
-        AssetInterestDetail(
+        assetInfo = CryptoCurrency.BTC,
+        assetInterestDetail = AssetInterestDetail(
             totalInterest = Money.fromMajor(CryptoCurrency.BTC, 1.toBigDecimal()),
             totalBalance = Money.fromMajor(CryptoCurrency.BTC, 123.toBigDecimal()),
             rate = 12.34,
@@ -221,6 +222,6 @@ private fun PreviewAssetInterestItem() {
             ineligibilityReason = IneligibilityReason.KYC_TIER,
             totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 3.toBigDecimal())
         ),
-        true
+        isKycGold = true
     ) { _, _ -> }
 }

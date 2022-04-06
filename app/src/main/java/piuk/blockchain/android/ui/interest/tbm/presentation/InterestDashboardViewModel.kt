@@ -53,8 +53,7 @@ class InterestDashboardViewModel(
             data = state.data.run {
                 if (state.filter.isEmpty().not()) {
                     filter {
-                        it !is InterestDashboardItem.InterestAssetInfoItem ||
-                            it.assetInterestInfo.assetInfo.displayTicker.startsWith(state.filter, ignoreCase = true)
+                        it.assetInfo.displayTicker.startsWith(state.filter, ignoreCase = true)
                     }
                 } else this
             }
@@ -79,20 +78,14 @@ class InterestDashboardViewModel(
     private fun loadAssets(interestDetail: InterestDetail) {
         viewModelScope.launch {
 
-            val isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD)
-
-            val initialData = mutableListOf<InterestDashboardItem>()
-            if (isKycGold.not()) initialData.add(InterestDashboardItem.InterestIdentityVerificationItem)
-
             getAssetInterestInfoUseCase(interestDetail.enabledAssets).let { result ->
                 result.doOnSuccess { assetInterestInfoList ->
                     updateState {
                         it.copy(
                             isLoadingData = false,
                             isError = false,
-                            isKycGold = isKycGold,
-                            data = initialData +
-                                assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) },
+                            isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD),
+                            data = assetInterestInfoList,
                         )
                     }
                 }.doOnFailure { error ->

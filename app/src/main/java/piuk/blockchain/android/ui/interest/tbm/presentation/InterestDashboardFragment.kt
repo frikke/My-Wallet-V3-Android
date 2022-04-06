@@ -29,8 +29,8 @@ class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     NavigationRouter<InterestDashboardNavigationEvent> {
 
-    val host: piuk.blockchain.android.ui.interest.InterestDashboardFragment.InterestDashboardHost by lazy {
-        activity as? piuk.blockchain.android.ui.interest.InterestDashboardFragment.InterestDashboardHost
+    val host: InterestDashboardHost by lazy {
+        activity as? InterestDashboardHost
             ?: error("Host fragment is not a InterestDashboardFragment.InterestDashboardHost")
     }
 
@@ -78,7 +78,6 @@ class InterestDashboardFragment :
             }
 
             state.value.isLoading.not() && state.value.isError.not() -> {
-
                 Column {
                     Box {
                         SearchField {
@@ -87,25 +86,22 @@ class InterestDashboardFragment :
                     }
 
                     LazyColumn {
+                        if (state.value.isKycGold.not()) {
+                            item {
+                                InterestDashboardVerificationItem(::startKyc)
+                            }
+                        }
+
                         items(
                             items = state.value.data,
-                            itemContent = {
-                                when (it) {
-                                    is InterestDashboardItem.InterestAssetInfoItem -> {
-                                        InterestDashboardAssetItem(
-                                            assetInfo = it.assetInterestInfo.assetInfo,
-                                            assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
-                                            isKycGold = state.value.isKycGold,
-                                            interestItemClicked = ::interestItemClicked
-                                        )
-                                    }
-
-                                    InterestDashboardItem.InterestIdentityVerificationItem -> {
-                                        InterestDashboardVerificationItem(::startKyc)
-                                    }
-                                }
-                            }
-                        )
+                        ) {
+                            InterestDashboardAssetItem(
+                                assetInfo = it.assetInfo,
+                                assetInterestDetail = it.assetInterestDetail,
+                                isKycGold = state.value.isKycGold,
+                                interestItemClicked = ::interestItemClicked
+                            )
+                        }
                     }
                 }
             }
