@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
-import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -37,10 +36,7 @@ abstract class MviActivity<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
                     render(it)
                 },
                 onError = {
-                    if (BuildConfig.DEBUG) {
-                        throw it
-                    }
-                    Timber.e(it)
+                    throw it
                 },
                 onComplete = { Timber.d("***> State on complete!!") }
             )

@@ -93,6 +93,7 @@ class DashboardActionAdapter(
                 },
                 onError = {
                     Timber.e("Error fetching active assets - $it")
+                    throw it
                 }
             )
 
@@ -112,6 +113,7 @@ class DashboardActionAdapter(
             },
             onError = {
                 Timber.e("Error fetching available assets - $it")
+                throw it
             }
         )
 

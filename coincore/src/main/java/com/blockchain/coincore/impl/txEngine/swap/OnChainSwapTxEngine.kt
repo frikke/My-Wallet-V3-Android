@@ -24,7 +24,7 @@ class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    private val limitsDataManager: LimitsDataManager,
+    limitsDataManager: LimitsDataManager,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

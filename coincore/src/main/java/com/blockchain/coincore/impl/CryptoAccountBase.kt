@@ -81,7 +81,7 @@ abstract class CryptoAccountBase : CryptoAccount {
             }
         }.map { custodialItemsActivity ->
             reconcileSwaps(custodialItemsActivity, activityList)
-        }
+        }.onErrorReturn { activityList }
 
     private fun custodialItemToSummary(item: TradeTransactionItem): TradeActivitySummaryItem {
         val sendingAccount = this

@@ -11,6 +11,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.bitcoin
@@ -33,7 +34,9 @@ import info.blockchain.wallet.payment.OutputType
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import java.math.BigInteger
 import kotlin.test.assertEquals
+import org.bitcoinj.core.Coin
 import org.bitcoinj.core.NetworkParameters
 import org.junit.Before
 import org.junit.Test
@@ -174,7 +177,16 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
                     it.feeAmount == CryptoValue.zero(ASSET) &&
                     it.selectedFiat == TEST_USER_FIAT &&
                     it.confirmations.isEmpty() &&
-                    it.limits == null &&
+                    it.limits == TxLimits.fromAmounts(
+                    Money.fromMinor(
+                        ASSET,
+                        BigInteger.valueOf(Coin.parseCoin("0.000005460").longValue())
+                    ),
+                    Money.fromMinor(
+                        ASSET,
+                        2_100_000_000_000_000L.toBigInteger()
+                    )
+                ) &&
                     it.validationState == ValidationState.UNINITIALISED &&
                     it.engineState.isEmpty()
             }

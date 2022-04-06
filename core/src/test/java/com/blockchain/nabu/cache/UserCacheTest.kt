@@ -18,7 +18,15 @@ class UserCacheTest {
     private val testScheduler = TestScheduler()
 
     private val nabuService: NabuService = mock()
-    private val token: NabuSessionTokenResponse = mock()
+    private val token: NabuSessionTokenResponse = NabuSessionTokenResponse(
+        id = "444",
+        userId = "34231423",
+        token = "123",
+        isActive = false,
+        expiresAt = "123",
+        insertedAt = "2312123",
+        updatedAt = "12231221233",
+    )
     private val user: NabuUser = mock()
 
     private lateinit var subject: UserCache
