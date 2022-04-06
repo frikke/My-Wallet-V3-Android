@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
@@ -8,15 +9,17 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import retrofit2.HttpException
 
 data class RecurringBuyModelState(
     val recurringBuy: RecurringBuy? = null,
-    val error: RecurringBuyError = RecurringBuyError.None
+    val error: RecurringBuyError = RecurringBuyError.None,
 ) : MviState
 
-enum class RecurringBuyError {
-    None,
-    RecurringBuyDelete
+sealed class RecurringBuyError {
+    object None : RecurringBuyError()
+    object RecurringBuyDelete : RecurringBuyError()
+    data class HttpError(val errorMessage: String) : RecurringBuyError()
 }
 
 class RecurringBuyModel(
@@ -41,7 +44,9 @@ class RecurringBuyModel(
                                 process(RecurringBuyIntent.UpdateRecurringBuyState)
                             },
                             onError = {
-                                process(RecurringBuyIntent.UpdateRecurringBuyError)
+                                process(
+                                    RecurringBuyIntent.UpdateRecurringBuyError(RecurringBuyError.RecurringBuyDelete)
+                                )
                             }
                         )
                 }
@@ -54,13 +59,26 @@ class RecurringBuyModel(
                         .subscribeBy(
                             onSuccess = { details ->
                                 process(RecurringBuyIntent.UpdatePaymentDetails(details))
+                            },
+                            onError = {
+                                if (it is HttpException) {
+                                    val errorMessage =
+                                        NabuApiExceptionFactory.fromResponseBody(it).getErrorDescription()
+                                    process(
+                                        RecurringBuyIntent.UpdateRecurringBuyError(
+                                            RecurringBuyError.HttpError(errorMessage)
+                                        )
+                                    )
+                                } else {
+                                    throw it
+                                }
                             }
                         )
                 }
             }
             is RecurringBuyIntent.UpdatePaymentDetails,
             RecurringBuyIntent.UpdateRecurringBuyState,
-            RecurringBuyIntent.UpdateRecurringBuyError,
+            is RecurringBuyIntent.UpdateRecurringBuyError,
             is RecurringBuyIntent.UpdateRecurringBuy -> null
         }
     }

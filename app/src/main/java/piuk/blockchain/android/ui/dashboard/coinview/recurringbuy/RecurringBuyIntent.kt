@@ -31,10 +31,10 @@ sealed class RecurringBuyIntent : MviIntent<RecurringBuyModelState> {
             )
     }
 
-    object UpdateRecurringBuyError : RecurringBuyIntent() {
+    class UpdateRecurringBuyError(val recurringBuyError: RecurringBuyError) : RecurringBuyIntent() {
         override fun reduce(oldState: RecurringBuyModelState): RecurringBuyModelState =
             oldState.copy(
-                error = RecurringBuyError.RecurringBuyDelete
+                error = recurringBuyError
             )
     }
 

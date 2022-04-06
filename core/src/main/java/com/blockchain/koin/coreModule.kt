@@ -372,7 +372,7 @@ val coreModule = module {
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 googlePayManager = get(),
                 assetCatalogue = get(),
-                cardsCache = get()
+                cardsCache = get(),
             )
         }.bind(PaymentsDataManager::class)
 

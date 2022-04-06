@@ -151,7 +151,7 @@ class PaymentsDataManagerImpl(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
-    private val googlePayFeatureFlag: FeatureFlag
+    private val googlePayFeatureFlag: FeatureFlag,
 ) : PaymentsDataManager {
 
     private val googlePayEnabled: Single<Boolean> by lazy {
@@ -307,9 +307,9 @@ class PaymentsDataManagerImpl(
             paymentMethodsService.getLinkedBank(
                 authorization = authToken,
                 id = id
-            )
-        }.map {
-            it.toLinkedBank()
+            ).map {
+                it.toLinkedBank()
+            }
         }
 
     override fun addNewCard(
@@ -399,9 +399,10 @@ class PaymentsDataManagerImpl(
         return authenticator.getAuthHeader().flatMap { authToken ->
             paymentMethodsService.linkBank(authToken, currency.networkTicker)
         }.flatMap { response ->
-            val partner = response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
-                IllegalStateException("Partner not Supported")
-            )
+            val partner =
+                response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
+                    IllegalStateException("Partner not Supported")
+                )
             val attributes =
                 response.attributes ?: return@flatMap Single.error<LinkBankTransfer>(
                     IllegalStateException("Missing attributes")

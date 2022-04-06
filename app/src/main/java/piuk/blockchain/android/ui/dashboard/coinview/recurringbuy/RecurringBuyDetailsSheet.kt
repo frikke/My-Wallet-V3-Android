@@ -131,6 +131,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                         type = SnackbarType.Error
                     ).show()
                 }
+                newState.error is RecurringBuyError.HttpError -> {
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        newState.error.errorMessage,
+                        type = SnackbarType.Error
+                    ).show()
+                }
                 else ->
                     with(binding) {
                         rbSheetTitle.text = getString(R.string.recurring_buy_sheet_title_1)
