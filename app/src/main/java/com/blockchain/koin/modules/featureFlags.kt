@@ -11,6 +11,7 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
@@ -169,6 +170,16 @@ val featureFlagsModule = module {
             )
         )
     }.bind(FeatureFlag::class)
+
+    single(orderRewardsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_order_rewards",
+                "Order Rewards Screen By Balance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
 }
 
 fun getFeatureFlags(): List<FeatureFlag> {

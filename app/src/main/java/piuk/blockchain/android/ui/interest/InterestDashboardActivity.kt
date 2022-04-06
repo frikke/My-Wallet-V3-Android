@@ -10,14 +10,19 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardHost
+import piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -27,20 +32,24 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class InterestDashboardActivity :
     BlockchainActivity(),
     InterestSummarySheet.Host,
-    InterestDashboardFragment.InterestDashboardHost ,
+    InterestDashboardFragment.InterestDashboardHost,
     InterestDashboardHost {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
     }
 
+    private val sharedViewModel: InterestDashboardSharedViewModel by viewModel()
+
     private val compositeDisposable = CompositeDisposable()
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
-//    private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
-    private val fragment: piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment.newInstance() }
+    private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
+    private val fragmentOrdered: piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment.newInstance() }
+
+    private val orderRewardsFF: FeatureFlag by inject(orderRewardsFeatureFlag)
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -54,9 +63,15 @@ class InterestDashboardActivity :
         )
         analytics.logEvent(InterestAnalytics.InterestViewed)
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.content_frame, fragment, InterestDashboardFragment::class.simpleName)
-            .commitAllowingStateLoss()
+        orderRewardsFF.enabled.subscribe { enabled ->
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.content_frame,
+                    if (enabled) fragmentOrdered else fragment,
+                    InterestDashboardFragment::class.simpleName
+                )
+                .commitAllowingStateLoss()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
@@ -160,7 +175,13 @@ class InterestDashboardActivity :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == TX_FLOW_REQUEST) {
-//            fragment.refreshBalances()
+            orderRewardsFF.enabled.subscribe { enabled ->
+                if (enabled) {
+                    sharedViewModel.requestBalanceRefresh()
+                } else {
+                    fragment.refreshBalances()
+                }
+            }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

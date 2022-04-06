@@ -11,12 +11,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import info.blockchain.balance.AssetInfo
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardAssetItem
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
@@ -37,6 +41,7 @@ class InterestDashboardFragment :
     private lateinit var composeView: ComposeView
 
     private val viewModel: InterestDashboardViewModel by viewModel()
+    private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,9 +55,7 @@ class InterestDashboardFragment :
         super.onViewCreated(view, savedInstanceState)
 
         setupViews()
-
-        bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
-
+        setupViewModel()
         loadData()
     }
 
@@ -60,6 +63,16 @@ class InterestDashboardFragment :
         composeView.apply {
             setContent {
                 ScreenContent()
+            }
+        }
+    }
+
+    private fun setupViewModel() {
+        bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
+
+        lifecycleScope.launch {
+            sharedViewModel.refreshBalancesFlow.collect {
+                loadData()
             }
         }
     }
