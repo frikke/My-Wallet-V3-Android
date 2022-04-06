@@ -9,6 +9,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
+import java.io.Serializable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
@@ -20,7 +21,6 @@ import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.Serializable
 
 class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymentMethodChooserBinding>() {
 

@@ -38,6 +38,8 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
+import java.math.BigDecimal
+import java.time.ZonedDateTime
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -74,8 +76,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.Transactio
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
-import java.math.BigDecimal
-import java.time.ZonedDateTime
 
 class SimpleBuyCryptoFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyBuyCryptoBinding>(),
