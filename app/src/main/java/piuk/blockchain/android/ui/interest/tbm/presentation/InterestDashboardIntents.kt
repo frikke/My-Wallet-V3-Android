@@ -6,6 +6,8 @@ import info.blockchain.balance.AssetInfo
 sealed interface InterestDashboardIntents : Intent<InterestDashboardModelState> {
     object LoadData : InterestDashboardIntents
 
+    data class FilterData(val filter: String) : InterestDashboardIntents
+
     data class InterestItemClicked(
         val cryptoCurrency: AssetInfo,
         val hasBalance: Boolean

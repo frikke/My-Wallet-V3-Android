@@ -100,7 +100,7 @@ private fun AssetName(assetInfo: AssetInfo) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Image(
             modifier = Modifier
-                .size(dimensionResource(R.dimen.standard_margin))
+                .size(dimensionResource(R.dimen.large_margin))
                 .clip(CircleShape),
             imageResource = ImageResource.Remote(assetInfo.logo)
         )

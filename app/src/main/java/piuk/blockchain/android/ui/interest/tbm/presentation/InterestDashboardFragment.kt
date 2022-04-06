@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -20,6 +22,7 @@ import piuk.blockchain.android.ui.interest.tbm.presentation.composables.Interest
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardLoading
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerificationItem
+import piuk.blockchain.android.ui.interest.tbm.presentation.composables.SearchField
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class InterestDashboardFragment :
@@ -75,26 +78,35 @@ class InterestDashboardFragment :
             }
 
             state.value.isLoading.not() && state.value.isError.not() -> {
-                LazyColumn {
-                    items(
-                        items = state.value.data,
-                        itemContent = {
-                            when (it) {
-                                is InterestDashboardItem.InterestAssetInfoItem -> {
-                                    InterestDashboardAssetItem(
-                                        assetInfo = it.assetInterestInfo.assetInfo,
-                                        assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
-                                        isKycGold = state.value.isKycGold,
-                                        interestItemClicked = ::interestItemClicked
-                                    )
-                                }
 
-                                InterestDashboardItem.InterestIdentityVerificationItem -> {
-                                    InterestDashboardVerificationItem(::startKyc)
+                Column {
+                    Box {
+                        SearchField {
+                            viewModel.onIntent(InterestDashboardIntents.FilterData(it))
+                        }
+                    }
+
+                    LazyColumn {
+                        items(
+                            items = state.value.data,
+                            itemContent = {
+                                when (it) {
+                                    is InterestDashboardItem.InterestAssetInfoItem -> {
+                                        InterestDashboardAssetItem(
+                                            assetInfo = it.assetInterestInfo.assetInfo,
+                                            assetInterestDetail = it.assetInterestInfo.assetInterestDetail,
+                                            isKycGold = state.value.isKycGold,
+                                            interestItemClicked = ::interestItemClicked
+                                        )
+                                    }
+
+                                    InterestDashboardItem.InterestIdentityVerificationItem -> {
+                                        InterestDashboardVerificationItem(::startKyc)
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

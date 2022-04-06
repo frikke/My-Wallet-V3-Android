@@ -35,6 +35,10 @@ class InterestDashboardViewModel(
                 loadInterestDetail()
             }
 
+            is InterestDashboardIntents.FilterData -> {
+                filterData(intent.filter)
+            }
+
             is InterestDashboardIntents.InterestItemClicked -> {
                 handleInterestItemClicked(cryptoCurrency = intent.cryptoCurrency, hasBalance = intent.hasBalance)
             }
@@ -46,7 +50,14 @@ class InterestDashboardViewModel(
             isLoading = state.isLoadingData,
             isError = state.isError,
             isKycGold = state.isKycGold,
-            data = state.data
+            data = state.data.run {
+                if (state.filter.isEmpty().not()) {
+                    filter {
+                        it !is InterestDashboardItem.InterestAssetInfoItem ||
+                            it.assetInterestInfo.assetInfo.displayTicker.startsWith(state.filter, ignoreCase = true)
+                    }
+                } else this
+            }
         )
     }
 
@@ -81,7 +92,7 @@ class InterestDashboardViewModel(
                             isError = false,
                             isKycGold = isKycGold,
                             data = initialData +
-                                assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) }
+                                assetInterestInfoList.map { InterestDashboardItem.InterestAssetInfoItem(it) },
                         )
                     }
                 }.doOnFailure { error ->
@@ -90,6 +101,10 @@ class InterestDashboardViewModel(
                 }
             }
         }
+    }
+
+    private fun filterData(filter: String) {
+        updateState { it.copy(filter = filter) }
     }
 
     private fun handleInterestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
