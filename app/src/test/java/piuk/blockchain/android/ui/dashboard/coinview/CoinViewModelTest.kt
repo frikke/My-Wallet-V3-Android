@@ -280,7 +280,7 @@ class CoinViewModelTest {
             isAddedToWatchlist = true
         )
 
-        val priceList: HistoricalRateList = emptyList()
+        val priceList: HistoricalRateList = listOf(mock(), mock())
         whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
         whenever(interactor.loadQuickActions(any(), any(), eq(asset))).thenReturn(Single.error(Exception()))
         val test = localSubject.state.test()
@@ -337,7 +337,31 @@ class CoinViewModelTest {
     }
 
     @Test
-    fun `load asset chart succeeds`() {
+    fun `load asset chart succeeds when list is populated should send UI event`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+        val prices: Prices24HrWithDelta = mock()
+        val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
+        whenever(interactor.loadHistoricPrices(eq(asset), any())).thenReturn(Single.just(priceList))
+
+        val test = subject.state.test()
+
+        subject.process(
+            CoinViewIntent.LoadAssetChart(asset, prices, FiatCurrency.Dollars)
+        )
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.viewState is CoinViewViewState.LoadingChart
+        }.assertValueAt(2) {
+            it.viewState is CoinViewViewState.ShowAssetInfo
+        }
+    }
+
+    @Test
+    fun `load asset chart succeeds when list is not populated should send error event`() {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
@@ -356,7 +380,7 @@ class CoinViewModelTest {
         }.assertValueAt(1) {
             it.viewState is CoinViewViewState.LoadingChart
         }.assertValueAt(2) {
-            it.viewState is CoinViewViewState.ShowAssetInfo
+            it.error == CoinViewError.ChartLoadError
         }
     }
 
@@ -404,7 +428,7 @@ class CoinViewModelTest {
             remoteLogger = mock()
         )
 
-        val priceList: HistoricalRateList = emptyList()
+        val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
         whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
             Single.just(priceList)
         )
@@ -421,6 +445,47 @@ class CoinViewModelTest {
             it.viewState is CoinViewViewState.LoadingChart
         }.assertValueAt(2) {
             it.viewState is CoinViewViewState.ShowAssetInfo
+        }
+    }
+
+    @Test
+    fun `load new chart period with asset succeeds but returns empty list`() {
+        val asset: CryptoAsset = mock {
+            on { assetInfo }.thenReturn(mock())
+        }
+        val prices: Prices24HrWithDelta = mock()
+
+        val state = CoinViewState(
+            asset = asset,
+            selectedFiat = FiatCurrency.Dollars,
+            assetPrices = prices
+        )
+
+        val localSubject = CoinViewModel(
+            initialState = state,
+            mainScheduler = Schedulers.io(),
+            interactor = interactor,
+            environmentConfig = environmentConfig,
+            remoteLogger = mock()
+        )
+
+        val priceList: HistoricalRateList = emptyList()
+        whenever(interactor.loadHistoricPrices(eq(asset), eq(HistoricalTimeSpan.YEAR))).thenReturn(
+            Single.just(priceList)
+        )
+
+        val test = localSubject.state.test()
+
+        localSubject.process(
+            CoinViewIntent.LoadNewChartPeriod(HistoricalTimeSpan.YEAR)
+        )
+
+        test.assertValueAt(0) {
+            it == state
+        }.assertValueAt(1) {
+            it.viewState is CoinViewViewState.LoadingChart
+        }.assertValueAt(2) {
+            it.error == CoinViewError.ChartLoadError
         }
     }
 

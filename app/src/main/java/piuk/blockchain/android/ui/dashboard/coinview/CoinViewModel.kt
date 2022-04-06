@@ -177,22 +177,27 @@ class CoinViewModel(
                     previousState.selectedFiat == null -> process(
                         CoinViewIntent.UpdateErrorState(CoinViewError.MissingSelectedFiat)
                     )
-                    else ->
-                        process(
-                            CoinViewIntent.UpdateViewState(
-                                CoinViewViewState.ShowAssetInfo(
-                                    entries = historicalRates.map { point ->
-                                        ChartEntry(
-                                            point.timestamp.toFloat(),
-                                            point.rate.toFloat()
-                                        )
-                                    },
-                                    prices = previousState.assetPrices,
-                                    historicalRateList = historicalRates,
-                                    selectedFiat = previousState.selectedFiat
+                    else -> {
+                        if (historicalRates.isEmpty()) {
+                            process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                        } else {
+                            process(
+                                CoinViewIntent.UpdateViewState(
+                                    CoinViewViewState.ShowAssetInfo(
+                                        entries = historicalRates.map { point ->
+                                            ChartEntry(
+                                                point.timestamp.toFloat(),
+                                                point.rate.toFloat()
+                                            )
+                                        },
+                                        prices = previousState.assetPrices,
+                                        historicalRateList = historicalRates,
+                                        selectedFiat = previousState.selectedFiat
+                                    )
                                 )
                             )
-                        )
+                        }
+                    }
                 }
             },
             onError = {
@@ -204,21 +209,25 @@ class CoinViewModel(
         interactor.loadHistoricPrices(intent.asset, HistoricalTimeSpan.DAY)
             .subscribeBy(
                 onSuccess = { list ->
-                    process(
-                        CoinViewIntent.UpdateViewState(
-                            CoinViewViewState.ShowAssetInfo(
-                                entries = list.map { point ->
-                                    ChartEntry(
-                                        point.timestamp.toFloat(),
-                                        point.rate.toFloat()
-                                    )
-                                },
-                                prices = intent.assetPrice,
-                                historicalRateList = list,
-                                selectedFiat = intent.selectedFiat
+                    if (list.isEmpty()) {
+                        process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
+                    } else {
+                        process(
+                            CoinViewIntent.UpdateViewState(
+                                CoinViewViewState.ShowAssetInfo(
+                                    entries = list.map { point ->
+                                        ChartEntry(
+                                            point.timestamp.toFloat(),
+                                            point.rate.toFloat()
+                                        )
+                                    },
+                                    prices = intent.assetPrice,
+                                    historicalRateList = list,
+                                    selectedFiat = intent.selectedFiat
+                                )
                             )
                         )
-                    )
+                    }
                 },
                 onError = {
                     process(CoinViewIntent.UpdateErrorState(CoinViewError.ChartLoadError))
