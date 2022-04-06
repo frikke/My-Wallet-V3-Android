@@ -34,6 +34,7 @@ dependencies {
     implementation project(':common:network')
     implementation project(':common:interface')
     implementation project(':common-mp:utils')
+    implementation project(':logging:domain')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')
@@ -80,6 +81,8 @@ dependencies {
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.mockk
     testImplementation project(':testutils')
     testImplementation project(':testutils-android')
 }

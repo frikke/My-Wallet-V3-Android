@@ -2,7 +2,7 @@ package com.blockchain.core.chains.bitcoincash
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
@@ -38,7 +38,7 @@ class BchDataManager(
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
     private val metadataManager: MetadataManager,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
 ) {
 
@@ -502,10 +502,10 @@ class BchDataManager(
     private fun checkXpubAndLog(xpub: String?, callSite: String, accountIndex: Int) {
         if (xpub == null) {
             // We should not have a null xpub. Something is very wrong; let's write some
-            // info to the crash logger and see if that gives a clue
-            crashLogger.logState("xpub_$callSite", "hit")
-            crashLogger.logState("nBtc", payloadDataManager.accountCount.toString())
-            crashLogger.logState("null xpub idx==$accountIndex", "hit")
+            // info to the remote logger and see if that gives a clue
+            remoteLogger.logState("xpub_$callSite", "hit")
+            remoteLogger.logState("nBtc", payloadDataManager.accountCount.toString())
+            remoteLogger.logState("null xpub idx==$accountIndex", "hit")
         }
     }
 }

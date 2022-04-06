@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
@@ -20,14 +20,14 @@ class LoaderModel(
     initialState: LoaderState,
     environmentConfig: EnvironmentConfig,
     mainScheduler: Scheduler,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor
-) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
             is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
@@ -121,7 +121,7 @@ class LoaderModel(
     }
 
     private fun logException(throwable: Throwable) {
-        crashLogger.logEvent("Startup exception: ${throwable.message}")
-        crashLogger.logException(throwable)
+        remoteLogger.logEvent("Startup exception: ${throwable.message}")
+        remoteLogger.logException(throwable)
     }
 }

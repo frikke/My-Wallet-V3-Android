@@ -534,11 +534,9 @@ private fun TransactionErrorState.isAmountRelated(): Boolean =
         TransactionErrorState.INVALID_DOMAIN,
         TransactionErrorState.ADDRESS_IS_CONTRACT,
         TransactionErrorState.PENDING_ORDERS_LIMIT_REACHED,
-        TransactionErrorState.UNEXPECTED_ERROR,
         TransactionErrorState.TRANSACTION_IN_FLIGHT,
         TransactionErrorState.INVALID_PASSWORD,
-        TransactionErrorState.TX_OPTION_INVALID,
-        TransactionErrorState.UNKNOWN_ERROR -> false
+        TransactionErrorState.TX_OPTION_INVALID -> false
 
         TransactionErrorState.INSUFFICIENT_FUNDS,
         TransactionErrorState.INVALID_AMOUNT,

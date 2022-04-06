@@ -8,10 +8,11 @@ import com.blockchain.core.payments.model.LinkedBankErrorState
 import com.blockchain.core.payments.model.LinkedBankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.simplebuy.ErrorState
@@ -22,12 +23,12 @@ class BankAuthModel(
     initialState: BankAuthState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<BankAuthState, BankAuthIntent>(
     initialState,
     uiScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
     override fun performAction(previousState: BankAuthState, intent: BankAuthIntent): Disposable? =
         when (intent) {
@@ -97,27 +98,30 @@ class BankAuthModel(
     private fun processLinkStatusPolling(
         intent: BankAuthIntent.StartPollingForLinkStatus,
         partner: BankPartner?
-    ) = interactor.pollForLinkedBankState(
-        intent.bankId,
-        partner
-    ).subscribeBy(
-        onSuccess = {
-            when (it) {
-                is PollResult.FinalResult -> {
-                    interactor.updateOneTimeTokenPath(it.value.callbackPath)
-                    updateIntentForLinkedBankState(it, partner)
+    ) = Single.defer {
+        interactor.pollForLinkedBankState(
+            intent.bankId,
+            partner
+        )
+    }
+        .subscribeBy(
+            onSuccess = {
+                when (it) {
+                    is PollResult.FinalResult -> {
+                        interactor.updateOneTimeTokenPath(it.value.callbackPath)
+                        updateIntentForLinkedBankState(it, partner)
+                    }
+                    is PollResult.Cancel -> {
+                    }
+                    is PollResult.TimeOut -> process(
+                        BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                    )
                 }
-                is PollResult.Cancel -> {
-                }
-                is PollResult.TimeOut -> process(
-                    BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
-                )
+            },
+            onError = {
+                process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
             }
-        },
-        onError = {
-            process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
-        }
-    )
+        )
 
     private fun updateIntentForLinkedBankState(
         pollResult: PollResult<LinkedBank>,

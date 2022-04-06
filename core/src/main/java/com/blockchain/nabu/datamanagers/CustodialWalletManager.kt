@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
@@ -14,10 +15,10 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.nabu.models.responses.interest.InterestActivityItemResponse
-import com.blockchain.nabu.models.responses.interest.InterestAttributes
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
+import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
+import com.blockchain.nabu.models.responses.simplebuy.TransactionResponse
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -228,28 +229,28 @@ data class InterestActivityItem(
     val insertedAt: Date,
     val state: InterestState,
     val type: TransactionSummary.TransactionType,
-    val extraAttributes: InterestAttributes?
+    val extraAttributes: TransactionAttributesResponse?
 ) {
     companion object {
         fun toInterestState(state: String): InterestState =
             when (state) {
-                InterestActivityItemResponse.FAILED -> InterestState.FAILED
-                InterestActivityItemResponse.REJECTED -> InterestState.REJECTED
-                InterestActivityItemResponse.PROCESSING -> InterestState.PROCESSING
-                InterestActivityItemResponse.CREATED,
-                InterestActivityItemResponse.COMPLETE -> InterestState.COMPLETE
-                InterestActivityItemResponse.PENDING -> InterestState.PENDING
-                InterestActivityItemResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
-                InterestActivityItemResponse.CLEARED -> InterestState.CLEARED
-                InterestActivityItemResponse.REFUNDED -> InterestState.REFUNDED
+                TransactionResponse.FAILED -> InterestState.FAILED
+                TransactionResponse.REJECTED -> InterestState.REJECTED
+                TransactionResponse.PROCESSING -> InterestState.PROCESSING
+                TransactionResponse.CREATED,
+                TransactionResponse.COMPLETE -> InterestState.COMPLETE
+                TransactionResponse.PENDING -> InterestState.PENDING
+                TransactionResponse.MANUAL_REVIEW -> InterestState.MANUAL_REVIEW
+                TransactionResponse.CLEARED -> InterestState.CLEARED
+                TransactionResponse.REFUNDED -> InterestState.REFUNDED
                 else -> InterestState.UNKNOWN
             }
 
         fun toTransactionType(type: String) =
             when (type) {
-                InterestActivityItemResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
-                InterestActivityItemResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
-                InterestActivityItemResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
+                TransactionResponse.DEPOSIT -> TransactionSummary.TransactionType.DEPOSIT
+                TransactionResponse.WITHDRAWAL -> TransactionSummary.TransactionType.WITHDRAW
+                TransactionResponse.INTEREST_OUTGOING -> TransactionSummary.TransactionType.INTEREST_EARNED
                 else -> TransactionSummary.TransactionType.UNKNOWN
             }
     }
@@ -490,9 +491,7 @@ sealed class TransactionError : Throwable() {
     object WithdrawalAlreadyPending : TransactionError()
     object WithdrawalBalanceLocked : TransactionError()
     object WithdrawalInsufficientFunds : TransactionError()
-    object UnexpectedError : TransactionError()
     object InternalServerError : TransactionError()
-    object AlbertExecutionError : TransactionError()
     object TradingTemporarilyDisabled : TransactionError()
     object InsufficientBalance : TransactionError()
     object OrderBelowMin : TransactionError()
@@ -509,7 +508,10 @@ sealed class TransactionError : Throwable() {
     object IneligibleForSwap : TransactionError()
     object InvalidDestinationAmount : TransactionError()
     object InvalidPostcode : TransactionError()
+    object TransactionDenied : TransactionError()
     object ExecutionFailed : TransactionError()
+    object InternetConnectionError : TransactionError()
+    class HttpError(val nabuApiException: NabuApiException) : TransactionError()
 }
 
 sealed class PaymentMethod(
@@ -544,12 +546,33 @@ sealed class PaymentMethod(
 
     data class UndefinedCard(
         override val limits: PaymentLimits,
-        override val isEligible: Boolean
+        override val isEligible: Boolean,
+        val cardFundSources: List<CardFundSource>?
     ) : PaymentMethod(
         UNDEFINED_CARD_PAYMENT_ID, PaymentMethodType.PAYMENT_CARD, limits, UNDEFINED_CARD_PAYMENT_METHOD_ORDER,
         isEligible
     ),
-        UndefinedPaymentMethod
+        UndefinedPaymentMethod {
+
+        enum class CardFundSource {
+            PREPAID,
+            CREDIT,
+            DEBIT,
+            UNKNOWN
+        }
+
+        companion object {
+            fun mapCardFundSources(sources: List<String>?): List<CardFundSource>? =
+                sources?.map {
+                    when (it) {
+                        CardFundSource.CREDIT.name -> CardFundSource.CREDIT
+                        CardFundSource.DEBIT.name -> CardFundSource.DEBIT
+                        CardFundSource.PREPAID.name -> CardFundSource.PREPAID
+                        else -> CardFundSource.UNKNOWN
+                    }
+                }
+        }
+    }
 
     data class Funds(
         val balance: Money,
@@ -704,6 +727,7 @@ enum class Product {
     TRADE
 }
 
+@kotlinx.serialization.Serializable
 data class BillingAddress(
     val countryCode: String,
     val fullName: String,

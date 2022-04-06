@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.start
 
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -25,7 +25,7 @@ class PasswordRequiredPresenterTest : RxTest() {
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val wallet: Wallet = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     @Before
     fun setUp() {
@@ -40,7 +40,7 @@ class PasswordRequiredPresenterTest : RxTest() {
             prefs,
             authDataManager,
             payloadDataManager,
-            crashLogger
+            remoteLogger
         )
 
         subject.attachView(view)

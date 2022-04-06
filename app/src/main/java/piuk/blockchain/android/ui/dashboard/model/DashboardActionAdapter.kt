@@ -13,7 +13,7 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -69,7 +69,7 @@ class DashboardActionAdapter(
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val redesignCoinViewFlag: FeatureFlag
 ) {
 
@@ -177,14 +177,14 @@ class DashboardActionAdapter(
 
     private fun Maybe<AccountGroup>.logGroupLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
-            crashLogger.logException(
+            remoteLogger.logException(
                 DashboardGroupLoadFailure("Cannot load group for ${asset.displayTicker} - $filter:", e)
             )
         }
 
     private fun Observable<AccountBalance>.logBalanceLoadError(asset: AssetInfo, filter: AssetFilter) =
         this.doOnError { e ->
-            crashLogger.logException(
+            remoteLogger.logException(
                 DashboardBalanceLoadFailure("Cannot load balance for ${asset.displayTicker} - $filter:", e)
             )
         }

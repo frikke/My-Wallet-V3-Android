@@ -19,6 +19,7 @@ import com.blockchain.koin.modules.nabuUrlModule
 import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.xlmModule
+import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
@@ -33,6 +34,7 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
@@ -103,6 +105,8 @@ object KoinStarter {
                     redesignSettingsModule,
                     remoteFeatureFlagsModule,
                     deeplinkModule,
+                    loggingModule,
+                    customerSupportModule,
                     blockchainCardModule
                 )
             )

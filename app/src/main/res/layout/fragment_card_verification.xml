@@ -57,14 +57,27 @@
         app:layout_constraintTop_toBottomOf="@+id/title"
         tools:text="Oops! Something Went Wrong. Make this text multi line to see what happens" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/ok_btn"
-        style="@style/CtaButton.Blue"
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/primary_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/small_margin"
         android:text="@string/common_ok"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/secondary_btn" />
+
+    <com.blockchain.componentlib.button.SecondaryButtonView
+        android:id="@+id/secondary_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:text="@string/common_cancel"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible" />
 
     <com.checkout.android_sdk.PaymentForm
         android:id="@+id/checkout_card_form"

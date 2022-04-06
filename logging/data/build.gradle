@@ -1,0 +1,42 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+android {
+    buildTypes {
+        release {
+            buildConfigField "boolean", "USE_CRASHLYTICS", 'true'
+        }
+        debug {
+            buildConfigField "boolean", "USE_CRASHLYTICS", 'false'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':logging:domain')
+    implementation project(':common:interface')
+
+    implementation platform(Libraries.firebaseBom)
+    implementation Libraries.firebaseCrashlytics
+    implementation Libraries.firebaseAnalytics
+    implementation Libraries.embraceIOSDK
+
+    implementation Libraries.koinAndroid
+    implementation Libraries.timber
+
+    // RxJava
+    implementation Libraries.rxJava
+    implementation Libraries.rxKotlin
+    implementation Libraries.rxAndroid
+
+    // Unit Test dependencies
+    testImplementation project(':testutils')
+    testImplementation project(':testutils-android')
+    testImplementation Libraries.junit
+    testImplementation Libraries.mockito
+    testImplementation Libraries.hamcrestJunit
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kluent
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
+}

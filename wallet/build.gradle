@@ -23,6 +23,7 @@ dependencies {
     implementation project(':balance')
     implementation project(':common:network')
     implementation project(':common:interface')
+    implementation project(':logging:domain')
     implementation project(':blockchainApi')
 
     // Expose Kotlin to all parent modules
@@ -45,6 +46,7 @@ dependencies {
     implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
+    implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.okHttpInterceptor
 
     // Utils
@@ -72,6 +74,7 @@ dependencies {
     implementation Libraries.rxKotlin
     implementation Libraries.rxAndroid
     implementation Libraries.rxReplayShareKotlin
+    implementation Libraries.rxjava3Coroutines
 
     // Testing
     testImplementation project(':testutils')
@@ -84,6 +87,7 @@ dependencies {
     }
     testImplementation Libraries.kotlinJson
     testImplementation Libraries.retrofitKotlinJsonConverter
+    testImplementation Libraries.kotlinCoroutinesTest
 }
 
 test {

@@ -18,7 +18,9 @@ data class PaymentMethodResponse(
     @SerialName("currency")
     val currency: String? = null,
     @SerialName("mobilePayment")
-    val mobilePayment: List<String>? = null
+    val mobilePayment: List<String>? = null,
+    @SerialName("cardFundSources")
+    val cardFundSources: List<String>? = null
 ) {
     companion object {
         const val PAYMENT_CARD = "PAYMENT_CARD"
@@ -38,6 +40,7 @@ data class Limits(
     @SerialName("daily")
     val daily: DailyLimits? = null
 )
+
 @Serializable
 data class DailyLimits(
     @SerialName("limit")

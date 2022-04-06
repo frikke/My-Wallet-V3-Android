@@ -5,7 +5,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
 import androidx.biometric.BiometricPrompt
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -34,7 +34,7 @@ class AndroidBiometricControllerTest {
     private val biometricDataFactory = TestBiometricDataFactory()
     private val cryptographyManager: CryptographyManager = mock()
     private val biometricManager: BiometricManager = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
     private val cipher = mock<Cipher>()
     private lateinit var cryptoObject: BiometricPrompt.CryptoObject
 
@@ -48,7 +48,7 @@ class AndroidBiometricControllerTest {
         subject =
             AndroidBiometricsControllerImpl(
                 biometricData, biometricDataFactory, biometricDataRepository, biometricManager, cryptographyManager,
-                crashLogger
+                remoteLogger
             )
     }
 

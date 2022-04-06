@@ -119,7 +119,7 @@ data class LinkedBankTransferAttributesResponse(
     @SerialName("media")
     val media: List<BankMediaResponse>?,
     @SerialName("callbackPath")
-    val callbackPath: String
+    val callbackPath: String?
 )
 
 @Serializable

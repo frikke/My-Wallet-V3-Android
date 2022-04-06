@@ -41,7 +41,7 @@ class PasswordChangeModelTest {
             initialState = defaultState,
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

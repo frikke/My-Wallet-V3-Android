@@ -96,10 +96,11 @@ class SimpleBuyModelTest {
         ratingPrefs = ratingPrefs,
         onboardingPrefs = mock(),
         environmentConfig = environmentConfig,
-        crashLogger = mock(),
+        remoteLogger = mock(),
         _activityIndicator = mock(),
         serializer = serializer,
         isFirstTimeBuyerUseCase = mock(),
+        buyOrdersCache = mock(),
         getEligibilityAndNextPaymentDateUseCase = mock(),
         bankPartnerCallbackProvider = mock(),
         userIdentity = mock {
@@ -388,7 +389,7 @@ class SimpleBuyModelTest {
 
         model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
 
-        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true)
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true, emptyList())
         model.state
             .test()
             .assertValueAt(1) {
@@ -412,7 +413,7 @@ class SimpleBuyModelTest {
 
         model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
 
-        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = false)
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = false, emptyList())
         model.state
             .test()
             .assertValueAt(1) {
@@ -436,7 +437,7 @@ class SimpleBuyModelTest {
 
         model.process(SimpleBuyIntent.FetchSuggestedPaymentMethod(USD))
 
-        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true)
+        val undefinedCard = PaymentMethod.UndefinedCard(limits, isEligible = true, emptyList())
         model.state
             .test()
             .assertValueAt(1) {
@@ -450,13 +451,23 @@ class SimpleBuyModelTest {
         val tokenizationMap = emptyMap<String, String>()
         val beneficiaryId = "beneficiaryId"
         val countryCode = "merchantBankCountryCode"
+        val allowPrepaidCards = false
+        val allowCreditCards = false
         whenever(interactor.getGooglePayInfo(USD))
-            .thenReturn(Single.just(SimpleBuyIntent.GooglePayInfoReceived(tokenizationMap, beneficiaryId, countryCode)))
+            .thenReturn(
+                Single.just(
+                    SimpleBuyIntent.GooglePayInfoReceived(
+                        tokenizationMap, beneficiaryId, countryCode, allowPrepaidCards, allowCreditCards
+                    )
+                )
+            )
 
         val expectedState = defaultState.copy(
             googlePayTokenizationInfo = tokenizationMap,
             googlePayBeneficiaryId = beneficiaryId,
-            googlePayMerchantBankCountryCode = countryCode
+            googlePayMerchantBankCountryCode = countryCode,
+            googlePayAllowPrepaidCards = allowPrepaidCards,
+            googlePayAllowCreditCards = allowCreditCards
         )
 
         model.process(SimpleBuyIntent.GooglePayInfoRequested)

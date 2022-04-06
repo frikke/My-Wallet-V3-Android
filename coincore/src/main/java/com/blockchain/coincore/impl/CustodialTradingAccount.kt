@@ -234,7 +234,7 @@ class CustodialTradingAccount(
             val send = StateAwareAction(
                 if (baseActions.contains(AssetAction.Send) &&
                     isActiveFunded && balance.withdrawable.isPositive
-                ) ActionState.Available else ActionState.LockedForOther,
+                ) ActionState.Available else ActionState.LockedForBalance,
                 AssetAction.Send
             )
 
@@ -253,6 +253,7 @@ class CustodialTradingAccount(
                         else ActionState.LockedForOther
                     }
                     hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForOther
+                    balance.withdrawable.isZero -> ActionState.LockedForBalance
                     else -> ActionState.Available
                 },
                 AssetAction.Swap

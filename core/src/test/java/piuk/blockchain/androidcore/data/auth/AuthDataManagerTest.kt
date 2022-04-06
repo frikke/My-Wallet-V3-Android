@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.auth
 
 import com.blockchain.api.services.AuthApiService
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -35,7 +35,7 @@ class AuthDataManagerTest : RxTest() {
     private val walletAuthService: WalletAuthService = mock()
     private val pinRepository: PinRepository = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     private lateinit var subject: AuthDataManager
 
@@ -47,7 +47,7 @@ class AuthDataManagerTest : RxTest() {
             walletAuthService,
             pinRepository,
             aesUtilWrapper,
-            crashLogger
+            remoteLogger
         )
     }
 

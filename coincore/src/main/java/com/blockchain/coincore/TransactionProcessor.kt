@@ -45,8 +45,7 @@ enum class ValidationState {
     OVER_SILVER_TIER_LIMIT,
     OVER_GOLD_TIER_LIMIT,
     ABOVE_PAYMENT_METHOD_LIMIT,
-    INVOICE_EXPIRED,
-    UNKNOWN_ERROR
+    INVOICE_EXPIRED
 }
 
 class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Tx: $state")
@@ -446,7 +445,7 @@ class TransactionProcessor(
                     engine.doPostExecute(updatedPendingTransaction, result)
                 }
             }
-            ValidationState.UNINITIALISED -> Completable.error(TransactionError.UnexpectedError)
+            ValidationState.UNINITIALISED -> Completable.error(IllegalStateException("Transaction is not initialised"))
             ValidationState.HAS_TX_IN_FLIGHT -> Completable.error(TransactionError.OrderLimitReached)
             ValidationState.INVALID_AMOUNT -> Completable.error(TransactionError.InvalidDestinationAmount)
             ValidationState.INSUFFICIENT_FUNDS -> Completable.error(TransactionError.InsufficientBalance)
@@ -455,15 +454,16 @@ class TransactionProcessor(
             ValidationState.INVALID_DOMAIN -> Completable.error(TransactionError.InvalidDomainAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.OPTION_INVALID,
-            ValidationState.MEMO_INVALID -> Completable.error(TransactionError.UnexpectedError)
+            ValidationState.MEMO_INVALID -> Completable.error(
+                IllegalStateException("Transaction cannot be executed with an invalid memo")
+            )
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
             ValidationState.PENDING_ORDERS_LIMIT_REACHED ->
                 Completable.error(TransactionError.OrderLimitReached)
             ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
             ValidationState.OVER_GOLD_TIER_LIMIT -> Completable.error(TransactionError.OrderAboveMax)
-            ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.UnexpectedError)
-            ValidationState.UNKNOWN_ERROR -> throw IllegalStateException("PendingTx is not executable")
+            ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.InvalidOrExpiredQuote)
         }
 
     // If the source and target assets are not the same this MAY return a stream of the exchange rates
@@ -508,11 +508,11 @@ fun Completable.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> =
     }.updateTxValidity(pendingTx)
 
 fun Single<PendingTx>.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> =
-    this.onErrorReturn {
+    this.onErrorResumeNext {
         if (it is TxValidationFailure) {
-            pendingTx.copy(validationState = it.state)
+            Single.just(pendingTx.copy(validationState = it.state))
         } else {
-            throw it
+            Single.error(it)
         }
     }.map { pTx ->
         if (pTx.confirmations.isNotEmpty())

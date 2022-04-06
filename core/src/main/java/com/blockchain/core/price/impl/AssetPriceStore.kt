@@ -222,15 +222,17 @@ internal class AssetPriceStore(
     @Synchronized
     fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord {
         val pair = AssetPair(fromAsset.networkTicker, toFiat.networkTicker)
-        return pricesCache.value?.get(pair) ?: throw IllegalStateException(
-            "Unknown pair: ${fromAsset.networkTicker} - $toFiat"
+        return pricesCache.value?.get(pair) ?: throw AssetPriceNotCached(
+            pair
         )
     }
 
     @Synchronized
     fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord {
         val pair = AssetPair(fromFiat.networkTicker, toFiat.networkTicker)
-        return pricesCache.value?.get(pair) ?: throw IllegalStateException("Unknown pair: $fromFiat - $toFiat")
+        return pricesCache.value?.get(pair) ?: throw AssetPriceNotCached(
+            pair
+        )
     }
 
     private var liveStaleCheck: Disposable? = null

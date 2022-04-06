@@ -23,6 +23,20 @@
         app:srcCompat="@drawable/ic_arrow_back_blue" />
 
     <ImageView
+        android:id="@+id/customer_support"
+        android:layout_width="@dimen/size_huge"
+        android:layout_height="@dimen/size_huge"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/tiny_margin"
+        android:src="@drawable/ic_question"
+        app:layout_constraintBottom_toBottomOf="@id/back_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/back_button"
+        app:tint="@color/grey_400" />
+
+    <ImageView
         android:id="@+id/icon_verify_device"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

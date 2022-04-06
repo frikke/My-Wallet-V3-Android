@@ -24,7 +24,28 @@ class ProfileModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val interactor: ProfileInteractor = mock()
+    private val settings: Settings = mock {
+        on { email }.thenReturn("lmiguelez@blockchain.com")
+        on { isEmailVerified }.thenReturn(true)
+        on { smsNumber }.thenReturn("3465589125")
+        on { isSmsVerified }.thenReturn(false)
+        on { smsDialCode }.thenReturn("34")
+        on { authType }.thenReturn(0)
+    }
+
+    private val userInfoSettings = WalletSettingsService.UserInfoSettings(
+        email = settings.email,
+        emailVerified = settings.isEmailVerified,
+        mobileWithPrefix = settings.smsNumber,
+        mobileVerified = settings.isSmsVerified,
+        smsDialCode = settings.smsDialCode,
+        authType = settings.authType
+    )
+
+    private val interactor: ProfileInteractor = mock {
+        on { cachedSettings }.thenReturn(Single.just(settings))
+        on { fetchProfileSettings() }.thenReturn(Single.just(userInfoSettings))
+    }
 
     @get:Rule
     val rx = rxInit {
@@ -39,7 +60,7 @@ class ProfileModelTest {
             initialState = ProfileState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             _activityIndicator = mock()
         )
@@ -47,25 +68,6 @@ class ProfileModelTest {
 
     @Test
     fun `when LoadProfile is successfully loaded from Cache then state will update user settings`() {
-        val settings: Settings = mock {
-            on { email }.thenReturn("lmiguelez@blockchain.com")
-            on { isEmailVerified }.thenReturn(true)
-            on { smsNumber }.thenReturn("3465589125")
-            on { isSmsVerified }.thenReturn(false)
-            on { smsDialCode }.thenReturn("34")
-            on { authType }.thenReturn(0)
-        }
-
-        val userInfoSettings = WalletSettingsService.UserInfoSettings(
-            email = settings.email,
-            emailVerified = settings.isEmailVerified,
-            mobileWithPrefix = settings.smsNumber,
-            mobileVerified = settings.isSmsVerified,
-            smsDialCode = settings.smsDialCode,
-            authType = settings.authType
-        )
-
-        whenever(interactor.cachedSettings).thenReturn(Single.just(settings))
 
         val testState = model.state.test()
         model.process(ProfileIntent.LoadProfile)
@@ -104,7 +106,6 @@ class ProfileModelTest {
 
     @Test
     fun `when FetchProfile is successfully then state will update user settings`() {
-        val userInfoSettings = mock<WalletSettingsService.UserInfoSettings>()
 
         whenever(interactor.fetchProfileSettings()).thenReturn(Single.just(userInfoSettings))
 

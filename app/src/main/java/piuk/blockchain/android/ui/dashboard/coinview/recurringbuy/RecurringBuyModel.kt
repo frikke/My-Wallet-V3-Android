@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.models.data.RecurringBuy
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -24,9 +24,9 @@ class RecurringBuyModel(
     mainScheduler: Scheduler,
     private val interactor: RecurringBuyInteractor,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<RecurringBuyModelState, RecurringBuyIntent>(
-    initialState, mainScheduler, environmentConfig, crashLogger
+    initialState, mainScheduler, environmentConfig, remoteLogger
 ) {
     override fun performAction(
         previousState: RecurringBuyModelState,

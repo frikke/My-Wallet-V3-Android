@@ -6,7 +6,7 @@ import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
@@ -36,7 +36,7 @@ class Coincore internal constructor(
     private val defaultLabels: DefaultLabels,
     private val fiatAsset: Asset,
     private val currencyPrefs: CurrencyPrefs,
-    private val crashLogger: CrashLogger,
+    private val remoteLogger: RemoteLogger,
     private val paymentsDataManager: PaymentsDataManager
 ) {
 
@@ -54,10 +54,10 @@ class Coincore internal constructor(
     fun init(): Completable =
         assetLoader.initAndPreload()
             .doOnComplete {
-                crashLogger.logEvent("Coincore init complete")
+                remoteLogger.logEvent("Coincore init complete")
             }
             .doOnError {
-                crashLogger.logEvent("Coincore initialisation failed! $it")
+                remoteLogger.logEvent("Coincore initialisation failed! $it")
             }
 
     val fiatAssets: Asset

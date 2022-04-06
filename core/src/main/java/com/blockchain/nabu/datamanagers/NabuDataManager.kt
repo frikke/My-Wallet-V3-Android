@@ -5,6 +5,7 @@ import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.metadata.NabuCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
@@ -150,7 +151,8 @@ internal class NabuDataManagerImpl(
     private val walletReporter: WalletReporter,
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs
+    private val prefs: PersistentPrefs,
+    private val userCache: UserCache
 ) : NabuDataManager {
 
     private val guid
@@ -238,7 +240,7 @@ internal class NabuDataManagerImpl(
         offlineTokenResponse: NabuOfflineTokenResponse
     ): Single<NabuUser> =
         authenticate(offlineTokenResponse) {
-            nabuService.getUser(it)
+            userCache.cached(it)
         }.doOnSuccess {
             userReporter.reportUserId(offlineTokenResponse.userId)
             userReporter.reportUser(it)

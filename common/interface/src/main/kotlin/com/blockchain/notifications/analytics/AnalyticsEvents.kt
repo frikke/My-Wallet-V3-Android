@@ -247,7 +247,11 @@ enum class AnalyticsNames(val eventName: String) {
     KYC_ADDITIONAL_INFO_VIEWED("Account Info Screen Viewed"),
     KYC_ADDITIONAL_INFO_SUBMITTED("Account Info Submitted"),
     PUSH_NOTIFICATION_RECEIVED("Push Notification Received"),
-    PUSH_NOTIFICATION_TAPPED("Push Notification Tapped");
+    PUSH_NOTIFICATION_TAPPED("Push Notification Tapped"),
+    CUSTOMER_SUPPORT_CLICKED("Question Mark Clicked"),
+    CUSTOMER_SUPPORT_SHEET_SHOWN("Customer Support Widget Viewed"),
+    CUSTOMER_SUPPORT_EMAIL_CLICKED("Email Us Clicked"),
+    CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked");
 }
 
 enum class LaunchOrigin {

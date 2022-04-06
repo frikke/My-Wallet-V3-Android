@@ -1,7 +1,7 @@
 package com.blockchain.notifications
 
 import android.annotation.SuppressLint
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.google.common.base.Optional
@@ -19,7 +19,7 @@ class NotificationTokenManager(
     private val prefs: NotificationPrefs,
     private val authPrefs: AuthPrefs,
     private val notificationTokenProvider: NotificationTokenProvider,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) {
     /**
      * Returns the stored Firebase token, otherwise attempts to trigger a refresh of the token which
@@ -99,9 +99,9 @@ class NotificationTokenManager(
                 }
             }
             .doOnError { throwable ->
-                crashLogger.logException(
+                remoteLogger.logException(
                     throwable = throwable,
-                    logMsg = "Failed to resend the Firebase token for notifications"
+                    logMessage = "Failed to resend the Firebase token for notifications"
                 )
             }
     }

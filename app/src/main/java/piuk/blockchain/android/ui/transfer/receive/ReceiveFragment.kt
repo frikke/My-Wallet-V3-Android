@@ -114,7 +114,6 @@ class ReceiveFragment :
 
     private fun doOnAccountSelected(account: CryptoAccount) {
         compositeDisposable += entitySwitchSilverEligibilityFF.enabled
-            .onErrorReturnItem(false)
             .subscribe { enabled ->
                 if (enabled) {
                     compositeDisposable += account.stateAwareActions

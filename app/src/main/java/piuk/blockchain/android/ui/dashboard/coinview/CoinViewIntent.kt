@@ -26,6 +26,12 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
         )
     }
 
+    class LoadAssetDetails(val asset: AssetInfo) : CoinViewIntent() {
+        override fun reduce(oldState: CoinViewState): CoinViewState = oldState.copy(
+            viewState = CoinViewViewState.LoadingAssetDetails
+        )
+    }
+
     object CheckBuyStatus : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState = oldState
     }

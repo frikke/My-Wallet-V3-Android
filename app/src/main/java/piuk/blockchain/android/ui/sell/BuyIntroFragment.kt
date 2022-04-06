@@ -99,7 +99,7 @@ class BuyIntroFragment :
     private fun checkEligibilityAndLoadBuyDetails(showLoading: Boolean = true) {
         compositeDisposable +=
             Singles.zip(
-                entitySwitchSilverEligibilityFF.enabled.onErrorReturnItem(false),
+                entitySwitchSilverEligibilityFF.enabled,
                 userIdentity.userAccessForFeature(Feature.Buy)
             ) { isFFEnabled, eligibility ->
                 eligibility is FeatureAccess.Blocked && isFFEnabled

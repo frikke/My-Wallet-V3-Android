@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankAttributes
 import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -16,6 +17,7 @@ import com.blockchain.testutils.numberToBigInteger
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
@@ -60,7 +62,7 @@ class DashboardOnboardingModelTest {
             currencyPrefs = currencyPrefs,
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 
@@ -141,6 +143,7 @@ class DashboardOnboardingModelTest {
     @Test
     fun `given upgrade to gold step complete, clicking link payment method step should check if user has a supported trading currency`() {
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
+        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(FiatCurrency.Dollars)))
 
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.FetchSteps)
@@ -228,6 +231,10 @@ class DashboardOnboardingModelTest {
             AvailablePaymentMethodType(true, LinkAccess.GRANTED, currency, PaymentMethodType.BANK_ACCOUNT, limits),
             AvailablePaymentMethodType(true, LinkAccess.BLOCKED, currency, PaymentMethodType.BANK_TRANSFER, limits)
         )
+
+        whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(
+            Single.just(availablePaymentMethodTypes)
+        )
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
         whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
@@ -238,7 +245,7 @@ class DashboardOnboardingModelTest {
         model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
 
         val paymentMethods = listOf(
-            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true),
+            PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null),
             PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)
         )
         state.assertValueAt(2) {
@@ -291,7 +298,13 @@ class DashboardOnboardingModelTest {
     fun `clicking link bank payment method should fetch link bank transfer`() {
         val currency = EUR
         whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
-
+        whenever(interactor.linkBank(currency)).thenReturn(
+            Single.just(
+                LinkBankTransfer(
+                    "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
+                )
+            )
+        )
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.PaymentMethodClicked(PaymentMethodType.BANK_TRANSFER))
 

@@ -173,13 +173,13 @@ val transactionModule = module {
     factory {
         TxFlowAnalytics(
             analytics = get(),
-            crashLogger = get()
+            remoteLogger = get()
         )
     }
 
     factory {
         TxFlowErrorReporting(
-            crashLogger = get()
+            remoteLogger = get()
         )
     }
 
@@ -209,7 +209,7 @@ val transactionModule = module {
                 entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
                 errorLogger = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
     }

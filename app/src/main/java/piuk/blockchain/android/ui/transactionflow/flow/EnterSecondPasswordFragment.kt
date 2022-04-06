@@ -11,7 +11,6 @@ import piuk.blockchain.android.databinding.FragmentTxFlowPasswordBinding
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
-import piuk.blockchain.android.ui.transactionflow.engine.TransactionStep
 import timber.log.Timber
 
 class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswordBinding>() {
@@ -34,7 +33,6 @@ class EnterSecondPasswordFragment : TransactionFlowFragment<FragmentTxFlowPasswo
 
     override fun render(newState: TransactionState) {
         Timber.d("!TRANSACTION!> Rendering! EnterSecondPasswordFragment")
-        require(newState.currentStep == TransactionStep.ENTER_PASSWORD)
 
         if (newState.errorState == TransactionErrorState.INVALID_PASSWORD) {
             Toast.makeText(requireContext(), getString(R.string.invalid_password), Toast.LENGTH_SHORT).show()

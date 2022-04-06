@@ -16,7 +16,7 @@ import com.blockchain.biometrics.BiometricAuthError.BiometricAuthLockoutPermanen
 import com.blockchain.biometrics.BiometricAuthError.BiometricAuthOther
 import com.blockchain.biometrics.BiometricAuthError.BiometricKeysInvalidated
 import com.blockchain.biometrics.BiometricAuthError.BiometricsNoSuitableMethods
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import java.util.concurrent.Executor
 import javax.crypto.IllegalBlockSizeException
 import timber.log.Timber
@@ -61,7 +61,7 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
     private val biometricDataRepository: BiometricDataRepository,
     private val biometricsManager: BiometricManager,
     private val cryptographyManager: CryptographyManager,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) : AndroidBiometricsController<TBiometricData> {
 
     override val isBiometricAuthEnabled: Boolean
@@ -151,7 +151,7 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
                     } catch (e: IllegalBlockSizeException) {
                         callback.onAuthFailed(BiometricKeysInvalidated)
                     } catch (e: Exception) {
-                        crashLogger.logException(e, "Exception when registering biometrics")
+                        remoteLogger.logException(e, "Exception when registering biometrics")
                         callback.onAuthFailed(BiometricAuthOther(e.message ?: e.toString()))
                     }
                 }
@@ -163,7 +163,7 @@ class AndroidBiometricsControllerImpl<TBiometricData : BiometricData>(
                     } catch (e: IllegalBlockSizeException) {
                         callback.onAuthFailed(BiometricKeysInvalidated)
                     } catch (e: Exception) {
-                        crashLogger.logException(e, "Exception when logging in with biometrics")
+                        remoteLogger.logException(e, "Exception when logging in with biometrics")
                         callback.onAuthFailed(BiometricAuthOther(e.message ?: e.toString()))
                     }
                 }

@@ -54,9 +54,15 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         val test = subject.invoke(REQUEST).test()
 
         val expected = listOf(
-            AvailablePaymentMethodType(true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS),
-            AvailablePaymentMethodType(true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS),
-            AvailablePaymentMethodType(false, LinkAccess.BLOCKED, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS)
+            AvailablePaymentMethodType(
+                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                false, LinkAccess.BLOCKED, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
+            )
         )
         test.assertValue(expected)
 
@@ -73,10 +79,14 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         val test = subject.invoke(REQUEST).test()
 
         val expected = listOf(
-            AvailablePaymentMethodType(true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS),
-            AvailablePaymentMethodType(true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS),
             AvailablePaymentMethodType(
-                false, LinkAccess.NEEDS_UPGRADE, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS
+                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                false, LinkAccess.NEEDS_UPGRADE, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
             )
         )
         test.assertValue(expected)
@@ -96,10 +106,14 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         val test = subject.invoke(REQUEST).test()
 
         val expected = listOf(
-            AvailablePaymentMethodType(true, LinkAccess.BLOCKED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS),
-            AvailablePaymentMethodType(true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS),
             AvailablePaymentMethodType(
-                false, LinkAccess.NEEDS_UPGRADE, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS
+                true, LinkAccess.BLOCKED, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                true, LinkAccess.GRANTED, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            AvailablePaymentMethodType(
+                false, LinkAccess.NEEDS_UPGRADE, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
             )
         )
         test.assertValue(expected)
@@ -117,13 +131,22 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
             BigInteger.ZERO,
             FIAT
         )
+        private val CARD_FUND_SOURCES = listOf("CREDIT", "DEBIT", "PREPAID")
         private val REQUEST = GetAvailablePaymentMethodsTypesUseCase.Request(FIAT, false, true)
         private val AVAILABLE = listOf(
-            PaymentMethodTypeWithEligibility(true, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS),
-            PaymentMethodTypeWithEligibility(true, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS),
-            PaymentMethodTypeWithEligibility(false, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS)
+            PaymentMethodTypeWithEligibility(
+                true, FIAT, PaymentMethodType.PAYMENT_CARD, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            PaymentMethodTypeWithEligibility(
+                true, FIAT, PaymentMethodType.BANK_ACCOUNT, NULL_LIMITS, CARD_FUND_SOURCES
+            ),
+            PaymentMethodTypeWithEligibility(
+                false, FIAT, PaymentMethodType.BANK_TRANSFER, NULL_LIMITS, CARD_FUND_SOURCES
+            )
         )
         private val CARD =
-            LinkedPaymentMethod.Card("id", "", "", Partner.CARDPROVIDER, Date(), CardType.AMEX, CardStatus.ACTIVE, FIAT)
+            LinkedPaymentMethod.Card(
+                "id", "", "", Partner.CARDPROVIDER, Date(), CardType.AMEX, CardStatus.ACTIVE, CARD_FUND_SOURCES, FIAT
+            )
     }
 }

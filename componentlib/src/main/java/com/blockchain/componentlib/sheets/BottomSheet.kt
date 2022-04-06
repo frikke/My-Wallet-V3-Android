@@ -157,7 +157,7 @@ fun NoButtonBottomSheet() {
             BottomSheet(
                 onCloseClick = {},
                 title = "NoButtonBottomSheet",
-                imageResource = ImageResource.Local(R.drawable.ic_blockchain),
+                imageResource = ImageResource.None,
                 subtitle = " NoButtonBottomSheetSubtitle",
                 topButton = null,
                 bottomButton = null

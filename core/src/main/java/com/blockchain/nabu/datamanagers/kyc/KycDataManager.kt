@@ -20,7 +20,7 @@ class KycDataManager(
 ) {
 
     suspend fun getAdditionalInfoForm(): Outcome<KycError, List<KycAdditionalInfoNode>> {
-        val isFFEnabled = kycAdditionalInfoFeatureFlag.enabled.onErrorReturnItem(false).await()
+        val isFFEnabled = kycAdditionalInfoFeatureFlag.enabled.await()
         if (!isFFEnabled) return Outcome.Success(emptyList())
 
         return authenticator.getAuthHeader().awaitOutcome()

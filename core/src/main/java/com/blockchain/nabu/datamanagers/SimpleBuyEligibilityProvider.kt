@@ -16,26 +16,29 @@ class NabuCachedEligibilityProvider(
     private val authenticator: Authenticator
 ) : SimpleBuyEligibilityProvider {
 
-    private val refresh: () -> Single<Boolean> = {
+    private val refresh: () -> Single<SimpleBuyEligibility> = {
         authenticator.authenticate {
             nabuService.isEligibleForSimpleBuy(it)
-        }.map {
+        }
+    }
+
+    private val cache = TimedCacheRequest(
+        cacheLifetimeSeconds = DEFAULT_CACHE_LIFETIME,
+        refreshFn = refresh
+    )
+
+    override fun isEligibleForSimpleBuy(forceRefresh: Boolean): Single<Boolean> {
+        if (forceRefresh) {
+            cache.invalidate()
+        }
+        return cache.getCachedSingle().map {
             it.simpleBuyTradingEligible
         }.onErrorReturn {
             false
         }
     }
 
-    private val cache = TimedCacheRequest(
-        cacheLifetimeSeconds = 20L,
-        refreshFn = refresh
-    )
-
-    override fun isEligibleForSimpleBuy(forceRefresh: Boolean): Single<Boolean> {
-        return if (!forceRefresh) cache.getCachedSingle() else refresh()
-    }
-
-    override fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility> = authenticator.authenticate {
-        nabuService.isEligibleForSimpleBuy(it)
-    }
+    override fun simpleBuyTradingEligibility(): Single<SimpleBuyEligibility> = cache.getCachedSingle()
 }
+
+const val DEFAULT_CACHE_LIFETIME = 20L

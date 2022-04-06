@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.auth.newlogin
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.Authorization
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.SecureChannelPrefs
@@ -18,11 +18,11 @@ class AuthNewLoginModel(
     initialState: AuthNewLoginState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val secureChannelManager: SecureChannelManager,
     private val secureChannelPrefs: SecureChannelPrefs,
     private val walletApi: WalletApi
-) : MviModel<AuthNewLoginState, AuthNewLoginIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<AuthNewLoginState, AuthNewLoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: AuthNewLoginState, intent: AuthNewLoginIntents): Disposable? {
         return when (intent) {

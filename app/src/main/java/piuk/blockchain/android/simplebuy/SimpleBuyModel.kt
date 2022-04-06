@@ -8,13 +8,14 @@ import com.blockchain.banking.BankTransferAction
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -64,6 +65,7 @@ class SimpleBuyModel(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val ratingPrefs: RatingPrefs,
     private val onboardingPrefs: OnboardingPrefs,
+    private val buyOrdersCache: BuyOrdersCache,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
     private val serializer: SimpleBuyPrefsSerializer,
@@ -73,7 +75,7 @@ class SimpleBuyModel(
     private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
@@ -82,7 +84,7 @@ class SimpleBuyModel(
     ),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
-    crashLogger = crashLogger
+    remoteLogger = remoteLogger
 ) {
 
     private val activityIndicator: ActivityIndicator? by unsafeLazy {
@@ -624,7 +626,6 @@ class SimpleBuyModel(
             .subscribeBy(
                 onSuccess = { (availablePaymentMethods, eligibilityNextPaymentList) ->
                     process(SimpleBuyIntent.RecurringBuyEligibilityUpdated(eligibilityNextPaymentList))
-
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             preselectedId = preselectedId,
@@ -817,6 +818,7 @@ class SimpleBuyModel(
     ): Disposable {
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
             .trackProgress(activityIndicator)
+            .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
@@ -855,6 +857,9 @@ class SimpleBuyModel(
                 )
                 NabuErrorCodes.CardPaymentDeclined -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
+                )
+                NabuErrorCodes.DebitCardOnlyPayment -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.DebitCardOnly)
                 )
                 else -> process(SimpleBuyIntent.ErrorIntent())
             }
@@ -1025,7 +1030,13 @@ class SimpleBuyModel(
             .mapNotNull { method ->
                 when (method.type) {
                     PaymentMethodType.PAYMENT_CARD ->
-                        PaymentMethod.UndefinedCard(method.limits, method.canBeUsedForPayment)
+                        PaymentMethod.UndefinedCard(
+                            method.limits,
+                            method.canBeUsedForPayment,
+                            PaymentMethod.UndefinedCard.mapCardFundSources(
+                                availableMap[PaymentMethodType.PAYMENT_CARD]?.cardFundSources
+                            )
+                        )
                     PaymentMethodType.GOOGLE_PAY ->
                         PaymentMethod.GooglePay(method.limits, method.canBeUsedForPayment)
                     PaymentMethodType.BANK_TRANSFER ->

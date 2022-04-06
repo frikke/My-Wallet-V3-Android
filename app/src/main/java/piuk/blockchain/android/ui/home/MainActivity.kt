@@ -189,7 +189,7 @@ class MainActivity :
         }
 
         if (savedInstanceState == null) {
-            deeplinkingV2FF.enabled.onErrorReturnItem(false).subscribeBy(
+            deeplinkingV2FF.enabled.subscribeBy(
                 onSuccess = { isEnabled ->
                     if (isEnabled) {
                         model.process(MainIntent.SaveDeeplinkIntent(intent))

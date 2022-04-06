@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.notifications.analytics.Analytics
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -28,7 +28,7 @@ class ManualPairingPresenterTest {
     private val wallet: Wallet = mock()
     private val prefsUtil: PrefsUtil = mock()
     private val analytics: Analytics = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -44,7 +44,7 @@ class ManualPairingPresenterTest {
             payloadDataManager,
             prefsUtil,
             analytics,
-            crashLogger
+            remoteLogger
         )
         subject.attachView(view)
 

@@ -231,7 +231,7 @@ class XlmOnChainTxEngine(
             )
         }.map {
             when (it.errorCode) {
-                UNKNOWN_ERROR -> throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                UNKNOWN_ERROR -> throw TransactionError.ExecutionFailed
                 BELOW_MIN_SEND -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
                 BELOW_MIN_NEW_ACCOUNT -> throw TxValidationFailure(ValidationState.UNDER_MIN_LIMIT)
                 INSUFFICIENT_FUNDS -> throw TxValidationFailure(ValidationState.INSUFFICIENT_FUNDS)
@@ -239,7 +239,7 @@ class XlmOnChainTxEngine(
                 SUCCESS -> {
                     // do nothing
                 }
-                else -> throw TxValidationFailure(ValidationState.UNKNOWN_ERROR)
+                else -> throw TransactionError.ExecutionFailed
             }
         }.ignoreElement()
 
