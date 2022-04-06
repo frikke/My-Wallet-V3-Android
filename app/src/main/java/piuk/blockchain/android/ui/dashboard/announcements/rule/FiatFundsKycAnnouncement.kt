@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.nabu.datamanagers.featureflags.Feature
-import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.UserIdentity
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.R
@@ -15,7 +15,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class FiatFundsKycAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val featureEligibility: KycFeatureEligibility,
+    private val userIdentity: UserIdentity,
     private val paymentsDataManager: PaymentsDataManager
 ) : AnnouncementRule(dismissRecorder) {
 
@@ -28,7 +28,7 @@ class FiatFundsKycAnnouncement(
 
         // if eligible for simple buy balance then user is KYC gold
         return Singles.zip(
-            featureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE),
+            userIdentity.isEligibleFor(Feature.SimpleBuy),
             paymentsDataManager.getLinkedBanks()
         ) { isEligible, linkedBanks ->
             isEligible && linkedBanks.isEmpty()

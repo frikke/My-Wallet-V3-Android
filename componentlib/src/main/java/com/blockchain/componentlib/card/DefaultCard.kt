@@ -24,7 +24,9 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
@@ -37,7 +39,7 @@ fun DefaultCard(
     callToActionButton: CardButton? = null,
     onClose: () -> Unit = {},
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    isDismissable: Boolean = true
+    isDismissable: Boolean = true,
 ) {
 
     val backgroundColor = if (!isDarkTheme) {
@@ -95,15 +97,33 @@ fun DefaultCard(
                 )
 
                 if (callToActionButton != null) {
-                    PrimaryButton(
-                        modifier = Modifier
-                            .padding(top = dimensionResource(R.dimen.very_small_margin))
-                            .fillMaxWidth(),
-                        defaultBackgroundColor = callToActionButton.backgroundColor,
-                        text = callToActionButton.text,
-                        onClick = callToActionButton.onClick,
-                        state = ButtonState.Enabled
-                    )
+                    when (callToActionButton.type) {
+                        ButtonType.Primary -> PrimaryButton(
+                            modifier = Modifier
+                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .fillMaxWidth(),
+                            defaultBackgroundColor = callToActionButton.backgroundColor,
+                            text = callToActionButton.text,
+                            onClick = callToActionButton.onClick,
+                            state = ButtonState.Enabled
+                        )
+                        ButtonType.Secondary -> SecondaryButton(
+                            modifier = Modifier
+                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .fillMaxWidth(),
+                            text = callToActionButton.text,
+                            onClick = callToActionButton.onClick,
+                            state = ButtonState.Enabled
+                        )
+                        ButtonType.Minimal -> MinimalButton(
+                            modifier = Modifier
+                                .padding(top = dimensionResource(R.dimen.very_small_margin))
+                                .fillMaxWidth(),
+                            text = callToActionButton.text,
+                            onClick = callToActionButton.onClick,
+                            state = ButtonState.Enabled
+                        )
+                    }
                 }
             }
         }
@@ -119,6 +139,34 @@ fun DefaultCardAlert_Basic() {
                 title = "Title", subtitle = "Subtitle",
                 iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
                 CardButton("Notify Me") {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultCardAlert_Secondary_Button() {
+    AppTheme {
+        AppSurface {
+            DefaultCard(
+                title = "Title", subtitle = "Subtitle",
+                iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
+                CardButton("Notify Me", type = ButtonType.Secondary) {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun DefaultCardAlert_Minimal_Button() {
+    AppTheme {
+        AppSurface {
+            DefaultCard(
+                title = "Title", subtitle = "Subtitle",
+                iconResource = ImageResource.Local(R.drawable.ic_blockchain, null),
+                CardButton("Notify Me", type = ButtonType.Minimal) {}
             )
         }
     }

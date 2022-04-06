@@ -249,9 +249,9 @@ public class EthereumWalletTest extends MockedResponseTest {
 
         //Assert
         Assert.assertEquals(
-            "0xf85580010a840add5355887fffffffffffffff801ca032472aef4a52"
-                + "fde34912307409bc3f9d4c0be12aaa09468da6967e9ceb80ea04a01b60edf2"
-                + "1a188f14b8e00ddfe5fa5e1552be20a1a5462667501d047c4a5327ed",
+            "0xf85580010a840add5355887fffffffffffffff8025a08024957602ed" +
+            "99025d0e9e6b76baf878b66e52472c71766c3b5826804d2f9469a0522b" +
+            "18b3e63a7b53f27657448115b0e987a0e14b9d8732ebf0c553e328f3cfab",
             Numeric.toHexString(signTransaction));
     }
 

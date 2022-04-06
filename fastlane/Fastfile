@@ -186,7 +186,7 @@ platform :android do
     lane :ci_credentials do
 
       sh("echo \"--------------Cloning Credentials Repo--------------\"")
-      sh("git clone $CREDENTIALS_REPO --branch embrace-io ../../tmp/credentials")
+      sh("git clone $CREDENTIALS_REPO ../../tmp/credentials")
 
       sh("echo \"--------------Unzip Firebase Credentials--------------\"")
       sh("unzip ../../tmp/credentials/src.zip  -d ../../tmp/credentials/")

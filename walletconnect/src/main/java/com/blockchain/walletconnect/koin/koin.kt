@@ -56,8 +56,8 @@ val walletConnectModule = module {
         factory {
             DappsListModel(
                 uiSchedulers = AndroidSchedulers.mainThread(),
-                enviromentConfig = get(),
-                crashLogger = get(),
+                environmentConfig = get(),
+                remoteLogger = get(),
                 sessionsRepository = get(),
                 walletConnectServiceAPI = get()
             )

@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
@@ -19,7 +19,7 @@ class PasswordRequiredPresenter(
     override val prefs: PersistentPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val crashLogger: CrashLogger
+    override val remoteLogger: RemoteLogger
 ) : PasswordAuthPresenter<PasswordRequiredView>() {
 
     fun onContinueClicked(password: String) {

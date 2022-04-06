@@ -336,6 +336,8 @@ dependencies {
     implementation project(':payments:googlepay')
     implementation project(':payments:core')
     implementation project(':deeplinking')
+    implementation project(':logging:domain')
+    implementation project(':logging:data')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

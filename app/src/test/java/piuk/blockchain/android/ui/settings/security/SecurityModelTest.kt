@@ -45,7 +45,7 @@ class SecurityModelTest {
             initialState = defaultState,
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

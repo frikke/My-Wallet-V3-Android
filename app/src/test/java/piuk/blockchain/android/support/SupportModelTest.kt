@@ -33,7 +33,7 @@ class SupportModelTest {
             initialState = SupportState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }

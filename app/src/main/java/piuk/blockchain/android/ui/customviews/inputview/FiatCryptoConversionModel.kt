@@ -70,8 +70,13 @@ internal class FiatCryptoConversionModel(
                     .firstOrError()
             }
             config.exchangeCurrency.networkTicker -> {
-                internalRate.map { it.inverse().convert(amount) }
-                    .firstOrError()
+                internalRate.map {
+                    if (it.from.networkTicker == amount.currency.networkTicker) {
+                        it.convert(amount)
+                    } else {
+                        it.inverse().convert(amount)
+                    }
+                }.firstOrError()
             }
             else -> {
                 throw IllegalStateException(

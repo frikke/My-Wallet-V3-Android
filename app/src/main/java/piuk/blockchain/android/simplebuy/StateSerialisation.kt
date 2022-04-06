@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -12,6 +13,9 @@ import com.google.gson.JsonSerializer
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import java.lang.reflect.Type
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 interface SimpleBuyPrefsSerializer {
@@ -22,7 +26,9 @@ interface SimpleBuyPrefsSerializer {
 
 internal class SimpleBuyPrefsSerializerImpl(
     private val prefs: SimpleBuyPrefs,
-    assetCatalogue: AssetCatalogue
+    assetCatalogue: AssetCatalogue,
+    private val json: Json,
+    private val replaceGsonKtxFF: FeatureFlag,
 ) : SimpleBuyPrefsSerializer {
 
     private val gson = GsonBuilder()
@@ -30,10 +36,30 @@ internal class SimpleBuyPrefsSerializerImpl(
         .registerTypeAdapter(AssetInfo::class.java, AssetTickerDeserializer(assetCatalogue))
         .create()
 
-    override fun fetch(): SimpleBuyState? =
-        prefs.simpleBuyState()?.let {
-            try {
-                gson.fromJson(it, SimpleBuyState::class.java)
+    override fun fetch(): SimpleBuyState? = prefs.simpleBuyState()?.decode()
+
+    override fun update(newState: SimpleBuyState) {
+        prefs.updateSimpleBuyState(newState.encode())
+    }
+
+    override fun clear() {
+        prefs.clearBuyState()
+    }
+
+    private fun SimpleBuyState.encode(): String {
+        return if (replaceGsonKtxFF.isEnabled) {
+            json.encodeToString(this)
+        } else {
+            gson.toJson(this)
+        }
+    }
+
+    private fun String.decode(): SimpleBuyState? {
+        return try {
+            if (replaceGsonKtxFF.isEnabled) {
+                json.decodeFromString<SimpleBuyState>(this)
+            } else {
+                gson.fromJson(this, SimpleBuyState::class.java)
                     // When we de-serialise via gson the object fields get overwritten - including transients -
                     // so in order to have a valid object, we should re-init any non-nullable transient fields here
                     // or copy() operations will fail
@@ -45,19 +71,11 @@ internal class SimpleBuyPrefsSerializerImpl(
                         confirmationActionRequested = false,
                         errorState = TransactionErrorState.NONE
                     )
-            } catch (t: Throwable) {
-                prefs.clearBuyState()
-                null
             }
+        } catch (t: Throwable) {
+            prefs.clearBuyState()
+            null
         }
-
-    override fun update(newState: SimpleBuyState) {
-        val json = gson.toJson(newState)
-        prefs.updateSimpleBuyState(json)
-    }
-
-    override fun clear() {
-        prefs.clearBuyState()
     }
 }
 

@@ -5,7 +5,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -46,12 +46,12 @@ class ActivitiesModel(
     uiScheduler: Scheduler,
     private val interactor: ActivitiesInteractor,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<ActivitiesState, ActivitiesIntent>(
     initialState,
     uiScheduler,
     environmentConfig,
-    crashLogger
+    remoteLogger
 ) {
 
     private var fetchSubscription: Disposable? = null

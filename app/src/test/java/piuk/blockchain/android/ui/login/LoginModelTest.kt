@@ -44,7 +44,7 @@ class LoginModelTest {
             initialState = LoginState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor,
             analytics = mock()
         )
@@ -116,6 +116,10 @@ class LoginModelTest {
             Completable.complete()
         )
 
+        whenever(interactor.pollForAuth(any(), any())).thenReturn(
+            Single.just(PollResult.Cancel(mock()))
+        )
+
         val testState = model.state.test()
         model.process(LoginIntents.ObtainSessionIdForEmail(email, captcha))
 
@@ -127,6 +131,10 @@ class LoginModelTest {
                 LoginState(email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.SEND_EMAIL),
                 LoginState(
                     email = email, sessionId = sessionId, captcha = captcha, currentStep = LoginStep.VERIFY_DEVICE
+                ),
+                LoginState(
+                    email = email, captcha = captcha, sessionId = sessionId, currentStep = LoginStep.VERIFY_DEVICE,
+                    pollingState = AuthPollingState.POLLING
                 )
             )
     }

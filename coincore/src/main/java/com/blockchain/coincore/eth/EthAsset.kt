@@ -14,7 +14,7 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -47,7 +47,7 @@ internal class EthAsset(
     private val notificationUpdater: BackendNotificationUpdater,
     labels: DefaultLabels,
     pitLinking: PitLinking,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     identity: UserIdentity,
     private val formatUtils: FormatUtilities,
     addressResolver: EthHotWalletAddressResolver
@@ -60,7 +60,7 @@ internal class EthAsset(
     interestBalances,
     tradingBalances,
     pitLinking,
-    crashLogger,
+    remoteLogger,
     identity,
     addressResolver
 ),

@@ -6,7 +6,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -65,10 +68,10 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      * model but UI doesn't care for.
      */
 
-    private var _modelState: TModelState = initialState
+    private val _modelState = MutableStateFlow(initialState)
 
     protected val modelState: TModelState
-        get() = _modelState
+        get() = _modelState.value
 
     /**
      * Method gets called when the Model gets binded to the UI.
@@ -79,19 +82,12 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      */
     abstract fun viewCreated(args: TArgs)
 
-    /* private val mutex = Mutex() */
-
     /**
      * Called by the Viewmodel whenever states [modelState] and [viewState] need to get updated.
      * @param stateUpdate a lambda that generates a new [modelState]
      */
     protected fun updateState(stateUpdate: (state: TModelState) -> TModelState) {
-        viewModelScope.launch {
-            /*    mutex.withLock {*/
-            _modelState = stateUpdate(_modelState)
-            _viewState.value = reduce(_modelState)
-        }
-        /* } */
+        _modelState.value = stateUpdate(modelState)
     }
 
     /**
@@ -104,14 +100,11 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
     }
 
     /**
-     * [_viewState] flow always has a value
+     * [viewState] flow always has a value
      */
-    private val _viewState by lazy {
-        MutableStateFlow(reduce(initialState))
-    }
-
-    val viewState: StateFlow<TViewState>
-        get() = _viewState
+    val viewState: StateFlow<TViewState> = _modelState.map {
+        reduce(it)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, reduce(initialState))
 
     /**
      * Method that should be override in every Model created. In this method, base on the latest internal

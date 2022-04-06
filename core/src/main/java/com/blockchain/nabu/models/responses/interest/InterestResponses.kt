@@ -13,59 +13,6 @@ data class InterestAddressResponse(
 )
 
 @Serializable
-data class InterestActivityResponse(
-    val items: List<InterestActivityItemResponse>
-)
-
-@Serializable
-data class InterestActivityItemResponse(
-    val amount: InterestAmount,
-    val amountMinor: String,
-    val extraAttributes: InterestAttributes?,
-    val id: String,
-    val insertedAt: String,
-    val state: String,
-    val type: String
-) {
-    companion object {
-        const val FAILED = "FAILED"
-        const val REJECTED = "REJECTED"
-        const val PROCESSING = "PROCESSING"
-        const val COMPLETE = "COMPLETE"
-        const val CREATED = "CREATED"
-        const val PENDING = "PENDING"
-        const val MANUAL_REVIEW = "MANUAL_REVIEW"
-        const val CLEARED = "CLEARED"
-        const val REFUNDED = "REFUNDED"
-        const val DEPOSIT = "DEPOSIT"
-        const val WITHDRAWAL = "WITHDRAWAL"
-        const val INTEREST_OUTGOING = "INTEREST_OUTGOING"
-    }
-}
-
-@Serializable
-data class InterestAmount(
-    val symbol: String,
-    val value: String
-)
-
-@Serializable
-data class InterestAttributes(
-    val address: String? = null,
-    val confirmations: Int? = 0,
-    val hash: String? = null,
-    val id: String? = null,
-    val txHash: String? = null,
-    val beneficiary: InterestBeneficiary? = null
-)
-
-@Serializable
-data class InterestBeneficiary(
-    val user: String,
-    val accountRef: String
-)
-
-@Serializable
 data class InterestLimitsFullResponse(
     val limits: Map<String, InterestLimitsResponse>
 )

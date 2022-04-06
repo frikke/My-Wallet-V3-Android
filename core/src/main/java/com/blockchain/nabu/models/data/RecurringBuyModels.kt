@@ -21,6 +21,7 @@ enum class RecurringBuyFrequency {
     UNKNOWN
 }
 
+@kotlinx.serialization.Serializable
 data class EligibleAndNextPaymentRecurringBuy(
     val frequency: RecurringBuyFrequency,
     val nextPaymentDate: String,

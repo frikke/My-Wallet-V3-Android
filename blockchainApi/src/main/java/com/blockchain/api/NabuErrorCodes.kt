@@ -122,13 +122,17 @@ enum class NabuErrorCodes(val code: Int) {
     InsufficientBalance(131),
     InvalidFiatCurrency(149),
     OrderDirectionDisabled(151),
+    WithdrawLocked(152),
     InvalidOrExpiredQuote(155),
     IneligibleForSwap(156),
     InvalidDestinationAmount(157),
     InvalidPostcode(158),
 
     InsufficientCardFunds(10000),
-    CardPaymentDeclined(10001);
+    CardPaymentDeclined(10001),
+
+    DebitCardOnlyCreate(10011),
+    DebitCardOnlyPayment(10012);
 
     companion object {
 

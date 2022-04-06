@@ -81,7 +81,6 @@ class BuyFlowNavigator(
             ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
 
         return entitySwitchSilverEligibilityFeatureFlag.enabled
-            .onErrorReturnItem(false)
             .flatMap { enabled ->
                 if (enabled) {
                     Singles.zip(

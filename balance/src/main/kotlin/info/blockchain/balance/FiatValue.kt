@@ -9,6 +9,8 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 private data class Key(val locale: Locale, val currencyCode: String, val includeSymbol: Boolean)
 
@@ -34,9 +36,10 @@ private object FiatFormat {
     }
 }
 
+@Serializable
 class FiatValue private constructor(
     override val currency: FiatCurrency,
-    private val amount: BigDecimal
+    private val amount: @Contextual BigDecimal
 ) : Money() {
 
     // ALWAYS for display, so use default Locale

@@ -387,7 +387,7 @@ Blockchain.com</string>
     <string name="the_exchange_permission_app_can">Notre Bourse pourra:</string>
     <string name="the_exchange_permission_app_cant">Ne fera pas:</string>
     <string name="the_exchange_permission_1">Synchronisez les adresses avec votre portefeuille afin de pouvoir balayer en toute sécurité la cryptographie entre les comptes</string>
-    <string name="the_exchange_permission_2">Partagez votre statut Gold ou Silver Level pour un trading illimité</string>
+    <string name="the_exchange_permission_2">Partagez votre statut Vérifié ou Basic Level pour un trading illimité</string>
     <string name="the_exchange_permission_4">Accédez à la crypto dans votre portefeuille, accédez à vos clés ou consultez votre mot de passe.</string>
     <string name="the_exchange_connect_now">Se connecter maintenant</string>
     <string name="the_exchange_title">Exchange</string>
@@ -516,7 +516,7 @@ Blockchain.com</string>
     <string name="kyc_veriff_splash_country_supported_header">Mon pays est-il pris en charge?</string>
     <string name="kyc_veriff_splash_country_supported_subheader">Tous les pays ne sont pas pris en charge pour le moment. Consultez notre <annotation link="country_list"> liste de pays </annotation> avant de continuer.</string>
     <string name="kyc_veriff_splash_title">Documents nécessaires</string>
-    <string name="kyc_veriff_splash_error_silver">CERTIFIÉ ARGENT</string>
+    <string name="kyc_veriff_splash_error_silver">CERTIFIÉ BASIC</string>
     <string name="kyc_veriff_splash_header">Nous confirmons votre identité</string>
     <string name="kyc_veriff_splash_subtitle">Vous aurez besoin de l\'un des types d\'ID ci-dessous pour continuer.</string>
     <string name="kyc_veriff_splash_enable_camera_title">Activez également votre appareil photo!</string>
@@ -545,10 +545,10 @@ Blockchain.com</string>
     <string name="kyc_settings_status_rejected">Échec</string>
     <string name="kyc_settings_swap_limit">Limite swap</string>
     <string name="kyc_settings_tier_status_locked">Fermé à clé</string>
-    <string name="kyc_settings_silver_level_in_review">Niveau Argent - En cours d\'examen</string>
+    <string name="kyc_settings_silver_level_in_review">Niveau Basic - En cours d\'examen</string>
     <string name="kyc_settings_gold_level_in_review">Niveau Or - En cours d\'examen</string>
-    <string name="kyc_settings_gold_level_approved">Niveau Or - Approuvé</string>
-    <string name="kyc_settings_silver_level_approved">Niveau Argent - Approuvé</string>
+    <string name="kyc_settings_gold_level_approved">Niveau Vérifié - Approuvé</string>
+    <string name="kyc_settings_silver_level_approved">Niveau Basic - Approuvé</string>
     <string name="kyc_settings_tier_status_failed">Échec</string>
     <string name="kyc_status_error">Erreur lors de la récupération de l’état KYC</string>
     <string name="kyc_status_title_in_progress">Vérification en cours</string>
@@ -589,7 +589,7 @@ Blockchain.com</string>
     <string name="stacks_airdrop_complete_card_title">Votre Airdrop est arrivé</string>
     <string name="stacks_airdrop_complete_card_description">Vos piles sont maintenant dans votre portefeuille. Nous vous informerons dès qu\'ils seront disponibles pour être utilisés.</string>
     <string name="stacks_airdrop_complete_card_button">Voir les détails</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Une récompense pour le niveau Gold</string>
+    <string name="stacks_airdrop_registered_mini_card_title">Une récompense pour le niveau Vérifié</string>
     <string name="stacks_airdrop_registered_mini_card_body">Nous vous envoyons une cryptomonnaie gratuite en 2020</string>
     <string name="unlock">Ouvrir</string>
     <string name="_1_000">1 000 $</string>
@@ -597,7 +597,7 @@ Blockchain.com</string>
     <string name="annual_swap_limit">Limite annuelle d\'échange</string>
     <string name="daily_swap_limit">Limite quotidienne d\'échange</string>
     <string name="get_free_crypto">OBTENIR DES CRYPTOMONNAIES GRATUITES</string>
-    <string name="by_completing_gold_level_you_will_be_eligible_to_participate_in_our_airdrop_program">En remplissant les conditions du niveau Gold, vous êtes automatiquement éligible à notre programme Airdrop.</string>
+    <string name="by_completing_gold_level_you_will_be_eligible_to_participate_in_our_airdrop_program">En remplissant les conditions du niveau Vérifié, vous êtes automatiquement éligible à notre programme d\'airdrops.</string>
     <string name="airdrop_learn_more_url">https://support.blockchain.com/hc/en-us/categories/360001126692-Airdrop-Program</string>
     <string name="start_arrow">flèche de départ</string>
     <string name="approved">Approuvé!</string>
@@ -609,13 +609,13 @@ Blockchain.com</string>
     <string name="tier_x_in_review">Votre vérification %1$s est en cours d\'examen par un membre de l\'équipe d\'assistance de Blockchain.</string>
     <string name="contact_support">Contactez le service d\'assistance</string>
     <string name="requires_email_name_date_of_birth_and_address">E-mail, nom, date de naissance et adresse requis</string>
-    <string name="requires_silver_level_govt_id_and_a_selfie">Nécessite le niveau Silver, une pièce d\'identité gouvernementale et un selfie</string>
+    <string name="requires_silver_level_govt_id_and_a_selfie">Nécessite le niveau Basic, une pièce d\'identité gouvernementale et un selfie</string>
     <string name="kyc_gold_unavailable_text_support">Si vous souhaitez en savoir plus sur notre processus de vérification, visitez notre <annotation link="gold_error">Centre d\'assistance</annotation>.</string>
-    <string name="kyc_gold_unavailable_text_line_2">Si vous êtes certifié Silver, vous pouvez échanger vos cryptomonnaies dans Swap.</string>
-    <string name="kyc_gold_unavailable_text_line_1">Nous sommes désolés de ne pas pouvoir vous certifier Gold. Cela peut être pour un certain nombre de raisons, par exemple votre pays peut ne pas être pris en charge en ce moment.</string>
-    <string name="kyc_gold_unavailable_text_title">Gold indisponible pour le moment</string>
+    <string name="kyc_gold_unavailable_text_line_2">Si vous êtes certifié Basic, vous pouvez échanger votre crypto dans Swap.</string>
+    <string name="kyc_gold_unavailable_text_line_1">Nous sommes désolés de ne pas pouvoir vous mettre au niveau Vérifié. Cela peut s\'expliquer par un certain nombre de raisons, par exemple votre pays peut ne pas être pris en charge pour le moment.</string>
+    <string name="kyc_gold_unavailable_text_title">Niveau Vérifié indisponible pour le moment</string>
     <string name="kyc_gold_unavailable_goto_swap">Commencer à trader</string>
-    <string name="gold_unavailable">Or indisponible</string>
+    <string name="gold_unavailable">Niveau Vérifié indisponible</string>
     <string name="veriff_identify">Identité de Veriff</string>
     <string name="tour_step_one_title">Voir votre portfolio</string>
     <string name="tour_step_one_body_1">Gardez une trace de vos soldes de crypto depuis le tableau de bord de votre Portefeuille. Votre Portefeuille prend actuellement en charge Bitcoin, Ether, Bitcoin Cash, Stellar XLM et USD Digital.</string>
@@ -670,9 +670,9 @@ Blockchain.com</string>
     <string name="kyc_manual_review_required">Examen manuel requis</string>
     <string name="kyc_pending_review">En attendant l\'examen</string>
     <string name="kyc_veriff_but_not_eligible_review">Demande acceptée</string>
-    <string name="kyc_veriff_but_not_eligible_review_info">Votre identité a été vérifiée avec succès. Vous avez maintenant atteint le niveau Or et pouvez trader jusqu\'à 25 000 $ par jour. 
+    <string name="kyc_veriff_but_not_eligible_review_info">Votre identité a été vérifiée avec succès. Vous avez maintenant atteint le niveau Vérifié et pouvez trader jusqu\'à 25 000 $ par jour.
 
- L\'option Acheter n\'est pas encore disponible dans votre région, nous vous informerons dès que cela sera fait.</string>
+L\'option Acheter n\'est pas encore disponible dans votre région, nous vous informerons dès que ce sera fait.</string>
     <string name="simple_buy_securely_transfer">Transférez en toute sécurité %1$s de votre compte bancaire vers Blockchain. Selon la méthode de transfert et la disponibilité des fonds, cela peut prendre jusqu\'à 1 jour ouvrable.</string>
     <string name="simple_buy_bank_account_sheet_instructions">Veuillez transférer %1$s de votre compte bancaire à Blockchain.com. Dès que nous recevrons les fonds, nous créerons votre ordre d\'achat de %2$s.</string>
     <string name="simple_buy_amount_to_send">Montant à envoyer</string>
@@ -836,6 +836,7 @@ Confirmations</string>
     <string name="activity_details_historic_transferred">Valeur au moment du transfert</string>
     <string name="activity_details_historic_value_load_fail">Impossible de charger les informations sur les valeurs historiques</string>
     <string name="activity_details_swap_for">Pour</string>
+    <string name="common_sell">Vendre</string>
     <string name="fiat_funds_no_kyc_step_3_title">Achetez de la crypto avec des espèces</string>
     <string name="card_cvc">CVC</string>
     <string name="processing_time_subtitle_eur">Les fonds seront crédités sur votre compte en euros dès leur réception. Les transferts SEPA mettent environ un jour ouvrable pour nous parvenir.</string>
@@ -850,9 +851,9 @@ Confirmations</string>
     <string name="fiat_funds_no_kyc_step_3_description">Utilisez votre portefeuille électronique comme mode de paiement pour acheter des BTC, ETH, XLM et autres.</string>
     <string name="fiat_funds_no_kyc_announcement_description">Vérifiez votre identité pour verser de l\'argent dans le Portefeuille et acheter de la crypto.</string>
     <string name="received_usdt">Tether reçue</string>
-    <string name="watch_only_not_supported">L\'importation d\'une adresse non utilisable (une adresse ou un script de clé publique 
- sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec 
- une adresse et une clé privée. 
+    <string name="watch_only_not_supported">L\'importation d\'une adresse non utilisable (une adresse ou un script de clé publique
+ sans la clé privée correspondante) n\'est pas pris en charge. Veuillez réessayer avec
+ une adresse et une clé privée.
 </string>
     <string name="tx_title_deposit">Ajouter %s</string>
     <string name="tx_title_withdraw">Retirer %s</string>
@@ -861,7 +862,7 @@ Confirmations</string>
     <string name="by_depositing_funds_terms_and_conds">En déposant des fonds sur ce compte, vous acceptez les <annotation link="modular_terms_and_conditions">Conditions générales de Modulr</annotation>, notre partenaire bancaire.</string>
     <string name="add_bank_with_currency">Ajouter une banque %1s</string>
     <string name="deposit_currency">Dépôt %1s</string>
-    <string name="simple_buy_transfer_details_error">Une erreur s\'est produite lors du chargement des détails du transfert. 
+    <string name="simple_buy_transfer_details_error">Une erreur s\'est produite lors du chargement des détails du transfert.
 
 Veuillez réessayer plus tard.</string>
     <string name="add_bank_title">Ajouter la banque %1s</string>
@@ -997,7 +998,6 @@ Veuillez réessayer plus tard.</string>
     <string name="sell_crypto_subtitle">Vérifiez votre identité pour vendre de la crypto contre de l\'argent.</string>
     <string name="sell_for_cash">Vendre de la Crypto contre du liquide</string>
     <string name="select_wallet_to_sell">Choisissez un Portefeuille à partir duquel vendre.</string>
-    <string name="common_sell">Vendre</string>
     <string name="scan_mismatch_transaction_target">Le code scanné n\'est pas un code QR %1$s.</string>
     <string name="scan_failed">Code QR non reconnu, veuillez réessayer.</string>
     <string name="could_not_save_card">Nous ne pouvons pas enregistrer votre carte. Veuillez contacter le service technique.</string>
@@ -1030,7 +1030,6 @@ Veuillez réessayer plus tard.</string>
     <plurals name="backup_before_send_later_label">
         <item quantity="one">Vous avez %1$d envoi sans sauvegarde restant</item>
         <item quantity="other">Vous avez %1$d envois sans sauvegarde restants</item>
-        <item quantity="many">Vous avez %1$d envois sans sauvegarde restants</item>
     </plurals>
     <string name="backup_before_send_now_label">Vous devez sauvegarder avant d\'envoyer</string>
     <string name="card_info_title">Cartes virtuelles non acceptées</string>
@@ -1141,14 +1140,14 @@ Veuillez réessayer plus tard.</string>
     <string name="swap_faster_cheaper">Échangez plus rapidement. À de meilleurs taux. Dans de meilleures conditions.</string>
     <string name="swap_better">Échangez mieux.</string>
     <string name="swap_hot">Échangez à votre guise.</string>
-    <string name="swap_upgrade_to_gold">Passez à l\'or et échangez plus rapidement, avec des plafonds plus élevées, des frais moins élevés et une meilleure expérience.</string>
+    <string name="swap_upgrade_to_gold">Passez au niveau Vérifié et à Swap plus rapidement, avec des plafonds plus élevées, des frais moins élevés et une meilleure expérience.</string>
     <string name="swap_better_experience">Nous avons mis à jour Swap avec un nouveau look et une meilleure expérience.</string>
     <string name="swap_faster_cheaper_better">Plus rapide. Moins cher. Meilleur. Notre nouvelle expérience Swap vous permet d\'échanger de la crypto en moins de clics.</string>
     <string name="common_continue">Continuer</string>
     <string name="remote_save_failed">Échec de l\'enregistrement</string>
     <string name="dont_ask_again">Ne me posez plus la question.</string>
     <string name="share_failed">Impossible de partager avec %1$s</string>
-    <string name="security_locked_card_funds_explanation">Pour votre sécurité, les premiers achats par carte sont soumis à une période de détention de %1$s jours avant que vous puissiez envoyer ou retirer votre crypto acheté. Nous vous enverrons une notification lorsque la suspension sera levée. 
+    <string name="security_locked_card_funds_explanation">Pour votre sécurité, les premiers achats par carte sont soumis à une période de détention de %1$s jours avant que vous puissiez envoyer ou retirer votre crypto acheté. Nous vous enverrons une notification lorsque la suspension sera levée.
 
 En attendant, vous pouvez vendre en espèces, échanger et trader sur Blockchain.com.</string>
     <string name="security_locked_funds_bank_transfer_explanation">Votre montant final peut changer en raison de l\'activité du marché. Une période de retenue initiale de %s jours sera appliquée à vos fonds. Vous pouvez acheter, vendre, et échanger pendant cette période.</string>
@@ -1185,7 +1184,6 @@ Remarque : Vous ne pourrez pas envoyer ou retirer ces fonds de votre Portefeuill
     <string name="trading_withdrawal_balance_locked">Oups ! Pour des raisons de sécurité, votre solde est actuellement bloqué, veuillez réessayer plus tard.</string>
     <string name="trading_withdrawal_insufficient_funds">Oups ! Vous n\'avez pas assez de fonds pour faire un Retrait</string>
     <string name="trading_internal_server_error">Oups ! Ce service est actuellement indisponible, veuillez réessayer plus tard.</string>
-    <string name="trading_albert_error">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="trading_service_temp_disabled">Ce service sera bientôt de retour. Nous mettons à jour et corrigeons quelques bugs en ce moment même.</string>
     <string name="trading_insufficient_balance">Oups ! Votre solde est insuffisant pour %1$s.</string>
     <string name="trading_amount_below_min">Oups ! Le montant que vous avez sélectionné est inférieur à la limite minimale de %1$s.</string>
@@ -1218,13 +1216,13 @@ Remarque : Vous ne pourrez pas envoyer ou retirer ces fonds de votre Portefeuill
     <string name="recovery_passphrase_1">Phrase de récupération de clé privée secrète</string>
     <string name="invalid_recovery_phrase_1">Phrase secrète de récupération de clé erronée. Veuillez réessayer</string>
     <string name="password_disclaimer">Je comprends que Blockchain.com ne peut pas récupérer mon mot de passe pour moi. Si je perds l\'accès à mon Wallet, je dois utiliser ma <annotation link="backup">Phrase secrète</annotation> pour accéder à mes fonds.</string>
-    <string name="transfer_funds_description_1">Les adresses importées ne sont pas sauvegardées par votre Phrase secrète de récupération de clé. Pour sécuriser ces fonds, nous 
+    <string name="transfer_funds_description_1">Les adresses importées ne sont pas sauvegardées par votre Phrase secrète de récupération de clé. Pour sécuriser ces fonds, nous
         recommandons de transférer ces soldes vers votre Blockchain.com Wallet non-gardien.</string>
     <string name="backup_subtitle">Phrase de récupération de clé privée secrète</string>
     <string name="backup_instructions_3">1. Notez la phrase de 12 mots qui s\'affiche sur l\'écran suivant dans l\'ordre exact où elle apparaît.</string>
-    <string name="backup_complete_message_1">Vous pouvez utiliser votre phrase privée de récupération de clé pour restaurer vos fonds si 
- vous perdez votre mot de passe. Toute personne ayant accès à votre phrase de récupération peut accéder à vos fonds, 
- alors n\'oubliez pas de le garder hors ligne dans un endroit sûr et sécurisé. 
+    <string name="backup_complete_message_1">Vous pouvez utiliser votre phrase privée de récupération de clé pour restaurer vos fonds si
+ vous perdez votre mot de passe. Toute personne ayant accès à votre phrase de récupération peut accéder à vos fonds,
+ alors n\'oubliez pas de le garder hors ligne dans un endroit sûr et sécurisé.
 </string>
     <string name="backup_verify_heading_1">Entrez les mots suivants de votre phrase secrète de récupération pour
         terminer le processus de sauvegarde.
@@ -1323,7 +1321,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="bank_wire_transfer_min_withdrawal">Retrait minimum de %1$s</string>
     <string name="select_a_bank">Sélectionner une banque</string>
     <string name="want_to_buy_more">Vous voulez en acheter plus ?</string>
-    <string name="unlock_gold_level_trading">Débloquez le trading de niveau Gold</string>
+    <string name="unlock_gold_level_trading">Débloquez le trading de niveau Vérifié</string>
     <string name="apply_and_unlock">Postuler et débloquer maintenant&gt;</string>
     <string name="cash_accounts">Comptes de caisse</string>
     <string name="cash_accounts_description">Stockez des USD, GBP ou EUR dans votre portefeuille. Utilisez le solde pour acheter de la crypto. Vendez de la crypto contre de l\'argent à tout moment.</string>
@@ -1338,8 +1336,8 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="sb_checkout_pending_order_blurb">Oups, il semble que vous ayez déjà un ordre d\'achat en cours, veuillez attendre qu\'il soit terminé avant d\'acheter à nouveau.</string>
     <string name="wallet_outage_message">Nous faisons face à une panne. Soyez assurés que vos fonds sont en sécurité. <annotation link="learn_more">En savoir plus</annotation></string>
     <string name="increase_your_limits">Augmentez vos plafonds</string>
-    <string name="increase_your_limits_body">Continuez votre vérification pour accéder au niveau Gold et augmentez vos plafonds et modes de paiement</string>
-    <string name="continue_to_gold">Continuez vers Gold</string>
+    <string name="increase_your_limits_body">Continuez votre vérification pour accéder au niveau Vérifié et augmentez vos plafonds et modes de paiement</string>
+    <string name="continue_to_gold">Continuez vers Vérifié</string>
     <string name="common_payment">Paiement</string>
     <string name="settings_bank_remove_check_title">Êtes-vous sûr ?</string>
     <string name="settings_bank_remove_check_subtitle">Vous êtes sur le point de supprimer votre compte %1$s</string>
@@ -1356,10 +1354,8 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="aave_yfi_dot_available_card_title">Aave, YFI et DOT maintenant disponibles !</string>
     <string name="aave_yfi_dot_available_card_body">Les jetons Aave, YFI et Polkadot peuvent désormais être achetés, vendus, échangés et envoyés dans votre portefeuille.</string>
     <string name="aave_yfi_dot_available_card_cta">Acheter maintenant</string>
-    <string name="default_crypto_non_custodial_wallet_label">Portefeuille à clé privée</string>
     <string name="old_default_non_custodial_wallet_label">Mon portefeuille %1s</string>
-    <string name="exchange_default_account_label_1">Compte Exchange</string>
-    <string name="custodial_wallet_default_label_1">Compte de trading</string>
+    <string name="explainer_exchange_title">Compte Exchange</string>
     <string name="bank_transfer_in_progress_ob_blurb">Votre ordre est en cours de traitement, nous vous informerons lorsqu\'il sera terminé. Vous pouvez fermer cet écran en toute sécurité pendant que nous mettons l\'ordre à jour en arrière-plan.</string>
     <string name="fiat_currency_funds_wallet_name_1">Compte %1s</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour vendre avec les frais de réseau actuels.</string>
@@ -1489,7 +1485,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="receive_memo_warning">Si vous envoyez des fonds sans le texte %1$s Mémo, vos fonds seront perdus et ne seront pas crédités sur votre compte. Veuillez envoyer uniquement %1$s à cette adresse.</string>
     <string name="receive_memo_title">%1$s Mémo :</string>
     <string name="kyc_upsell_custodial_dlg_title">Vérifier l\'utilisation du Compte de trading</string>
-    <string name="kyc_upsell_custodial_dlg_body">Accédez au compte de trading en quelques secondes en complétant votre profil et en obtenant un accès Silver.</string>
+    <string name="kyc_upsell_custodial_dlg_body">Accédez au compte de trading en quelques secondes en complétant votre profil et en obtenant un accès Basic.</string>
     <string name="kyc_upsell_custodial_dlg_item_title_1">Vérifiez votre adresse électronique</string>
     <string name="kyc_upsell_custodial_dlg_item_title_2">Ajoutez votre nom et votre adresse</string>
     <string name="kyc_upsell_custodial_dlg_item_title_3">Utiliser le compte de trading</string>
@@ -1799,7 +1795,7 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
     <string name="rewards_dashboard_item_action_earn">Gagnez des récompenses</string>
     <string name="rewards_dashboard_item_action_view">Afficher</string>
     <string name="rewards_item_issue_region">Indisponible dans votre région</string>
-    <string name="rewards_item_issue_kyc">Vous devez être certifié Gold pour commencer à gagner des récompenses</string>
+    <string name="rewards_item_issue_kyc">Vous devez être certifié Vérifié pour commencer à gagner des récompenses</string>
     <string name="rewards_item_issue_other">Actuellement indisponible, veuillez vérifier à nouveau plus tard</string>
     <string name="rewards_dashboard_item_rate_1">Gagnez jusqu\'à </string>
     <string name="rewards_dashboard_item_rate_2"> annuellement sur votre %1$s</string>
@@ -1816,7 +1812,7 @@ Dans l\'intervalle, vous pouvez vendre en espèces, ou échanger et trader sur B
 Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assistance si le problème persiste.</string>
     <string name="verify_your_identity_limits_1">Vérifiez votre identité, gagnez des récompenses et échangez jusqu\'à %1$s par jour.</string>
     <string name="earn_rewards_description" formatted="false">Faites travailler votre crypto. Gagnez jusqu\'à 10 % par mois sans faire quoi que ce soit. Déposez instantanément et commencez à gagner.</string>
-    <string name="checkout_rewards_confirmation_disclaimer">Après avoir confirmé ce retrait, vous ne continuerez pas à gagner des récompenses sur le montant retiré. 
+    <string name="checkout_rewards_confirmation_disclaimer">Après avoir confirmé ce retrait, vous ne continuerez pas à gagner des récompenses sur le montant retiré.
 
  Vos %1$s seront disponibles sur votre compte \" %2$s \" sous 2 jours.</string>
     <string name="reset_kyc_notice_1">Pour votre sécurité, vous devrez peut-être revérifier votre identité avant d\'accéder à votre compte de trading ou de récompenses.</string>
@@ -1865,7 +1861,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="activity_state_canceled">Annulé</string>
     <string name="fiat_funds_detail_withdraw_title">Retirés</string>
     <string name="withdrawing_amount_message">Nous sommes en train de finaliser votre retrait.</string>
-    <string name="send_progress_error_title">Oups ! Un problème est survenu. Veuillez réessayer.</string>
     <string name="send_progress_error_subtitle">Ne vous inquiétez pas. Votre argent est en sécurité. Veuillez réessayer ou contacter notre équipe d\'assistance pour obtenir de l\'aide.</string>
     <string name="send_enter_insufficient_gas">Vous ne disposez pas de suffisamment d\'ETH pour traiter cette transaction.</string>
     <string name="swap_select_target_title">Nouvelle Conversion</string>
@@ -1973,11 +1968,11 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="sell_enter_amount_max_limit_from_custodial_info">Les ventes à partir de comptes commerciaux ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s.</string>
     <string name="sell_enter_amount_max_limit_from_noncustodial_info">Les ventes à partir de portefeuilles de clés privées ne peuvent pas dépasser %1$s %2$s. Il vous reste %3$s .</string>
     <string name="buy_enter_amount_max_limit_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s.</string>
-    <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s. Passez à Gold pour en acheter plus.</string>
+    <string name="buy_enter_amount_max_limit_suggested_tier_upgrade_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s. Passez au niveau Vérifié pour en acheter plus.</string>
     <string name="buy_enter_amount_max_limit_without_upgrade_info">Vous ne pouvez acheter que %1$s %2$s. Il vous reste %3$s</string>
-    <string name="buy_above_payment_method_error_message">Vous pouvez acheter jusqu\'à %1$s par transaction. Passez à Gold et achetez des montants plus importants avec votre banque ou votre carte.</string>
+    <string name="buy_above_payment_method_error_message">Vous pouvez acheter jusqu\'à %1$s par transaction. Passez au niveau Vérifié et achetez des montants plus importants avec votre banque ou votre carte.</string>
     <string name="buy_above_payment_method_error_message_without_upgrade">Vous pouvez acheter jusqu\'à %1$s par transaction. Pour acheter %2$s divisez votre achat en plusieurs transactions.</string>
-    <string name="deposit_above_payment_method_error_message">Vous pouvez déposer jusqu\'à %1$s par transaction. Passez à Gold et déposez des montants plus importants.</string>
+    <string name="deposit_above_payment_method_error_message">Vous pouvez déposer jusqu\'à %1$s par transaction. Passez au niveau Vérifié et déposez des montants plus importants.</string>
     <string name="deposit_above_payment_method_error_message_without_upgrade">Vous pouvez déposer jusqu\'à %1$s par transaction. Pour déposer %2$s, divisez votre dépôt en plusieurs transactions.</string>
     <string name="send_enter_amount_max_limit_info_action_title">Obtenez des envois illimités</string>
     <string name="swap_enter_amount_max_limit_info_action_title">Échangez plus de crypto</string>
@@ -2039,18 +2034,18 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="feature_limits_header_bronze_title">Mettre à niveau votre Wallet</string>
     <string name="feature_limits_header_bronze_description">Blockchain.com propose deux types de plafonds de compte, chacun conçu pour répondre à vos objectifs et besoins en matière de crypto.</string>
     <string name="feature_limits_header_bronze_cta">Démarrer</string>
-    <string name="feature_limits_header_silver_title">Mise à niveau vers les Plafonds Gold</string>
+    <string name="feature_limits_header_silver_title">Mise à niveau vers les Plafonds Vérifié</string>
     <string name="feature_limits_header_silver_description">Vérifiez votre identifiant et associez votre banque à Buy &amp; Sell Crypto directement depuis votre portefeuille.</string>
     <string name="feature_limits_header_silver_cta">Demander maintenant</string>
     <string name="feature_limits_header_denied_description">Vous disposez actuellement du plus haut niveau de plafonds de compte et de fonctionnalités disponibles.</string>
-    <string name="feature_limits_footer">Des plafonds de transaction peuvent s\'appliquer à certaines banques et émetteurs de cartes. 
+    <string name="feature_limits_footer">Des plafonds de transaction peuvent s\'appliquer à certaines banques et émetteurs de cartes.
 
- Les plafonds d\'achat ou de dépôt sont déterminées par de nombreux facteurs, notamment la vérification effectuée sur votre compte, l\'historique de vos achats, votre type de paiement, etc. 
+ Les plafonds d\'achat ou de dépôt sont déterminées par de nombreux facteurs, notamment la vérification effectuée sur votre compte, l\'historique de vos achats, votre type de paiement, etc.
 
  En savoir plus sur les Trading Accounts, les plafonds et les fonctionnalités en visitant notre <annotation link="support_center_link"> Centre d\'assistance </annotation>.</string>
-    <string name="feature_limits_silver_limits">Plafonds Silver</string>
-    <string name="feature_limits_gold_limits">Plafonds Gold</string>
-    <string name="feature_limits_gold_limits_description">Comprend des fonctionnalités Silver</string>
+    <string name="feature_limits_silver_limits">Plafonds Basic</string>
+    <string name="feature_limits_gold_limits">Plafonds Vérifié</string>
+    <string name="feature_limits_gold_limits_description">Comprend des fonctionnalités Basic</string>
     <string name="feature_limits_error">Un problème est survenu lors de la récupération des informations sur vos plafonds.</string>
     <string name="kyc_limits_upgrade_now_gold_description">Acheter &amp; vendre. Gagner des Rewards.</string>
     <string name="kyc_limits_upgrade_now_gold_info_1">Connectez votre banque ou votre carte à votre Wallet. Conservez de l\'argent liquide dans votre portefeuille. Gagnez de la crypto avec des Rewards.</string>
@@ -2068,6 +2063,7 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="new_user_fee_waiver">Nouvelle dispense des frais d\'utilisation</string>
     <string name="common_disconnect">Déconnecter</string>
     <string name="go_back_to_your_browser">Retournez à votre navigateur et réessayez.</string>
+    <string name="explainer_button">Je comprends, continuer</string>
     <string name="bank_transfer_payment_invalid_title">Compte invalide</string>
     <string name="signature_request">Demande de signature</string>
     <string name="signed">Signé</string>
@@ -2294,7 +2290,6 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <plurals name="wallet_connect_connected_apps">
         <item quantity="one">%d appli connectée</item>
         <item quantity="other">%d applis connectées</item>
-        <item quantity="many">%d applis connectées</item>
     </plurals>
     <string name="coinview_about_asset">À propos de %1$s</string>
     <string name="coinview_chart_tab_day">1D</string>
@@ -2350,8 +2345,8 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="tx_enter_amount_orders_limit_info">%1$d transaction autorisée, vérifier maintenant -&gt;</string>
     <string name="kyc_limits_upgrade_now_title">Mettre à niveau maintenant</string>
     <string name="kyc_limits_upgrade_now_gold_title">Plafonds Gold</string>
-    <string name="kyc_limits_upgrade_now_gold_info_2">Comprend l\'ensemble des plafonds et fonctionnalités Silver.</string>
-    <string name="kyc_limits_upgrade_now_silver_title">Plafonds Silver</string>
+    <string name="kyc_limits_upgrade_now_gold_info_2">Comprend l\'ensemble des plafonds et fonctionnalités Basic.</string>
+    <string name="kyc_limits_upgrade_now_silver_title">Plafonds Basic</string>
     <string name="kyc_limits_upgrade_now_silver_info">Déverrouillez la fonctionnalité Conversion - notre bourse in-app.</string>
     <string name="transactions_left_title">Transactions restantes</string>
     <string name="transactions_left_subtitle">Vérifiez pour un nombre illimité de transactions.</string>
@@ -2361,22 +2356,21 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="kyc_upgrade_now_basic_level">Niveau Basic</string>
     <string name="kyc_upgrade_now_basic_limited_access">Accès limité</string>
     <string name="kyc_upgrade_now_basic_send_receive_title">Envoyer et recevoir des cryptos</string>
-    <string name="kyc_upgrade_now_basic_send_receive_description">Entre les Private Key Wallets</string>
-    <string name="kyc_upgrade_now_basic_swap_title">Échanger votre cryptomonnaie</string>
+    <string name="kyc_upgrade_now_basic_send_receive_description">Entre les portefeuilles à clé privée</string>
+    <string name="kyc_upgrade_now_basic_swap_title">Échanger de la crypto</string>
     <string name="kyc_upgrade_now_basic_swap_description">1 fois entre les Private Key Wallets</string>
     <string name="kyc_upgrade_now_basic_cta">Accès Basic</string>
     <string name="kyc_upgrade_now_verified_level">Niveau de vérification</string>
     <string name="kyc_upgrade_now_verified_full_access">Accès complet</string>
-    <string name="kyc_upgrade_now_verified_swap_title">Échanger votre cryptomonnaie</string>
-    <string name="kyc_upgrade_now_verified_swap_description">Entre tous les Wallets &amp; comptes</string>
-    <string name="kyc_upgrade_now_verified_buy_title">Achat &amp; Vente</string>
-    <string name="kyc_upgrade_now_verified_buy_description">Carte ou méthodes bancaires</string>
-    <string name="kyc_upgrade_now_verified_interest_title">Gagnez des Rewards</string>
+    <string name="kyc_upgrade_now_verified_swap_title">Échanger de la crypto</string>
+    <string name="kyc_upgrade_now_verified_swap_description">Entre tous les portefeuilles et comptes</string>
+    <string name="kyc_upgrade_now_verified_buy_title">Acheter et vendre de la crypto</string>
+    <string name="kyc_upgrade_now_verified_buy_description">Avec carte ou méthodes bancaires</string>
+    <string name="kyc_upgrade_now_verified_interest_title">Gagnez votre crypto</string>
     <string name="kyc_upgrade_now_verified_interest_description">Gagnez des récompenses sur votre crypto</string>
     <string name="kyc_upgrade_now_verified_cta">Être vérifié</string>
-    <string name="kyc_upgrade_now_sheet_title">Améliorez votre profil.
-Achetez, vendez et échangez plus de crypto</string>
-    <string name="kyc_upgrade_now_sheet_subtitle">Vérifiez pour déverrouiller l\'accès aux comptes d\'Achat, Vente, Échange et Rewards.</string>
+    <string name="kyc_upgrade_now_sheet_title">Vérifiez pour obtenir un accès complet</string>
+    <string name="kyc_upgrade_now_sheet_subtitle">Confirmez votre identité pour déverrouiller l\'achat, la vente, l\'échange et bien plus encore.</string>
     <string name="pair_not_supported_title">Paire non prise en charge</string>
     <string name="pair_not_supported_subtitle">Taux manquant pour la paire</string>
     <string name="coinview_fiat_missing">Devise fiduciaire invalide sélectionnée</string>
@@ -2396,28 +2390,38 @@ Achetez, vendez et échangez plus de crypto</string>
     <string name="coinview_account_load_error_subtitle">Un problème est survenu lors de la récupération de vos Wallets et de vos Comptes. Ne vous inquiétez pas, vos fonds sont en sécurité. Rechargez ou fermez, puis rouvrez la page.</string>
     <string name="coinview_no_asset_blurb">Il semble que nous n\'ayons aucune donnée sur cet actif. Si cette situation persiste, <annotation link="contact_support">contactez l\'assistance.</annotation></string>
     <string name="coinview_no_asset_title">Actif inconnu</string>
-    <string name="tx_enter_amount_transactions_limit_info_description">Vous ne pouvez effectuer %1$d transaction qu\'avec un compte de niveau basique.</string>
-    <string name="tx_enter_amount_transactions_limit_info_action_title">Débloquez plus lorsque vous validez</string>
-    <string name="tx_enter_amount_transactions_limit_info_action_description">Accédez à des limites plus élevées et à davantage de méthodes de paiement</string>
+    <string name="tx_enter_amount_transactions_limit_info_description">Vous ne pouvez effectuer que %1$d transaction avec un compte de niveau Basic.</string>
+    <string name="tx_enter_amount_transactions_limit_info_action_title">Débloquez plus lorsque vous êtes vérifié</string>
+    <string name="tx_enter_amount_transactions_limit_info_action_description">Accédez à des plafonds plus élevées et à davantage de modes de paiement</string>
     <string name="kyc_upgrade_now_basic_active">Actif</string>
     <string name="entity_switch_silver_dialog_title">Nous mettons à jour nos exigences de vérification de compte</string>
     <string name="entity_switch_silver_dialog_subtitle">Pour acheter, vendre et échanger, vous devrez vérifier votre identité.</string>
-    <string name="gold_level">Niveau or</string>
-    <string name="silver_level">Niveau d\'argent</string>
+    <string name="gold_level">Niveau Vérifié</string>
+    <string name="silver_level">Niveau Basic</string>
     <string name="tx_enter_amount_transactions_limit_info_title">Vérifier maintenant</string>
     <string name="kyc_upsell_custodial_dlg_cta">Vérifier maintenant</string>
-    <string name="explainer_custodial_title">Compte de trading</string>
-    <string name="explainer_custodial_description">Votre compte de trading est un portefeuille de garde hébergé par Blockchain.com. Votre compte de trading vous permet de négocier avec des frais moins chers et d\'acheter et de vendre des cryptos en quelques secondes.</string>
-    <string name="explainer_non_custodial_title">Portefeuille à clé privée</string>
-    <string name="explainer_non_custodial_description">Votre portefeuille de clé privée signifie que vos fonds sont détenus et contrôlés par vous et vous seul. Blockchain.com ne peut pas voir ni gérer vos soldes dans ce portefeuille.</string>
+    <string name="explainer_custodial_description">Votre Trading Account est un portefeuille de garde hébergé par Blockchain.com. Votre compte de trading vous permet de trader avec des frais moins élevés et d\'acheter et de vendre des cryptos en quelques secondes.</string>
+    <string name="explainer_non_custodial_description">Votre Private Key Wallet signifie que vos fonds sont détenus et contrôlés par vous et vous seul. Blockchain.com ne peut pas voir ou gérer vos soldes dans ce Wallet.</string>
     <string name="explainer_rewards_title">Compte Rewards</string>
-    <string name="explainer_rewards_description">Votre compte Rewards vous permet de gagner des récompenses sur votre crypto ; jusqu\'à %s %% APY.</string>
-    <string name="explainer_exchange_title">Compte Exchange</string>
+    <string name="explainer_rewards_description">Votre Compte Rewards vous permet de gagner des récompenses sur votre crypto ; jusqu\'à %s %% de TRA.</string>
     <string name="explainer_exchange_description">Connectez vos comptes Exchange et Wallet pour afficher vos soldes et transférer des fonds.</string>
-    <string name="explainer_button">Je comprends, continuer</string>
     <string name="explainer_exchange_button">Connecter</string>
-    <string name="actions_sheet_title_private_key">Portefeuille à clé privée</string>
-    <string name="actions_sheet_title_custodial">Compte de trading</string>
-    <string name="actions_sheet_title_rewards">Compte Rewards</string>
-    <string name="actions_sheet_percentage_rewards">%s %% avril</string>
+    <string name="actions_sheet_percentage_rewards">%s %% de TEG</string>
+    <string name="coinview_actions_error">Un problème est survenu lors de la récupération de vos actions disponibles, veuillez réessayer</string>
+    <string name="coinview_watchlist_toggle_fail">Échec de la mise à jour de la liste de surveillance, veuillez réessayer</string>
+    <string name="coinview_asset_info_cta">Visiter le site Web →</string>
+    <string name="coinview_no_asset_description">Il semble que nous n\'ayons pas encore de description pour ce jeton, veuillez consulter leur site Web en appuyant sur le bouton ci-dessous pour en savoir plus.</string>
+    <string name="default_crypto_non_custodial_wallet_label">Portefeuille à clé privée</string>
+    <string name="exchange_default_account_label_1">Compte Exchange</string>
+    <string name="custodial_wallet_default_label_1">Compte de trading</string>
+    <string name="explainer_custodial_title">Compte de trading</string>
+    <string name="explainer_non_custodial_title">Portefeuille à clé privée</string>
+    <string name="card_activation_debit_only_title">Seules les cartes de débit sont prises en charge</string>
+    <string name="card_activation_debit_only_blurb">Utilisez n\'importe quelle carte de débit Visa ou Mastercard.</string>
+    <string name="card_activation_debit_only_cta_primary">Essayez une autre carte</string>
+    <string name="add_debit_card">Carte de débit</string>
+    <string name="sb_checkout_card_debit_only_title">Essayez plutôt une carte de débit</string>
+    <string name="sb_checkout_card_debit_only_blurb">Vous rencontrez des problèmes avec votre carte de crédit ?
+ Essayez plutôt n\'importe quelle carte de débit Visa ou Mastercard.</string>
+    <string name="sb_checkout_card_debit_only_cta">Essayez une autre méthode de paiement</string>
 </resources>

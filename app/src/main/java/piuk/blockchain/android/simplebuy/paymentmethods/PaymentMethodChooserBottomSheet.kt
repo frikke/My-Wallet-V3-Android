@@ -39,6 +39,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         arguments?.getSerializable(DISPLAY_MODE) as DisplayMode
     }
 
+    private val canUseCreditCards: Boolean by unsafeLazy {
+        arguments?.getBoolean(CAN_USE_CREDIT_CARDS) ?: true
+    }
+
     private val assetResources: AssetResources by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): SimpleBuyPaymentMethodChooserBinding =
@@ -52,7 +56,8 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
                         .map {
                             it.toPaymentMethodItem()
                         },
-                    assetResources
+                    assetResources,
+                    canUseCreditCards
                 )
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
             layoutManager = LinearLayoutManager(context)
@@ -84,16 +89,19 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         private const val SUPPORTED_PAYMENT_METHODS = "supported_payment_methods_key"
         private const val CAN_ADD_NEW_PAYMENT = "CAN_ADD_NEW_PAYMENT"
         private const val DISPLAY_MODE = "DISPLAY_MODE"
+        private const val CAN_USE_CREDIT_CARDS = "CAN_USE_CREDIT_CARDS"
 
         fun newInstance(
             paymentMethods: List<PaymentMethod>,
             mode: DisplayMode,
-            canAddNewPayment: Boolean
+            canAddNewPayment: Boolean,
+            canUseCreditCards: Boolean = true
         ): PaymentMethodChooserBottomSheet {
             val bundle = Bundle()
             bundle.putSerializable(SUPPORTED_PAYMENT_METHODS, paymentMethods as Serializable)
             bundle.putSerializable(DISPLAY_MODE, mode)
             bundle.putBoolean(CAN_ADD_NEW_PAYMENT, canAddNewPayment)
+            bundle.putBoolean(CAN_USE_CREDIT_CARDS, canUseCreditCards)
             return PaymentMethodChooserBottomSheet().apply {
                 arguments = bundle
             }
@@ -109,14 +117,15 @@ data class PaymentMethodItem(val paymentMethod: PaymentMethod, val clickAction: 
 
 private class PaymentMethodsAdapter(
     adapterItems: List<PaymentMethodItem>,
-    assetResources: AssetResources
+    assetResources: AssetResources,
+    canUseCreditCards: Boolean
 ) :
     DelegationAdapter<PaymentMethodItem>(AdapterDelegatesManager(), adapterItems) {
     init {
         val cardPaymentDelegate = CardPaymentDelegate()
         val bankPaymentDelegate = BankPaymentDelegate()
         val depositTooltipDelegate = DepositTooltipDelegate()
-        val addCardPaymentDelegate = AddCardDelegate()
+        val addCardPaymentDelegate = AddCardDelegate(canUseCreditCards)
         val linkBankPaymentDelegate = LinkBankDelegate()
         val fundsPaymentDelegate = FundsPaymentDelegate(assetResources)
         val googlePayDelegate = GooglePayDelegate()

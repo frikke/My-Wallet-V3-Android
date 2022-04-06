@@ -2,10 +2,11 @@ package piuk.blockchain.android.ui.login
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import javax.net.ssl.HttpsURLConnection
@@ -22,10 +23,10 @@ class LoginModel(
     initialState: LoginState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val interactor: LoginInteractor,
     private val analytics: Analytics
-) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {
         return when (intent) {
@@ -120,7 +121,7 @@ class LoginModel(
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
         }
-        return interactor.pollForAuth(previousState.sessionId, jsonBuilder)
+        return Single.defer { interactor.pollForAuth(previousState.sessionId, jsonBuilder) }
             .subscribeBy(
                 onSuccess = {
                     when (it) {

@@ -22,7 +22,7 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.DashboardPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -74,19 +74,19 @@ class TransactionFlowActivity :
 
     private val analyticsHooks: TxFlowAnalytics by inject()
     private val customiser: TransactionFlowCustomisations by inject()
-    private val crashLogger: CrashLogger by inject()
+    private val remoteLogger: RemoteLogger by inject()
     private val dashboardPrefs: DashboardPrefs by inject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
-            crashLogger.logException(IllegalStateException(), "No source account specified for action $action")
+            remoteLogger.logException(IllegalStateException(), "No source account specified for action $action")
             NullCryptoAccount()
         }
     }
 
     private val transactionTarget: TransactionTarget by lazy {
         intent.extras?.getTarget(TARGET) ?: kotlin.run {
-            crashLogger.logException(IllegalStateException(), "No target account specified for action $action")
+            remoteLogger.logException(IllegalStateException(), "No target account specified for action $action")
             NullCryptoAccount()
         }
     }

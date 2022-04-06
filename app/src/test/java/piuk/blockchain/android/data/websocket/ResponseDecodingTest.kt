@@ -2,6 +2,8 @@ package piuk.blockchain.android.data.websocket
 
 import com.google.gson.Gson
 import junit.framework.Assert.assertEquals
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import piuk.blockchain.android.data.coinswebsocket.models.Coin
 import piuk.blockchain.android.data.coinswebsocket.models.Entity
@@ -11,6 +13,7 @@ import piuk.blockchain.android.data.coinswebsocket.models.SocketResponse
 class ResponseDecodingTest {
 
     private val gson = Gson()
+    private val json = Json { ignoreUnknownKeys = true }
 
     @Test
     fun `pong message`() {
@@ -22,6 +25,16 @@ class ResponseDecodingTest {
                 coin = Coin.None
             ),
             gson.fromJson(pongMessage, SocketResponse::class.java)
+        )
+
+        assertEquals(
+            SocketResponse(
+                success = true,
+                message = "pong",
+                coin = Coin.None,
+                entity = Entity.NONE
+            ),
+            json.decodeFromString<SocketResponse>(pongMessage)
         )
     }
 
@@ -38,6 +51,16 @@ class ResponseDecodingTest {
                 message = "Address xxx is not valid Ethereum address"
             ),
             gson.fromJson(errorMessage, SocketResponse::class.java)
+        )
+
+        assertEquals(
+            SocketResponse(
+                success = false,
+                entity = Entity.Account,
+                coin = Coin.ETH,
+                message = "Address xxx is not valid Ethereum address"
+            ),
+            json.decodeFromString<SocketResponse>(errorMessage)
         )
     }
 
@@ -76,6 +99,21 @@ class ResponseDecodingTest {
                 )
             ),
             gson.fromJson(errorMessage, SocketResponse::class.java)
+        )
+
+        assertEquals(
+            SocketResponse(
+                success = true,
+                entity = Entity.Header,
+                coin = Coin.ETH,
+                block = EthBlock(
+                    "0x8458a6bdfc7437fb5511171a570834f4ec851300c4fbcc545720db6cfaff78ee",
+                    "0xb8636f3f5bd5bdab77018c905293d66cc355e678ed82c6baadcca27920c68b72",
+                    "0xa339cf61f7397386dcb68d9328b5194f41aee0c2db0bb6cb37e258ceaf078006",
+                    8009305
+                )
+            ),
+            json.decodeFromString<SocketResponse>(errorMessage)
         )
     }
 }

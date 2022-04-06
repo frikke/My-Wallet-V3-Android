@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.email.entry
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -12,9 +12,9 @@ class EmailVerificationModel(
     private val interactor: EmailVerificationInteractor,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger
+    remoteLogger: RemoteLogger
 ) : MviModel<EmailVerificationState, EmailVerificationIntent>(
-    EmailVerificationState(), uiScheduler, environmentConfig, crashLogger
+    EmailVerificationState(), uiScheduler, environmentConfig, remoteLogger
 ) {
 
     override fun performAction(previousState: EmailVerificationState, intent: EmailVerificationIntent): Disposable? =

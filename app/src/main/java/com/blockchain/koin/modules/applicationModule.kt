@@ -19,8 +19,10 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -41,16 +43,23 @@ import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import info.blockchain.serializers.AssetInfoKSerializer
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -212,6 +221,19 @@ val applicationModule = module {
         )
     }.bind(DigitalTrust::class)
 
+    single(kotlinJsonAssetTicker) {
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(BigDecimalSerializer)
+                contextual(BigIntSerializer)
+                contextual(IsoDateSerializer)
+                contextual(AssetInfoKSerializer(assetCatalogue = get()))
+            }
+        }
+    }
+
     scope(payloadScopeQualifier) {
 
         factory {
@@ -272,6 +294,8 @@ val applicationModule = module {
                 bchDataManager = get(),
                 stringUtils = get(),
                 gson = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 payloadDataManager = get(),
                 rxBus = get(),
                 prefs = get(),
@@ -297,7 +321,7 @@ val applicationModule = module {
                 initialState = PairingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 qrCodeDataManager = get(),
                 payloadDataManager = get(),
                 authDataManager = get(),
@@ -343,7 +367,7 @@ val applicationModule = module {
                 initialState = BackupWalletStartingState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -373,7 +397,7 @@ val applicationModule = module {
                 initialState = AccountRecoveryState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }
@@ -471,12 +495,13 @@ val applicationModule = module {
                 ratingPrefs = get(),
                 onboardingPrefs = get(),
                 prefs = get(),
+                buyOrdersCache = get(),
                 simpleBuyPrefs = get(),
                 serializer = get(),
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
@@ -552,7 +577,9 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                json = get(kotlinJsonAssetTicker),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 
@@ -562,7 +589,7 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -573,9 +600,11 @@ val applicationModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivator = get(),
                 gson = get(),
+                json = get(),
+                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -661,7 +690,7 @@ val applicationModule = module {
                 settingsDataManager = get(),
                 coincore = get(),
                 exchangeRates = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 globalEventHandler = get(),
                 simpleBuySync = get(),
                 rxBus = get(),
@@ -695,7 +724,7 @@ val applicationModule = module {
                 nabuToken = get(),
                 nabu = get(),
                 assetCatalogue = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 
@@ -723,7 +752,7 @@ val applicationModule = module {
                 biometricDataRepository = get(),
                 biometricManager = get(),
                 cryptographyManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }.binds(arrayOf(BiometricAuth::class, BiometricsController::class))
 
@@ -736,7 +765,7 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }
 

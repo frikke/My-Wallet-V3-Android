@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -15,9 +15,9 @@ class LoginAuthModel(
     initialState: LoginAuthState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val interactor: LoginAuthInteractor
-) : MviModel<LoginAuthState, LoginAuthIntents>(initialState, mainScheduler, environmentConfig, crashLogger) {
+) : MviModel<LoginAuthState, LoginAuthIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: LoginAuthState, intent: LoginAuthIntents): Disposable? {
         return when (intent) {

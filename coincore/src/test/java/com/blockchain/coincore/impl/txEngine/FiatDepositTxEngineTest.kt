@@ -295,11 +295,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         subject.doValidateAmount(
             pendingTx
         ).test()
-            .assertNoErrors()
-            .assertComplete()
-            .assertValue {
-                it.validationState == ValidationState.UNKNOWN_ERROR
-            }
+            .assertError { it is MissingLimitsException }
+            .assertNotComplete()
     }
 
     @Test
@@ -414,12 +411,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         subject.doValidateAmount(
             pendingTx
         ).test()
-            .assertComplete()
-            .assertNoErrors()
-            .assertValue {
-                it.amount == pendingTx.amount &&
-                    it.limits == pendingTx.limits
-            }
+            .assertNotComplete()
+            .assertError { it is MissingLimitsException }
     }
 
     @Test

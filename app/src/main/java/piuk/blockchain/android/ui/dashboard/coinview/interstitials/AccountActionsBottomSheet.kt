@@ -71,6 +71,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             selectedAccount: BlockchainAccount,
             assetInfo: AssetInfo
         )
+
+        fun navigateToKyc()
     }
 
     val host: Host by lazy {
@@ -81,14 +83,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
         val items =
-            stateAwareActions.filter { it.state == ActionState.Available || it.state == ActionState.LockedForTier }
-                .map { action ->
-                    mapAction(
-                        action,
-                        hasWarning,
-                        selectedAccount
-                    )
-                }
+            stateAwareActions.map { action ->
+                mapAction(
+                    action,
+                    hasWarning,
+                    selectedAccount
+                )
+            }
 
         val assetColor = items.first().color
 
@@ -102,7 +103,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SheetHeader(
-                            title = getTitle(selectedAccount),
+                            title = selectedAccount.label,
                             onClosePress = { dismiss() },
                             startImageResource = getToolbarIcon(selectedAccount, assetColor),
                             shouldShowDivider = false
@@ -134,14 +135,6 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
         return dialog
     }
-
-    private fun getTitle(selectedAccount: CryptoAccount): String =
-        when (selectedAccount) {
-            is NonCustodialAccount -> getString(R.string.actions_sheet_title_private_key)
-            is TradingAccount -> getString(R.string.actions_sheet_title_custodial)
-            is InterestAccount -> getString(R.string.actions_sheet_title_rewards)
-            else -> ""
-        }
 
     private fun getToolbarIcon(selectedAccount: CryptoAccount, color: Color): ImageResource =
         when (selectedAccount) {
@@ -177,12 +170,25 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         item: AssetActionItem
     ) {
         Column {
+            val stateActionData = getStateActionData(item.action.state, item.hasWarning)
+            val noOp = {}
             DefaultTableRow(
                 startImageResource = getStartImagePerState(item.action.state, item.icon, item.asset.colour),
                 primaryText = item.title,
                 secondaryText = item.description,
-                endImageResource = getEndImagePerState(item.action.state, item.hasWarning),
-                onClick = item.actionCta
+                endImageResource = stateActionData.imageResource,
+                onClick = when (stateActionData.state) {
+                    ActionState.LockedForOther,
+                    ActionState.LockedDueToAvailability,
+                    ActionState.LockedForBalance -> noOp
+                    ActionState.LockedForTier -> {
+                        {
+                            host.navigateToKyc()
+                            dismiss()
+                        }
+                    }
+                    ActionState.Available -> item.actionCta
+                }
             )
             Divider(color = AppTheme.colors.light, thickness = 1.dp)
         }
@@ -193,7 +199,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         @DrawableRes icon: Int,
         color: String
     ): ImageResource {
-        return if (state == ActionState.LockedForTier) {
+        return if (state != ActionState.Available) {
             ImageResource.LocalWithBackground(
                 id = icon,
                 backgroundColour = R.color.grey_600,
@@ -208,18 +214,28 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun getEndImagePerState(state: ActionState, hasWarning: Boolean): ImageResource =
+    private fun getStateActionData(state: ActionState, hasWarning: Boolean): ActionData =
         when {
-            state == ActionState.LockedForTier -> {
-                ImageResource.Local(
+            state == ActionState.Available -> ActionData(
+                state = state,
+                hasWarning = false,
+                imageResource = ImageResource.Local(
+                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
+                    contentDescription = null
+                )
+            )
+            hasWarning -> ActionData(
+                state = state,
+                hasWarning = true,
+                imageResource = ImageResource.Local(R.drawable.ic_warning)
+            )
+            else -> ActionData(
+                state = state,
+                hasWarning = false,
+                imageResource = ImageResource.Local(
                     R.drawable.ic_lock,
                     colorFilter = ColorFilter.tint(Grey300)
                 )
-            }
-            hasWarning -> ImageResource.Local(R.drawable.ic_warning)
-            else -> ImageResource.Local(
-                id = com.blockchain.componentlib.R.drawable.ic_chevron_end,
-                contentDescription = null
             )
         }
 
@@ -441,3 +457,9 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         }
     }
 }
+
+private data class ActionData(
+    val state: ActionState,
+    val hasWarning: Boolean,
+    val imageResource: ImageResource
+)

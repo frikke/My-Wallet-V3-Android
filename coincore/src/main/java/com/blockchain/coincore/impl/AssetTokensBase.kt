@@ -20,7 +20,7 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -49,7 +49,7 @@ interface AccountRefreshTrigger {
     private val interestBalance: InterestBalanceDataManager,
     protected val tradingBalances: TradingBalanceDataManager,
     private val pitLinking: PitLinking,
-    protected val crashLogger: CrashLogger,
+    protected val remoteLogger: RemoteLogger,
     protected val identity: UserIdentity,
     protected val addressResolver: AddressResolver
 ) : CryptoAsset, AccountRefreshTrigger {
@@ -75,7 +75,7 @@ interface AccountRefreshTrigger {
                             labels.getDefaultNonCustodialWalletLabel()
                         )
                     ).doOnError { error ->
-                        crashLogger.logException(error)
+                        remoteLogger.logException(error)
                     }.onErrorComplete()
                 } else {
                     Completable.complete()
@@ -93,7 +93,7 @@ interface AccountRefreshTrigger {
         }.doOnError {
             val errorMsg = "Error loading accounts for ${assetInfo.networkTicker}"
             Timber.e("$errorMsg: $it")
-            crashLogger.logException(it, errorMsg)
+            remoteLogger.logException(it, errorMsg)
         }
 
     private fun CryptoNonCustodialAccount.labelNeedsUpdate(): Boolean {

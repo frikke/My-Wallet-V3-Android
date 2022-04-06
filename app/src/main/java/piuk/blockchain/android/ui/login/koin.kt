@@ -15,7 +15,7 @@ val loginUiModule = module {
                 initialState = LoginState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get(),
                 analytics = get()
             )
@@ -35,7 +35,7 @@ val loginUiModule = module {
                 initialState = LoginAuthState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
-                crashLogger = get(),
+                remoteLogger = get(),
                 interactor = get()
             )
         }

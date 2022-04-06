@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.nabu.datamanagers.featureflags.Feature
-import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
@@ -13,7 +13,7 @@ class FiatFundsNoKycAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val kycFeatureEligibility: KycFeatureEligibility = mock()
+    private val userIdentity: UserIdentity = mock()
 
     private lateinit var subject: FiatFundsNoKycAnnouncement
 
@@ -25,7 +25,7 @@ class FiatFundsNoKycAnnouncementTest {
         subject =
             FiatFundsNoKycAnnouncement(
                 dismissRecorder = dismissRecorder,
-                featureEligibility = kycFeatureEligibility
+                userIdentity = userIdentity
             )
     }
 
@@ -43,8 +43,8 @@ class FiatFundsNoKycAnnouncementTest {
     @Test
     fun `should show, when not already shown and user is not kyc gold`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
-            .thenReturn(Single.just(false))
+        whenever(userIdentity.getHighestApprovedKycTier())
+            .thenReturn(Single.just(Tier.BRONZE))
 
         subject.shouldShow()
             .test()
@@ -56,8 +56,8 @@ class FiatFundsNoKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is kyc gold`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(kycFeatureEligibility.isEligibleFor(Feature.SIMPLEBUY_BALANCE))
-            .thenReturn(Single.just(true))
+        whenever(userIdentity.getHighestApprovedKycTier())
+            .thenReturn(Single.just(Tier.GOLD))
 
         subject.shouldShow()
             .test()

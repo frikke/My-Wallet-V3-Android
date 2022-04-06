@@ -19,7 +19,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.extensions.withoutNullValues
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.analytics.LaunchOrigin
@@ -41,7 +41,7 @@ const val WALLET_TYPE_UNKNOWN = "unknown"
 
 class TxFlowAnalytics(
     private val analytics: Analytics,
-    private val crashLogger: CrashLogger
+    private val remoteLogger: RemoteLogger
 ) {
     // General
     fun onFlowCanceled(state: TransactionState) {
@@ -317,7 +317,7 @@ class TxFlowAnalytics(
                         sourceAccountType = TxFlowAnalyticsAccountType.fromAccount(state.sendingAccount),
                         inputCurrency = state.sendingAsset.networkTicker,
                         outputCurrency = (state.selectedTarget as? FiatAccount)?.currency?.networkTicker ?: run {
-                            crashLogger.logEvent("Target account not set")
+                            remoteLogger.logEvent("Target account not set")
                             return
                         }
                     )

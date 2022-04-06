@@ -1,7 +1,7 @@
 package com.blockchain.notifications
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -30,7 +30,7 @@ class NotificationTokenManagerTest {
         on { sharedKey }.thenReturn(SHARED_KEY)
     }
     private val notificationTokenProvider: NotificationTokenProvider = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -47,7 +47,7 @@ class NotificationTokenManagerTest {
             prefs,
             authPrefs,
             notificationTokenProvider,
-            crashLogger
+            remoteLogger
         )
     }
 

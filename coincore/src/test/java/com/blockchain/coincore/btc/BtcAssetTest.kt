@@ -5,7 +5,7 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
@@ -55,7 +55,7 @@ class BtcAssetTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
     private val pitLinking: PitLinking = mock()
-    private val crashLogger: CrashLogger = mock()
+    private val remoteLogger: RemoteLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
     private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
@@ -75,7 +75,7 @@ class BtcAssetTest {
         currencyPrefs = currencyPrefs,
         labels = labels,
         pitLinking = pitLinking,
-        crashLogger = crashLogger,
+        remoteLogger = remoteLogger,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,
         identity = identity,

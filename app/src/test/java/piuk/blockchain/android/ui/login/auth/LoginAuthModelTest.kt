@@ -24,7 +24,9 @@ class LoginAuthModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val interactor: LoginAuthInteractor = mock()
+    private val interactor: LoginAuthInteractor = mock {
+        on { reset2FaRetries() }.thenReturn(Completable.complete())
+    }
     private val unifiedSignInFlag: FeatureFlag = mock()
 
     @get:Rule
@@ -39,7 +41,7 @@ class LoginAuthModelTest {
             initialState = LoginAuthState(),
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
-            crashLogger = mock(),
+            remoteLogger = mock(),
             interactor = interactor
         )
     }
@@ -55,8 +57,9 @@ class LoginAuthModelTest {
         whenever(interactor.authorizeApproval(AUTH_TOKEN, sessionId)).thenReturn(
             Single.just(mock())
         )
+        val payload: kotlinx.serialization.json.JsonObject = mock()
         whenever(interactor.getPayload(GUID, sessionId)).thenReturn(
-            Single.just(mock())
+            Single.just(payload)
         )
         whenever(interactor.getRemaining2FaRetries()).thenReturn(0)
 
@@ -64,9 +67,10 @@ class LoginAuthModelTest {
         model.process(LoginAuthIntents.InitLoginAuthInfo(INPUT_JSON))
 
         // Assert
-        testState.assertValues(
-            LoginAuthState(),
-            LoginAuthState(authStatus = AuthStatus.InitAuthInfo),
+        testState.assertValueAt(0, LoginAuthState())
+        testState.assertValueAt(1, LoginAuthState(authStatus = AuthStatus.InitAuthInfo))
+        testState.assertValueAt(
+            2,
             LoginAuthState(
                 guid = GUID,
                 userId = USER_ID,
@@ -75,7 +79,10 @@ class LoginAuthModelTest {
                 authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.GetSessionId,
                 authInfoForAnalytics = testAuthInfo
-            ),
+            )
+        )
+        testState.assertValueAt(
+            3,
             LoginAuthState(
                 guid = GUID,
                 userId = USER_ID,
@@ -85,7 +92,10 @@ class LoginAuthModelTest {
                 authToken = AUTH_TOKEN,
                 authStatus = AuthStatus.AuthorizeApproval,
                 authInfoForAnalytics = testAuthInfo
-            ),
+            )
+        )
+        testState.assertValueAt(
+            4,
             LoginAuthState(
                 guid = GUID,
                 userId = USER_ID,

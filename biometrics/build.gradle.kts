@@ -19,7 +19,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                api(project(":common-mp:interface"))
+                implementation(project(":logging:domain"))
                 api(project(":common-mp:utils"))
 
                 implementation(Libraries.timber)

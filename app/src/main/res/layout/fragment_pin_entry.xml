@@ -10,16 +10,30 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/pin_entry_logout"
         style="@style/Text.Blue.14"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
         android:clickable="true"
         android:focusable="true"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_width="wrap_content"
         android:text="@string/logout"
         android:textAllCaps="true"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/customer_support"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="@dimen/size_huge"
+        android:layout_height="@dimen/size_huge"
+        android:layout_marginEnd="@dimen/small_margin"
+        android:layout_marginTop="@dimen/small_margin"
+        android:padding="@dimen/tiny_margin"
+        android:src="@drawable/ic_question"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/grey_400" />
 
     <ImageView
         android:id="@+id/icon"

@@ -175,7 +175,13 @@ class FiatDepositTxEngine(
                     else -> Completable.complete()
                 }
             } else {
-                Completable.error(TxValidationFailure(ValidationState.UNKNOWN_ERROR))
+                Completable.error(
+                    MissingLimitsException(
+                        AssetAction.FiatDeposit,
+                        sourceAccount,
+                        txTarget
+                    )
+                )
             }
         }
 

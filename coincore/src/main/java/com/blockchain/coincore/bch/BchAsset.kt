@@ -15,7 +15,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -49,7 +49,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
     pitLinking: PitLinking,
-    crashLogger: CrashLogger,
+    remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     private val beNotifyUpdate: BackendNotificationUpdater,
     identity: UserIdentity,
@@ -63,7 +63,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     interestBalances,
     tradingBalances,
     pitLinking,
-    crashLogger,
+    remoteLogger,
     identity,
     addressResolver
 ),

@@ -70,7 +70,7 @@ class AssetDetailsModelTest {
             assetActionsComparator = assetActionsComparator,
             entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             environmentConfig = environmentConfig,
-            crashLogger = mock()
+            remoteLogger = mock()
         )
     }
 

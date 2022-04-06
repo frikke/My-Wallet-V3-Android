@@ -4,7 +4,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.logging.CrashLogger
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import info.blockchain.wallet.api.data.Settings
@@ -51,7 +51,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     protected abstract val authDataManager: AuthDataManager
     protected abstract val payloadDataManager: PayloadDataManager
     protected abstract val prefs: PersistentPrefs
-    protected abstract val crashLogger: CrashLogger
+    protected abstract val remoteLogger: RemoteLogger
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val timerDisposable = CompositeDisposable()
@@ -166,10 +166,10 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
         try {
             val json = JSONObject(errorBody)
             val errorReason = json.getString(INITIAL_ERROR)
-            crashLogger.logState(INITIAL_ERROR, errorReason)
+            remoteLogger.logState(INITIAL_ERROR, errorReason)
             view?.showErrorSnackbarWithParameter(R.string.common_replaceable_value, errorReason)
         } catch (e: Exception) {
-            crashLogger.logState(INITIAL_ERROR, e.message!!)
+            remoteLogger.logState(INITIAL_ERROR, e.message!!)
             view?.showSnackbar(R.string.common_error, SnackbarType.Error)
         }
     }

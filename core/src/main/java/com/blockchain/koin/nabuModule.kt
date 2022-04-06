@@ -7,6 +7,8 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.nabu.Nabu
+import com.blockchain.nabu.cache.CustodialAssetsEligibilityCache
+import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.datamanagers.AnalyticsNabuUserReporterImpl
 import com.blockchain.nabu.datamanagers.AnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.CreateNabuTokenAdapter
@@ -31,13 +33,9 @@ import com.blockchain.nabu.datamanagers.analytics.AnalyticsFileLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
 import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
-import com.blockchain.nabu.datamanagers.featureflags.FeatureEligibility
-import com.blockchain.nabu.datamanagers.featureflags.KycFeatureEligibility
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
-import com.blockchain.nabu.datamanagers.repositories.NabuUserRepository
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.nabu.datamanagers.repositories.interest.CustodialAssetsEligibilityCache
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
@@ -102,20 +100,26 @@ val nabuModule = module {
                 prefs = get(),
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
-                trust = get()
+                trust = get(),
+                userCache = get()
             )
         }.bind(NabuDataManager::class)
+
+        scoped {
+            UserCache(
+                nabuService = get()
+            )
+        }
 
         factory {
             LiveCustodialWalletManager(
                 assetCatalogue = get(),
                 nabuService = get(),
                 authenticator = get(),
-                simpleBuyPrefs = get(),
                 paymentAccountMapperMappers = mapOf(
                     "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
                 ),
-                kycFeatureEligibility = get(),
+                transactionsCache = get(),
                 interestRepository = get(),
                 custodialRepository = get(),
                 transactionErrorMapper = get(),
@@ -236,14 +240,6 @@ val nabuModule = module {
 
         factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
 
-        scoped { KycFeatureEligibility(userRepository = get()) }.bind(FeatureEligibility::class)
-
-        scoped {
-            NabuUserRepository(
-                nabuDataUserProvider = get()
-            )
-        }
-
         scoped {
             CustodialRepository(
                 pairsProvider = get(),
@@ -310,7 +306,7 @@ val nabuModule = module {
             prefs = lazy { get() },
             analyticsContextProvider = get(),
             localAnalyticsPersistence = get(),
-            crashLogger = get(),
+            remoteLogger = get(),
             tokenStore = get(),
             lifecycleObservable = get()
         )
@@ -337,7 +333,7 @@ val authenticationModule = module {
             NabuAuthenticator(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                crashLogger = get()
+                remoteLogger = get()
             )
         }.bind(Authenticator::class).bind(AuthHeaderProvider::class)
     }

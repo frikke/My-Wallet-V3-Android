@@ -44,7 +44,7 @@ data class SimpleBuyQuoteResponse(
 
 @Serializable
 data class BankAccountResponse(
-    val address: String? = null,
+    val address: String,
     val agent: BankAgentResponse,
     val currency: String
 )
@@ -176,16 +176,22 @@ data class PaymentAttributesResponse(
 enum class PaymentStateResponse {
     @SerialName("INITIAL")
     INITIAL,
+
     @SerialName("WAITING_FOR_3DS_RESPONSE")
     WAITING_FOR_3DS_RESPONSE,
+
     @SerialName("CONFIRMED_3DS")
     CONFIRMED_3DS,
+
     @SerialName("SETTLED")
     SETTLED,
+
     @SerialName("VOIDED")
     VOIDED,
+
     @SerialName("ABANDONED")
     ABANDONED,
+
     @SerialName("FAILED")
     FAILED
 }
@@ -277,8 +283,9 @@ data class TransactionResponse(
         const val REJECTED = "REJECTED"
         const val MANUAL_REVIEW = "MANUAL_REVIEW"
         const val REFUNDED = "REFUNDED"
-
+        const val PROCESSING = "PROCESSING"
         const val DEPOSIT = "DEPOSIT"
+        const val INTEREST_OUTGOING = "INTEREST_OUTGOING"
         const val CHARGE = "CHARGE"
         const val CARD_PAYMENT_FAILED = "CARD_PAYMENT_FAILED"
         const val CARD_PAYMENT_ABANDONED = "CARD_PAYMENT_ABANDONED"
@@ -291,17 +298,24 @@ data class TransactionResponse(
 
 @Serializable
 data class TransactionAttributesResponse(
+    val address: String? = null,
+    val confirmations: Int? = 0,
+    val hash: String? = null,
+    val id: String? = null,
+    val txHash: String? = null,
     val beneficiary: TransactionBeneficiaryResponse? = null
 )
 
 @Serializable
 data class TransactionBeneficiaryResponse(
-    val accountRef: String? = null
+    val accountRef: String? = null,
+    val user: String? = null,
 )
 
 @Serializable
 data class AmountResponse(
-    val symbol: String
+    val symbol: String,
+    val value: String
 )
 
 typealias BuyOrderListResponse = List<BuySellOrderResponse>

@@ -8,12 +8,15 @@ import androidx.test.InstrumentationRegistry;
 
 import android.view.MotionEvent;
 
-import com.blockchain.logging.CrashLogger;
+import com.blockchain.enviroment.EnvironmentConfig;
+import com.blockchain.logging.RemoteLogger;
 
 import org.junit.After;
 import org.junit.Before;
 
 import org.mockito.Mock;
+
+import info.blockchain.balance.AssetCatalogue;
 import piuk.blockchain.androidcore.utils.DeviceIdGenerator;
 import piuk.blockchain.androidcore.utils.PersistentPrefs;
 import piuk.blockchain.androidcore.utils.PrefsUtil;
@@ -26,9 +29,10 @@ public class BaseEspressoTest {
     protected DeviceIdGenerator idGenerator;
     @Mock
     protected UUIDGenerator uuidGenerator;
-
     @Mock
-    protected CrashLogger crashLogger;
+    protected AssetCatalogue assetCatalogue;
+    @Mock
+    protected EnvironmentConfig environmentConfig;
 
     private final SharedPreferences store =
         PreferenceManager.getDefaultSharedPreferences(InstrumentationRegistry.getTargetContext());
@@ -41,7 +45,7 @@ public class BaseEspressoTest {
     public void setup() {
         systemAnimations = new SystemAnimations(InstrumentationRegistry.getTargetContext());
 
-        prefs = new PrefsUtil(InstrumentationRegistry.getTargetContext(), store, store, idGenerator, uuidGenerator, crashLogger);
+        prefs = new PrefsUtil(InstrumentationRegistry.getTargetContext(), store, store, idGenerator, uuidGenerator, assetCatalogue, environmentConfig);
         clearState();
         ignoreTapJacking(true);
         disableAnimations();

@@ -177,7 +177,7 @@ class MainInteractor internal constructor(
         cancelOrderUseCase.invoke(orderId)
 
     fun shouldShowEntitySwitchSilverKycUpsell(): Single<Boolean> =
-        entitySwitchSilverEligibilityFeatureFlag.enabled.onErrorReturnItem(false)
+        entitySwitchSilverEligibilityFeatureFlag.enabled
             .flatMap { enabled ->
                 if (enabled) {
                     userIdentity.getHighestApprovedKycTier().map { tier ->

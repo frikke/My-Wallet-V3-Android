@@ -520,7 +520,7 @@ class PaymentsDataManagerImpl(
             expireDate = expireDate,
             cardType = cardType,
             status = status,
-            isEligible = true,
+            isEligible = true
         )
 
     private fun BankInfoResponse.toPaymentMethod(): LinkedPaymentMethod.Bank? {
@@ -650,7 +650,8 @@ class PaymentsDataManagerImpl(
             eligible = eligible,
             currency = currency,
             type = type.toPaymentMethodType(),
-            limits = limits.toPaymentLimits(currency)
+            limits = limits.toPaymentLimits(currency),
+            cardFundSources = cardFundSources
         )
 
     private fun BankTransferChargeResponse.toBankTransferDetails() =
@@ -749,6 +750,7 @@ sealed class LinkedPaymentMethod(
         val expireDate: Date,
         val cardType: CardType,
         val status: CardStatus,
+        val cardFundSources: List<String>? = null,
         override val currency: FiatCurrency
     ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
 
@@ -783,7 +785,8 @@ data class PaymentMethodTypeWithEligibility(
     val eligible: Boolean,
     val currency: FiatCurrency,
     val type: PaymentMethodType,
-    val limits: PaymentLimits
+    val limits: PaymentLimits,
+    val cardFundSources: List<String>? = null
 )
 
 data class EligiblePaymentMethodType(
