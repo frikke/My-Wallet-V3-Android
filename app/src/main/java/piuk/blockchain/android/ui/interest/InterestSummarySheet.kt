@@ -42,8 +42,8 @@ import timber.log.Timber
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
     interface Host : SlidingModalBottomDialog.Host {
         fun goToActivityFor(account: BlockchainAccount)
-        fun goToInterestDeposit(toAccount: InterestAccount)
-        fun goToInterestWithdraw(fromAccount: InterestAccount)
+        fun goToInterestDeposit(toAccount: BlockchainAccount)
+        fun goToInterestWithdraw(fromAccount: BlockchainAccount)
     }
 
     override val host: Host by lazy {
@@ -78,6 +78,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         binding.apply {
+            interestDetailsLoading1.showIconLoader = false
+            interestDetailsLoading2.showIconLoader = false
+            interestDetailsLoading3.showIconLoader = false
+            interestDetailsLoadingGroup.visible()
+            interestDetailsList.gone()
+
             interestDetailsTitle.text = account.label
             interestDetailsSheetHeader.text = asset.name
             interestDetailsLabel.text = asset.name
@@ -98,7 +104,8 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
-                            host.goToInterestDeposit(account as InterestAccount)
+                            host.goToInterestDeposit(account)
+                            dismiss()
                         }
                     } else {
                         interestDetailsDepositCta.gone()
@@ -113,6 +120,10 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (details, limits, interestRate) ->
+                    with(binding) {
+                        interestDetailsLoadingGroup.gone()
+                        interestDetailsList.visible()
+                    }
                     compositeToView(
                         CompositeInterestDetails(
                             totalInterest = details.totalInterest,
@@ -144,7 +155,8 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         )
                     )
                     analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
-                    host.goToInterestWithdraw(account as InterestAccount)
+                    host.goToInterestWithdraw(account)
+                    dismiss()
                 }
             }
         }

@@ -94,6 +94,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interest_details_crypto_value" />
 
+    <com.blockchain.componentlib.system.LoadingTableRowView
+        android:id="@+id/interest_details_loading_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/interest_details_separator" />
+
+    <com.blockchain.componentlib.system.LoadingTableRowView
+        android:id="@+id/interest_details_loading_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/interest_details_loading_1" />
+
+    <com.blockchain.componentlib.system.LoadingTableRowView
+        android:id="@+id/interest_details_loading_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/interest_details_loading_2" />
+
+    <androidx.constraintlayout.widget.Group
+        android:layout_width="wrap_content"
+        android:id="@+id/interest_details_loading_group"
+        app:constraint_referenced_ids="interest_details_loading_1,interest_details_loading_2, interest_details_loading_3"
+        android:layout_height="wrap_content"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/interest_details_list"
         android:layout_width="match_parent"
