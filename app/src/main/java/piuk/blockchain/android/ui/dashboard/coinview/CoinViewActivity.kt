@@ -12,9 +12,9 @@ import androidx.core.content.ContextCompat
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.SnackbarType
@@ -650,11 +650,12 @@ class CoinViewActivity :
         )
     }
 
-    private fun startSwap() {
+    private fun startSwap(account: BlockchainAccount) {
         startActivity(
             TransactionFlowActivity.newIntent(
                 context = this,
-                action = AssetAction.Swap
+                action = AssetAction.Swap,
+                sourceAccount = account
             )
         )
     }
@@ -918,12 +919,14 @@ class CoinViewActivity :
         when (action) {
             AssetAction.Send -> startSend(selectedAccount)
             AssetAction.Receive -> startReceive(selectedAccount)
-            AssetAction.Swap -> startSwap()
+            AssetAction.Swap -> startSwap(selectedAccount)
             AssetAction.Sell -> startSell(selectedAccount)
             AssetAction.ViewStatement -> startViewSummary(selectedAccount)
             AssetAction.ViewActivity -> goToActivityFor(selectedAccount)
             AssetAction.Buy -> startBuy(assetInfo)
-            else -> throw IllegalStateException("Action is not supported in this flow")
+            AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
+            AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
+            else -> throw IllegalStateException("Action $action is not supported in this flow")
         }
     }
 
@@ -936,22 +939,22 @@ class CoinViewActivity :
         finish()
     }
 
-    override fun goToInterestDeposit(toAccount: InterestAccount) {
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         startActivity(
             TransactionFlowActivity.newIntent(
                 context = this,
                 action = AssetAction.InterestDeposit,
-                sourceAccount = toAccount as BlockchainAccount
+                target = toAccount as TransactionTarget
             )
         )
     }
 
-    override fun goToInterestWithdraw(fromAccount: InterestAccount) {
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
         startActivity(
             TransactionFlowActivity.newIntent(
                 context = this,
                 action = AssetAction.InterestWithdraw,
-                sourceAccount = fromAccount as BlockchainAccount
+                sourceAccount = fromAccount
             )
         )
     }

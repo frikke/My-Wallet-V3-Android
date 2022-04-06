@@ -354,14 +354,15 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
-                processAction(AssetAction.Withdraw)
+                processAction(AssetAction.InterestWithdraw)
             }
             AssetAction.Sell -> AssetActionItem(
                 title = getString(R.string.common_sell),
                 icon = R.drawable.ic_tx_sell,
                 hasWarning = hasWarning,
                 description = getString(R.string.convert_your_crypto_to_cash),
-                asset = asset, action = stateAwareAction
+                asset = asset,
+                action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SELL_CLICKED, asset)
                 processAction(AssetAction.Sell)

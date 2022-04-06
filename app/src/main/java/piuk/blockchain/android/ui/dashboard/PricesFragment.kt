@@ -14,7 +14,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -452,7 +451,7 @@ internal class PricesFragment :
             )
         )
 
-    override fun goToInterestDeposit(toAccount: InterestAccount) {
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         if (toAccount is CryptoAccount) {
             model.process(
                 DashboardIntent.UpdateLaunchDialogFlow(
@@ -465,7 +464,7 @@ internal class PricesFragment :
         }
     }
 
-    override fun goToInterestWithdraw(fromAccount: InterestAccount) {
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
         if (fromAccount is CryptoAccount) {
             model.process(
                 DashboardIntent.UpdateLaunchDialogFlow(

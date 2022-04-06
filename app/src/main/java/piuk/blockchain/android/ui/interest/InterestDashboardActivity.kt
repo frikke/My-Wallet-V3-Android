@@ -6,7 +6,6 @@ import android.os.Bundle
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -77,7 +76,7 @@ class InterestDashboardActivity :
         super.onDestroy()
     }
 
-    override fun goToInterestDeposit(toAccount: InterestAccount) {
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         clearBottomSheet()
         require(toAccount is CryptoAccount)
         startActivityForResult(
@@ -90,7 +89,7 @@ class InterestDashboardActivity :
         )
     }
 
-    override fun goToInterestWithdraw(fromAccount: InterestAccount) {
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
         clearBottomSheet()
         require(fromAccount is CryptoAccount)
         startActivityForResult(
