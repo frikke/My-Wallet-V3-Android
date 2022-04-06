@@ -231,16 +231,16 @@ class BuyPaymentMethodSelected(type: String) : AnalyticsEvent {
 
 class BankTransferViewed(fiatCurrency: FiatCurrency) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BANK_TRANSFER_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.BUY
     override val params: Map<String, Serializable> = mapOf(
-        "currency" to fiatCurrency.networkTicker,
-        "origin" to BuySellFragment.BuySellViewType.TYPE_BUY
+        "currency" to fiatCurrency.networkTicker
     )
 }
 
 class BankTransferClicked(fiatCurrency: FiatCurrency) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BANK_TRANSFER_CLICKED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.BUY
     override val params: Map<String, Serializable> = mapOf(
-        "currency" to fiatCurrency.networkTicker,
-        "origin" to BuySellFragment.BuySellViewType.TYPE_BUY
+        "currency" to fiatCurrency.networkTicker
     )
 }
