@@ -7,9 +7,10 @@ import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.Currency
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import java.io.Serializable
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import java.io.Serializable
 
 enum class SimpleBuyAnalytics(override val event: String, override val params: Map<String, String> = emptyMap()) :
     AnalyticsEvent {
@@ -225,5 +226,21 @@ class BuyPaymentMethodSelected(type: String) : AnalyticsEvent {
     override val event: String = AnalyticsNames.BUY_PAYMENT_METHOD_CHANGED.eventName
     override val params: Map<String, Serializable> = mapOf(
         "payment_type" to type
+    )
+}
+
+class BankTransferViewed(fiatCurrency: FiatCurrency) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BANK_TRANSFER_VIEWED.eventName
+    override val params: Map<String, Serializable> = mapOf(
+        "currency" to fiatCurrency.networkTicker,
+        "origin" to BuySellFragment.BuySellViewType.TYPE_BUY
+    )
+}
+
+class BankTransferClicked(fiatCurrency: FiatCurrency) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BANK_TRANSFER_CLICKED.eventName
+    override val params: Map<String, Serializable> = mapOf(
+        "currency" to fiatCurrency.networkTicker,
+        "origin" to BuySellFragment.BuySellViewType.TYPE_BUY
     )
 }

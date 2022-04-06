@@ -7,10 +7,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import java.io.Serializable
+import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
+import piuk.blockchain.android.simplebuy.BankTransferViewed
 import piuk.blockchain.android.simplebuy.paymentMethodsShown
 import piuk.blockchain.android.simplebuy.toAnalyticsString
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
@@ -18,6 +20,7 @@ import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.io.Serializable
 
 class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymentMethodChooserBinding>() {
 
@@ -44,6 +47,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
     }
 
     private val assetResources: AssetResources by inject()
+    private val currencyPrefs: CurrencyPrefs by inject()
+
+    private val fiatCurrency: FiatCurrency
+        get() = currencyPrefs.tradingCurrency
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): SimpleBuyPaymentMethodChooserBinding =
         SimpleBuyPaymentMethodChooserBinding.inflate(inflater, container, false)
@@ -73,6 +80,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
 
         analytics.logEvent(paymentMethodsShown(paymentMethods.map { it.toAnalyticsString() }.joinToString { "," }))
+
+        if (paymentMethods.any { it is PaymentMethod.UndefinedBankTransfer }) {
+            analytics.logEvent(BankTransferViewed(fiatCurrency = fiatCurrency))
+        }
     }
 
     private fun PaymentMethod.toPaymentMethodItem(): PaymentMethodItem {
