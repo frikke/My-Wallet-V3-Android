@@ -43,6 +43,8 @@ import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.maintenance.data.appMaintenanceDataModule
+import piuk.blockchain.android.ui.maintenance.domain.interestDashboardDomainModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -105,7 +107,9 @@ object KoinStarter {
                     remoteFeatureFlagsModule,
                     deeplinkModule,
                     loggingModule,
-                    customerSupportModule
+                    customerSupportModule,
+                    appMaintenanceDataModule,
+                    interestDashboardDomainModule
                 )
             )
         }
