@@ -403,7 +403,10 @@ class CoinViewActivity :
                 }
                 renderPriceInformation(state.prices, state.historicalRateList, state.selectedFiat)
             }
-            is CoinViewViewState.ShowRecurringBuys -> renderRecurringBuys(state.recurringBuys, state.shouldShowUpsell)
+            is CoinViewViewState.ShowRecurringBuys -> {
+                renderRecurringBuys(state.recurringBuys, state.shouldShowUpsell)
+                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+            }
             is CoinViewViewState.QuickActionsLoaded -> {
                 newState.asset?.let { asset ->
                     renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
