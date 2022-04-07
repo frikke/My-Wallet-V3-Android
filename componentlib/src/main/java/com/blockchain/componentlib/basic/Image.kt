@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.toArgb
@@ -43,7 +44,9 @@ fun Image(
             androidx.compose.foundation.Image(
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
-                modifier = modifier,
+                modifier = if (imageResource.shape != null) {
+                    modifier.size(dimensionResource(R.dimen.large_margin)).clip(imageResource.shape)
+                } else modifier,
                 colorFilter = imageResource.colorFilter,
                 contentScale = contentScale,
             )
@@ -51,7 +54,9 @@ fun Image(
             androidx.compose.foundation.Image(
                 painter = rememberImagePainter(imageResource.bitmap),
                 contentDescription = imageResource.contentDescription,
-                modifier = modifier,
+                modifier = if (imageResource.shape != null) {
+                    modifier.size(dimensionResource(R.dimen.large_margin)).clip(imageResource.shape)
+                } else modifier,
                 contentScale = contentScale,
             )
         is ImageResource.Remote ->
@@ -61,7 +66,9 @@ fun Image(
                     builder = coilImageBuilderScope ?: defaultBuilderScope
                 ),
                 contentDescription = imageResource.contentDescription,
-                modifier = modifier,
+                modifier = if (imageResource.shape != null) {
+                    modifier.size(dimensionResource(R.dimen.large_margin)).clip(imageResource.shape)
+                } else modifier,
                 contentScale = contentScale,
             )
         is ImageResource.LocalWithBackground -> {
@@ -69,14 +76,14 @@ fun Image(
             val tintColor = Color(ContextCompat.getColor(LocalContext.current, imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(dimensionResource(R.dimen.large_margin))
+                modifier = modifier.size(dimensionResource(R.dimen.large_margin))
             ) {
                 Box(
                     modifier = Modifier
                         .alpha(imageResource.alpha)
                         .background(
                             color = tintColor,
-                            shape = CircleShape
+                            shape = imageResource.shape ?: CircleShape
                         )
                         .size(dimensionResource(R.dimen.large_margin))
                 )
@@ -94,14 +101,14 @@ fun Image(
             val tintColor = Color(android.graphics.Color.parseColor(imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(dimensionResource(R.dimen.large_margin))
+                modifier = modifier.size(dimensionResource(R.dimen.large_margin))
             ) {
                 Box(
                     modifier = Modifier
                         .alpha(imageResource.alpha)
                         .background(
                             color = tintColor,
-                            shape = CircleShape
+                            shape = imageResource.shape ?: CircleShape
                         )
                         .size(dimensionResource(R.dimen.large_margin))
                 )

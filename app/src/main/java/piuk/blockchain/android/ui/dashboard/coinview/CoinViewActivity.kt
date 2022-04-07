@@ -6,12 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TransactionTarget
@@ -300,7 +303,7 @@ class CoinViewActivity :
         newState.asset?.let { cryptoAsset ->
             with(binding) {
                 assetAboutTitle.text = getString(R.string.coinview_about_asset, cryptoAsset.assetInfo.name)
-                assetPrice.endIcon = ImageResource.Remote(cryptoAsset.assetInfo.logo)
+                assetPrice.endIcon = ImageResource.Remote(url = cryptoAsset.assetInfo.logo, shape = CircleShape)
                 assetBalance.updateIcon(newState.isAddedToWatchlist)
             }
         }
@@ -668,6 +671,48 @@ class CoinViewActivity :
         showBottomSheet(InterestSummarySheet.newInstance(account as CryptoAccount))
     }
 
+    private fun logBuyEvent() {
+        val isBuySell = binding.secondaryCta.text == getString(R.string.common_sell)
+        if (isBuySell) {
+            analytics.logEvent(
+                CoinViewAnalytics.BuySellClicked(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker,
+                    type = CoinViewAnalytics.Companion.Type.BUY
+                )
+            )
+        } else {
+            analytics.logEvent(
+                CoinViewAnalytics.BuyReceiveClicked(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker,
+                    type = CoinViewAnalytics.Companion.Type.BUY
+                )
+            )
+        }
+    }
+
+    private fun logReceiveEvent() {
+        val isBuyReceive = binding.primaryCta.text == getString(R.string.common_buy)
+        if (isBuyReceive) {
+            analytics.logEvent(
+                CoinViewAnalytics.BuyReceiveClicked(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker,
+                    type = CoinViewAnalytics.Companion.Type.RECEIVE
+                )
+            )
+        } else {
+            analytics.logEvent(
+                CoinViewAnalytics.SendReceiveClicked(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker,
+                    type = CoinViewAnalytics.Companion.Type.RECEIVE
+                )
+            )
+        }
+    }
+
     private fun getQuickActionUi(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
@@ -683,13 +728,7 @@ class CoinViewActivity :
                     )
                 )
             ) {
-                analytics.logEvent(
-                    CoinViewAnalytics.BuySellClicked(
-                        origin = LaunchOrigin.COIN_VIEW,
-                        currency = assetTicker,
-                        type = CoinViewAnalytics.Companion.Type.BUY
-                    )
-                )
+                logBuyEvent()
                 startBuy(asset)
             }
             QuickActionCta.Sell -> QuickAction(
@@ -737,13 +776,7 @@ class CoinViewActivity :
                     )
                 )
             ) {
-                analytics.logEvent(
-                    CoinViewAnalytics.SendReceiveClicked(
-                        origin = LaunchOrigin.COIN_VIEW,
-                        currency = assetTicker,
-                        type = CoinViewAnalytics.Companion.Type.RECEIVE
-                    )
-                )
+                logReceiveEvent()
                 startReceive(highestBalanceWallet)
             }
             QuickActionCta.None -> {
@@ -869,6 +902,18 @@ class CoinViewActivity :
         if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
             analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
         }
+        analytics.logEvent(
+            CoinViewAnalytics.WalletsAccountsClicked(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = assetTicker,
+                accountType = when (accountDetails.account) {
+                    is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
+                    is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
+                    is InterestAccount -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+                    else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
+                }
+            )
+        )
         model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
     }
 
