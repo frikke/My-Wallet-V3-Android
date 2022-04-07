@@ -284,7 +284,8 @@ class TransactionModel(
                     sourceAccount = intent.fromAccount,
                     amount = getInitialAmountFromTarget(intent),
                     transactionTarget = intent.target,
-                    action = intent.action
+                    action = intent.action,
+                    passwordRequired = intent.passwordRequired
                 )
             }
             is TransactionIntent.TargetSelected ->
@@ -292,7 +293,8 @@ class TransactionModel(
                     sourceAccount = previousState.sendingAccount,
                     amount = previousState.amount,
                     transactionTarget = previousState.selectedTarget,
-                    action = previousState.action
+                    action = previousState.action,
+                    passwordRequired = previousState.passwordRequired
                 )
             is TransactionIntent.TargetSelectionUpdated -> null
             is TransactionIntent.InitialiseWithSourceAndPreferredTarget ->
@@ -526,7 +528,8 @@ class TransactionModel(
         sourceAccount: BlockchainAccount,
         amount: Money,
         transactionTarget: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
+        passwordRequired: Boolean
     ): Disposable =
         entitySwitchSilverEligibilityFeatureFlag.enabled
             .flatMapMaybe { enabled ->
@@ -544,16 +547,33 @@ class TransactionModel(
                                 amount,
                                 transactionTarget,
                                 action,
+                                passwordRequired,
                                 it
                             )
                         )
                     }
                 },
                 onComplete = {
-                    process(TransactionIntent.InitialiseTransaction(sourceAccount, amount, transactionTarget, action))
+                    process(
+                        TransactionIntent.InitialiseTransaction(
+                            sourceAccount,
+                            amount,
+                            transactionTarget,
+                            action,
+                            passwordRequired
+                        )
+                    )
                 },
                 onError = {
-                    process(TransactionIntent.InitialiseTransaction(sourceAccount, amount, transactionTarget, action))
+                    process(
+                        TransactionIntent.InitialiseTransaction(
+                            sourceAccount,
+                            amount,
+                            transactionTarget,
+                            action,
+                            passwordRequired
+                        )
+                    )
                     Timber.i(it)
                 }
             )

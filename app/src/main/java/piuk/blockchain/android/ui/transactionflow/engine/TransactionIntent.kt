@@ -63,7 +63,7 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         val action: AssetAction,
         val fromAccount: SingleAccount,
         val target: TransactionTarget,
-        private val passwordRequired: Boolean
+        val passwordRequired: Boolean
     ) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             TransactionState(
@@ -72,20 +72,8 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
                 selectedTarget = target,
                 errorState = TransactionErrorState.NONE,
                 passwordRequired = passwordRequired,
-                currentStep = selectStep(passwordRequired, target),
                 nextEnabled = passwordRequired
             ).updateBackstack(oldState)
-
-        private fun selectStep(
-            passwordRequired: Boolean,
-            target: TransactionTarget
-        ): TransactionStep =
-            when {
-                passwordRequired -> TransactionStep.ENTER_PASSWORD
-                target is InvoiceTarget -> TransactionStep.CONFIRM_DETAIL
-                target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
-                else -> TransactionStep.ENTER_AMOUNT
-            }
     }
 
     data class InitialiseWithSourceAndPreferredTarget(
@@ -142,9 +130,23 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
         val amount: Money,
         val transactionTarget: TransactionTarget,
         val action: AssetAction,
+        private val passwordRequired: Boolean,
         val eligibility: FeatureAccess? = null
     ) : TransactionIntent() {
-        override fun reduce(oldState: TransactionState): TransactionState = oldState
+        override fun reduce(oldState: TransactionState): TransactionState = oldState.copy(
+            currentStep = selectStep(passwordRequired, transactionTarget),
+        ).updateBackstack(oldState)
+
+        private fun selectStep(
+            passwordRequired: Boolean,
+            target: TransactionTarget
+        ): TransactionStep =
+            when {
+                passwordRequired -> TransactionStep.ENTER_PASSWORD
+                target is InvoiceTarget -> TransactionStep.CONFIRM_DETAIL
+                target is WalletConnectTarget -> TransactionStep.CONFIRM_DETAIL
+                else -> TransactionStep.ENTER_AMOUNT
+            }
     }
 
     object ClearBackStack : TransactionIntent() {
