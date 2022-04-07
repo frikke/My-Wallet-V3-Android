@@ -412,7 +412,7 @@ class CoinViewActivity :
                     renderQuickActions(asset.assetInfo, state.actionableAccount, state.startAction, state.endAction)
                 }
             }
-            is CoinViewViewState.UpdatedWatchlist -> renderWatchlistIcon(state)
+            is CoinViewViewState.UpdatedWatchlist -> renderWatchlistIcon(state.addedToWatchlist)
             is CoinViewViewState.ShowAccountExplainerSheet -> {
                 require(newState.selectedCryptoAccount != null)
                 with(newState.selectedCryptoAccount) {
@@ -512,25 +512,38 @@ class CoinViewActivity :
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
-    private fun renderWatchlistIcon(state: CoinViewViewState.UpdatedWatchlist) {
-        with(binding) {
-            if (state.addedToWatchlist) {
-                analytics.logEvent(
-                    CoinViewAnalytics.CoinAddedFromWatchlist(
-                        origin = LaunchOrigin.COIN_VIEW,
-                        currency = assetTicker
-                    )
-                )
-                assetBalance.iconResource = ImageResource.Local(R.drawable.ic_star_filled)
+    private fun renderWatchlistIcon(addedToWatchlist: Boolean) {
+        sendWatchlistAnalytics(addedToWatchlist)
+        showSnackBarWatchlist(addedToWatchlist)
+    }
+
+    private fun showSnackBarWatchlist(addedToWatchlist: Boolean) {
+        BlockchainSnackbar.make(
+            binding.root,
+            if (addedToWatchlist) {
+                getString(R.string.coinview_added_watchlist)
             } else {
-                analytics.logEvent(
-                    CoinViewAnalytics.CoinRemovedFromWatchlist(
-                        origin = LaunchOrigin.COIN_VIEW,
-                        currency = assetTicker
-                    )
+                getString(R.string.coinview_removed_watchlist)
+            },
+            type = SnackbarType.Success
+        ).show()
+    }
+
+    private fun sendWatchlistAnalytics(addedToWatchlist: Boolean) {
+        if (addedToWatchlist) {
+            analytics.logEvent(
+                CoinViewAnalytics.CoinAddedFromWatchlist(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker
                 )
-                assetBalance.iconResource = ImageResource.Local(R.drawable.ic_star)
-            }
+            )
+        } else {
+            analytics.logEvent(
+                CoinViewAnalytics.CoinRemovedFromWatchlist(
+                    origin = LaunchOrigin.COIN_VIEW,
+                    currency = assetTicker
+                )
+            )
         }
     }
 

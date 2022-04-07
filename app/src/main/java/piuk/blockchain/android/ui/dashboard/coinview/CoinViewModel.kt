@@ -78,6 +78,11 @@ class CoinViewModel(
                     .subscribeBy(
                         onComplete = {
                             process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = false))
+                            process(
+                                CoinViewIntent.UpdateViewState(
+                                    CoinViewViewState.UpdatedWatchlist(addedToWatchlist = false)
+                                )
+                            )
                         },
                         onError = {
                             process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
@@ -88,6 +93,11 @@ class CoinViewModel(
                     .subscribeBy(
                         onSuccess = {
                             process(CoinViewIntent.UpdateWatchlistState(isAddedToWatchlist = true))
+                            process(
+                                CoinViewIntent.UpdateViewState(
+                                    CoinViewViewState.UpdatedWatchlist(addedToWatchlist = true)
+                                )
+                            )
                         },
                         onError = {
                             process(CoinViewIntent.UpdateErrorState(CoinViewError.WatchlistUpdateFailed))
