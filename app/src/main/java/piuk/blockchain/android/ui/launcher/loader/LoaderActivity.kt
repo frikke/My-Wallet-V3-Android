@@ -59,12 +59,11 @@ class LoaderActivity :
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
-            is LoadingStep.Main -> {
-                onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
-            }
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
-            is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.RequestPin -> onRequestPin()
+            // These below should always come only after a ProgressStep.FINISH has been emitted
+            is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.url)
             null -> {
             }
