@@ -29,7 +29,7 @@ internal class AppMaintenanceRepositoryImpl(
                 null
             }
 
-            if (maintenanceConfig == null || appUpdateInfo == null) {
+            if (maintenanceConfig == null /* todo 'uncomment for prod' || appUpdateInfo == null*/) {
                 Outcome.Failure(Throwable())
             } else { // todo map
                 Outcome.Success(
