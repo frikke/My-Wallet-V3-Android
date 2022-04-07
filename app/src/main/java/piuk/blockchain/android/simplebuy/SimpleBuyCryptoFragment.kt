@@ -695,8 +695,18 @@ class SimpleBuyCryptoFragment :
                     paymentMethod.toNabuAnalyticsString()
                 )
             )
-        if (paymentMethod is PaymentMethod.UndefinedCard) {
-            analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.BUY))
+
+        when (paymentMethod) {
+            is PaymentMethod.UndefinedCard -> {
+                analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.BUY))
+            }
+
+            is PaymentMethod.UndefinedBankAccount -> {
+                analytics.logEvent(BankTransferClicked(fiatCurrency = fiatCurrency))
+            }
+
+            else -> {
+            }
         }
     }
 

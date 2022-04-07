@@ -131,6 +131,8 @@ enum class AnalyticsNames(val eventName: String) {
     DEPOSIT_CLICKED("Deposit Clicked"),
     DEPOSIT_AMOUNT_ENTERED("Deposit Amount Entered"),
     DEPOSIT_METHOD_SELECTED("Deposit Method Selected"),
+    BANK_TRANSFER_VIEWED("Bank Transfer Viewed"),
+    BANK_TRANSFER_CLICKED("Bank Transfer Clicked"),
     INTEREST_CLICKED("Interest Clicked"),
     INTEREST_DEPOSIT_AMOUNT_ENTERED("Interest Deposit Amount Entered"),
     INTEREST_DEPOSIT_CLICKED("Interest Deposit Clicked"),
