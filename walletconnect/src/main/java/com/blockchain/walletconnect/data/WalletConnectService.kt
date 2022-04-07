@@ -64,7 +64,7 @@ class WalletConnectService(
         }
     }
 
-    private fun disconnectAllClientsTemporarily() {
+    private fun disconnectAllClientsWithoutRemovingTheSessions() {
         wcClients.forEach { (_, client) ->
             client.onDisconnect = { _, _ -> }
             client.disconnect()
@@ -87,8 +87,11 @@ class WalletConnectService(
             when (state) {
                 null -> {
                 } // warning removal
-                AppState.BACKGROUNDED -> disconnectAllClientsTemporarily() // Close sockets when app gets backgrounded.
-                AppState.FOREGROUNDED -> reconnectToPreviouslyApprovedSessions()
+                AppState.BACKGROUNDED ->
+                    // Close sockets when app gets backgrounded.
+                    disconnectAllClientsWithoutRemovingTheSessions()
+                AppState.FOREGROUNDED ->
+                    reconnectToPreviouslyApprovedSessions()
             }.exhaustive
         }
     }
@@ -168,17 +171,13 @@ class WalletConnectService(
         onSessionRejected(session)
     }
 
+    // This method is called when users log out and this is causing the connected dApp sockets to disconnect without
+    // removing the dApps sessions from the metadata.
     override fun clear() {
         compositeDisposable.clear()
         connectedSessions.clear()
-        disconnectAndClear()
-    }
-
-    private fun disconnectAndClear() {
-        wcClients.forEach { (_, client) ->
-            client.disconnect()
-        }
-        wcClients.clear()
+        disconnectAllClientsWithoutRemovingTheSessions()
+        connectedSessions.clear()
     }
 
     private fun onSessionRejected(session: WalletConnectSession) {
