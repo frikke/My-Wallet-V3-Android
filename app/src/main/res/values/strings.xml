@@ -60,6 +60,8 @@
     <string name="common_preview">Preview</string>
     <string name="common_unavailable">Unavailable</string>
     <string name="common_connect">Connect</string>
+    <string name="common_receive_to">Receive %1$s</string>
+
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -1932,7 +1934,6 @@
     <string name="trending_label">Trending</string>
     <string name="trending_swap">Swap %1$s</string>
     <string name="trending_empty">Fund your Trading Wallets to see Trending Swaps with lower fees.</string>
-    <string name="trending_receive">Receive %1$s</string>
     <string name="select_a_wallet">Select a Wallet</string>
     <string name="select_a_bank">Select a Bank</string>
 
@@ -2798,6 +2799,10 @@
     <string name="coinview_no_asset_title">Unknown Asset</string>
     <string name="coinview_asset_info_cta">Visit Website →</string>
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
+    <string name="coinview_no_balance_sheet_title">Add %1$s to %2$s</string>
+    <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
+    <string name="coinview_added_watchlist">Added to Watchlist</string>
+    <string name="coinview_removed_watchlist">Removed from Watchlist</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
@@ -2865,6 +2870,4 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
-    <string name="coinview_added_watchlist">Added from Watchlist</string>
-    <string name="coinview_removed_watchlist">Removed from Watchlist</string>
 </resources>

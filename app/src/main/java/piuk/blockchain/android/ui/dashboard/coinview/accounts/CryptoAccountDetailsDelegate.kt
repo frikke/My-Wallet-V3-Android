@@ -27,6 +27,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 
 class CryptoAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : AdapterDelegate<AssetDetailsItemNew> {
@@ -37,6 +38,7 @@ class CryptoAccountDetailsDelegate(
         AssetWalletViewHolder(
             ViewCoinviewWalletsBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onAccountSelected,
+            onLockedAccountSelected,
             labels,
             assetResources
         )
@@ -54,6 +56,7 @@ class CryptoAccountDetailsDelegate(
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
     private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -67,6 +70,9 @@ private class AssetWalletViewHolder(
         with(binding) {
             assetDetailsAvailable.onClick = {
                 onAccountSelected(item)
+            }
+            assetDetailsNotAvailable.onClick = {
+                onLockedAccountSelected()
             }
             val walletLabel = when (item.assetFilter) {
                 AssetFilter.NonCustodial -> item.account.label
@@ -115,7 +121,6 @@ private class AssetWalletViewHolder(
                 assetDetailsAvailable.gone()
                 assetDetailsNotAvailable.apply {
                     visible()
-                    isClickable = false
                     primaryText = walletLabel
                     secondaryText = when (item.assetFilter) {
                         AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_desc)

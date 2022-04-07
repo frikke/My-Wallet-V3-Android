@@ -9,6 +9,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 
 class AccountsAdapterDelegate(
     private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val onCardClicked: () -> Unit,
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
@@ -19,6 +20,7 @@ class AccountsAdapterDelegate(
             addAdapterDelegate(
                 CryptoAccountDetailsDelegate(
                     onAccountSelected,
+                    onLockedAccountSelected,
                     labels,
                     assetResources
                 )

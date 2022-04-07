@@ -197,10 +197,10 @@ class CustodialTradingAccount(
             val isActiveFunded = !isArchived && balance.total.isPositive
 
             val activity = StateAwareAction(
-                if (baseActions.contains(
-                        AssetAction.ViewActivity
-                    ) && hasTransactions
-                ) ActionState.Available else ActionState.LockedForOther,
+                when {
+                    baseActions.contains(AssetAction.ViewActivity) -> ActionState.Available
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.ViewActivity
             )
 
@@ -211,7 +211,7 @@ class CustodialTradingAccount(
                         if (cryptoDepositEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
                         else ActionState.LockedForOther
                     }
-                    hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForOther
+                    hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForTier
                     else -> ActionState.Available
                 },
                 AssetAction.Receive
@@ -232,28 +232,34 @@ class CustodialTradingAccount(
             )
 
             val send = StateAwareAction(
-                if (baseActions.contains(AssetAction.Send) &&
-                    isActiveFunded && balance.withdrawable.isPositive
-                ) ActionState.Available else ActionState.LockedForBalance,
+                when {
+                    baseActions.contains(AssetAction.Send) &&
+                        isActiveFunded && balance.withdrawable.isPositive -> ActionState.Available
+                    else -> ActionState.LockedForBalance
+                },
                 AssetAction.Send
             )
 
             val interest = StateAwareAction(
-                if (baseActions.contains(AssetAction.InterestDeposit) &&
-                    isActiveFunded && isEligibleForInterest
-                ) ActionState.Available else ActionState.LockedForOther,
+                when {
+                    baseActions.contains(AssetAction.InterestDeposit) &&
+                        isActiveFunded && isEligibleForInterest -> ActionState.Available
+                    !isEligibleForInterest -> ActionState.LockedForTier
+                    !isActiveFunded -> ActionState.LockedForBalance
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.InterestDeposit
             )
 
             val swap = StateAwareAction(
                 when {
-                    !baseActions.contains(AssetAction.Swap) || !isActiveFunded -> ActionState.LockedForOther
+                    !baseActions.contains(AssetAction.Swap) -> ActionState.LockedForOther
                     swapEligibility is FeatureAccess.Blocked -> {
                         if (swapEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
                         else ActionState.LockedForOther
                     }
-                    hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForOther
-                    balance.withdrawable.isZero -> ActionState.LockedForBalance
+                    hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForTier
+                    !isActiveFunded || balance.withdrawable.isZero -> ActionState.LockedForBalance
                     else -> ActionState.Available
                 },
                 AssetAction.Swap

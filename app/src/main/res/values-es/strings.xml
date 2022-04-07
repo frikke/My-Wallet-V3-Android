@@ -1076,7 +1076,7 @@ Esto le permitirá restaurar su Wallet si perdiera este dispositivo.</string>
     <string name="trending_label">Tendencias</string>
     <string name="trending_swap">Intercambio %1$s</string>
     <string name="trending_empty">Financie sus monederos comerciales para ver los intercambios en tendencia con tarifas más bajas.</string>
-    <string name="trending_receive">Recibir %1$s</string>
+    <string name="common_receive_to">Recibir %1$s</string>
     <string name="select_a_wallet">Seleccionar un Wallet</string>
     <string name="pending_swap_info_message">Tiene un intercambio pendiente. Una vez que este se realice, podrá crear un nuevo intercambio.</string>
     <string name="deposit_fee">Tarifa de red</string>

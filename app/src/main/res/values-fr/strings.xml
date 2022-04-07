@@ -1102,7 +1102,7 @@ Veuillez réessayer plus tard.</string>
     <string name="trending_label">Tendance</string>
     <string name="trending_swap">Swap %1$s</string>
     <string name="trending_empty">Approvisionnez vos portefeuilles de trading pour avoir accès au Swaps en évolution à des frais moins élevés.</string>
-    <string name="trending_receive">Recevoir %1$s</string>
+    <string name="common_receive_to">Recevoir %1$s</string>
     <string name="select_a_wallet">Sélectionner un Wallet</string>
     <string name="pending_swap_info_message">Vous avez 1 échange en cours. Une fois qu\'il sera terminé, vous pourrez procéder à un nouvel échange.</string>
     <string name="deposit_fee">Frais de réseau</string>

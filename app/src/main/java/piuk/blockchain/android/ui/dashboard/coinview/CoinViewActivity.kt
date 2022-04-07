@@ -39,6 +39,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.data.Entry
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -55,6 +56,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
@@ -71,7 +73,8 @@ class CoinViewActivity :
     RecurringBuyDetailsSheet.Host,
     AccountExplainerBottomSheet.Host,
     AccountActionsBottomSheet.Host,
-    InterestSummarySheet.Host {
+    InterestSummarySheet.Host,
+    NoBalanceActionBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -101,6 +104,7 @@ class CoinViewActivity :
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
+            onLockedAccountSelected = ::navigateToKyc,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
@@ -525,7 +529,8 @@ class CoinViewActivity :
             } else {
                 getString(R.string.coinview_removed_watchlist)
             },
-            type = SnackbarType.Success
+            type = SnackbarType.Success,
+            duration = Snackbar.LENGTH_SHORT
         ).show()
     }
 
@@ -988,6 +993,12 @@ class CoinViewActivity :
             AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
             AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
             else -> throw IllegalStateException("Action $action is not supported in this flow")
+        }
+    }
+
+    override fun showBalanceUpsellSheet(item: AccountActionsBottomSheet.AssetActionItem) {
+        item.account?.let {
+            showBottomSheet(NoBalanceActionBottomSheet.newInstance(it, item.action.action))
         }
     }
 

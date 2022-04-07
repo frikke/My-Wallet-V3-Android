@@ -1164,7 +1164,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="trending_label">Tendências</string>
     <string name="trending_swap">Trocar %1$s</string>
     <string name="trending_empty">Financie as suas Carteiras de Negociação para ver as Tendências de Trocas com taxas mais baixas.</string>
-    <string name="trending_receive">Receber %1$s</string>
+    <string name="common_receive_to">Receber %1$s</string>
     <string name="select_a_wallet">Selecione uma Wallet</string>
     <string name="pending_swap_info_message">Tem 1 troca pendente. Depois de este ser eliminado, pode fazer uma nova troca.</string>
     <string name="deposit_fee">Taxa de rede</string>
