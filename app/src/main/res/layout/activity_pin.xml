@@ -13,6 +13,7 @@
         android:layout_height="0dp"
         android:inputType="number"
         android:maxLength="4"
+        android:imeOptions="actionDone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
