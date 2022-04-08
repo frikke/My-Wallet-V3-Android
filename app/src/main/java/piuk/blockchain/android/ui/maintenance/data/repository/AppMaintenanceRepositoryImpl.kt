@@ -34,7 +34,7 @@ internal class AppMaintenanceRepositoryImpl(
             } else { // todo map
                 Outcome.Success(
                     AppMaintenanceConfig(
-                        playStoreVersion = /*appUpdateInfo.availableVersionCode()*/12,
+                        playStoreVersion = /*appUpdateInfo.availableVersionCode()*/16830,
                         bannedVersions = maintenanceConfig.bannedVersions,
                         softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
                         skippedSoftVersion = 123,

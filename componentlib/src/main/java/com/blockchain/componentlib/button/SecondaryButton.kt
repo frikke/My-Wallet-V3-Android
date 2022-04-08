@@ -20,7 +20,7 @@ import com.blockchain.componentlib.theme.Grey900
 fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
-    state: ButtonState,
+    state: ButtonState = ButtonState.Enabled,
     modifier: Modifier = Modifier,
     icon: ImageResource = ImageResource.None,
 ) {

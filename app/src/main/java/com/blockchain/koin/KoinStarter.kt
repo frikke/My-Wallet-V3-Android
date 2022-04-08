@@ -45,6 +45,7 @@ import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.ui.maintenance.domain.interestDashboardDomainModule
+import piuk.blockchain.android.ui.maintenance.presentation.interestDashboardPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -109,7 +110,8 @@ object KoinStarter {
                     loggingModule,
                     customerSupportModule,
                     appMaintenanceDataModule,
-                    interestDashboardDomainModule
+                    interestDashboardDomainModule,
+                    interestDashboardPresentationModule
                 )
             )
         }

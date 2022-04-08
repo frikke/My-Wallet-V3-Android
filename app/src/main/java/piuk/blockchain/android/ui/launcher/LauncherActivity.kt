@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -14,7 +15,10 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.base.MvpActivity
+import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.ui.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity
@@ -23,10 +27,16 @@ import timber.log.Timber
 
 class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), LauncherView {
 
+    private val binding: ActivityInterestDashboardBinding by lazy {
+        ActivityInterestDashboardBinding.inflate(layoutInflater)
+    }
+
     private val dataWiper: DataWiper by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setContentView(binding.root)
 
         dataWiper.clearData()
 
@@ -65,6 +75,16 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             data = deeplinkURL,
             isAutomationTesting = intent.extras?.getBoolean(INTENT_AUTOMATION_TEST, false) ?: false
         )
+    }
+
+    override fun onAppMaintenance() {
+        supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
+            .replace(
+                binding.contentFrame.id, AppMaintenanceFragment.newInstance(),
+                AppMaintenanceFragment::class.simpleName
+            )
+            .commitAllowingStateLoss()
     }
 
     override fun onNoGuid() {

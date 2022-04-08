@@ -7,24 +7,26 @@ import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRe
 
 class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepository) {
     suspend operator fun invoke(): AppMaintenanceStatus = repository.getAppMaintenanceConfig().fold(
-        onFailure = { AppMaintenanceStatus.Unknown },
+        onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
         onSuccess = { config ->
 
             val currentVersion = BuildConfig.VERSION_CODE
 
             if (config.siteWideMaintenance) {
-                AppMaintenanceStatus.SiteWideMaintenance(config.statusURL)
+                AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
             } else if (config.bannedVersions.contains(currentVersion)) {
                 if (config.bannedVersions.contains(config.playStoreVersion)) {
-                    AppMaintenanceStatus.RedirectToWebsite
+                    AppMaintenanceStatus.Actionable.RedirectToWebsite("sss")
                 } else {
-                    AppMaintenanceStatus.MandatoryUpdate(config.storeURI)
+                    AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
                 }
             } else if (currentVersion < config.softUpgradeVersion && config.softUpgradeVersion != config.skippedSoftVersion) {
-                AppMaintenanceStatus.OptionalUpdate(config.storeURI)
+                AppMaintenanceStatus.Actionable.OptionalUpdate(config.storeURI)
             } else {
-                AppMaintenanceStatus.AllClear
+                AppMaintenanceStatus.NonActionable.AllClear
             }
+
+            AppMaintenanceStatus.Actionable.OptionalUpdate(config.storeURI)
         }
     )
 }

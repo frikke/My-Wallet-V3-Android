@@ -18,6 +18,7 @@ import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import kotlin.coroutines.CoroutineContext
 
 interface LauncherView : MvpView {
+    fun onAppMaintenance()
     fun onCorruptPayload()
     fun getViewIntentData(): ViewIntentData
     fun onNoGuid()
@@ -46,16 +47,21 @@ class LauncherPresenter internal constructor(
     override val coroutineContext: CoroutineContext = job + Dispatchers.IO
 
     override fun onViewAttached() {
+        //        kickOff()
         launch {
             // check app maintenance status
             getAppMaintenanceConfigUseCase().let { status ->
                 when (status) {
-                    AppMaintenanceStatus.Unknown -> { // todo
+                    AppMaintenanceStatus.NonActionable.Unknown -> { // todo
                         kickOff()
                     }
 
-                    AppMaintenanceStatus.AllClear -> {
+                    AppMaintenanceStatus.NonActionable.AllClear -> {
                         kickOff()
+                    }
+
+                    else -> {
+                        view?.onAppMaintenance()
                     }
                 }
             }
