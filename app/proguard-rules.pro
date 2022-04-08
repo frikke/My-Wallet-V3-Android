@@ -232,7 +232,7 @@
 # Kotlinx serialisation
 -keep public class com.blockchain.api.** { *; }
 -keep public class com.blockchain.payments.googlepay.** { *; }
--keep public class com.blockchain.blockchaincard.** { *; }
+-keep public class com.blockchain.blockchaincard.data.** { *; }
 
 -keepattributes *Annotation*, InnerClasses, AnnotationDefault, RuntimeVisibleAnnotations
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
