@@ -1128,7 +1128,7 @@ Blockchain.com</string>
     <string name="trending_label">В тренде</string>
     <string name="trending_swap">Своп (Swap) %1$s</string>
     <string name="trending_empty">Пополняйте свои торговые кошельки, чтобы увидеть тренды свопов с более низкими комиссиями.</string>
-    <string name="trending_receive">Получить %1$s</string>
+    <string name="common_receive_to">Получить %1$s</string>
     <string name="select_a_wallet">Выберите Wallet</string>
     <string name="pending_swap_info_message">У вас 1 своп в ожидании. Как только он исчезнет, вы можете сделать новый своп.</string>
     <string name="deposit_fee">Сетевая комиссия</string>

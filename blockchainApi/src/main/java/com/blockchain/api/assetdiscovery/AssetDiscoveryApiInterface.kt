@@ -32,8 +32,7 @@ internal interface AssetDiscoveryApiInterface {
     @GET("assets/currencies/custodial")
     fun getCustodialCurrencies(): Single<DynamicCurrencyList>
 
-    @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
-    @GET("assets/info/{assetTicker}}")
+    @GET("assets/info/{assetTicker}")
     suspend fun getAssetInfo(
         @Path("assetTicker") ticker: String
     ): Outcome<ApiError, AssetInformationResponse>

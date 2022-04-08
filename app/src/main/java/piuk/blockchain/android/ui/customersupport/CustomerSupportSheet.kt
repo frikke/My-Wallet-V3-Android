@@ -43,8 +43,6 @@ class CustomerSupportSheet :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        logEvent(CustomerSupportAnalytics.SheetShown)
-
         setupViews()
         setupViewModel()
     }

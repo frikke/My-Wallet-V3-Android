@@ -9,7 +9,6 @@ import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.notifications.analytics.Analytics
@@ -35,10 +34,7 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
         subscription = model.state.subscribeBy(
             onNext = { render(it) },
             onError = {
-                if (BuildConfig.DEBUG) {
-                    throw it
-                }
-                renderError(it)
+                throw it
             },
             onComplete = { Timber.d("***> State on complete!!") }
         )
@@ -68,10 +64,6 @@ abstract class MviFragment<M : MviModel<S, I>, I : MviIntent<S>, S : MviState, E
     abstract fun initBinding(inflater: LayoutInflater, container: ViewGroup?): E
 
     protected abstract fun render(newState: S)
-
-    protected open fun renderError(t: Throwable) {
-        Timber.e(t)
-    }
 
     protected val activity: BlockchainActivity
         get() = requireActivity() as? BlockchainActivity

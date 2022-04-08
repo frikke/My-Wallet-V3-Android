@@ -46,6 +46,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.util.getAccount
@@ -73,6 +74,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         )
 
         fun navigateToKyc()
+        fun showBalanceUpsellSheet(item: AssetActionItem)
     }
 
     val host: Host by lazy {
@@ -81,6 +83,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        logEventWalletViewed(selectedAccount)
         val dialog = BottomSheetDialog(requireActivity())
         val items =
             stateAwareActions.map { action ->
@@ -179,8 +182,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 endImageResource = stateActionData.imageResource,
                 onClick = when (stateActionData.state) {
                     ActionState.LockedForOther,
-                    ActionState.LockedDueToAvailability,
-                    ActionState.LockedForBalance -> noOp
+                    ActionState.LockedDueToAvailability -> noOp
+                    ActionState.LockedForBalance -> {
+                        {
+                            host.showBalanceUpsellSheet(item)
+                            dismiss()
+                        }
+                    }
                     ActionState.LockedForTier -> {
                         {
                             host.navigateToKyc()
@@ -354,14 +362,15 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                         origin = LaunchOrigin.CURRENCY_PAGE
                     )
                 )
-                processAction(AssetAction.Withdraw)
+                processAction(AssetAction.InterestWithdraw)
             }
             AssetAction.Sell -> AssetActionItem(
                 title = getString(R.string.common_sell),
                 icon = R.drawable.ic_tx_sell,
                 hasWarning = hasWarning,
                 description = getString(R.string.convert_your_crypto_to_cash),
-                asset = asset, action = stateAwareAction
+                asset = asset,
+                action = stateAwareAction
             ) {
                 logActionEvent(AssetDetailsAnalytics.SELL_CLICKED, asset)
                 processAction(AssetAction.Sell)
@@ -393,6 +402,21 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
 
     private fun logActionEvent(event: AssetDetailsAnalytics, asset: Currency) {
         analytics.logEvent(assetActionEvent(event, asset))
+    }
+
+    private fun logEventWalletViewed(selectedAccount: CryptoAccount) {
+        analytics.logEvent(
+            CoinViewAnalytics.WalletsAccountsViewed(
+                origin = LaunchOrigin.COIN_VIEW,
+                currency = selectedAccount.currency.networkTicker,
+                accountType = when (selectedAccount) {
+                    is TradingAccount -> CoinViewAnalytics.Companion.AccountType.CUSTODIAL
+                    is NonCustodialAccount -> CoinViewAnalytics.Companion.AccountType.USERKEY
+                    is InterestAccount -> CoinViewAnalytics.Companion.AccountType.REWARDS_ACCOUNT
+                    else -> CoinViewAnalytics.Companion.AccountType.EXCHANGE_ACCOUNT
+                }
+            )
+        )
     }
 
     data class AssetActionItem(

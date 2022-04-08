@@ -23,6 +23,7 @@ import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.store_persisters_sqldelight.storePersistersSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -107,6 +108,7 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     customerSupportModule,
+                    storePersistersSqlDelightModule,
                     blockchainCardModule
                 )
             )

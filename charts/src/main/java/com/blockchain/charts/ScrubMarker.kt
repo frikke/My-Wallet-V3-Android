@@ -39,23 +39,29 @@ internal class ScrubMarker(
 
     override fun draw(canvas: Canvas?, posX: Float, posY: Float) {
         if (canvas == null) return
-        // Check marker position and update offsets.
-        val w = width
+        // Check marker position and update offsets.=
         var xPos = posX
-        if (uiScreenWidth - posX - w < w) {
-            xPos -= w
+        if (uiScreenWidth - posX - width < width) {
+            xPos -= width
+        }
+
+        // Margins
+        if (isStartMarginRequired(xPos)) {
+            xPos += MARGIN_SIZE
+        } else if (isEndMarginRequired(xPos)) {
+            xPos -= MARGIN_SIZE
         }
 
         when {
             ::currentHighlight.isInitialized && currentHighlight is PeakHighlight -> {
-                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MAX)
+                canvas.translate(xPos, posY - MARGIN_SIZE - height)
                 draw(canvas)
-                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MAX)
+                canvas.translate(-xPos, -posY + MARGIN_SIZE + height)
             }
             ::currentHighlight.isInitialized && currentHighlight is TroughHighlight -> {
-                canvas.translate(xPos, posY - VERTICAL_ADJUSTMENT_MIN)
+                canvas.translate(xPos, posY - MARGIN_SIZE)
                 draw(canvas)
-                canvas.translate(-xPos, -posY + VERTICAL_ADJUSTMENT_MIN)
+                canvas.translate(-xPos, -posY + MARGIN_SIZE)
             }
             else -> {
                 canvas.translate(xPos, 0f)
@@ -65,8 +71,11 @@ internal class ScrubMarker(
         }
     }
 
+    private fun isStartMarginRequired(xPos: Float): Boolean = (xPos - MARGIN_SIZE <= 0)
+
+    private fun isEndMarginRequired(xPos: Float): Boolean = (xPos + width + MARGIN_SIZE >= uiScreenWidth)
+
     companion object {
-        private const val VERTICAL_ADJUSTMENT_MIN = 20
-        private const val VERTICAL_ADJUSTMENT_MAX = 60
+        private const val MARGIN_SIZE = 8
     }
 }

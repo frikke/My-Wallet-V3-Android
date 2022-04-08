@@ -4,14 +4,13 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 
 sealed class BankAuthIntent : MviIntent<BankAuthState> {
 
     object ProviderAccountIdUpdateError : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState = oldState.copy(
-            errorState = ErrorState.BankLinkingUpdateFailed,
+            errorState = BankAuthError.BankLinkingUpdateFailed,
             bankLinkingProcessState = BankLinkingProcessState.NONE
         )
     }
@@ -33,7 +32,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
         override fun isValidFor(oldState: BankAuthState): Boolean = true
     }
 
-    class BankAuthErrorState(val state: ErrorState) : BankAuthIntent() {
+    class BankAuthErrorState(val state: BankAuthError) : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(
                 errorState = state,
@@ -143,7 +142,7 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
             BankAuthState(bankLinkingProcessState = BankLinkingProcessState.CANCELED)
     }
 
-    class ErrorIntent(private val error: ErrorState = ErrorState.GenericError) : BankAuthIntent() {
+    class ErrorIntent(private val error: BankAuthError = BankAuthError.GenericError) : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(errorState = error, bankLinkingProcessState = BankLinkingProcessState.NONE)
 

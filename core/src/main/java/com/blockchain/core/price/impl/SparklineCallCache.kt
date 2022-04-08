@@ -1,7 +1,7 @@
 package com.blockchain.core.price.impl
 
 import com.blockchain.api.services.AssetPriceService
-import com.blockchain.caching.ParameteredMappedSinglesTimedRequests
+import com.blockchain.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.Currency
@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicReference
 internal class SparklineCallCache(
     private val priceService: AssetPriceService
 ) {
-    private val cacheRequest: ParameteredMappedSinglesTimedRequests<Currency, HistoricalRateList> by lazy {
-        ParameteredMappedSinglesTimedRequests(
+    private val cacheRequest: ParameteredSingleTimedCacheRequest<Currency, HistoricalRateList> by lazy {
+        ParameteredSingleTimedCacheRequest(
             cacheLifetimeSeconds = SPARKLINE_CACHE_TTL_SECONDS,
             refreshFn = ::refreshCache
         )

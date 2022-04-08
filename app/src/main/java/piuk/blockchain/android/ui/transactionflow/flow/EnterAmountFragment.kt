@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -180,7 +181,7 @@ class EnterAmountFragment :
                 // but doesn't restrict the input to be always under that value. Which might be
                 // strange UX, but is currently by design.
                 if (amountSheetInput.configured) {
-                    if (customiser.shouldShowMaxLimit(newState)) {
+                    if (customiser.shouldShowMaxLimit(newState) && newState.sendingAccount !is NullCryptoAccount) {
                         amountSheetInput.maxLimit = newState.availableBalance
                     }
                     newState.fiatRate?.takeIf { it != amountSheetInput.customInternalExchangeRate }?.let {

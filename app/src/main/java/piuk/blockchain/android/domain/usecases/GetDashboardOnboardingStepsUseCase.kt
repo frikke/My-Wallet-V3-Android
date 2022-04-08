@@ -5,7 +5,6 @@ import com.blockchain.core.payments.model.BankState
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.usecases.UseCase
@@ -16,7 +15,6 @@ class GetDashboardOnboardingStepsUseCase(
     private val dashboardPrefs: DashboardPrefs,
     private val userIdentity: UserIdentity,
     private val paymentsDataManager: PaymentsDataManager,
-    private val custodialWalletManager: CustodialWalletManager,
     private val tradeDataManager: TradeDataManager
 ) : UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
 
@@ -35,27 +33,31 @@ class GetDashboardOnboardingStepsUseCase(
                 hasLinkedPaymentMethod(),
                 hasBoughtCrypto()
             ) { isGoldVerified, isGoldPending, hasLinkedPaymentMethod, hasBoughtCrypto ->
-                if (isGoldVerified && hasLinkedPaymentMethod && hasBoughtCrypto) {
+                if (hasBoughtCrypto) {
                     dashboardPrefs.isOnboardingComplete = true
-                }
-                DashboardOnboardingStep.values()
-                    .map { step ->
-                        CompletableDashboardOnboardingStep(
-                            step = step,
-                            state = when (step) {
-                                DashboardOnboardingStep.UPGRADE_TO_GOLD ->
-                                    if (isGoldVerified) DashboardOnboardingStepState.COMPLETE
-                                    else if (isGoldPending) DashboardOnboardingStepState.PENDING
-                                    else DashboardOnboardingStepState.INCOMPLETE
-                                DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
-                                    if (hasLinkedPaymentMethod) DashboardOnboardingStepState.COMPLETE
-                                    else DashboardOnboardingStepState.INCOMPLETE
-                                DashboardOnboardingStep.BUY ->
-                                    if (hasBoughtCrypto) DashboardOnboardingStepState.COMPLETE
-                                    else DashboardOnboardingStepState.INCOMPLETE
-                            }
-                        )
+                    DashboardOnboardingStep.values().map { step ->
+                        CompletableDashboardOnboardingStep(step, DashboardOnboardingStepState.COMPLETE)
                     }
+                } else {
+                    DashboardOnboardingStep.values()
+                        .map { step ->
+                            CompletableDashboardOnboardingStep(
+                                step = step,
+                                state = when (step) {
+                                    DashboardOnboardingStep.UPGRADE_TO_GOLD ->
+                                        if (isGoldVerified) DashboardOnboardingStepState.COMPLETE
+                                        else if (isGoldPending) DashboardOnboardingStepState.PENDING
+                                        else DashboardOnboardingStepState.INCOMPLETE
+                                    DashboardOnboardingStep.LINK_PAYMENT_METHOD ->
+                                        if (hasLinkedPaymentMethod) DashboardOnboardingStepState.COMPLETE
+                                        else DashboardOnboardingStepState.INCOMPLETE
+                                    DashboardOnboardingStep.BUY ->
+                                        if (hasBoughtCrypto) DashboardOnboardingStepState.COMPLETE
+                                        else DashboardOnboardingStepState.INCOMPLETE
+                                }
+                            )
+                        }
+                }
             }
         }
 

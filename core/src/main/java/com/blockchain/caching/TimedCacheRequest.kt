@@ -34,60 +34,40 @@ class ParameteredSingleTimedCacheRequest<INPUT, OUTPUT>(
     private val cacheLifetimeSeconds: Long,
     private val refreshFn: (INPUT) -> Single<OUTPUT>
 ) {
-    private val expired = hashMapOf<INPUT, Boolean>()
-    private lateinit var current: Single<OUTPUT>
+    private val expired = hashMapOf<INPUT, AtomicBoolean>()
+    private val current: HashMap<INPUT, Single<OUTPUT>> = hashMapOf()
 
     fun getCachedSingle(input: INPUT): Single<OUTPUT> =
         Single.defer {
-            if (expired[input] != false) {
-                current = refreshFn.invoke(input).cache().doOnSuccess {
-                    expired[input] = false
+            if (
+                expired[input] == null || expired[input]!!.get() || current[input] == null
+            ) {
+                expired[input]?.set(false) ?: kotlin.run {
+                    expired[input] = AtomicBoolean(false)
+                }
+                current[input] = refreshFn.invoke(input).cache().doOnSuccess {
+                    expired[input]?.set(false)
                 }.doOnError {
-                    expired[input] = true
+                    expired[input]?.set(true)
+                    current.remove(input)
                 }
 
                 Single.timer(cacheLifetimeSeconds, TimeUnit.SECONDS)
-                    .subscribeBy(onSuccess = { expired[input] = true })
+                    .subscribeBy(onSuccess = {
+                        expired[input]?.set(true)
+                        current.remove(input)
+                    })
+                return@defer current[input]!!
             }
-            current
+            return@defer current[input]!!
         }
 
     fun invalidate(input: INPUT) {
-        expired[input] = true
+        expired[input]?.set(true)
+        current.remove(input)
     }
 
     fun invalidateAll() {
-        expired.keys.forEach { expired[it] = true }
-    }
-}
-
-class ParameteredMappedSinglesTimedRequests<INPUT, OUTPUT>(
-    private val cacheLifetimeSeconds: Long,
-    private val refreshFn: (INPUT) -> Single<OUTPUT>
-) {
-    private val expired = hashMapOf<INPUT, Boolean>()
-    private val values = hashMapOf<INPUT, Single<OUTPUT>>()
-
-    fun getCachedSingle(input: INPUT): Single<OUTPUT> =
-        Single.defer {
-            if (expired[input] != false) {
-                values[input] = refreshFn.invoke(input).cache().doOnSuccess {
-                    expired[input] = false
-                }.doOnError {
-                    expired[input] = true
-                }
-
-                Single.timer(cacheLifetimeSeconds, TimeUnit.SECONDS)
-                    .subscribeBy(onSuccess = { expired[input] = true })
-            }
-            values[input]
-        }
-
-    fun invalidate(input: INPUT) {
-        expired[input] = true
-    }
-
-    fun invalidateAll() {
-        expired.keys.forEach { expired[it] = true }
+        expired.keys.forEach { expired[it]?.set(true) }
     }
 }

@@ -21,4 +21,5 @@ include ':app',
         ':commonarch',
         ':deeplinking',
         ':logging:domain', ':logging:data',
+        ':store', ':store-persisters-sqldelight',
         ':blockchainCard'

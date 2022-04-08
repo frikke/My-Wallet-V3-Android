@@ -147,6 +147,7 @@ object Versions {
     const val kluent = "1.66"
     const val coroutinesTest = "1.6.0"
     const val coreTesting = "2.1.0"
+    const val turbine = "0.7.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
@@ -238,6 +239,7 @@ object Libraries {
     const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
     const val sqlDelightPlugin = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}"
     const val rxSqlDelight = "com.squareup.sqldelight:rxjava3-extensions:${Versions.sqlDelight}"
+    const val coroutinesSqlDelight = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
@@ -335,6 +337,7 @@ object Libraries {
     const val kotlinJunit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
     const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
     const val coreTesting = "androidx.arch.core:core-testing:${Versions.coreTesting}"
+    const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
     const val mockk = "io.mockk:mockk:${Versions.mockk}"
     const val hamcrestJunit = "org.hamcrest:hamcrest-junit:${Versions.hamcrestJunit}"
     const val junit = "junit:junit:${Versions.junit}"

@@ -129,12 +129,11 @@ class LoaderInteractor(
         }
 
     private fun onInitSettingsSuccess(newTermsThatNeedSigning: String?, shouldLaunchEmailVerification: Boolean) {
+        emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         if (newTermsThatNeedSigning != null) {
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.NewTermsAndConditions(newTermsThatNeedSigning)))
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         } else if (shouldLaunchEmailVerification) {
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.EmailVerification))
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         } else {
             emitter.onNext(
                 LoaderIntents.UpdateLoadingStep(

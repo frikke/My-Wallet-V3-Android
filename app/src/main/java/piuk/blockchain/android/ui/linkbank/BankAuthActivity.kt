@@ -18,7 +18,6 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
-import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragment
@@ -36,9 +35,6 @@ class BankAuthActivity :
 
     private val approvalDetails: BankPaymentApproval?
         get() = intent.getSerializableExtra(LINK_BANK_APPROVAL) as? BankPaymentApproval
-
-    private val errorState: ErrorState?
-        get() = intent.getSerializableExtra(ERROR_STATE) as? ErrorState
 
     private val authSource: BankAuthSource
         get() = intent.getSerializableExtra(LINK_BANK_SOURCE) as BankAuthSource
@@ -72,13 +68,8 @@ class BankAuthActivity :
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
                         launchYapilyApproval(it)
-                    } ?: launchBankLinkingWithError(ErrorState.GenericError)
+                    } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
-                errorState != null ->
-                    errorState?.let {
-                        launchBankLinkingWithError(it)
-                    }
-
                 else -> {
                     title = getString(R.string.link_a_bank)
                     checkPartnerAndLaunchFlow(linkBankTransfer)
@@ -210,7 +201,7 @@ class BankAuthActivity :
             .commitAllowingStateLoss()
     }
 
-    private fun launchBankLinkingWithError(errorState: ErrorState) {
+    private fun launchBankLinkingWithError(errorState: BankAuthError) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, BankAuthFragment.newInstance(errorState, authSource))
             .addToBackStack(BankAuthFragment::class.simpleName)
@@ -257,8 +248,6 @@ class BankAuthActivity :
         private const val LINK_BANK_SOURCE = "LINK_BANK_SOURCE"
         private const val LINK_BANK_APPROVAL = "LINK_BANK_APPROVAL"
         private const val LAUNCHED_FROM_DEEP_LINK = "LAUNCHED_FROM_DEEP_LINK"
-        private const val ERROR_STATE = "ERROR_STATE"
-
         const val LINK_BANK_REQUEST_CODE = 999
         const val LINKED_BANK_ID_KEY = "LINKED_BANK_ID"
         const val LINKED_BANK_CURRENCY = "LINKED_BANK_CURRENCY"
@@ -285,13 +274,6 @@ class BankAuthActivity :
         fun newInstance(approvalData: BankPaymentApproval, authSource: BankAuthSource, context: Context): Intent {
             val intent = Intent(context, BankAuthActivity::class.java)
             intent.putExtra(LINK_BANK_APPROVAL, approvalData)
-            intent.putExtra(LINK_BANK_SOURCE, authSource)
-            return intent
-        }
-
-        fun newInstance(errorState: ErrorState, authSource: BankAuthSource, context: Context): Intent {
-            val intent = Intent(context, BankAuthActivity::class.java)
-            intent.putExtra(ERROR_STATE, errorState)
             intent.putExtra(LINK_BANK_SOURCE, authSource)
             return intent
         }

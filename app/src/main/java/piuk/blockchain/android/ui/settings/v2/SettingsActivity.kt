@@ -13,10 +13,13 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.koin.notificationPreferencesFeatureFlag
+import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.notifications.analytics.AnalyticsEvents
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.ui.dapps.DappsListFragment
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
@@ -28,6 +31,7 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesFragment
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsFragment
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
@@ -36,6 +40,8 @@ import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 
 class SettingsActivity : BlockchainActivity(), SettingsNavigator {
+
+    private val notificationReworkFeatureFlag: FeatureFlag by scopedInject(notificationPreferencesFeatureFlag)
 
     private val binding: ActivitySettingsBinding by lazy {
         ActivitySettingsBinding.inflate(layoutInflater)
@@ -114,7 +120,15 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
     }
 
     override fun goToNotifications() {
-        replaceCurrentFragment(NotificationsFragment.newInstance())
+        if (notificationReworkFeatureFlag.isEnabled) {
+            replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
+        } else {
+            replaceCurrentFragment(NotificationsFragment.newInstance())
+        }
+    }
+
+    override fun goToNotificationPreferences() {
+        replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
     }
 
     override fun goToSecurity() {
@@ -193,6 +207,7 @@ interface SettingsNavigator {
     fun goToProfile(basicProfileInfo: BasicProfileInfo, tier: Tier)
     fun goToAccount()
     fun goToNotifications()
+    fun goToNotificationPreferences()
     fun goToSecurity()
     fun goToFeatureFlags()
     fun goToSupportCentre()

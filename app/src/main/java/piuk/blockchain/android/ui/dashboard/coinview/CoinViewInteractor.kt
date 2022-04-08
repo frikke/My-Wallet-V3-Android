@@ -88,13 +88,17 @@ class CoinViewInteractor(
         Single.zip(
             identity.getHighestApprovedKycTier(),
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
+            identity.userAccessForFeature(Feature.SimpleBuy),
+            identity.userAccessForFeature(Feature.Buy),
             custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
-        ) { tier, sddEligible, isSupportedPair ->
+        ) { tier, sddEligible, simpleBuyAccess, buyAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             when {
-                custodialAccount != null -> {
+                custodialAccount != null &&
+                    simpleBuyAccess is FeatureAccess.Granted &&
+                    buyAccess is FeatureAccess.Granted -> {
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
                             if (totalCryptoBalance.isPositive) {

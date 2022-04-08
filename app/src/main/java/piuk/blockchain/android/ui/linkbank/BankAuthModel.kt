@@ -15,7 +15,6 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 
 class BankAuthModel(
@@ -86,12 +85,12 @@ class BankAuthModel(
                     LinkedBankState.UNKNOWN -> handleBankLinkingError(it)
                     LinkedBankState.PENDING,
                     LinkedBankState.CREATED -> process(
-                        BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                        BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
                     )
                 }
             },
             onError = {
-                process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+                process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
             }
         )
 
@@ -114,12 +113,12 @@ class BankAuthModel(
                     is PollResult.Cancel -> {
                     }
                     is PollResult.TimeOut -> process(
-                        BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                        BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
                     )
                 }
             },
             onError = {
-                process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+                process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
             }
         )
 
@@ -138,7 +137,7 @@ class BankAuthModel(
             LinkedBankState.CREATED -> {
                 when (partner) {
                     BankPartner.YODLEE -> process(
-                        BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingTimeout)
+                        BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingTimeout)
                     )
                     BankPartner.YAPILY -> process(
                         BankAuthIntent.UpdateLinkingUrl(pollResult.value.authorisationUrl)
@@ -146,7 +145,7 @@ class BankAuthModel(
                 }
             }
             LinkedBankState.UNKNOWN -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed)
             )
         }
     }
@@ -155,40 +154,40 @@ class BankAuthModel(
     private fun handleBankLinkingError(it: LinkedBank) {
         when (it.errorStatus) {
             LinkedBankErrorState.ACCOUNT_ALREADY_LINKED -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAlreadyLinked)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankAlreadyLinked)
             )
-            LinkedBankErrorState.UNKNOWN -> process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+            LinkedBankErrorState.UNKNOWN -> process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
             LinkedBankErrorState.NOT_INFO_FOUND -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInfoNotFound)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankInfoNotFound)
             )
             LinkedBankErrorState.ACCOUNT_TYPE_UNSUPPORTED -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankAccountUnsupported)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankAccountUnsupported)
             )
             LinkedBankErrorState.NAMES_MISMATCHED -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankNamesMismatched)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankNamesMismatched)
             )
             LinkedBankErrorState.REJECTED -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankRejected)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankRejected)
             )
             LinkedBankErrorState.EXPIRED -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankExpired)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankExpired)
             )
             LinkedBankErrorState.FAILURE -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFailure)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankFailure)
             )
             LinkedBankErrorState.INTERNAL_FAILURE -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInternalFailure)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankInternalFailure)
             )
             LinkedBankErrorState.INVALID -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankInvalid)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankInvalid)
             )
             LinkedBankErrorState.FRAUD -> process(
-                BankAuthIntent.BankAuthErrorState(ErrorState.LinkedBankFraud)
+                BankAuthIntent.BankAuthErrorState(BankAuthError.LinkedBankFraud)
             )
             LinkedBankErrorState.NONE -> {
                 // check the state is not a linking final state
                 if (it.state == LinkedBankState.BLOCKED) {
-                    process(BankAuthIntent.BankAuthErrorState(ErrorState.BankLinkingFailed))
+                    process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
                 } else {
                     // do nothing
                 }

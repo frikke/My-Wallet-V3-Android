@@ -84,19 +84,7 @@ sealed class CoinViewAnalytics(
         )
     )
 
-    class UpgradeKycVerificationClicked(
-        override val origin: LaunchOrigin,
-        currency: String,
-        tier: Tier,
-    ) :
-        CoinViewAnalytics(
-            event = AnalyticsNames.UPGRADE_KYC_VERIFICATION_CLICKED.eventName,
-            params = mapOf(
-                CURRENCY to currency,
-                TIER to tier.tierToUpgrade,
-            )
-        )
-
+    // Cannot be used yet.
     class ConnectToTheExchangeActioned(
         override val origin: LaunchOrigin,
         currency: String
@@ -228,21 +216,15 @@ sealed class CoinViewAnalytics(
     class RewardsWithdrawOrAddClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        selection: Selection,
+        type: Type,
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_REWARDS_WITHDRAW_ADD_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                SELECTION to selection.name,
+                TYPE to type.name,
             )
         )
-
-    class RecurringBuyClicked(
-        override val origin: LaunchOrigin
-    ) : CoinViewAnalytics(
-        event = AnalyticsNames.COINVIEW_RECURRING_BUY_CLICKED.eventName
-    )
 
     companion object {
         private const val CURRENCY = "currency"

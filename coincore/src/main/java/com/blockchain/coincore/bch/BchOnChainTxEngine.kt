@@ -16,6 +16,7 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
@@ -154,6 +155,10 @@ class BchOnChainTxEngine(
 
         return pendingTx.copy(
             amount = amount,
+            limits = TxLimits.fromAmounts(
+                min = Money.fromMinor(sourceAsset, Payment.DUST),
+                max = available.maxSpendable
+            ),
             totalBalance = balance,
             availableBalance = available.maxSpendable,
             feeForFullAvailable = available.feeForMax,

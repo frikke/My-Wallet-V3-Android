@@ -303,7 +303,7 @@ class BchDataManager(
 
     fun updateAllBalances(): Completable {
         val importedAddresses = payloadDataManager.importedAddresses
-            .mapNotNull { it.address }
+            .map { it.address }
 
         val xpubs = getActiveXpubs()
 
@@ -487,7 +487,7 @@ class BchDataManager(
         )
 
     fun getXpubFromAddress(address: String) =
-        bchDataStore.bchWallet!!.getXpubFromAddress(address)
+        bchDataStore.bchWallet?.getXpubFromAddress(address)
 
     fun getHDKeysForSigning(
         account: DeterministicAccount,

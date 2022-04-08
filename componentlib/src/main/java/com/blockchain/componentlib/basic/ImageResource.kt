@@ -4,50 +4,68 @@ import android.graphics.Bitmap
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 
-sealed class ImageResource(
-    val contentDescription: String? = null
-) {
+sealed class ImageResource {
+    abstract val contentDescription: String?
+    abstract val shape: Shape?
+    abstract val size: Dp?
 
     class Local(
         @DrawableRes val id: Int,
-        contentDescription: String? = null,
+        override val contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
-    ) : ImageResource(contentDescription) {
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource() {
 
         fun withColorFilter(colorFilter: ColorFilter) = Local(
             id = id,
             contentDescription = contentDescription,
-            colorFilter = colorFilter
+            colorFilter = colorFilter,
+            size = size
         )
     }
 
     class LocalWithResolvedBitmap(
         val bitmap: Bitmap,
-        contentDescription: String? = null,
-    ) : ImageResource(contentDescription)
+        override val contentDescription: String? = null,
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource()
 
     class LocalWithBackground(
         @DrawableRes val id: Int,
         @ColorRes val iconTintColour: Int,
         @ColorRes val backgroundColour: Int,
         val alpha: Float = 0.15F,
-        contentDescription: String? = null
-    ) : ImageResource(contentDescription)
+        override val contentDescription: String? = null,
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource()
 
     class LocalWithBackgroundAndExternalResources(
         @DrawableRes val id: Int,
         val iconTintColour: String,
         val backgroundColour: String,
         val alpha: Float = 0.15F,
-        contentDescription: String? = null
-    ) : ImageResource(contentDescription)
+        override val contentDescription: String? = null,
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource()
 
     class Remote(
         val url: String,
-        contentDescription: String? = null,
+        override val contentDescription: String? = null,
         val colorFilter: ColorFilter? = null,
-    ) : ImageResource(contentDescription)
+        override val shape: Shape? = null,
+        override val size: Dp? = null,
+    ) : ImageResource()
 
-    object None : ImageResource(null)
+    object None : ImageResource() {
+        override val contentDescription: String? = null
+        override val shape: Shape? = null
+        override val size: Dp? = null
+    }
 }

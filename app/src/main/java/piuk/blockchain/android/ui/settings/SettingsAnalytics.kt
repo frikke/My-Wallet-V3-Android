@@ -9,6 +9,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccou
 sealed class SettingsAnalytics(override val event: String, override val params: Map<String, Serializable> = mapOf()) :
     AnalyticsEvent {
 
+    // TODO most of these unused
     object EmailClicked : SettingsAnalytics("settings_email_clicked")
     object PhoneClicked : SettingsAnalytics("settings_phone_clicked")
     object LimitsAndFeaturesClicked : SettingsAnalytics("settings_swap_limit_clicked")
