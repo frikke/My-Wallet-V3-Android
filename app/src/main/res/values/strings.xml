@@ -2804,7 +2804,7 @@
     <string name="coinview_no_asset_title">Unknown Asset</string>
     <string name="coinview_asset_info_cta">Visit Website →</string>
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
-    <string name="coinview_no_balance_sheet_title">Add %1$s to %2$s</string>
+    <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
     <string name="coinview_added_watchlist">Added to Watchlist</string>
     <string name="coinview_removed_watchlist">Removed from Watchlist</string>
