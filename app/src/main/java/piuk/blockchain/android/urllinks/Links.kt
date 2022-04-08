@@ -7,7 +7,7 @@ const val URL_BLOCKCHAIN_GOLD_UNAVAILABLE_SUPPORT =
     "https://support.blockchain.com/hc/en-us/categories/360001135512-Identity-Verification"
 
 const val URL_BLOCKCHAIN_KYC_SUPPORTED_COUNTRIES_LIST =
-    "https://support.blockchain.com/hc/en-us/articles/360018751932"
+    "https://support.blockchain.com/hc/en-us/articles/4417197015188"
 
 const val URL_THE_PIT_LANDING_LEARN_MORE = "https://exchange.blockchain.com"
 const val URL_THE_PIT_LAUNCH_SUPPORT = "https://exchange-support.blockchain.com/hc/en-us"
