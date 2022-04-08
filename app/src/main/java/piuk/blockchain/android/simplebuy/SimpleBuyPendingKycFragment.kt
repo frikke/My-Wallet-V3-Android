@@ -115,7 +115,7 @@ class SimpleBuyPendingKycFragment :
             if (newState.buyErrorState == ErrorState.LinkedBankNotSupported) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
                 kycIcon.visible()
-                verifText.text = getString(R.string.common_oops)
+                verifText.text = getString(R.string.common_oops_bank)
                 verifTime.text = getString(R.string.please_try_linking_your_bank_again)
                 continueToWallet.visible()
                 // Case when user is trying to link a payment method, after successful kyc

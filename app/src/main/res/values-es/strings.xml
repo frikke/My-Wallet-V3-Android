@@ -1789,7 +1789,6 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="reset_account_description_1">El reinicio restaurará sus cuentas de Comercio, Recompensas y Exchange.</string>
     <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
-    <string name="common_oops">¡Vaya! Algo salió mal.</string>
     <string name="common_approve">Aprobar</string>
     <string name="common_deny">Denegar</string>
     <string name="item_the_exchange">Exchange</string>

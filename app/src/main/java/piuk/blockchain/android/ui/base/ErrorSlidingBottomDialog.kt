@@ -34,12 +34,12 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 
     companion object {
         private const val ERROR_DIALOG_DATA_KEY = "ERROR_DIALOG_DATA_KEY"
-
         fun newInstance(errorDialogData: ErrorDialogData): ErrorSlidingBottomDialog =
             ErrorSlidingBottomDialog().apply {
                 arguments = Bundle().apply { putParcelable(ERROR_DIALOG_DATA_KEY, errorDialogData) }
             }
 
+        @Deprecated("Don't use this method. Always, have specific errors ")
         fun newInstance(context: Context): ErrorSlidingBottomDialog =
             ErrorSlidingBottomDialog().apply {
                 arguments = Bundle().apply {

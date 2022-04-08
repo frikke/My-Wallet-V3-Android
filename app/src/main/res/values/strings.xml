@@ -44,7 +44,6 @@
     <string name="common_retry">Retry</string>
     <string name="common_continue">Continue</string>
     <string name="common_try_again">Try Again</string>
-    <string name="common_oops">Oops! Something went wrong.</string>
     <string name="common_sell">Sell</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
@@ -2093,8 +2092,11 @@
     <string name="sb_checkout_pending_order_title">Order in progress</string>
     <string name="sb_checkout_pending_order_blurb">Oops, looks like you’ve already got a Buy order in progress, please wait until it completes before buying again.</string>
     <string name="sb_checkout_card_insufficient_funds_title">Insufficient funds</string>
+    <string name="sb_card_provider_not_supported">Card provider is not supported</string>
     <string name="sb_checkout_card_insufficient_funds_blurb">Your bank tells us you don’t have enough funds in your account, check and try again.</string>
     <string name="sb_checkout_card_declined_title">Payment declined</string>
+    <string name="common_oops_bank">Oops! Something went wrong.</string>
+    <string name="common_oops_kyc">Oops! Something went wrong.</string>
     <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
     <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
     <string name="sb_checkout_card_debit_only_title">Try a debit card instead</string>
@@ -2151,6 +2153,7 @@
     <string name="bank_linking_mismatched_title">Is this your bank account?</string>
     <string name="bank_linking_mismatched_subtitle">We noticed the <b>names don’t match</b>. The bank you link must have a matching legal first &amp;  last name as your Blockchain.com Account.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="bank_linking_timeout_error_title">Oops! It’s taking too long</string>
+    <string name="card_3ds">Oops! 3DS verification failed</string>
     <string name="bank_linking_timeout_error_subtitle">Linking your bank is taking longer than expected, please close this screen and check the status in Settings.</string>
     <string name="bank_linking_already_linked_error_title">This account is already linked.</string>
     <string name="bank_linking_already_linked_error_subtitle">We noticed this account is already linked to your Blockchain account.</string>
@@ -2185,6 +2188,7 @@
     <string name="bank_transfer_payment_invalid_title">Invalid Account</string>
     <string name="bank_transfer_payment_invalid_subtitle">The account you selected isn’t active. Please try another account or payment method. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_failed_title">Payment Failed</string>
+    <string name="payment_failed_title_with_reason">Payment Failed %1s</string>
     <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Payment Declined</string>
     <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support.\nIf you’ve already done this then please <annotation link="contact_support">contact support.</annotation></string>

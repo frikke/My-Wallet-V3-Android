@@ -265,13 +265,84 @@ class SimpleBuyPaymentFragment :
                 subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg
             )
-            ErrorState.CardPaymentFailed,
-            ErrorState.ApprovedGenericError -> showError(
-                getString(R.string.common_oops), addLink(R.string.sb_checkout_contact_support)
+            is ErrorState.PaymentFailedError -> showError(
+                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                subtitle = addLink(R.string.sb_checkout_contact_support),
+                resourceIcon = R.drawable.ic_cross_white_bckg
             )
-            else -> {
-                // do nothing - we only want to handle OB approval errors in this fragment
-            }
+            is ErrorState.ApprovedBankUndefinedError -> showError(
+                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                subtitle = addLink(R.string.sb_checkout_contact_support),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.CardPaymentDeclined -> showError(
+                title = getString(R.string.sb_checkout_card_declined_title),
+                subtitle = addLink(R.string.sb_checkout_contact_support),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.InternetConnectionError -> showError(
+                title = getString(
+                    R.string.executing_connection_error
+                ),
+                subtitle = addLink(R.string.sb_checkout_contact_support),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            is ErrorState.UnhandledHttpError -> showError(
+                title = getString(
+                    R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
+                ),
+                subtitle = addLink(R.string.sb_checkout_contact_support),
+                resourceIcon = R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.DailyLimitExceeded -> showError(
+                getString(R.string.sb_checkout_daily_limit_title),
+                getString(R.string.sb_checkout_daily_limit_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.WeeklyLimitExceeded -> showError(
+                getString(R.string.sb_checkout_weekly_limit_title),
+                getString(R.string.sb_checkout_weekly_limit_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.YearlyLimitExceeded -> showError(
+                getString(R.string.sb_checkout_yearly_limit_title),
+                getString(R.string.sb_checkout_yearly_limit_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.ExistingPendingOrder -> showError(
+                getString(R.string.sb_checkout_pending_order_title),
+                getString(R.string.sb_checkout_pending_order_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.InsufficientCardFunds -> showError(
+                getString(R.string.sb_checkout_card_insufficient_funds_title),
+                getString(R.string.sb_checkout_card_insufficient_funds_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
+                " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
+            )
+            ErrorState.UnknownCardProvider,
+            ErrorState.ProviderIsNotSupported -> showError(
+                getString(R.string.sb_card_provider_not_supported),
+                getString(R.string.sb_checkout_contact_support),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.DebitCardOnly -> showError(
+                getString(R.string.sb_checkout_card_debit_only_title),
+                getString(R.string.sb_checkout_card_debit_only_blurb),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.BankLinkingTimeout -> showError(
+                getString(R.string.bank_linking_timeout_error_title),
+                getString(R.string.bank_linking_timeout_error_subtitle),
+                R.drawable.ic_cross_white_bckg
+            )
+            ErrorState.Card3DsFailed -> showError(
+                getString(R.string.card_3ds),
+                getString(R.string.sb_checkout_contact_support),
+                R.drawable.ic_cross_white_bckg
+            )
         }
 
     private fun showError(
@@ -512,7 +583,7 @@ class SimpleBuyPaymentFragment :
                 override fun onError(errorMessage: String?) {
                     Timber.e("PaymentForm.On3DSFinished onError: $errorMessage")
                     binding.checkoutCardForm.gone()
-                    model.process(SimpleBuyIntent.ErrorIntent())
+                    model.process(SimpleBuyIntent.ErrorIntent(ErrorState.Card3DsFailed))
                 }
             }
         )

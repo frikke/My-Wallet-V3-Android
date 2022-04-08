@@ -15,6 +15,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import com.blockchain.nabu.models.data.RecurringBuyState
+import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.models.responses.simplebuy.TransactionAttributesResponse
@@ -333,28 +334,48 @@ data class BuySellOrder(
     val attributes: PaymentAttributes? = null,
     val type: OrderType,
     val depositPaymentId: String,
-    val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.NONE,
-    val failureReason: RecurringBuyFailureReason? = null,
-    val paymentError: PaymentError? = null,
+    val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.None,
+    val failureReason: String? = null,
+    val paymentError: String? = null,
     val recurringBuyId: String? = null
 )
 
-enum class ApprovalErrorStatus {
-    INVALID,
-    FAILED,
-    DECLINED,
-    REJECTED,
-    EXPIRED,
-    LIMITED_EXCEEDED,
-    ACCOUNT_INVALID,
-    FAILED_INTERNAL,
-    INSUFFICIENT_FUNDS,
-    UNKNOWN,
-    NONE
+fun String?.toRecurringBuyFailureReason(): RecurringBuyFailureReason? {
+    return this?.let {
+        when (it) {
+            BuySellOrderResponse.FAILED_INSUFFICIENT_FUNDS ->
+                RecurringBuyFailureReason.INSUFFICIENT_FUNDS
+            BuySellOrderResponse.FAILED_INTERNAL_ERROR ->
+                RecurringBuyFailureReason.INTERNAL_SERVER_ERROR
+            BuySellOrderResponse.FAILED_BENEFICIARY_BLOCKED ->
+                RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID
+            BuySellOrderResponse.FAILED_BAD_FILL ->
+                RecurringBuyFailureReason.FAILED_BAD_FILL
+            else -> RecurringBuyFailureReason.UNKNOWN
+        }
+    }
 }
 
-enum class PaymentError {
-    CARD_PAYMENT_FAILED
+enum class RecurringBuyFailureReason {
+    INSUFFICIENT_FUNDS,
+    BLOCKED_BENEFICIARY_ID,
+    INTERNAL_SERVER_ERROR,
+    FAILED_BAD_FILL,
+    UNKNOWN
+}
+
+sealed class ApprovalErrorStatus {
+    object Invalid : ApprovalErrorStatus()
+    object Failed : ApprovalErrorStatus()
+    object Declined : ApprovalErrorStatus()
+    object Rejected : ApprovalErrorStatus()
+    object Expired : ApprovalErrorStatus()
+    object LimitedExceeded : ApprovalErrorStatus()
+    object AccountInvalid : ApprovalErrorStatus()
+    object FailedInternal : ApprovalErrorStatus()
+    object InsufficientFunds : ApprovalErrorStatus()
+    object None : ApprovalErrorStatus()
+    class Undefined(val error: String) : ApprovalErrorStatus()
 }
 
 typealias BuyOrderList = List<BuySellOrder>
@@ -402,14 +423,6 @@ enum class TransactionState {
     COMPLETED,
     PENDING,
     FAILED
-}
-
-enum class RecurringBuyFailureReason {
-    INSUFFICIENT_FUNDS,
-    BLOCKED_BENEFICIARY_ID,
-    INTERNAL_SERVER_ERROR,
-    FAILED_BAD_FILL,
-    UNKNOWN
 }
 
 enum class CustodialOrderState {

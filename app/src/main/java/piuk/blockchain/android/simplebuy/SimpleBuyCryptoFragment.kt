@@ -48,6 +48,7 @@ import piuk.blockchain.android.cards.CardDetailsActivity.Companion.ADD_CARD_REQU
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentSimpleBuyBuyCryptoBinding
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
+import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
@@ -267,7 +268,7 @@ class SimpleBuyCryptoFragment :
     override fun render(newState: SimpleBuyState) {
         lastState = newState
         if (newState.buyErrorState != null) {
-            handleErrorState(newState.buyErrorState)
+            showErrorState(newState.buyErrorState)
             return
         }
 
@@ -642,14 +643,110 @@ class SimpleBuyCryptoFragment :
         }
     }
 
-    private fun handleErrorState(errorState: ErrorState) {
-        if (errorState == ErrorState.LinkedBankNotSupported) {
-            model.process(SimpleBuyIntent.ClearError)
-            model.process(SimpleBuyIntent.ClearAnySelectedPaymentMethods)
-            navigator().launchBankAuthWithError(errorState)
-        } else {
-            showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
-        }
+    private fun showErrorState(errorState: ErrorState) {
+        when (errorState) {
+            ErrorState.DailyLimitExceeded -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_daily_limit_title),
+                        getString(R.string.sb_checkout_daily_limit_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.WeeklyLimitExceeded -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_weekly_limit_title),
+                        getString(R.string.sb_checkout_weekly_limit_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.YearlyLimitExceeded -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_yearly_limit_title),
+                        getString(R.string.sb_checkout_yearly_limit_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.ExistingPendingOrder -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_pending_order_title),
+                        getString(R.string.sb_checkout_pending_order_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.InsufficientCardFunds -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_insufficient_funds_title),
+                        getString(R.string.sb_checkout_card_insufficient_funds_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.DebitCardOnly -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_debit_only_title),
+                        getString(R.string.sb_checkout_card_debit_only_blurb),
+                        getString(R.string.sb_checkout_card_debit_only_cta)
+                    )
+                )
+            )
+            ErrorState.CardPaymentDeclined -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(R.string.sb_checkout_card_declined_title),
+                        getString(R.string.sb_checkout_card_declined_blurb),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            is ErrorState.UnhandledHttpError -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(
+                            R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
+                        ),
+                        getString(R.string.something_went_wrong_try_again),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.InternetConnectionError -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(
+                            R.string.executing_connection_error
+                        ),
+                        getString(R.string.something_went_wrong_try_again),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.ApproveBankInvalid,
+            ErrorState.ApprovedBankAccountInvalid,
+            ErrorState.ApprovedBankDeclined,
+            ErrorState.ApprovedBankExpired,
+            ErrorState.ApprovedBankFailed,
+            ErrorState.ApprovedBankFailedInternal,
+            ErrorState.ApprovedBankInsufficientFunds,
+            ErrorState.ApprovedBankLimitedExceed,
+            ErrorState.ApprovedBankRejected,
+            is ErrorState.PaymentFailedError,
+            ErrorState.ProviderIsNotSupported,
+            is ErrorState.ApprovedBankUndefinedError,
+            ErrorState.BankLinkingTimeout,
+            ErrorState.Card3DsFailed,
+            ErrorState.UnknownCardProvider,
+            ErrorState.LinkedBankNotSupported -> throw IllegalStateException("Error should not presented here")
+        }.exhaustive
     }
 
     private fun renderGooglePayPayment(selectedPaymentMethod: PaymentMethod.GooglePay) {

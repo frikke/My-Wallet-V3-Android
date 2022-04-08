@@ -1819,7 +1819,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="reset_account_description_1">La réinitialisation restaurera vos comptes de trading, de récompenses et d\'échange.</string>
     <string name="checkout_funds_label_1">Wallet %s</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
-    <string name="common_oops">Oups ! Un problème est survenu.</string>
     <string name="common_approve">Approuver</string>
     <string name="common_deny">Refuser</string>
     <string name="item_the_exchange">Exchange</string>

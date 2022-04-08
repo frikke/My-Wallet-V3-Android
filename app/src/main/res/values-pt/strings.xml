@@ -1884,7 +1884,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="reset_account_description_1">A redefinição irá restaurar suas contas de negociação, recompensas e câmbio.</string>
     <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
-    <string name="common_oops">Ups! Ocorreu um erro.</string>
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Recusar</string>
     <string name="item_the_exchange">Exchange</string>

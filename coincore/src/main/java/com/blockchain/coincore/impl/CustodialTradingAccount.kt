@@ -34,6 +34,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
+import com.blockchain.nabu.datamanagers.toRecurringBuyFailureReason
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -323,7 +324,7 @@ class CustodialTradingAccount(
                     type = order.type,
                     paymentMethodId = order.paymentMethodId,
                     paymentMethodType = order.paymentMethodType,
-                    failureReason = order.failureReason,
+                    failureReason = order.failureReason.toRecurringBuyFailureReason(),
                     recurringBuyId = order.recurringBuyId
                 )
             }
