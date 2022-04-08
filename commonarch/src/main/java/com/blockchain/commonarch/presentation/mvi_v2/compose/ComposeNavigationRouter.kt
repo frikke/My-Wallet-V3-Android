@@ -18,7 +18,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import androidx.navigation.plusAssign
@@ -30,7 +29,6 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 
 interface ComposeNavigationRouter : NavigationRouter<NavigationEvent> {
     val navController: NavHostController

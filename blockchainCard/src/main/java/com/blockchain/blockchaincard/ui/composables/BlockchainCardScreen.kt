@@ -33,8 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
@@ -67,8 +65,6 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -349,14 +345,20 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProd
             endTag = TagViewState(stringResource(R.string.yes), TagType.Default())
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        SmallSectionHeader(text = stringResource(R.string.consumer_financial_protection_bureau), modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(
+            text = stringResource(R.string.consumer_financial_protection_bureau),
+            modifier = Modifier.fillMaxWidth()
+        )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
             primaryText = stringResource(R.string.short_form_disclosure),
             onClick = {}
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        SmallSectionHeader(text = stringResource(R.string.blockchain_terms_and_conditions), modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(
+            text = stringResource(R.string.blockchain_terms_and_conditions),
+            modifier = Modifier.fillMaxWidth()
+        )
         DefaultTableRow(
             primaryText = stringResource(R.string.terms_and_conditions),
             onClick = {}
