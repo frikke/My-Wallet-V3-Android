@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.updateToolbar
@@ -194,9 +195,10 @@ class AccountFragment :
         with(binding.settingsDebitCard) {
             when (blockchainCardOrderState) {
                 is BlockchainCardOrderState.NotEligible -> {
-                    visibility = GONE 
+                    visibility = GONE
                 }
                 is BlockchainCardOrderState.Eligible -> {
+                    visibility = VISIBLE
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
@@ -204,6 +206,7 @@ class AccountFragment :
                     }
                 }
                 is BlockchainCardOrderState.Ordered -> {
+                    visibility = VISIBLE
                     secondaryText = null
                     onClick = {
                         navigator().goToManageBlockchainDebitCard(blockchainCardOrderState.blockchainDebitCardId)
