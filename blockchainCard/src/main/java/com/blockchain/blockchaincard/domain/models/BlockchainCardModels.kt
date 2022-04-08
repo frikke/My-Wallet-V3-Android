@@ -9,7 +9,11 @@ import java.math.BigDecimal
 import kotlinx.parcelize.Parcelize
 
 sealed class BlockchainCardError {
-    object RequestFailed : BlockchainCardError()
+    object GetAuthFailed : BlockchainCardError()
+    object GetCardsRequestFailed : BlockchainCardError()
+    object CreateCardRequestFailed : BlockchainCardError()
+    object DeleteCardRequestFailed : BlockchainCardError()
+    object GetProductsRequestFailed : BlockchainCardError()
 }
 
 fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =

@@ -14,23 +14,23 @@ import retrofit2.http.Path
 
 internal interface BlockchainCardApi {
 
-    @GET("products")
+    @GET("card-issuing/products")
     suspend fun getProducts(
         @Header("authorization") authorization: String,
     ): Outcome<ApiError, List<ProductsResponse>>
 
-    @GET("cards")
+    @GET("card-issuing/cards")
     suspend fun getCards(
         @Header("authorization") authorization: String,
     ): Outcome<ApiError, List<CardsResponse>>
 
-    @POST("cards")
+    @POST("card-issuing/cards")
     suspend fun createCard(
         @Header("authorization") authorization: String,
         @Body cardCreationRequest: CardCreationRequestBody
     ): Outcome<ApiError, CardsResponse>
 
-    @DELETE("cards/{cardId}")
+    @DELETE("card-issuing/cards/{cardId}")
     suspend fun deleteCard(
         @Path("cardId") cardId: String,
         @Header("authorization") authorization: String
