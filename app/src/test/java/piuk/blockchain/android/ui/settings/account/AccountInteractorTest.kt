@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.settings.account
 
-import com.blockchain.blockchaincard.data.BlockchainCardRepositoryImpl
+import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.EUR
@@ -27,7 +27,7 @@ class AccountInteractorTest {
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val exchangeLinkingState: PitLinking = mock()
-    private val blockchainCardRepository: BlockchainCardRepositoryImpl = mock()
+    private val blockchainCardRepository: BlockchainCardRepository = mock()
 
     @Before
     fun setup() {
