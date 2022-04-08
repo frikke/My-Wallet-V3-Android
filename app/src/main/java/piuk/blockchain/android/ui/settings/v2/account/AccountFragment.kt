@@ -158,7 +158,6 @@ class AccountFragment :
         model.process(AccountIntent.LoadExchangeInformation)
 
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            binding.settingsDebitCard.visibleIf { enabled }
             if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
         }
     }
@@ -195,7 +194,7 @@ class AccountFragment :
         with(binding.settingsDebitCard) {
             when (blockchainCardOrderState) {
                 is BlockchainCardOrderState.NotEligible -> {
-                    visibility = GONE
+                    // Do nothing
                 }
                 is BlockchainCardOrderState.Eligible -> {
                     visibility = VISIBLE
