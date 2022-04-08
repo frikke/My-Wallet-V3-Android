@@ -33,6 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
@@ -40,6 +42,8 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.blockchaincard.viewmodel.BlockchainDebitCardArgs
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
@@ -63,13 +67,21 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun BlockchainCardNavHost(
     viewModel: BlockchainCardViewModel,
-    startDestination: BlockchainCardDestination,
+    modelArgs: ModelConfigArgs
 ) {
+
+    viewModel.viewCreated(modelArgs)
+
+    val startDestination =
+        if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
+        else BlockchainCardDestination.OrderOrLinkCardDestination
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -79,6 +91,7 @@ fun BlockchainCardNavHost(
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
     val state by stateFlowLifecycleAware.collectAsState(null)
+
     MviNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = BlockchainCardNavigationRouter(rememberNavController()),

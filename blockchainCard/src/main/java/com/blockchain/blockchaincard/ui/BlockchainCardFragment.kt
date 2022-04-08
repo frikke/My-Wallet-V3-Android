@@ -6,28 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
-import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.blockchaincard.viewmodel.BlockchainDebitCardArgs
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
-import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel
 
-class BlockchainCardFragment : Fragment<BlockchainCardViewState>(), FlowFragment {
+class BlockchainCardFragment : Fragment(), FlowFragment {
 
     private val viewModel: BlockchainCardViewModel by lazy {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
@@ -77,15 +69,10 @@ class BlockchainCardFragment : Fragment<BlockchainCardViewState>(), FlowFragment
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-   
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-
-            val startDestination =
-                if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
-                else BlockchainCardDestination.OrderOrLinkCardDestination
             setContent {
-                BlockchainCardNavHost(viewModel = viewModel, startDestination)
+                BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
             }
         }
     }

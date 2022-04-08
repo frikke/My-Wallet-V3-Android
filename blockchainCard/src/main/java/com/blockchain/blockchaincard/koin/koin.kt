@@ -22,8 +22,4 @@ val blockchainCardModule = module {
             BlockchainCardViewModel(blockchainCardRepository = get())
         }
     }
-
-    factory {
-        BlockchainCardNavigationRouter()
-    }
 }
