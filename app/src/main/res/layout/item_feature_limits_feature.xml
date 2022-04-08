@@ -30,7 +30,7 @@
         android:ellipsize="end"
         android:maxLines="2"
         app:layout_constraintBottom_toTopOf="@id/text_feature_description"
-        app:layout_constraintEnd_toStartOf="@+id/text_limit"
+        app:layout_constraintEnd_toStartOf="@+id/barrier_limit"
         app:layout_constraintStart_toEndOf="@id/icon_feature"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
@@ -42,11 +42,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/small_margin"
+        android:textColor="@color/feature_limits_light_grey"
         android:ellipsize="end"
         android:maxLines="2"
         android:layout_marginBottom="@dimen/medium_margin"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/text_limit"
+        app:layout_constraintEnd_toStartOf="@+id/barrier_limit"
         app:layout_constraintStart_toStartOf="@id/text_feature"
         app:layout_constraintTop_toBottomOf="@id/text_feature"
         app:layout_constraintVertical_chainStyle="packed"
@@ -57,12 +58,36 @@
         style="@style/Text.Semibold.16"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        app:layout_goneMarginBottom="@dimen/standard_margin"
+        app:layout_constraintBottom_toTopOf="@+id/text_limit_period"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="$2,000" />
+
+    <TextView
+        android:id="@+id/text_limit_period"
+        style="@style/Text.Standard.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/medium_margin"
         android:layout_marginEnd="@dimen/standard_margin"
         android:textColor="@color/feature_limits_light_grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="$2,000 a Year" />
+        app:layout_constraintTop_toBottomOf="@id/text_limit"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Per Day" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_limit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="text_limit,text_limit_period"
+        />
 
     <View
         style="@style/Divider"
