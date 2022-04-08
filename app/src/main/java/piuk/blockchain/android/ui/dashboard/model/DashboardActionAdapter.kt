@@ -154,7 +154,9 @@ class DashboardActionAdapter(
                 cd += refreshAssetBalance(asset, model, balanceFilter)
                     .ifEthLoadedGetErc20Balance(model, balanceFilter, cd, state)
                     .ifEthFailedThenErc20Failed(asset, model, state)
-                    .emptySubscribe()
+                    .subscribeBy(onError = {
+                        Timber.e(it)
+                    })
             }
 
         state.fiatAssets.fiatAccounts
