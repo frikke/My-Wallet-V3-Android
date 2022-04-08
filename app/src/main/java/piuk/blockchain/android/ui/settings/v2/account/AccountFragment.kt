@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
@@ -16,8 +15,6 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
-import com.blockchain.componentlib.viewextensions.Visibility
-import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.LaunchOrigin
