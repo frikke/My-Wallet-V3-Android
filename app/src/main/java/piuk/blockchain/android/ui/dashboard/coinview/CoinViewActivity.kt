@@ -98,6 +98,7 @@ class CoinViewActivity :
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
+    private lateinit var ctaActions: List<QuickActionCta>
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
@@ -608,6 +609,7 @@ class CoinViewActivity :
                 else -> {
                     updatePrimaryCta(asset, highestBalanceWallet, endAction)
                     updateSecondaryCta(asset, highestBalanceWallet, startAction)
+                    ctaActions = listOf(startAction, endAction)
                 }
             }
         }
@@ -693,7 +695,8 @@ class CoinViewActivity :
     }
 
     private fun logBuyEvent() {
-        val isBuySell = binding.secondaryCta.text == getString(R.string.common_sell)
+        val isBuySell = ctaActions.contains(QuickActionCta.Sell)
+        val isBuyReceive = ctaActions.contains(QuickActionCta.Receive)
         if (isBuySell) {
             analytics.logEvent(
                 CoinViewAnalytics.BuySellClicked(
@@ -702,7 +705,7 @@ class CoinViewActivity :
                     type = CoinViewAnalytics.Companion.Type.BUY
                 )
             )
-        } else {
+        } else if (isBuyReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.BuyReceiveClicked(
                     origin = LaunchOrigin.COIN_VIEW,
@@ -714,7 +717,8 @@ class CoinViewActivity :
     }
 
     private fun logReceiveEvent() {
-        val isBuyReceive = binding.primaryCta.text == getString(R.string.common_buy)
+        val isBuyReceive = ctaActions.contains(QuickActionCta.Buy)
+        val isSendReceive = ctaActions.contains(QuickActionCta.Send)
         if (isBuyReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.BuyReceiveClicked(
@@ -723,7 +727,7 @@ class CoinViewActivity :
                     type = CoinViewAnalytics.Companion.Type.RECEIVE
                 )
             )
-        } else {
+        } else if (isSendReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.SendReceiveClicked(
                     origin = LaunchOrigin.COIN_VIEW,

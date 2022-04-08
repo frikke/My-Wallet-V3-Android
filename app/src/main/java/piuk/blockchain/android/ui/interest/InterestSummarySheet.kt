@@ -36,6 +36,7 @@ import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import timber.log.Timber
 
@@ -104,6 +105,13 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
+                            analytics.logEvent(
+                                CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                                    origin = LaunchOrigin.COIN_VIEW,
+                                    currency = asset.networkTicker,
+                                    type = CoinViewAnalytics.Companion.Type.ADD
+                                )
+                            )
                             host.goToInterestDeposit(account)
                             dismiss()
                         }
@@ -155,6 +163,13 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         )
                     )
                     analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
+                    analytics.logEvent(
+                        CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = asset.networkTicker,
+                            type = CoinViewAnalytics.Companion.Type.WITHDRAW
+                        )
+                    )
                     host.goToInterestWithdraw(account)
                     dismiss()
                 }

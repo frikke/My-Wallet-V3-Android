@@ -213,17 +213,16 @@ sealed class CoinViewAnalytics(
             )
         )
 
-    // Awaiting confirmation
     class RewardsWithdrawOrAddClicked(
         override val origin: LaunchOrigin,
         currency: String,
-        selection: Selection,
+        type: Type,
     ) :
         CoinViewAnalytics(
             event = AnalyticsNames.COINVIEW_REWARDS_WITHDRAW_ADD_CLICKED.eventName,
             params = mapOf(
                 CURRENCY to currency,
-                SELECTION to selection.name,
+                TYPE to type.name,
             )
         )
 
