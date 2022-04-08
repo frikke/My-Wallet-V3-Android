@@ -552,7 +552,6 @@ val applicationModule = module {
             GetDashboardOnboardingStepsUseCase(
                 dashboardPrefs = get(),
                 userIdentity = get(),
-                custodialWalletManager = get(),
                 paymentsDataManager = get(),
                 tradeDataManager = get()
             )
