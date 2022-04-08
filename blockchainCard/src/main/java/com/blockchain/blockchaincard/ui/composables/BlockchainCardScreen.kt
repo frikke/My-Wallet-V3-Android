@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -92,6 +93,7 @@ fun BlockchainCardNavHost(
             SelectCardForOrder(
                 onCreateCard = {
                     viewModel.onIntent(
+                        // TODO(labreu): once staging API is not harcoded, remove this
                         BlockchainCardIntent.CreateCard(
                             productCode = "VIRTUAL1",
                             ssn = "111111110"
@@ -159,7 +161,7 @@ private fun OrderOrLinkCardContent(
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_graphic_cards),
-            contentDescription = "Blockchain Card",
+            contentDescription = stringResource(id = R.string.order_card_title),
             modifier = Modifier.padding(
                 0.dp,
                 AppTheme.dimensions.xxxPaddingLarge,
@@ -169,14 +171,14 @@ private fun OrderOrLinkCardContent(
         )
 
         SimpleText(
-            text = "Your Gateway To The Blockchain Debit Card",
+            text = stringResource(id = R.string.order_card_intro_primary),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
         )
 
         SimpleText(
-            text = "A card that lets you spend and earn in crypto right from your Blockchain account.",
+            text = stringResource(id = R.string.order_card_intro_secundary),
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
@@ -185,7 +187,7 @@ private fun OrderOrLinkCardContent(
         Spacer(Modifier.size(115.dp))
 
         PrimaryButton(
-            text = "Order My Card",
+            text = stringResource(id = R.string.order_my_card),
             onClick = onOrderCard,
             modifier = Modifier.fillMaxWidth()
         )
@@ -193,7 +195,7 @@ private fun OrderOrLinkCardContent(
         Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
 
         MinimalButton(
-            text = "Already Have A Card? Link It Here",
+            text = stringResource(id = R.string.link_card_here),
             onClick = onLinkCard,
             modifier = Modifier.fillMaxWidth()
         )
@@ -219,7 +221,7 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.card),
-                contentDescription = "Blockchain Card",
+                contentDescription = stringResource(id = R.string.order_card_title),
                 modifier = Modifier.padding(
                     AppTheme.dimensions.paddingMedium,
                     AppTheme.dimensions.paddingLarge,
@@ -229,21 +231,21 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
             )
 
             SimpleText(
-                text = "Virtual",
+                text = stringResource(id = R.string.virtual),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
             SimpleText(
-                text = "Our digital only card, use instantly for online payments. ",
+                text = stringResource(R.string.virtual_card_product_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
             )
 
             InfoButton(
-                text = "See Card Details",
+                text = stringResource(R.string.see_card_details),
                 onClick = onSeeProductDetails,
                 state = ButtonState.Enabled,
                 modifier = Modifier
@@ -253,7 +255,7 @@ private fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: ()
         }
 
         PrimaryButton(
-            text = "Create Card",
+            text = stringResource(R.string.create_card),
             onClick = onCreateCard,
             modifier = Modifier
                 .fillMaxWidth()
@@ -285,7 +287,7 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProd
         Column(modifier = Modifier.background(Color(0xFFFAFBFF))) {
             Image(
                 painter = painterResource(id = R.drawable.card),
-                contentDescription = "Blockchain Card",
+                contentDescription = stringResource(id = R.string.order_card_title),
                 modifier = Modifier.padding(
                     84.dp,
                     AppTheme.dimensions.paddingMedium,
@@ -295,7 +297,7 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProd
             )
 
             SimpleText(
-                text = "Virtual",
+                text = stringResource(id = R.string.virtual),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre,
@@ -308,42 +310,42 @@ private fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProd
             )
         }
 
-        SmallSectionHeader(text = "Card Benefits", modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = stringResource(R.string.card_benefits), modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
-            primaryText = "Cashback Rewards",
+            primaryText = stringResource(R.string.cashback_rewards),
             onClick = {},
             endTag = TagViewState("1%", TagType.Default())
         )
 
-        SmallSectionHeader(text = "Fees", modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = stringResource(R.string.fees), modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
-            primaryText = "Annual Fee",
+            primaryText = stringResource(R.string.annual_fees),
             onClick = {},
             endTag = TagViewState("No Fee", TagType.Success())
         )
         DefaultTableRow(
-            primaryText = "Delivery Fee",
+            primaryText = stringResource(R.string.delivery_fee),
             onClick = {},
             endTag = TagViewState("No Fee", TagType.Success())
         )
 
-        SmallSectionHeader(text = "Card (Placeholder)", modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = stringResource(R.string.card), modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
-            primaryText = "Contactless Payment",
+            primaryText = stringResource(R.string.contactless_payment),
             onClick = {},
-            endTag = TagViewState("Yes", TagType.Default())
+            endTag = TagViewState(stringResource(R.string.yes), TagType.Default())
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        SmallSectionHeader(text = "Consumer Financial Protection Bureau", modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = stringResource(R.string.consumer_financial_protection_bureau), modifier = Modifier.fillMaxWidth())
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
-            primaryText = "Short Form Disclosure",
+            primaryText = stringResource(R.string.short_form_disclosure),
             onClick = {}
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        SmallSectionHeader(text = "Consumer Financial Protection Bureau", modifier = Modifier.fillMaxWidth())
+        SmallSectionHeader(text = stringResource(R.string.blockchain_terms_and_conditions), modifier = Modifier.fillMaxWidth())
         DefaultTableRow(
-            primaryText = "Terms & Conditions",
+            primaryText = stringResource(R.string.terms_and_conditions),
             onClick = {}
         )
     }
@@ -395,13 +397,13 @@ private fun CardCreationSuccess(onFinish: () -> Unit) {
             horizontalAlignment = CenterHorizontally
         ) {
             SimpleText(
-                text = "Card Created!",
+                text = stringResource(R.string.card_created),
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
             SimpleText(
-                text = "Your card is now linked to your Blockchain.com Wallet.",
+                text = stringResource(R.string.your_card_is_now_linked),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
@@ -423,14 +425,14 @@ private fun CardCreationSuccess(onFinish: () -> Unit) {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_gpay_save_card),
-                    contentDescription = "Google Pay Save to Phone",
+                    contentDescription = stringResource(R.string.gpay_save_to_phone),
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Crop
                 )
             }
 
             MinimalButton(
-                text = "Do it later",
+                text = stringResource(R.string.do_it_later),
                 state = ButtonState.Enabled,
                 onClick = onFinish,
                 modifier = Modifier
@@ -445,7 +447,7 @@ private fun CardCreationSuccess(onFinish: () -> Unit) {
 private fun CardCreationFailed() {
     Column(Modifier.fillMaxWidth()) {
         SimpleText(
-            text = "FAILED",
+            text = stringResource(R.string.failed),
             style = ComposeTypographies.Title2,
             color = ComposeColors.Error,
             gravity = ComposeGravities.Centre
@@ -467,6 +469,6 @@ private fun ManageCard(cardId: String?, onDeleteCard: () -> Unit) {
             gravity = ComposeGravities.Centre
         )
 
-        DestructivePrimaryButton(text = "Delete Card", onClick = onDeleteCard)
+        DestructivePrimaryButton(text = stringResource(R.string.delete_card), onClick = onDeleteCard)
     }
 }

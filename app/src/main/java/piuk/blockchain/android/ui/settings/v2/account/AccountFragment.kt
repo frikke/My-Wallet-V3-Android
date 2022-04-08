@@ -189,24 +189,22 @@ class AccountFragment :
         }
 
     private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
-        when (blockchainCardOrderState) {
-            is BlockchainCardOrderState.Unknown -> {
-                binding.settingsDebitCard.secondaryText = ""
-            }
-            is BlockchainCardOrderState.NotEligible -> {
-                binding.settingsDebitCard.secondaryText = getString(R.string.account_not_eligible)
-            }
-            is BlockchainCardOrderState.Eligible -> {
-                with(binding.settingsDebitCard) {
+        with (binding.settingsDebitCard) {
+            when (blockchainCardOrderState) {
+                is BlockchainCardOrderState.Unknown -> {
+                    secondaryText = ""
+                }
+                is BlockchainCardOrderState.NotEligible -> {
+                    secondaryText = getString(R.string.account_not_eligible)
+                }
+                is BlockchainCardOrderState.Eligible -> {
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
                         navigator().goToOrderBlockchainDebitCard(blockchainCardOrderState.cardProducts.first())
                     }
                 }
-            }
-            is BlockchainCardOrderState.Ordered -> {
-                with(binding.settingsDebitCard) {
+                is BlockchainCardOrderState.Ordered -> {
                     secondaryText = null
                     onClick = {
                         navigator().goToManageBlockchainDebitCard(blockchainCardOrderState.blockchainDebitCardId)
