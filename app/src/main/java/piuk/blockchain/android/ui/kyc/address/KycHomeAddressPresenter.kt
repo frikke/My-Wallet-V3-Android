@@ -106,11 +106,11 @@ class KycHomeAddressPresenter(
                 .subscribeBy(
                     onSuccess = { (countryName, address) ->
                         view.restoreUiState(
-                            address.line1!!,
+                            address.line1,
                             address.line2,
-                            address.city!!,
+                            address.city,
                             address.state,
-                            address.postCode.orEmpty(),
+                            address.postCode,
                             countryName
                         )
                     },
