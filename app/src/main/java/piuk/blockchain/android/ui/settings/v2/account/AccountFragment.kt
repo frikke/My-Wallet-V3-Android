@@ -191,11 +191,8 @@ class AccountFragment :
     private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
         with (binding.settingsDebitCard) {
             when (blockchainCardOrderState) {
-                is BlockchainCardOrderState.Unknown -> {
-                    secondaryText = ""
-                }
                 is BlockchainCardOrderState.NotEligible -> {
-                    secondaryText = getString(R.string.account_not_eligible)
+                    secondaryText = ""
                 }
                 is BlockchainCardOrderState.Eligible -> {
                     secondaryText = null
