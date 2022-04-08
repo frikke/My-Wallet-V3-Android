@@ -11,6 +11,7 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
@@ -166,6 +167,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_customer_support_sheet",
                 "Customer Support Sheet"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(notificationPreferencesFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_notification_preferences_rework",
+                "Notification Preferences Rework"
             )
         )
     }.bind(FeatureFlag::class)
