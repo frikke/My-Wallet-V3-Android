@@ -340,6 +340,7 @@ dependencies {
     implementation project(':logging:data')
     implementation project(':store')
     implementation project(':store-persisters-sqldelight')
+    implementation project(':blockchainCard')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring

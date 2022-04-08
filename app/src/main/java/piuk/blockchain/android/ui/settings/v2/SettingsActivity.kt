@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.ui.BlockchainCardFragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -161,6 +163,14 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
+    override fun goToOrderBlockchainDebitCard(cardProduct: BlockchainDebitCardProduct) {
+        replaceCurrentFragment(BlockchainCardFragment.newInstance(cardProduct))
+    }
+
+    override fun goToManageBlockchainDebitCard(blockchainDebitCard: String) {
+        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainDebitCard))
+    }
+
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -208,6 +218,8 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
+    fun goToOrderBlockchainDebitCard(cardProduct: BlockchainDebitCardProduct)
+    fun goToManageBlockchainDebitCard(blockchainDebitCard: String)
 }
 
 interface SettingsScreen : FlowFragment {

@@ -1,0 +1,49 @@
+apply plugin: 'kotlinx-serialization'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-parcelize'
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+android {
+    buildFeatures {
+        viewBinding true
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerVersion Versions.composeKotlinCompile
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':coincore')
+    implementation project(':core')
+    implementation project(':commonarch')
+    implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':common-mp:utils')
+    implementation project(':blockchainApi')
+
+    implementation Libraries.koin
+    implementation Libraries.koinCompose
+    implementation Libraries.gson
+    implementation Libraries.timber
+    implementation Libraries.retrofit
+    implementation Libraries.retrofitKotlinJsonConverter
+    implementation Libraries.okHttp
+    implementation Libraries.kotlinJson
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.composeNavigation
+    implementation Libraries.design
+    implementation Libraries.appCompat
+    implementation Libraries.androidXAnnotations
+    implementation Libraries.accompanistNavigationMaterial
+}

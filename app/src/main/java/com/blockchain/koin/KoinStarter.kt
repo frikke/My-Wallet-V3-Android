@@ -3,6 +3,7 @@ package com.blockchain.koin
 import android.app.Application
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
+import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
@@ -107,7 +108,8 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     customerSupportModule,
-                    storePersistersSqlDelightModule
+                    storePersistersSqlDelightModule,
+                    blockchainCardModule
                 )
             )
         }

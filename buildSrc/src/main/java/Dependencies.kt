@@ -107,9 +107,11 @@ object Versions {
     const val constraintLayoutCompose = "1.0.0-beta02"
     const val composeRx = "1.1.0"
     const val composeKotlinCompile = "1.5.3"
+    const val composeNavigation = "2.4.1"
 
     // Accompanist
-    const val systemUi = "0.20.2"
+    const val systemUi = "0.23.1"
+    const val navigationMaterial = "0.23.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -186,6 +188,8 @@ object Libraries {
     const val navigationControllerFragments = "androidx.navigation:navigation-fragment:${Versions.navigation}"
     const val navigationControllerSafeArgsPlugin =
         "androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.navigation}"
+    const val navigationControllerCoreKTX = "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
+
     const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycle}"
     const val lifecycleViewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
     const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
@@ -240,6 +244,7 @@ object Libraries {
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
@@ -295,6 +300,8 @@ object Libraries {
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
+    const val accompanistNavigationMaterial = "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
+    const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
