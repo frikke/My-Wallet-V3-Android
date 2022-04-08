@@ -20,11 +20,11 @@ class BlockchainCardRepositoryImpl(
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainDebitCardProduct>> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.RequestFailed }
+            .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getProducts(
                     tokenResponse
-                ).mapLeft { BlockchainCardError.RequestFailed }.map { response ->
+                ).mapLeft { BlockchainCardError.GetProductsRequestFailed }.map { response ->
                     response.map {
                         it.toDomainModel()
                     }
@@ -33,11 +33,11 @@ class BlockchainCardRepositoryImpl(
 
     override suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainDebitCard>> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.RequestFailed }
+            .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getCards(
                     tokenResponse
-                ).mapLeft { BlockchainCardError.RequestFailed }.map { response ->
+                ).mapLeft { BlockchainCardError.GetCardsRequestFailed }.map { response ->
                     response.map {
                         it.toDomainModel()
                     }
@@ -49,25 +49,25 @@ class BlockchainCardRepositoryImpl(
         ssn: String
     ): Outcome<BlockchainCardError, BlockchainDebitCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.RequestFailed }
+            .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.createCard(
                     authHeader = tokenResponse,
                     productCode = productCode,
                     ssn = ssn
-                ).mapLeft { BlockchainCardError.RequestFailed }.map { card ->
+                ).mapLeft { BlockchainCardError.CreateCardRequestFailed }.map { card ->
                     card.toDomainModel()
                 }
             }
 
     override suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainDebitCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.RequestFailed }
+            .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.deleteCard(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft { BlockchainCardError.RequestFailed }.map { card ->
+                ).mapLeft { BlockchainCardError.DeleteCardRequestFailed }.map { card ->
                     card.toDomainModel()
                 }
             }
