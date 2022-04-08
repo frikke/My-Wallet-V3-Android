@@ -5,7 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 
-class BlockchainCardNavigationRouter : ComposeNavigationRouter {
+class BlockchainCardNavigationRouter(override val navController: NavHostController) : ComposeNavigationRouter {
 
     override fun route(navigationEvent: NavigationEvent) {
         var destination: BlockchainCardDestination = BlockchainCardDestination.NoDestination
@@ -51,7 +51,9 @@ class BlockchainCardNavigationRouter : ComposeNavigationRouter {
             navController.navigate(destination.route)
     }
 
-    override lateinit var navController: NavHostController
+    /*
+        override lateinit var navController: NavHostController
+    */
 }
 
 sealed class BlockchainCardNavigationEvent : NavigationEvent {

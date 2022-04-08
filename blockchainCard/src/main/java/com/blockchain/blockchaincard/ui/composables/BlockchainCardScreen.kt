@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
@@ -65,7 +66,6 @@ import com.google.accompanist.navigation.material.ExperimentalMaterialNavigation
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun BlockchainCardNavHost(
-    navigator: BlockchainCardNavigationRouter,
     viewModel: BlockchainCardViewModel,
     startDestination: BlockchainCardDestination,
 ) {
@@ -74,9 +74,13 @@ fun BlockchainCardNavHost(
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
+    val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
+        viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
     val state by stateFlowLifecycleAware.collectAsState(null)
     MviNavHost(
-        navigator,
+        navEvents = navEventsFlowLifecycleAware,
+        navigationRouter = BlockchainCardNavigationRouter(rememberNavController()),
         startDestination = startDestination,
     ) {
 

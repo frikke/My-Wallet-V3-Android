@@ -6,6 +6,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -27,9 +29,11 @@ import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 
 interface ComposeNavigationRouter : NavigationRouter<NavigationEvent> {
-    var navController: NavHostController
+    val navController: NavHostController
 }
 
 interface ComposeNavigationDestination {
@@ -41,13 +45,19 @@ interface ComposeNavigationDestination {
 fun MviNavHost(
     navigationRouter: ComposeNavigationRouter,
     startDestination: ComposeNavigationDestination,
+    navEvents: Flow<NavigationEvent>,
     modifier: Modifier = Modifier,
     onCollapse: () -> Unit = {},
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
+
+    val navigation by navEvents.collectAsState(null)
+    navigation?.let {
+        navigationRouter.route(it)
+    }
+
     val bottomSheetNavigator = rememberBottomSheetNavigator()
-    navigationRouter.navController = rememberNavController()
     navigationRouter.navController.navigatorProvider.addNavigator(bottomSheetNavigator)
 
     ModalBottomSheetLayout(

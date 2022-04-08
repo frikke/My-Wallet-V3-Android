@@ -6,6 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.fragment.app.Fragment
+import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
@@ -24,13 +27,15 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel
 
-class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragment {
+class BlockchainCardFragment : Fragment<BlockchainCardViewState>(), FlowFragment {
 
     private val viewModel: BlockchainCardViewModel by lazy {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
-    private val navigator: BlockchainCardNavigationRouter by inject()
+    /*
+        private val navigator: BlockchainCardNavigationRouter by inject()
+    */
 
     private val modelArgs: ModelConfigArgs by lazy {
         arguments?.getString(BLOCKCHAIN_CARD_ID)?.let { cardId ->
@@ -72,8 +77,7 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        bindViewModel(viewModel, navigator, modelArgs)
-
+   
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
@@ -81,14 +85,10 @@ class BlockchainCardFragment : MVIFragment<BlockchainCardViewState>(), FlowFragm
                 if (modelArgs is BlockchainDebitCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
                 else BlockchainCardDestination.OrderOrLinkCardDestination
             setContent {
-                BlockchainCardNavHost(navigator = navigator, viewModel = viewModel, startDestination)
+                BlockchainCardNavHost(viewModel = viewModel, startDestination)
             }
         }
     }
 
     override fun onBackPressed(): Boolean = false
-
-    override fun onStateUpdated(state: BlockchainCardViewState) {
-        // TODO implement
-    }
 }
