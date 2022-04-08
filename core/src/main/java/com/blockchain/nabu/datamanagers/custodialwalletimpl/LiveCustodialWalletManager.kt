@@ -5,10 +5,11 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
@@ -71,6 +72,8 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.KeyedStoreRequest
+import com.blockchain.store.asSingle
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
@@ -94,7 +97,7 @@ class LiveCustodialWalletManager(
     private val pairsCache: BuyPairsCache,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
-    private val paymentMethodsEligibilityCache: PaymentMethodsEligibilityCache,
+    private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
@@ -573,12 +576,21 @@ class LiveCustodialWalletManager(
         currency: Currency,
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false
-    ) = paymentMethodsEligibilityCache.cached(
-        PaymentMethodsEligibilityCache.Request(
-            currency,
-            eligibleOnly,
-            shouldFetchSddLimits
+    ) = paymentMethodsEligibilityStore.stream(
+        KeyedStoreRequest.Cached(
+            key = PaymentMethodsEligibilityStore.Key(
+                currency.networkTicker,
+                eligibleOnly,
+                shouldFetchSddLimits
+            ),
+            forceRefresh = false
         )
+    ).asSingle(
+        errorMapper = {
+            when (it) {
+                is PaymentMethodsError.RequestFailed -> Exception(it.message)
+            }
+        }
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }
     }

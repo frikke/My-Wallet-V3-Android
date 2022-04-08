@@ -1,0 +1,29 @@
+plugins {
+    id 'kotlin'
+    id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
+dependencies {
+    implementation project(':common:interface')
+
+    implementation Libraries.kotlinCoroutines
+
+    implementation Libraries.kotlinJson
+
+    implementation Libraries.koin
+    implementation Libraries.rxjava3Coroutines
+
+    testImplementation Libraries.junit
+    testImplementation Libraries.turbine
+    testImplementation Libraries.kluent
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.mockk
+}

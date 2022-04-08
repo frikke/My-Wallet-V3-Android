@@ -29,6 +29,8 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
@@ -38,7 +40,6 @@ import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
@@ -190,10 +191,6 @@ val coreModule = module {
 
         scoped {
             BuyOrdersCache(authenticator = get(), nabuService = get())
-        }
-
-        scoped {
-            PaymentMethodsEligibilityCache(authenticator = get(), service = get())
         }
 
         scoped {
@@ -363,6 +360,20 @@ val coreModule = module {
         }.bind(NabuUserDataManager::class)
 
         scoped {
+            LinkedCardsStore(
+                authenticator = get(),
+                paymentMethodsService = get()
+            )
+        }
+
+        scoped {
+            PaymentMethodsEligibilityStore(
+                authenticator = get(),
+                paymentMethodsService = get()
+            )
+        }
+
+        scoped {
             PaymentsDataManagerImpl(
                 paymentsService = get(),
                 paymentMethodsService = get(),
@@ -372,7 +383,9 @@ val coreModule = module {
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 googlePayManager = get(),
                 assetCatalogue = get(),
+                linkedCardsStore = get(),
                 cardsCache = get(),
+                cachingStoreFeatureFlag = get(cachingStoreFeatureFlag)
             )
         }.bind(PaymentsDataManager::class)
 

@@ -38,6 +38,8 @@ dependencies {
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')
+    implementation project(':store')
+    implementation project(':store-persisters-sqldelight')
 
     api project(':balance')
 

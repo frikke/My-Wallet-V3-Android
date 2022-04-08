@@ -28,6 +28,7 @@ import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
@@ -45,6 +46,7 @@ import com.blockchain.core.payments.model.LinkedBankState
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.payments.model.PartnerCredentials
 import com.blockchain.core.payments.model.PaymentMethodDetailsError
+import com.blockchain.core.payments.model.PaymentMethodsError
 import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentLimits
@@ -60,6 +62,10 @@ import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.store.StoreRequest
+import com.blockchain.store.StoreResponse
+import com.blockchain.store.firstOutcome
+import com.blockchain.store.mapData
 import com.blockchain.utils.toZonedDateTime
 import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.AssetCatalogue
@@ -73,8 +79,10 @@ import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 interface PaymentsDataManager {
     suspend fun getPaymentMethodDetailsForId(
@@ -96,6 +104,11 @@ interface PaymentsDataManager {
     fun getLinkedPaymentMethods(
         currency: FiatCurrency
     ): Single<List<LinkedPaymentMethod>>
+
+    fun getLinkedCards(
+        request: StoreRequest,
+        vararg states: CardStatus
+    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>>
 
     fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
 
@@ -144,8 +157,10 @@ interface PaymentsDataManager {
 
 class PaymentsDataManagerImpl(
     private val paymentsService: PaymentsService,
-    private val cardsCache: CardsCache,
     private val paymentMethodsService: PaymentMethodsService,
+    private val linkedCardsStore: LinkedCardsStore,
+    private val cardsCache: CardsCache,
+    private val cachingStoreFeatureFlag: FeatureFlag,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
@@ -294,12 +309,35 @@ class PaymentsDataManagerImpl(
         }
 
     override fun getLinkedCards(
+        request: StoreRequest,
+        vararg states: CardStatus
+    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>> =
+        linkedCardsStore.stream(request)
+            .mapData {
+                it.filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
+                    .map { it.toPaymentMethod() }
+            }
+
+    override fun getLinkedCards(
         vararg states: CardStatus
     ): Single<List<LinkedPaymentMethod.Card>> =
-        cardsCache.cards().map { cardsResponse ->
-            cardsResponse
-                .filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
-                .map { it.toPaymentMethod() }
+        cachingStoreFeatureFlag.enabled.onErrorReturnItem(false).flatMap { enabled ->
+            if (enabled) {
+                rxSingleOutcome {
+                    getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
+                        .mapLeft {
+                            when (it) {
+                                is PaymentMethodsError.RequestFailed -> Exception(it.message)
+                            }
+                        }
+                }
+            } else {
+                cardsCache.cards().map { cardsResponse ->
+                    cardsResponse
+                        .filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
+                        .map { it.toPaymentMethod() }
+                }
+            }
         }
 
     override fun getLinkedBank(id: String): Single<LinkedBank> =
@@ -328,7 +366,8 @@ class PaymentsDataManagerImpl(
             )
         }.map {
             CardToBeActivated(cardId = it.id, partner = it.partner.toPartner())
-        }.also {
+        }.doOnSuccess {
+            linkedCardsStore.markAsStale()
             cardsCache.invalidate()
         }
 
@@ -349,7 +388,8 @@ class PaymentsDataManagerImpl(
                 )
                 else -> PartnerCredentials.Unknown
             }
-        }.also {
+        }.doOnSuccess {
+            linkedCardsStore.markAsStale()
             cardsCache.invalidate()
         }.wrapErrorMessage()
 
@@ -374,7 +414,8 @@ class PaymentsDataManagerImpl(
     override fun deleteCard(cardId: String): Completable =
         authenticator.getAuthHeader().flatMapCompletable { authToken ->
             paymentMethodsService.deleteCard(authToken, cardId)
-        }.also {
+        }.doOnComplete {
+            linkedCardsStore.markAsStale()
             cardsCache.invalidate()
         }
 
