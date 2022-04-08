@@ -61,7 +61,6 @@ val blockchainApi = StringQualifier("blockchain-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
-val blockchainCardGateway = StringQualifier("card-issuing")
 
 private val json = Json {
     explicitNulls = false
@@ -131,15 +130,6 @@ val blockchainApiModule = module {
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
-            .build()
-    }
-
-    single(blockchainCardGateway) {
-        Retrofit.Builder()
-            .baseUrl(getBaseUrl("card-issuing"))
-            .client(get())
-            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(jsonConverter)
             .build()
     }
 
@@ -280,7 +270,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(blockchainCardGateway).create(BlockchainCardApi::class.java)
+        val api = get<Retrofit>(nabuApi).create(BlockchainCardApi::class.java)
         BlockchainCardService(
             api
         )
