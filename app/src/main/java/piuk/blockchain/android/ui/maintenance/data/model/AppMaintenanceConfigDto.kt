@@ -11,5 +11,6 @@ internal data class AppMaintenanceConfigDto(
     @SerialName("minimumOSVersion") val minimumOSVersion: Int,
     @SerialName("sitewideMaintenance") val siteWideMaintenance: Boolean,
     @SerialName("statusURL") val statusURL: String,
-    @SerialName("storeURI") val storeURI: String
+    @SerialName("storeURI") val storeURI: String,
+    @SerialName("websiteUrl") val websiteUrl: String
 )

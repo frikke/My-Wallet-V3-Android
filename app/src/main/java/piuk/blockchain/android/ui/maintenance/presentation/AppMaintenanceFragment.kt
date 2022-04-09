@@ -32,8 +32,10 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.extensions.exhaustive
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
+import piuk.blockchain.android.util.openUrl
 
 class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), NavigationRouter<AppMaintenanceNavigationEvent> {
 
@@ -52,6 +54,10 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
         setupViewModel()
     }
 
+    private fun setupViewModel() {
+        bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
+    }
+
     private fun setupViews() {
         composeView.apply {
             setContent {
@@ -64,86 +70,94 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
 
-        Box {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                imageResource = ImageResource.Local(
-                    R.drawable.background_gradient
-                ),
-                contentScale = ContentScale.FillBounds
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin),
-                        top = dimensionResource(R.dimen.standard_margin),
-                        bottom = dimensionResource(R.dimen.large_margin),
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+        with(state.value) {
+            Box {
                 Image(
+                    modifier = Modifier.fillMaxSize(),
                     imageResource = ImageResource.Local(
-                        R.drawable.ic_blockchain_logo_with_text
+                        R.drawable.background_gradient
+                    ),
+                    contentScale = ContentScale.FillBounds
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            start = dimensionResource(R.dimen.standard_margin),
+                            end = dimensionResource(R.dimen.standard_margin),
+                            top = dimensionResource(R.dimen.standard_margin),
+                            bottom = dimensionResource(R.dimen.large_margin),
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        imageResource = ImageResource.Local(
+                            R.drawable.ic_blockchain_logo_with_text
+                        )
                     )
-                )
 
-                Image(
-                    imageResource = ImageResource.Local(state.value.image)
-                )
-
-                Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    style = AppTheme.typography.title3,
-                    color = Grey900,
-                    text = stringResource(id = state.value.title),
-                )
-
-                Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
-
-                Text(
-                    modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
-                    style = AppTheme.typography.body1,
-                    color = Grey900,
-                    textAlign = TextAlign.Center,
-                    text = stringResource(id = state.value.description)
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                state.value.button1Text?.let { button1Text ->
-                    SecondaryButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = button1Text),
-                        onClick = { },
+                    Image(
+                        imageResource = ImageResource.Local(statusUiSettings.image)
                     )
-                }
 
-                if (state.value.button1Text != null && state.value.button2Text != null) {
+                    Text(
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        style = AppTheme.typography.title3,
+                        color = Grey900,
+                        text = stringResource(id = statusUiSettings.title),
+                    )
+
                     Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
-                }
 
-                state.value.button2Text?.let { button2Text ->
-                    PrimaryButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = button2Text),
-                        onClick = { }
+                    Text(
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        style = AppTheme.typography.body1,
+                        color = Grey900,
+                        textAlign = TextAlign.Center,
+                        text = stringResource(id = statusUiSettings.description)
                     )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    statusUiSettings.button1?.let { buttonSettings ->
+                        SecondaryButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(id = buttonSettings.buttonText),
+                            onClick = { viewModel.onIntent(buttonSettings.intent) },
+                        )
+                    }
+
+                    if (statusUiSettings.button1 != null && statusUiSettings.button2 != null) {
+                        Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                    }
+
+                    statusUiSettings.button2?.let { buttonSettings ->
+                        PrimaryButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(id = buttonSettings.buttonText),
+                            onClick = { viewModel.onIntent(buttonSettings.intent) }
+                        )
+                    }
                 }
             }
         }
-    }
-
-    private fun setupViewModel() {
-        bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
     }
 
     override fun onStateUpdated(state: AppMaintenanceViewState) {
     }
 
     override fun route(navigationEvent: AppMaintenanceNavigationEvent) {
+        when (navigationEvent) {
+            is AppMaintenanceNavigationEvent.RedirectToWebsite -> {
+                context.openUrl(navigationEvent.websiteUrl)
+            }
+            is AppMaintenanceNavigationEvent.ViewStatus -> {
+                context.openUrl(navigationEvent.statusUrl)
+            }
+            else -> {
+            }
+        }.exhaustive
     }
 
     companion object {

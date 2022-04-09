@@ -5,55 +5,76 @@ import androidx.annotation.StringRes
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
 
-enum class AppMaintenanceStatusUi(
+enum class AppMaintenanceStatusUiSettings(
     @DrawableRes val image: Int,
     @StringRes val title: Int,
     @StringRes val description: Int,
-    @StringRes val button1Text: Int?,
-    @StringRes val button2Text: Int?
+    val button1: AppMaintenanceButtonSettings?,
+    val button2: AppMaintenanceButtonSettings?
 ) {
     NO_STATUS(
-        image = R.drawable.ic_outdated_app,
+        image = R.drawable.ic_down_for_maintenance,
         title = R.string.empty,
         description = R.string.empty,
-        button1Text = null,
-        button2Text = null
+        button1 = null,
+        button2 = null
     ),
     SITE_WIDE_MAINTENANCE(
         image = R.drawable.ic_down_for_maintenance,
         title = R.string.app_maintenance_down_title,
         description = R.string.app_maintenance_site_wide_description,
-        button1Text = R.string.app_maintenance_cta_view_status,
-        button2Text = null
+        button1 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_view_status,
+            intent = AppMaintenanceIntents.ViewStatus
+        ),
+        button2 = null
     ),
     REDIRECT_TO_WEBSITE(
         image = R.drawable.ic_down_for_maintenance,
         title = R.string.app_maintenance_down_title,
         description = R.string.app_maintenance_redirect_website_description,
-        button1Text = null,
-        button2Text = R.string.app_maintenance_cta_redirect_website
+        button1 = null,
+        button2 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_redirect_website,
+            intent = AppMaintenanceIntents.RedirectToWebsite
+        )
     ),
     MANDATORY_UPDATE(
-        image = R.drawable.ic_outdated_app,
+        image = R.drawable.ic_down_for_maintenance,
         title = R.string.app_maintenance_update_title,
         description = R.string.app_maintenance_update_description,
-        button1Text = null,
-        button2Text = R.string.app_maintenance_cta_update_now
+        button1 = null,
+        button2 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_update_now,
+            intent = AppMaintenanceIntents.UpdateApp
+        )
     ),
     OPTIONAL_UPDATE(
-        image = R.drawable.ic_outdated_app,
+        image = R.drawable.ic_down_for_maintenance,
         title = R.string.app_maintenance_update_title,
         description = R.string.app_maintenance_update_description,
-        button1Text = R.string.app_maintenance_cta_update_later,
-        button2Text = R.string.app_maintenance_cta_update_now
+        button1 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_update_later,
+            intent = AppMaintenanceIntents.SkipUpdate
+        ),
+        button2 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_update_now,
+            intent = AppMaintenanceIntents.UpdateApp
+        )
     );
 
     companion object {
-        fun fromStatus(status: AppMaintenanceStatus.Actionable) = when (status) {
+        fun fromStatus(status: AppMaintenanceStatus.Actionable?) = when (status) {
             is AppMaintenanceStatus.Actionable.SiteWideMaintenance -> SITE_WIDE_MAINTENANCE
             is AppMaintenanceStatus.Actionable.RedirectToWebsite -> REDIRECT_TO_WEBSITE
             is AppMaintenanceStatus.Actionable.MandatoryUpdate -> MANDATORY_UPDATE
             is AppMaintenanceStatus.Actionable.OptionalUpdate -> OPTIONAL_UPDATE
+            else -> NO_STATUS
         }
     }
 }
+
+data class AppMaintenanceButtonSettings(
+    @StringRes val buttonText: Int,
+    val intent: AppMaintenanceIntents
+)

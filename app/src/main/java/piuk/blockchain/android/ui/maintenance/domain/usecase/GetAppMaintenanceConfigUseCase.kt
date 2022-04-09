@@ -16,7 +16,7 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
                 AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
             } else if (config.bannedVersions.contains(currentVersion)) {
                 if (config.bannedVersions.contains(config.playStoreVersion)) {
-                    AppMaintenanceStatus.Actionable.RedirectToWebsite("sss")
+                    AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
                 } else {
                     AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
                 }

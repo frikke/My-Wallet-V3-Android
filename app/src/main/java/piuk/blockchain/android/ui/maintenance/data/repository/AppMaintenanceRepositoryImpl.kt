@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.maintenance.data.repository
 import com.blockchain.outcome.Outcome
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.maintenance.data.appupdateapi.AppUpdateInfoFactory
@@ -29,7 +28,7 @@ internal class AppMaintenanceRepositoryImpl(
                 null
             }
 
-            if (maintenanceConfig == null /* todo 'uncomment for prod' || appUpdateInfo == null*/) {
+            if (maintenanceConfig == null /*todo <--uncomment for prod--> || appUpdateInfo == null*/) {
                 Outcome.Failure(Throwable())
             } else { // todo map
                 Outcome.Success(
@@ -41,7 +40,8 @@ internal class AppMaintenanceRepositoryImpl(
                         minimumOSVersion = maintenanceConfig.minimumOSVersion,
                         siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
                         statusURL = maintenanceConfig.statusURL,
-                        storeURI = maintenanceConfig.storeURI
+                        storeURI = maintenanceConfig.storeURI,
+                        websiteUrl = maintenanceConfig.websiteUrl
                     )
                 )
             }
