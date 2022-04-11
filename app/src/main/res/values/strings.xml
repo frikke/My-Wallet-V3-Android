@@ -951,11 +951,6 @@
     <string name="rewards_announcement_description">Transfer Crypto and start earning Rewards on BTC, ETH and many more.</string>
     <string name="rewards_announcement_action">Learn More</string>
 
-    <!-- Uk bank change announcement -->
-    <string name="ukentityswitch_announcement_title">New legal entity</string>
-    <string name="ukentityswitch_announcement_description">Starting later this month, UK customers will be served by our European subsidiary, Blockchain (LT), UAB. You will not experience any changes in user experience or lose access to your funds during this transition. <annotation link="learn_more">Learn more ></annotation></string>
-    <string name="ukentityswitch_announcement_action">I understand</string>
-
     <!-- WDGLD announcement -->
     <string name="wdgld_available_card_title">Trade wDGLD Now</string>
     <string name="wdgld_available_card_body">Wrapped Digital Gold (wDGLD) is an ERC-20 tokenized version of DGLD, combining a gold-backed token with the power and flexibility of Ethereum.</string>

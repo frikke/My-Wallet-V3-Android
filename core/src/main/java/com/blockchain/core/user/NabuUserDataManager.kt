@@ -1,6 +1,5 @@
 package com.blockchain.core.user
 
-import com.blockchain.api.services.Geolocation
 import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
@@ -11,8 +10,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 interface NabuUserDataManager {
-
-    fun getUserGeolocation(): Single<Geolocation>
 
     fun tiers(): Single<KycTiers>
 
@@ -41,9 +38,6 @@ class NabuUserDataManagerImpl(
     }
 
     override fun tiers(): Single<KycTiers> = cacheRequest.getCachedSingle()
-
-    override fun getUserGeolocation(): Single<Geolocation> =
-        nabuUserService.getGeolocation()
 
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =
         authenticator.getAuthHeader().map {
