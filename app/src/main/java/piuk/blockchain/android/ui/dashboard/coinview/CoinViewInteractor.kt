@@ -88,13 +88,17 @@ class CoinViewInteractor(
         Single.zip(
             identity.getHighestApprovedKycTier(),
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
+            identity.userAccessForFeature(Feature.SimpleBuy),
+            identity.userAccessForFeature(Feature.Buy),
             custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
-        ) { tier, sddEligible, isSupportedPair ->
+        ) { tier, sddEligible, simpleBuyAccess, buyAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             when {
-                custodialAccount != null -> {
+                custodialAccount != null &&
+                    simpleBuyAccess is FeatureAccess.Granted &&
+                    buyAccess is FeatureAccess.Granted -> {
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
                             if (totalCryptoBalance.isPositive) {
@@ -130,28 +134,32 @@ class CoinViewInteractor(
             }
         }
 
-    internal fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> =
-        Singles.zip(account.stateAwareActions, account.isEnabled).map { (actions, enabled) ->
-            val sortedActions = when (account) {
-                is InterestAccount -> {
-                    when {
-                        !enabled && account.isFunded -> {
-                            actions.minus { it.action == AssetAction.InterestDeposit } +
-                                StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
-                        }
-                        else -> {
-                            actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
-                        }
+    internal fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
+        account.stateAwareActions,
+        account.isEnabled,
+        account.balance.firstOrError()
+    ).map { (actions, enabled, balance) ->
+        assetActionsComparator.initAccount(account, balance)
+        val sortedActions = when (account) {
+            is InterestAccount -> {
+                when {
+                    !enabled && account.isFunded -> {
+                        actions.minus { it.action == AssetAction.InterestDeposit } +
+                            StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
+                    }
+                    else -> {
+                        actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
                     }
                 }
-                else -> actions.minus { it.action == AssetAction.InterestDeposit }
-            }.sortedWith(assetActionsComparator).toTypedArray()
-            return@map if (checkShouldShowExplainerSheet(account)) {
-                CoinViewViewState.ShowAccountExplainerSheet(sortedActions)
-            } else {
-                CoinViewViewState.ShowAccountActionSheet(sortedActions)
             }
+            else -> actions.minus { it.action == AssetAction.InterestDeposit }
+        }.sortedWith(assetActionsComparator).toTypedArray()
+        return@map if (checkShouldShowExplainerSheet(account)) {
+            CoinViewViewState.ShowAccountExplainerSheet(sortedActions)
+        } else {
+            CoinViewViewState.ShowAccountActionSheet(sortedActions)
         }
+    }
 
     private fun checkShouldShowExplainerSheet(selectedAccount: BlockchainAccount): Boolean {
         return when (selectedAccount) {

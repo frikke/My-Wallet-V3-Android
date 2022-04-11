@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.maintenance.presentation
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val interestDashboardPresentationModule = module {
+val appMaintenancePresentationModule = module {
     viewModel {
         AppMaintenanceSharedViewModel()
     }

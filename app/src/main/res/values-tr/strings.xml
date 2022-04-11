@@ -1167,7 +1167,7 @@ desteklenmez. Lütfen  bir adres ve özel anahtar
     <string name="trending_label">Trendde</string>
     <string name="trending_swap">%1$s Swap Et</string>
     <string name="trending_empty">Daha düşük ücretlerle Trenddeki Swapları görmek için Al-Sat Cüzdanlarınıza para yatırın.</string>
-    <string name="trending_receive">%1$s Al</string>
+    <string name="common_receive_to">%1$s Al</string>
     <string name="select_a_wallet">Bir Cüzdan Seçin</string>
     <string name="pending_swap_info_message">Bekleyen 1 Swap işleminiz var. Bu işlem tamamlandığında, yeni bir Swap yapabilirsiniz.</string>
     <string name="deposit_fee">Ağ Ücreti</string>

@@ -74,6 +74,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         )
 
         fun navigateToKyc()
+        fun showBalanceUpsellSheet(item: AssetActionItem)
     }
 
     val host: Host by lazy {
@@ -181,8 +182,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 endImageResource = stateActionData.imageResource,
                 onClick = when (stateActionData.state) {
                     ActionState.LockedForOther,
-                    ActionState.LockedDueToAvailability,
-                    ActionState.LockedForBalance -> noOp
+                    ActionState.LockedDueToAvailability -> noOp
+                    ActionState.LockedForBalance -> {
+                        {
+                            host.showBalanceUpsellSheet(item)
+                            dismiss()
+                        }
+                    }
                     ActionState.LockedForTier -> {
                         {
                             host.navigateToKyc()

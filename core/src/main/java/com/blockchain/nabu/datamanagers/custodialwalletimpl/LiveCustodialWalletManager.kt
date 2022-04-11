@@ -5,10 +5,11 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.core.payments.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
 import com.blockchain.nabu.datamanagers.BuyOrderList
@@ -27,11 +28,9 @@ import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
-import com.blockchain.nabu.datamanagers.PaymentError
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
-import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.datamanagers.TransactionErrorMapper
@@ -73,6 +72,8 @@ import com.blockchain.nabu.models.responses.swap.CreateOrderRequest
 import com.blockchain.nabu.models.responses.swap.CustodialOrderResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.store.KeyedStoreRequest
+import com.blockchain.store.asSingle
 import com.blockchain.utils.fromIso8601ToUtc
 import com.blockchain.utils.toLocalTime
 import info.blockchain.balance.AssetCatalogue
@@ -96,7 +97,7 @@ class LiveCustodialWalletManager(
     private val pairsCache: BuyPairsCache,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
-    private val paymentMethodsEligibilityCache: PaymentMethodsEligibilityCache,
+    private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
@@ -575,12 +576,21 @@ class LiveCustodialWalletManager(
         currency: Currency,
         eligibleOnly: Boolean,
         shouldFetchSddLimits: Boolean = false
-    ) = paymentMethodsEligibilityCache.cached(
-        PaymentMethodsEligibilityCache.Request(
-            currency,
-            eligibleOnly,
-            shouldFetchSddLimits
+    ) = paymentMethodsEligibilityStore.stream(
+        KeyedStoreRequest.Cached(
+            key = PaymentMethodsEligibilityStore.Key(
+                currency.networkTicker,
+                eligibleOnly,
+                shouldFetchSddLimits
+            ),
+            forceRefresh = false
         )
+    ).asSingle(
+        errorMapper = {
+            when (it) {
+                is PaymentMethodsError.RequestFailed -> Exception(it.message)
+            }
+        }
     ).map {
         it.filter { paymentMethod -> paymentMethod.visible }
     }
@@ -881,12 +891,6 @@ private fun BuySellOrderResponse.type() =
         else -> throw IllegalStateException("Unsupported order type")
     }
 
-private fun BuySellOrderResponse.paymentError(): PaymentError? =
-    when (paymentError) {
-        "CARD_PAYMENT_FAILED" -> PaymentError.CARD_PAYMENT_FAILED
-        else -> null
-    }
-
 enum class OrderType {
     BUY,
     SELL,
@@ -931,10 +935,10 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         ),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
-        paymentError = paymentError(),
+        paymentError = paymentError,
         depositPaymentId = depositPaymentId.orEmpty(),
-        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.NONE,
-        failureReason = failureReason?.toRecurringBuyError(),
+        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.None,
+        failureReason = failureReason,
         recurringBuyId = recurringBuyId
     )
 }
@@ -974,31 +978,18 @@ fun PaymentStateResponse?.toCardPaymentState() =
         null -> CardPaymentState.INITIAL
     }
 
-fun String.toRecurringBuyError() =
-    when (this) {
-        BuySellOrderResponse.FAILED_INSUFFICIENT_FUNDS ->
-            RecurringBuyFailureReason.INSUFFICIENT_FUNDS
-        BuySellOrderResponse.FAILED_INTERNAL_ERROR ->
-            RecurringBuyFailureReason.INTERNAL_SERVER_ERROR
-        BuySellOrderResponse.FAILED_BENEFICIARY_BLOCKED ->
-            RecurringBuyFailureReason.BLOCKED_BENEFICIARY_ID
-        BuySellOrderResponse.FAILED_BAD_FILL ->
-            RecurringBuyFailureReason.FAILED_BAD_FILL
-        else -> RecurringBuyFailureReason.UNKNOWN
-    }
-
 private fun String.toApprovalError(): ApprovalErrorStatus =
     when (this) {
         BuySellOrderResponse.APPROVAL_ERROR_INVALID,
-        BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.INVALID
-        BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.FAILED
-        BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.DECLINED
-        APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.REJECTED
-        APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.EXPIRED
-        BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LIMITED_EXCEEDED
-        BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FAILED_INTERNAL
-        BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.INSUFFICIENT_FUNDS
-        else -> ApprovalErrorStatus.UNKNOWN
+        BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.Invalid
+        BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.Failed
+        BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.Declined
+        APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.Rejected
+        APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.Expired
+        BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LimitedExceeded
+        BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FailedInternal
+        BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.InsufficientFunds
+        else -> ApprovalErrorStatus.Undefined(this)
     }
 
 fun String.toPaymentMethodType(): PaymentMethodType =

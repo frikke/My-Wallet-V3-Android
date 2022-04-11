@@ -245,9 +245,7 @@ abstract class CryptoNonCustodialAccount(
 
             val isActiveFunded = !isArchived && isFunded
 
-            val activity = StateAwareAction(
-                if (hasTransactions) ActionState.Available else ActionState.LockedForOther, AssetAction.ViewActivity
-            )
+            val activity = StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
 
             val receive = StateAwareAction(
                 if (baseActions.contains(
@@ -258,37 +256,47 @@ abstract class CryptoNonCustodialAccount(
             )
 
             val send = StateAwareAction(
-                if (baseActions.contains(
-                        AssetAction.Send
-                    ) && isActiveFunded
-                ) ActionState.Available else ActionState.LockedForOther,
+                when {
+                    baseActions.contains(AssetAction.Send) && isActiveFunded -> ActionState.Available
+                    !isActiveFunded -> ActionState.LockedForBalance
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.Send
             )
 
             val swap = StateAwareAction(
                 when {
-                    !baseActions.contains(AssetAction.Swap) || !isActiveFunded -> ActionState.LockedForOther
+                    !baseActions.contains(AssetAction.Swap) -> ActionState.LockedForOther
                     swapEligibility is FeatureAccess.Blocked -> {
                         if (swapEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
                         else ActionState.LockedForOther
                     }
+                    !isActiveFunded -> ActionState.LockedForBalance
                     else -> ActionState.Available
                 },
                 AssetAction.Swap
             )
             val sell = StateAwareAction(
-                if (baseActions.contains(
+                when {
+                    baseActions.contains(
                         AssetAction.Sell
-                    ) && isActiveFunded && fiatAccounts.isNotEmpty()
-                ) ActionState.Available else ActionState.LockedForOther,
+                    ) && isActiveFunded && fiatAccounts.isNotEmpty() -> ActionState.Available
+                    fiatAccounts.isEmpty() -> ActionState.LockedForTier
+                    !isActiveFunded -> ActionState.LockedForBalance
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.Sell
             )
 
             val interest = StateAwareAction(
-                if (baseActions.contains(
+                when {
+                    baseActions.contains(
                         AssetAction.InterestDeposit
-                    ) && isActiveFunded && isEligibleForInterest
-                ) ActionState.Available else ActionState.LockedForOther,
+                    ) && isActiveFunded && isEligibleForInterest -> ActionState.Available
+                    !isEligibleForInterest -> ActionState.LockedForTier
+                    !isActiveFunded -> ActionState.LockedForBalance
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.InterestDeposit
             )
 

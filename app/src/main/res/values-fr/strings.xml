@@ -1102,7 +1102,7 @@ Veuillez réessayer plus tard.</string>
     <string name="trending_label">Tendance</string>
     <string name="trending_swap">Swap %1$s</string>
     <string name="trending_empty">Approvisionnez vos portefeuilles de trading pour avoir accès au Swaps en évolution à des frais moins élevés.</string>
-    <string name="trending_receive">Recevoir %1$s</string>
+    <string name="common_receive_to">Recevoir %1$s</string>
     <string name="select_a_wallet">Sélectionner un Wallet</string>
     <string name="pending_swap_info_message">Vous avez 1 échange en cours. Une fois qu\'il sera terminé, vous pourrez procéder à un nouvel échange.</string>
     <string name="deposit_fee">Frais de réseau</string>
@@ -1819,7 +1819,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="reset_account_description_1">La réinitialisation restaurera vos comptes de trading, de récompenses et d\'échange.</string>
     <string name="checkout_funds_label_1">Wallet %s</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
-    <string name="common_oops">Oups ! Un problème est survenu.</string>
     <string name="common_approve">Approuver</string>
     <string name="common_deny">Refuser</string>
     <string name="item_the_exchange">Exchange</string>

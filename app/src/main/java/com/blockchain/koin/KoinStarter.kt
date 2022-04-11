@@ -3,6 +3,7 @@ package com.blockchain.koin
 import android.app.Application
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
+import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
@@ -22,6 +23,7 @@ import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.store_persisters_sqldelight.storePersistersSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -44,8 +46,8 @@ import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.login.loginUiModule
 import piuk.blockchain.android.ui.maintenance.data.appMaintenanceDataModule
-import piuk.blockchain.android.ui.maintenance.domain.interestDashboardDomainModule
-import piuk.blockchain.android.ui.maintenance.presentation.interestDashboardPresentationModule
+import piuk.blockchain.android.ui.maintenance.domain.appMaintenanceDomainModule
+import piuk.blockchain.android.ui.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -109,9 +111,11 @@ object KoinStarter {
                     deeplinkModule,
                     loggingModule,
                     customerSupportModule,
+                    storePersistersSqlDelightModule,
+                    blockchainCardModule,
                     appMaintenanceDataModule,
-                    interestDashboardDomainModule,
-                    interestDashboardPresentationModule
+                    appMaintenanceDomainModule,
+                    appMaintenancePresentationModule
                 )
             )
         }

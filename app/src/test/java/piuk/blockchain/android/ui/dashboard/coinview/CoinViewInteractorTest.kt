@@ -158,6 +158,11 @@ class CoinViewInteractorTest {
     fun `load quick actions should return valid actions for gold user with balance`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Granted(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
         }
@@ -176,6 +181,8 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
 
         verifyNoMoreInteractions(identity)
     }
@@ -184,6 +191,11 @@ class CoinViewInteractorTest {
     fun `load quick actions should return valid actions for sdd user with no balance`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Granted(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
         }
@@ -202,6 +214,9 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
+
         verifyNoMoreInteractions(identity)
     }
 
@@ -209,6 +224,10 @@ class CoinViewInteractorTest {
     fun `load quick actions should return valid actions for non sdd silver user`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Granted(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
@@ -225,14 +244,20 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
 
         verifyNoMoreInteractions(identity)
     }
 
     @Test
-    fun `load quick actions should return valid actions when no custodial wallet`() {
+    fun `load quick actions should return valid actions when no custodial wallet and no buy access`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Blocked(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Blocked(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
@@ -250,6 +275,8 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
 
         verifyNoMoreInteractions(identity)
     }
@@ -258,6 +285,10 @@ class CoinViewInteractorTest {
     fun `load quick actions should return valid actions when not a supported pair and no balance`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Granted(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.ZERO)
@@ -275,6 +306,8 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
 
         verifyNoMoreInteractions(identity)
     }
@@ -283,6 +316,10 @@ class CoinViewInteractorTest {
     fun `load quick actions should return valid actions when not a supported pair and has balance`() {
         whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(identity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
+        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
+            Single.just(FeatureAccess.Granted(mock()))
+        )
+        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
@@ -300,6 +337,8 @@ class CoinViewInteractorTest {
 
         verify(identity).getHighestApprovedKycTier()
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
+        verify(identity).userAccessForFeature(Feature.Buy)
+        verify(identity).userAccessForFeature(Feature.SimpleBuy)
 
         verifyNoMoreInteractions(identity)
     }
@@ -385,6 +424,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -403,6 +443,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(true))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -420,6 +461,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -438,6 +480,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()

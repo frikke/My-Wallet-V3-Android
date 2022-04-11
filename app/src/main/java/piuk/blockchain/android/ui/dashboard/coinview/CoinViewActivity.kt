@@ -39,6 +39,7 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.data.Entry
+import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
@@ -55,6 +56,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
+import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
@@ -71,7 +73,8 @@ class CoinViewActivity :
     RecurringBuyDetailsSheet.Host,
     AccountExplainerBottomSheet.Host,
     AccountActionsBottomSheet.Host,
-    InterestSummarySheet.Host {
+    InterestSummarySheet.Host,
+    NoBalanceActionBottomSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -95,12 +98,14 @@ class CoinViewActivity :
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
+    private lateinit var ctaActions: List<QuickActionCta>
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
+            onLockedAccountSelected = ::navigateToKyc,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
@@ -525,7 +530,8 @@ class CoinViewActivity :
             } else {
                 getString(R.string.coinview_removed_watchlist)
             },
-            type = SnackbarType.Success
+            type = SnackbarType.Success,
+            duration = Snackbar.LENGTH_SHORT
         ).show()
     }
 
@@ -603,6 +609,7 @@ class CoinViewActivity :
                 else -> {
                     updatePrimaryCta(asset, highestBalanceWallet, endAction)
                     updateSecondaryCta(asset, highestBalanceWallet, startAction)
+                    ctaActions = listOf(startAction, endAction)
                 }
             }
         }
@@ -688,7 +695,8 @@ class CoinViewActivity :
     }
 
     private fun logBuyEvent() {
-        val isBuySell = binding.secondaryCta.text == getString(R.string.common_sell)
+        val isBuySell = ctaActions.contains(QuickActionCta.Sell)
+        val isBuyReceive = ctaActions.contains(QuickActionCta.Receive)
         if (isBuySell) {
             analytics.logEvent(
                 CoinViewAnalytics.BuySellClicked(
@@ -697,7 +705,7 @@ class CoinViewActivity :
                     type = CoinViewAnalytics.Companion.Type.BUY
                 )
             )
-        } else {
+        } else if (isBuyReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.BuyReceiveClicked(
                     origin = LaunchOrigin.COIN_VIEW,
@@ -709,7 +717,8 @@ class CoinViewActivity :
     }
 
     private fun logReceiveEvent() {
-        val isBuyReceive = binding.primaryCta.text == getString(R.string.common_buy)
+        val isBuyReceive = ctaActions.contains(QuickActionCta.Buy)
+        val isSendReceive = ctaActions.contains(QuickActionCta.Send)
         if (isBuyReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.BuyReceiveClicked(
@@ -718,7 +727,7 @@ class CoinViewActivity :
                     type = CoinViewAnalytics.Companion.Type.RECEIVE
                 )
             )
-        } else {
+        } else if (isSendReceive) {
             analytics.logEvent(
                 CoinViewAnalytics.SendReceiveClicked(
                     origin = LaunchOrigin.COIN_VIEW,
@@ -988,6 +997,12 @@ class CoinViewActivity :
             AssetAction.InterestDeposit -> goToInterestDeposit(selectedAccount)
             AssetAction.InterestWithdraw -> goToInterestWithdraw(selectedAccount)
             else -> throw IllegalStateException("Action $action is not supported in this flow")
+        }
+    }
+
+    override fun showBalanceUpsellSheet(item: AccountActionsBottomSheet.AssetActionItem) {
+        item.account?.let {
+            showBottomSheet(NoBalanceActionBottomSheet.newInstance(it, item.action.action))
         }
     }
 

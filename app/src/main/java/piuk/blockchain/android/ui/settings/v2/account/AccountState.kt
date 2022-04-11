@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
+import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.commonarch.presentation.mvi.MviState
 import info.blockchain.balance.FiatCurrency
 
@@ -7,7 +8,8 @@ data class AccountState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val accountInformation: AccountInformation? = null,
     val errorState: AccountError = AccountError.NONE,
-    val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN
+    val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN,
+    val blockchainCardOrderState: BlockchainCardOrderState = BlockchainCardOrderState.NotEligible
 ) : MviState
 
 sealed class ViewToLaunch {
@@ -22,6 +24,12 @@ enum class ExchangeLinkingState {
     LINKED
 }
 
+sealed class BlockchainCardOrderState {
+    object NotEligible : BlockchainCardOrderState()
+    data class Eligible(val cardProducts: List<BlockchainDebitCardProduct>) : BlockchainCardOrderState()
+    data class Ordered(val blockchainDebitCardId: String) : BlockchainCardOrderState()
+}
+
 data class AccountInformation(
     val walletId: String,
     val userCurrency: FiatCurrency,
@@ -33,5 +41,6 @@ enum class AccountError {
     FIAT_LIST_FAIL,
     ACCOUNT_FIAT_UPDATE_FAIL,
     EXCHANGE_INFO_FAIL,
-    EXCHANGE_LOAD_FAIL
+    EXCHANGE_LOAD_FAIL,
+    BLOCKCHAIN_CARD_LOAD_FAIL
 }

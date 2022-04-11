@@ -8,6 +8,7 @@ import com.blockchain.api.assetdiscovery.data.assetTypeSerializers
 import com.blockchain.api.assetprice.AssetPriceApiInterface
 import com.blockchain.api.auth.AuthApiInterface
 import com.blockchain.api.bitcoin.BitcoinApi
+import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.eligibility.ProductEligibilityApi
@@ -22,6 +23,7 @@ import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
+import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
@@ -265,6 +267,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(WatchlistApi::class.java)
         WatchlistService(
             api = api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(BlockchainCardApi::class.java)
+        BlockchainCardService(
+            api
         )
     }
 }

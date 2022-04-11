@@ -1,0 +1,25 @@
+CREATE TABLE storePersisterData(
+    store_id TEXT NOT NULL,
+    key TEXT,
+    data TEXT NOT NULL,
+    last_fetched INTEGER NOT NULL,
+    PRIMARY KEY (store_id, key)
+);
+
+selectByStoreIdAndKey:
+SELECT
+    key,
+    data,
+    last_fetched
+FROM storePersisterData
+WHERE store_id = ?
+AND key = ?;
+
+insert:
+INSERT OR REPLACE INTO storePersisterData(key, store_id, data, last_fetched)
+VALUES ?;
+
+markAsStale:
+UPDATE storePersisterData SET last_fetched = 0
+WHERE store_id = ?
+AND key = ?;

@@ -134,7 +134,7 @@ private class TrendingPairsAdapter(
                             item.sourceAccount.currency.name
                         )
                         trendingSubtitle.text = context.getString(
-                            R.string.trending_receive,
+                            R.string.common_receive_to,
                             item.destinationAccount.currency.name
                         )
                         trendingIconType.setImageDrawable(context.getResolvedDrawable(R.drawable.ic_swap_light_blue))
