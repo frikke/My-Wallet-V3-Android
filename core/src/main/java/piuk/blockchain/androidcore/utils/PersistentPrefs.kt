@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.utils
 
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppUpdatePrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -30,7 +31,8 @@ interface PersistentPrefs :
     BankLinkingPrefs,
     AppInfoPrefs,
     RemoteConfigPrefs,
-    OnboardingPrefs {
+    OnboardingPrefs,
+    AppUpdatePrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc

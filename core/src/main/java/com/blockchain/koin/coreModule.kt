@@ -41,6 +41,7 @@ import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppUpdatePrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -437,6 +438,7 @@ val coreModule = module {
         .bind(SecureChannelPrefs::class)
         .bind(FeatureFlagOverridePrefs::class)
         .bind(OnboardingPrefs::class)
+        .bind(AppUpdatePrefs::class)
 
     factory {
         PaymentService(

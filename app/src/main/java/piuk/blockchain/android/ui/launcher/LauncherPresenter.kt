@@ -65,8 +65,11 @@ class LauncherPresenter internal constructor(
                     }
                 }
             }
-
         }
+    }
+
+    fun resumeAppFlow() {
+        kickOff()
     }
 
     private fun kickOff() {

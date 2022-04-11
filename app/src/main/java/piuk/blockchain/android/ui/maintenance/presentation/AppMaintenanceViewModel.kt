@@ -7,9 +7,11 @@ import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.ui.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
+import piuk.blockchain.android.ui.maintenance.domain.usecase.SkipAppUpdateUseCase
 
 class AppMaintenanceViewModel(
-    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
+    private val skipAppUpdateUseCase: SkipAppUpdateUseCase
 ) : MviViewModel<AppMaintenanceIntents,
     AppMaintenanceViewState,
     AppMaintenanceModelState,
@@ -34,26 +36,32 @@ class AppMaintenanceViewModel(
                 require(modelState.status is AppMaintenanceStatus.Actionable.RedirectToWebsite)
                 { "Intent RedirectToWebsite called with incorrect status ${modelState.status}" }
 
-                navigate(AppMaintenanceNavigationEvent.RedirectToWebsite(modelState.status.website))
+                navigate(AppMaintenanceNavigationEvent.OpenUrl(modelState.status.website))
             }
 
             AppMaintenanceIntents.ViewStatus -> {
                 require(modelState.status is AppMaintenanceStatus.Actionable.SiteWideMaintenance)
                 { "Intent ViewStatus called with incorrect status ${modelState.status}" }
 
-                navigate(AppMaintenanceNavigationEvent.RedirectToWebsite(modelState.status.statusUrl))
+                navigate(AppMaintenanceNavigationEvent.OpenUrl(modelState.status.statusUrl))
             }
 
             AppMaintenanceIntents.SkipUpdate -> {
                 require(modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate)
                 { "Intent SkipUpdate called with incorrect status ${modelState.status}" }
 
-
+                skipUpdateVersion(modelState.status.softVersionCode)
+                navigate(AppMaintenanceNavigationEvent.ResumeAppFlow)
             }
 
+            AppMaintenanceIntents.UpdateApp -> {
+                require(
+                    modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate
+                        || modelState.status is AppMaintenanceStatus.Actionable.MandatoryUpdate
+                )
+                { "Intent UpdateApp called with incorrect status ${modelState.status}" }
 
-
-            else -> {
+                navigate(AppMaintenanceNavigationEvent.LaunchAppUpdate)
             }
         }.exhaustive
     }
@@ -76,6 +84,13 @@ class AppMaintenanceViewModel(
                 }
             }
         }
+    }
+
+    /**
+     * mark [versionCode] as skipped
+     */
+    private fun skipUpdateVersion(versionCode: Int) {
+        skipAppUpdateUseCase(versionCode)
     }
 }
 

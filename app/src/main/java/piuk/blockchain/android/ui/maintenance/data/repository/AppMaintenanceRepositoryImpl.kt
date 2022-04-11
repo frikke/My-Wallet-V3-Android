@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.maintenance.data.repository
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.preferences.AppUpdatePrefs
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -13,6 +14,7 @@ import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRe
 internal class AppMaintenanceRepositoryImpl(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
     private val appUpdateInfoFactory: AppUpdateInfoFactory,
+    private val appUpdatePrefs: AppUpdatePrefs,
     private val dispatcher: CoroutineDispatcher
 ) : AppMaintenanceRepository {
 
@@ -33,10 +35,10 @@ internal class AppMaintenanceRepositoryImpl(
             } else { // todo map
                 Outcome.Success(
                     AppMaintenanceConfig(
-                        playStoreVersion = /*appUpdateInfo.availableVersionCode()*/16830,
+                        playStoreVersion = /*appUpdateInfo.availableVersionCode()*/16831,
                         bannedVersions = maintenanceConfig.bannedVersions,
                         softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
-                        skippedSoftVersion = 123,
+                        skippedSoftVersion = appUpdatePrefs.skippedVersionCode,
                         minimumOSVersion = maintenanceConfig.minimumOSVersion,
                         siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
                         statusURL = maintenanceConfig.statusURL,
@@ -46,5 +48,9 @@ internal class AppMaintenanceRepositoryImpl(
                 )
             }
         }
+    }
+
+    override fun skipAppUpdate(versionCode: Int) {
+        appUpdatePrefs.skippedVersionCode = versionCode
     }
 }

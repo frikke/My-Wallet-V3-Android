@@ -33,6 +33,7 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.extensions.exhaustive
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.openUrl
@@ -42,6 +43,7 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
     private lateinit var composeView: ComposeView
 
     private val viewModel: AppMaintenanceViewModel by viewModel()
+    private val sharedViewModel: AppMaintenanceSharedViewModel by sharedViewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).also { composeView = it }
@@ -149,13 +151,17 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
 
     override fun route(navigationEvent: AppMaintenanceNavigationEvent) {
         when (navigationEvent) {
-            is AppMaintenanceNavigationEvent.RedirectToWebsite -> {
-                context.openUrl(navigationEvent.websiteUrl)
+
+            is AppMaintenanceNavigationEvent.OpenUrl -> {
+                context.openUrl(navigationEvent.url)
             }
-            is AppMaintenanceNavigationEvent.ViewStatus -> {
-                context.openUrl(navigationEvent.statusUrl)
+
+            AppMaintenanceNavigationEvent.LaunchAppUpdate -> {
+
             }
-            else -> {
+
+            AppMaintenanceNavigationEvent.ResumeAppFlow -> {
+                sharedViewModel.resumeAppFlow()
             }
         }.exhaustive
     }

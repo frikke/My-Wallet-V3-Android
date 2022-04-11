@@ -15,7 +15,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
-import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,6 +22,7 @@ import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
+import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -582,6 +582,10 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
+    override var skippedVersionCode: Int
+        get() = getValue(KEY_SKIPPED_VERSION_CODE, -1)
+        set(value) = setValue(KEY_SKIPPED_VERSION_CODE, value)
+
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -688,6 +692,9 @@ class PrefsUtil(
         private const val CONFIG_STALE = "CONFIG_STALE"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
+
+        // AppUpdate (app maintenance)
+        private const val KEY_SKIPPED_VERSION_CODE = "KEY_SKIPPED_VERSION_CODE"
     }
 }
 

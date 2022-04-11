@@ -21,12 +21,10 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
                     AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
                 }
             } else if (currentVersion < config.softUpgradeVersion && config.softUpgradeVersion != config.skippedSoftVersion) {
-                AppMaintenanceStatus.Actionable.OptionalUpdate(config.storeURI)
+                AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
             } else {
                 AppMaintenanceStatus.NonActionable.AllClear
             }
-
-            AppMaintenanceStatus.Actionable.OptionalUpdate(config.storeURI)
         }
     )
 }
