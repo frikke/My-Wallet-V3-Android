@@ -7,10 +7,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.maintenance.data.appupdateapi.AppUpdateInfoFactory
+import piuk.blockchain.android.ui.maintenance.data.mapper.AppMaintenanceConfigMapper
+import piuk.blockchain.android.ui.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.ui.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
 import piuk.blockchain.android.ui.maintenance.domain.appupdateapi.isDownloadTriggered
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRepository
+import timber.log.Timber
 
 internal class AppMaintenanceRepositoryImpl(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
@@ -24,10 +27,11 @@ internal class AppMaintenanceRepositoryImpl(
             val deferredMaintenanceConfig = async(dispatcher) { appMaintenanceRemoteConfig.getAppMaintenanceConfig() }
             val deferredAppUpdateInfo = async { appUpdateInfoFactory.getAppUpdateInfo() }
 
-            val maintenanceConfig = deferredMaintenanceConfig.await()
+            val maintenanceConfig: AppMaintenanceConfigDto? = deferredMaintenanceConfig.await()
             val appUpdateInfo: AppUpdateInfo? = try {
                 deferredAppUpdateInfo.await()
             } catch (e: Throwable) {
+                Timber.e("Cannot get appUpdateInfo, $e")
                 e.printStackTrace()
                 null
             }
@@ -40,19 +44,9 @@ internal class AppMaintenanceRepositoryImpl(
                             "\nboth must not be null"
                     )
                 )
-            } else { // todo map
+            } else {
                 Outcome.Success(
-                    AppMaintenanceConfig(
-                        playStoreVersion = appUpdateInfo.availableVersionCode(),
-                        bannedVersions = maintenanceConfig.bannedVersions,
-                        softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
-                        skippedSoftVersion = appUpdatePrefs.skippedVersionCode,
-                        minimumOSVersion = maintenanceConfig.minimumOSVersion,
-                        siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
-                        statusURL = maintenanceConfig.statusURL,
-                        storeURI = maintenanceConfig.storeURI,
-                        websiteUrl = maintenanceConfig.websiteUrl
-                    )
+                    AppMaintenanceConfigMapper.map(Triple(appUpdateInfo, maintenanceConfig, appUpdatePrefs))
                 )
             }
         }

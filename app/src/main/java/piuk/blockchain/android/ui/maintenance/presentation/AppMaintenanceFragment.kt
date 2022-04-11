@@ -65,6 +65,7 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
     }
 
     private fun setupViewModel() {
+        lifecycle.addObserver(viewModel)
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
     }
 
@@ -76,6 +77,9 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
         }
     }
 
+    /**
+     * Figma: https://www.figma.com/file/Khjv2OKUvZ7xwTx2qmSadw/iOS---Upgrade-Prompts?node-id=0%3A1
+     */
     @Composable
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()

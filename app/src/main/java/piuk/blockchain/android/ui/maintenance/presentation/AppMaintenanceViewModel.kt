@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.maintenance.presentation
 
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -20,9 +22,19 @@ class AppMaintenanceViewModel(
     AppMaintenanceNavigationEvent,
     ModelConfigArgs.NoArgs>(
     initialState = AppMaintenanceModelState()
-) {
+), DefaultLifecycleObserver {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+        checkDownloadStatus()
+    }
+
+    /**
+     * Get app maintenance status
+     * Calling in [onResume] to update the status automatically when returning to the app
+     */
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+
         getAppMaintenanceStatus()
     }
 
@@ -38,14 +50,14 @@ class AppMaintenanceViewModel(
                 require(modelState.status is AppMaintenanceStatus.Actionable.RedirectToWebsite)
                 { "Intent RedirectToWebsite called with incorrect status ${modelState.status}" }
 
-                navigate(AppMaintenanceNavigationEvent.OpenUrl(modelState.status.website))
+                openUrl(modelState.status.website)
             }
 
             AppMaintenanceIntents.ViewStatus -> {
                 require(modelState.status is AppMaintenanceStatus.Actionable.SiteWideMaintenance)
                 { "Intent ViewStatus called with incorrect status ${modelState.status}" }
 
-                navigate(AppMaintenanceNavigationEvent.OpenUrl(modelState.status.statusUrl))
+                openUrl(modelState.status.statusUrl)
             }
 
             AppMaintenanceIntents.SkipUpdate -> {
@@ -53,7 +65,7 @@ class AppMaintenanceViewModel(
                 { "Intent SkipUpdate called with incorrect status ${modelState.status}" }
 
                 skipUpdateVersion(modelState.status.softVersionCode)
-                navigate(AppMaintenanceNavigationEvent.ResumeAppFlow)
+                resumeAppFlow()
             }
 
             AppMaintenanceIntents.UpdateApp -> {
@@ -63,15 +75,33 @@ class AppMaintenanceViewModel(
                 )
                 { "Intent UpdateApp called with incorrect status ${modelState.status}" }
 
-                navigate(AppMaintenanceNavigationEvent.LaunchAppUpdate)
+                launchAppUpdate()
             }
         }.exhaustive
     }
 
-    private fun getAppMaintenanceStatus() {
+    /**
+     * If the download was already triggered in a previous session, and is still in progress
+     * -> show the play store ui
+     */
+    private fun checkDownloadStatus() {
         viewModelScope.launch {
             if (isDownloadInProgressUseCase()) navigate(AppMaintenanceNavigationEvent.LaunchAppUpdate)
+        }
+    }
 
+    /**
+     * * If the status is [AppMaintenanceStatus.NonActionable.Unknown] for whatever reason
+     * ->
+     *
+     * * If the status is [AppMaintenanceStatus.NonActionable.AllClear]
+     * -> resume the flow - this should generally never happen as this screen should not be triggered in that case
+     *
+     * * If the status is an [AppMaintenanceStatus.Actionable]
+     * -> update the screen
+     */
+    private fun getAppMaintenanceStatus() {
+        viewModelScope.launch {
             getAppMaintenanceConfigUseCase().let { status ->
                 when (status) {
                     AppMaintenanceStatus.NonActionable.Unknown -> {
@@ -79,7 +109,7 @@ class AppMaintenanceViewModel(
                     }
 
                     AppMaintenanceStatus.NonActionable.AllClear -> {
-                        // todo close
+                        resumeAppFlow()
                     }
 
                     is AppMaintenanceStatus.Actionable -> {
@@ -89,6 +119,19 @@ class AppMaintenanceViewModel(
             }
         }
     }
+
+    private fun openUrl(url: String) {
+        navigate(AppMaintenanceNavigationEvent.OpenUrl(url))
+    }
+
+    private fun launchAppUpdate() {
+        navigate(AppMaintenanceNavigationEvent.LaunchAppUpdate)
+    }
+
+    /**
+     * Navigate (resume) wherever the app was suspended to show the maintenance screen
+     */
+    private fun resumeAppFlow() = navigate(AppMaintenanceNavigationEvent.ResumeAppFlow)
 
     /**
      * mark [versionCode] as skipped

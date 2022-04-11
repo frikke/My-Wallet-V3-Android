@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.maintenance.domain.usecase
 
+import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.fold
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
@@ -10,24 +11,30 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
         return repository.getAppMaintenanceConfig().fold(
             onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
             onSuccess = { config ->
+                val currentVersion = BuildConfig.VERSION_CODE // todo
 
-                val currentVersion = BuildConfig.VERSION_CODE
-
-                if (config.siteWideMaintenance) {
-                    AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
-                } else if (config.bannedVersions.contains(currentVersion)) {
-                    if (config.bannedVersions.contains(config.playStoreVersion)) {
-                        AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
-                    } else {
-                        AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
+                when {
+                    config.siteWideMaintenance -> {
+                        AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
                     }
-                } else if (currentVersion < config.softUpgradeVersion
-                    && config.softUpgradeVersion != config.skippedSoftVersion
-                ) {
-                    AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
-                } else {
-                    AppMaintenanceStatus.NonActionable.AllClear
-                }
+
+                    config.bannedVersions.contains(currentVersion) -> {
+                        if (config.bannedVersions.contains(config.playStoreVersion)) {
+                            AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
+                        } else {
+                            AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
+                        }
+                    }
+
+                    currentVersion < config.softUpgradeVersion
+                        && config.softUpgradeVersion != config.skippedSoftVersion -> {
+                        AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
+                    }
+
+                    else -> {
+                        AppMaintenanceStatus.NonActionable.AllClear
+                    }
+                }.exhaustive
             }
         )
     }
