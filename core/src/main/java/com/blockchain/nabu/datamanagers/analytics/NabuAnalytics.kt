@@ -22,6 +22,7 @@ import java.util.Locale
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
+import timber.log.Timber
 
 class NabuAnalytics(
     private val analyticsService: AnalyticsService,
@@ -47,6 +48,7 @@ class NabuAnalytics(
 
     override fun logEvent(analyticsEvent: AnalyticsEvent) {
         val nabuEvent = analyticsEvent.toNabuAnalyticsEvent()
+        logEventInTerminal(analyticsEvent)
 
         compositeDisposable += localAnalyticsPersistence.save(nabuEvent)
             .subscribeOn(Schedulers.computation())
@@ -58,6 +60,19 @@ class NabuAnalytics(
                 sendToApiAndFlushIfNeeded()
             }
             .emptySubscribe()
+    }
+
+    private fun logEventInTerminal(analyticsEvent: AnalyticsEvent) {
+        var paramsString = ""
+        for ((key, value) in analyticsEvent.params) {
+            paramsString += " $key = $value\n "
+        }
+        Timber.i(
+            " \nevent: %s \n origin: %s \n params: \n %s",
+            analyticsEvent.event,
+            analyticsEvent.origin ?: "",
+            paramsString
+        )
     }
 
     private fun sendToApiAndFlushIfNeeded(): Completable {
