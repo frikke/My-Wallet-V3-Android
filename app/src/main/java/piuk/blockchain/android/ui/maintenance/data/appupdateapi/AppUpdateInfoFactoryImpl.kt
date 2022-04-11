@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.maintenance.data.appupdateapi
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import piuk.blockchain.android.ui.maintenance.domain.appupdateapi.getInfo
 
 @ExperimentalCoroutinesApi
 class AppUpdateInfoFactoryImpl(

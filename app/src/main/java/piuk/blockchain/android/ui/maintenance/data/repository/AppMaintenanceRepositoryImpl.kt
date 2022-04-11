@@ -8,6 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.maintenance.data.appupdateapi.AppUpdateInfoFactory
 import piuk.blockchain.android.ui.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
+import piuk.blockchain.android.ui.maintenance.domain.appupdateapi.isDownloading
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRepository
 
@@ -46,6 +47,16 @@ internal class AppMaintenanceRepositoryImpl(
                         websiteUrl = maintenanceConfig.websiteUrl
                     )
                 )
+            }
+        }
+    }
+
+    override suspend fun isDownloadInProgress(): Boolean {
+        return supervisorScope {
+            try {
+                appUpdateInfoFactory.getAppUpdateInfo().isDownloading()
+            } catch (e: Throwable) {
+                false
             }
         }
     }

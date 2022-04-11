@@ -22,10 +22,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -33,9 +35,13 @@ import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.extensions.exhaustive
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
+import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
+import piuk.blockchain.android.ui.maintenance.presentation.appupdateapi.InAppUpdateSettings
 import piuk.blockchain.android.util.openUrl
 
 class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), NavigationRouter<AppMaintenanceNavigationEvent> {
@@ -44,6 +50,8 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
 
     private val viewModel: AppMaintenanceViewModel by viewModel()
     private val sharedViewModel: AppMaintenanceSharedViewModel by sharedViewModel()
+
+    private val inAppUpdateSettings: InAppUpdateSettings by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).also { composeView = it }
@@ -153,17 +161,41 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
         when (navigationEvent) {
 
             is AppMaintenanceNavigationEvent.OpenUrl -> {
-                context.openUrl(navigationEvent.url)
+                openUrl(navigationEvent.url)
             }
 
             AppMaintenanceNavigationEvent.LaunchAppUpdate -> {
-
+                launchAppUpdate()
             }
 
             AppMaintenanceNavigationEvent.ResumeAppFlow -> {
-                sharedViewModel.resumeAppFlow()
+                resumeAppFlow()
             }
         }.exhaustive
+    }
+
+    private fun openUrl(url: String) {
+        context.openUrl(url)
+    }
+
+    private fun launchAppUpdate() {
+        activity?.let {
+            lifecycleScope.launch {
+                try {
+                    inAppUpdateSettings.triggerOrResumeAppUpdate(it)
+                } catch (e: Throwable) {
+                    BlockchainSnackbar.make(
+                        composeView,
+                        getString(R.string.common_error),
+                        type = SnackbarType.Error
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun resumeAppFlow() {
+        sharedViewModel.resumeAppFlow()
     }
 
     companion object {
