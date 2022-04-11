@@ -47,7 +47,6 @@ class LauncherPresenter internal constructor(
     override val coroutineContext: CoroutineContext = job + Dispatchers.IO
 
     override fun onViewAttached() {
-        //        kickOff()
         launch {
             // check app maintenance status
             getAppMaintenanceConfigUseCase().let { status ->

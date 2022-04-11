@@ -184,11 +184,7 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
                 try {
                     inAppUpdateSettings.triggerOrResumeAppUpdate(it)
                 } catch (e: Throwable) {
-                    BlockchainSnackbar.make(
-                        composeView,
-                        getString(R.string.common_error),
-                        type = SnackbarType.Error
-                    ).show()
+                    showError()
                 }
             }
         }
@@ -196,6 +192,14 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
 
     private fun resumeAppFlow() {
         sharedViewModel.resumeAppFlow()
+    }
+
+    private fun showError() {
+        BlockchainSnackbar.make(
+            composeView,
+            getString(R.string.common_error),
+            type = SnackbarType.Error
+        ).show()
     }
 
     companion object {

@@ -27,4 +27,13 @@ private suspend fun Task<AppUpdateInfo>.get(): AppUpdateInfo = suspendCoroutine 
     }
 }
 
-fun AppUpdateInfo.isDownloading() = installStatus() == InstallStatus.DOWNLOADING
+/**
+ * If the download flow was already triggered and is in one of the states
+ * [InstallStatus.PENDING], [InstallStatus.DOWNLOADING], [InstallStatus.INSTALLING]
+ * the flow should automatically be started to show play store ui
+ */
+fun AppUpdateInfo.isDownloadTriggered(): Boolean {
+    return installStatus() == InstallStatus.PENDING ||
+        installStatus() == InstallStatus.DOWNLOADING ||
+        installStatus() == InstallStatus.INSTALLING
+}

@@ -7,10 +7,12 @@ import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.ui.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
+import piuk.blockchain.android.ui.maintenance.domain.usecase.IsDownloadInProgressUseCase
 import piuk.blockchain.android.ui.maintenance.domain.usecase.SkipAppUpdateUseCase
 
 class AppMaintenanceViewModel(
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
+    private val isDownloadInProgressUseCase: IsDownloadInProgressUseCase,
     private val skipAppUpdateUseCase: SkipAppUpdateUseCase
 ) : MviViewModel<AppMaintenanceIntents,
     AppMaintenanceViewState,
@@ -68,6 +70,8 @@ class AppMaintenanceViewModel(
 
     private fun getAppMaintenanceStatus() {
         viewModelScope.launch {
+            if (isDownloadInProgressUseCase()) navigate(AppMaintenanceNavigationEvent.LaunchAppUpdate)
+
             getAppMaintenanceConfigUseCase().let { status ->
                 when (status) {
                     AppMaintenanceStatus.NonActionable.Unknown -> {

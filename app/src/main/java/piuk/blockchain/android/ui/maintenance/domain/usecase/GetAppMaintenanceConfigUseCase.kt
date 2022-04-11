@@ -6,25 +6,29 @@ import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRepository
 
 class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepository) {
-    suspend operator fun invoke(): AppMaintenanceStatus = repository.getAppMaintenanceConfig().fold(
-        onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
-        onSuccess = { config ->
+    suspend operator fun invoke(): AppMaintenanceStatus {
+        return repository.getAppMaintenanceConfig().fold(
+            onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
+            onSuccess = { config ->
 
-            val currentVersion = BuildConfig.VERSION_CODE
+                val currentVersion = BuildConfig.VERSION_CODE
 
-            if (config.siteWideMaintenance) {
-                AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
-            } else if (config.bannedVersions.contains(currentVersion)) {
-                if (config.bannedVersions.contains(config.playStoreVersion)) {
-                    AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
+                if (config.siteWideMaintenance) {
+                    AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
+                } else if (config.bannedVersions.contains(currentVersion)) {
+                    if (config.bannedVersions.contains(config.playStoreVersion)) {
+                        AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
+                    } else {
+                        AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
+                    }
+                } else if (currentVersion < config.softUpgradeVersion
+                    && config.softUpgradeVersion != config.skippedSoftVersion
+                ) {
+                    AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
                 } else {
-                    AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
+                    AppMaintenanceStatus.NonActionable.AllClear
                 }
-            } else if (currentVersion < config.softUpgradeVersion && config.softUpgradeVersion != config.skippedSoftVersion) {
-                AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
-            } else {
-                AppMaintenanceStatus.NonActionable.AllClear
             }
-        }
-    )
+        )
+    }
 }

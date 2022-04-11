@@ -8,7 +8,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.maintenance.data.appupdateapi.AppUpdateInfoFactory
 import piuk.blockchain.android.ui.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
-import piuk.blockchain.android.ui.maintenance.domain.appupdateapi.isDownloading
+import piuk.blockchain.android.ui.maintenance.domain.appupdateapi.isDownloadTriggered
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRepository
 
@@ -28,15 +28,22 @@ internal class AppMaintenanceRepositoryImpl(
             val appUpdateInfo: AppUpdateInfo? = try {
                 deferredAppUpdateInfo.await()
             } catch (e: Throwable) {
+                e.printStackTrace()
                 null
             }
 
-            if (maintenanceConfig == null /*todo <--uncomment for prod--> || appUpdateInfo == null*/) {
-                Outcome.Failure(Throwable())
+            if (maintenanceConfig == null || appUpdateInfo == null) {
+                Outcome.Failure(
+                    Throwable(
+                        "maintenanceConfig: $maintenanceConfig" +
+                            "\nappUpdateInfo: $appUpdateInfo" +
+                            "\nboth must not be null"
+                    )
+                )
             } else { // todo map
                 Outcome.Success(
                     AppMaintenanceConfig(
-                        playStoreVersion = /*appUpdateInfo.availableVersionCode()*/16831,
+                        playStoreVersion = appUpdateInfo.availableVersionCode(),
                         bannedVersions = maintenanceConfig.bannedVersions,
                         softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
                         skippedSoftVersion = appUpdatePrefs.skippedVersionCode,
@@ -54,7 +61,7 @@ internal class AppMaintenanceRepositoryImpl(
     override suspend fun isDownloadInProgress(): Boolean {
         return supervisorScope {
             try {
-                appUpdateInfoFactory.getAppUpdateInfo().isDownloading()
+                appUpdateInfoFactory.getAppUpdateInfo().isDownloadTriggered()
             } catch (e: Throwable) {
                 false
             }
