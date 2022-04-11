@@ -1,6 +1,5 @@
 package com.blockchain.api.nabu
 
-import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
@@ -18,9 +17,6 @@ interface NabuUserApi {
     fun getInterestEligibility(
         @Header("authorization") authorization: String
     ): Single<Map<String, InterestEligibilityResponse>>
-
-    @GET("geolocation")
-    fun getUserGeolocation(): Single<GeolocationResponse>
 
     @PUT("users/current/address/initial")
     fun saveUserInitialLocation(

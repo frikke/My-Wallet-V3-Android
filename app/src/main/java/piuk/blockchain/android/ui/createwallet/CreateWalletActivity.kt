@@ -11,7 +11,6 @@ import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
-import com.blockchain.api.services.Geolocation
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -91,8 +90,6 @@ class CreateWalletActivity :
             backAction = { onBackPressed() }
         )
         applyConstraintSet.clone(binding.mainConstraintLayout)
-
-        createWalletPresenter.getUserGeolocation()
 
         initializeStatesSpinner()
 
@@ -255,19 +252,6 @@ class CreateWalletActivity :
                     CountryPickerItem(countryCode)
                 }
             ).show(supportFragmentManager, KycEmailEntryFragment.BOTTOM_SHEET)
-        }
-    }
-
-    override fun setGeolocationInCountrySpinner(geolocation: Geolocation) {
-        if (countryPickerItem == null) {
-            val countryGeo = CountryPickerItem(geolocation.countryCode)
-            onItemPicked(countryGeo)
-        }
-        if (statePickerItem == null) {
-            geolocation.state?.let { stateCode ->
-                val stateGeo = createStateItemFromIsoCode(stateCode)
-                onItemPicked(stateGeo)
-            }
         }
     }
 

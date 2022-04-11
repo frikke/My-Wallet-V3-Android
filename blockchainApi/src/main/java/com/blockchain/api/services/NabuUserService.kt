@@ -1,7 +1,6 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.nabu.NabuUserApi
-import com.blockchain.api.nabu.data.GeolocationResponse
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
@@ -31,8 +30,6 @@ class NabuUserService internal constructor(
             .onErrorReturn { emptyMap() }
             .map { it.toDomain() }
 
-    fun getGeolocation(): Single<Geolocation> = api.getUserGeolocation().map { it.toGeolocation() }
-
     fun saveUserInitialLocation(
         authHeader: String,
         countryIsoCode: String,
@@ -48,13 +45,6 @@ class NabuUserService internal constructor(
 
 private fun Map<String, InterestEligibilityResponse>.toDomain(): InterestEligibility =
     InterestEligibility(this)
-
-private fun GeolocationResponse.toGeolocation() = Geolocation(this.countryCode, this.state)
-
-data class Geolocation(
-    val countryCode: String,
-    val state: String? = null
-)
 
 private fun LatestTermsAndConditionsResponse.toDomain() = LatestTermsAndConditions(termsAndConditionsUrl)
 
