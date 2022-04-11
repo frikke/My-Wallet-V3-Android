@@ -267,9 +267,15 @@ class CustodialTradingAccount(
             )
 
             val sell = StateAwareAction(
-                if (baseActions.contains(AssetAction.Sell) &&
-                    isActiveFunded && !hasSimpleBuyAccess.isBlockedDueToEligibility() && fiatAccounts.isNotEmpty()
-                ) ActionState.Available else ActionState.LockedForOther,
+                when {
+                    baseActions.contains(AssetAction.Sell) && isActiveFunded &&
+                        !hasSimpleBuyAccess.isBlockedDueToEligibility() &&
+                        fiatAccounts.isNotEmpty() -> ActionState.Available
+                    hasSimpleBuyAccess.isBlockedDueToEligibility() ||
+                        fiatAccounts.isEmpty() -> ActionState.LockedForTier
+                    !isActiveFunded -> ActionState.LockedForBalance
+                    else -> ActionState.LockedForOther
+                },
                 AssetAction.Sell
             )
 

@@ -424,6 +424,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -442,6 +443,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(true))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -459,6 +461,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
@@ -477,6 +480,7 @@ class CoinViewInteractorTest {
             on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
+            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
         }
 
         val test = subject.getAccountActions(account).test()
