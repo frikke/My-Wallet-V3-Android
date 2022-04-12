@@ -85,9 +85,9 @@ class NotificationPayload(map: Map<String, String?>) {
         companion object {
             fun fromString(string: String?): NotificationType? {
                 if (string != null) {
-                    for (type in values()) {
-                        if (type.name.equals(string, ignoreCase = true)) {
-                            return type
+                    for (notificationType in values()) {
+                        if (notificationType.type.equals(string, ignoreCase = true)) {
+                            return notificationType
                         }
                     }
                 }
