@@ -4,7 +4,6 @@ import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isErc20
@@ -23,7 +22,6 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
@@ -42,8 +40,7 @@ class EthDataManager(
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
-    private val lastTxUpdater: LastTxUpdater,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val lastTxUpdater: LastTxUpdater
 ) : EthMessageSigner {
 
     private val internalAccountAddress: String?
@@ -341,14 +338,11 @@ class EthDataManager(
         assetCatalogue: AssetCatalogue,
         label: String
     ): Single<Pair<EthereumWallet, Boolean>> =
-        Singles.zip(
-            metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty(""),
-            kotlinSerializerFeatureFlag.enabled
-        )
-            .map { (metadata, useKotlinX) ->
+        metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty("")
+            .map { metadata ->
                 val walletJson = if (metadata != "") metadata else null
 
-                var ethWallet = EthereumWallet.load(walletJson, useKotlinX)
+                var ethWallet = EthereumWallet.load(walletJson)
                 var needsSave = false
 
                 if (ethWallet?.account == null || !ethWallet.account!!.isCorrect) {
@@ -375,12 +369,10 @@ class EthDataManager(
             }
 
     fun save(): Completable =
-        kotlinSerializerFeatureFlag.enabled.flatMapCompletable { useKotlinX ->
-            metadataManager.saveToMetadata(
-                ethDataStore.ethWallet!!.toJson(useKotlinX),
-                EthereumWallet.METADATA_TYPE_EXTERNAL
-            )
-        }
+        metadataManager.saveToMetadata(
+            ethDataStore.ethWallet!!.toJson(),
+            EthereumWallet.METADATA_TYPE_EXTERNAL
+        )
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
         require(asset.isErc20())

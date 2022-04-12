@@ -3,7 +3,6 @@ package piuk.blockchain.androidcore.data.payload
 import com.blockchain.annotations.MoveCandidate
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.exceptions.DecryptionException
@@ -55,8 +54,7 @@ class PayloadDataManager internal constructor(
     @MoveCandidate("Move this down to the PayloadManager layer, with the other crypto tools")
     private val privateKeyFactory: PrivateKeyFactory,
     private val payloadManager: PayloadManager,
-    private val remoteLogger: RemoteLogger,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val remoteLogger: RemoteLogger
 ) {
 
     val metadataCredentials: MetadataCredentials?
@@ -242,22 +240,20 @@ class PayloadDataManager internal constructor(
         secondPassword: String?,
         defaultAccountName: String
     ): Completable =
-        kotlinSerializerFeatureFlag.enabled.flatMapCompletable { enabled ->
-            Completable.fromCallable {
-                logWalletUpgradeStats()
-                if (payloadManager.isV3UpgradeRequired) {
-                    try {
-                        payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName, enabled)
-                    } catch (t: Throwable) {
-                        throw WalletUpgradeFailure("v2 -> v3 failed", t)
-                    }
+        Completable.fromCallable {
+            logWalletUpgradeStats()
+            if (payloadManager.isV3UpgradeRequired) {
+                try {
+                    payloadManager.upgradeV2PayloadToV3(secondPassword, defaultAccountName)
+                } catch (t: Throwable) {
+                    throw WalletUpgradeFailure("v2 -> v3 failed", t)
                 }
-                if (payloadManager.isV4UpgradeRequired) {
-                    try {
-                        payloadManager.upgradeV3PayloadToV4(secondPassword, enabled)
-                    } catch (t: Throwable) {
-                        throw WalletUpgradeFailure("v3 -> v4 failed", t)
-                    }
+            }
+            if (payloadManager.isV4UpgradeRequired) {
+                try {
+                    payloadManager.upgradeV3PayloadToV4(secondPassword)
+                } catch (t: Throwable) {
+                    throw WalletUpgradeFailure("v3 -> v4 failed", t)
                 }
             }
         }
@@ -460,15 +456,13 @@ class PayloadDataManager internal constructor(
      */
     fun getNextReceiveAddressAndReserve(accountIndex: Int, label: String): Observable<String> {
         val account = accounts[accountIndex]
-        return kotlinSerializerFeatureFlag.enabled.flatMapObservable { enabled ->
-            Observable.fromCallable {
-                payloadManager.getNextReceiveAddressAndReserve(
-                    account,
-                    label,
-                    enabled
-                )
-            }
-        }.subscribeOn(Schedulers.computation())
+        return Observable.fromCallable {
+            payloadManager.getNextReceiveAddressAndReserve(
+                account,
+                label
+            )
+        }
+            .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
     }
 

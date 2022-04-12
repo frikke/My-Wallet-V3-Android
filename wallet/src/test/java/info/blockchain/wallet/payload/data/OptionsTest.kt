@@ -13,7 +13,7 @@ class OptionsTest {
     @Test fun fromJson_1() {
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val options = wallet.getOptions()
         Assert.assertEquals(10000, options.feePerKb)
         Assert.assertEquals(5000, options.pbkdf2Iterations.toLong())
@@ -24,7 +24,7 @@ class OptionsTest {
     @Test fun fromJson_2() {
         val uri = javaClass.classLoader.getResource("wallet_body_2.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val options = wallet.getOptions()
         Assert.assertEquals(0, options.feePerKb)
 
@@ -39,7 +39,7 @@ class OptionsTest {
         // Ensure toJson doesn't write any unintended fields
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val options = wallet.getOptions()
         val jsonString: String = Json { encodeDefaults = true }.encodeToString(options)
         val jsonObject = JSONObject(jsonString)

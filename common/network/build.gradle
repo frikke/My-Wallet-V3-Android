@@ -13,10 +13,8 @@ dependencies {
     // Network
     implementation Libraries.kotlinJson
     implementation Libraries.retrofitKotlinJsonConverter
-    implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.retrofitRxMoshiConverter
-    implementation Libraries.jacksonKotlin
 
     implementation Libraries.timber
 

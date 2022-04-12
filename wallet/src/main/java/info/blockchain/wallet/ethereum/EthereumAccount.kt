@@ -1,11 +1,6 @@
 package info.blockchain.wallet.ethereum
 
 import com.blockchain.serialization.JsonSerializableAccount
-import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import info.blockchain.wallet.ethereum.util.HashUtil
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
@@ -22,37 +17,20 @@ import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign
 import org.web3j.crypto.TransactionEncoder
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(
-    fieldVisibility = Visibility.ANY,
-    getterVisibility = Visibility.NONE,
-    setterVisibility = Visibility.NONE,
-    creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE
-)
 @Serializable
 class EthereumAccount : JsonSerializableAccount {
 
-    @JsonProperty("archived")
     @SerialName("archived")
     private val archived: Boolean = false
 
-    @JsonProperty("label")
     @SerialName("label")
     override var label = ""
 
-    @field:JsonProperty("correct")
     @SerialName("correct")
     var isCorrect: Boolean = false
 
-    @field:JsonProperty("addr")
     @SerialName("addr")
     var address: String = ""
-
-    constructor() {
-        // default constructor for Jackson
-    }
 
     constructor(addressKey: ECKey) {
         this.address = Keys.toChecksumAddress(

@@ -3,7 +3,6 @@ package piuk.blockchain.androidcore.data.ethereum
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
@@ -55,15 +54,13 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
-        lastTxUpdater = lastTxUpdater,
-        kotlinSerializerFeatureFlag = kotlinSerializerFeatureFlag
+        lastTxUpdater = lastTxUpdater
     )
 
     @Test
@@ -303,11 +300,9 @@ class EthDataManagerTest {
         val hash = "HASH"
         val notes = "NOTES"
         val ethereumWallet: EthereumWallet = mock()
-        val withKotlinX = true
         whenever(ethDataStore.ethWallet).thenReturn(ethereumWallet)
-        whenever(ethDataStore.ethWallet!!.toJson(any())).thenReturn("{}")
+        whenever(ethDataStore.ethWallet!!.toJson()).thenReturn("{}")
         whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
-        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
         // Act
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
         // Assert
