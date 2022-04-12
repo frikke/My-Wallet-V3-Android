@@ -51,10 +51,7 @@ class LauncherPresenter internal constructor(
             // check app maintenance status
             getAppMaintenanceConfigUseCase().let { status ->
                 when (status) {
-                    AppMaintenanceStatus.NonActionable.Unknown -> { // todo
-                        kickOff()
-                    }
-
+                    AppMaintenanceStatus.NonActionable.Unknown,
                     AppMaintenanceStatus.NonActionable.AllClear -> {
                         kickOff()
                     }

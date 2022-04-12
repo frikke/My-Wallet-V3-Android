@@ -22,6 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.base.MvpActivity
+import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
 import piuk.blockchain.android.ui.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.ui.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
@@ -89,14 +90,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
      * Show maintenance screen and observe resume flow
      */
     override fun onAppMaintenance() {
-        supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
-            .replace(
-                binding.contentFrame.id, AppMaintenanceFragment.newInstance(),
-                AppMaintenanceFragment::class.simpleName
-            )
-            .commit()
-
+        showBottomSheet(AppMaintenanceFragment.newInstance())
         observeResumeAppFlow()
     }
 

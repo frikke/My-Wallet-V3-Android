@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -44,7 +45,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.maintenance.presentation.appupdateapi.InAppUpdateSettings
 import piuk.blockchain.android.util.openUrl
 
-class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), NavigationRouter<AppMaintenanceNavigationEvent> {
+class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), NavigationRouter<AppMaintenanceNavigationEvent> {
 
     private lateinit var composeView: ComposeView
 
@@ -59,6 +60,8 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        isCancelable = false
 
         setupViews()
         setupViewModel()
@@ -195,6 +198,7 @@ class AppMaintenanceFragment : MVIFragment<AppMaintenanceViewState>(), Navigatio
     }
 
     private fun resumeAppFlow() {
+        dismiss()
         sharedViewModel.resumeAppFlow()
     }
 
