@@ -14,12 +14,14 @@ internal object AppMaintenanceConfigMapper :
             AppMaintenanceConfig(
                 playStoreVersion = appUpdateInfo.availableVersionCode(),
                 bannedVersions = maintenanceConfig.bannedVersions,
+                minimumAppVersion = maintenanceConfig.minimumAppVersion,
                 softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
                 skippedSoftVersion = appUpdatePrefs.skippedVersionCode,
                 minimumOSVersion = maintenanceConfig.minimumOSVersion,
                 siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
-                statusURL = maintenanceConfig.statusURL,
-                storeURI = maintenanceConfig.storeURI,
+                redirectToWebsite = maintenanceConfig.redirectToWebsite,
+                statusUrl = maintenanceConfig.statusURL,
+                storeUrl = maintenanceConfig.storeURI,
                 websiteUrl = maintenanceConfig.websiteUrl
             )
         }

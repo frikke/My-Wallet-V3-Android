@@ -15,7 +15,16 @@ sealed interface AppMaintenanceStatus {
     sealed interface Actionable : AppMaintenanceStatus {
         data class SiteWideMaintenance(val statusUrl: String) : Actionable
         data class RedirectToWebsite(val website: String) : Actionable
-        data class MandatoryUpdate(val playStoreUrl: String?) : Actionable
-        data class OptionalUpdate(val softVersionCode: Int, val playStoreUrl: String?) : Actionable
+        data class MandatoryUpdate(val updateLocation: UpdateLocation) : Actionable
+        data class OptionalUpdate(val softVersionCode: Int, val updateLocation: UpdateLocation) : Actionable
+    }
+}
+
+sealed interface UpdateLocation {
+    object InAppUpdate : UpdateLocation
+    data class ExternalUrl(val playStoreUrl: String) : UpdateLocation
+
+    companion object {
+        fun fromUrl(url: String?) = if (url.isNullOrBlank()) InAppUpdate else ExternalUrl(url)
     }
 }

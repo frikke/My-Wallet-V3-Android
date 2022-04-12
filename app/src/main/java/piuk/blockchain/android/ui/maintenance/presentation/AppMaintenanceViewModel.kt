@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.ui.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.ui.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.maintenance.domain.usecase.IsDownloadInProgressUseCase
 import piuk.blockchain.android.ui.maintenance.domain.usecase.SkipAppUpdateUseCase
@@ -75,7 +76,16 @@ class AppMaintenanceViewModel(
                 )
                 { "Intent UpdateApp called with incorrect status ${modelState.status}" }
 
-                launchAppUpdate()
+                when (modelState.status) {
+                    is AppMaintenanceStatus.Actionable.MandatoryUpdate -> modelState.status.updateLocation
+                    is AppMaintenanceStatus.Actionable.OptionalUpdate -> modelState.status.updateLocation
+                    else -> UpdateLocation.InAppUpdate
+                }.run {
+                    when (this) {
+                        UpdateLocation.InAppUpdate -> launchAppUpdate()
+                        is UpdateLocation.ExternalUrl -> openUrl(playStoreUrl)
+                    }
+                }
             }
         }.exhaustive
     }

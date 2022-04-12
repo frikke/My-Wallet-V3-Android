@@ -4,6 +4,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.fold
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.ui.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.ui.maintenance.domain.repository.AppMaintenanceRepository
 
 class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepository) {
@@ -11,30 +12,45 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
         return repository.getAppMaintenanceConfig().fold(
             onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
             onSuccess = { config ->
-                val currentVersion = BuildConfig.VERSION_CODE // todo
+                with(config) {
+                    val currentVersion = BuildConfig.VERSION_CODE // todo
 
-                when {
-                    config.siteWideMaintenance -> {
-                        AppMaintenanceStatus.Actionable.SiteWideMaintenance(config.statusURL)
-                    }
-
-                    config.bannedVersions.contains(currentVersion) -> {
-                        if (config.bannedVersions.contains(config.playStoreVersion)) {
-                            AppMaintenanceStatus.Actionable.RedirectToWebsite(config.websiteUrl)
-                        } else {
-                            AppMaintenanceStatus.Actionable.MandatoryUpdate(config.storeURI)
+                    when {
+                        siteWideMaintenance -> {
+                            AppMaintenanceStatus.Actionable.SiteWideMaintenance(statusUrl)
                         }
-                    }
 
-                    currentVersion < config.softUpgradeVersion
-                        && config.softUpgradeVersion != config.skippedSoftVersion -> {
-                        AppMaintenanceStatus.Actionable.OptionalUpdate(config.softUpgradeVersion, config.storeURI)
-                    }
+                        redirectToWebsite -> {
+                            AppMaintenanceStatus.Actionable.RedirectToWebsite(websiteUrl)
+                        }
 
-                    else -> {
-                        AppMaintenanceStatus.NonActionable.AllClear
-                    }
-                }.exhaustive
+                        // redirect to website when current app and playstore are both broken, ie no healthy update available
+                        // if playstore is healthy, force an update
+                        currentVersion in bannedVersions -> {
+                            if (playStoreVersion in bannedVersions) {
+                                AppMaintenanceStatus.Actionable.RedirectToWebsite(websiteUrl)
+                            } else {
+                                AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.fromUrl(storeUrl))
+                            }
+                        }
+
+                        currentVersion < minimumAppVersion -> {
+                            AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.fromUrl(storeUrl))
+                        }
+
+                        // if soft version is preferred and is not yet skipped by the user
+                        currentVersion < softUpgradeVersion && softUpgradeVersion != skippedSoftVersion -> {
+                            AppMaintenanceStatus.Actionable.OptionalUpdate(
+                                softUpgradeVersion,
+                                UpdateLocation.fromUrl(storeUrl)
+                            )
+                        }
+
+                        else -> {
+                            AppMaintenanceStatus.NonActionable.AllClear
+                        }
+                    }.exhaustive
+                }
             }
         )
     }
