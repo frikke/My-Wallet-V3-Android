@@ -98,7 +98,7 @@ class CoinViewActivity :
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
-    private lateinit var ctaActions: List<QuickActionCta>
+    private var ctaActions: List<QuickActionCta> = emptyList()
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
