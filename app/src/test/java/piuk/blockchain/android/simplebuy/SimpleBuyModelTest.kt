@@ -226,7 +226,6 @@ class SimpleBuyModelTest {
                         paymentMethodType = PaymentMethodType.PAYMENT_CARD,
                         attributes = PaymentAttributes(
                             authorisationUrl = null,
-                            status = null,
                             cardAttributes = CardAttributes.EveryPay(
                                 paymentLink = paymentLink,
                                 paymentState = CardPaymentState.WAITING_FOR_3DS
