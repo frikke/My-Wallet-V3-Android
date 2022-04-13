@@ -21,8 +21,8 @@ internal object AppMaintenanceConfigMapper {
             minimumOSVersion = maintenanceConfig.minimumOSVersion,
             siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
             redirectToWebsite = maintenanceConfig.redirectToWebsite,
-            statusUrl = maintenanceConfig.statusURL,
-            storeUrl = maintenanceConfig.storeURI,
+            statusUrl = maintenanceConfig.statusUrl,
+            storeUrl = maintenanceConfig.storeUrl,
             websiteUrl = maintenanceConfig.websiteUrl
         )
     }

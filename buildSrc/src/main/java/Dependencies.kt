@@ -335,6 +335,7 @@ object Libraries {
     const val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     const val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kotlinJunit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
+    const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
     const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
     const val coreTesting = "androidx.arch.core:core-testing:${Versions.coreTesting}"
     const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"

@@ -29,6 +29,7 @@ dependencies {
 
     // test
     testImplementation Libraries.junit
+    testImplementation Libraries.kotlinTest
     testImplementation Libraries.mockk
     testImplementation Libraries.kotlinCoroutinesTest
 }
