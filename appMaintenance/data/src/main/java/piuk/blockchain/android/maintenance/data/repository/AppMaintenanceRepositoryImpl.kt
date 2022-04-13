@@ -1,24 +1,22 @@
 package piuk.blockchain.android.maintenance.data.repository
 
 import com.blockchain.outcome.Outcome
-import com.blockchain.preferences.AppUpdatePrefs
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
-import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
 import piuk.blockchain.android.maintenance.data.appupdateapi.isDownloadTriggered
 import piuk.blockchain.android.maintenance.data.mapper.AppMaintenanceConfigMapper
-import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
+import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
+import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
 import timber.log.Timber
 
 internal class AppMaintenanceRepositoryImpl(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
     private val appUpdateInfoFactory: AppUpdateInfoFactory,
-    private val appUpdatePrefs: AppUpdatePrefs,
     private val dispatcher: CoroutineDispatcher
 ) : AppMaintenanceRepository {
 
@@ -46,7 +44,7 @@ internal class AppMaintenanceRepositoryImpl(
                 )
             } else {
                 Outcome.Success(
-                    AppMaintenanceConfigMapper.map(Triple(appUpdateInfo, maintenanceConfig, appUpdatePrefs))
+                    AppMaintenanceConfigMapper.map(Pair(appUpdateInfo, maintenanceConfig))
                 )
             }
         }
@@ -60,9 +58,5 @@ internal class AppMaintenanceRepositoryImpl(
                 false
             }
         }
-    }
-
-    override fun skipAppUpdate(versionCode: Int) {
-        appUpdatePrefs.skippedVersionCode = versionCode
     }
 }

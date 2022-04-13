@@ -582,10 +582,6 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
-    override var skippedVersionCode: Int
-        get() = getValue(KEY_SKIPPED_VERSION_CODE, -1)
-        set(value) = setValue(KEY_SKIPPED_VERSION_CODE, value)
-
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */

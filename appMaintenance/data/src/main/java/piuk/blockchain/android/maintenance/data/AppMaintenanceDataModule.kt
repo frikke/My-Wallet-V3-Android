@@ -30,7 +30,6 @@ val appMaintenanceDataModule = module {
         AppMaintenanceRepositoryImpl(
             appMaintenanceRemoteConfig = get(),
             appUpdateInfoFactory = get(),
-            appUpdatePrefs = get(),
             dispatcher = Dispatchers.IO
         )
     }

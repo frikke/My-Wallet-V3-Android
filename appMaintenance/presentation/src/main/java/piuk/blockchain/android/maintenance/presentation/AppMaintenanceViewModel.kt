@@ -11,12 +11,10 @@ import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.maintenance.domain.usecase.IsDownloadInProgressUseCase
-import piuk.blockchain.android.maintenance.domain.usecase.SkipAppUpdateUseCase
 
 class AppMaintenanceViewModel(
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
-    private val isDownloadInProgressUseCase: IsDownloadInProgressUseCase,
-    private val skipAppUpdateUseCase: SkipAppUpdateUseCase
+    private val isDownloadInProgressUseCase: IsDownloadInProgressUseCase
 ) : MviViewModel<AppMaintenanceIntents,
     AppMaintenanceViewState,
     AppMaintenanceModelState,
@@ -65,7 +63,6 @@ class AppMaintenanceViewModel(
                 require(modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate)
                 { "Intent SkipUpdate called with incorrect status ${modelState.status}" }
 
-                skipUpdateVersion(modelState.status.softVersionCode)
                 resumeAppFlow()
             }
 
@@ -142,12 +139,5 @@ class AppMaintenanceViewModel(
      * Navigate (resume) wherever the app was suspended to show the maintenance screen
      */
     private fun resumeAppFlow() = navigate(AppMaintenanceNavigationEvent.ResumeAppFlow)
-
-    /**
-     * mark [versionCode] as skipped
-     */
-    private fun skipUpdateVersion(versionCode: Int) {
-        skipAppUpdateUseCase(versionCode)
-    }
 }
 

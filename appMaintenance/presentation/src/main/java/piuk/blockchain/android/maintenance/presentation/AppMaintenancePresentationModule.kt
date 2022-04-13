@@ -13,8 +13,7 @@ val appMaintenancePresentationModule = module {
     viewModel {
         AppMaintenanceViewModel(
             getAppMaintenanceConfigUseCase = get(),
-            isDownloadInProgressUseCase = get(),
-            skipAppUpdateUseCase = get()
+            isDownloadInProgressUseCase = get()
         )
     }
 

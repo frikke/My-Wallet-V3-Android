@@ -12,7 +12,7 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
             onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
             onSuccess = { config ->
                 with(config) {
-                    val currentVersion = 123//BuildConfig.VERSION_CODE // todo
+                    val currentVersion = 16830 //BuildConfig.VERSION_CODE // todo
 
                     when {
                         siteWideMaintenance -> {
@@ -37,8 +37,8 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
                             AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.fromUrl(storeUrl))
                         }
 
-                        // if soft version is preferred and is not yet skipped by the user
-                        currentVersion < softUpgradeVersion && softUpgradeVersion != skippedSoftVersion -> {
+                        // if soft version is preferred
+                        currentVersion < softUpgradeVersion -> {
                             AppMaintenanceStatus.Actionable.OptionalUpdate(
                                 softUpgradeVersion,
                                 UpdateLocation.fromUrl(storeUrl)
