@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.addresses
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AddressAnalytics
+import com.blockchain.analytics.events.WalletAnalytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
-import com.blockchain.notifications.analytics.AddressAnalytics
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.WalletAnalytics
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

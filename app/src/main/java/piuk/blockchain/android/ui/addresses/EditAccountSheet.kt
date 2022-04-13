@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
+import com.blockchain.analytics.events.WalletAnalytics
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.bch.BchCryptoWalletAccount
@@ -18,7 +19,6 @@ import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.WalletAnalytics
 import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.WriterException
 import info.blockchain.balance.CryptoCurrency

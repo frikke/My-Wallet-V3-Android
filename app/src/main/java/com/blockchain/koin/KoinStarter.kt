@@ -1,6 +1,7 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
 import com.blockchain.blockchaincard.koin.blockchainCardModule
@@ -107,6 +108,7 @@ object KoinStarter {
                     remoteFeatureFlagsModule,
                     deeplinkModule,
                     loggingModule,
+                    analyticsModule,
                     customerSupportModule,
                     storePersistersSqlDelightModule,
                     blockchainCardModule

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 
 sealed class AnnouncementAnalyticsEvent(
     cardName: String,

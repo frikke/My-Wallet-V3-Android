@@ -1,10 +1,10 @@
 package piuk.blockchain.androidcore.utils
 
 import android.annotation.SuppressLint
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.common.util.AndroidDeviceIdSource
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
 
 interface DeviceIdGenerator {
     fun generateId(): String

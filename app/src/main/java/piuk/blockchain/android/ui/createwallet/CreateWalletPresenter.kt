@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.createwallet
 
 import androidx.annotation.StringRes
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.ProviderSpecificAnalytics
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.core.eligibility.CountryIso
 import com.blockchain.core.eligibility.EligibilityDataManager
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy

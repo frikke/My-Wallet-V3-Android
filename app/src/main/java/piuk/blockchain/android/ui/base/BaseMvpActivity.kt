@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.base
 
 import android.os.Bundle
 import androidx.annotation.CallSuper
+import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import org.koin.android.ext.android.inject
 
 @Deprecated("Use the kotlin-friendly MvpActivity, MvpPresenter, MvpView instead")

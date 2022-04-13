@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.settings
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 import java.io.Serializable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 

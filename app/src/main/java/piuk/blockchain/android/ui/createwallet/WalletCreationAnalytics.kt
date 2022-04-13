@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.extensions.withoutNullValues
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 
 sealed class WalletCreationAnalytics(
     override val event: String,

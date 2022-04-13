@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.scan
 
-import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.analytics.Analytics
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener

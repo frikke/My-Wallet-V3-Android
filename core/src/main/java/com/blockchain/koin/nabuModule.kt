@@ -27,11 +27,6 @@ import com.blockchain.nabu.datamanagers.TransactionErrorMapper
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsNabuUserReporter
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
-import com.blockchain.nabu.datamanagers.analytics.AnalyticsContextProvider
-import com.blockchain.nabu.datamanagers.analytics.AnalyticsContextProviderImpl
-import com.blockchain.nabu.datamanagers.analytics.AnalyticsFileLocalPersistence
-import com.blockchain.nabu.datamanagers.analytics.AnalyticsLocalPersistence
-import com.blockchain.nabu.datamanagers.analytics.NabuAnalytics
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
@@ -63,8 +58,6 @@ import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.nabu.stores.NabuSessionTokenStore
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.operations.AppStartUpFlushable
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -299,32 +292,6 @@ val nabuModule = module {
             .add(CampaignStateMoshiAdapter())
             .add(CampaignTransactionStateMoshiAdapter())
     }
-
-    single(nabu) {
-        NabuAnalytics(
-            analyticsService = get(),
-            prefs = lazy { get() },
-            analyticsContextProvider = get(),
-            localAnalyticsPersistence = get(),
-            remoteLogger = get(),
-            tokenStore = get(),
-            lifecycleObservable = get()
-        )
-    }
-        .bind(AppStartUpFlushable::class)
-        .bind(Analytics::class)
-
-    factory {
-        AnalyticsContextProviderImpl(
-            context = get()
-        )
-    }.bind(AnalyticsContextProvider::class)
-
-    single {
-        AnalyticsFileLocalPersistence(
-            context = get()
-        )
-    }.bind(AnalyticsLocalPersistence::class)
 }
 
 val authenticationModule = module {

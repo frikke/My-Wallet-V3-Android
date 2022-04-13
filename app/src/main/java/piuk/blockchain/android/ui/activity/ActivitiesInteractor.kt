@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.activity
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.SimpleBuyPrefs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single

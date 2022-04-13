@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.analytics.UserAnalytics
+import com.blockchain.analytics.UserProperty
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.notifications.analytics.UserAnalytics
-import com.blockchain.notifications.analytics.UserProperty
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 interface NabuUserReporter {

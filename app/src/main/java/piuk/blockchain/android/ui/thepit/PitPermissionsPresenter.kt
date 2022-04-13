@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.thepit
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.preferences.ThePitLinkingPrefs
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable

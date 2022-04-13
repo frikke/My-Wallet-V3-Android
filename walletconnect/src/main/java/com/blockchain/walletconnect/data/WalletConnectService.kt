@@ -1,11 +1,11 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.extensions.exhaustive
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleObservable
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.EthRequestSign
 import com.blockchain.walletconnect.domain.EthSendTransactionRequest

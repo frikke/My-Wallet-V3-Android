@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.pairingcode
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.PairingEvent
+import com.blockchain.analytics.events.PairingMethod
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.PairingEvent
-import com.blockchain.notifications.analytics.PairingMethod
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable

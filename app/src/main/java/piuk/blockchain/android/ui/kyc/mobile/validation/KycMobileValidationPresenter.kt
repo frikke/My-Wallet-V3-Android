@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.mobile.validation
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.nabu.NabuUserSync
-import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.util
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.extensions.withoutNullValues
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 import java.io.Serializable
 
 sealed class AppAnalytics(

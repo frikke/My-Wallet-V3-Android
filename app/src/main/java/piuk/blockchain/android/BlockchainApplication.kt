@@ -14,12 +14,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AppLaunchEvent
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AppLaunchEvent
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
 import com.facebook.stetho.Stetho

@@ -3,11 +3,11 @@ package piuk.blockchain.android.data.coinswebsocket.service
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import com.blockchain.analytics.Analytics
 import com.blockchain.koin.scopedInject
 import com.blockchain.lifecycle.AppState
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.notifications.NotificationsUtil
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.websocket.MessagesSocketHandler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

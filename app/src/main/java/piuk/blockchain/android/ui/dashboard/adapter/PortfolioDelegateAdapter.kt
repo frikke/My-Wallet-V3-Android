@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.adapter
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager

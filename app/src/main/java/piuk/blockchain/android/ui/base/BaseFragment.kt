@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.base
 
 import androidx.annotation.CallSuper
 import androidx.viewpager.widget.ViewPager
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
+import com.blockchain.analytics.ProviderSpecificAnalytics
 import org.koin.android.ext.android.inject
 
 /**

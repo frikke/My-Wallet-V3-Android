@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.eligibility.CountryIso
 import com.blockchain.core.eligibility.EligibilityDataManager
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

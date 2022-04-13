@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.analytics.events.ActivityAnalytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.annotations.CommonCode
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.BlockchainAccount
@@ -17,8 +19,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.historic.HistoricRateFetcher
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.ActivityAnalytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.customviews.account
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.analytics.events.activityShown
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -11,7 +12,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.activityShown
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R

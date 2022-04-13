@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.BlockchainAccount
@@ -21,8 +23,6 @@ import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal

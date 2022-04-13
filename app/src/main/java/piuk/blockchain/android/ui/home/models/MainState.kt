@@ -2,12 +2,12 @@ package piuk.blockchain.android.ui.home.models
 
 import android.content.Intent
 import androidx.annotation.StringRes
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money

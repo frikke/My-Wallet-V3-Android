@@ -24,6 +24,7 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':componentlib')
     implementation project(':logging:domain')
+    implementation project(':analytics:domain')
 
     implementation Libraries.koin
     implementation Libraries.koinAndroid

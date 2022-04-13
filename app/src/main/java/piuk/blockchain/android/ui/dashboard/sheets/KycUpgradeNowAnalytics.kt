@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.nabu.Tier
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 import java.io.Serializable
 
 class KycUpgradeNowViewed(val tier: Tier, isSdd: Boolean) : AnalyticsEvent {

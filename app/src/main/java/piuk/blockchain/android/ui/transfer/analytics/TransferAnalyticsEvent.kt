@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.transfer.analytics
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import java.io.Serializable
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType

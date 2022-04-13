@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.sell
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 
 enum class SellAnalytics(
     override val event: String,

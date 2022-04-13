@@ -15,6 +15,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
@@ -22,7 +23,6 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.payments.model.YodleeAttributes
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.notifications.analytics.Analytics
 import com.google.gson.Gson
 import java.net.URLEncoder
 import org.json.JSONException
