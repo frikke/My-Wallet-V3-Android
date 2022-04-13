@@ -14,7 +14,6 @@ import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -64,7 +63,6 @@ class MainModelTest {
     }
 
     private val interactor: MainInteractor = mock()
-    private val uiTourFeatureFlag: FeatureFlag = mock()
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
@@ -85,7 +83,6 @@ class MainModelTest {
             remoteLogger = mock(),
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
-            uiTourFeatureFlag = uiTourFeatureFlag,
         )
     }
 

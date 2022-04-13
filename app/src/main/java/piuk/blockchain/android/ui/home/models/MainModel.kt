@@ -16,7 +16,6 @@ import com.blockchain.nabu.models.responses.nabu.CampaignData
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
@@ -48,7 +47,6 @@ class MainModel(
     initialState: MainState,
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
-    private val uiTourFeatureFlag: FeatureFlag,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
@@ -116,9 +114,8 @@ class MainModel(
                     )
             }
             is MainIntent.CheckForInitialDialogs -> if (intent.shouldStartUiTour) {
-                uiTourFeatureFlag.enabled.subscribe { show ->
-                    if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
-                }
+                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
+                null
             } else {
                 interactor.shouldShowEntitySwitchSilverKycUpsell()
                     .onErrorReturnItem(false)
