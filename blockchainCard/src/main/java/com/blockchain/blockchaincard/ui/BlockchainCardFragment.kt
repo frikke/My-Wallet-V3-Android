@@ -25,10 +25,6 @@ class BlockchainCardFragment : Fragment(), FlowFragment {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
-    /*
-        private val navigator: BlockchainCardNavigationRouter by inject()
-    */
-
     private val modelArgs: ModelConfigArgs by lazy {
         arguments?.getString(BLOCKCHAIN_CARD_ID)?.let { cardId ->
             BlockchainDebitCardArgs.CardArgs(cardId)
@@ -59,7 +55,7 @@ class BlockchainCardFragment : Fragment(), FlowFragment {
     override fun onResume() {
         super.onResume()
         updateToolbar(
-            toolbarTitle = getString(R.string.order_card_title),
+            toolbarTitle = getString(R.string.blockchain_card),
             menuItems = emptyList()
         )
     }
