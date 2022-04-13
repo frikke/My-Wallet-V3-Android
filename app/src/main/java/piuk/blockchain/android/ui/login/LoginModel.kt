@@ -15,9 +15,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
 import org.json.JSONObject
+import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
-import piuk.blockchain.android.ui.maintenance.domain.model.AppMaintenanceStatus
-import piuk.blockchain.android.ui.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import retrofit2.HttpException
 import timber.log.Timber
 import javax.net.ssl.HttpsURLConnection

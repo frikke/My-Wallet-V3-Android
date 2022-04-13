@@ -8,7 +8,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
-import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAppOpened
@@ -21,10 +20,9 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
+import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
+import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.base.MvpActivity
-import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.maintenance.presentation.AppMaintenanceFragment
-import piuk.blockchain.android.ui.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.start.LandingActivity
 import piuk.blockchain.android.ui.start.PasswordRequiredActivity

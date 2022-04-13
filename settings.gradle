@@ -22,4 +22,5 @@ include ':app',
         ':deeplinking',
         ':logging:domain', ':logging:data',
         ':store', ':store-persisters-sqldelight',
-        ':blockchainCard'
+        ':blockchainCard',
+        ':appMaintenance:data', ':appMaintenance:domain', ':appMaintenance:presentation'

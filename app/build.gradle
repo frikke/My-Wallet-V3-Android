@@ -342,6 +342,10 @@ dependencies {
     implementation project(':store-persisters-sqldelight')
     implementation project(':blockchainCard')
 
+    implementation project(':appMaintenance:data')
+    implementation project(':appMaintenance:domain')
+    implementation project(':appMaintenance:presentation')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 

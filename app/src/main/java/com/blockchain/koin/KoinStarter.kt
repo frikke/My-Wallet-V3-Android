@@ -33,6 +33,9 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
+import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
+import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
+import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
@@ -45,9 +48,6 @@ import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
 import piuk.blockchain.android.ui.login.loginUiModule
-import piuk.blockchain.android.ui.maintenance.data.appMaintenanceDataModule
-import piuk.blockchain.android.ui.maintenance.domain.appMaintenanceDomainModule
-import piuk.blockchain.android.ui.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
