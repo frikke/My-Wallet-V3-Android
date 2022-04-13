@@ -89,8 +89,8 @@ class StateAwareActionsComparatorTest {
             on { total }.thenReturn(Money.zero(testAsset))
         }
         val expected = listOf(
-            StateAwareAction(ActionState.Available, AssetAction.Send),
             StateAwareAction(ActionState.Available, AssetAction.Receive),
+            StateAwareAction(ActionState.Available, AssetAction.Send),
             StateAwareAction(ActionState.Available, AssetAction.Swap),
             StateAwareAction(ActionState.Available, AssetAction.Sell),
             StateAwareAction(ActionState.Available, AssetAction.Buy),
@@ -118,8 +118,8 @@ class StateAwareActionsComparatorTest {
         }
 
         val expected = listOf(
-            StateAwareAction(ActionState.Available, AssetAction.Receive),
             StateAwareAction(ActionState.Available, AssetAction.Send),
+            StateAwareAction(ActionState.Available, AssetAction.Receive),
             StateAwareAction(ActionState.Available, AssetAction.Swap),
             StateAwareAction(ActionState.Available, AssetAction.Sell),
             StateAwareAction(ActionState.Available, AssetAction.Buy),

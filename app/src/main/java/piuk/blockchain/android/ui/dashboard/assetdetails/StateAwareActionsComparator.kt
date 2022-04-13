@@ -51,8 +51,8 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
 
     private fun AssetAction.nonCustodialAccountOrdering() = if (accountBalance.isPositive) {
         when (this) {
-            AssetAction.Receive -> 0
-            AssetAction.Send -> 1
+            AssetAction.Send -> 0
+            AssetAction.Receive -> 1
             AssetAction.Swap -> 2
             AssetAction.Sell -> 3
             AssetAction.Buy -> 4
@@ -66,8 +66,8 @@ class StateAwareActionsComparator : Comparator<StateAwareAction> {
         }
     } else {
         when (this) {
-            AssetAction.Send -> 0
-            AssetAction.Receive -> 1
+            AssetAction.Receive -> 0
+            AssetAction.Send -> 1
             AssetAction.Swap -> 2
             AssetAction.Sell -> 3
             AssetAction.Buy -> 4
