@@ -30,8 +30,7 @@ internal class Erc20BalanceCallCache(
         return erc20Service.getTokenBalances(account.get())
             .map { balanceList ->
                 balanceList.mapNotNull { balance ->
-                    assetCatalogue.fromNetworkTickerWithL2Id(
-                        balance.ticker,
+                    assetCatalogue.fromContractAddressWithL2Id(
                         CryptoCurrency.ETHER,
                         balance.contractAddress
                     )?.let { info ->

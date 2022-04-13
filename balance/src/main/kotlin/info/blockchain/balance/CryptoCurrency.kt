@@ -46,7 +46,7 @@ interface AssetCatalogue {
     fun fromNetworkTicker(symbol: String): Currency?
     fun fiatFromNetworkTicker(symbol: String): FiatCurrency?
     fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
-    fun fromNetworkTickerWithL2Id(symbol: String, l2chain: AssetInfo, l2Id: String): AssetInfo?
+    fun fromContractAddressWithL2Id(l2chain: AssetInfo, l2Id: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
 }
 

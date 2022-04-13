@@ -47,17 +47,13 @@ class AssetCatalogueImpl internal constructor(
     override fun assetInfoFromNetworkTicker(symbol: String): AssetInfo? =
         fullAssetLookup.get()[symbol.uppercase()]?.asAssetInfoOrNull()
 
-    override fun fromNetworkTickerWithL2Id(
-        symbol: String,
+    override fun fromContractAddressWithL2Id(
         l2chain: AssetInfo,
         l2Id: String
-    ): AssetInfo? =
-        (fromNetworkTicker(symbol) as? AssetInfo)?.let { found ->
-            found.takeIf {
-                it.l1chain(this) == l2chain &&
-                    it.l2identifier?.equals(l2Id, ignoreCase = true) == true
-            }
-        }
+    ): AssetInfo? = fullAssetLookup.get().values.filterIsInstance<AssetInfo>().firstOrNull { asset ->
+        asset.l1chain(this) == l2chain &&
+            asset.l2identifier?.equals(l2Id, ignoreCase = true) == true
+    }
 
     private fun Currency.asAssetInfoOrNull(): AssetInfo? {
         return (this as? AssetInfo)
