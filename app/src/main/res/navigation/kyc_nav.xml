@@ -39,10 +39,9 @@
         tools:layout="@layout/fragment_kyc_profile">
         <action
             android:id="@+id/action_kycProfileFragment_to_kycAutocompleteAddressFragment"
-            app:destination="@id/kycAutocompleteAddressFragment" />
-        <action
-            android:id="@+id/action_kycProfileFragment_to_kycHomeAddressFragment"
-            app:destination="@id/kycHomeAddressFragment" />
+            app:destination="@id/kycAutocompleteAddressFragment"
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
         <argument
             android:name="countryCode"
             app:argType="string" />
@@ -81,7 +80,9 @@
         tools:layout="@layout/fragment_kyc_home_address">
         <action
             android:id="@+id/action_kycHomeAddressFragment_to_kycAdditionalInfoFragment"
-            app:destination="@id/kycAdditionalInfoFragment" />
+            app:destination="@id/kycAdditionalInfoFragment"
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
         <argument
             android:name="profileModel"
             app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
@@ -91,10 +92,6 @@
         android:name="piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment"
         android:label="Kyc Additional Info"
         >
-        <action
-            android:id="@+id/action_tier1Complete"
-            app:destination="@id/kycTierSplashFragment"
-            app:popUpTo="@+id/kycTierSplashFragment" />
         <argument
             android:name="root"
             app:argType="piuk.blockchain.android.ui.kyc.additional_info.TreeNode$Root" />
@@ -134,7 +131,8 @@
         <action
             android:id="@+id/action_tier2Complete"
             app:destination="@id/kycTierSplashFragment"
-            app:popUpTo="@+id/kycTierSplashFragment" />
+            app:popUpTo="@id/kyc_nav.xml"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/kycTierSplashFragment"
@@ -189,7 +187,8 @@
             <action
                 android:id="@+id/action_afterValidation"
                 app:destination="@id/kycProfileFragment"
-                app:popUpTo="@+id/kycTierSplashFragment" />
+                app:popUpTo="@id/kyc_nav.xml"
+                app:popUpToInclusive="true" />
         </fragment>
         <argument
             android:name="mustBeValidated"
@@ -198,11 +197,13 @@
     <action
         android:id="@+id/action_StartTier2NeedMoreInfo"
         app:destination="@id/kycMoreInfoSplashFragment"
-        app:popUpTo="@+id/kycTierSplashFragment" />
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_StartMobileVerification"
         app:destination="@id/mobile_verification"
-        app:popUpTo="@+id/kycTierSplashFragment" />
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startVeriff"
         app:destination="@id/veriffSplashFragment"
@@ -211,21 +212,21 @@
     <action
         android:id="@+id/action_startEmailVerification"
         app:destination="@id/email_verification"
-        app:popUpTo="@+id/kycTierSplashFragment" />
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_displayKycSplash"
         app:destination="@id/kycTierSplashFragment" />
     <action
         android:id="@+id/action_startCountrySelection"
         app:destination="@id/kycCountrySelectionFragment"
-        app:popUpTo="@+id/kycTierSplashFragment" />
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startProfile"
         app:destination="@id/kycProfileFragment"
-        app:popUpTo="@+id/kycTierSplashFragment" />
-    <action
-        android:id="@+id/action_startAddressEntry"
-        app:destination="@id/kycHomeAddressFragment" />
+        app:popUpTo="@id/kyc_nav.xml"
+        app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startAutocompleteAddressEntry"
         app:destination="@id/kycAutocompleteAddressFragment" />

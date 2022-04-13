@@ -127,7 +127,9 @@ class KycHomeAddressFragment :
 
     override fun missingAdditionalInfo(root: TreeNode.Root, countryCode: String) {
         closeKeyboard()
-        navigate(KycHomeAddressFragmentDirections.actionStartAdditionalInfoEntry(root, countryCode))
+        navigate(
+            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycAdditionalInfoFragment(root, countryCode)
+        )
     }
 
     override fun tier1Complete() {
