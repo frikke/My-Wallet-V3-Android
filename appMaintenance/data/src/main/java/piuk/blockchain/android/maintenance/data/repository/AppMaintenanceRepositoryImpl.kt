@@ -17,6 +17,8 @@ import timber.log.Timber
 internal class AppMaintenanceRepositoryImpl(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
     private val appUpdateInfoFactory: AppUpdateInfoFactory,
+    private val currentVersionCode: Int,
+    private val currentOsVersion: Int,
     private val dispatcher: CoroutineDispatcher
 ) : AppMaintenanceRepository {
 
@@ -44,7 +46,9 @@ internal class AppMaintenanceRepositoryImpl(
                 )
             } else {
                 Outcome.Success(
-                    AppMaintenanceConfigMapper.map(Pair(appUpdateInfo, maintenanceConfig))
+                    AppMaintenanceConfigMapper.map(
+                        appUpdateInfo, maintenanceConfig, currentVersionCode, currentOsVersion
+                    )
                 )
             }
         }

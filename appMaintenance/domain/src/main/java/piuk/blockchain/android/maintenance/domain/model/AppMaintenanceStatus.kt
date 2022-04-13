@@ -16,7 +16,7 @@ sealed interface AppMaintenanceStatus {
         data class SiteWideMaintenance(val statusUrl: String) : Actionable
         data class RedirectToWebsite(val website: String) : Actionable
         data class MandatoryUpdate(val updateLocation: UpdateLocation) : Actionable
-        data class OptionalUpdate(val softVersionCode: Int, val updateLocation: UpdateLocation) : Actionable
+        data class OptionalUpdate(val updateLocation: UpdateLocation) : Actionable
     }
 }
 

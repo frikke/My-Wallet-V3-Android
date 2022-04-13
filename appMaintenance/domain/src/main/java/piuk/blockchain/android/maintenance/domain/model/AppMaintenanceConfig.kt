@@ -6,6 +6,8 @@ package piuk.blockchain.android.maintenance.domain.model
  * @property siteWideMaintenance everything is under maintenance, will block all usage of the app
  */
 data class AppMaintenanceConfig(
+    val currentVersionCode: Int,
+    val currentOsVersion: Int,
     val playStoreVersion: Int,
     val bannedVersions: List<Int>,
     val minimumAppVersion: Int,

@@ -18,6 +18,7 @@ import com.blockchain.koin.modules.moshiModule
 import com.blockchain.koin.modules.nabuUrlModule
 import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
+import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
 import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
@@ -68,6 +69,7 @@ object KoinStarter {
             androidContext(application)
             modules(
                 listOf(
+                    versionsModule,
                     activitiesModule,
                     apiInterceptorsModule,
                     apiModule,
@@ -113,9 +115,7 @@ object KoinStarter {
                     customerSupportModule,
                     storePersistersSqlDelightModule,
                     blockchainCardModule,
-                    appMaintenanceDataModule,
-                    appMaintenanceDomainModule,
-                    appMaintenancePresentationModule
+                    appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule
                 )
             )
         }

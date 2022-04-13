@@ -26,4 +26,9 @@ dependencies {
     
     // koin
     implementation Libraries.koin
+
+    // test
+    testImplementation Libraries.junit
+    testImplementation Libraries.mockk
+    testImplementation Libraries.kotlinCoroutinesTest
 }

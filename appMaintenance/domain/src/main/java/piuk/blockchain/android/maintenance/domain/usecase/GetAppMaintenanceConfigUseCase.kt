@@ -12,8 +12,6 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
             onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
             onSuccess = { config ->
                 with(config) {
-                    val currentVersion = 16830 //BuildConfig.VERSION_CODE // todo
-
                     when {
                         siteWideMaintenance -> {
                             AppMaintenanceStatus.Actionable.SiteWideMaintenance(statusUrl)
@@ -25,7 +23,7 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
 
                         // redirect to website when current app and playstore are both broken, ie no healthy update available
                         // if playstore is healthy, force an update
-                        currentVersion in bannedVersions -> {
+                        currentVersionCode in bannedVersions -> {
                             if (playStoreVersion in bannedVersions) {
                                 AppMaintenanceStatus.Actionable.RedirectToWebsite(websiteUrl)
                             } else {
@@ -33,16 +31,13 @@ class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepos
                             }
                         }
 
-                        currentVersion < minimumAppVersion -> {
+                        currentVersionCode < minimumAppVersion -> {
                             AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.fromUrl(storeUrl))
                         }
 
                         // if soft version is preferred
-                        currentVersion < softUpgradeVersion -> {
-                            AppMaintenanceStatus.Actionable.OptionalUpdate(
-                                softUpgradeVersion,
-                                UpdateLocation.fromUrl(storeUrl)
-                            )
+                        currentVersionCode < softUpgradeVersion -> {
+                            AppMaintenanceStatus.Actionable.OptionalUpdate(UpdateLocation.fromUrl(storeUrl))
                         }
 
                         else -> {
