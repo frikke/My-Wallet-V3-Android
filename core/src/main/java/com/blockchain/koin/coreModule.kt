@@ -7,6 +7,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.chains.EthLayerTwoService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -199,13 +200,20 @@ val coreModule = module {
             )
         }.bind(InterestBalanceDataManager::class)
 
+        factory {
+            EthLayerTwoService(
+                remoteConfig = get()
+            )
+        }
+
         scoped {
             EthDataManager(
                 payloadDataManager = get(),
                 ethAccountApi = get(),
                 ethDataStore = get(),
                 metadataManager = get(),
-                lastTxUpdater = get()
+                lastTxUpdater = get(),
+                ethLayerTwoService = get()
             )
         }.bind(EthMessageSigner::class)
 

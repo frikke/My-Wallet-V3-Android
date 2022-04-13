@@ -1,14 +1,15 @@
 package info.blockchain.wallet.ethereum
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
-import info.blockchain.wallet.ethereum.node.EthChainError
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
 import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
+import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
 import info.blockchain.wallet.ethereum.node.EthTransactionResponse
 import info.blockchain.wallet.ethereum.node.RequestType
 import info.blockchain.wallet.ethereum.util.EthUtils
@@ -78,8 +79,9 @@ class EthAccountApi internal constructor(
      * @param hash The hash of the transaction you wish to check
      * @return An [Outcome] wrapping an [EthTransactionResponse]
      */
-    suspend fun getTransaction(hash: String): Outcome<EthChainError, EthTransactionResponse> {
+    suspend fun getTransaction(nodeUrl: String, hash: String): Outcome<ApiError, EthTransactionResponse> {
         return ethNodeEndpoints.getTransaction(
+            nodeUrl = nodeUrl,
             request = EthJsonRpcRequest.create(
                 params = arrayOf(hash),
                 type = RequestType.GET_TRANSACTION
@@ -95,10 +97,12 @@ class EthAccountApi internal constructor(
      * @return An [Outcome] wrapping an [EthJsonRpcResponse]
      */
     suspend fun postEthNodeRequest(
+        nodeUrl: String,
         requestType: RequestType,
         vararg params: String
-    ): Outcome<EthChainError, EthJsonRpcResponse> =
+    ): Outcome<ApiError, EthJsonRpcResponse> =
         ethNodeEndpoints.processRequest(
+            nodeUrl = nodeUrl,
             request = EthJsonRpcRequest.create(
                 params = params,
                 type = requestType

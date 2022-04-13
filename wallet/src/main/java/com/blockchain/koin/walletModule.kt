@@ -1,5 +1,6 @@
 package com.blockchain.koin
 
+import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.api.getBaseUrl
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import info.blockchain.wallet.api.dust.BchDustService
@@ -7,8 +8,7 @@ import info.blockchain.wallet.api.dust.DustApi
 import info.blockchain.wallet.api.dust.DustService
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthEndpoints
-import info.blockchain.wallet.ethereum.EthNodeEndpoints
-import info.blockchain.wallet.ethereum.node.EthChainCallAdapterFactory
+import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.MetadataService
 import info.blockchain.wallet.multiaddress.MultiAddressFactory
@@ -65,8 +65,6 @@ val walletModule = module {
         }
     }.bind(PayloadScopeWiper::class)
 
-    single { EthChainCallAdapterFactory() }
-
     single(kotlinXApiRetrofit) {
         val json = Json {
             explicitNulls = false
@@ -77,7 +75,7 @@ val walletModule = module {
         Retrofit.Builder()
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
-            .addCallAdapterFactory(get<EthChainCallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
