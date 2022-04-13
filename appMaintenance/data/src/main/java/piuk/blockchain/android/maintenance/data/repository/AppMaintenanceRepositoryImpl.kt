@@ -25,7 +25,7 @@ internal class AppMaintenanceRepositoryImpl(
     override suspend fun getAppMaintenanceConfig(): Outcome<Throwable, AppMaintenanceConfig> {
         return supervisorScope {
             val deferredMaintenanceConfig = async(dispatcher) { appMaintenanceRemoteConfig.getAppMaintenanceConfig() }
-            val deferredAppUpdateInfo = async { appUpdateInfoFactory.getAppUpdateInfo() }
+            val deferredAppUpdateInfo = async(dispatcher) { appUpdateInfoFactory.getAppUpdateInfo() }
 
             val maintenanceConfig: AppMaintenanceConfigDto? = deferredMaintenanceConfig.await()
             val appUpdateInfo: AppUpdateInfo? = try {
