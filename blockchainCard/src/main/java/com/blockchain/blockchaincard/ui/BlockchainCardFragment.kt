@@ -8,10 +8,12 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.blockchain.blockchaincard.R
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.composables.BlockchainCardNavHost
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
-import com.blockchain.blockchaincard.viewmodel.BlockchainDebitCardArgs
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
+import com.blockchain.blockchaincard.viewmodel.managecard.ManageCardViewModel
+import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -21,33 +23,37 @@ import org.koin.androidx.viewmodel.scope.getViewModel
 
 class BlockchainCardFragment : Fragment(), FlowFragment {
 
-    private val viewModel: BlockchainCardViewModel by lazy {
+    private val orderCardViewModel: OrderCardViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
+
+    private val manageCardViewModel: ManageCardViewModel by lazy {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
     private val modelArgs: ModelConfigArgs by lazy {
-        arguments?.getString(BLOCKCHAIN_CARD_ID)?.let { cardId ->
-            BlockchainDebitCardArgs.CardArgs(cardId)
-        } ?: (arguments?.getParcelable(BLOCKCHAIN_PRODUCT) as? BlockchainDebitCardProduct)?.let { product ->
-            BlockchainDebitCardArgs.ProductArgs(product)
+        (arguments?.getParcelable(BLOCKCHAIN_CARD) as? BlockchainCard)?.let { card ->
+            BlockchainCardArgs.CardArgs(card)
+        } ?: (arguments?.getParcelable(BLOCKCHAIN_PRODUCT) as? BlockchainCardProduct)?.let { product ->
+            BlockchainCardArgs.ProductArgs(product)
         } ?: throw IllegalStateException("Missing card or product data")
     }
 
     companion object {
-        private const val BLOCKCHAIN_CARD_ID = "BLOCKCHAIN_CARD_ID"
+        private const val BLOCKCHAIN_CARD = "BLOCKCHAIN_CARD"
         private const val BLOCKCHAIN_PRODUCT = "BLOCKCHAIN_PRODUCT"
 
-        fun newInstance(blockchainDebitCardId: String) =
+        fun newInstance(blockchainCard: BlockchainCard) =
             BlockchainCardFragment().apply {
                 arguments = Bundle().apply {
-                    putString(BLOCKCHAIN_CARD_ID, blockchainDebitCardId)
+                    putParcelable(BLOCKCHAIN_CARD, blockchainCard)
                 }
             }
 
-        fun newInstance(blockchainDebitCardProduct: BlockchainDebitCardProduct) =
+        fun newInstance(blockchainCardProduct: BlockchainCardProduct) =
             BlockchainCardFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(BLOCKCHAIN_PRODUCT, blockchainDebitCardProduct)
+                    putParcelable(BLOCKCHAIN_PRODUCT, blockchainCardProduct)
                 }
             }
     }
@@ -67,6 +73,11 @@ class BlockchainCardFragment : Fragment(), FlowFragment {
     ): View {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
+            val viewModel =
+                if (modelArgs is BlockchainCardArgs.CardArgs) manageCardViewModel
+                else orderCardViewModel
+
             setContent {
                 BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
             }

@@ -5,7 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.AnalyticsEvents
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardFragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.FlowFragment
@@ -163,12 +164,12 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
         replaceCurrentFragment(DappsListFragment.newInstance())
     }
 
-    override fun goToOrderBlockchainDebitCard(cardProduct: BlockchainDebitCardProduct) {
+    override fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct) {
         replaceCurrentFragment(BlockchainCardFragment.newInstance(cardProduct))
     }
 
-    override fun goToManageBlockchainDebitCard(blockchainDebitCard: String) {
-        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainDebitCard))
+    override fun goToManageBlockchainCard(blockchainCard: BlockchainCard) {
+        replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainCard))
     }
 
     private fun replaceCurrentFragment(newFragment: Fragment) {
@@ -218,8 +219,8 @@ interface SettingsNavigator {
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()
-    fun goToOrderBlockchainDebitCard(cardProduct: BlockchainDebitCardProduct)
-    fun goToManageBlockchainDebitCard(blockchainDebitCard: String)
+    fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
+    fun goToManageBlockchainCard(blockchainCard: BlockchainCard)
 }
 
 interface SettingsScreen : FlowFragment {

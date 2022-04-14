@@ -198,14 +198,14 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToOrderBlockchainDebitCard(blockchainCardOrderState.cardProducts.first())
+                        navigator().goToOrderBlockchainCard(blockchainCardOrderState.cardProducts.first())
                     }
                 }
                 is BlockchainCardOrderState.Ordered -> {
                     visibility = VISIBLE
                     secondaryText = null
                     onClick = {
-                        navigator().goToManageBlockchainDebitCard(blockchainCardOrderState.blockchainDebitCardId)
+                        navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
                     }
                 }
             }

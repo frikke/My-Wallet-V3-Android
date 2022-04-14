@@ -135,6 +135,8 @@ android {
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
 
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -178,6 +180,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -225,6 +229,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperStagingURL']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
