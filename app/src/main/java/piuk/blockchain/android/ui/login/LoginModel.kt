@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.login
 
-import com.blockchain.analytics.Analytics
 import android.net.Uri
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
@@ -11,6 +11,8 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLPeerUnverifiedException
 import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -21,8 +23,6 @@ import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfi
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import retrofit2.HttpException
 import timber.log.Timber
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLPeerUnverifiedException
 
 class LoginModel(
     initialState: LoginState,

@@ -2,10 +2,10 @@ package piuk.blockchain.android.maintenance.domain.usecase
 
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
-import kotlin.test.assertEquals
 
 class IsDownloadInProgressUseCaseTest {
 

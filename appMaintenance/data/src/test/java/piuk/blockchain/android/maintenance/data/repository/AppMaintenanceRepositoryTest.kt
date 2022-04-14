@@ -6,6 +6,7 @@ import com.google.android.play.core.install.model.InstallStatus
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,7 +16,6 @@ import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
 import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppMaintenanceRepositoryTest {

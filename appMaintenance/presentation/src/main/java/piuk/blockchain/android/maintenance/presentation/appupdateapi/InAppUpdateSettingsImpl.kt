@@ -5,7 +5,7 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
 
-internal class AppUpdateSettingsImpl(
+internal class InAppUpdateSettingsImpl(
     private val appUpdateManager: AppUpdateManager,
     private val appUpdateInfoFactory: AppUpdateInfoFactory
 ) : InAppUpdateSettings {

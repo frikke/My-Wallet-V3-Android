@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -23,7 +24,6 @@ import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.maintenance.domain.usecase.IsDownloadInProgressUseCase
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class AppMaintenanceViewModelTest {

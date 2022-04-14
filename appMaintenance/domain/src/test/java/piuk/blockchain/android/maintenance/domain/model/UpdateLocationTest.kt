@@ -1,7 +1,7 @@
 package piuk.blockchain.android.maintenance.domain.model
 
-import org.junit.Test
 import kotlin.test.assertEquals
+import org.junit.Test
 
 class UpdateLocationTest {
 

@@ -2,8 +2,8 @@ package piuk.blockchain.android.maintenance.presentation
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import piuk.blockchain.android.maintenance.presentation.appupdateapi.AppUpdateSettingsImpl
 import piuk.blockchain.android.maintenance.presentation.appupdateapi.InAppUpdateSettings
+import piuk.blockchain.android.maintenance.presentation.appupdateapi.InAppUpdateSettingsImpl
 
 val appMaintenancePresentationModule = module {
     viewModel {
@@ -18,10 +18,9 @@ val appMaintenancePresentationModule = module {
     }
 
     single<InAppUpdateSettings> {
-        AppUpdateSettingsImpl(
+        InAppUpdateSettingsImpl(
             appUpdateManager = get(),
             appUpdateInfoFactory = get()
         )
     }
 }
-

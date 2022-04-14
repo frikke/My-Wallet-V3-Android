@@ -21,7 +21,8 @@ class AppMaintenanceViewModel(
     AppMaintenanceNavigationEvent,
     ModelConfigArgs.NoArgs>(
     initialState = AppMaintenanceModelState()
-), DefaultLifecycleObserver {
+),
+    DefaultLifecycleObserver {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         checkDownloadStatus()
@@ -46,32 +47,34 @@ class AppMaintenanceViewModel(
     override suspend fun handleIntent(modelState: AppMaintenanceModelState, intent: AppMaintenanceIntents) {
         when (intent) {
             AppMaintenanceIntents.RedirectToWebsite -> {
-                require(modelState.status is AppMaintenanceStatus.Actionable.RedirectToWebsite)
-                { "Intent RedirectToWebsite called with incorrect status ${modelState.status}" }
+                require(
+                    modelState.status is AppMaintenanceStatus.Actionable.RedirectToWebsite
+                ) { "Intent RedirectToWebsite called with incorrect status ${modelState.status}" }
 
                 openUrl(modelState.status.website)
             }
 
             AppMaintenanceIntents.ViewStatus -> {
-                require(modelState.status is AppMaintenanceStatus.Actionable.SiteWideMaintenance)
-                { "Intent ViewStatus called with incorrect status ${modelState.status}" }
+                require(
+                    modelState.status is AppMaintenanceStatus.Actionable.SiteWideMaintenance
+                ) { "Intent ViewStatus called with incorrect status ${modelState.status}" }
 
                 openUrl(modelState.status.statusUrl)
             }
 
             AppMaintenanceIntents.SkipUpdate -> {
-                require(modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate)
-                { "Intent SkipUpdate called with incorrect status ${modelState.status}" }
+                require(
+                    modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate
+                ) { "Intent SkipUpdate called with incorrect status ${modelState.status}" }
 
                 resumeAppFlow()
             }
 
             AppMaintenanceIntents.UpdateApp -> {
                 require(
-                    modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate
-                        || modelState.status is AppMaintenanceStatus.Actionable.MandatoryUpdate
-                )
-                { "Intent UpdateApp called with incorrect status ${modelState.status}" }
+                    modelState.status is AppMaintenanceStatus.Actionable.OptionalUpdate ||
+                        modelState.status is AppMaintenanceStatus.Actionable.MandatoryUpdate
+                ) { "Intent UpdateApp called with incorrect status ${modelState.status}" }
 
                 when (modelState.status) {
                     is AppMaintenanceStatus.Actionable.MandatoryUpdate -> modelState.status.updateLocation
@@ -137,4 +140,3 @@ class AppMaintenanceViewModel(
      */
     private fun resumeAppFlow() = navigate(AppMaintenanceNavigationEvent.ResumeAppFlow)
 }
-

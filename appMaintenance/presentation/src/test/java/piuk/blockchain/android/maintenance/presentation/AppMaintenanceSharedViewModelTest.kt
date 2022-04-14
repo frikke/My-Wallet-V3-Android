@@ -1,6 +1,7 @@
 package piuk.blockchain.android.maintenance.presentation
 
 import app.cash.turbine.test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -10,7 +11,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class AppMaintenanceSharedViewModelTest {

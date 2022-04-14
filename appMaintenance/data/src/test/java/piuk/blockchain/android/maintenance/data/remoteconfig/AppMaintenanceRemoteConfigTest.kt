@@ -4,11 +4,11 @@ import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
-import kotlin.test.assertEquals
 
 class AppMaintenanceRemoteConfigTest {
 

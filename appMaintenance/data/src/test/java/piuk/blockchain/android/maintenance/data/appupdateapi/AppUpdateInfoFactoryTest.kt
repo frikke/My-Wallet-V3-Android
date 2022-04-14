@@ -5,11 +5,11 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
-import kotlin.test.assertEquals
 
 class AppUpdateInfoFactoryTest {
 

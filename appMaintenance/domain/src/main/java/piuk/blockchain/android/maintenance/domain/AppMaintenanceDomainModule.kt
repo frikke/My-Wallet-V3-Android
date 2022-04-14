@@ -8,4 +8,3 @@ val appMaintenanceDomainModule = module {
     single { GetAppMaintenanceConfigUseCase(repository = get()) }
     single { IsDownloadInProgressUseCase(repository = get()) }
 }
-

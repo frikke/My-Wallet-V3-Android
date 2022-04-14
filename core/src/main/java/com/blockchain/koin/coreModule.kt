@@ -63,6 +63,7 @@ import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.util.PrivateKeyFactory
+import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -103,7 +104,6 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
-import java.util.UUID
 
 val coreModule = module {
 

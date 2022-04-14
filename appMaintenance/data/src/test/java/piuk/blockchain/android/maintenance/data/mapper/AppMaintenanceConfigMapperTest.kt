@@ -3,11 +3,11 @@ package piuk.blockchain.android.maintenance.data.mapper
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
-import kotlin.test.assertEquals
 
 class AppMaintenanceConfigMapperTest {
 

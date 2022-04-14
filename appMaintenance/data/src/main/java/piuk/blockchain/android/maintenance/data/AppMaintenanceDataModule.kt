@@ -38,4 +38,3 @@ val appMaintenanceDataModule = module {
         )
     }
 }
-

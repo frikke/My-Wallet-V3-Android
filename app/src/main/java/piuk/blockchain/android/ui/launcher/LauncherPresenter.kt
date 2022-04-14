@@ -5,7 +5,11 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import kotlinx.coroutines.rx3.rxSingle
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.base.MvpPresenter
@@ -39,21 +43,26 @@ class LauncherPresenter internal constructor(
     private val authPrefs: AuthPrefs,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
     private val appMaintenanceFF: FeatureFlag
-) : MvpPresenter<LauncherView>() {
+) : MvpPresenter<LauncherView>(), CoroutineScope {
+
+    private val job = Job()
+    override val coroutineContext: CoroutineContext = job + Dispatchers.IO
 
     override fun onViewAttached() {
         appMaintenanceFF.enabled.subscribe { enabled ->
             if (enabled) {
-                // check app maintenance status
-                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
-                    when (status) {
-                        AppMaintenanceStatus.NonActionable.Unknown,
-                        AppMaintenanceStatus.NonActionable.AllClear -> {
-                            kickOff()
-                        }
+                launch {
+                    // check app maintenance status
+                    getAppMaintenanceConfigUseCase().let { status ->
+                        when (status) {
+                            AppMaintenanceStatus.NonActionable.Unknown,
+                            AppMaintenanceStatus.NonActionable.AllClear -> {
+                                kickOff()
+                            }
 
-                        else -> {
-                            view?.onAppMaintenance()
+                            else -> {
+                                view?.onAppMaintenance()
+                            }
                         }
                     }
                 }
@@ -114,6 +123,7 @@ class LauncherPresenter internal constructor(
         appUtil.clearCredentialsAndRestart()
 
     override fun onViewDetached() {
+        job.cancel()
     }
 
     override val alwaysDisableScreenshots: Boolean = false

@@ -3,13 +3,13 @@ package piuk.blockchain.android.maintenance.domain.usecase
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
 import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
-import kotlin.test.assertEquals
 
 class GetAppMaintenanceConfigUseCaseTest {
 

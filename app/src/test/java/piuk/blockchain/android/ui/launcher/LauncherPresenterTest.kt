@@ -8,7 +8,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -28,7 +27,7 @@ class LauncherPresenterTest {
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
 
-    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock(){
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock() {
         onBlocking { invoke() }.thenReturn(AppMaintenanceStatus.Actionable.RedirectToWebsite(""))
     }
     private val appMaintenanceFF: FeatureFlag = mock {
