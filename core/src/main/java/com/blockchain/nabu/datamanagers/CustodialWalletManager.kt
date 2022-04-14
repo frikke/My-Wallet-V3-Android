@@ -121,6 +121,10 @@ interface CustodialWalletManager {
         assetInfo: AssetInfo
     ): Single<Boolean>
 
+    fun isAssetSupportedForSwap(
+        assetInfo: AssetInfo
+    ): Single<Boolean>
+
     fun getOutstandingBuyOrders(asset: AssetInfo): Single<BuyOrderList>
 
     fun getAllOutstandingBuyOrders(): Single<BuyOrderList>

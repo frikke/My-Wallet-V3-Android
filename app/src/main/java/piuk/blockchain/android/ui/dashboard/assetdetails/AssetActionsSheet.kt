@@ -309,7 +309,7 @@ class AssetActionsSheet :
             ActionState.Available,
             ActionState.LockedForBalance,
             ActionState.LockedDueToAvailability,
-            ActionState.LockedForOther -> {
+            ActionState.Unavailable -> {
                 model.process(HandleActionIntent(stateAwareAction.action))
             }
         }

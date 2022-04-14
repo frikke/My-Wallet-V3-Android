@@ -180,10 +180,7 @@ class CryptoInterestAccount(
                         if (balance.withdrawable.isPositive) ActionState.Available else ActionState.LockedForBalance,
                         AssetAction.InterestWithdraw
                     ),
-                    StateAwareAction(
-                        if (hasTransactions) ActionState.Available else ActionState.LockedForOther,
-                        AssetAction.ViewStatement
-                    ),
+                    StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
                     StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
                 )
             }

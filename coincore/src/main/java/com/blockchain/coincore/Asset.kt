@@ -77,7 +77,7 @@ enum class ActionState {
     LockedForBalance,
     LockedForTier,
     LockedDueToAvailability,
-    LockedForOther
+    Unavailable
 }
 
 typealias AvailableActions = Set<AssetAction>

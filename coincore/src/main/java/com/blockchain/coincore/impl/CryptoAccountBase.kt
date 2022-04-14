@@ -240,18 +240,20 @@ abstract class CryptoNonCustodialAccount(
         get() = Single.zip(
             custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
             identity.isEligibleFor(Feature.Interest(currency)),
-            identity.userAccessForFeature(Feature.Swap)
-        ) { fiatAccounts, isEligibleForInterest, swapEligibility ->
+            identity.userAccessForFeature(Feature.Swap),
+            custodialWalletManager.isAssetSupportedForSwap(currency)
+        ) { fiatAccounts, isEligibleForInterest, swapEligibility, isAssetAvailableForSwap ->
 
             val isActiveFunded = !isArchived && isFunded
 
             val activity = StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
 
             val receive = StateAwareAction(
-                if (baseActions.contains(
-                        AssetAction.Receive
-                    ) && !isArchived
-                ) ActionState.Available else ActionState.LockedForOther,
+                if (baseActions.contains(AssetAction.Receive) && !isArchived) {
+                    ActionState.Available
+                } else {
+                    ActionState.Unavailable
+                },
                 AssetAction.Receive
             )
 
@@ -259,17 +261,21 @@ abstract class CryptoNonCustodialAccount(
                 when {
                     baseActions.contains(AssetAction.Send) && isActiveFunded -> ActionState.Available
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.LockedForOther
+                    else -> ActionState.Unavailable
                 },
                 AssetAction.Send
             )
 
             val swap = StateAwareAction(
                 when {
-                    !baseActions.contains(AssetAction.Swap) -> ActionState.LockedForOther
+                    !baseActions.contains(AssetAction.Swap) -> ActionState.Unavailable
+                    !isAssetAvailableForSwap -> ActionState.Unavailable
                     swapEligibility is FeatureAccess.Blocked -> {
-                        if (swapEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
-                        else ActionState.LockedForOther
+                        if (swapEligibility.reason is BlockedReason.InsufficientTier) {
+                            ActionState.LockedForTier
+                        } else {
+                            ActionState.Unavailable
+                        }
                     }
                     !isActiveFunded -> ActionState.LockedForBalance
                     else -> ActionState.Available
@@ -283,7 +289,7 @@ abstract class CryptoNonCustodialAccount(
                     ) && isActiveFunded && fiatAccounts.isNotEmpty() -> ActionState.Available
                     fiatAccounts.isEmpty() -> ActionState.LockedForTier
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.LockedForOther
+                    else -> ActionState.Unavailable
                 },
                 AssetAction.Sell
             )
@@ -295,7 +301,7 @@ abstract class CryptoNonCustodialAccount(
                     ) && isActiveFunded && isEligibleForInterest -> ActionState.Available
                     !isEligibleForInterest -> ActionState.LockedForTier
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.LockedForOther
+                    else -> ActionState.Unavailable
                 },
                 AssetAction.InterestDeposit
             )

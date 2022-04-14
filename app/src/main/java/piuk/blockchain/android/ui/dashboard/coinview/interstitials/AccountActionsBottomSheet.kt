@@ -86,13 +86,14 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
         logEventWalletViewed(selectedAccount)
         val dialog = BottomSheetDialog(requireActivity())
         val items =
-            stateAwareActions.map { action ->
-                mapAction(
-                    action,
-                    hasWarning,
-                    selectedAccount
-                )
-            }
+            stateAwareActions.filter { it.state != ActionState.Unavailable }
+                .map { action ->
+                    mapAction(
+                        action,
+                        hasWarning,
+                        selectedAccount
+                    )
+                }
 
         val assetColor = items.first().color
 
@@ -181,7 +182,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                 secondaryText = item.description,
                 endImageResource = stateActionData.imageResource,
                 onClick = when (stateActionData.state) {
-                    ActionState.LockedForOther,
+                    ActionState.Unavailable,
                     ActionState.LockedDueToAvailability -> noOp
                     ActionState.LockedForBalance -> {
                         {

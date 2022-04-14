@@ -22,6 +22,7 @@ interface UserIdentity {
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
+    fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>>
 }
 
 sealed class Feature {
