@@ -39,8 +39,9 @@ dependencies {
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')
-    implementation project(':store')
-    implementation project(':store-persisters-sqldelight')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':store:caches:inmemory')
 
     api project(':balance')
 

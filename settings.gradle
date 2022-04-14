@@ -22,5 +22,5 @@ include ':app',
         ':deeplinking',
         ':logging:domain', ':logging:data',
         ':analytics:domain', ':analytics:data',
-        ':store', ':store-persisters-sqldelight',
+        ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
         ':blockchainCard'

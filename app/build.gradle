@@ -347,8 +347,8 @@ dependencies {
     implementation project(':logging:data')
     implementation project(':analytics:domain')
     implementation project(':analytics:data')
-    implementation project(':store')
-    implementation project(':store-persisters-sqldelight')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':blockchainCard')
 
     implementation Libraries.multidex
