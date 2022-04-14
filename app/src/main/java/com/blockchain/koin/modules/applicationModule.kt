@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
@@ -879,7 +880,8 @@ val applicationModule = module {
             deepLinkPersistence = get(),
             envSettings = get(),
             authPrefs = get(),
-            getAppMaintenanceConfigUseCase = get()
+            getAppMaintenanceConfigUseCase = get(),
+            appMaintenanceFF = get(appMaintenanceFeatureFlag)
         )
     }
 

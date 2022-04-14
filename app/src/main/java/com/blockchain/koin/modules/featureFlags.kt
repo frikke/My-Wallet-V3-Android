@@ -1,5 +1,6 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
@@ -186,6 +187,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_caching_store",
                 "Caching Store"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(appMaintenanceFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_app_maintenance",
+                "App Maintenance"
             )
         )
     }.bind(FeatureFlag::class)

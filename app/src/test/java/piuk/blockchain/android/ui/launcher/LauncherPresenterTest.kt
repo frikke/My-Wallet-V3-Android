@@ -3,12 +3,17 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
@@ -23,12 +28,21 @@ class LauncherPresenterTest {
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
 
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock(){
+        onBlocking { invoke() }.thenReturn(AppMaintenanceStatus.Actionable.RedirectToWebsite(""))
+    }
+    private val appMaintenanceFF: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+
     private val subject = LauncherPresenter(
         appUtil,
         prefsUtil,
         deepLinkPersistence,
         environmentConfig,
-        authPrefs
+        authPrefs,
+        getAppMaintenanceConfigUseCase,
+        appMaintenanceFF
     )
 
     @Test
@@ -44,6 +58,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_SCHEME_URL, "bitcoin uri")
@@ -62,6 +77,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_METADATA_URI, "blockchain")
@@ -76,6 +92,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onCorruptPayload()
@@ -90,6 +107,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onRequestPin()
@@ -104,6 +122,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onReenterPassword()
@@ -118,6 +137,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onNoGuid()
@@ -133,6 +153,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onRequestPin()

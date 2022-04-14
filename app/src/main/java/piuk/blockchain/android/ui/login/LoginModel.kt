@@ -6,6 +6,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.notifications.analytics.Analytics
+import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -23,13 +24,14 @@ import timber.log.Timber
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLPeerUnverifiedException
 
-class LoginModel(
+class LoginModel constructor(
     initialState: LoginState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val interactor: LoginInteractor,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
+    private val appMaintenanceFF: FeatureFlag,
     private val analytics: Analytics
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
@@ -87,16 +89,22 @@ class LoginModel(
     }
 
     private fun checkAppMaintenanceStatus(action: String?, uri: Uri?) {
-        rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
-            when (status) {
-                AppMaintenanceStatus.NonActionable.Unknown,
-                AppMaintenanceStatus.NonActionable.AllClear -> {
-                    checkExistingSessionOrDeepLink(action, uri)
-                }
+        appMaintenanceFF.enabled.subscribe { enabled ->
+            if (enabled) {
+                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
+                    when (status) {
+                        AppMaintenanceStatus.NonActionable.Unknown,
+                        AppMaintenanceStatus.NonActionable.AllClear -> {
+                            checkExistingSessionOrDeepLink(action, uri)
+                        }
 
-                else -> {
-                    process(LoginIntents.ShowAppMaintenance)
+                        else -> {
+                            process(LoginIntents.ShowAppMaintenance)
+                        }
+                    }
                 }
+            } else {
+                checkExistingSessionOrDeepLink(action, uri)
             }
         }
     }
