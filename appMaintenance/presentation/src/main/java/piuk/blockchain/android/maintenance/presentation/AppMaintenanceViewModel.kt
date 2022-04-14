@@ -111,10 +111,7 @@ class AppMaintenanceViewModel(
         viewModelScope.launch {
             getAppMaintenanceConfigUseCase().let { status ->
                 when (status) {
-                    AppMaintenanceStatus.NonActionable.Unknown -> {
-                        // todo what
-                    }
-
+                    AppMaintenanceStatus.NonActionable.Unknown,
                     AppMaintenanceStatus.NonActionable.AllClear -> {
                         resumeAppFlow()
                     }

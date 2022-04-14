@@ -4,9 +4,6 @@ import android.app.Activity
 
 interface InAppUpdateSettings {
     companion object {
-        /**
-         * Random request code for catching intent results
-         */
         const val REQUEST_CODE = 29138
     }
 

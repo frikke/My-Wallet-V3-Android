@@ -32,6 +32,9 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
 
+    // android
+    implementation Libraries.design
+
     // coroutines
     implementation Libraries.androidCoroutines
     implementation Libraries.lifecycleViewModelExtensions
@@ -51,6 +54,11 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.constraintLayoutCompose
 
-    implementation Libraries.design
+    // test
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.coreTesting
+    testImplementation Libraries.mockk
+    testImplementation Libraries.turbine
 
 }
