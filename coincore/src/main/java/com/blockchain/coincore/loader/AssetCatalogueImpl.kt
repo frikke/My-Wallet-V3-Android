@@ -6,7 +6,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
-import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.Locale
@@ -47,11 +46,11 @@ class AssetCatalogueImpl internal constructor(
     override fun assetInfoFromNetworkTicker(symbol: String): AssetInfo? =
         fullAssetLookup.get()[symbol.uppercase()]?.asAssetInfoOrNull()
 
-    override fun fromContractAddressWithL2Id(
-        l2chain: AssetInfo,
+    override fun assetFromL1ChainByContractAddress(
+        l1chain: AssetInfo,
         l2Id: String
     ): AssetInfo? = fullAssetLookup.get().values.filterIsInstance<AssetInfo>().firstOrNull { asset ->
-        asset.l1chain(this) == l2chain &&
+        asset.l1chainTicker == l1chain.networkTicker &&
             asset.l2identifier?.equals(l2Id, ignoreCase = true) == true
     }
 
