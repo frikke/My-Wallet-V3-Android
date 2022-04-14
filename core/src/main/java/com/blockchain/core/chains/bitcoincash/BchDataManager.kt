@@ -3,7 +3,6 @@ package com.blockchain.core.chains.bitcoincash
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -22,7 +21,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import org.bitcoinj.core.LegacyAddress
@@ -38,8 +36,7 @@ class BchDataManager(
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
     private val metadataManager: MetadataManager,
-    private val remoteLogger: RemoteLogger,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val remoteLogger: RemoteLogger
 ) {
 
     /**
@@ -56,29 +53,26 @@ class BchDataManager(
      * @return An [Completable]
      */
     fun initBchWallet(defaultLabel: String): Completable =
-        Singles.zip(
-            kotlinSerializerFeatureFlag.enabled,
-            fetchMetadata(defaultLabel, payloadDataManager.accounts.size).map { wallet ->
+        fetchMetadata(defaultLabel, payloadDataManager.accounts.size).map { wallet ->
+            MetadataPair(
+                wallet,
+                false
+            )
+        }
+            .defaultIfEmpty(
                 MetadataPair(
-                    wallet,
-                    false
+                    createMetadata(defaultLabel, payloadDataManager.accounts.size),
+                    true
                 )
+            )
+            .doOnSuccess { (metadata, _) ->
+                bchDataStore.bchMetadata = metadata
+                restoreBchWallet(metadata)
             }
-                .defaultIfEmpty(
-                    MetadataPair(
-                        createMetadata(defaultLabel, payloadDataManager.accounts.size),
-                        true
-                    )
-                )
-                .doOnSuccess { (metadata, _) ->
-                    bchDataStore.bchMetadata = metadata
-                    restoreBchWallet(metadata)
-                }
-        )
-            .flatMapCompletable { (withKotlinX, metadataPair) ->
+            .flatMapCompletable { metadataPair ->
                 val saveToMetadataCompletable = if (metadataPair.needsSave) {
                     metadataManager.saveToMetadata(
-                        bchDataStore.bchMetadata!!.toJson(withKotlinX),
+                        bchDataStore.bchMetadata!!.toJson(),
                         BitcoinCashWallet.METADATA_TYPE_EXTERNAL
                     )
                 } else {
@@ -93,13 +87,10 @@ class BchDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    fun syncWithServer(): Completable =
-        kotlinSerializerFeatureFlag.enabled.flatMapCompletable { withKotlinX ->
-            metadataManager.saveToMetadata(
-                bchDataStore.bchMetadata!!.toJson(withKotlinX),
-                BitcoinCashWallet.METADATA_TYPE_EXTERNAL
-            )
-        }
+    fun syncWithServer(): Completable = metadataManager.saveToMetadata(
+        bchDataStore.bchMetadata!!.toJson(),
+        BitcoinCashWallet.METADATA_TYPE_EXTERNAL
+    )
 
     fun updateTransactions() =
         Completable.fromObservable(getWalletTransactions(50, 50))
@@ -109,27 +100,25 @@ class BchDataManager(
         defaultLabel: String,
         accountTotal: Int
     ): Maybe<GenericMetadataWallet> =
-        kotlinSerializerFeatureFlag.enabled.flatMapMaybe { withKotlinX ->
-            metadataManager.fetchMetadata(BitcoinCashWallet.METADATA_TYPE_EXTERNAL)
-                .map { walletJson ->
-                    // Fetch wallet
-                    val metaData = GenericMetadataWallet.fromJson(walletJson, withKotlinX)
+        metadataManager.fetchMetadata(BitcoinCashWallet.METADATA_TYPE_EXTERNAL)
+            .map { walletJson ->
+                // Fetch wallet
+                val metaData = GenericMetadataWallet.fromJson(walletJson)
 
-                    // Sanity check (Add missing metadata accounts)
-                    metaData.accounts.apply {
-                        val bchAccounts = getMetadataAccounts(defaultLabel, size, accountTotal)
-                        addAll(bchAccounts)
-                    }
-                    if (bchDataStore.bchMetadata == null || !listContentEquals(
-                            bchDataStore.bchMetadata!!.accounts,
-                            metaData.accounts
-                        )
-                    ) {
-                        bchDataStore.bchMetadata = metaData
-                    }
-                    metaData
+                // Sanity check (Add missing metadata accounts)
+                metaData.accounts.apply {
+                    val bchAccounts = getMetadataAccounts(defaultLabel, size, accountTotal)
+                    addAll(bchAccounts)
                 }
-        }
+                if (bchDataStore.bchMetadata == null || !listContentEquals(
+                        bchDataStore.bchMetadata!!.accounts,
+                        metaData.accounts
+                    )
+                ) {
+                    bchDataStore.bchMetadata = metaData
+                }
+                metaData
+            }
 
     @VisibleForTesting
     internal fun createMetadata(defaultLabel: String, accountTotal: Int): GenericMetadataWallet {

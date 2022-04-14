@@ -1,12 +1,6 @@
 package info.blockchain.wallet.payload.data
 
 import com.blockchain.api.services.NonCustodialBitcoinService
-import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import info.blockchain.wallet.bip44.HDAccount
@@ -31,43 +25,27 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import org.spongycastle.util.encoders.Hex
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.ANY,
-    getterVisibility = JsonAutoDetect.Visibility.NONE,
-    setterVisibility = JsonAutoDetect.Visibility.NONE,
-    creatorVisibility = JsonAutoDetect.Visibility.NONE,
-    isGetterVisibility = JsonAutoDetect.Visibility.NONE
-)
 @Serializable
 class WalletBody {
 
-    @field:JsonProperty("accounts")
     @SerialName("accounts")
     var accounts: MutableList<Account>? = null
 
-    @field:JsonProperty("seed_hex")
     @SerialName("seed_hex")
     var seedHex: String? = null
 
-    @field:JsonProperty("passphrase")
     @SerialName("passphrase")
     var passphrase: String? = null
 
-    @field:JsonProperty("mnemonic_verified")
     @SerialName("mnemonic_verified")
     var mnemonicVerified = false
 
-    @field:JsonProperty("default_account_idx")
     @SerialName("default_account_idx")
     var defaultAccountIdx = 0
 
-    @JsonIgnore
     @Transient
     var wrapperVersion = 0
 
-    @JsonIgnore
     @Transient
     private val HD = HDWalletsContainer()
 
@@ -153,9 +131,6 @@ class WalletBody {
     }
 
     fun getAccount(accountId: Int) = accounts!![accountId]
-
-    fun toJson(mapper: ObjectMapper): String =
-        mapper.writeValueAsString(this)
 
     fun toJson(module: SerializersModule): String {
         val jsonBuilder = Json {
@@ -529,12 +504,6 @@ class WalletBody {
                 bip44Wallet = bip44Wallet,
                 purpose = purpose
             )
-        }
-
-        fun fromJson(json: String, mapper: ObjectMapper): WalletBody {
-            val walletBody = mapper.readValue(json, WalletBody::class.java)
-            walletBody.instantiateBip44Wallet()
-            return walletBody
         }
 
         fun fromJson(json: String, module: SerializersModule): WalletBody {

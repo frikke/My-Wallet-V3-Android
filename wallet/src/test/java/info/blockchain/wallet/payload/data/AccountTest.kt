@@ -22,7 +22,7 @@ class AccountTest {
     fun fromJson_1() {
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt")?.toURI()!!
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val hdWallet = wallet.walletBody
         val accounts = hdWallet!!.accounts!!
         assertEquals(68, accounts.size.toLong())
@@ -64,7 +64,7 @@ class AccountTest {
     fun fromJson_6() {
         val uri = javaClass.classLoader.getResource("wallet_body_6.txt")?.toURI()!!
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val hdWallet = wallet.walletBody
         val accounts = hdWallet!!.accounts!!
         assertEquals(1, accounts.size.toLong())

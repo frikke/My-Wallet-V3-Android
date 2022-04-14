@@ -1,10 +1,6 @@
 package info.blockchain.wallet.coin
 
 import com.blockchain.serialization.JsonSerializableAccount
-import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import kotlinx.serialization.SerialName
@@ -15,26 +11,14 @@ import kotlinx.serialization.Serializable
  *     Generic coin account data that can be stored in blockchain.info KV store.
  * </p>
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.ANY,
-    getterVisibility = JsonAutoDetect.Visibility.NONE,
-    setterVisibility = JsonAutoDetect.Visibility.NONE,
-    creatorVisibility = JsonAutoDetect.Visibility.NONE,
-    isGetterVisibility = JsonAutoDetect.Visibility.NONE
-)
 @Serializable
 class GenericMetadataAccount(
-    @JsonProperty("label")
     @SerialName("label")
     override var label: String = "",
 
-    @field:JsonProperty("archived")
     @SerialName("archived")
     var isArchived: Boolean = false,
 
-    @JsonProperty("xpub")
     @SerialName("xpub")
     private var xpub: String? = null
 ) : JsonSerializableAccount {

@@ -13,10 +13,10 @@ import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.notifications.analytics.Analytics
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import piuk.blockchain.android.R

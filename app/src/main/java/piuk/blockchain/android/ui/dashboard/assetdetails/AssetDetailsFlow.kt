@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
 import androidx.fragment.app.FragmentManager
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -14,8 +16,6 @@ import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable

@@ -8,7 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
+import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.sunriver.StellarPayment
 import com.blockchain.sunriver.fromStellarUri
 import info.blockchain.balance.AssetInfo

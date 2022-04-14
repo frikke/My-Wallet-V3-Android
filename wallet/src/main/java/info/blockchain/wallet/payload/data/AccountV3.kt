@@ -1,37 +1,19 @@
 package info.blockchain.wallet.payload.data
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(
-    fieldVisibility = Visibility.ANY,
-    getterVisibility = Visibility.NONE,
-    setterVisibility = Visibility.NONE,
-    creatorVisibility = Visibility.NONE,
-    isGetterVisibility = Visibility.NONE
-)
 @Serializable
 data class AccountV3(
-    @JsonProperty("label")
     @SerialName("label")
     override var label: String = "",
 
-    @field:JsonProperty("archived")
     @SerialName("archived")
     override var isArchived: Boolean = false,
 
-    @JsonProperty("xpriv")
     @SerialName("xpriv")
     override var xpriv: String = "",
 
-    @field:JsonProperty("xpub")
     @SerialName("xpub")
     val legacyXpub: String = ""
 ) : Account {
@@ -41,15 +23,11 @@ data class AccountV3(
         XPubs(XPub(address = legacyXpub, derivation = XPub.Format.LEGACY))
     }
 
-    @field:JsonProperty("cache")
     @SerialName("cache")
     override val addressCache: AddressCache = AddressCache()
 
-    @field:JsonProperty("address_labels")
     @SerialName("address_labels")
     override val addressLabels: MutableList<AddressLabel> = mutableListOf()
-
-    constructor(xPub: String) : this(legacyXpub = xPub)
 
     override fun addAddressLabel(index: Int, reserveLabel: String) {
         val addressLabel = AddressLabel()

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="order_card_title">Blockchain Card</string>
     <string name="order_card_intro_primary">Your Gateway To The Blockchain Debit Card</string>
     <string name="order_card_intro_secundary">A card that lets you spend and earn in crypto right from your Blockchain account.</string>
     <string name="order_my_card">Order My Card</string>
@@ -27,4 +26,22 @@
     <string name="do_it_later">Do it later</string>
     <string name="failed">FAILED</string>
     <string name="delete_card">Delete Card</string>
+    <string name="manage">Manage</string>
+    <string name="top_up">Top Up</string>
+    <string name="choose_payment_method">Choose Payment Method</string>
+    <string name="fund_your_card_purchases">Fund your card purchases</string>
+    <string name="earn_crypto_on_purchases">Earn crypto on purchases</string>
+    <string name="recent_purchases_here">Your most recent purchases will show up here</string>
+    <string name="copy_card_number">Copy Card Number</string>
+    <string name="copy_to_clipboard">Copy to the clipboard</string>
+    <string name="lock_card">Lock Card</string>
+    <string name="temporarily_lock_card">Temporarily lock your card</string>
+    <string name="support">Support</string>
+    <string name="get_help_with_card_issues">Get help with card related issues</string>
+    <string name="blockchain_card">Blockchain Card</string>
+    <string name="virtual_card">Virtual Card</string>
+    <string name="ready_to_use">Ready to Use</string>
+    <string name="card_details">Card Details</string>
+    <string name="no_fee">No Fee</string>
+    <string name="processing">Processing</string>
 </resources>

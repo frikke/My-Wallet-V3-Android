@@ -1,7 +1,7 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.notifications.analytics.UserAnalytics
-import com.blockchain.notifications.analytics.UserProperty
+import com.blockchain.analytics.UserAnalytics
+import com.blockchain.analytics.UserProperty
 import info.blockchain.wallet.api.data.Settings
 import java.security.MessageDigest
 import org.spongycastle.util.encoders.Hex

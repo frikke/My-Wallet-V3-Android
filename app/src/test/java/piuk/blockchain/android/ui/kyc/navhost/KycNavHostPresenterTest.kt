@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.navhost
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
@@ -11,7 +12,6 @@ import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierUpdater
-import com.blockchain.notifications.analytics.Analytics
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never

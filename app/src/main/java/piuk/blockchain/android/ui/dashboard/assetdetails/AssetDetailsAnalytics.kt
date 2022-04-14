@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.assetdetails
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 import info.blockchain.balance.Currency
 
 enum class AssetDetailsAnalytics(

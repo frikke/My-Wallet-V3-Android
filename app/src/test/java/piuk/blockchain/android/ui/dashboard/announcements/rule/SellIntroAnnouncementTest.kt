@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

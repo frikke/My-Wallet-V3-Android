@@ -14,6 +14,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.analytics.events.ActivityAnalytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.SnackbarType
@@ -25,8 +27,6 @@ import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.ActivityAnalytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo

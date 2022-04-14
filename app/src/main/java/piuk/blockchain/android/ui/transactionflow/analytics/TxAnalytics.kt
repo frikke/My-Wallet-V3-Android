@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.coincore.AssetAction
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import java.io.Serializable

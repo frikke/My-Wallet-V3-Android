@@ -1,17 +1,12 @@
 package info.blockchain.wallet.ethereum;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.annotation.Nullable;
 
-import info.blockchain.balance.AssetCatalogue;
-import info.blockchain.balance.AssetInfo;
-import info.blockchain.balance.CryptoCurrency;
 import info.blockchain.wallet.keys.MasterKey;
 
 public class EthereumWallet {
@@ -47,8 +42,8 @@ public class EthereumWallet {
         walletDto = new EthereumWalletDto(accounts);
     }
 
-    public String toJson(boolean withKotlinX) throws JsonProcessingException {
-        return walletDto.toJson(withKotlinX);
+    public String toJson() {
+        return walletDto.toJson();
     }
 
     /**
@@ -56,10 +51,10 @@ public class EthereumWallet {
      *
      * @return Existing Ethereum wallet or Null if no existing Ethereum wallet found.
      */
-    public static EthereumWallet load(String walletJson, boolean withKotlinX) throws IOException {
+    public static EthereumWallet load(String walletJson) throws IOException {
 
         if (walletJson != null) {
-            EthereumWalletDto wallet = EthereumWalletDto.fromJson(walletJson, withKotlinX);
+            EthereumWalletDto wallet = EthereumWalletDto.fromJson(walletJson);
 
             // Web can store an empty EthereumWalletData object
             if (wallet.getWalletData() == null || wallet.getWalletData().getAccounts().isEmpty()) {

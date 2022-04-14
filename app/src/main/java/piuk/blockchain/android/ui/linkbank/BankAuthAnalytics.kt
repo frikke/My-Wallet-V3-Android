@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.extensions.exhaustive
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
 import java.io.Serializable
 import java.util.Locale
 

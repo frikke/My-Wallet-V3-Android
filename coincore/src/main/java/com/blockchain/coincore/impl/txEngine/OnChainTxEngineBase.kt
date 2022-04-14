@@ -37,7 +37,7 @@ abstract class OnChainTxEngineBase(
         settingsDataManager.triggerOnChainTransaction(
             guid = prefs.walletGuid,
             sharedKey = prefs.sharedKey,
-            amount = pendingTx.amount.toStringWithoutSymbol(),
+            amount = pendingTx.amount.toNetworkString(),
             currency = pendingTx.amount.currencyCode
         )
             .onErrorComplete()

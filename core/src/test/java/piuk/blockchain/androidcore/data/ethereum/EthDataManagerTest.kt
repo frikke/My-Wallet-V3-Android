@@ -1,9 +1,10 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.adapters.ApiError
+import com.blockchain.core.chains.EthLayerTwoService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
@@ -16,7 +17,6 @@ import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
-import info.blockchain.wallet.ethereum.node.EthChainError
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
 import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
 import info.blockchain.wallet.ethereum.node.RequestType
@@ -55,7 +55,9 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag = mock()
+    private val ethLayerTwoService: EthLayerTwoService = mock {
+        on { getSupportedNetworks() }.thenReturn(Single.just(emptyList()))
+    }
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
@@ -63,7 +65,7 @@ class EthDataManagerTest {
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
         lastTxUpdater = lastTxUpdater,
-        kotlinSerializerFeatureFlag = kotlinSerializerFeatureFlag
+        ethLayerTwoService = ethLayerTwoService
     )
 
     @Test
@@ -109,7 +111,7 @@ class EthDataManagerTest {
             val expected = Outcome.Success(BigInteger.TEN)
             whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
             coEvery {
-                ethAccountApi.postEthNodeRequest(requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
+                ethAccountApi.postEthNodeRequest(any(), requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
             } returns Outcome.Success(response)
 
             // Act
@@ -127,10 +129,10 @@ class EthDataManagerTest {
             // Arrange
             val ethAddress = "ADDRESS"
             val requestType = RequestType.GET_BALANCE
-            val errorResponse = Outcome.Failure(EthChainError.UnknownError(Exception()))
+            val errorResponse = Outcome.Failure(ApiError.UnknownApiError(Exception()))
             whenever(ethDataStore.ethWallet!!.account!!.address).thenReturn(ethAddress)
             coEvery {
-                ethAccountApi.postEthNodeRequest(requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
+                ethAccountApi.postEthNodeRequest(any(), requestType, ethAddress, EthJsonRpcRequest.defaultBlock)
             } returns errorResponse
 
             // Act
@@ -261,13 +263,13 @@ class EthDataManagerTest {
             coEvery { result } returns "contract"
         }
         coEvery {
-            ethAccountApi.postEthNodeRequest(requestType, address, EthJsonRpcRequest.defaultBlock)
+            ethAccountApi.postEthNodeRequest(any(), requestType, address, EthJsonRpcRequest.defaultBlock)
         }.returns(Outcome.Success(response))
         // Act
         val result = subject.isContractAddress(address).blockingGet()
         // Assert
         result `should be equal to` true
-        coVerify { ethAccountApi.postEthNodeRequest(requestType, address, EthJsonRpcRequest.defaultBlock) }
+        coVerify { ethAccountApi.postEthNodeRequest(any(), requestType, address, EthJsonRpcRequest.defaultBlock) }
     }
 
     @Test
@@ -303,11 +305,9 @@ class EthDataManagerTest {
         val hash = "HASH"
         val notes = "NOTES"
         val ethereumWallet: EthereumWallet = mock()
-        val withKotlinX = true
         whenever(ethDataStore.ethWallet).thenReturn(ethereumWallet)
-        whenever(ethDataStore.ethWallet!!.toJson(any())).thenReturn("{}")
+        whenever(ethDataStore.ethWallet!!.toJson()).thenReturn("{}")
         whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
-        whenever(kotlinSerializerFeatureFlag.enabled).thenReturn(Single.just(withKotlinX))
         // Act
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
         // Assert
@@ -369,13 +369,13 @@ class EthDataManagerTest {
         val response: EthJsonRpcResponse = mockk {
             coEvery { result } returns hash
         }
-        coEvery { ethAccountApi.postEthNodeRequest(requestType, any()) } returns Outcome.Success(response)
+        coEvery { ethAccountApi.postEthNodeRequest(any(), requestType, any()) } returns Outcome.Success(response)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.complete())
         // Act
         val result = subject.pushTx(byteArray).blockingGet()
         // Assert
         result `should be equal to` hash
-        coVerify { ethAccountApi.postEthNodeRequest(requestType, any()) }
+        coVerify { ethAccountApi.postEthNodeRequest(any(), requestType, any()) }
     }
 
     @Test
@@ -387,7 +387,7 @@ class EthDataManagerTest {
         val response: EthJsonRpcResponse = mockk {
             coEvery { result } returns hash
         }
-        coEvery { ethAccountApi.postEthNodeRequest(requestType, any()) } returns Outcome.Success(response)
+        coEvery { ethAccountApi.postEthNodeRequest(any(), requestType, any()) } returns Outcome.Success(response)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.error(Exception()))
 
         // Act
@@ -395,6 +395,6 @@ class EthDataManagerTest {
 
         // Assert
         result `should be equal to` hash
-        coVerify { ethAccountApi.postEthNodeRequest(requestType, any()) }
+        coVerify { ethAccountApi.postEthNodeRequest(any(), requestType, any()) }
     }
 }

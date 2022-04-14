@@ -7,6 +7,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.chains.EthLayerTwoService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -199,6 +200,12 @@ val coreModule = module {
             )
         }.bind(InterestBalanceDataManager::class)
 
+        factory {
+            EthLayerTwoService(
+                remoteConfig = get()
+            )
+        }
+
         scoped {
             EthDataManager(
                 payloadDataManager = get(),
@@ -206,7 +213,7 @@ val coreModule = module {
                 ethDataStore = get(),
                 metadataManager = get(),
                 lastTxUpdater = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                ethLayerTwoService = get()
             )
         }.bind(EthMessageSigner::class)
 
@@ -242,15 +249,13 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 
         factory {
             PayloadService(
-                payloadManager = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                payloadManager = get()
             )
         }
 
@@ -260,8 +265,7 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 
@@ -281,8 +285,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 

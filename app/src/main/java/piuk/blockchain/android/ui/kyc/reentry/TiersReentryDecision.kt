@@ -22,7 +22,7 @@ class TiersReentryDecision(
             tier0UnselectedCountry() -> ReentryPoint.CountrySelection
             tier0ProfileIncompleteOrResubmitAllowed() &&
                 !tier0UnselectedCountry() -> ReentryPoint.Profile
-            tier0AndCanAdvance() -> ReentryPoint.Address
+            tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
             else -> return rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }.map { missingAdditionalInfo ->
                 when {
                     missingAdditionalInfo.isNotEmpty() ->
@@ -49,6 +49,13 @@ class TiersReentryDecision(
     }
 
     private fun tier0AndCanAdvance() = isTierZero && nabuUser.tiers!!.next == 1
+
+    private fun tier0MissingAddress() =
+        isTierZero &&
+            nabuUser.address?.line1.isNullOrEmpty() &&
+            nabuUser.address?.line2.isNullOrEmpty() &&
+            nabuUser.address?.city.isNullOrEmpty() &&
+            nabuUser.address?.postCode.isNullOrEmpty()
 
     private fun hasMobileVerified() = nabuUser.mobileVerified
 }

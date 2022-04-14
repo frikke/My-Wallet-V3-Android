@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.login
 
+import com.blockchain.analytics.Analytics
 import android.net.Uri
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
@@ -24,7 +24,7 @@ import timber.log.Timber
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLPeerUnverifiedException
 
-class LoginModel constructor(
+class LoginModel(
     initialState: LoginState,
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,

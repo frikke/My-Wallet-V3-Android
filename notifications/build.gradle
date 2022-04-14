@@ -21,6 +21,7 @@ android {
 dependencies {
     implementation project(':common:interface')
     implementation project(':logging:domain')
+    implementation project(':analytics:domain')
     implementation project(':core')
     implementation project(':wallet')
     implementation project(':balance')
@@ -30,11 +31,8 @@ dependencies {
     implementation(Libraries.firebaseConfig) {
         exclude group: 'com.google.protobuf', module: 'protobuf-lite'
     }
-    implementation Libraries.firebaseAnalytics
     implementation Libraries.firebaseDynamicLink
     api Libraries.firebaseMessaging
-
-    implementation Libraries.embraceIOSDK
 
     implementation Libraries.koinAndroid
     implementation Libraries.timber

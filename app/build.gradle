@@ -66,6 +66,7 @@ android {
 
         resConfigs 'en',
                 'es',
+                'b+es+419',
                 'fr',
                 'pt',
                 'pt-rBR',
@@ -338,6 +339,8 @@ dependencies {
     implementation project(':deeplinking')
     implementation project(':logging:domain')
     implementation project(':logging:data')
+    implementation project(':analytics:domain')
+    implementation project(':analytics:data')
     implementation project(':store')
     implementation project(':store-persisters-sqldelight')
     implementation project(':blockchainCard')
@@ -477,7 +480,6 @@ dependencies {
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
-    testImplementation Libraries.jacksonKotlin
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

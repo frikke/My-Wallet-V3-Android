@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.model
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetAction
@@ -19,7 +20,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs

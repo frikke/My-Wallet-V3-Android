@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.transfer.send
 
 import android.os.Bundle
 import android.view.View
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R

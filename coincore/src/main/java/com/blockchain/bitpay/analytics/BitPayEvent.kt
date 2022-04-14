@@ -1,6 +1,6 @@
 package com.blockchain.bitpay.analytics
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 

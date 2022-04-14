@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard
 
+import com.blockchain.analytics.UserAnalytics
+import com.blockchain.analytics.UserProperty
 import com.blockchain.coincore.Coincore
-import com.blockchain.notifications.analytics.UserAnalytics
-import com.blockchain.notifications.analytics.UserProperty
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import java.math.BigDecimal

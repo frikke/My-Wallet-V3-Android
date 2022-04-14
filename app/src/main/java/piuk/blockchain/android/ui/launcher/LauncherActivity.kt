@@ -8,9 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.analytics.NotificationAppOpened
+import com.blockchain.analytics.events.NotificationAnalyticsEvents
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
-import com.blockchain.notifications.analytics.NotificationAppOpened
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -19,7 +19,6 @@ import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
 import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.base.MvpActivity
@@ -34,16 +33,10 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     private val appMaintenanceViewModel: AppMaintenanceSharedViewModel by viewModel()
     private var appMaintenanceJob: Job? = null
 
-    private val binding: ActivityInterestDashboardBinding by lazy {
-        ActivityInterestDashboardBinding.inflate(layoutInflater)
-    }
-
     private val dataWiper: DataWiper by scopedInject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setContentView(binding.root)
 
         dataWiper.clearData()
 

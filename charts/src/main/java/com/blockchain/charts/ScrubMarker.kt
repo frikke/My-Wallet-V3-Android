@@ -7,6 +7,7 @@ import android.widget.TextView
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -28,10 +29,11 @@ internal class ScrubMarker(
     @SuppressLint("SetTextI18n")
     override fun refreshContent(e: Entry, highlight: Highlight) {
         currentHighlight = highlight
+        val entryFormatted = DecimalFormat("0.00").format(e.y)
 
         when (highlight) {
-            is PeakHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
-            is TroughHighlight -> date.text = "${highlight.fiatSymbol}${e.y}"
+            is PeakHighlight -> date.text = "${highlight.fiatSymbol}$entryFormatted"
+            is TroughHighlight -> date.text = "${highlight.fiatSymbol}$entryFormatted"
             else -> date.text = simpleDateFormat.format(e.x * 1000L)
         }
         super.refreshContent(e, highlight)

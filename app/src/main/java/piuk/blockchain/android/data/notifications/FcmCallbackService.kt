@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -14,7 +15,6 @@ import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION_2FA
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_FOREGROUND_NOTIFICATION
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus

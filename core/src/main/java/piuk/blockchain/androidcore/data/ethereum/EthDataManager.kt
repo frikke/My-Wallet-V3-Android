@@ -1,20 +1,22 @@
 package piuk.blockchain.androidcore.data.ethereum
 
+import com.blockchain.api.adapters.ApiError
+import com.blockchain.core.chains.EthL2Chain
+import com.blockchain.core.chains.EthLayerTwoService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isErc20
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
+import info.blockchain.wallet.ethereum.EthUrls
 import info.blockchain.wallet.ethereum.EthereumWallet
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.data.TransactionState
-import info.blockchain.wallet.ethereum.node.EthChainError
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
 import info.blockchain.wallet.ethereum.node.RequestType
 import info.blockchain.wallet.ethereum.util.EthUtils
@@ -23,10 +25,10 @@ import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
+import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Utf8String
@@ -43,7 +45,7 @@ class EthDataManager(
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
     private val lastTxUpdater: LastTxUpdater,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val ethLayerTwoService: EthLayerTwoService
 ) : EthMessageSigner {
 
     private val internalAccountAddress: String?
@@ -51,6 +53,9 @@ class EthDataManager(
 
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
+
+    val supportedNetworks: Single<List<EthL2Chain>>
+        get() = ethLayerTwoService.getSupportedNetworks()
 
     /**
      * Clears the currently stored ETH account from memory.
@@ -74,8 +79,9 @@ class EthDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    suspend fun getBalance(): Outcome<EthChainError, BigInteger> {
+    suspend fun getBalance(chainId: Int = ETH_CHAIN_ID): Outcome<ApiError, BigInteger> {
         return ethAccountApi.postEthNodeRequest(
+            nodeUrl = getNodeUrlForChain(chainId),
             requestType = RequestType.GET_BALANCE,
             accountAddress,
             EthJsonRpcRequest.defaultBlock
@@ -142,9 +148,10 @@ class EthDataManager(
     fun getLatestBlockNumber(): Single<EthLatestBlockNumber> =
         ethAccountApi.latestBlockNumber.applySchedulers()
 
-    fun isContractAddress(address: String): Single<Boolean> =
+    fun isContractAddress(address: String, chainId: Int = ETH_CHAIN_ID): Single<Boolean> =
         rxSingle {
             ethAccountApi.postEthNodeRequest(
+                nodeUrl = getNodeUrlForChain(chainId),
                 requestType = RequestType.IS_CONTRACT,
                 address,
                 EthJsonRpcRequest.defaultBlock
@@ -245,8 +252,8 @@ class EthDataManager(
         data
     )
 
-    suspend fun getTransaction(hash: String): Outcome<EthChainError, EthTransaction> =
-        ethAccountApi.getTransaction(hash)
+    suspend fun getTransaction(hash: String, chainId: Int = ETH_CHAIN_ID): Outcome<ApiError, EthTransaction> =
+        ethAccountApi.getTransaction(getNodeUrlForChain(chainId), hash)
             .map { response ->
                 EthTransaction(
                     blockNumber = response.result.blockNumber,
@@ -262,8 +269,9 @@ class EthDataManager(
                 )
             }
 
-    fun getNonce(): Single<BigInteger> = rxSingle {
+    fun getNonce(chainId: Int = ETH_CHAIN_ID): Single<BigInteger> = rxSingle {
         ethAccountApi.postEthNodeRequest(
+            nodeUrl = getNodeUrlForChain(chainId),
             requestType = RequestType.GET_NONCE,
             accountAddress,
             EthJsonRpcRequest.defaultBlock
@@ -315,9 +323,10 @@ class EthDataManager(
             .toByteArray()
     }
 
-    fun pushTx(signedTxBytes: ByteArray): Single<String> =
+    fun pushTx(signedTxBytes: ByteArray, chainId: Int = ETH_CHAIN_ID): Single<String> =
         rxSingle {
             ethAccountApi.postEthNodeRequest(
+                nodeUrl = getNodeUrlForChain(chainId),
                 requestType = RequestType.PUSH_TRANSACTION,
                 EthUtils.decorateAndEncode(signedTxBytes)
             )
@@ -341,14 +350,11 @@ class EthDataManager(
         assetCatalogue: AssetCatalogue,
         label: String
     ): Single<Pair<EthereumWallet, Boolean>> =
-        Singles.zip(
-            metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty(""),
-            kotlinSerializerFeatureFlag.enabled
-        )
-            .map { (metadata, useKotlinX) ->
+        metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty("")
+            .map { metadata ->
                 val walletJson = if (metadata != "") metadata else null
 
-                var ethWallet = EthereumWallet.load(walletJson, useKotlinX)
+                var ethWallet = EthereumWallet.load(walletJson)
                 var needsSave = false
 
                 if (ethWallet?.account == null || !ethWallet.account!!.isCorrect) {
@@ -375,12 +381,10 @@ class EthDataManager(
             }
 
     fun save(): Completable =
-        kotlinSerializerFeatureFlag.enabled.flatMapCompletable { useKotlinX ->
-            metadataManager.saveToMetadata(
-                ethDataStore.ethWallet!!.toJson(useKotlinX),
-                EthereumWallet.METADATA_TYPE_EXTERNAL
-            )
-        }
+        metadataManager.saveToMetadata(
+            ethDataStore.ethWallet!!.toJson(),
+            EthereumWallet.METADATA_TYPE_EXTERNAL
+        )
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {
         require(asset.isErc20())
@@ -396,8 +400,13 @@ class EthDataManager(
     // Exposing it for ERC20 and for testing
     fun extraGasLimitForMemo() = extraGasLimitForMemo
 
+    private suspend fun getNodeUrlForChain(chainId: Int): String {
+        return supportedNetworks.await().find { l2Chain -> l2Chain.chainId == chainId }?.nodeUrl ?: EthUrls.ETH_NODES
+    }
+
     companion object {
         // To account for the extra data we want to send
         private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
+        const val ETH_CHAIN_ID: Int = 1
     }
 }

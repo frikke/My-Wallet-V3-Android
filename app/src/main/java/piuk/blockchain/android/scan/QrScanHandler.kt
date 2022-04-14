@@ -3,6 +3,7 @@ package piuk.blockchain.android.scan
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
+import com.blockchain.analytics.Analytics
 import com.blockchain.bitpay.BITPAY_LIVE_BASE
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
@@ -19,7 +20,6 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.koin.payloadScope
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.walletconnect.domain.WalletConnectUrlValidator
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency

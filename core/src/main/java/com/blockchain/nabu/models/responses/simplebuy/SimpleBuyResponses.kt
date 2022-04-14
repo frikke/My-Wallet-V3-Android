@@ -168,7 +168,7 @@ class ProductTransferRequestBody(
 data class PaymentAttributesResponse(
     val everypay: EverypayPaymentAttributesResponse? = null,
     val authorisationUrl: String? = null,
-    val status: String? = null,
+    val error: String? = null,
     val cardProvider: CardProviderPaymentAttributesResponse? = null
 )
 

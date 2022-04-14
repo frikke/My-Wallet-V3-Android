@@ -1,9 +1,5 @@
 package info.blockchain.wallet.payload.data;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.google.common.annotations.VisibleForTesting;
 
 import info.blockchain.wallet.exceptions.DecryptionException;
@@ -14,7 +10,6 @@ import info.blockchain.wallet.keys.SigningKey;
 import info.blockchain.wallet.payload.data.walletdto.WalletDto;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import kotlinx.serialization.json.Json;
 import kotlinx.serialization.modules.SerializersModule;
 
 import org.apache.commons.lang3.StringUtils;
@@ -156,26 +151,10 @@ public class Wallet {
         return (walletDto.getWalletBodies() != null && walletDto.getWalletBodies().size() > 0);
     }
 
-    public static Wallet fromJson(String json, boolean withKotlinX)
+    public static Wallet fromJson(String json)
         throws IOException, HDWalletException {
-        if (withKotlinX) {
-            SerializersModule serializersModule = WalletWrapper.getSerializerForVersion(WalletWrapper.V3);
-            return fromJson(json, serializersModule);
-        } else {
-            ObjectMapper mapper = new ObjectMapper();
-
-            mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
-                                     .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                                     .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                                     .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
-                                     .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
-
-            KotlinModule module = new KotlinModule();
-            module.addAbstractTypeMapping(Account.class, AccountV3.class);
-            mapper.registerModule(module);
-
-            return fromJson(json, mapper);
-        }
+        SerializersModule serializersModule = WalletWrapper.getSerializerForVersion(WalletWrapper.V3);
+        return fromJson(json, serializersModule);
     }
 
     public static Wallet fromJson(String json, SerializersModule serializersModule)
@@ -198,34 +177,6 @@ public class Wallet {
         }
 
         return new Wallet(walletDto);
-    }
-
-    public static Wallet fromJson(
-        String json,
-        ObjectMapper mapper
-    ) throws IOException, HDWalletException {
-        WalletDto walletDto = mapper.readValue(json, WalletDto.class);
-
-        if (walletDto.getWalletBodies() != null) {
-            ArrayList<WalletBody> walletBodyList = new ArrayList<>();
-
-            for (WalletBody walletBody : walletDto.getWalletBodies()) {
-                walletBodyList.add(
-                    WalletBody.Companion.fromJson(
-                        walletBody.toJson(mapper),
-                        mapper
-                    )
-                );
-            }
-
-            walletDto.setWalletBodies(walletBodyList);
-        }
-
-        return new Wallet(walletDto);
-    }
-
-    public String toJson(ObjectMapper mapper) throws JsonProcessingException {
-        return mapper.writeValueAsString(this.walletDto);
     }
 
     public String toJson(SerializersModule serializersModule) {

@@ -21,14 +21,19 @@ android {
 }
 
 dependencies {
-    implementation Libraries.koin
-    implementation Libraries.androidXAnnotations
-    implementation Libraries.gson
-    implementation Libraries.timber
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':commonarch')
     implementation project(':componentlib')
+    implementation project(':common:interface')
+    implementation project(':common-mp:utils')
+    implementation project(':logging:domain')
+    implementation project(':analytics:domain')
+
+    implementation Libraries.koin
+    implementation Libraries.androidXAnnotations
+    implementation Libraries.gson
+    implementation Libraries.timber
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava
@@ -41,15 +46,14 @@ dependencies {
     implementation Libraries.design
     implementation Libraries.composeCoil
     implementation Libraries.walletConnect
-    implementation project(':common:interface')
-    implementation project(':common-mp:utils')
-    implementation project(':logging:domain')
     implementation Libraries.okHttp
     implementation Libraries.constraintLayout
     implementation Libraries.appCompat
     implementation Libraries.glide
+
     // Compose
     implementation Libraries.composeUi
+
     // Unit Test dependencies
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
@@ -57,7 +61,6 @@ dependencies {
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
-    testImplementation Libraries.jacksonKotlin
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

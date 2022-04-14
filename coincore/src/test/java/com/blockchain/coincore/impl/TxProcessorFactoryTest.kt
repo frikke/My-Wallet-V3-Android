@@ -1,5 +1,6 @@
 package com.blockchain.coincore.impl
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.bitpay.BitPayDataManager
 import com.blockchain.bitpay.BitPayInvoiceTarget
@@ -34,7 +35,6 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
@@ -17,7 +18,6 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency

@@ -49,7 +49,7 @@ class WalletApiTest {
 
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
             .waitForCompletionWithoutErrors().assertValue {
-                WalletBase.fromJson(it.body()!!.string(), withKotlinX).guid == "a09910d9-1906-4ea1-a956-2508c3fe0661"
+                WalletBase.fromJson(it.body()!!.string()).guid == "a09910d9-1906-4ea1-a956-2508c3fe0661"
             }
     }
 

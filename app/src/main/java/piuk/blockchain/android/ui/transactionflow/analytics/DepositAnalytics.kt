@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.Money
 import java.io.Serializable
 

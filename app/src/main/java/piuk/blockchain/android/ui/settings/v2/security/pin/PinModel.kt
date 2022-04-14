@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.settings.v2.security.pin
 
 import androidx.annotation.StringRes
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.ProviderSpecificAnalytics
+import com.blockchain.analytics.events.WalletUpgradeEvent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
-import com.blockchain.notifications.analytics.WalletUpgradeEvent
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType

@@ -1,6 +1,6 @@
 package piuk.blockchain.android.thepit
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 
 sealed class PitAnalyticsEvent(
     override val event: String,

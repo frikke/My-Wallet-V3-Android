@@ -13,7 +13,7 @@ class CacheTest {
     @Test fun fromJson() {
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         Assert.assertEquals(
             "xpub6F2ehb9khoF6PZZxKS7vD8T2yDeDWuSR5RNH43b2wK5gY2ayWVApQezEzsFz7EpH2Jf6d6GYJzTrbfReT948CyxVgkhkkvmDBGkcY41MMnv",
             wallet.walletBody!!.getAccount(0).addressCache.changeAccount
@@ -29,7 +29,7 @@ class CacheTest {
         // Ensure toJson doesn't write any unintended fields
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body, true)
+        val wallet = Wallet.fromJson(body)
         val jsonString: String = Json.encodeToString(wallet.walletBody!!.getAccount(0).addressCache)
         val jsonObject = JSONObject(jsonString)
         Assert.assertEquals(2, jsonObject.keySet().size.toLong())

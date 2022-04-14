@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.additional_info
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import java.io.Serializable
 
 object KycAdditionalInfoViewed : AnalyticsEvent {

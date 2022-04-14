@@ -13,9 +13,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
-import com.blockchain.notifications.analytics.NotificationReceived
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.NotificationReceived
+import com.blockchain.analytics.events.NotificationAnalyticsEvents
 
 class NotificationsUtil(
     private val context: Context,

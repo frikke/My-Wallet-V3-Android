@@ -279,7 +279,6 @@ data class InterestAccountDetails(
 
 data class PaymentAttributes(
     val authorisationUrl: String?,
-    val status: String?,
     val cardAttributes: CardAttributes = CardAttributes.Empty
 ) {
     val isCardPayment: Boolean by lazy {

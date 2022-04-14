@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.address
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.extensions.exhaustive
@@ -8,7 +9,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.network.PollService
-import com.blockchain.notifications.analytics.Analytics
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe

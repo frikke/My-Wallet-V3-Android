@@ -937,7 +937,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         type = type(),
         paymentError = paymentError,
         depositPaymentId = depositPaymentId.orEmpty(),
-        approvalErrorStatus = attributes?.status?.toApprovalError() ?: ApprovalErrorStatus.None,
+        approvalErrorStatus = attributes?.error?.toApprovalError() ?: ApprovalErrorStatus.None,
         failureReason = failureReason,
         recurringBuyId = recurringBuyId
     )
@@ -961,7 +961,6 @@ fun PaymentAttributesResponse.toPaymentAttributes(): PaymentAttributes {
     }
     return PaymentAttributes(
         authorisationUrl = authorisationUrl,
-        status = status,
         cardAttributes = cardAttributes
     )
 }

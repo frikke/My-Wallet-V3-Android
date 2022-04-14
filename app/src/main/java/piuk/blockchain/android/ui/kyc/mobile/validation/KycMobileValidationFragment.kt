@@ -10,11 +10,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.NavHostFragment.findNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable

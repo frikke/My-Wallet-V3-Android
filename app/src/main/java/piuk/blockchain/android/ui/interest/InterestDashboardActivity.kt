@@ -3,13 +3,13 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R

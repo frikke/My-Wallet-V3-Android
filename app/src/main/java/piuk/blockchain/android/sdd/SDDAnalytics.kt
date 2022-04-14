@@ -1,6 +1,6 @@
 package piuk.blockchain.android.sdd
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 
 enum class SDDAnalytics(override val event: String, override val params: Map<String, String> = emptyMap()) :
     AnalyticsEvent {

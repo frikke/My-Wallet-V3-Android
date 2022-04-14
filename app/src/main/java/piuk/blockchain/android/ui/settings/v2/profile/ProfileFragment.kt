@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
@@ -19,7 +20,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.blockchain.utils.capitalizeFirstChar
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentProfileBinding
