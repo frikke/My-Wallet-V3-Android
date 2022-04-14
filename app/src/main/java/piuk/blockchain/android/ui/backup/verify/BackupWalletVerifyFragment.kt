@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.koin.scopedInject
@@ -17,7 +18,6 @@ import piuk.blockchain.android.databinding.FragmentBackupWalletVerifyBinding
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedFragment
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class BackupWalletVerifyFragment :
     BaseFragment<BackupVerifyView, BackupVerifyPresenter>(),

@@ -15,6 +15,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
@@ -32,7 +33,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAssetActionsSheetBinding
 import piuk.blockchain.android.databinding.ItemAssetActionBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.customviews.account.DefaultCellDecorator
 import piuk.blockchain.android.ui.customviews.account.PendingBalanceAccountDecorator

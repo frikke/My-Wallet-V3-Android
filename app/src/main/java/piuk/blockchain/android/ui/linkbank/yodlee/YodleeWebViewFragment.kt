@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -35,7 +36,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.yodlee.FastLinkMessage
 import piuk.blockchain.android.simplebuy.yodlee.MessageData
 import piuk.blockchain.android.simplebuy.yodlee.SiteData
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import timber.log.Timber
 

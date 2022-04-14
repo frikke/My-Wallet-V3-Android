@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -19,7 +20,6 @@ import com.blockchain.koin.scopedInject
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentUpdateEmailBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.FormatChecker
 
 class UpdateEmailFragment :

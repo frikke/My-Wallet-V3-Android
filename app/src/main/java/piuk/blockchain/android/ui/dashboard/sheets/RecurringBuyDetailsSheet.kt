@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -24,7 +25,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsError
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsIntent
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel

@@ -13,7 +13,7 @@ class IsDownloadInProgressUseCaseTest {
     private val useCase by lazy { IsDownloadInProgressUseCase(repository = repository) }
 
     @Test
-    fun testDownloadInProgressTrue() = runBlocking {
+    fun `WHEN repository returns true, THEN true should be returned`() = runBlocking {
         coEvery { repository.isDownloadInProgress() } returns true
 
         val result = useCase()
@@ -22,7 +22,7 @@ class IsDownloadInProgressUseCaseTest {
     }
 
     @Test
-    fun testDownloadInProgressFalse() = runBlocking {
+    fun `WHEN repository returns false, THEN false should be returned`() = runBlocking {
         coEvery { repository.isDownloadInProgress() } returns false
 
         val result = useCase()

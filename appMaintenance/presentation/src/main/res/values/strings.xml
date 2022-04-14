@@ -12,4 +12,6 @@
     <string name="app_maintenance_cta_update_later">I’ll Do This Later</string>
     <string name="app_maintenance_cta_redirect_website">Go to Web</string>
     <string name="app_maintenance_cta_view_status">View Status</string>
+
+    <string name="app_maintenance_error_inapp_update">Something went wrong, please try again</string>
 </resources>

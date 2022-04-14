@@ -11,7 +11,7 @@ internal class AppMaintenanceRemoteConfig(
     private val json: Json
 ) {
     companion object {
-        const val APP_MAINTENANCE_KEY = "android_app_maintenance"
+        private const val APP_MAINTENANCE_KEY = "android_app_maintenance"
     }
 
     suspend fun getAppMaintenanceConfig(): AppMaintenanceConfigDto {

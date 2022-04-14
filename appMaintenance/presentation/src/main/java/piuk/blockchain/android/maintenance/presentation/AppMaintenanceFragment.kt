@@ -13,6 +13,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -97,11 +99,13 @@ class AppMaintenanceFragment :
     }
 
     private fun showError() {
-        //        BlockchainSnackbar.make(
-        //            composeView,
-        //            getString(R.string.common_error),
-        //            type = SnackbarType.Error
-        //        ).show()
+        view?.let {
+            BlockchainSnackbar.make(
+                it,
+                getString(R.string.app_maintenance_error_inapp_update),
+                type = SnackbarType.Error
+            ).show()
+        }
     }
 
     companion object {

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -18,7 +19,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTermsConditionsBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class TermsAndConditionsFragment : Fragment() {
 

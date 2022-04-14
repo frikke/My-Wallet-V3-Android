@@ -10,6 +10,7 @@ import android.text.method.LinkMovementMethod
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
@@ -23,7 +24,6 @@ import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
 import piuk.blockchain.android.ui.base.MvpActivity
 import piuk.blockchain.android.ui.createwallet.CreateWalletActivity
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.login.LoginAnalytics
 import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.urllinks.WALLET_STATUS_URL

@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.FragmentTransaction
 import com.blockchain.analytics.Analytics
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
@@ -20,7 +21,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupWordListBinding
 import piuk.blockchain.android.ui.backup.verify.BackupWalletVerifyFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 

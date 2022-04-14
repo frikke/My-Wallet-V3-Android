@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetCodeSmsVerificationBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class SMSPhoneVerificationBottomSheet :
     MviBottomSheet<SMSVerificationModel, SMSVerificationIntent,

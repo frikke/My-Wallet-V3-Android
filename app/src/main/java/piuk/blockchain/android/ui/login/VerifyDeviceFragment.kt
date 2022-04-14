@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
@@ -21,7 +22,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentVerifyDeviceBinding
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class VerifyDeviceFragment : Fragment(), Analytics by get(Analytics::class.java) {
 

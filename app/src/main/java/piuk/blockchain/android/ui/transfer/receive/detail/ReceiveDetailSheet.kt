@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.RequestAnalyticsEvents
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
@@ -26,7 +27,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
