@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 
-enum class AppMaintenanceStatusUiSettings(
+enum class AppMaintenanceStatusUiState(
     @DrawableRes val image: Int,
     @StringRes val title: Int,
     @StringRes val description: Int,

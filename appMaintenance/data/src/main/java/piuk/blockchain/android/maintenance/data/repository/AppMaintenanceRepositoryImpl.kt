@@ -27,12 +27,17 @@ internal class AppMaintenanceRepositoryImpl(
             val deferredMaintenanceConfig = async(dispatcher) { appMaintenanceRemoteConfig.getAppMaintenanceConfig() }
             val deferredAppUpdateInfo = async(dispatcher) { appUpdateInfoFactory.getAppUpdateInfo() }
 
-            val maintenanceConfig: AppMaintenanceConfigDto? = deferredMaintenanceConfig.await()
+            val maintenanceConfig: AppMaintenanceConfigDto? = try {
+                deferredMaintenanceConfig.await()
+            } catch (e: Throwable) {
+                Timber.e(e)
+                null
+            }
+
             val appUpdateInfo: AppUpdateInfo? = try {
                 deferredAppUpdateInfo.await()
             } catch (e: Throwable) {
                 Timber.e("Cannot get appUpdateInfo, $e")
-                e.printStackTrace()
                 null
             }
 

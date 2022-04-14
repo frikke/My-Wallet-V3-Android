@@ -39,7 +39,7 @@ class AppMaintenanceViewModel(
 
     override fun reduce(state: AppMaintenanceModelState): AppMaintenanceViewState {
         return AppMaintenanceViewState(
-            statusUiSettings = AppMaintenanceStatusUiSettings.fromStatus(state.status)
+            uiState = AppMaintenanceStatusUiState.fromStatus(state.status)
         )
     }
 
@@ -80,7 +80,7 @@ class AppMaintenanceViewModel(
                 }.run {
                     when (this) {
                         UpdateLocation.InAppUpdate -> launchAppUpdate()
-                        is UpdateLocation.ExternalUrl -> openUrl(playStoreUrl)
+                        is UpdateLocation.ExternalUrl -> openUrl(url)
                     }
                 }
             }
@@ -99,7 +99,7 @@ class AppMaintenanceViewModel(
 
     /**
      * * If the status is [AppMaintenanceStatus.NonActionable.Unknown] for whatever reason
-     * ->
+     * -> resume the flow
      *
      * * If the status is [AppMaintenanceStatus.NonActionable.AllClear]
      * -> resume the flow - this should generally never happen as this screen should not be triggered in that case

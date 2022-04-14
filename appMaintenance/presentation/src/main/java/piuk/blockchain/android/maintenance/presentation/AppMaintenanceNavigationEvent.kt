@@ -12,6 +12,7 @@ sealed interface AppMaintenanceNavigationEvent : NavigationEvent {
 
     /**
      * Resume from wherever the app was suspended to show the maintenance screen
+     * @see [AppMaintenanceSharedViewModel.resumeAppFlow]
      */
     object ResumeAppFlow : AppMaintenanceNavigationEvent
 }

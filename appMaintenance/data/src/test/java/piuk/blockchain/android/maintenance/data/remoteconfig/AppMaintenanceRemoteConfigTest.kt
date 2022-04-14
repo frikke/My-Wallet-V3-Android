@@ -37,7 +37,7 @@ class AppMaintenanceRemoteConfigTest {
           "minimumAppVersion": 12,
           "softUpgradeVersion": 23,
           "minimumOSVersion": 34,
-          "sitewideMaintenance": true,
+          "siteWideMaintenance": true,
           "redirectToWebsite": false,
           "statusURL": "statusUrl",
           "storeURI": "storeUrl",
@@ -45,13 +45,11 @@ class AppMaintenanceRemoteConfigTest {
         }
     """.trimIndent()
 
-    @Test
+    @Test(expected = Exception::class)
     fun `WHEN remoteConfig returns empty, THEN null should be returned`() = runBlocking {
         every { remoteConfig.getRawJson(any()) } returns Single.just("")
 
         val result = appMaintenanceRemoteConfig.getAppMaintenanceConfig()
-
-        assertEquals(null, result)
     }
 
     @Test

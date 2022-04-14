@@ -40,9 +40,8 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.maintenance.presentation.appupdateapi.InAppUpdateSettings
 
-class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), NavigationRouter<AppMaintenanceNavigationEvent> {
-
-    private lateinit var composeView: ComposeView
+class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(),
+    NavigationRouter<AppMaintenanceNavigationEvent> {
 
     private val viewModel: AppMaintenanceViewModel by viewModel()
     private val sharedViewModel: AppMaintenanceSharedViewModel by sharedViewModel()
@@ -50,29 +49,20 @@ class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), Naviga
     private val inAppUpdateSettings: InAppUpdateSettings by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return ComposeView(requireContext()).also { composeView = it }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         isCancelable = false
 
-        setupViews()
         setupViewModel()
+
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ScreenContent()
+            }
+        }
     }
 
     private fun setupViewModel() {
         lifecycle.addObserver(viewModel)
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
-    }
-
-    private fun setupViews() {
-        composeView.apply {
-            setContent {
-                ScreenContent()
-            }
-        }
     }
 
     /**
@@ -110,14 +100,14 @@ class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), Naviga
                     )
 
                     Image(
-                        imageResource = ImageResource.Local(statusUiSettings.image)
+                        imageResource = ImageResource.Local(uiState.image)
                     )
 
                     Text(
                         modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
                         style = AppTheme.typography.title3,
                         color = Grey900,
-                        text = stringResource(id = statusUiSettings.title),
+                        text = stringResource(id = uiState.title),
                     )
 
                     Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
@@ -127,12 +117,12 @@ class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), Naviga
                         style = AppTheme.typography.body1,
                         color = Grey900,
                         textAlign = TextAlign.Center,
-                        text = stringResource(id = statusUiSettings.description)
+                        text = stringResource(id = uiState.description)
                     )
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    statusUiSettings.button1?.let { buttonSettings ->
+                    uiState.button1?.let { buttonSettings ->
                         SecondaryButton(
                             modifier = Modifier.fillMaxWidth(),
                             text = stringResource(id = buttonSettings.buttonText),
@@ -140,11 +130,11 @@ class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), Naviga
                         )
                     }
 
-                    if (statusUiSettings.button1 != null && statusUiSettings.button2 != null) {
+                    if (uiState.button1 != null && uiState.button2 != null) {
                         Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
                     }
 
-                    statusUiSettings.button2?.let { buttonSettings ->
+                    uiState.button2?.let { buttonSettings ->
                         PrimaryButton(
                             modifier = Modifier.fillMaxWidth(),
                             text = stringResource(id = buttonSettings.buttonText),
@@ -198,11 +188,11 @@ class AppMaintenanceFragment : MVIBottomSheet<AppMaintenanceViewState>(), Naviga
     }
 
     private fun showError() {
-//        BlockchainSnackbar.make(
-//            composeView,
-//            getString(R.string.common_error),
-//            type = SnackbarType.Error
-//        ).show()
+        //        BlockchainSnackbar.make(
+        //            composeView,
+        //            getString(R.string.common_error),
+        //            type = SnackbarType.Error
+        //        ).show()
     }
 
     companion object {

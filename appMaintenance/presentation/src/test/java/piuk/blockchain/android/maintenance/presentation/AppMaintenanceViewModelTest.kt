@@ -130,7 +130,7 @@ class AppMaintenanceViewModelTest {
                 lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
                 assertEquals(
-                    AppMaintenanceViewState(AppMaintenanceStatusUiSettings.SITE_WIDE_MAINTENANCE),
+                    AppMaintenanceViewState(AppMaintenanceStatusUiState.SITE_WIDE_MAINTENANCE),
                     expectMostRecentItem()
                 )
             }
@@ -145,7 +145,7 @@ class AppMaintenanceViewModelTest {
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiSettings.REDIRECT_TO_WEBSITE), expectMostRecentItem()
+                AppMaintenanceViewState(AppMaintenanceStatusUiState.REDIRECT_TO_WEBSITE), expectMostRecentItem()
             )
         }
     }
@@ -159,7 +159,7 @@ class AppMaintenanceViewModelTest {
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiSettings.MANDATORY_UPDATE), expectMostRecentItem()
+                AppMaintenanceViewState(AppMaintenanceStatusUiState.MANDATORY_UPDATE), expectMostRecentItem()
             )
         }
     }
@@ -173,7 +173,7 @@ class AppMaintenanceViewModelTest {
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiSettings.OPTIONAL_UPDATE), expectMostRecentItem()
+                AppMaintenanceViewState(AppMaintenanceStatusUiState.OPTIONAL_UPDATE), expectMostRecentItem()
             )
         }
     }

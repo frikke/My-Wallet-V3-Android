@@ -9,7 +9,7 @@ internal data class AppMaintenanceConfigDto(
     @SerialName("minimumAppVersion") val minimumAppVersion: Int,
     @SerialName("softUpgradeVersion") val softUpgradeVersion: Int,
     @SerialName("minimumOSVersion") val minimumOSVersion: Int,
-    @SerialName("sitewideMaintenance") val siteWideMaintenance: Boolean,
+    @SerialName("siteWideMaintenance") val siteWideMaintenance: Boolean,
     @SerialName("redirectToWebsite") val redirectToWebsite: Boolean,
     @SerialName("statusURL") val statusUrl: String,
     @SerialName("storeURI") val storeUrl: String,

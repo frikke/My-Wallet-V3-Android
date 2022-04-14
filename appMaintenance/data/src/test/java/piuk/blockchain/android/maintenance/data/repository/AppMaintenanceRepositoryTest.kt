@@ -120,7 +120,7 @@ class AppMaintenanceRepositoryTest {
     @Test
     fun `WHEN appMaintenanceRemoteConfig returns null, THEN Outcome Failure should be returned`() =
         runBlocking {
-            coEvery { appMaintenanceRemoteConfig.getAppMaintenanceConfig() } returns null
+            coEvery { appMaintenanceRemoteConfig.getAppMaintenanceConfig() } throws Throwable()
             coEvery { appUpdateInfo.availableVersionCode() } returns 2000
 
             val result = appMaintenanceRepository.getAppMaintenanceConfig()

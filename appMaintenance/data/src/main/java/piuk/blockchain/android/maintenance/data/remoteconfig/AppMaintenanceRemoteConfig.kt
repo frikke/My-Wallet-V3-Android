@@ -14,9 +14,9 @@ internal class AppMaintenanceRemoteConfig(
         const val APP_MAINTENANCE_KEY = "android_app_maintenance"
     }
 
-    suspend fun getAppMaintenanceConfig(): AppMaintenanceConfigDto? {
+    suspend fun getAppMaintenanceConfig(): AppMaintenanceConfigDto {
         return remoteConfig.getRawJson(APP_MAINTENANCE_KEY).await().let { appMaintenanceConfigJson ->
-            if (appMaintenanceConfigJson.isEmpty()) null
+            if (appMaintenanceConfigJson.isEmpty()) throw Exception("remote config json not found")
             else json.decodeFromString(appMaintenanceConfigJson)
         }
     }

@@ -22,7 +22,7 @@ sealed interface AppMaintenanceStatus {
 
 sealed interface UpdateLocation {
     object InAppUpdate : UpdateLocation
-    data class ExternalUrl(val playStoreUrl: String) : UpdateLocation
+    data class ExternalUrl(val url: String) : UpdateLocation
 
     companion object {
         fun fromUrl(url: String?) = if (url.isNullOrBlank()) InAppUpdate else ExternalUrl(url)
