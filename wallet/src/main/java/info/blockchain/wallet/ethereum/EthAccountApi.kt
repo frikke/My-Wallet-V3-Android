@@ -6,11 +6,11 @@ import com.blockchain.outcome.fold
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
+import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.data.EthTransaction
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
 import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
 import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
-import info.blockchain.wallet.ethereum.node.EthTransactionResponse
 import info.blockchain.wallet.ethereum.node.RequestType
 import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Maybe
@@ -74,19 +74,25 @@ class EthAccountApi internal constructor(
     }
 
     /**
-     * Returns an [EthTransactionResponse] containing information about a specific ETH transaction.
+     * Executes signed eth transaction and returns transaction hash.
+     *
+     * @param rawTx The ETH address to be queried
+     * @return An [Single] returning the transaction hash of a completed transaction.
+     */
+    fun pushTx(rawTx: String): Single<String> {
+        val request = EthPushTxRequest(rawTx, apiCode)
+        return ethEndpoints.pushTx(request)
+            .map { map -> map["txHash"]!! }
+    }
+
+    /**
+     * Returns an [EthTransaction] containing information about a specific ETH transaction.
      *
      * @param hash The hash of the transaction you wish to check
-     * @return An [Outcome] wrapping an [EthTransactionResponse]
+     * @return An [Observable] wrapping an [EthTransaction]
      */
-    suspend fun getTransaction(nodeUrl: String, hash: String): Outcome<ApiError, EthTransactionResponse> {
-        return ethNodeEndpoints.getTransaction(
-            nodeUrl = nodeUrl,
-            request = EthJsonRpcRequest.create(
-                params = arrayOf(hash),
-                type = RequestType.GET_TRANSACTION
-            )
-        )
+    fun getTransaction(hash: String): Observable<EthTransaction> {
+        return ethEndpoints.getTransaction(hash)
     }
 
     /**

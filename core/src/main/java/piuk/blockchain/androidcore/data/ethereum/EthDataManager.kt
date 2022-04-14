@@ -252,22 +252,9 @@ class EthDataManager(
         data
     )
 
-    suspend fun getTransaction(hash: String, chainId: Int = ETH_CHAIN_ID): Outcome<ApiError, EthTransaction> =
-        ethAccountApi.getTransaction(getNodeUrlForChain(chainId), hash)
-            .map { response ->
-                EthTransaction(
-                    blockNumber = response.result.blockNumber,
-                    hash = response.result.hash,
-                    nonce = response.result.nonce,
-                    blockHash = response.result.blockHash,
-                    transactionIndex = response.result.transactionIndex,
-                    from = response.result.from,
-                    to = response.result.to,
-                    value = response.result.value,
-                    gasPrice = response.result.gasPrice,
-                    gasUsed = response.result.gasUsed
-                )
-            }
+    fun getTransaction(hash: String): Observable<EthTransaction> =
+        ethAccountApi.getTransaction(hash)
+            .applySchedulers()
 
     fun getNonce(chainId: Int = ETH_CHAIN_ID): Single<BigInteger> = rxSingle {
         ethAccountApi.postEthNodeRequest(
@@ -323,22 +310,8 @@ class EthDataManager(
             .toByteArray()
     }
 
-    fun pushTx(signedTxBytes: ByteArray, chainId: Int = ETH_CHAIN_ID): Single<String> =
-        rxSingle {
-            ethAccountApi.postEthNodeRequest(
-                nodeUrl = getNodeUrlForChain(chainId),
-                requestType = RequestType.PUSH_TRANSACTION,
-                EthUtils.decorateAndEncode(signedTxBytes)
-            )
-                .fold(
-                    onSuccess = { response ->
-                        response.result
-                    },
-                    onFailure = { error ->
-                        throw error.throwable
-                    }
-                )
-        }
+    fun pushTx(signedTxBytes: ByteArray): Single<String> =
+        ethAccountApi.pushTx(EthUtils.decorateAndEncode(signedTxBytes))
             .flatMap {
                 lastTxUpdater.updateLastTxTime()
                     .onErrorComplete()

@@ -4,13 +4,11 @@ import com.blockchain.api.services.Erc20Transfer
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
-import com.blockchain.outcome.fold
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 // This doesn't cache anything at this time, since it makes a call for a single
@@ -36,18 +34,11 @@ internal class Erc20HistoryCallCache(
     }
 
     private fun getFeeFetcher(txHash: String): Single<Money> =
-        rxSingle {
-            ethDataManager.getTransaction(txHash)
-                .fold(
-                    onSuccess = { transaction ->
-                        val fee = transaction.gasUsed * transaction.gasPrice
-                        Money.fromMinor(CryptoCurrency.ETHER, fee)
-                    },
-                    onFailure = {
-                        throw it.throwable
-                    }
-                )
-        }
+        ethDataManager.getTransaction(txHash)
+            .map { transaction ->
+                val fee = transaction.gasUsed * transaction.gasPrice
+                Money.fromMinor(CryptoCurrency.ETHER, fee)
+            }.firstOrError()
 
     fun flush(asset: AssetInfo) {
         // Do nothing

@@ -16,11 +16,4 @@ internal interface EthNodeEndpoints {
         @Url nodeUrl: String = EthUrls.ETH_NODES,
         @Body request: EthJsonRpcRequest
     ): Outcome<ApiError, EthJsonRpcResponse>
-
-    @Headers("Accept: application/json")
-    @POST
-    suspend fun getTransaction(
-        @Url nodeUrl: String = EthUrls.ETH_NODES,
-        @Body request: EthJsonRpcRequest
-    ): Outcome<ApiError, EthTransactionResponse>
 }
