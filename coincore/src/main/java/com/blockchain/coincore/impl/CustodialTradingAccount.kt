@@ -23,6 +23,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CryptoTransaction
@@ -197,9 +198,11 @@ class CustodialTradingAccount(
             identity.isEligibleFor(Feature.Interest(currency)),
             custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
             custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
-            custodialWalletManager.isAssetSupportedForSwap(currency)
+            custodialWalletManager.isAssetSupportedForSwap(currency),
+            identity.getHighestApprovedKycTier()
         ) { balance, accessToFeatures, isEligibleForInterest, supportedCurrencyPairs, fiatAccounts,
-            isAssetSupportedForSwap ->
+            isAssetSupportedForSwap, highestTier ->
+
             val hasAccessToCustodialAccounts = accessToFeatures.first { it.first == Feature.CustodialAccounts }.second
             val hasSimpleBuyAccess = accessToFeatures.first { it.first == Feature.SimpleBuy }.second
             val buyEligibility = accessToFeatures.first { it.first == Feature.Buy }.second
@@ -210,6 +213,7 @@ class CustodialTradingAccount(
 
             val activity = StateAwareAction(
                 when {
+                    highestTier == Tier.BRONZE -> ActionState.LockedForTier
                     baseActions.contains(AssetAction.ViewActivity) -> ActionState.Available
                     else -> ActionState.Unavailable
                 },

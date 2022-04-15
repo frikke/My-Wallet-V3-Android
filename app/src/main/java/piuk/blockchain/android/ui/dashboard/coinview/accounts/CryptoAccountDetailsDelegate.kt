@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -89,7 +90,7 @@ private class AssetWalletViewHolder(
             }
             val accountIcon = AccountIcon(account, assetResources)
 
-            if (item.actions.isNotEmpty()) {
+            if (item.actions.any { it.state == ActionState.Available }) {
                 assetDetailsNotAvailable.gone()
                 assetDetailsAvailable.apply {
                     visible()

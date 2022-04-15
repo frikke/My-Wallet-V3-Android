@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
@@ -123,22 +124,12 @@ class NabuUserIdentity(
             }
         }
 
-    override fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>> {
-        return features.map { feature ->
+    override fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>> =
+        features.map { feature ->
             userAccessForFeature(feature).map { access ->
                 Pair(feature, access)
             }
         }.zipSingles()
-    }
-
-    // converts a List<Single<Items>> -> Single<List<Items>>
-    private fun <T> List<Single<T>>.zipSingles(): Single<List<T>> {
-        if (this.isEmpty()) return Single.just(emptyList())
-        return Single.zip(this) {
-            @Suppress("UNCHECKED_CAST")
-            return@zip (it as Array<T>).toList()
-        }
-    }
 
     override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
         return when (feature) {
