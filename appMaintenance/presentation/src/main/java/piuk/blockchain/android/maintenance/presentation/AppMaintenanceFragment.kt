@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.extensions.exhaustive
@@ -33,6 +34,7 @@ class AppMaintenanceFragment :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         isCancelable = false
+        disableDragging()
 
         setupViewModel()
 
