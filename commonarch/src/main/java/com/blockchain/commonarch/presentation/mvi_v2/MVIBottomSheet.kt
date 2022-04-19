@@ -2,6 +2,7 @@ package com.blockchain.commonarch.presentation.mvi_v2
 
 import android.app.Dialog
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -25,6 +26,17 @@ abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragmen
                     state = BottomSheetBehavior.STATE_EXPANDED
                 }
             }
+
+            behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                        behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                }
+            })
         }
     }
 }
