@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.Serializable
+import java.util.Locale
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -80,6 +81,8 @@ class LoaderInteractor(
             }.then {
                 saveInitialCountry()
             }.then {
+                reportSystemLanguage()
+            }.then {
                 updateUserFiatIfNotSet()
             }.then {
                 notificationTokenUpdate
@@ -108,6 +111,13 @@ class LoaderInteractor(
                     emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.Error(throwable)))
                 }
             )
+    }
+
+    private fun reportSystemLanguage(): Completable {
+        with(Locale.getDefault()) {
+            val languageCode = "${language}_$country"
+            return nabuUserDataManager.reportLanguage(languageCode).onErrorComplete()
+        }
     }
 
     private fun checkNewTermsAndConditions(isAfterWalletCreation: Boolean): Maybe<String> =

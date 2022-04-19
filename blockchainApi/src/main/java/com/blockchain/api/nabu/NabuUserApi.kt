@@ -2,6 +2,7 @@ package com.blockchain.api.nabu
 
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
+import com.blockchain.api.nabu.data.Language
 import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -33,5 +34,11 @@ interface NabuUserApi {
     @PUT("user/terms-and-conditions/sign-latest")
     fun signLatestTermsAndConditions(
         @Header("authorization") authorization: String
+    ): Completable
+
+    @PUT("users/current/lang")
+    fun reportLanguage(
+        @Header("authorization") authorization: String,
+        @Body language: Language
     ): Completable
 }
