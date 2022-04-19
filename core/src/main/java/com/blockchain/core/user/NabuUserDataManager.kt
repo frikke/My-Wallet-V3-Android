@@ -3,7 +3,7 @@ package com.blockchain.core.user
 import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Completable

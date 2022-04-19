@@ -6,12 +6,12 @@ import com.blockchain.api.NabuErrorCodes
 import com.blockchain.core.payments.model.CardToBeActivated
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.braintreepayments.cardform.utils.CardType
 import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
@@ -71,7 +71,7 @@ class CardModelTest {
             ignoreUnknownKeys = true
         }
 
-        val replaceGsonKtxFF: IntegratedFeatureFlag = mock {
+        val replaceGsonKtxFF: FeatureFlag = mock {
             on { enabled }.thenReturn(Single.just(true))
         }
 

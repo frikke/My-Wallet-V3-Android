@@ -4,11 +4,11 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable

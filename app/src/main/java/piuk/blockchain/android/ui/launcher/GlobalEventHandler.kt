@@ -6,13 +6,13 @@ import android.app.PendingIntent
 import android.content.Intent
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.models.NotificationPayload
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectUserEvent
 import io.reactivex.rxjava3.core.Maybe

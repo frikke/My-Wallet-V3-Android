@@ -1,8 +1,8 @@
-package com.blockchain.core.eligibility
+package com.blockchain.core.eligibility.cache
 
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
-import com.blockchain.api.services.ProductEligibilityService
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.api.services.ProductEligibilityApiService
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.mapLeft
 import io.reactivex.rxjava3.core.Single
@@ -11,7 +11,7 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class ProductsEligibilityCache(
     private val authenticator: Authenticator,
-    private val service: ProductEligibilityService
+    private val service: ProductEligibilityApiService
 ) {
 
     private fun refresh(): Single<ProductEligibilityResponse> = rxSingleOutcome {

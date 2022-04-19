@@ -1,4 +1,4 @@
-package com.blockchain.extensions
+package com.blockchain.nabu.common.extensions
 
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.core.BuildConfig

@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.payments.EligiblePaymentMethodType
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.nabu.UserIdentity
@@ -12,7 +13,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock

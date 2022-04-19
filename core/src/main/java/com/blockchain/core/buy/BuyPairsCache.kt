@@ -1,6 +1,6 @@
 package com.blockchain.core.buy
 
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
 import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single

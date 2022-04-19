@@ -3,12 +3,12 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.payments.model.Partner
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.testutils.EUR

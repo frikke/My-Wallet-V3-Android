@@ -1,7 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

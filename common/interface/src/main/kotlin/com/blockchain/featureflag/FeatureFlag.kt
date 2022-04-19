@@ -1,4 +1,4 @@
-package com.blockchain.remoteconfig
+package com.blockchain.featureflag
 
 import io.reactivex.rxjava3.core.Single
 

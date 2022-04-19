@@ -1,7 +1,7 @@
 package com.blockchain.nabu.cache
 
 import com.blockchain.api.services.NabuUserService
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.repositories.interest.AssetInterestEligibility
 import com.blockchain.nabu.datamanagers.repositories.interest.Eligibility

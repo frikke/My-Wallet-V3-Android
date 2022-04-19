@@ -337,6 +337,7 @@ dependencies {
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':common:domain')
     implementation project(':common-view')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')

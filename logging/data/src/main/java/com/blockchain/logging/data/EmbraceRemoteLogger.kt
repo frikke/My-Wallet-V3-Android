@@ -1,9 +1,9 @@
 package com.blockchain.logging.data
 
 import android.content.Context
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.BuildConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.remoteconfig.FeatureFlag
 import io.embrace.android.embracesdk.Embrace
 
 class EmbraceRemoteLogger(

@@ -34,7 +34,7 @@ import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
-import com.blockchain.api.services.ProductEligibilityService
+import com.blockchain.api.services.ProductEligibilityApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
@@ -215,7 +215,7 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(ProductEligibilityApi::class.java)
-        ProductEligibilityService(
+        ProductEligibilityApiService(
             api
         )
     }

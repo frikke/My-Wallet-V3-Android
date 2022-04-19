@@ -22,6 +22,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -36,7 +37,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single

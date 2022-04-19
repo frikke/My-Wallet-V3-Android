@@ -1,5 +1,6 @@
-package com.blockchain.remoteconfig
+package com.blockchain.core.featureflag
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.FeatureFlagState
 import io.reactivex.rxjava3.core.Single

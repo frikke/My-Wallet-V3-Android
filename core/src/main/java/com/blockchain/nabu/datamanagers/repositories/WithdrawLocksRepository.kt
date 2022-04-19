@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers.repositories
 
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.FiatCurrency

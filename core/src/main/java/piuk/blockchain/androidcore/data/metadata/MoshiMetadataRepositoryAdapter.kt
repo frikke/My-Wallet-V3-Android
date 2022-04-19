@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.metadata
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Completable

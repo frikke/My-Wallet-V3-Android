@@ -1,6 +1,6 @@
 package com.blockchain.core
 
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.service.NabuService

@@ -1,12 +1,4 @@
-package com.blockchain.core.eligibility.models
-
-import java.io.Serializable
-
-enum class EligibleProduct {
-    BUY,
-    SWAP,
-    CRYPTO_DEPOSIT
-}
+package com.blockchain.domain.eligibility.model
 
 data class ProductEligibility(
     val product: EligibleProduct,
@@ -23,9 +15,4 @@ data class ProductEligibility(
                 canUpgradeTier = false
             )
     }
-}
-
-sealed class TransactionsLimit : Serializable {
-    object Unlimited : TransactionsLimit()
-    data class Limited(val maxTransactionsCap: Int, val maxTransactionsLeft: Int) : TransactionsLimit()
 }

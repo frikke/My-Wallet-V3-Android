@@ -1,7 +1,7 @@
 package com.blockchain.nabu.service
 
-import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.api.nabu.Nabu
+import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.responses.interest.InterestWithdrawalBody

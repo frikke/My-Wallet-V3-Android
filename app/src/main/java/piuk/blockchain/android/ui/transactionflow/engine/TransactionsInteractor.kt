@@ -20,6 +20,7 @@ import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
@@ -32,7 +33,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency

@@ -14,11 +14,11 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.minus
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single

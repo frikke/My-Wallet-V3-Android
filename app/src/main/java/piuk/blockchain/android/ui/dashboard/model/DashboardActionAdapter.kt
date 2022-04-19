@@ -14,6 +14,7 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -23,7 +24,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue

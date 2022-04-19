@@ -1,5 +1,7 @@
 package com.blockchain.koin.modules
 
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
@@ -16,8 +18,6 @@ import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
-import com.blockchain.remoteconfig.FeatureFlag
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind

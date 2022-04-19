@@ -14,12 +14,12 @@ import com.blockchain.core.price.HistoricalRate
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce

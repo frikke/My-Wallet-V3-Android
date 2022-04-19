@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.squareup.moshi.JsonAdapter

@@ -19,11 +19,11 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean

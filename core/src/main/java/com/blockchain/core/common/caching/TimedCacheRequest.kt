@@ -1,4 +1,4 @@
-package com.blockchain.caching
+package com.blockchain.core.common.caching
 
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.subscribeBy

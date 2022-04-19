@@ -1,4 +1,4 @@
-package com.blockchain.datamanagers
+package com.blockchain.core.payload
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.payload.PayloadDecrypt

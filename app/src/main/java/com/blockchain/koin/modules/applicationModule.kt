@@ -338,7 +338,7 @@ val applicationModule = module {
                 environmentConfig = get(),
                 formatChecker = get(),
                 specificAnalytics = get(),
-                eligibilityDataManager = get()
+                eligibilityService = get()
             )
         }
 

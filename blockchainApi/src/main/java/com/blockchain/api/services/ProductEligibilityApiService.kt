@@ -2,7 +2,7 @@ package com.blockchain.api.services
 
 import com.blockchain.api.eligibility.ProductEligibilityApi
 
-class ProductEligibilityService(
+class ProductEligibilityApiService(
     private val api: ProductEligibilityApi
 ) {
 

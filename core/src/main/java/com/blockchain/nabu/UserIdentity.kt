@@ -1,6 +1,6 @@
 package com.blockchain.nabu
 
-import com.blockchain.core.eligibility.models.TransactionsLimit
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe

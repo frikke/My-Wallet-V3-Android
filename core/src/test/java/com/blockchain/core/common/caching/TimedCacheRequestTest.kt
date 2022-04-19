@@ -1,4 +1,4 @@
-package com.blockchain.caching
+package com.blockchain.core.common.caching
 
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

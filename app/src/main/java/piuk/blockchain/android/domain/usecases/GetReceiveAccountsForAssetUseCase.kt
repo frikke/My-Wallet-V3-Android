@@ -7,7 +7,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.filterByAction
 import com.blockchain.coincore.filterByActionAndState
-import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.usecases.UseCase
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single

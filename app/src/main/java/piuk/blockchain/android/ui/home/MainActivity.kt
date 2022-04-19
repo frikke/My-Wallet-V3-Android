@@ -36,10 +36,10 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet

@@ -1,6 +1,7 @@
 package com.blockchain.network.modules
 
 import com.blockchain.enviroment.EnvironmentUrls
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.apiRetrofit
 import com.blockchain.koin.bigDecimal
 import com.blockchain.koin.bigInteger
@@ -13,7 +14,6 @@ import com.blockchain.koin.moshiExplorerRetrofit
 import com.blockchain.koin.moshiInterceptor
 import com.blockchain.koin.nabu
 import com.blockchain.koin.status
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.BigIntegerAdapter
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory

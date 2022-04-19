@@ -31,9 +31,9 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager

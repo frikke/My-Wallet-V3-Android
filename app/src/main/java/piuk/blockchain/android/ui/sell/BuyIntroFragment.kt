@@ -11,6 +11,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
@@ -18,7 +19,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
