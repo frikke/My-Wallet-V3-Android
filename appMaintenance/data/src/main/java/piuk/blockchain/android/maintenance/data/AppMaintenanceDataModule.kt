@@ -8,9 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
 import piuk.blockchain.android.maintenance.data.appupdateapi.AppUpdateInfoFactoryImpl
 import piuk.blockchain.android.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
-import piuk.blockchain.android.maintenance.data.repository.AppMaintenanceRepositoryImpl
+import piuk.blockchain.android.maintenance.data.repository.AppMaintenanceRepository
 import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
-import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
+import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 
 val appMaintenanceDataModule = module {
     single {
@@ -28,8 +28,8 @@ val appMaintenanceDataModule = module {
         AppUpdateInfoFactoryImpl(get())
     }
 
-    single<AppMaintenanceRepository> {
-        AppMaintenanceRepositoryImpl(
+    single<AppMaintenanceService> {
+        AppMaintenanceRepository(
             appMaintenanceRemoteConfig = get(),
             appUpdateInfoFactory = get(),
             currentVersionCode = get(currentAppVersionCode),

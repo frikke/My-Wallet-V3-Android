@@ -18,7 +18,7 @@ import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFact
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AppMaintenanceRepositoryTest {
+class AppMaintenanceServiceTest {
 
     private val appMaintenanceRemoteConfig = mockk<AppMaintenanceRemoteConfig>()
     private val appUpdateInfoFactory = mockk<AppUpdateInfoFactory>()
@@ -26,7 +26,7 @@ class AppMaintenanceRepositoryTest {
 
     private val appUpdateInfo = mockk<AppUpdateInfo>()
 
-    private val appMaintenanceRepository = AppMaintenanceRepositoryImpl(
+    private val appMaintenanceRepository = AppMaintenanceRepository(
         appMaintenanceRemoteConfig,
         appUpdateInfoFactory,
         1000,

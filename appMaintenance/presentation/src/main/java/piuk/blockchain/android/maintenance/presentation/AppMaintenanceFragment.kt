@@ -45,8 +45,14 @@ class AppMaintenanceFragment :
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        //Calling in [onResume] to update the status automatically when returning to the app
+        viewModel.onIntent(AppMaintenanceIntents.GetStatus)
+    }
+
     private fun setupViewModel() {
-        lifecycle.addObserver(viewModel)
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
     }
 

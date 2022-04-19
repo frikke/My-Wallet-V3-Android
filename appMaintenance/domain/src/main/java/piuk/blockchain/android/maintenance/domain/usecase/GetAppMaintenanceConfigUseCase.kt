@@ -4,11 +4,11 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.fold
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
-import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
+import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 
-class GetAppMaintenanceConfigUseCase(private val repository: AppMaintenanceRepository) {
+class GetAppMaintenanceConfigUseCase(private val service: AppMaintenanceService) {
     suspend operator fun invoke(): AppMaintenanceStatus {
-        return repository.getAppMaintenanceConfig().fold(
+        return service.getAppMaintenanceConfig().fold(
             onFailure = { AppMaintenanceStatus.NonActionable.Unknown },
             onSuccess = { config ->
                 with(config) {

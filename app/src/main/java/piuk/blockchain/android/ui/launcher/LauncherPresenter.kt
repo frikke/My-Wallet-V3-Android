@@ -5,11 +5,7 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.remoteconfig.FeatureFlag
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.base.MvpPresenter
@@ -43,40 +39,41 @@ class LauncherPresenter internal constructor(
     private val authPrefs: AuthPrefs,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
     private val appMaintenanceFF: FeatureFlag
-) : MvpPresenter<LauncherView>(), CoroutineScope {
+) : MvpPresenter<LauncherView>() {
 
-    private val job = Job()
-    override val coroutineContext: CoroutineContext = job + Dispatchers.IO
-
-    override fun onViewAttached() {
+    override fun onViewCreated() {
         appMaintenanceFF.enabled.subscribe { enabled ->
             if (enabled) {
-                launch {
-                    // check app maintenance status
-                    getAppMaintenanceConfigUseCase().let { status ->
-                        when (status) {
-                            AppMaintenanceStatus.NonActionable.Unknown,
-                            AppMaintenanceStatus.NonActionable.AllClear -> {
-                                kickOff()
-                            }
+                // check app maintenance status
+                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
+                    when (status) {
+                        AppMaintenanceStatus.NonActionable.Unknown,
+                        AppMaintenanceStatus.NonActionable.AllClear -> {
+                            extractDataAndStart()
+                        }
 
-                            else -> {
-                                view?.onAppMaintenance()
-                            }
+                        else -> {
+                            view?.onAppMaintenance()
                         }
                     }
                 }
-            } else {
-                kickOff()
+            }
+        }
+    }
+
+    override fun onViewAttached() {
+        appMaintenanceFF.enabled.subscribe { enabled ->
+            if (!enabled) {
+                extractDataAndStart()
             }
         }
     }
 
     fun resumeAppFlow() {
-        kickOff()
+        extractDataAndStart()
     }
 
-    private fun kickOff() {
+    private fun extractDataAndStart() {
         val viewIntentData = view?.getViewIntentData()
 
         // Store incoming bitcoin URI if needed
@@ -123,7 +120,6 @@ class LauncherPresenter internal constructor(
         appUtil.clearCredentialsAndRestart()
 
     override fun onViewDetached() {
-        job.cancel()
     }
 
     override val alwaysDisableScreenshots: Boolean = false

@@ -9,11 +9,11 @@ import org.junit.Test
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.model.UpdateLocation
-import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
+import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 
 class GetAppMaintenanceConfigUseCaseTest {
 
-    private val repository = mockk<AppMaintenanceRepository>()
+    private val repository = mockk<AppMaintenanceService>()
     private val useCase by lazy { GetAppMaintenanceConfigUseCase(repository = repository) }
 
     private val data = AppMaintenanceConfig(

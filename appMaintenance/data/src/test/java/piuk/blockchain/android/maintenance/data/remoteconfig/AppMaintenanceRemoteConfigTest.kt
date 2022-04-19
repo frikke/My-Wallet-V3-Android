@@ -4,12 +4,15 @@ import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 
+@ExperimentalCoroutinesApi
 class AppMaintenanceRemoteConfigTest {
 
     private val remoteConfig = mockk<RemoteConfig>()
@@ -46,14 +49,14 @@ class AppMaintenanceRemoteConfigTest {
     """.trimIndent()
 
     @Test(expected = Exception::class)
-    fun `WHEN remoteConfig returns empty, THEN null should be returned`() = runBlocking {
+    fun `WHEN remoteConfig returns empty, THEN null should be returned`() = runTest {
         every { remoteConfig.getRawJson(any()) } returns Single.just("")
 
         val result = appMaintenanceRemoteConfig.getAppMaintenanceConfig()
     }
 
     @Test
-    fun `WHEN remoteConfig returns configJson, THEN configObject should be returned`() = runBlocking {
+    fun `WHEN remoteConfig returns configJson, THEN configObject should be returned`() = runTest {
         every { remoteConfig.getRawJson(any()) } returns Single.just(configJson)
 
         val result = appMaintenanceRemoteConfig.getAppMaintenanceConfig()

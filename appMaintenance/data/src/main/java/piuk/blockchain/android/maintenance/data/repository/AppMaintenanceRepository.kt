@@ -4,6 +4,8 @@ import com.blockchain.outcome.Outcome
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.maintenance.data.appupdateapi.isDownloadTriggered
 import piuk.blockchain.android.maintenance.data.mapper.AppMaintenanceConfigMapper
@@ -11,16 +13,18 @@ import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.maintenance.data.remoteconfig.AppMaintenanceRemoteConfig
 import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFactory
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
-import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceRepository
+import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 import timber.log.Timber
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-internal class AppMaintenanceRepositoryImpl(
+internal class AppMaintenanceRepository(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
     private val appUpdateInfoFactory: AppUpdateInfoFactory,
     private val currentVersionCode: Int,
     private val currentOsVersion: Int,
     private val dispatcher: CoroutineDispatcher
-) : AppMaintenanceRepository {
+) : AppMaintenanceService {
 
     override suspend fun getAppMaintenanceConfig(): Outcome<Throwable, AppMaintenanceConfig> {
         return supervisorScope {

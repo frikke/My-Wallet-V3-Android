@@ -17,7 +17,7 @@ class AppMaintenanceSharedViewModel : ViewModel() {
      */
     val resumeAppFlow: SharedFlow<Unit> = _resumeAppFlow
 
-    fun resumeAppFlow() {
+    internal fun resumeAppFlow() {
         viewModelScope.launch {
             _resumeAppFlow.emit(Unit)
         }

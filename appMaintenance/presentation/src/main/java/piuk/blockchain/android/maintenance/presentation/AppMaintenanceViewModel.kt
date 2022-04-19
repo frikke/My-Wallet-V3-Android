@@ -1,6 +1,5 @@
 package piuk.blockchain.android.maintenance.presentation
 
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -21,21 +20,10 @@ class AppMaintenanceViewModel(
     AppMaintenanceNavigationEvent,
     ModelConfigArgs.NoArgs>(
     initialState = AppMaintenanceModelState()
-),
-    DefaultLifecycleObserver {
+) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         checkDownloadStatus()
-    }
-
-    /**
-     * Get app maintenance status
-     * Calling in [onResume] to update the status automatically when returning to the app
-     */
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-
-        getAppMaintenanceStatus()
     }
 
     override fun reduce(state: AppMaintenanceModelState): AppMaintenanceViewState {
@@ -46,6 +34,10 @@ class AppMaintenanceViewModel(
 
     override suspend fun handleIntent(modelState: AppMaintenanceModelState, intent: AppMaintenanceIntents) {
         when (intent) {
+            AppMaintenanceIntents.GetStatus -> {
+                getAppMaintenanceStatus()
+            }
+
             AppMaintenanceIntents.RedirectToWebsite -> {
                 require(
                     modelState.status is AppMaintenanceStatus.Actionable.RedirectToWebsite

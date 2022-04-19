@@ -38,6 +38,7 @@ interface AccountView : MvpView {
         internal: List<CryptoNonCustodialAccount>,
         imported: List<CryptoNonCustodialAccount>
     )
+
     fun showTransferFunds(account: CryptoNonCustodialAccount)
 }
 
@@ -47,11 +48,13 @@ class AccountPresenter internal constructor(
     private val analytics: Analytics
 ) : MvpPresenter<AccountView>() {
 
+    override fun onViewCreated() {}
+
     override fun onViewAttached() {
         analytics.logEvent(AnalyticsEvents.AccountsAndAddresses)
     }
 
-    override fun onViewDetached() { }
+    override fun onViewDetached() {}
 
     fun refresh(asset: AssetInfo) {
         fetchAccountList(asset)

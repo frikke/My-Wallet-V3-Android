@@ -47,13 +47,11 @@ class AppMaintenanceViewModelTest {
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         viewModel = AppMaintenanceViewModel(getAppMaintenanceConfigUseCase, isDownloadInProgressUseCase)
-        lifecycle.addObserver(viewModel)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-        lifecycle.removeObserver(viewModel)
     }
 
     @Test
@@ -93,7 +91,7 @@ class AppMaintenanceViewModelTest {
     fun `WHEN onResume, THEN getAppMaintenanceConfig should be called`() = runTest {
         coEvery { getAppMaintenanceConfigUseCase() } returns AppMaintenanceStatus.NonActionable.AllClear
 
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
         coVerify(exactly = 1) { getAppMaintenanceConfigUseCase() }
     }
@@ -103,7 +101,7 @@ class AppMaintenanceViewModelTest {
         coEvery { getAppMaintenanceConfigUseCase() } returns AppMaintenanceStatus.NonActionable.Unknown
 
         viewModel.navigationEventFlow.test {
-            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(AppMaintenanceNavigationEvent.ResumeAppFlow, expectMostRecentItem())
         }
@@ -114,7 +112,7 @@ class AppMaintenanceViewModelTest {
         coEvery { getAppMaintenanceConfigUseCase() } returns AppMaintenanceStatus.NonActionable.AllClear
 
         viewModel.navigationEventFlow.test {
-            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(AppMaintenanceNavigationEvent.ResumeAppFlow, expectMostRecentItem())
         }
@@ -127,7 +125,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.SiteWideMaintenance("")
 
             viewModel.viewState.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 assertEquals(
                     AppMaintenanceViewState(AppMaintenanceStatusUiState.SITE_WIDE_MAINTENANCE),
@@ -142,7 +140,7 @@ class AppMaintenanceViewModelTest {
             AppMaintenanceStatus.Actionable.RedirectToWebsite("")
 
         viewModel.viewState.test {
-            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
                 AppMaintenanceViewState(AppMaintenanceStatusUiState.REDIRECT_TO_WEBSITE), expectMostRecentItem()
@@ -156,7 +154,7 @@ class AppMaintenanceViewModelTest {
             AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.InAppUpdate)
 
         viewModel.viewState.test {
-            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
                 AppMaintenanceViewState(AppMaintenanceStatusUiState.MANDATORY_UPDATE), expectMostRecentItem()
@@ -170,7 +168,7 @@ class AppMaintenanceViewModelTest {
             AppMaintenanceStatus.Actionable.OptionalUpdate(UpdateLocation.InAppUpdate)
 
         viewModel.viewState.test {
-            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
                 AppMaintenanceViewState(AppMaintenanceStatusUiState.OPTIONAL_UPDATE), expectMostRecentItem()
@@ -185,7 +183,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.SiteWideMaintenance("statusUrl")
 
             viewModel.navigationEventFlow.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 viewModel.onIntent(AppMaintenanceIntents.ViewStatus)
 
@@ -200,7 +198,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.RedirectToWebsite("website")
 
             viewModel.navigationEventFlow.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 viewModel.onIntent(AppMaintenanceIntents.RedirectToWebsite)
 
@@ -215,7 +213,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.OptionalUpdate(UpdateLocation.InAppUpdate)
 
             viewModel.navigationEventFlow.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 viewModel.onIntent(AppMaintenanceIntents.SkipUpdate)
 
@@ -230,7 +228,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.InAppUpdate)
 
             viewModel.navigationEventFlow.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 viewModel.onIntent(AppMaintenanceIntents.UpdateApp)
 
@@ -245,7 +243,7 @@ class AppMaintenanceViewModelTest {
                 AppMaintenanceStatus.Actionable.MandatoryUpdate(UpdateLocation.fromUrl("url"))
 
             viewModel.navigationEventFlow.test {
-                lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 viewModel.onIntent(AppMaintenanceIntents.UpdateApp)
 

@@ -5,6 +5,6 @@ import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfi
 import piuk.blockchain.android.maintenance.domain.usecase.IsDownloadInProgressUseCase
 
 val appMaintenanceDomainModule = module {
-    single { GetAppMaintenanceConfigUseCase(repository = get()) }
-    single { IsDownloadInProgressUseCase(repository = get()) }
+    single { GetAppMaintenanceConfigUseCase(service = get()) }
+    single { IsDownloadInProgressUseCase(service = get()) }
 }
