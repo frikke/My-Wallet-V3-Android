@@ -18,6 +18,16 @@ enum class AppMaintenanceStatusUiState(
         button1 = null,
         button2 = null
     ),
+    OS_NOT_SUPPORTED(
+        image = R.drawable.ic_down_for_maintenance,
+        title = R.string.app_maintenance_os_not_supported_title,
+        description = R.string.app_maintenance_os_not_supported_description,
+        button1 = AppMaintenanceButtonSettings(
+            buttonText = R.string.app_maintenance_cta_redirect_website,
+            intent = AppMaintenanceIntents.OSNotSupported
+        ),
+        button2 = null
+    ),
     SITE_WIDE_MAINTENANCE(
         image = R.drawable.ic_down_for_maintenance,
         title = R.string.app_maintenance_down_title,
@@ -64,6 +74,7 @@ enum class AppMaintenanceStatusUiState(
 
     companion object {
         fun fromStatus(status: AppMaintenanceStatus.Actionable?) = when (status) {
+            is AppMaintenanceStatus.Actionable.OSNotSupported -> OS_NOT_SUPPORTED
             is AppMaintenanceStatus.Actionable.SiteWideMaintenance -> SITE_WIDE_MAINTENANCE
             is AppMaintenanceStatus.Actionable.RedirectToWebsite -> REDIRECT_TO_WEBSITE
             is AppMaintenanceStatus.Actionable.MandatoryUpdate -> MANDATORY_UPDATE

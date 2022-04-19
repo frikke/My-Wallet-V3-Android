@@ -13,6 +13,7 @@ sealed interface AppMaintenanceStatus {
      * Status that would require user interaction
      */
     sealed interface Actionable : AppMaintenanceStatus {
+        data class OSNotSupported(val website: String) : Actionable
         data class SiteWideMaintenance(val statusUrl: String) : Actionable
         data class RedirectToWebsite(val website: String) : Actionable
         data class MandatoryUpdate(val updateLocation: UpdateLocation) : Actionable

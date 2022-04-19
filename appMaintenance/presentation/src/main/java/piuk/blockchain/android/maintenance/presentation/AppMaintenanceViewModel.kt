@@ -1,6 +1,5 @@
 package piuk.blockchain.android.maintenance.presentation
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -36,6 +35,14 @@ class AppMaintenanceViewModel(
         when (intent) {
             AppMaintenanceIntents.GetStatus -> {
                 getAppMaintenanceStatus()
+            }
+
+            AppMaintenanceIntents.OSNotSupported -> {
+                require(
+                    modelState.status is AppMaintenanceStatus.Actionable.OSNotSupported
+                ) { "Intent OSNoLongerSupported called with incorrect status ${modelState.status}" }
+
+                openUrl(modelState.status.website)
             }
 
             AppMaintenanceIntents.RedirectToWebsite -> {

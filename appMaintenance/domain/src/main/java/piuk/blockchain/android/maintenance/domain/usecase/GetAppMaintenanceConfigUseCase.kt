@@ -13,6 +13,10 @@ class GetAppMaintenanceConfigUseCase(private val service: AppMaintenanceService)
             onSuccess = { config ->
                 with(config) {
                     when {
+                        currentOsVersion < minimumOSVersion -> {
+                            AppMaintenanceStatus.Actionable.OSNotSupported(websiteUrl)
+                        }
+
                         siteWideMaintenance -> {
                             AppMaintenanceStatus.Actionable.SiteWideMaintenance(statusUrl)
                         }
