@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.analytics.events.NotificationAnalyticsEvents
 import com.blockchain.analytics.events.SendAnalytics
 import com.blockchain.analytics.events.activityShown
 import com.blockchain.coincore.AssetAction
@@ -39,6 +38,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession

@@ -8,8 +8,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.analytics.NotificationAppOpened
-import com.blockchain.analytics.events.NotificationAnalyticsEvents
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
