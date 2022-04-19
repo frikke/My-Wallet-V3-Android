@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.customviews.inputview
 
 import android.content.Context
 import android.text.Editable
+import android.text.InputType
+import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -30,12 +32,15 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
+import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.DIGITS
+import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.SAMSUNG_DEVICE
+import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.SEPARATOR_US
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class FiatCryptoInputView(
     context: Context,
     attrs: AttributeSet
-) : ConstraintLayout(context, attrs), KoinComponent {
+) : ConstraintLayout(context, attrs), KoinComponent, InputKeyboard {
 
     private val binding: EnterFiatCryptoLayoutBinding =
         EnterFiatCryptoLayoutBinding.inflate(LayoutInflater.from(context), this, true)
@@ -78,6 +83,9 @@ class FiatCryptoInputView(
 
     init {
         with(binding) {
+            addDigitsToView()
+            setInputTypeToView()
+
             disposables += enterAmount.textSize.subscribe { textSize ->
                 if (enterAmount.text.toString() == enterAmount.configuration.prefixOrSuffix) {
                     placeFakeHint(textSize, enterAmount.configuration.isPrefix)
@@ -116,6 +124,18 @@ class FiatCryptoInputView(
 
     var configured = false
         private set
+
+    override fun addDigitsToView() {
+        binding.enterAmount.keyListener = DigitsKeyListener.getInstance(DIGITS + getDecimalSeparator())
+    }
+
+    override fun setInputTypeToView() {
+        if (getDeviceManufacturer().equals(SAMSUNG_DEVICE, ignoreCase = true) &&
+            getDecimalSeparator() != SEPARATOR_US
+        ) {
+            binding.enterAmount.inputType = InputType.TYPE_CLASS_PHONE
+        }
+    }
 
     private fun placeFakeHint(textSize: Int, hasPrefix: Boolean) {
         with(binding) {
