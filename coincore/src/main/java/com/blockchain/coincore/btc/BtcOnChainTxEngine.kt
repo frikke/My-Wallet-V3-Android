@@ -19,6 +19,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toFiat
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.limits.TxLimits
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.WalletStatus
@@ -107,6 +108,10 @@ class BtcOnChainTxEngine(
                 amount = Money.zero(sourceAsset),
                 totalBalance = Money.zero(sourceAsset),
                 availableBalance = Money.zero(sourceAsset),
+                limits = TxLimits.fromAmounts(
+                    min = Money.fromMinor(sourceAsset, Payment.DUST),
+                    max = Money.fromMinor(sourceAsset, MAX_BTC_AMOUNT)
+                ),
                 feeForFullAvailable = Money.zero(sourceAsset),
                 feeAmount = Money.zero(sourceAsset),
                 feeSelection = FeeSelection(

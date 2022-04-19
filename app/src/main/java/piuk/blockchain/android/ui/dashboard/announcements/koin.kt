@@ -31,7 +31,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TaxCenterAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TransferCryptoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.TwoFAAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.UkEntitySwitchAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.VerifyEmailAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.WalletConnectAnnouncement
 
@@ -97,13 +96,6 @@ val dashboardAnnouncementsModule = module {
         factory {
             KycMoreInfoAnnouncement(
                 tierService = get(),
-                dismissRecorder = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            UkEntitySwitchAnnouncement(
-                userIdentity = get(),
                 dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.kyc.additional_info
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -10,7 +11,6 @@ import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.kyc.UpdateKycAdditionalInfoError
 import com.blockchain.nabu.models.responses.nabu.NodeId
 import com.blockchain.network.PollService
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.flatMap

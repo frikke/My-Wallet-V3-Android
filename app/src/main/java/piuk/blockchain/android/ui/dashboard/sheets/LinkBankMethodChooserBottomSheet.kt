@@ -7,12 +7,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.LaunchOrigin
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding

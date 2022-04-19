@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -16,7 +17,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
-import com.blockchain.notifications.analytics.Analytics
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
@@ -42,8 +42,6 @@ class CustomerSupportSheet :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        logEvent(CustomerSupportAnalytics.SheetShown)
 
         setupViews()
         setupViewModel()

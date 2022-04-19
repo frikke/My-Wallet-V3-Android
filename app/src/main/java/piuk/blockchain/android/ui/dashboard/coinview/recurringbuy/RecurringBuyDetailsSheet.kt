@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.SnackbarType
@@ -13,7 +14,6 @@ import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyState
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.toFormattedDateWithoutYear
 import info.blockchain.balance.AssetInfo
 import java.time.ZoneId
@@ -27,8 +27,6 @@ import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
-import piuk.blockchain.android.ui.dashboard.assetdetails.DeleteRecurringBuy
-import piuk.blockchain.android.ui.dashboard.assetdetails.GetPaymentDetails
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -128,6 +126,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                     BlockchainSnackbar.make(
                         binding.root,
                         getString(R.string.recurring_buy_cancelled_error_toast),
+                        type = SnackbarType.Error
+                    ).show()
+                }
+                newState.error is RecurringBuyError.HttpError -> {
+                    BlockchainSnackbar.make(
+                        binding.root,
+                        newState.error.errorMessage,
                         type = SnackbarType.Error
                     ).show()
                 }

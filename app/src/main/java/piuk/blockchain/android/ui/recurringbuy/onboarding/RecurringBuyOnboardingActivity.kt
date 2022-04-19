@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.notifications.analytics.Analytics
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import org.koin.android.ext.android.inject

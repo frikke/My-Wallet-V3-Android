@@ -6,18 +6,23 @@ import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAccountBinding
@@ -47,6 +52,9 @@ class AccountFragment :
     override fun onBackPressed(): Boolean = true
 
     override val model: AccountModel by scopedInject()
+    private val blockchainCardFF: FeatureFlag by scopedInject(blockchainCardFeatureFlag)
+
+    private val compositeDisposable = CompositeDisposable()
 
     private lateinit var walletId: String
 
@@ -109,6 +117,10 @@ class AccountFragment :
                 }
             }
 
+            settingsDebitCard.apply {
+                primaryText = getString(R.string.blockchain_debit_card)
+            }
+
             settingsWalletConnect.apply {
 
                 primaryText = getString(R.string.account_wallet_connect)
@@ -141,6 +153,10 @@ class AccountFragment :
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
         model.process(AccountIntent.LoadExchangeInformation)
+
+        compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
+            if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
+        }
     }
 
     override fun render(newState: AccountState) {
@@ -153,6 +169,7 @@ class AccountFragment :
         }
 
         renderExchangeInformation(newState.exchangeLinkingState)
+        renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
     }
 
@@ -166,6 +183,30 @@ class AccountFragment :
                 with(binding.settingsExchange) {
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success()))
+                }
+            }
+        }
+
+    private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
+        with(binding.settingsDebitCard) {
+            when (blockchainCardOrderState) {
+                is BlockchainCardOrderState.NotEligible -> {
+                    // Do nothing
+                }
+                is BlockchainCardOrderState.Eligible -> {
+                    visibility = VISIBLE
+                    secondaryText = null
+                    tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
+                    onClick = {
+                        navigator().goToOrderBlockchainCard(blockchainCardOrderState.cardProducts.first())
+                    }
+                }
+                is BlockchainCardOrderState.Ordered -> {
+                    visibility = VISIBLE
+                    secondaryText = null
+                    onClick = {
+                        navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
+                    }
                 }
             }
         }
@@ -186,6 +227,9 @@ class AccountFragment :
             }
             AccountError.EXCHANGE_LOAD_FAIL -> {
                 showErrorSnackbar(R.string.account_load_exchange_error)
+            }
+            AccountError.BLOCKCHAIN_CARD_LOAD_FAIL -> {
+                showErrorSnackbar(R.string.account_load_bc_card_error)
             }
             AccountError.NONE -> {
                 // do nothing

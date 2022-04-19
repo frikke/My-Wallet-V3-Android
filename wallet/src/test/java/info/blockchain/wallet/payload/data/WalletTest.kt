@@ -38,8 +38,8 @@ class WalletTest : WalletApiMockedResponseTest() {
 
     private fun givenWalletFromResource(resourceName: String, version: Int = 3): Wallet {
         return try {
-            val mapper = WalletWrapper.getMapperForVersion(version)
-            Wallet.fromJson(loadResourceContent(resourceName), mapper)
+            val serializersModule = WalletWrapper.getSerializerForVersion(version)
+            Wallet.fromJson(loadResourceContent(resourceName), serializersModule)
         } catch (e: HDWalletException) {
             throw RuntimeException(e)
         } catch (e: IOException) {
@@ -151,7 +151,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     fun testToJSON() {
         // Ensure toJson doesn't write any unintended fields
         val wallet = givenWalletFromResource("wallet_body_1.txt")
-        val jsonString = wallet.toJson(WalletWrapper.getMapperForVersion(WalletWrapper.V3))
+        val jsonString = wallet.toJson(WalletWrapper.getSerializerForVersion(WalletWrapper.V3))
         val jsonObject = JSONObject(jsonString)
         assertEquals(10, jsonObject.keySet().size.toLong())
     }
@@ -229,7 +229,7 @@ class WalletTest : WalletApiMockedResponseTest() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
         assertEquals(0, wallet.importedAddressList.size.toLong())
 
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
         wallet.addImportedAddress(getImportedAddress(), null)
@@ -239,14 +239,14 @@ class WalletTest : WalletApiMockedResponseTest() {
 
         assertNotNull(address.privateKey)
         assertNotNull(address.address)
-        assertEquals("1", address.address!!.substring(0, 1))
+        assertEquals("1", address.address.substring(0, 1))
     }
 
     @Test
     fun addLegacyAddress_doubleEncrypted() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
         assertEquals(19, wallet.importedAddressList.size.toLong())
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
 
@@ -263,7 +263,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test
     fun setKeyForLegacyAddress() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
         wallet.addImportedAddress(getImportedAddress(), null)
@@ -275,7 +275,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test(expected = NoSuchAddressException::class)
     fun setKeyForLegacyAddress_NoSuchAddressException() {
         val wallet = givenWalletFromResource("wallet_body_6.txt")
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
         wallet.addImportedAddress(getImportedAddress(), null)
@@ -288,7 +288,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test
     fun setKeyForLegacyAddress_doubleEncrypted() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
         wallet.addImportedAddress(getImportedAddress(), "hello")
@@ -325,7 +325,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test(expected = DecryptionException::class)
     fun setKeyForLegacyAddress_DecryptionException() {
         val wallet = givenWalletFromResource("wallet_body_1.txt")
-        mockInterceptor.setResponseString(
+        mockInterceptor?.setResponseString(
             "cb600366ef7a94b991aa04557fc1d9c272ba00df6b1d9791d71c66efa0ae7fe9"
         )
         wallet.addImportedAddress(getImportedAddress(), "hello")

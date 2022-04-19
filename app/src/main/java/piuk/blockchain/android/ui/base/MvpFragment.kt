@@ -6,8 +6,8 @@ import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.notifications.analytics.Analytics
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.IllegalStateException
 

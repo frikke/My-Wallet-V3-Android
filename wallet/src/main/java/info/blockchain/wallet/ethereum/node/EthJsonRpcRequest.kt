@@ -7,10 +7,8 @@ import kotlinx.serialization.Transient
 enum class RequestType(val methodName: String) {
     GET_BALANCE("eth_getBalance"),
     LATEST_BLOCK_NUMBER("eth_blockNumber"),
-    PUSH_TRANSACTION("eth_sendRawTransaction"),
     IS_CONTRACT("eth_getCode"),
-    GET_NONCE("eth_getTransactionCount"),
-    GET_TRANSACTION("eth_getTransactionByHash")
+    GET_NONCE("eth_getTransactionCount")
 }
 
 @Serializable

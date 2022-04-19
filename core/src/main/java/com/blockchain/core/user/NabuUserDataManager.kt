@@ -1,6 +1,5 @@
 package com.blockchain.core.user
 
-import com.blockchain.api.services.Geolocation
 import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
@@ -12,8 +11,6 @@ import io.reactivex.rxjava3.core.Single
 
 interface NabuUserDataManager {
 
-    fun getUserGeolocation(): Single<Geolocation>
-
     fun tiers(): Single<KycTiers>
 
     fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable
@@ -21,6 +18,8 @@ interface NabuUserDataManager {
     fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
 
     fun signLatestTermsAndConditions(): Completable
+
+    fun reportLanguage(languageCode: String): Completable
 }
 
 class NabuUserDataManagerImpl(
@@ -42,9 +41,6 @@ class NabuUserDataManagerImpl(
 
     override fun tiers(): Single<KycTiers> = cacheRequest.getCachedSingle()
 
-    override fun getUserGeolocation(): Single<Geolocation> =
-        nabuUserService.getGeolocation()
-
     override fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable =
         authenticator.getAuthHeader().map {
             nabuUserService.saveUserInitialLocation(
@@ -62,6 +58,11 @@ class NabuUserDataManagerImpl(
     override fun signLatestTermsAndConditions(): Completable =
         authenticator.getAuthHeader().flatMapCompletable {
             nabuUserService.signLatestTermsAndConditions(it)
+        }
+
+    override fun reportLanguage(languageCode: String): Completable =
+        authenticator.getAuthHeader().flatMapCompletable {
+            nabuUserService.reportLanguage(it, languageCode)
         }
 }
 

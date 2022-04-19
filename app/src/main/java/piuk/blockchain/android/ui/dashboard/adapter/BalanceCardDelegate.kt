@@ -76,7 +76,7 @@ private class BalanceCardViewHolder(
     private fun renderLoaded(state: BalanceState) {
 
         with(binding) {
-            totalBalance.text = state.fiatBalance?.toStringWithSymbol() ?: ""
+            totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
 
             if (state.delta == null) {
                 balanceDeltaValue.text = ""

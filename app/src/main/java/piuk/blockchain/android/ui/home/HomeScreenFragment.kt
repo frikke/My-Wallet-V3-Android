@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.home
 
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -9,7 +10,6 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.notifications.analytics.LaunchOrigin
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.linkbank.BankLinkingInfo

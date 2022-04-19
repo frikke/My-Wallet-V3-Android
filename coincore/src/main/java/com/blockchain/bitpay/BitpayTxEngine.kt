@@ -1,6 +1,7 @@
 package com.blockchain.bitpay
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.analytics.Analytics
 import com.blockchain.bitpay.analytics.BitPayEvent
 import com.blockchain.bitpay.models.BitPayTransaction
 import com.blockchain.bitpay.models.BitPaymentRequest
@@ -19,7 +20,6 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue

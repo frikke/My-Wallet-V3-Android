@@ -1,7 +1,9 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.isInternetConnectionError
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
@@ -25,7 +27,6 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentError
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
@@ -58,7 +59,7 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
+import retrofit2.HttpException
 
 class SimpleBuyModel(
     prefs: CurrencyPrefs,
@@ -103,7 +104,7 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.UpdateErrorState(it))
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.ValidateAmount -> validateAmount(
@@ -116,19 +117,19 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.UpdateErrorState(it))
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
-                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                    onError = { processOrderErrors(it) }
                 )
             is SimpleBuyIntent.FetchSupportedFiatCurrencies ->
                 interactor.fetchSupportedFiatCurrencies()
                     .subscribeBy(
                         onSuccess = { process(it) },
-                        onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                        onError = { processOrderErrors(it) }
                     )
             is SimpleBuyIntent.CancelOrder,
             is SimpleBuyIntent.CancelOrderAndResetAuthorisation -> (
@@ -138,7 +139,7 @@ class SimpleBuyModel(
                 ).trackProgress(activityIndicator)
                 .subscribeBy(
                     onComplete = { process(SimpleBuyIntent.OrderCanceled) },
-                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                    onError = { processOrderErrors(it) }
                 )
             is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> (
                 previousState.id?.let {
@@ -156,7 +157,7 @@ class SimpleBuyModel(
                     process(it)
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
 
@@ -196,13 +197,13 @@ class SimpleBuyModel(
                     previousState.fiatCurrency
                 ).subscribeBy(
                     onSuccess = { process(it) },
-                    onError = { }
+                    onError = { processOrderErrors(it) }
                 )
             }
             is SimpleBuyIntent.BuyButtonClicked -> interactor.checkTierLevel()
                 .subscribeBy(
                     onSuccess = { process(it) },
-                    onError = { process(SimpleBuyIntent.ErrorIntent()) }
+                    onError = { processOrderErrors(it) }
                 )
 
             is SimpleBuyIntent.FetchPaymentDetails ->
@@ -236,7 +237,7 @@ class SimpleBuyModel(
                 interactor.fetchOrder(intent.orderId)
                     .subscribeBy(
                         onError = {
-                            process(SimpleBuyIntent.ErrorIntent())
+                            processOrderErrors(it)
                         },
                         onSuccess = {
                             if (it.attributes != null) {
@@ -261,11 +262,12 @@ class SimpleBuyModel(
                                         ErrorState.BankLinkingTimeout
                                     )
                                 )
-                                is PollResult.Cancel -> process(SimpleBuyIntent.ErrorIntent())
+                                is PollResult.Cancel -> {
+                                }
                             }
                         },
                         onError = {
-                            process(SimpleBuyIntent.ErrorIntent())
+                            processOrderErrors(it)
                         }
                     )
             is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> fetchEligiblePaymentMethods(
@@ -286,7 +288,7 @@ class SimpleBuyModel(
                         }
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.ConfirmOrder -> processConfirmOrder(
@@ -307,7 +309,7 @@ class SimpleBuyModel(
                     processOrderStatus(buySellOrder.value)
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.PaymentSucceeded -> {
@@ -316,7 +318,7 @@ class SimpleBuyModel(
                         if (it) process(SimpleBuyIntent.UnlockHigherLimits)
                     },
                     onError = {
-                        process(SimpleBuyIntent.ErrorIntent())
+                        processOrderErrors(it)
                     }
                 )
             }
@@ -336,7 +338,7 @@ class SimpleBuyModel(
                         process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
                     },
                     onError = {
-                        process(SimpleBuyIntent.ErrorIntent())
+                        processOrderErrors(it)
                     }
                 )
             is SimpleBuyIntent.AmountUpdated -> validateAmount(
@@ -349,7 +351,7 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.UpdateErrorState(it))
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
 
@@ -360,7 +362,7 @@ class SimpleBuyModel(
                     process(it)
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.FetchEligibility -> userIdentity.userAccessForFeature(Feature.Buy)
@@ -373,7 +375,7 @@ class SimpleBuyModel(
                         }
                     },
                     onError = {
-                        Timber.i(it)
+                        processOrderErrors(it)
                     }
                 )
             else -> null
@@ -391,8 +393,9 @@ class SimpleBuyModel(
             buySellOrder.state.hasFailed() -> {
                 process(
                     SimpleBuyIntent.ErrorIntent(
-                        error = if (buySellOrder.paymentError == PaymentError.CARD_PAYMENT_FAILED)
-                            ErrorState.CardPaymentFailed else ErrorState.GenericError
+                        error = ErrorState.PaymentFailedError(
+                            buySellOrder.paymentError ?: buySellOrder.failureReason.orEmpty()
+                        )
                     )
                 )
             }
@@ -427,7 +430,7 @@ class SimpleBuyModel(
             .trackProgress(activityIndicator)
             .subscribeBy(
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 },
                 onSuccess = { limits ->
                     val paymentMethodsWithNotEnoughBalance = availablePaymentMethods.filter { paymentMethod ->
@@ -522,7 +525,7 @@ class SimpleBuyModel(
                 }
             },
             onError = {
-                process(SimpleBuyIntent.ErrorIntent())
+                processOrderErrors(it)
             }
         )
     }
@@ -558,45 +561,41 @@ class SimpleBuyModel(
 
     private fun handleApprovalErrorState(approvalErrorStatus: ApprovalErrorStatus) {
         when (approvalErrorStatus) {
-            ApprovalErrorStatus.INVALID -> process(
+            ApprovalErrorStatus.Invalid -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApproveBankInvalid)
             )
-            ApprovalErrorStatus.FAILED -> process(
+            ApprovalErrorStatus.Failed -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankFailed)
             )
-            ApprovalErrorStatus.DECLINED -> process(
+            ApprovalErrorStatus.Declined -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankDeclined)
             )
-            ApprovalErrorStatus.REJECTED -> process(
+            ApprovalErrorStatus.Rejected -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankRejected)
             )
-            ApprovalErrorStatus.EXPIRED -> process(
+            ApprovalErrorStatus.Expired -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankExpired)
             )
-            ApprovalErrorStatus.LIMITED_EXCEEDED -> process(
+            ApprovalErrorStatus.LimitedExceeded -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankLimitedExceed)
             )
-            ApprovalErrorStatus.ACCOUNT_INVALID -> process(
+            ApprovalErrorStatus.AccountInvalid -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankAccountInvalid)
             )
-            ApprovalErrorStatus.FAILED_INTERNAL -> process(
+            ApprovalErrorStatus.FailedInternal -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankFailedInternal)
             )
-            ApprovalErrorStatus.INSUFFICIENT_FUNDS -> process(
+            ApprovalErrorStatus.InsufficientFunds -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankInsufficientFunds)
             )
-            ApprovalErrorStatus.UNKNOWN -> process(
-                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedGenericError)
+            is ApprovalErrorStatus.Undefined -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankUndefinedError(approvalErrorStatus.error))
             )
-            ApprovalErrorStatus.NONE -> {
-                process(SimpleBuyIntent.ErrorIntent())
-            }
+            ApprovalErrorStatus.None -> throw IllegalStateException("Cannot handle error for order")
         }.exhaustive
     }
 
     private fun handleCardPaymentState(paymentState: CardPaymentState) {
-        // TODO: currently we continue polling as the OrderState will reflect what we need to do.
-        // Discuss with product and design to handle the different states for card payments. Same for iOS.
         when (paymentState) {
             CardPaymentState.WAITING_FOR_3DS -> {
                 // This is handled in handleCardPayment for now
@@ -635,7 +634,7 @@ class SimpleBuyModel(
                     )
                 },
                 onError = {
-                    process(SimpleBuyIntent.ErrorIntent())
+                    processOrderErrors(it)
                 }
             )
 
@@ -861,10 +860,15 @@ class SimpleBuyModel(
                 NabuErrorCodes.DebitCardOnlyPayment -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.DebitCardOnly)
                 )
-                else -> process(SimpleBuyIntent.ErrorIntent())
+                else -> process(SimpleBuyIntent.ErrorIntent(ErrorState.UnhandledHttpError(it)))
             }
         } else {
-            process(SimpleBuyIntent.ErrorIntent())
+            val error = when {
+                it is HttpException -> ErrorState.UnhandledHttpError(NabuApiExceptionFactory.fromResponseBody(it))
+                it.isInternetConnectionError() -> ErrorState.InternetConnectionError
+                else -> throw it
+            }
+            process(SimpleBuyIntent.ErrorIntent(error))
         }
     }
 
@@ -902,7 +906,9 @@ class SimpleBuyModel(
                         SimpleBuyIntent.CheckOrderStatus
                     }
                 }
-                is CardAttributes.Empty -> SimpleBuyIntent.ErrorIntent() // todo handle case of partner not supported
+                is CardAttributes.Empty -> SimpleBuyIntent.ErrorIntent(
+                    ErrorState.ProviderIsNotSupported
+                )
             }
             process(intent)
         }
@@ -939,7 +945,7 @@ class SimpleBuyModel(
                         clientSecret = paymentAttributes.clientSecret
                     )
                 )
-                CardAcquirer.UNKNOWN -> SimpleBuyIntent.ErrorIntent()
+                CardAcquirer.UNKNOWN -> SimpleBuyIntent.ErrorIntent(ErrorState.UnknownCardProvider)
             }
         } else {
             SimpleBuyIntent.CheckOrderStatus
@@ -955,7 +961,7 @@ class SimpleBuyModel(
                 process(SimpleBuyIntent.AuthorisePaymentExternalUrl(authorisationUrl, linkedBank))
             },
             onError = {
-                process(SimpleBuyIntent.ErrorIntent())
+                processOrderErrors(it)
             }
         )
     }

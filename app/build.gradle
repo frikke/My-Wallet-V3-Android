@@ -66,6 +66,7 @@ android {
 
         resConfigs 'en',
                 'es',
+                'b+es+419',
                 'fr',
                 'pt',
                 'pt-rBR',
@@ -134,6 +135,8 @@ android {
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
 
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -177,6 +180,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -224,6 +229,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperStagingURL']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -338,6 +345,11 @@ dependencies {
     implementation project(':deeplinking')
     implementation project(':logging:domain')
     implementation project(':logging:data')
+    implementation project(':analytics:domain')
+    implementation project(':analytics:data')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':blockchainCard')
 
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
@@ -470,7 +482,6 @@ dependencies {
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
-    testImplementation Libraries.jacksonKotlin
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

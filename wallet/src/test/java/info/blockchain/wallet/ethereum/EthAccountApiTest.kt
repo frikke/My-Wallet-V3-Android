@@ -2,14 +2,18 @@ package info.blockchain.wallet.ethereum
 
 import com.blockchain.outcome.Outcome
 import com.blockchain.testutils.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.internal.createInstance
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
+import info.blockchain.wallet.ethereum.data.EthPushTxRequest
 import info.blockchain.wallet.ethereum.node.EthJsonRpcRequest
 import info.blockchain.wallet.ethereum.node.EthJsonRpcResponse
+import info.blockchain.wallet.ethereum.node.EthNodeEndpoints
 import info.blockchain.wallet.ethereum.node.RequestType
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -48,13 +52,15 @@ class EthAccountApiTest {
     @Test
     fun getBalanceForAccount() {
         val address = "firstAddress"
+        val nodeUrl = "nodeUrl"
         val mockBalanceResponse: EthJsonRpcResponse = mock()
         val expectedResponse = Outcome.Success(mockBalanceResponse)
 
         runTest {
             whenever(
                 ethNodeEndpoints.processRequest(
-                    withAnyRequestMatching(
+                    nodeUrl = any(),
+                    request = withAnyRequestMatching(
                         EthJsonRpcRequest.create(
                             params = arrayOf(address),
                             type = RequestType.GET_BALANCE
@@ -62,7 +68,11 @@ class EthAccountApiTest {
                     )
                 )
             ).thenReturn(expectedResponse)
-            val result = subject.postEthNodeRequest(requestType = RequestType.GET_BALANCE, address, "latest")
+            val result = subject.postEthNodeRequest(
+                nodeUrl = nodeUrl,
+                requestType = RequestType.GET_BALANCE,
+                address
+            )
             assertEquals(expectedResponse, result)
         }
     }
@@ -71,6 +81,7 @@ class EthAccountApiTest {
     @Test
     fun getIfContract_returns_false() {
         val address = "address"
+        val nodeUrl = "nodeUrl"
         val mockContractResponse: EthJsonRpcResponse = mock {
             on { result }.thenReturn("")
         }
@@ -79,6 +90,7 @@ class EthAccountApiTest {
         runTest {
             whenever(
                 ethNodeEndpoints.processRequest(
+                    nodeUrl = any(),
                     withAnyRequestMatching(
                         EthJsonRpcRequest.create(
                             params = arrayOf(address),
@@ -87,7 +99,11 @@ class EthAccountApiTest {
                     )
                 )
             ).thenReturn(expectedResponse)
-            val result = subject.postEthNodeRequest(requestType = RequestType.IS_CONTRACT, address)
+            val result = subject.postEthNodeRequest(
+                nodeUrl = nodeUrl,
+                requestType = RequestType.IS_CONTRACT,
+                address
+            )
             assertEquals(expectedResponse, result)
         }
     }
@@ -97,25 +113,28 @@ class EthAccountApiTest {
     fun pushTx() {
         val rawTx = ""
         val txHash = "0xc88ac065147b34f7a4965f9b0dc539f7863468da61a73b14eb0f8f0fcbb72e5a"
-        val mockContractResponse: EthJsonRpcResponse = mock {
-            on { result }.thenReturn(txHash)
-        }
-        val expectedResponse = Outcome.Success(mockContractResponse)
+        whenever(
+            ethEndpoints.pushTx(withAnyEthPushTxRequestMatching(EthPushTxRequest(rawTx, apiCode)))
+        ).thenReturn(
+            Single.just(HashMap(mapOf("txHash" to txHash)))
+        )
+        subject.pushTx(rawTx).test()
+            .waitForCompletionWithoutErrors().assertValue {
+                it == txHash
+            }
+    }
+}
 
-        runTest {
-            whenever(
-                ethNodeEndpoints.processRequest(
-                    withAnyRequestMatching(
-                        EthJsonRpcRequest.create(
-                            params = arrayOf(rawTx),
-                            type = RequestType.PUSH_TRANSACTION
-                        )
-                    )
-                )
-            ).thenReturn(expectedResponse)
-            val result = subject.postEthNodeRequest(requestType = RequestType.PUSH_TRANSACTION, rawTx)
-            assertEquals(expectedResponse, result)
-            assertEquals(txHash, (result as Outcome.Success).value.result)
+private fun withAnyEthPushTxRequestMatching(request: EthPushTxRequest): EthPushTxRequest {
+    return Mockito.argThat(EthPushTxRequestMatcher(request)) ?: createInstance()
+}
+
+private class EthPushTxRequestMatcher(val request: EthPushTxRequest) : ArgumentMatcher<EthPushTxRequest> {
+    override fun matches(argument: EthPushTxRequest?): Boolean {
+        return if (argument == null) {
+            false
+        } else {
+            request.rawTx == argument.rawTx && request.apiCode == argument.apiCode
         }
     }
 }

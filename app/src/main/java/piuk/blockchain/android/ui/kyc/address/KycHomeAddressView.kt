@@ -34,11 +34,11 @@ interface KycHomeAddressView : View {
     fun onSddVerified()
 
     fun restoreUiState(
-        line1: String,
+        line1: String?,
         line2: String?,
-        city: String,
+        city: String?,
         state: String?,
-        postCode: String,
+        postCode: String?,
         countryName: String
     )
 }

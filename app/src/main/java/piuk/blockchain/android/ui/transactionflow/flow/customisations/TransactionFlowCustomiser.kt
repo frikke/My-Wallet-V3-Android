@@ -745,7 +745,10 @@ class TransactionFlowCustomiserImpl(
             TransactionErrorState.INVALID_AMOUNT -> resources.getString(
                 R.string.send_enter_amount_error_invalid_amount_1,
                 state.pendingTx?.limits?.minAmount?.formatOrSymbolForZero() ?: throw IllegalStateException(
-                    "Missing limit"
+                    "Missing limit for ${state.sourceAccountType} --" +
+                        " ${state.sendingAccount.currency} -- " +
+                        "${state.action} --" +
+                        " ${state.pendingTx?.amount?.toStringWithSymbol()}"
                 )
             )
             TransactionErrorState.INVALID_ADDRESS -> resources.getString(

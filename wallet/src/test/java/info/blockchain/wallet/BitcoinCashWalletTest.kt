@@ -28,12 +28,12 @@ class BitcoinCashWalletTest {
 
     @Test
     fun getPrivB58() {
-        val vector = getTestVectors().vectors[24]
+        val vector = getTestVectors().vectors!![24]
         val subject = restore(
             bitcoinApi,
             BitcoinCashWallet.BITCOINCASH_COIN_PATH,
-            split(vector.mnemonic),
-            vector.passphrase
+            split(vector.mnemonic!!),
+            vector.passphrase!!
         )
         subject.addAccount()
         assertNotNull(subject.getAccountPrivB58(0))
@@ -52,22 +52,22 @@ class BitcoinCashWalletTest {
 
     @Test
     fun testAddressDerivations() {
-        val vector: TestVectorBip39 = getTestVectors().vectors[24]
+        val vector: TestVectorBip39 = getTestVectors().vectors!![24]
 
         val subject = restore(
             bitcoinApi,
             BitcoinCashWallet.BITCOINCASH_COIN_PATH,
-            split(vector.mnemonic),
-            vector.passphrase
+            split(vector.mnemonic!!),
+            vector.passphrase!!
         )
 
         // m / purpose' / coin_type' / account' / change / address_index
         // m/44H/0H/0H/0/0
         val coin = vector.getCoinTestVectors(subject.uriScheme, subject.path)
 
-        coin.accountList.forEachIndexed { accountIndex, account ->
+        coin.accountList!!.forEachIndexed { accountIndex, account ->
             subject.addAccount()
-            account.addresses.forEachIndexed { addressIndex, address ->
+            account.addresses!!.forEachIndexed { addressIndex, address ->
                 assertEquals(
                     address.receiveLegacy,
                     subject.getReceiveAddressAtArbitraryPosition(accountIndex, addressIndex)

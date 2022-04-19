@@ -143,14 +143,6 @@
 # Ignore annotation used for build tooling.
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 
-# Jackson
--keepattributes *Annotation*,EnclosingMethod,Signature
--keepnames class com.fasterxml.jackson.** { *; }
--dontwarn com.fasterxml.jackson.databind.**
--keep class org.codehaus.** { *; }
--keepclassmembers public final enum com.fasterxml.jackson.annotation.JsonAutoDetect$Visibility {
-        public static final com.fasterxml.jackson.annotation.JsonAutoDetect$Visibility *;
-}
 # Temporary fix: Keep classes for jackson json
 -keep public class info.blockchain.api.** { *; }
 -keep public class info.blockchain.api.data.** { *; }
@@ -232,6 +224,7 @@
 # Kotlinx serialisation
 -keep public class com.blockchain.api.** { *; }
 -keep public class com.blockchain.payments.googlepay.** { *; }
+-keep public class com.blockchain.blockchaincard.data.** { *; }
 
 -keepattributes *Annotation*, InnerClasses, AnnotationDefault, RuntimeVisibleAnnotations
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations

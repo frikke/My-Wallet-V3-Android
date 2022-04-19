@@ -7,6 +7,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.chains.EthLayerTwoService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -29,6 +30,8 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
@@ -38,7 +41,6 @@ import com.blockchain.datamanagers.DataManagerPayloadDecrypt
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.nabu.cache.PaymentMethodsEligibilityCache
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
@@ -193,14 +195,16 @@ val coreModule = module {
         }
 
         scoped {
-            PaymentMethodsEligibilityCache(authenticator = get(), service = get())
-        }
-
-        scoped {
             InterestBalanceDataManagerImpl(
                 balanceCallCache = get()
             )
         }.bind(InterestBalanceDataManager::class)
+
+        factory {
+            EthLayerTwoService(
+                remoteConfig = get()
+            )
+        }
 
         scoped {
             EthDataManager(
@@ -209,7 +213,7 @@ val coreModule = module {
                 ethDataStore = get(),
                 metadataManager = get(),
                 lastTxUpdater = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                ethLayerTwoService = get()
             )
         }.bind(EthMessageSigner::class)
 
@@ -245,15 +249,13 @@ val coreModule = module {
                 bitcoinApi = get(),
                 defaultLabels = get(),
                 metadataManager = get(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 
         factory {
             PayloadService(
-                payloadManager = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                payloadManager = get()
             )
         }
 
@@ -263,8 +265,7 @@ val coreModule = module {
                 privateKeyFactory = get(),
                 bitcoinApi = get(),
                 payloadManager = get(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 
@@ -284,8 +285,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
-                remoteLogger = get(),
-                kotlinSerializerFeatureFlag = get(enableKotlinSerializerFeatureFlag)
+                remoteLogger = get()
             )
         }
 
@@ -363,6 +363,20 @@ val coreModule = module {
         }.bind(NabuUserDataManager::class)
 
         scoped {
+            LinkedCardsStore(
+                authenticator = get(),
+                paymentMethodsService = get()
+            )
+        }
+
+        scoped {
+            PaymentMethodsEligibilityStore(
+                authenticator = get(),
+                paymentMethodsService = get()
+            )
+        }
+
+        scoped {
             PaymentsDataManagerImpl(
                 paymentsService = get(),
                 paymentMethodsService = get(),
@@ -372,7 +386,9 @@ val coreModule = module {
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 googlePayManager = get(),
                 assetCatalogue = get(),
-                cardsCache = get()
+                linkedCardsStore = get(),
+                cardsCache = get(),
+                cachingStoreFeatureFlag = get(cachingStoreFeatureFlag)
             )
         }.bind(PaymentsDataManager::class)
 

@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.commonarch.presentation.mvi.MviState
@@ -196,21 +197,8 @@ enum class FlowScreen {
 }
 
 sealed class ErrorState : Serializable {
-    object GenericError : ErrorState()
-    object BankLinkingUpdateFailed : ErrorState()
-    object BankLinkingFailed : ErrorState()
     object BankLinkingTimeout : ErrorState()
-    object LinkedBankAlreadyLinked : ErrorState()
-    object LinkedBankInfoNotFound : ErrorState()
-    object LinkedBankAccountUnsupported : ErrorState()
-    object LinkedBankNamesMismatched : ErrorState()
     object LinkedBankNotSupported : ErrorState()
-    object LinkedBankRejected : ErrorState()
-    object LinkedBankExpired : ErrorState()
-    object LinkedBankFailure : ErrorState()
-    object LinkedBankInternalFailure : ErrorState()
-    object LinkedBankInvalid : ErrorState()
-    object LinkedBankFraud : ErrorState()
     object ApproveBankInvalid : ErrorState()
     object ApprovedBankFailed : ErrorState()
     object ApprovedBankDeclined : ErrorState()
@@ -219,16 +207,21 @@ sealed class ErrorState : Serializable {
     object ApprovedBankLimitedExceed : ErrorState()
     object ApprovedBankAccountInvalid : ErrorState()
     object ApprovedBankFailedInternal : ErrorState()
+    class ApprovedBankUndefinedError(val error: String) : ErrorState()
     object ApprovedBankInsufficientFunds : ErrorState()
-    object ApprovedGenericError : ErrorState()
     object DailyLimitExceeded : ErrorState()
     object WeeklyLimitExceeded : ErrorState()
     object YearlyLimitExceeded : ErrorState()
     object ExistingPendingOrder : ErrorState()
     object InsufficientCardFunds : ErrorState()
+    object ProviderIsNotSupported : ErrorState()
+    object Card3DsFailed : ErrorState()
+    object UnknownCardProvider : ErrorState()
     object CardPaymentDeclined : ErrorState()
-    object CardPaymentFailed : ErrorState()
+    class PaymentFailedError(val error: String) : ErrorState()
     object DebitCardOnly : ErrorState()
+    class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
+    object InternetConnectionError : ErrorState()
 }
 
 data class SimpleBuyOrder(

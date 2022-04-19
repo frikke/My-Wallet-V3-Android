@@ -14,6 +14,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.SnackbarType
@@ -37,7 +38,6 @@ import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

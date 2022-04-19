@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.kyc.veriffsplash
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock

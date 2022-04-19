@@ -10,11 +10,11 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.Prices24HrWithDelta
@@ -22,7 +22,6 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -452,7 +451,7 @@ internal class PricesFragment :
             )
         )
 
-    override fun goToInterestDeposit(toAccount: InterestAccount) {
+    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
         if (toAccount is CryptoAccount) {
             model.process(
                 DashboardIntent.UpdateLaunchDialogFlow(
@@ -465,7 +464,7 @@ internal class PricesFragment :
         }
     }
 
-    override fun goToInterestWithdraw(fromAccount: InterestAccount) {
+    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
         if (fromAccount is CryptoAccount) {
             model.process(
                 DashboardIntent.UpdateLaunchDialogFlow(

@@ -9,7 +9,7 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper should be parsed normally`() {
         val body: String = loadResourceContent("wallet_wrapper.txt")
-        val walletWrapper = WalletWrapper.fromJson(body, true)
+        val walletWrapper = WalletWrapper.fromJson(body)
 
         Assert.assertEquals("test_payload", walletWrapper.payload)
         Assert.assertEquals(
@@ -25,7 +25,7 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper with no payload should be parsed normally`() {
         val body: String = loadResourceContent("wallet_wrapper_2.txt")
-        val walletWrapper = WalletWrapper.fromJson(body, true)
+        val walletWrapper = WalletWrapper.fromJson(body)
 
         Assert.assertEquals(null, walletWrapper.payload)
         Assert.assertEquals(
@@ -41,22 +41,22 @@ class WalletWrapperTest : MockedResponseTest() {
     @Test
     fun `Wallet wrapper should be serialised normally with no payload`() {
         val body: String = loadResourceContent("wallet_wrapper_2.txt")
-        val walletWrapper = WalletWrapper.fromJson(body, true)
+        val walletWrapper = WalletWrapper.fromJson(body)
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7}",
-            walletWrapper.toJson(WalletWrapper.V4, true)
+            walletWrapper.toJson(WalletWrapper.V4)
         )
     }
 
     @Test
     fun `Wallet wrapper should be serialised normally`() {
         val body: String = loadResourceContent("wallet_wrapper.txt")
-        val walletWrapper = WalletWrapper.fromJson(body, true)
+        val walletWrapper = WalletWrapper.fromJson(body)
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7,\"payload\":\"test_payload\"}",
-            walletWrapper.toJson(WalletWrapper.V4, true)
+            walletWrapper.toJson(WalletWrapper.V4)
         )
     }
 }

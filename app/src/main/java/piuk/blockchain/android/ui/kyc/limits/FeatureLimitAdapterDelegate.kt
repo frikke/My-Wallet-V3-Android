@@ -1,11 +1,9 @@
 package piuk.blockchain.android.ui.kyc.limits
 
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -135,11 +133,13 @@ private class CurrentTierItemViewHolder(
     fun bind(item: KycLimitsItem.CurrentTierItem) {
         with(binding) {
             iconTier.invisibleIf { item.tier == Tier.BRONZE }
-            iconTier.imageTintList = when (item.tier) {
-                Tier.BRONZE -> null
-                Tier.SILVER -> ColorStateList.valueOf(ContextCompat.getColor(context, R.color.tier_silver))
-                Tier.GOLD -> ColorStateList.valueOf(ContextCompat.getColor(context, R.color.tier_gold))
-            }
+            iconTier.setImageResource(
+                when (item.tier) {
+                    Tier.BRONZE -> R.drawable.ic_blockchain_logo
+                    Tier.SILVER -> R.drawable.ic_blockchain_logo
+                    Tier.GOLD -> R.drawable.ic_verification_badge
+                }
+            )
 
             textTier.text = when (item.tier) {
                 Tier.BRONZE -> ""
@@ -199,7 +199,12 @@ class FeatureWithLimitItemViewHolder(
             val featureDescriptionText = when (item.feature) {
                 Feature.SEND_FROM_TRADING_TO_PRIVATE -> context.getString(R.string.feature_limits_from_trading_accounts)
                 Feature.RECEIVE_TO_TRADING -> context.getString(R.string.feature_limits_to_trading_accounts)
-                else -> null
+                Feature.SWAP -> context.getString(R.string.feature_limits_swap_description)
+                Feature.BUY_SELL -> context.getString(R.string.feature_limits_buy_sell_description)
+                Feature.CARD_PURCHASES -> context.getString(R.string.feature_limits_card_purchases_description)
+                Feature.FIAT_DEPOSIT -> null
+                Feature.FIAT_WITHDRAWAL -> context.getString(R.string.feature_limits_withdrawals_description)
+                Feature.REWARDS -> context.getString(R.string.feature_limits_earn_rewards_description)
             }
             textFeatureDescription.text = featureDescriptionText
             textFeatureDescription.visibleIf { featureDescriptionText != null }
@@ -207,25 +212,22 @@ class FeatureWithLimitItemViewHolder(
             textLimit.text = when (val featureLimit = item.limit) {
                 FeatureLimit.Disabled -> context.getString(R.string.feature_limits_disabled)
                 FeatureLimit.Infinite -> context.getString(R.string.feature_limits_no_limit)
-                is FeatureLimit.Limited -> when (featureLimit.limit.period) {
-                    TxLimitPeriod.DAILY ->
-                        context.getString(
-                            R.string.feature_limits_daily_limit,
-                            featureLimit.limit.amount.formatOrSymbolForZero()
-                        )
-                    TxLimitPeriod.MONTHLY ->
-                        context.getString(
-                            R.string.feature_limits_monthly_limit,
-                            featureLimit.limit.amount.formatOrSymbolForZero()
-                        )
-                    TxLimitPeriod.YEARLY ->
-                        context.getString(
-                            R.string.feature_limits_yearly_limit,
-                            featureLimit.limit.amount.formatOrSymbolForZero()
-                        )
-                }
+                is FeatureLimit.Limited -> featureLimit.limit.amount.formatOrSymbolForZero()
                 FeatureLimit.Unspecified -> context.getString(R.string.feature_limits_enabled)
             }
+
+            val featureLimit = item.limit
+            val limitPeriodDescription = if (featureLimit is FeatureLimit.Limited) {
+                when (featureLimit.limit.period) {
+                    TxLimitPeriod.DAILY -> context.getString(R.string.feature_limits_daily_limit_period)
+                    TxLimitPeriod.MONTHLY -> context.getString(R.string.feature_limits_monthly_limit_period)
+                    TxLimitPeriod.YEARLY -> context.getString(R.string.feature_limits_yearly_limit_period)
+                }
+            } else {
+                null
+            }
+            textLimitPeriod.text = limitPeriodDescription
+            textLimitPeriod.visibleIf { featureDescriptionText != null }
         }
     }
 }

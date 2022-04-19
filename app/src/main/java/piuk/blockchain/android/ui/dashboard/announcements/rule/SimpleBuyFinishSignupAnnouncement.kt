@@ -2,8 +2,8 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import android.annotation.SuppressLint
 import androidx.annotation.VisibleForTesting
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.AnalyticsEvent
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost

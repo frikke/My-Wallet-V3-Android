@@ -44,7 +44,6 @@
     <string name="common_retry">Retry</string>
     <string name="common_continue">Continue</string>
     <string name="common_try_again">Try Again</string>
-    <string name="common_oops">Oops! Something went wrong.</string>
     <string name="common_sell">Sell</string>
     <string name="common_sign">Sign</string>
     <string name="common_buy">Buy</string>
@@ -60,6 +59,8 @@
     <string name="common_preview">Preview</string>
     <string name="common_unavailable">Unavailable</string>
     <string name="common_connect">Connect</string>
+    <string name="common_receive_to">Receive %1$s</string>
+
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -949,11 +950,6 @@
     <string name="rewards_announcement_title">Earn rewards on your crypto today!</string>
     <string name="rewards_announcement_description">Transfer Crypto and start earning Rewards on BTC, ETH and many more.</string>
     <string name="rewards_announcement_action">Learn More</string>
-
-    <!-- Uk bank change announcement -->
-    <string name="ukentityswitch_announcement_title">New legal entity</string>
-    <string name="ukentityswitch_announcement_description">Starting later this month, UK customers will be served by our European subsidiary, Blockchain (LT), UAB. You will not experience any changes in user experience or lose access to your funds during this transition. <annotation link="learn_more">Learn more ></annotation></string>
-    <string name="ukentityswitch_announcement_action">I understand</string>
 
     <!-- WDGLD announcement -->
     <string name="wdgld_available_card_title">Trade wDGLD Now</string>
@@ -1932,7 +1928,6 @@
     <string name="trending_label">Trending</string>
     <string name="trending_swap">Swap %1$s</string>
     <string name="trending_empty">Fund your Trading Wallets to see Trending Swaps with lower fees.</string>
-    <string name="trending_receive">Receive %1$s</string>
     <string name="select_a_wallet">Select a Wallet</string>
     <string name="select_a_bank">Select a Bank</string>
 
@@ -2092,8 +2087,11 @@
     <string name="sb_checkout_pending_order_title">Order in progress</string>
     <string name="sb_checkout_pending_order_blurb">Oops, looks like you’ve already got a Buy order in progress, please wait until it completes before buying again.</string>
     <string name="sb_checkout_card_insufficient_funds_title">Insufficient funds</string>
+    <string name="sb_card_provider_not_supported">Card provider is not supported</string>
     <string name="sb_checkout_card_insufficient_funds_blurb">Your bank tells us you don’t have enough funds in your account, check and try again.</string>
     <string name="sb_checkout_card_declined_title">Payment declined</string>
+    <string name="common_oops_bank">Oops! Something went wrong.</string>
+    <string name="common_oops_kyc">Oops! Something went wrong.</string>
     <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
     <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
     <string name="sb_checkout_card_debit_only_title">Try a debit card instead</string>
@@ -2150,6 +2148,7 @@
     <string name="bank_linking_mismatched_title">Is this your bank account?</string>
     <string name="bank_linking_mismatched_subtitle">We noticed the <b>names don’t match</b>. The bank you link must have a matching legal first &amp;  last name as your Blockchain.com Account.\n<annotation link="learn_more">Learn more →</annotation></string>
     <string name="bank_linking_timeout_error_title">Oops! It’s taking too long</string>
+    <string name="card_3ds">Oops! 3DS verification failed</string>
     <string name="bank_linking_timeout_error_subtitle">Linking your bank is taking longer than expected, please close this screen and check the status in Settings.</string>
     <string name="bank_linking_already_linked_error_title">This account is already linked.</string>
     <string name="bank_linking_already_linked_error_subtitle">We noticed this account is already linked to your Blockchain account.</string>
@@ -2184,6 +2183,7 @@
     <string name="bank_transfer_payment_invalid_title">Invalid Account</string>
     <string name="bank_transfer_payment_invalid_subtitle">The account you selected isn’t active. Please try another account or payment method. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_failed_title">Payment Failed</string>
+    <string name="payment_failed_title_with_reason">Payment Failed %1s</string>
     <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Payment Declined</string>
     <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support.\nIf you’ve already done this then please <annotation link="contact_support">contact support.</annotation></string>
@@ -2495,16 +2495,21 @@
     <string name="feature_limits_send_crypto">Send Crypto</string>
     <string name="feature_limits_receive_crypto">Receive Crypto</string>
     <string name="feature_limits_swap_crypto">Swap Crypto</string>
-    <string name="feature_limits_buy_sell">Buy &amp; Sell</string>
+    <string name="feature_limits_buy_sell">Buying &amp; Selling</string>
     <string name="feature_limits_card_purchases">Card Purchases</string>
     <string name="feature_limits_deposits">Bank Buys / Deposits</string>
     <string name="feature_limits_withdrawals">Bank Withdrawals</string>
-    <string name="feature_limits_earn_rewards">Earn Rewards</string>
+    <string name="feature_limits_earn_rewards">Rewards Accounts</string>
     <string name="feature_limits_from_trading_accounts">from Trading Accounts</string>
     <string name="feature_limits_to_trading_accounts">to Trading Accounts</string>
-    <string name="feature_limits_daily_limit">%1$s a Day</string>
-    <string name="feature_limits_monthly_limit">%1$s a Month</string>
-    <string name="feature_limits_yearly_limit">%1$s a Year</string>
+    <string name="feature_limits_swap_description">Between All Accounts</string>
+    <string name="feature_limits_buy_sell_description">Card or Banking Method</string>
+    <string name="feature_limits_card_purchases_description">Buying Crypto</string>
+    <string name="feature_limits_withdrawals_description">To Personal Bank Account</string>
+    <string name="feature_limits_earn_rewards_description">Earn Rewards On Your Crypto</string>
+    <string name="feature_limits_daily_limit_period">Per Day</string>
+    <string name="feature_limits_monthly_limit_period">Per Month</string>
+    <string name="feature_limits_yearly_limit_period">Per Year</string>
     <string name="feature_limits_disabled">Disabled</string>
     <string name="feature_limits_enabled">Enabled</string>
     <string name="feature_limits_no_limit">No Limit</string>
@@ -2521,7 +2526,7 @@
     <string name="feature_limits_silver_limits">Basic Limits</string>
     <string name="feature_limits_gold_limits">Verified Limits</string>
     <string name="feature_limits_gold_limits_description">Includes Basic Features</string>
-    <string name="feature_limits_tier_state_approved">Approved</string>
+    <string name="feature_limits_tier_state_approved">Active</string>
     <string name="feature_limits_error">There was a problem retrieving your limits information.</string>
     <string name="kyc_limits_upgrade_now_title">Upgrade Now</string>
     <string name="kyc_limits_upgrade_now_gold_title">Verified Limits</string>
@@ -2598,6 +2603,10 @@
     <string name="account_fiat_update_error">There was an error updating your currency details, please try again</string>
     <string name="account_exchange_info_error">There was an error loading Exchange information, please try again</string>
     <string name="account_load_exchange_error">There was an error loading the Exchange, please try again</string>
+    <string name="account_load_bc_card_error">There was an error loading the Blockchain Debit Card, please try again</string>
+    <string name="account_not_eligible">Not Eligible</string>
+    <string name="order_card">Order Card</string>
+    <string name="blockchain_debit_card">Blockchain Debit Card</string>
 
     <!-- Profile screen -->
     <string name="profile_toolbar">Profile</string>
@@ -2798,6 +2807,10 @@
     <string name="coinview_no_asset_title">Unknown Asset</string>
     <string name="coinview_asset_info_cta">Visit Website →</string>
     <string name="coinview_no_asset_description">It looks like we don’t have a description for this token yet, please check their website by tapping the button below to find out more.</string>
+    <string name="coinview_no_balance_sheet_title">No %1$s to %2$s</string>
+    <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
+    <string name="coinview_added_watchlist">Added to Watchlist</string>
+    <string name="coinview_removed_watchlist">Removed from Watchlist</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>

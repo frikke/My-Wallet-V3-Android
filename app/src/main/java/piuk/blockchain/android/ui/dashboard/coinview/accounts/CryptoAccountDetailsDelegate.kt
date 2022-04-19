@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -27,6 +28,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 
 class CryptoAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : AdapterDelegate<AssetDetailsItemNew> {
@@ -37,6 +39,7 @@ class CryptoAccountDetailsDelegate(
         AssetWalletViewHolder(
             ViewCoinviewWalletsBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             onAccountSelected,
+            onLockedAccountSelected,
             labels,
             assetResources
         )
@@ -54,6 +57,7 @@ class CryptoAccountDetailsDelegate(
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
     private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -67,6 +71,9 @@ private class AssetWalletViewHolder(
         with(binding) {
             assetDetailsAvailable.onClick = {
                 onAccountSelected(item)
+            }
+            assetDetailsNotAvailable.onClick = {
+                onLockedAccountSelected()
             }
             val walletLabel = when (item.assetFilter) {
                 AssetFilter.NonCustodial -> item.account.label
@@ -83,7 +90,7 @@ private class AssetWalletViewHolder(
             }
             val accountIcon = AccountIcon(account, assetResources)
 
-            if (item.actions.isNotEmpty()) {
+            if (item.actions.any { it.state == ActionState.Available }) {
                 assetDetailsNotAvailable.gone()
                 assetDetailsAvailable.apply {
                     visible()
@@ -115,7 +122,6 @@ private class AssetWalletViewHolder(
                 assetDetailsAvailable.gone()
                 assetDetailsNotAvailable.apply {
                     visible()
-                    isClickable = false
                     primaryText = walletLabel
                     secondaryText = when (item.assetFilter) {
                         AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_desc)

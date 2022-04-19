@@ -1,22 +1,22 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.embraceFeatureFlag
-import com.blockchain.koin.enableKotlinSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
-import com.blockchain.koin.uiTourFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -45,29 +45,11 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(uiTourFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_ui_tour",
-                "Ui Tour"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(ethMemoHotWalletFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_memo",
                 "ETH Memo for Hot Wallets"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(enableKotlinSerializerFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_enable_kotlin_serializer",
-                "Use Kotlinx Serializer (Jackson)"
             )
         )
     }.bind(FeatureFlag::class)
@@ -167,6 +149,24 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_customer_support_sheet",
                 "Customer Support Sheet"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(notificationPreferencesFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_notification_preferences_rework",
+                "Notification Preferences Rework"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(cachingStoreFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_caching_store",
+                "Caching Store"
             )
         )
     }.bind(FeatureFlag::class)

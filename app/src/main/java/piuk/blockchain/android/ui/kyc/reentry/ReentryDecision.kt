@@ -1,12 +1,12 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import androidx.navigation.NavDirections
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.ui.kyc.navhost.toProfileModel

@@ -124,7 +124,6 @@ internal class DynamicAssetLoader(
             }
             // Those two sets should NOT overlap
             check(loadedErc20.intersect(custodialAssets).isEmpty())
-            activeAssetMap.putAll(loadedErc20.associateBy { it.assetInfo })
             loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
                 loadedErc20 + custodialList
             }
@@ -157,14 +156,21 @@ internal class DynamicAssetLoader(
             interestBalances.getActiveAssets(),
             erc20DataManager.getActiveAssets()
         ) { activeTrading, activeInterest, activeNoncustodial ->
+
+            activeInterest + activeTrading + activeNoncustodial
+        }.doOnSuccess { activeAssets ->
+            activeAssets.filter { erc20Assets.contains(it) }.forEach { currency ->
+                activeAssetMap[currency] = loadErc20Asset(currency)
+            }
+        }.map { activeAssets ->
             // Always load the fully supported ERC20s
             val erc20WithFullSupport = erc20Assets.filter { dynamicAsset ->
                 dynamicAsset.isNonCustodial &&
                     dynamicAsset.isCustodial
             }
-            activeInterest + activeTrading + activeNoncustodial + erc20WithFullSupport
-        }.map { activeAssets ->
-            erc20Assets.filter { activeAssets.contains(it) }
+            activeAssets + erc20WithFullSupport
+        }.map { activeAndFullSupportAssets ->
+            erc20Assets.filter { activeAndFullSupportAssets.contains(it) }
         }.map { activeSupportedAssets ->
             activeSupportedAssets.map { asset ->
                 loadErc20Asset(asset)

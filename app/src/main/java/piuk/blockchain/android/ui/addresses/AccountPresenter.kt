@@ -2,6 +2,10 @@ package piuk.blockchain.android.ui.addresses
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AddressAnalytics
+import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.analytics.events.WalletAnalytics
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.SingleAccount
@@ -11,10 +15,6 @@ import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
-import com.blockchain.notifications.analytics.AddressAnalytics
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.WalletAnalytics
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.exceptions.DecryptionException

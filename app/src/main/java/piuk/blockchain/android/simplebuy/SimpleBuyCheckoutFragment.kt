@@ -21,6 +21,7 @@ import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
@@ -171,7 +172,7 @@ class SimpleBuyCheckoutFragment :
                 }
             }
             OrderState.FAILED -> {
-                showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
+
                 binding.buttonAction.isEnabled = false
             }
             OrderState.CANCELED -> {
@@ -490,8 +491,57 @@ class SimpleBuyCheckoutFragment :
                     )
                 )
             )
-            else -> showBottomSheet(ErrorSlidingBottomDialog.newInstance(activity))
-        }
+            is ErrorState.UnhandledHttpError -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(
+                            R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
+                        ),
+                        getString(R.string.something_went_wrong_try_again),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.InternetConnectionError -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(
+                            R.string.executing_connection_error
+                        ),
+                        getString(R.string.something_went_wrong_try_again),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            is ErrorState.ApprovedBankUndefinedError -> showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        getString(
+                            R.string.payment_failed_title_with_reason, errorState.error
+                        ),
+                        getString(R.string.something_went_wrong_try_again),
+                        getString(R.string.common_ok)
+                    )
+                )
+            )
+            ErrorState.ApproveBankInvalid,
+            ErrorState.ApprovedBankAccountInvalid,
+            ErrorState.ApprovedBankDeclined,
+            ErrorState.ApprovedBankExpired,
+            ErrorState.ApprovedBankFailed,
+            ErrorState.ApprovedBankFailedInternal,
+            ErrorState.ApprovedBankInsufficientFunds,
+            ErrorState.ApprovedBankLimitedExceed,
+            ErrorState.BankLinkingTimeout,
+            ErrorState.ApprovedBankRejected,
+            is ErrorState.PaymentFailedError,
+            ErrorState.UnknownCardProvider,
+            ErrorState.ProviderIsNotSupported,
+            ErrorState.Card3DsFailed,
+            ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
+                "Error $errorState should not be presented in the checkout screen"
+            )
+        }.exhaustive
     }
 
     override fun cancelOrderConfirmAction(cancelOrder: Boolean, orderId: String?) {

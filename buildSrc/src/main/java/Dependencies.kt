@@ -60,7 +60,6 @@ object Versions {
     const val okHttp = "4.9.0"
     const val moshi = "1.8.0"
     const val gson = "2.8.5"
-    const val jacksonCore = "2.12.3"
     const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"
 
@@ -107,9 +106,11 @@ object Versions {
     const val constraintLayoutCompose = "1.0.0-beta02"
     const val composeRx = "1.1.0"
     const val composeKotlinCompile = "1.5.3"
+    const val composeNavigation = "2.4.1"
 
     // Accompanist
-    const val systemUi = "0.20.2"
+    const val systemUi = "0.23.1"
+    const val navigationMaterial = "0.23.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -145,6 +146,7 @@ object Versions {
     const val kluent = "1.66"
     const val coroutinesTest = "1.6.0"
     const val coreTesting = "2.1.0"
+    const val turbine = "0.7.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"
@@ -185,6 +187,8 @@ object Libraries {
     const val navigationControllerFragments = "androidx.navigation:navigation-fragment:${Versions.navigation}"
     const val navigationControllerSafeArgsPlugin =
         "androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.navigation}"
+    const val navigationControllerCoreKTX = "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
+
     const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel:${Versions.lifecycle}"
     const val lifecycleViewModelExtensions = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
     const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
@@ -213,7 +217,6 @@ object Libraries {
 
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-    const val retrofitJacksonConverter = "com.squareup.retrofit2:converter-jackson:${Versions.retrofit}"
     const val retrofitRxMoshiConverter = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
     const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:2.5.0"
@@ -225,8 +228,6 @@ object Libraries {
     const val moshi = "com.squareup.moshi:moshi:${Versions.moshi}"
     const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:${Versions.moshi}"
     const val moshiAdapters = "com.squareup.moshi:moshi-adapters:${Versions.moshi}"
-    const val jacksonCore = "com.fasterxml.jackson.core:jackson-core:${Versions.jacksonCore}"
-    const val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonCore}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
 
@@ -234,10 +235,12 @@ object Libraries {
     const val sqlDelight = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
     const val sqlDelightPlugin = "com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}"
     const val rxSqlDelight = "com.squareup.sqldelight:rxjava3-extensions:${Versions.sqlDelight}"
+    const val coroutinesSqlDelight = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
 
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinAndroid = "io.insert-koin:koin-android:${Versions.koin}"
     const val koinTest = "io.insert-koin:koin-test:${Versions.koin}"
+    const val koinCompose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
     const val glide = "com.github.bumptech.glide:glide:${Versions.glide}"
     const val glideAnnotations = "com.github.bumptech.glide:compiler:${Versions.glide}"
     const val chuckerDebug = "com.github.chuckerteam.chucker:library:${Versions.chucker}"
@@ -293,6 +296,8 @@ object Libraries {
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
+    const val accompanistNavigationMaterial = "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
+    const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"
@@ -328,6 +333,7 @@ object Libraries {
     const val kotlinJunit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"
     const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
     const val coreTesting = "androidx.arch.core:core-testing:${Versions.coreTesting}"
+    const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
     const val mockk = "io.mockk:mockk:${Versions.mockk}"
     const val hamcrestJunit = "org.hamcrest:hamcrest-junit:${Versions.hamcrestJunit}"
     const val junit = "junit:junit:${Versions.junit}"

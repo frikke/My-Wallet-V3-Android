@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.databinding.PitEmailVerifiedBottomDialogBinding

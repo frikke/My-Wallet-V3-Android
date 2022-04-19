@@ -12,6 +12,8 @@ object EthUrls {
 
     /* Complete paths */
     const val ACCOUNT = "$ETH/account"
+    const val PUSH_TX = "$ETH/pushtx"
     const val V2_DATA_ACCOUNT = "$ETHV2$DATA/account"
+    const val V2_DATA_TRANSACTION = "$ETHV2$DATA/transaction"
     const val ETH_NODES = "$ETH/nodes/rpc"
 }

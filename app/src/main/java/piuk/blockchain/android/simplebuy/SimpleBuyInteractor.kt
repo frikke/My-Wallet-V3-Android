@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
@@ -44,7 +45,6 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.outcome.fold
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardBillingAddress

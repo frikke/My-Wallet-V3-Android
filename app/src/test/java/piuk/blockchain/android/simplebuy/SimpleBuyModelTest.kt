@@ -226,7 +226,6 @@ class SimpleBuyModelTest {
                         paymentMethodType = PaymentMethodType.PAYMENT_CARD,
                         attributes = PaymentAttributes(
                             authorisationUrl = null,
-                            status = null,
                             cardAttributes = CardAttributes.EveryPay(
                                 paymentLink = paymentLink,
                                 paymentState = CardPaymentState.WAITING_FOR_3DS
@@ -272,7 +271,7 @@ class SimpleBuyModelTest {
                         pair = "USD-BTC",
                         type = OrderType.BUY,
                         depositPaymentId = "",
-                        approvalErrorStatus = ApprovalErrorStatus.REJECTED
+                        approvalErrorStatus = ApprovalErrorStatus.Rejected
                     )
                 )
             )
@@ -335,7 +334,7 @@ class SimpleBuyModelTest {
         )
 
         val state2 = state1.copy(
-            buyErrorState = ErrorState.GenericError,
+            buyErrorState = ErrorState.InternetConnectionError,
             isLoading = false,
             confirmationActionRequested = false
         )

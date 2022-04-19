@@ -2,7 +2,6 @@ package com.blockchain.commonarch.presentation.mvi
 
 import androidx.annotation.CallSuper
 import androidx.viewbinding.ViewBinding
-import com.blockchain.commonarch.BuildConfig
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -21,10 +20,7 @@ abstract class MviBottomSheet<M : MviModel<S, I>, I : MviIntent<S>, S : MviState
         subscription = model.state.subscribeBy(
             onNext = { render(it) },
             onError = {
-                if (BuildConfig.DEBUG) {
-                    throw it
-                }
-                Timber.e(it)
+                throw it
             },
             onComplete = { Timber.d("***> State on complete!!") }
         )

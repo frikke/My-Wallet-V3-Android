@@ -1,9 +1,9 @@
 package com.blockchain.walletconnect.domain
 
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.eth.EthereumSendTransactionTarget
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.trustwallet.walletconnect.models.ethereum.WCEthereumSignMessage
 import java.io.Serializable
 

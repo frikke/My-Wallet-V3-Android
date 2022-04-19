@@ -12,6 +12,12 @@ import androidx.annotation.StringRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDirections
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.data.logEvent
+import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.analytics.events.kycTierStart
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
@@ -21,12 +27,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Tier
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
-import com.blockchain.notifications.analytics.kycTierStart
-import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy

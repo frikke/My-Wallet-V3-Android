@@ -5,11 +5,11 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import java.io.Serializable
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R

@@ -26,6 +26,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Stack
+import retrofit2.HttpException
 import timber.log.Timber
 
 data class AssetDetailsState(
@@ -59,7 +60,7 @@ enum class AssetDetailsError {
     TX_IN_FLIGHT,
     NO_RECURRING_BUYS,
     RECURRING_BUY_DELETE,
-    NO_PRICE_DATA
+    NO_PRICE_DATA,
 }
 
 class AssetDetailsModel(
@@ -182,6 +183,13 @@ class AssetDetailsModel(
             .subscribeBy(
                 onSuccess = {
                     process(UpdatePaymentDetails(it))
+                },
+                onError = {
+                    if (it is HttpException) {
+                        process(RecurringBuyDataFailed)
+                    } else {
+                        throw it
+                    }
                 }
             )
 

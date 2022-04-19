@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -15,8 +17,6 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoaderBinding
@@ -59,12 +59,11 @@ class LoaderActivity :
 
     override fun render(newState: LoaderState) {
         when (val loaderStep = newState.nextLoadingStep) {
-            is LoadingStep.Main -> {
-                onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
-            }
             is LoadingStep.Launcher -> startSingleActivity(LauncherActivity::class.java)
-            is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.RequestPin -> onRequestPin()
+            // These below should always come only after a ProgressStep.FINISH has been emitted
+            is LoadingStep.EmailVerification -> launchEmailVerification()
+            is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
             is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.url)
             null -> {
             }

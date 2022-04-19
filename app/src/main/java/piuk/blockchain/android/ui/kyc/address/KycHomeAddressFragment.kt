@@ -10,16 +10,16 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment.findNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.data.logEvent
+import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.extensions.nextAfterOrNull
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.logEvent
 import com.jakewharton.rx3.replayingShare
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -127,7 +127,9 @@ class KycHomeAddressFragment :
 
     override fun missingAdditionalInfo(root: TreeNode.Root, countryCode: String) {
         closeKeyboard()
-        navigate(KycHomeAddressFragmentDirections.actionStartAdditionalInfoEntry(root, countryCode))
+        navigate(
+            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycAdditionalInfoFragment(root, countryCode)
+        )
     }
 
     override fun tier1Complete() {
@@ -147,11 +149,11 @@ class KycHomeAddressFragment :
     }
 
     override fun restoreUiState(
-        line1: String,
+        line1: String?,
         line2: String?,
-        city: String,
+        city: String?,
         state: String?,
-        postCode: String,
+        postCode: String?,
         countryName: String
     ) {
         with(binding) {

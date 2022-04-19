@@ -2,7 +2,6 @@ package piuk.blockchain.androidcore.data.payload
 
 import com.blockchain.annotations.BurnCandidate
 import com.blockchain.api.ApiException
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.SigningKey
@@ -23,8 +22,7 @@ import org.bitcoinj.core.ECKey
 // provides an rx wrapper for some PayloadManager calls. This is, at best, confusing and this can be merged
 // into PayloadManager
 internal class PayloadService(
-    private val payloadManager: PayloadManager,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val payloadManager: PayloadManager
 ) {
 
     // /////////////////////////////////////////////////////////////////////////
@@ -45,7 +43,7 @@ internal class PayloadService(
         password: String
     ): Completable =
         Completable.fromCallable {
-            payloadManager.initializeAndDecryptFromPayload(payload, password, kotlinSerializerFeatureFlag.isEnabled)
+            payloadManager.initializeAndDecryptFromPayload(payload, password)
         }
 
     /**
@@ -69,8 +67,7 @@ internal class PayloadService(
             walletName,
             email,
             password,
-            true,
-            kotlinSerializerFeatureFlag.isEnabled
+            true
         )
     }
 
@@ -91,8 +88,7 @@ internal class PayloadService(
             walletName,
             email,
             password,
-            true,
-            kotlinSerializerFeatureFlag.isEnabled
+            true
         )
     }
 
@@ -114,8 +110,7 @@ internal class PayloadService(
             sharedKey,
             guid,
             password,
-            true,
-            kotlinSerializerFeatureFlag.isEnabled
+            true
         )
     }
 
@@ -130,8 +125,7 @@ internal class PayloadService(
     ): Completable = Completable.fromCallable {
         payloadManager.initializeAndDecryptFromQR(
             data,
-            true,
-            kotlinSerializerFeatureFlag.isEnabled
+            true
         )
     }
 
@@ -146,7 +140,7 @@ internal class PayloadService(
      */
     internal fun syncPayloadWithServer(): Completable =
         Completable.fromCallable {
-            if (!payloadManager.save(kotlinSerializerFeatureFlag.isEnabled)) throw ApiException("Sync failed")
+            if (!payloadManager.save()) throw ApiException("Sync failed")
         }
 
     /**
@@ -159,7 +153,7 @@ internal class PayloadService(
      */
     internal fun syncPayloadAndPublicKeys(): Completable =
         Completable.fromCallable {
-            if (!payloadManager.saveAndSyncPubKeys(kotlinSerializerFeatureFlag.isEnabled)) {
+            if (!payloadManager.saveAndSyncPubKeys()) {
                 throw ApiException("Sync failed")
             }
         }
@@ -226,7 +220,7 @@ internal class PayloadService(
         accountLabel: String,
         secondPassword: String?
     ): Observable<Account> = Observable.fromCallable {
-        payloadManager.addAccount(accountLabel, secondPassword, kotlinSerializerFeatureFlag.isEnabled)
+        payloadManager.addAccount(accountLabel, secondPassword)
     }
 
     /**
@@ -241,7 +235,7 @@ internal class PayloadService(
         key: SigningKey,
         secondPassword: String?
     ): Observable<ImportedAddress> = Observable.fromCallable {
-        payloadManager.setKeyForImportedAddress(key, secondPassword, kotlinSerializerFeatureFlag.isEnabled)
+        payloadManager.setKeyForImportedAddress(key, secondPassword)
     }
 
     /**
@@ -252,7 +246,7 @@ internal class PayloadService(
      */
     internal fun addImportedAddress(importedAddress: ImportedAddress): Completable =
         Completable.fromCallable {
-            payloadManager.addImportedAddress(importedAddress, kotlinSerializerFeatureFlag.isEnabled)
+            payloadManager.addImportedAddress(importedAddress)
         }
 
     /**
@@ -263,6 +257,6 @@ internal class PayloadService(
      */
     internal fun updateImportedAddress(importedAddress: ImportedAddress): Completable =
         Completable.fromCallable {
-            payloadManager.updateImportedAddress(importedAddress, kotlinSerializerFeatureFlag.isEnabled)
+            payloadManager.updateImportedAddress(importedAddress)
         }
 }

@@ -1,7 +1,6 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
@@ -34,8 +33,7 @@ class MetadataManager(
     private val payloadDataManager: PayloadDataManager,
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
-    private val remoteLogger: RemoteLogger,
-    private val kotlinSerializerFeatureFlag: IntegratedFeatureFlag
+    private val remoteLogger: RemoteLogger
 ) {
     private val credentials: MetadataCredentials
         get() = payloadDataManager.metadataCredentials ?: throw IllegalStateException("Wallet not initialised")
@@ -126,12 +124,10 @@ class MetadataManager(
      * @throws Exception Can throw an Exception if there's an issue with the credentials or network
      */
     private fun loadNodes(): Single<Boolean> =
-        kotlinSerializerFeatureFlag.enabled.flatMapMaybe { withKotlinX ->
-            metadataInteractor.loadRemoteMetadata(metadataNodeFactory.secondPwNode)
-                .map { metadata ->
-                    metadataNodeFactory.initNodes(RemoteMetadataNodes.fromJson(metadata, withKotlinX))
-                }
-        }
+        metadataInteractor.loadRemoteMetadata(metadataNodeFactory.secondPwNode)
+            .map { metadata ->
+                metadataNodeFactory.initNodes(RemoteMetadataNodes.fromJson(metadata))
+            }
             .defaultIfEmpty(false)
             .onErrorReturn { false }
 
@@ -146,12 +142,10 @@ class MetadataManager(
      */
     private fun generateNodes(): Completable {
         val remoteMetadataNodes = metadataNodeFactory.remoteMetadataHdNodes(payloadDataManager.masterKey)
-        return kotlinSerializerFeatureFlag.enabled.flatMapCompletable { withKotlinX ->
-            metadataInteractor.putMetadata(
-                remoteMetadataNodes.toJson(withKotlinX),
-                metadataNodeFactory.secondPwNode
-            )
-        }
+        return metadataInteractor.putMetadata(
+            remoteMetadataNodes.toJson(),
+            metadataNodeFactory.secondPwNode
+        )
             .doOnComplete {
                 metadataNodeFactory.initNodes(remoteMetadataNodes)
             }

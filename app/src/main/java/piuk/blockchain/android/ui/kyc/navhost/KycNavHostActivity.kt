@@ -10,14 +10,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import com.blockchain.analytics.events.KYCAnalyticsEvents
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Singles

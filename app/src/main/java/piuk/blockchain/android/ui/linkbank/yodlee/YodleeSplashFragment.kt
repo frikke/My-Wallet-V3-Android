@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.blockchain.analytics.Analytics
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.YodleeAttributes
-import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimpleBuyYodleeSplashBinding

@@ -1,16 +1,13 @@
 package piuk.blockchain.android.ui.createwallet
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.services.Geolocation
 import com.blockchain.core.eligibility.CountryIso
 import com.blockchain.core.eligibility.EligibilityDataManager
-import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
@@ -39,7 +36,6 @@ class CreateWalletPresenterTest {
     private val analytics: Analytics = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
-    private val nabuUserDataManager: NabuUserDataManager = mock()
     private val eligibilityDataManager: EligibilityDataManager = mock()
 
     @get:Rule
@@ -57,7 +53,6 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             environmentConfig = environmentConfig,
             formatChecker = formatChecker,
-            nabuUserDataManager = nabuUserDataManager,
             eligibilityDataManager = eligibilityDataManager
         )
         subject.initView(view)
@@ -267,16 +262,5 @@ class CreateWalletPresenterTest {
 
         verify(eligibilityDataManager).getCustodialEligibleCountries()
         verify(view).setEligibleCountries(Locale.getISOCountries().toList())
-    }
-
-    @Test
-    fun `on geolocation returning non eligible country should not select it`() {
-        val geolocation = Geolocation("CU", null)
-        val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
-        whenever(nabuUserDataManager.getUserGeolocation()).thenReturn(Single.just(geolocation))
-        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
-        subject.getUserGeolocation()
-
-        verify(view, never()).setGeolocationInCountrySpinner(any())
     }
 }

@@ -19,7 +19,10 @@ class UserAgentInterceptor(
         val originalRequest = chain.request()
         val requestWithUserAgent = originalRequest.newBuilder()
             .header("User-Agent", userAgent)
-            .header("Accept-Language", Locale.getDefault().toLanguageTag())
+            .header(
+                name = "Accept-Language",
+                value = "${Locale.getDefault().toLanguageTag()},${Locale.getDefault().language}"
+            )
             .build()
         return chain.proceed(requestWithUserAgent)
     }

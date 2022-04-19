@@ -35,14 +35,17 @@ dependencies {
     implementation project(':common:interface')
     implementation project(':common-mp:utils')
     implementation project(':logging:domain')
+    implementation project(':analytics:domain')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':store:caches:inmemory')
 
     api project(':balance')
 
     // Networking
-    implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.okHttpInterceptor
@@ -77,7 +80,6 @@ dependencies {
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
-    testImplementation Libraries.jacksonKotlin
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

@@ -27,6 +27,7 @@ dependencies {
     implementation project(':core')
     implementation project(':blockchainApi')
     implementation project(':logging:domain')
+    implementation project(':analytics:domain')
 
     api project(':balance')
 
@@ -47,7 +48,6 @@ dependencies {
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kluent
-    testImplementation Libraries.jacksonKotlin
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.start
 
+import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.notifications.analytics.Analytics
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever

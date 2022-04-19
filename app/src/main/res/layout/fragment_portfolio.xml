@@ -36,116 +36,90 @@
             tools:listitem="@layout/item_dashboard_asset_card"
             tools:visibility="visible" />
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/empty_portfolio"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/empty_portfolio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            tools:visibility="visible"
-            >
+            app:constraint_referenced_ids="empty_portfolio_title, portfolio_description, buy_crypto_button, receive_deposit_button, bottom_background, receive_button"
+            tools:visibility="gone" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                >
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/empty_portfolio_title"
+            style="@style/Text.Semibold.Centered.20"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/xhuge_margin"
+            android:layout_marginEnd="@dimen/xhuge_margin"
+            android:layout_marginBottom="@dimen/tiny_margin"
+            android:text="@string/empty_portfolio_title"
+            app:layout_constraintBottom_toTopOf="@+id/portfolio_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
-                <include
-                    android:id="@+id/announcement"
-                    layout="@layout/item_announcement_standard"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:layout_margin="@dimen/tiny_margin"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:visibility="visible"
-                    />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/portfolio_description"
+            style="@style/Text.Standard.Centered.14"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/xhuge_margin"
+            android:layout_marginEnd="@dimen/xhuge_margin"
+            android:text="@string/empty_portfolio_description"
+            app:layout_constraintBottom_toTopOf="@+id/buy_crypto_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_portfolio_title" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/empty_portfolio_title"
-                    style="@style/Text.Semibold.Centered.20"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/xhuge_margin"
-                    android:layout_marginEnd="@dimen/xhuge_margin"
-                    android:layout_marginBottom="@dimen/tiny_margin"
-                    android:layout_marginTop="@dimen/standard_margin"
-                    app:layout_goneMarginTop="0dp"
-                    android:text="@string/empty_portfolio_title"
-                    app:layout_constraintBottom_toTopOf="@+id/portfolio_description"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/announcement"
-                    app:layout_constraintVertical_chainStyle="packed" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buy_crypto_button"
+            style="@style/CtaButton.Blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_margin"
+            android:text="@string/common_buy_crypto"
+            app:layout_constraintBottom_toTopOf="@+id/receive_deposit_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/portfolio_description" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/portfolio_description"
-                    style="@style/Text.Standard.Centered.14"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/xhuge_margin"
-                    android:layout_marginEnd="@dimen/xhuge_margin"
-                    android:text="@string/empty_portfolio_description"
-                    app:layout_constraintBottom_toTopOf="@+id/buy_crypto_button"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/empty_portfolio_title" />
+        <com.blockchain.componentlib.SplitButton
+            android:id="@+id/receive_deposit_button"
+            style="@style/CtaButton.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/epic_margin"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"
+            app:leftButtonText="@string/receive"
+            app:rightButtonText="@string/common_deposit" />
 
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/buy_crypto_button"
-                    style="@style/CtaButton.Blue"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/standard_margin"
-                    android:text="@string/common_buy_crypto"
-                    app:layout_constraintBottom_toTopOf="@+id/receive_deposit_button"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/portfolio_description" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/receive_button"
+            style="@style/CtaButton.White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/epic_margin"
+            android:text="@string/receive"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"/>
 
-                <com.blockchain.componentlib.SplitButton
-                    android:id="@+id/receive_deposit_button"
-                    style="@style/CtaButton.White"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/small_margin"
-                    android:layout_marginBottom="@dimen/epic_margin"
-                    app:layout_constraintBottom_toTopOf="@+id/bottom_background"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"
-                    app:leftButtonText="@string/receive"
-                    app:rightButtonText="@string/common_deposit" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/receive_button"
-                    style="@style/CtaButton.White"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/small_margin"
-                    android:layout_marginBottom="@dimen/epic_margin"
-                    android:text="@string/receive"
-                    app:layout_constraintBottom_toTopOf="@+id/bottom_background"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"/>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/bottom_background"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/standard_margin"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:srcCompat="@drawable/ic_simple_buy_intro_splash" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.core.widget.NestedScrollView>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/bottom_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/standard_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_simple_buy_intro_splash" />
 
         <piuk.blockchain.android.ui.customviews.DashboardOnboardingCard
             android:id="@+id/card_onboarding"

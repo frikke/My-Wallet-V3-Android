@@ -38,12 +38,9 @@ dependencies {
     implementation Libraries.json
 
     // Networking
-    implementation Libraries.jacksonCore
-    implementation Libraries.jacksonKotlin
     implementation Libraries.moshi
     implementation Libraries.kotlinJson
     implementation(Libraries.retrofit) { exclude module: 'okhttp' }
-    implementation Libraries.retrofitJacksonConverter
     implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.retrofitKotlinJsonConverter

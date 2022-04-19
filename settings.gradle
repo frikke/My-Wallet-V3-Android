@@ -20,4 +20,7 @@ include ':app',
         ':walletconnect',
         ':commonarch',
         ':deeplinking',
-        ':logging:domain', ':logging:data'
+        ':logging:domain', ':logging:data',
+        ':analytics:domain', ':analytics:data',
+        ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
+        ':blockchainCard'

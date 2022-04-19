@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
 import org.koin.android.ext.android.get
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityBackupWalletBinding

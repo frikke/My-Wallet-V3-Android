@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.platform.ComposeView
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
@@ -15,8 +17,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
 import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

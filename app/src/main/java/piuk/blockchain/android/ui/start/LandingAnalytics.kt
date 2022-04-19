@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.start
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
-import com.blockchain.notifications.analytics.LaunchOrigin
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
+import com.blockchain.analytics.events.LaunchOrigin
 
 sealed class LandingAnalytics(
     override val event: String,

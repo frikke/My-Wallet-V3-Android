@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.blockchain.analytics.data.logEvent
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.koin.scopedInject
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

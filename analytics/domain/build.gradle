@@ -1,0 +1,5 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+dependencies {
+    implementation project(':blockchainApi')
+}

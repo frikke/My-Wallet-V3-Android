@@ -75,7 +75,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
-        mockInterceptor.setResponseList(responseList);
+        getMockInterceptor().setResponseList(responseList);
 
         //Act
         subject = new EthereumWallet(wallet.getMasterKey(), defaultLabel);
@@ -103,7 +103,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
-        mockInterceptor.setResponseList(responseList);
+        getMockInterceptor().setResponseList(responseList);
 
         //Act
         subject = new EthereumWallet(wallet.getMasterKey(), defaultLabel);
@@ -132,7 +132,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
-        mockInterceptor.setResponseList(responseList);
+        getMockInterceptor().setResponseList(responseList);
 
         //Act
         subject = new EthereumWallet(wallet.getMasterKey(), defaultLabel);
@@ -161,11 +161,11 @@ public class EthereumWalletTest extends MockedResponseTest {
         eth.setHasSeen(true);
 
         //Act
-        subject = EthereumWallet.load(eth.toJson(true), true);
+        subject = EthereumWallet.load(eth.toJson());
 
         //Assert
         Assert.assertTrue(subject.hasSeen());
-        Assert.assertEquals(eth.toJson(true), subject.toJson(true));
+        Assert.assertEquals(eth.toJson(), subject.toJson());
     }
 
     @Test
@@ -174,7 +174,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         //Arrange
 
         //Act
-        subject = EthereumWallet.load(null, true);
+        subject = EthereumWallet.load(null);
 
         //Assert
         Assert.assertNull(subject);
@@ -236,7 +236,7 @@ public class EthereumWalletTest extends MockedResponseTest {
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
         responseList.add(Pair.of(404, "{\"message\":\"Not Found\"}"));
-        mockInterceptor.setResponseList(responseList);
+        getMockInterceptor().setResponseList(responseList);
 
         subject = new EthereumWallet(wallet.getMasterKey(), defaultLabel);
         RawTransaction tx = createEtherTransaction();

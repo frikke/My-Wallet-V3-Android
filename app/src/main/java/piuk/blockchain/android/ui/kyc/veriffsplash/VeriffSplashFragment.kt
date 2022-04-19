@@ -15,6 +15,10 @@ import androidx.appcompat.app.AppCompatActivity.RESULT_OK
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment.findNavController
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.data.logEvent
+import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.componentlib.alert.SnackbarType
@@ -26,10 +30,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.KYCAnalyticsEvents
-import com.blockchain.notifications.analytics.logEvent
 import com.blockchain.veriff.VeriffApplicantAndToken
 import com.blockchain.veriff.VeriffLauncher
 import com.blockchain.veriff.VeriffResultHandler

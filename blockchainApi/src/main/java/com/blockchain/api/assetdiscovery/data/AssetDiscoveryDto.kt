@@ -34,6 +34,7 @@ internal val assetTypeSerializers = SerializersModule {
         subclass(Erc20Asset::class)
         subclass(CeloTokenAsset::class)
         subclass(FiatAsset::class)
+        subclass(AssetInformationResponse::class)
         default { UnsupportedAsset.serializer() }
     }
 }
@@ -91,7 +92,7 @@ internal data class DynamicCurrencyList(
 @Serializable
 internal data class AssetInformationResponse(
     @SerialName("currencyInfo")
-    val assetInfo: DynamicCurrency,
+    val assetInfo: DynamicCurrency?,
     @SerialName("description")
     val description: String?,
     @SerialName("whitepaper")
@@ -100,4 +101,4 @@ internal data class AssetInformationResponse(
     val website: String?,
     @SerialName("language")
     val language: String?
-)
+) : AssetType()

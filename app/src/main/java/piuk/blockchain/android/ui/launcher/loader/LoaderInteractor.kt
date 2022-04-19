@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.launcher.loader
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.AnalyticsEvent
+import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.notifications.NotificationTokenManager
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.AnalyticsEvent
-import com.blockchain.notifications.analytics.AnalyticsNames
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.remoteconfig.FeatureFlag
@@ -21,6 +21,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.Serializable
+import java.util.Locale
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -80,6 +81,8 @@ class LoaderInteractor(
             }.then {
                 saveInitialCountry()
             }.then {
+                reportSystemLanguage()
+            }.then {
                 updateUserFiatIfNotSet()
             }.then {
                 notificationTokenUpdate
@@ -110,6 +113,13 @@ class LoaderInteractor(
             )
     }
 
+    private fun reportSystemLanguage(): Completable {
+        with(Locale.getDefault()) {
+            val languageCode = "${language}_$country"
+            return nabuUserDataManager.reportLanguage(languageCode).onErrorComplete()
+        }
+    }
+
     private fun checkNewTermsAndConditions(isAfterWalletCreation: Boolean): Maybe<String> =
         if (isAfterWalletCreation) Maybe.empty()
         else nabuUserDataManager.getLatestTermsAndConditions().flatMapMaybe {
@@ -129,12 +139,11 @@ class LoaderInteractor(
         }
 
     private fun onInitSettingsSuccess(newTermsThatNeedSigning: String?, shouldLaunchEmailVerification: Boolean) {
+        emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         if (newTermsThatNeedSigning != null) {
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.NewTermsAndConditions(newTermsThatNeedSigning)))
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         } else if (shouldLaunchEmailVerification) {
             emitter.onNext(LoaderIntents.UpdateLoadingStep(LoadingStep.EmailVerification))
-            emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))
         } else {
             emitter.onNext(
                 LoaderIntents.UpdateLoadingStep(

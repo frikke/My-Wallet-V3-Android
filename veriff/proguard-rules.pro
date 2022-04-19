@@ -64,7 +64,6 @@
 -keep interface okhttp3.** { *; }
 -dontwarn okhttp3.**
 
--dontwarn com.fasterxml.jackson.databind.ext.DOMSerializer
 -dontwarn io.jsonwebtoken.impl.Base64Codec
 -dontwarn io.jsonwebtoken.impl.crypto.EllipticCurveProvider
 

@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.analytics.Analytics
 import com.blockchain.core.payments.model.YapilyAttributes
-import com.blockchain.notifications.analytics.Analytics
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.FragmentSimpleBuyYapilyBankSelectBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor

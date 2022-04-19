@@ -1,7 +1,5 @@
 package info.blockchain.wallet.ethereum
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -68,24 +66,6 @@ class EthAddressResponseTest {
         "    \"txnOffset\": 0\n" +
         "  }\n" +
         "}"
-
-    @Test
-    fun `EthAddressResponse should be parsed normally when using jackson`() {
-
-        val typeRef = object : TypeReference<HashMap<String, EthAddressResponse>>() {}
-
-        val result = ObjectMapper().readValue(data, typeRef)
-        assert(result.size == 1)
-        assert(
-            result["0x6E05e9044a36D9B9Fe9044a36D9B9F82FC82FCB1f9FE708f7a34C8581"]!!.getId() == 0 &&
-                result["0x6E05e9044a36D9B9Fe9044a36D9B9F82FC82FCB1f9FE708f7a34C8581"]!!.getAccount()
-                == "0x6e05e904e9044a36D9B9F82FC9fe708f7a34c8581" &&
-                result["0x6E05e9044a36D9B9Fe9044a36D9B9F82FC82FCB1f9FE708f7a34C8581"]!!.getAccountType()
-                == 0 &&
-                result["0x6E05e9044a36D9B9Fe9044a36D9B9F82FC82FCB1f9FE708f7a34C8581"]!!.getBalance() ==
-                "217968902283300003".toBigInteger()
-        )
-    }
 
     @Test
     fun `EthAddressResponse should be parsed normally when using kotlix searialiser`() {

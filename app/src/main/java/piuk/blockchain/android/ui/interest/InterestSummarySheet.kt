@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
@@ -20,7 +21,6 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRates
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.notifications.analytics.LaunchOrigin
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -36,14 +36,15 @@ import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetInterestDetailsBinding
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.dashboard.coinview.CoinViewAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import timber.log.Timber
 
 class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetailsBinding>() {
     interface Host : SlidingModalBottomDialog.Host {
         fun goToActivityFor(account: BlockchainAccount)
-        fun goToInterestDeposit(toAccount: InterestAccount)
-        fun goToInterestWithdraw(fromAccount: InterestAccount)
+        fun goToInterestDeposit(toAccount: BlockchainAccount)
+        fun goToInterestWithdraw(fromAccount: BlockchainAccount)
     }
 
     override val host: Host by lazy {
@@ -78,6 +79,12 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         }
 
         binding.apply {
+            interestDetailsLoading1.showIconLoader = false
+            interestDetailsLoading2.showIconLoader = false
+            interestDetailsLoading3.showIconLoader = false
+            interestDetailsLoadingGroup.visible()
+            interestDetailsList.gone()
+
             interestDetailsTitle.text = account.label
             interestDetailsSheetHeader.text = asset.name
             interestDetailsLabel.text = asset.name
@@ -98,7 +105,15 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                             getString(R.string.tx_title_add_with_ticker, asset.displayTicker)
                         interestDetailsDepositCta.setOnClickListener {
                             analytics.logEvent(InterestAnalytics.InterestSummaryDepositCta)
-                            host.goToInterestDeposit(account as InterestAccount)
+                            analytics.logEvent(
+                                CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                                    origin = LaunchOrigin.COIN_VIEW,
+                                    currency = asset.networkTicker,
+                                    type = CoinViewAnalytics.Companion.Type.ADD
+                                )
+                            )
+                            host.goToInterestDeposit(account)
+                            dismiss()
                         }
                     } else {
                         interestDetailsDepositCta.gone()
@@ -113,6 +128,10 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
         ).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onSuccess = { (details, limits, interestRate) ->
+                    with(binding) {
+                        interestDetailsLoadingGroup.gone()
+                        interestDetailsList.visible()
+                    }
                     compositeToView(
                         CompositeInterestDetails(
                             totalInterest = details.totalInterest,
@@ -144,7 +163,15 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
                         )
                     )
                     analytics.logEvent(InterestAnalytics.InterestSummaryWithdrawCta)
-                    host.goToInterestWithdraw(account as InterestAccount)
+                    analytics.logEvent(
+                        CoinViewAnalytics.RewardsWithdrawOrAddClicked(
+                            origin = LaunchOrigin.COIN_VIEW,
+                            currency = asset.networkTicker,
+                            type = CoinViewAnalytics.Companion.Type.WITHDRAW
+                        )
+                    )
+                    host.goToInterestWithdraw(account)
+                    dismiss()
                 }
             }
         }

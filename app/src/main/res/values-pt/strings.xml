@@ -1164,7 +1164,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="trending_label">Tendências</string>
     <string name="trending_swap">Trocar %1$s</string>
     <string name="trending_empty">Financie as suas Carteiras de Negociação para ver as Tendências de Trocas com taxas mais baixas.</string>
-    <string name="trending_receive">Receber %1$s</string>
+    <string name="common_receive_to">Receber %1$s</string>
     <string name="select_a_wallet">Selecione uma Wallet</string>
     <string name="pending_swap_info_message">Tem 1 troca pendente. Depois de este ser eliminado, pode fazer uma nova troca.</string>
     <string name="deposit_fee">Taxa de rede</string>
@@ -1884,7 +1884,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="reset_account_description_1">A redefinição irá restaurar suas contas de negociação, recompensas e câmbio.</string>
     <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
-    <string name="common_oops">Ups! Ocorreu um erro.</string>
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Recusar</string>
     <string name="item_the_exchange">Exchange</string>

@@ -1,8 +1,10 @@
 package com.blockchain.koin
 
 import android.app.Application
+import com.blockchain.analytics.data.koin.analyticsModule
 import com.blockchain.api.blockchainApiModule
 import com.blockchain.bitpay.bitpayModule
+import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
@@ -22,6 +24,7 @@ import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.store_caches_persistedjsonsqldelight.storeCachesPersistedJsonSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -108,7 +111,10 @@ object KoinStarter {
                     remoteFeatureFlagsModule,
                     deeplinkModule,
                     loggingModule,
+                    analyticsModule,
                     customerSupportModule,
+                    storeCachesPersistedJsonSqlDelightModule,
+                    blockchainCardModule,
                     interestDashboardDataModule,
                     interestDashboardDomainModule,
                     interestDashboardPresentationModule

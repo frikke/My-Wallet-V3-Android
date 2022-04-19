@@ -8,11 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.customerSupportSheetFeatureFlag
-import com.blockchain.notifications.analytics.Analytics
 import com.blockchain.remoteconfig.FeatureFlag
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject

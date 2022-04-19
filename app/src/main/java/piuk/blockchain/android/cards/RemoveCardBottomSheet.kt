@@ -3,12 +3,12 @@ package piuk.blockchain.android.cards
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.notifications.analytics.LaunchOrigin
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign

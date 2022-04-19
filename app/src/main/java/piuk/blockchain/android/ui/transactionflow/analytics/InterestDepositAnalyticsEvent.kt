@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow.analytics
 
-import com.blockchain.notifications.analytics.AnalyticsEvent
+import com.blockchain.analytics.AnalyticsEvent
 import info.blockchain.balance.Currency
 
 sealed class InterestDepositAnalyticsEvent(

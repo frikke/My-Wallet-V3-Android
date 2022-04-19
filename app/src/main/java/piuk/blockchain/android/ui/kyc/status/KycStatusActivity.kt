@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintSet
+import com.blockchain.analytics.data.logEvent
+import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.coincore.AssetAction
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -15,8 +17,6 @@ import com.blockchain.componentlib.viewextensions.px
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.models.responses.nabu.KycTierState
-import com.blockchain.notifications.analytics.AnalyticsEvents
-import com.blockchain.notifications.analytics.logEvent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType

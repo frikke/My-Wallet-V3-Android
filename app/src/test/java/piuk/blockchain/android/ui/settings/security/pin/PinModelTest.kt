@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.settings.security.pin
 
+import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.notifications.analytics.Analytics
-import com.blockchain.notifications.analytics.ProviderSpecificAnalytics
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType

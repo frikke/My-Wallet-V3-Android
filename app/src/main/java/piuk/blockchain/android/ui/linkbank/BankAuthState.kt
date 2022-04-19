@@ -6,7 +6,6 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.LinkedBank
 import com.google.gson.Gson
 import java.io.Serializable
-import piuk.blockchain.android.simplebuy.ErrorState
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 
 data class BankAuthState(
@@ -15,7 +14,7 @@ data class BankAuthState(
     val linkBankTransfer: LinkBankTransfer? = null,
     val linkBankUrl: String? = null,
     val bankLinkingProcessState: BankLinkingProcessState = BankLinkingProcessState.NONE,
-    val errorState: ErrorState? = null,
+    val errorState: BankAuthError? = null,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
     val callbackPathUrl: String = ""
 ) : MviState
@@ -29,6 +28,23 @@ enum class BankLinkingProcessState {
     LINKING_SUCCESS,
     CANCELED,
     NONE
+}
+
+enum class BankAuthError {
+    BankLinkingUpdateFailed,
+    BankLinkingFailed,
+    LinkedBankAlreadyLinked,
+    BankLinkingTimeout,
+    LinkedBankInfoNotFound,
+    LinkedBankAccountUnsupported,
+    GenericError,
+    LinkedBankNamesMismatched,
+    LinkedBankRejected,
+    LinkedBankExpired,
+    LinkedBankFailure,
+    LinkedBankInternalFailure,
+    LinkedBankInvalid,
+    LinkedBankFraud
 }
 
 data class BankLinkingInfo(
