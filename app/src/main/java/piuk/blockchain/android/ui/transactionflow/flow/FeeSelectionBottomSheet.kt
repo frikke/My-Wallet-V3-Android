@@ -22,6 +22,7 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFeeSelectionBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -30,7 +31,6 @@ import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class FeeSelectionBottomSheet :
     MviBottomSheet<TransactionModel, TransactionIntent, TransactionState, DialogSheetFeeSelectionBinding>() {
-
     private val scope: Scope by lazy {
         (requireContext() as TransactionFlowActivity).scope
     }
@@ -178,38 +178,49 @@ class FeeSelectionBottomSheet :
                 is FeeState.FeeUnderMinLimit -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_sat_byte_min_error)
+                        getString(R.string.fee_options_sat_byte_min_error),
+                        feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.FeeUnderRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_fee_too_low)
+                        getString(R.string.fee_options_fee_too_low),
+                        feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.FeeOverRecommended -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.fee_options_fee_too_high)
+                        getString(R.string.fee_options_fee_too_high),
+                        feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.ValidCustomFee -> {
-                    setCustomFeeValues(feeSelection.customAmount)
+                    setCustomFeeValues(
+                        customFee = feeSelection.customAmount,
+                        feeSelection = feeSelection.feeState.toString()
+                    )
                 }
                 is FeeState.FeeTooHigh -> {
                     setCustomFeeValues(
                         feeSelection.customAmount,
-                        getString(R.string.send_confirmation_insufficient_funds_for_fee)
+                        getString(R.string.send_confirmation_insufficient_funds_for_fee),
+                        feeSelection.feeState.toString()
                     )
                 }
                 is FeeState.FeeDetails -> {
-                    setCustomFeeValues(feeSelection.customAmount)
+                    setCustomFeeValues(
+                        customFee = feeSelection.customAmount,
+                        feeSelection = feeSelection.feeState.toString()
+                    )
                 }
             }
         }
     }
 
-    private fun setCustomFeeValues(customFee: Long, error: String = "") {
+    private fun setCustomFeeValues(customFee: Long, error: String = "", feeSelection: String) {
+        logErrorAnalytics(title = error, error = feeSelection)
         with(binding) {
             if (customFee != -1L) {
                 val fee = customFee.toString()
@@ -220,6 +231,18 @@ class FeeSelectionBottomSheet :
             }
             feeCustomError.text = error
         }
+    }
+
+    private fun logErrorAnalytics(title: String, error: String) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = null,
+                error = error,
+                source = ClientErrorAnalytics.Companion.Source.NABU,
+                title = title,
+                action = ClientErrorAnalytics.ACTION_BUY,
+            )
+        )
     }
 
     private fun sendFeeUpdate(model: TransactionModel, level: FeeLevel, customFeeAmount: Long? = null) {

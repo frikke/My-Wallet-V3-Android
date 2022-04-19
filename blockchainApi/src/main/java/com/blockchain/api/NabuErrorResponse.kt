@@ -15,6 +15,7 @@ import retrofit2.HttpException
 
 @Serializable
 private data class NabuErrorResponse(
+    val id: String = "",
     /**
      * Machine-readable error code.
      */
@@ -34,7 +35,9 @@ class NabuApiException internal constructor(
     private val httpErrorCode: Int,
     private val errorType: String?,
     private val errorCode: Int?,
-    private val errorDescription: String?
+    private val errorDescription: String?,
+    private val path: String?,
+    private val id: String?,
 ) : Throwable(message) {
 
     private constructor(message: String, code: Int) : this(
@@ -42,8 +45,14 @@ class NabuApiException internal constructor(
         httpErrorCode = code,
         errorType = null,
         errorCode = null,
-        errorDescription = null
+        errorDescription = null,
+        path = null,
+        id = null,
     )
+
+    fun getPath(): String = path.orEmpty()
+
+    fun getId(): String = id.orEmpty()
 
     fun getErrorCode(): NabuErrorCodes = errorCode?.let {
         NabuErrorCodes.fromErrorCode(it)
@@ -96,6 +105,7 @@ object NabuApiExceptionFactory {
                 null
             }
             errorResponse?.let {
+                val id = it.id
                 val httpErrorCode = exception.code()
                 val errorType = it.type
                 val errorDescription = it.description
@@ -107,7 +117,9 @@ object NabuApiExceptionFactory {
                     httpErrorCode,
                     errorType,
                     errorCode,
-                    errorDescription
+                    errorDescription,
+                    path,
+                    id
                 )
             }
         } ?: NabuApiException.fromErrorMessageAndCode(exception.message(), exception.code())
