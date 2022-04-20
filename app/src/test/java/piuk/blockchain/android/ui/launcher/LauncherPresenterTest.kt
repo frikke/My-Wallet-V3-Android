@@ -8,6 +8,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -27,9 +29,7 @@ class LauncherPresenterTest {
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
 
-    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock() {
-        onBlocking { invoke() }.thenReturn(AppMaintenanceStatus.Actionable.RedirectToWebsite(""))
-    }
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock()
     private val appMaintenanceFF: FeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(true))
     }
@@ -59,6 +59,7 @@ class LauncherPresenterTest {
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
+
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_SCHEME_URL, "bitcoin uri")
     }
@@ -78,6 +79,7 @@ class LauncherPresenterTest {
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
+
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_METADATA_URI, "blockchain")
     }
@@ -92,6 +94,7 @@ class LauncherPresenterTest {
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
+
 
         // Assert
         verify(launcherActivity).onCorruptPayload()
@@ -108,6 +111,7 @@ class LauncherPresenterTest {
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
+
         // Assert
         verify(launcherActivity).onRequestPin()
     }
@@ -122,6 +126,7 @@ class LauncherPresenterTest {
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
+
 
         // Assert
         verify(launcherActivity).onReenterPassword()
@@ -138,12 +143,13 @@ class LauncherPresenterTest {
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
+
         // Assert
         verify(launcherActivity).onNoGuid()
     }
 
     @Test
-    fun onViewAttached_noGuidAndBackup_callsOnRequestPin() {
+    fun onViewAttached_noGuidAndBackup_callsOnRequestPin()  = runBlocking{
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
         whenever(prefsUtil.hasBackup()).thenReturn(true)

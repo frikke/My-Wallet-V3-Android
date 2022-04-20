@@ -15,7 +15,8 @@ abstract class MvpPresenter<T : MvpView> {
     protected var view: T? = null
         private set
 
-    fun onCreateView() {
+    fun onCreateView(view: T) {
+        this.view = view
         onViewCreated()
     }
 

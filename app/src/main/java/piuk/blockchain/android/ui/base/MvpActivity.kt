@@ -18,7 +18,7 @@ abstract class MvpActivity<V : MvpView, P : MvpPresenter<V>> : BlockchainActivit
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        presenter.onCreateView()
+        presenter.onCreateView(view)
     }
 
     @CallSuper
