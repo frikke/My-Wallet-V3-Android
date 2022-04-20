@@ -161,7 +161,7 @@ class LoginAuthActivity :
                 }
             })
             forgotPasswordButton.setOnClickListener {
-                showCustomerSupportSheet()
+                launchPasswordRecoveryFlow()
             }
 
             continueButton.setOnClickListener {
@@ -435,7 +435,7 @@ class LoginAuthActivity :
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.second_password_hint)
                     forgotSecondPasswordButton.visible()
-                    forgotSecondPasswordButton.setOnClickListener { showCustomerSupportSheet() }
+                    forgotSecondPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
                     setup2FANotice(
                         textId = R.string.second_password_notice,
                         annotationForLink = SECOND_PASSWORD_LINK_ANNOTATION,

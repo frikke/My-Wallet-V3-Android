@@ -400,7 +400,9 @@ internal class NabuDataManagerImpl(
                 .map { recoverAccountResponse ->
                     NabuCredentialsMetadata(
                         userId = userId,
-                        lifetimeToken = recoverAccountResponse.token
+                        lifetimeToken = recoverAccountResponse.token,
+                        exchangeUserId = recoverAccountResponse.userCredentialsId,
+                        exchangeLifetimeToken = recoverAccountResponse.mercuryLifetimeToken
                     )
                 }
         }

@@ -7,7 +7,7 @@ import retrofit2.http.Field
 @Serializable
 data class NabuRecoverAccountRequest(
     val jwt: String,
-    @Field("recovery_token")
-    @SerialName("recovery_token")
+    @Field("recoveryToken")
+    @SerialName("recoveryToken")
     val recoveryToken: String
 )

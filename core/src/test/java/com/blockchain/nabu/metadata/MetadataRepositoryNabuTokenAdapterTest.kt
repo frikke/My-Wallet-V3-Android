@@ -40,7 +40,9 @@ class MetadataRepositoryNabuTokenAdapterTest {
                 Maybe.just(
                     NabuCredentialsMetadata(
                         userId = "User1",
-                        lifetimeToken = "TOKEN123"
+                        lifetimeToken = "TOKEN123",
+                        null,
+                        null,
                     )
                 )
             ),
@@ -60,7 +62,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         // Arrange
         val id = "ID"
         val lifetimeToken = "LIFETIME_TOKEN"
-        val offlineToken = NabuCredentialsMetadata(id, lifetimeToken)
+        val offlineToken = NabuCredentialsMetadata(id, lifetimeToken, null, null)
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             givenMetadata(
                 Maybe.just(offlineToken)
@@ -148,7 +150,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
     @Test
     fun `should throw MetadataNotFoundException as token is invalid from create call`() {
         // Arrange
-        val offlineToken = NabuCredentialsMetadata("", "")
+        val offlineToken = NabuCredentialsMetadata("", "", null, null)
         val metadata = offlineToken.mapFromMetadata()
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             givenMetadata(
@@ -179,7 +181,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         nabuToken.fetchNabuToken().test()
             .assertNotComplete()
             .assertError(Throwable::class.java)
-        metadataRepository.givenMetaData(Maybe.just(NabuCredentialsMetadata("USER1", "TOKEN2")))
+        metadataRepository.givenMetaData(Maybe.just(NabuCredentialsMetadata("USER1", "TOKEN2", null, null)))
         nabuToken.fetchNabuToken().test()
             .assertComplete()
             .values()
@@ -198,7 +200,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
     @Test
     fun `if the metadata is available, it does not update, proving cached`() {
         val metadataRepository = givenMetadata(
-            Maybe.just(NabuCredentialsMetadata("USER1", "TOKEN1"))
+            Maybe.just(NabuCredentialsMetadata("USER1", "TOKEN1", null, null))
         )
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             metadataRepository,
@@ -212,7 +214,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
                 this.userId `should be equal to` "USER1"
                 this.token `should be equal to` "TOKEN1"
             }
-        metadataRepository.givenMetaData(Maybe.just(NabuCredentialsMetadata("USER2", "TOKEN2")))
+        metadataRepository.givenMetaData(Maybe.just(NabuCredentialsMetadata("USER2", "TOKEN2", null, null)))
         nabuToken.fetchNabuToken().test()
             .assertComplete()
             .values()
