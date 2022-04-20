@@ -4,12 +4,12 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.outcome.Outcome
 import info.blockchain.balance.AssetInfo
-import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestRepository
+import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestService
 
 // todo move to coincore module
-class GetAccountGroupUseCase(private val repository: AssetInterestRepository) {
+class GetAccountGroupUseCase(private val service: AssetInterestService) {
     suspend operator fun invoke(
         cryptoCurrency: AssetInfo,
         filter: AssetFilter = AssetFilter.All
-    ): Outcome<Throwable, AccountGroup> = repository.getAccountGroup(cryptoCurrency = cryptoCurrency, filter = filter)
+    ): Outcome<Throwable, AccountGroup> = service.getAccountGroup(cryptoCurrency = cryptoCurrency, filter = filter)
 }

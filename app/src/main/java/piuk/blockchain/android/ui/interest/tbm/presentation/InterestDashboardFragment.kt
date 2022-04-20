@@ -6,27 +6,33 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.control.Search
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardAssetItem
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardError
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardLoading
 import piuk.blockchain.android.ui.interest.tbm.presentation.composables.InterestDashboardVerificationItem
-import piuk.blockchain.android.ui.interest.tbm.presentation.composables.SearchField
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 
 class InterestDashboardFragment :
@@ -92,8 +98,13 @@ class InterestDashboardFragment :
 
             state.value.isLoading.not() && state.value.isError.not() -> {
                 Column {
-                    Box {
-                        SearchField {
+                    Box(
+                        modifier = Modifier.padding(
+                            start = dimensionResource(R.dimen.standard_margin),
+                            end = dimensionResource(R.dimen.standard_margin)
+                        )
+                    ) {
+                        Search(label = stringResource(R.string.search_coins_hint)) {
                             viewModel.onIntent(InterestDashboardIntents.FilterData(it))
                         }
                     }
@@ -154,6 +165,12 @@ class InterestDashboardFragment :
 
     private fun startKyc() {
         host.startKyc()
+    }
+
+    @Preview
+    @Composable
+    fun PreviewScreenContent() {
+        ScreenContent()
     }
 
     companion object {

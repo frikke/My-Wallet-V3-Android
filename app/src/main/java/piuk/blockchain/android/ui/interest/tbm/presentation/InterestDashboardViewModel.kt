@@ -53,7 +53,8 @@ class InterestDashboardViewModel(
             data = state.data.run {
                 if (state.filter.isEmpty().not()) {
                     filter {
-                        it.assetInfo.displayTicker.startsWith(state.filter, ignoreCase = true)
+                        it.assetInfo.displayTicker.startsWith(state.filter, ignoreCase = true) ||
+                            it.assetInfo.name.startsWith(state.filter, ignoreCase = true)
                     }
                 } else this
             }

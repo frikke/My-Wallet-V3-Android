@@ -7,7 +7,7 @@ import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestInfo
 import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
 
-interface AssetInterestRepository {
+interface AssetInterestService {
     suspend fun getInterestDetail(): Outcome<Throwable, InterestDetail>
     suspend fun getAssetsInterestInfo(cryptoCurrencies: List<AssetInfo>): Outcome<Throwable, List<AssetInterestInfo>>
 

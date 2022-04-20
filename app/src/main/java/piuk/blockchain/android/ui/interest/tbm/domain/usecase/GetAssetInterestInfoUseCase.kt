@@ -4,11 +4,11 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestInfo
-import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestRepository
+import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestService
 
-class GetAssetInterestInfoUseCase(private val repository: AssetInterestRepository) {
+class GetAssetInterestInfoUseCase(private val service: AssetInterestService) {
     suspend operator fun invoke(assets: List<AssetInfo>): Outcome<Throwable, List<AssetInterestInfo>> =
-        repository.getAssetsInterestInfo(assets).map {
+        service.getAssetsInterestInfo(assets).map {
             it.sortedWith(
                 compareByDescending<AssetInterestInfo> { asset ->
                     // 1. first sort highest balances

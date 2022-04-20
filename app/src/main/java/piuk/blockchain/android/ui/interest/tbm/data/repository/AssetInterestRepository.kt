@@ -18,17 +18,17 @@ import kotlinx.coroutines.rx3.awaitSingle
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.tbm.domain.model.AssetInterestInfo
 import piuk.blockchain.android.ui.interest.tbm.domain.model.InterestDetail
-import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestRepository
+import piuk.blockchain.android.ui.interest.tbm.domain.repository.AssetInterestService
 import timber.log.Timber
 
-class AssetInterestRepositoryImpl(
+class AssetInterestRepository(
     private val kycTierService: TierService,
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
     private val dispatcher: CoroutineDispatcher
-) : AssetInterestRepository {
+) : AssetInterestService {
 
     override suspend fun getInterestDetail(): Outcome<Throwable, InterestDetail> {
         return coroutineScope {
