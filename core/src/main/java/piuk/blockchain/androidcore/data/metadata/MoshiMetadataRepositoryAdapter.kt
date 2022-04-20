@@ -24,16 +24,14 @@ internal class MoshiMetadataRepositoryAdapter(
         adapter: KSerializer<T>,
         clazz: Class<T>
     ): Maybe<T> =
-        disableMoshiFeatureFlag.enabled.flatMapMaybe { isMoshiDisabled ->
-            metadataManager.fetchMetadata(metadataType)
-                .map {
-                    if (isMoshiDisabled) {
-                        json.decodeFromString(adapter, it)
-                    } else {
-                        adapter(clazz).fromJson(it) ?: throw IllegalStateException("Error parsing JSON")
-                    }
+        metadataManager.fetchMetadata(metadataType)
+            .map {
+                if (disableMoshiFeatureFlag.isEnabled) {
+                    json.decodeFromString(adapter, it)
+                } else {
+                    adapter(clazz).fromJson(it) ?: throw IllegalStateException("Error parsing JSON")
                 }
-        }
+            }
             .subscribeOn(Schedulers.io())
 
     override fun <T : JsonSerializable> saveMetadata(
