@@ -285,13 +285,13 @@ class SimpleBuyPaymentFragment :
                 errorState = errorState.toString()
             )
             is ErrorState.PaymentFailedError -> showError(
-                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                title = getString(R.string.payment_failed_title_with_reason),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
             is ErrorState.ApprovedBankUndefinedError -> showError(
-                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                title = getString(R.string.payment_failed_title_with_reason),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()

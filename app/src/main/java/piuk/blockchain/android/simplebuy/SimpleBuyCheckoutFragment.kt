@@ -517,7 +517,7 @@ class SimpleBuyCheckoutFragment :
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
                         getString(
-                            R.string.payment_failed_title_with_reason, errorState.error
+                            R.string.payment_failed_title_with_reason
                         ),
                         getString(R.string.something_went_wrong_try_again),
                         getString(R.string.common_ok)

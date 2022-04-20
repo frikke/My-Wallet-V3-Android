@@ -2183,7 +2183,7 @@
     <string name="bank_transfer_payment_invalid_title">Invalid Account</string>
     <string name="bank_transfer_payment_invalid_subtitle">The account you selected isn’t active. Please try another account or payment method. If this isn’t correct, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_failed_title">Payment Failed</string>
-    <string name="payment_failed_title_with_reason">Payment Failed %1s</string>
+    <string name="payment_failed_title_with_reason">Payment Failed</string>
     <string name="bank_transfer_payment_failed_subtitle">There was an issue with your bank. Please try again or use a different payment method. If this keeps happening, please <annotation link="contact_support">contact support.</annotation></string>
     <string name="bank_transfer_payment_declined_title">Payment Declined</string>
     <string name="bank_transfer_payment_declined_subtitle">We believe your bank has declined this payment. Please contact your bank for support.\nIf you’ve already done this then please <annotation link="contact_support">contact support.</annotation></string>
