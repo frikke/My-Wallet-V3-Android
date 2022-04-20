@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.customviews.inputview
 
 import android.content.Context
 import android.text.Editable
-import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -32,15 +31,12 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.EnterFiatCryptoLayoutBinding
-import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.DIGITS
-import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.SAMSUNG_DEVICE
-import piuk.blockchain.android.ui.customviews.inputview.InputKeyboard.Companion.SEPARATOR_US
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class FiatCryptoInputView(
     context: Context,
     attrs: AttributeSet
-) : ConstraintLayout(context, attrs), KoinComponent, InputKeyboard {
+) : ConstraintLayout(context, attrs), KoinComponent {
 
     private val binding: EnterFiatCryptoLayoutBinding =
         EnterFiatCryptoLayoutBinding.inflate(LayoutInflater.from(context), this, true)
@@ -49,6 +45,7 @@ class FiatCryptoInputView(
         binding.enterAmount.onImeAction
     }
 
+    private val inputAmountKeyboard: InputAmountKeyboard by inject()
     private val amountSubject: PublishSubject<Money> = PublishSubject.create()
     private val exchangeSubject: BehaviorSubject<Money> = BehaviorSubject.create()
 
@@ -63,6 +60,7 @@ class FiatCryptoInputView(
         }
 
     private val exchangeRates: ExchangeRatesDataManager by inject()
+    private val inputKeyboardAmount: InputAmountKeyboard by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -125,16 +123,12 @@ class FiatCryptoInputView(
     var configured = false
         private set
 
-    override fun addDigitsToView() {
-        binding.enterAmount.keyListener = DigitsKeyListener.getInstance(DIGITS + getDecimalSeparator())
+    private fun addDigitsToView() {
+        binding.enterAmount.keyListener = DigitsKeyListener.getInstance(inputAmountKeyboard.validInputCharacters())
     }
 
-    override fun setInputTypeToView() {
-        if (getDeviceManufacturer().equals(SAMSUNG_DEVICE, ignoreCase = true) &&
-            getDecimalSeparator() != SEPARATOR_US
-        ) {
-            binding.enterAmount.inputType = InputType.TYPE_CLASS_PHONE
-        }
+    private fun setInputTypeToView() {
+        binding.enterAmount.inputType = inputAmountKeyboard.inputTypeForAmount()
     }
 
     private fun placeFakeHint(textSize: Int, hasPrefix: Boolean) {
