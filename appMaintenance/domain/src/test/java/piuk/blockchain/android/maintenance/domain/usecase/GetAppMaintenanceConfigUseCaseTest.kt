@@ -14,7 +14,7 @@ import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceServi
 class GetAppMaintenanceConfigUseCaseTest {
 
     private val repository = mockk<AppMaintenanceService>()
-    private val useCase by lazy { GetAppMaintenanceConfigUseCase(repository = repository) }
+    private val useCase by lazy { GetAppMaintenanceConfigUseCase(service = repository) }
 
     private val data = AppMaintenanceConfig(
         currentVersionCode = 0,

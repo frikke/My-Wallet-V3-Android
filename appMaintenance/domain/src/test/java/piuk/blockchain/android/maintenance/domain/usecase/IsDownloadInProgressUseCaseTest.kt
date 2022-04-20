@@ -10,7 +10,7 @@ import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceServi
 class IsDownloadInProgressUseCaseTest {
 
     private val repository = mockk<AppMaintenanceService>()
-    private val useCase by lazy { IsDownloadInProgressUseCase(repository = repository) }
+    private val useCase by lazy { IsDownloadInProgressUseCase(service = repository) }
 
     @Test
     fun `WHEN repository returns true, THEN true should be returned`() = runBlocking {

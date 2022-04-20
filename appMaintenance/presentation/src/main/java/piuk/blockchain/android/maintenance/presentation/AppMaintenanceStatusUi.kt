@@ -12,14 +12,14 @@ enum class AppMaintenanceStatusUiState(
     val button2: AppMaintenanceButtonSettings?
 ) {
     NO_STATUS(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_maintenance,
         title = R.string.empty,
         description = R.string.empty,
         button1 = null,
         button2 = null
     ),
     OS_NOT_SUPPORTED(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_maintenance,
         title = R.string.app_maintenance_os_not_supported_title,
         description = R.string.app_maintenance_os_not_supported_description,
         button1 = AppMaintenanceButtonSettings(
@@ -29,7 +29,7 @@ enum class AppMaintenanceStatusUiState(
         button2 = null
     ),
     SITE_WIDE_MAINTENANCE(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_maintenance,
         title = R.string.app_maintenance_down_title,
         description = R.string.app_maintenance_site_wide_description,
         button1 = AppMaintenanceButtonSettings(
@@ -39,7 +39,7 @@ enum class AppMaintenanceStatusUiState(
         button2 = null
     ),
     REDIRECT_TO_WEBSITE(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_maintenance,
         title = R.string.app_maintenance_down_title,
         description = R.string.app_maintenance_redirect_website_description,
         button1 = null,
@@ -49,7 +49,7 @@ enum class AppMaintenanceStatusUiState(
         )
     ),
     MANDATORY_UPDATE(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_outdated_app,
         title = R.string.app_maintenance_update_title,
         description = R.string.app_maintenance_update_description,
         button1 = null,
@@ -59,7 +59,7 @@ enum class AppMaintenanceStatusUiState(
         )
     ),
     OPTIONAL_UPDATE(
-        image = R.drawable.ic_down_for_maintenance,
+        image = R.drawable.ic_outdated_app,
         title = R.string.app_maintenance_update_title,
         description = R.string.app_maintenance_update_description,
         button1 = AppMaintenanceButtonSettings(
