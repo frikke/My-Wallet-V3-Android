@@ -9,6 +9,8 @@ import info.blockchain.balance.CryptoCurrency
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -23,8 +25,6 @@ import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetInterestInfoUseCase
 import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDetailUseCase
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class InterestDashboardViewModelTest {

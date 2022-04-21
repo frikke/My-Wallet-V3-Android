@@ -7,13 +7,13 @@ import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class GetAccountGroupUseCaseTest {

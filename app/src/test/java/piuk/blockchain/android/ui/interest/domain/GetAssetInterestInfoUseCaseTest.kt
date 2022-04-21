@@ -5,6 +5,8 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -12,8 +14,6 @@ import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetInterestInfoUseCase
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class GetAssetInterestInfoUseCaseTest {
@@ -74,4 +74,3 @@ class GetAssetInterestInfoUseCaseTest {
         }
     }
 }
-

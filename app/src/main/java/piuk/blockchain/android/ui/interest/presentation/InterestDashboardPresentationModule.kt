@@ -15,6 +15,4 @@ val interestDashboardPresentationModule = module {
     viewModel {
         InterestDashboardSharedViewModel()
     }
-
 }
-

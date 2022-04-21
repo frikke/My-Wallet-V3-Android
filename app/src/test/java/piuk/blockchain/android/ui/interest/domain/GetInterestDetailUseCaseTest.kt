@@ -3,14 +3,14 @@ package piuk.blockchain.android.ui.interest.domain
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDetailUseCase
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class GetInterestDetailUseCaseTest {

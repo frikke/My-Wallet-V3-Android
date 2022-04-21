@@ -115,9 +115,7 @@ object KoinStarter {
                     customerSupportModule,
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
-                    interestDashboardDataModule,
-                    interestDashboardDomainModule,
-                    interestDashboardPresentationModule
+                    interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule
                 )
             )
         }

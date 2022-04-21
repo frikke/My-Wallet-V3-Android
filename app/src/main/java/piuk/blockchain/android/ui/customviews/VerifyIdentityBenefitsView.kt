@@ -11,10 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.bumptech.glide.Glide
+import java.io.Serializable
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.VerifyIdentityBenefitsLayoutBinding
-import java.io.Serializable
 
 class VerifyIdentityBenefitsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     ConstraintLayout(context, attrs) {

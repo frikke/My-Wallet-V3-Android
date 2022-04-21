@@ -18,4 +18,3 @@ val interestDashboardDataModule = module {
         )
     }
 }
-

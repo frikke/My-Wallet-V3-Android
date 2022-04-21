@@ -35,4 +35,3 @@ class GetAssetInterestInfoUseCase(private val service: AssetInterestService) {
         AssetInfoPriority(name = "USDT", priority = 4),
     )
 }
-

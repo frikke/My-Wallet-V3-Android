@@ -179,7 +179,6 @@ val featureFlagsModule = module {
             )
         )
     }.bind(FeatureFlag::class)
-
 }
 
 fun getFeatureFlags(): List<FeatureFlag> {

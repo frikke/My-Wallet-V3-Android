@@ -22,6 +22,8 @@ import io.mockk.mockk
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -31,8 +33,6 @@ import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
 import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class AssetInterestRepositoryTest {

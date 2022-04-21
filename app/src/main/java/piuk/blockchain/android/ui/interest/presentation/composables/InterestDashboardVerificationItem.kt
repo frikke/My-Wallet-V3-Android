@@ -45,4 +45,3 @@ fun InterestDashboardVerificationItem(verificationClicked: () -> Unit) {
 fun PreviewInterestDashboardVerificationItem() {
     InterestDashboardVerificationItem {}
 }
-
