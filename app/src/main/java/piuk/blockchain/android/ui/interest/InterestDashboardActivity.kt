@@ -13,8 +13,8 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.collect
@@ -103,13 +103,13 @@ class InterestDashboardActivity :
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            sharedViewModel.startKycFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+            sharedViewModel.startKycFlow.flowWithLifecycle(lifecycle).collect {
                 startKyc()
             }
         }
 
         lifecycleScope.launch {
-            sharedViewModel.showInterestSummaryFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+            sharedViewModel.showInterestSummaryFlow.flowWithLifecycle(lifecycle).collect {
                 showInterestSummarySheet(it)
             }
         }

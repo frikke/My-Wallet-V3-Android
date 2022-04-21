@@ -40,8 +40,6 @@ class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     NavigationRouter<InterestDashboardNavigationEvent> {
 
-    private lateinit var composeView: ComposeView
-
     private val viewModel: InterestDashboardViewModel by viewModel()
     private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()
 
@@ -50,23 +48,18 @@ class InterestDashboardFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return ComposeView(requireContext()).also { composeView = it }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                ScreenContent()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupViews()
         setupViewModel()
         loadDashboard()
-    }
-
-    private fun setupViews() {
-        composeView.apply {
-            setContent {
-                ScreenContent()
-            }
-        }
     }
 
     private fun setupViewModel() {
