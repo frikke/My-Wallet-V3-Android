@@ -41,9 +41,9 @@ import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncements
 import piuk.blockchain.android.ui.dashboard.dashboardModule
 import piuk.blockchain.android.ui.debug.remoteFeatureFlagsModule
 import piuk.blockchain.android.ui.home.mainModule
-import piuk.blockchain.android.ui.interest.tbm.data.interestDashboardDataModule
-import piuk.blockchain.android.ui.interest.tbm.domain.interestDashboardDomainModule
-import piuk.blockchain.android.ui.interest.tbm.presentation.interestDashboardPresentationModule
+import piuk.blockchain.android.ui.interest.data.interestDashboardDataModule
+import piuk.blockchain.android.ui.interest.domain.interestDashboardDomainModule
+import piuk.blockchain.android.ui.interest.presentation.interestDashboardPresentationModule
 import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule

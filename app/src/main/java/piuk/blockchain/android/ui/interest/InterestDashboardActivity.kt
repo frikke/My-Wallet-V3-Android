@@ -20,8 +20,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardHost
-import piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardSharedViewModel
+import piuk.blockchain.android.ui.interest.presentation.InterestDashboardHost
+import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -46,7 +46,7 @@ class InterestDashboardActivity :
         get() = false
 
     private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
-    private val fragmentOrdered: piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.tbm.presentation.InterestDashboardFragment.newInstance() }
+    private val fragmentOrdered: piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment.newInstance() }
 
     private val orderRewardsFF: FeatureFlag by inject(orderRewardsFeatureFlag)
 
