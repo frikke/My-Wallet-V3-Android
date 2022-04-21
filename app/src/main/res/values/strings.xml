@@ -2456,7 +2456,7 @@
     <string name="funds_locked_details_learn_more">Learn More</string>
 
     <!-- LocksInfo deposit checkout -->
-    <string name="funds_locked_warning">For security purposes, a %s holding period will be applied to your funds. We will notify you once the funds are available. </string>
+    <string name="funds_locked_warning">For security purposes, a %s holding period will be applied to your funds. We will notify you once the funds are available.</string>
     <string name="funds_locked_warning_days">%s day</string>
     <string name="reference_id_required">Reference ID (Required)</string>
 
