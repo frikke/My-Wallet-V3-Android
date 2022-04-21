@@ -24,11 +24,14 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.control.Search
+import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.scope.getViewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardAssetItem
 import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardError
@@ -40,7 +43,9 @@ class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     NavigationRouter<InterestDashboardNavigationEvent> {
 
-    private val viewModel: InterestDashboardViewModel by viewModel()
+    private val viewModel: InterestDashboardViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
     private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()
 
     override fun onCreateView(
