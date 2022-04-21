@@ -6,8 +6,8 @@ import org.koin.dsl.module
 val interestDashboardPresentationModule = module {
     viewModel {
         InterestDashboardViewModel(
-            getAssetInterestInfoUseCase = get(),
-            getInterestDetailUseCase = get(),
+            getAssetsInterestUseCase = get(),
+            getInterestDashboardUseCase = get(),
             getAccountGroupUseCase = get()
         )
     }

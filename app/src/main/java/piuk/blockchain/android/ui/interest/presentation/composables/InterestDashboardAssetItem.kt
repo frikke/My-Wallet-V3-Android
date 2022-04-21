@@ -74,7 +74,8 @@ fun InterestDashboardAssetItem(
                     else -> R.string.rewards_dashboard_item_action_earn
                 }
             ),
-            enabled = (isKycGold && assetInterestDetail?.eligible == true) || assetInterestDetail?.totalBalance?.isPositive == true,
+            enabled = (isKycGold && assetInterestDetail?.eligible == true) ||
+                assetInterestDetail?.totalBalance?.isPositive == true,
             onClick = {
                 if (assetInterestDetail != null)
                     interestItemClicked(assetInfo, assetInterestDetail.totalBalance.isPositive)

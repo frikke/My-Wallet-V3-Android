@@ -20,16 +20,16 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
-import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
+import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
+import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
-import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetInterestInfoUseCase
-import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDetailUseCase
+import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetsInterestUseCase
+import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUseCase
 
 @ExperimentalCoroutinesApi
 class InterestDashboardViewModelTest {
-    private val getAssetInterestInfoUseCase = mockk<GetAssetInterestInfoUseCase>()
-    private val getInterestDetailUseCase = mockk<GetInterestDetailUseCase>()
+    private val getAssetInterestInfoUseCase = mockk<GetAssetsInterestUseCase>()
+    private val getInterestDetailUseCase = mockk<GetInterestDashboardUseCase>()
     private val getAccountGroupUseCase = mockk<GetAccountGroupUseCase>()
 
     private lateinit var viewModel: InterestDashboardViewModel
@@ -46,7 +46,7 @@ class InterestDashboardViewModelTest {
 
         coEvery { getInterestDetailUseCase() } returns
             Outcome.Success(
-                InterestDetail(
+                InterestDashboard(
                     KycTiers.default(),
                     listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER, CryptoCurrency.BCH)
                 )
@@ -55,9 +55,9 @@ class InterestDashboardViewModelTest {
         coEvery { getAssetInterestInfoUseCase(any()) } returns
             Outcome.Success(
                 listOf(
-                    AssetInterestInfo(CryptoCurrency.BTC, mockk()),
-                    AssetInterestInfo(CryptoCurrency.ETHER, mockk()),
-                    AssetInterestInfo(CryptoCurrency.BCH, mockk())
+                    InterestAsset(CryptoCurrency.BTC, mockk()),
+                    InterestAsset(CryptoCurrency.ETHER, mockk()),
+                    InterestAsset(CryptoCurrency.BCH, mockk())
                 )
             )
 
@@ -75,11 +75,11 @@ class InterestDashboardViewModelTest {
     }
 
     @Test
-    fun `WHEN LoadData is triggered, THEN isLoading should be true, getInterestDetail should be called`() = runTest {
+    fun `WHEN LoadDashboard is triggered, THEN isLoading should be true, getInterestDetail should be called`() = runTest {
         coEvery { getInterestDetailUseCase() } returns mockk()
 
         viewModel.viewState.test {
-            viewModel.onIntent(InterestDashboardIntents.LoadData)
+            viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
             assertEquals(true, expectMostRecentItem().isLoading)
 
@@ -88,21 +88,21 @@ class InterestDashboardViewModelTest {
     }
 
     @Test
-    fun `GIVEN getInterestDetail fails, WHEN LoadData is triggered, THEN isError should be true`() = runTest {
+    fun `GIVEN getInterestDetail fails, WHEN LoadDashboard is triggered, THEN isError should be true`() = runTest {
         coEvery { getInterestDetailUseCase() } returns Outcome.Failure(Throwable())
 
         viewModel.viewState.test {
-            viewModel.onIntent(InterestDashboardIntents.LoadData)
+            viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
             assertEquals(true, expectMostRecentItem().isError)
         }
     }
 
     @Test
-    fun `GIVEN getInterestDetail OK, WHEN LoadData is triggered, THEN getAssetInterestInfo should be called`() =
+    fun `GIVEN getInterestDetail OK, WHEN LoadDashboard is triggered, THEN getAssetInterestInfo should be called`() =
         runTest {
             viewModel.viewState.test {
-                viewModel.onIntent(InterestDashboardIntents.LoadData)
+                viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
                 coVerify(exactly = 1) { getAssetInterestInfoUseCase(any()) }
 
@@ -118,7 +118,7 @@ class InterestDashboardViewModelTest {
     @Test
     fun `WHEN FilterData is triggered, THEN data should be filtered`() = runTest {
         viewModel.viewState.test {
-            viewModel.onIntent(InterestDashboardIntents.LoadData)
+            viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
             viewModel.onIntent(InterestDashboardIntents.FilterData("bitc"))
 
@@ -130,7 +130,7 @@ class InterestDashboardViewModelTest {
     fun `GIVEN hasBalance, WHEN InterestItemClicked is triggered, THEN InterestSummarySheet should be triggered`() =
         runTest {
             viewModel.navigationEventFlow.test {
-                viewModel.onIntent(InterestDashboardIntents.LoadData)
+                viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
                 viewModel.onIntent(InterestDashboardIntents.InterestItemClicked(CryptoCurrency.BTC, true))
 
@@ -142,7 +142,7 @@ class InterestDashboardViewModelTest {
     fun `GIVEN hasBalance false, WHEN InterestItemClicked is triggered, THEN TransactionFlow should be triggered`() =
         runTest {
             viewModel.navigationEventFlow.test {
-                viewModel.onIntent(InterestDashboardIntents.LoadData)
+                viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
 
                 viewModel.onIntent(InterestDashboardIntents.InterestItemClicked(CryptoCurrency.BTC, false))
 

@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
@@ -39,11 +40,6 @@ class InterestDashboardFragment :
     MVIFragment<InterestDashboardViewState>(),
     NavigationRouter<InterestDashboardNavigationEvent> {
 
-    val host: InterestDashboardHost by lazy {
-        activity as? InterestDashboardHost
-            ?: error("Host fragment is not a InterestDashboardFragment.InterestDashboardHost")
-    }
-
     private lateinit var composeView: ComposeView
 
     private val viewModel: InterestDashboardViewModel by viewModel()
@@ -62,7 +58,7 @@ class InterestDashboardFragment :
 
         setupViews()
         setupViewModel()
-        loadData()
+        loadDashboard()
     }
 
     private fun setupViews() {
@@ -77,8 +73,8 @@ class InterestDashboardFragment :
         bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
 
         lifecycleScope.launch {
-            sharedViewModel.refreshBalancesFlow.collect {
-                loadData()
+            sharedViewModel.refreshBalancesFlow.flowWithLifecycle(lifecycle).collect {
+                loadDashboard()
             }
         }
     }
@@ -93,7 +89,7 @@ class InterestDashboardFragment :
             }
 
             state.value.isError -> {
-                InterestDashboardError(::loadData)
+                InterestDashboardError(::loadDashboard)
             }
 
             state.value.isLoading.not() && state.value.isError.not() -> {
@@ -121,7 +117,7 @@ class InterestDashboardFragment :
                         ) {
                             InterestDashboardAssetItem(
                                 assetInfo = it.assetInfo,
-                                assetInterestDetail = it.assetInterestDetail,
+                                assetInterestDetail = it.interestDetail,
                                 isKycGold = state.value.isKycGold,
                                 interestItemClicked = ::interestItemClicked
                             )
@@ -138,7 +134,7 @@ class InterestDashboardFragment :
     override fun route(navigationEvent: InterestDashboardNavigationEvent) {
         when (navigationEvent) {
             is InterestDashboardNavigationEvent.NavigateToInterestSummarySheet -> {
-                host.showInterestSummarySheet(navigationEvent.account)
+                sharedViewModel.showInterestSummary(navigationEvent.account)
             }
 
             is InterestDashboardNavigationEvent.NavigateToTransactionFlow -> {
@@ -159,12 +155,12 @@ class InterestDashboardFragment :
         )
     }
 
-    private fun loadData() {
-        viewModel.onIntent(InterestDashboardIntents.LoadData)
+    private fun loadDashboard() {
+        viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
     }
 
     private fun startKyc() {
-        host.startKyc()
+        sharedViewModel.startKyc()
     }
 
     @Preview

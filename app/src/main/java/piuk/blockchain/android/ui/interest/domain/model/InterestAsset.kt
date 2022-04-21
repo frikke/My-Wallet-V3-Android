@@ -4,9 +4,9 @@ import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReaso
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 
-data class AssetInterestInfo(
+data class InterestAsset(
     val assetInfo: AssetInfo,
-    val assetInterestDetail: AssetInterestDetail?
+    val interestDetail: AssetInterestDetail?
 )
 
 data class AssetInterestDetail(

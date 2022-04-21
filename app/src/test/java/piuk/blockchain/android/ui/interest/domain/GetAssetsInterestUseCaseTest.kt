@@ -11,18 +11,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
-import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
+import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
-import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetInterestInfoUseCase
+import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetsInterestUseCase
 
 @ExperimentalCoroutinesApi
-class GetAssetInterestInfoUseCaseTest {
+class GetAssetsInterestUseCaseTest {
     private val service = mockk<AssetInterestService>()
-    private val useCase = GetAssetInterestInfoUseCase(service)
+    private val useCase = GetAssetsInterestUseCase(service)
 
     @Test
     fun `WHEN service returns failure, THEN failure should be returned`() = runTest {
-        coEvery { service.getAssetsInterestInfo(any()) } returns Outcome.Failure(Throwable("error"))
+        coEvery { service.getAssetsInterest(any()) } returns Outcome.Failure(Throwable("error"))
 
         assertTrue { useCase(listOf()) is Outcome.Failure }
     }
@@ -30,28 +30,28 @@ class GetAssetInterestInfoUseCaseTest {
     @Test
     fun `WHEN service returns mixed data, THEN filter before returning`() = runTest {
         val list = listOf(
-            AssetInterestInfo(
+            InterestAsset(
                 CryptoCurrency.ETHER,
                 AssetInterestDetail(
                     mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
                     totalBalanceFiat = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal())
                 )
             ),
-            AssetInterestInfo(
+            InterestAsset(
                 CryptoCurrency.BTC,
                 AssetInterestDetail(
                     mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
                     totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 0.toBigDecimal())
                 )
             ),
-            AssetInterestInfo(
+            InterestAsset(
                 CryptoCurrency.XLM,
                 AssetInterestDetail(
                     mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
                     totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 200.toBigDecimal())
                 )
             ),
-            AssetInterestInfo(
+            InterestAsset(
                 CryptoCurrency.BCH,
                 AssetInterestDetail(
                     mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
@@ -60,7 +60,7 @@ class GetAssetInterestInfoUseCaseTest {
             )
         )
         // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
-        coEvery { service.getAssetsInterestInfo(any()) } returns Outcome.Success(list)
+        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(list)
 
         val result = useCase(listOf())
         assertTrue { result is Outcome.Success }

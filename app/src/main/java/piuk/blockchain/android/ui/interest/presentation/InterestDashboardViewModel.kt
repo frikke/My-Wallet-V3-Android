@@ -10,15 +10,15 @@ import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.launch
-import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
+import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAccountGroupUseCase
-import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetInterestInfoUseCase
-import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDetailUseCase
+import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetsInterestUseCase
+import piuk.blockchain.android.ui.interest.domain.usecase.GetInterestDashboardUseCase
 import timber.log.Timber
 
 class InterestDashboardViewModel(
-    private val getAssetInterestInfoUseCase: GetAssetInterestInfoUseCase,
-    private val getInterestDetailUseCase: GetInterestDetailUseCase,
+    private val getAssetsInterestUseCase: GetAssetsInterestUseCase,
+    private val getInterestDashboardUseCase: GetInterestDashboardUseCase,
     private val getAccountGroupUseCase: GetAccountGroupUseCase
 ) : MviViewModel<InterestDashboardIntents,
     InterestDashboardViewState,
@@ -31,8 +31,8 @@ class InterestDashboardViewModel(
 
     override suspend fun handleIntent(modelState: InterestDashboardModelState, intent: InterestDashboardIntents) {
         when (intent) {
-            InterestDashboardIntents.LoadData -> {
-                loadInterestDetail()
+            InterestDashboardIntents.LoadDashboard -> {
+                loadInterestDashboard()
             }
 
             is InterestDashboardIntents.FilterData -> {
@@ -61,11 +61,11 @@ class InterestDashboardViewModel(
         )
     }
 
-    private fun loadInterestDetail() {
+    private fun loadInterestDashboard() {
         viewModelScope.launch {
             updateState { it.copy(isLoadingData = true) }
 
-            getInterestDetailUseCase().let { result ->
+            getInterestDashboardUseCase().let { result ->
                 result.doOnSuccess { interestDetail ->
                     loadAssets(interestDetail)
                 }.doOnFailure { error ->
@@ -76,16 +76,16 @@ class InterestDashboardViewModel(
         }
     }
 
-    private fun loadAssets(interestDetail: InterestDetail) {
+    private fun loadAssets(interestDashboard: InterestDashboard) {
         viewModelScope.launch {
 
-            getAssetInterestInfoUseCase(interestDetail.enabledAssets).let { result ->
+            getAssetsInterestUseCase(interestDashboard.enabledAssets).let { result ->
                 result.doOnSuccess { assetInterestInfoList ->
                     updateState {
                         it.copy(
                             isLoadingData = false,
                             isError = false,
-                            isKycGold = interestDetail.tiers.isApprovedFor(KycTierLevel.GOLD),
+                            isKycGold = interestDashboard.tiers.isApprovedFor(KycTierLevel.GOLD),
                             data = assetInterestInfoList,
                         )
                     }

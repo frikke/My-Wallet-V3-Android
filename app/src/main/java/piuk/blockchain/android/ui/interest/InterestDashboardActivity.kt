@@ -3,6 +3,9 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -14,13 +17,14 @@ import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
-import piuk.blockchain.android.ui.interest.presentation.InterestDashboardHost
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
@@ -31,8 +35,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class InterestDashboardActivity :
     BlockchainActivity(),
     InterestSummarySheet.Host,
-    InterestDashboardFragment.InterestDashboardHost,
-    InterestDashboardHost {
+    InterestDashboardFragment.InterestDashboardHost {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
@@ -46,7 +49,9 @@ class InterestDashboardActivity :
         get() = false
 
     private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
-    private val fragmentOrdered: piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment by lazy { piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment.newInstance() }
+    private val fragmentOrdered: piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment by lazy {
+        piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment.newInstance()
+    }
 
     private val orderRewardsFF: FeatureFlag by inject(orderRewardsFeatureFlag)
 
@@ -71,6 +76,8 @@ class InterestDashboardActivity :
                 )
                 .commitAllowingStateLoss()
         }
+
+        observeViewModel()
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
@@ -92,6 +99,20 @@ class InterestDashboardActivity :
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            sharedViewModel.startKycFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+                startKyc()
+            }
+        }
+
+        lifecycleScope.launch {
+            sharedViewModel.showInterestSummaryFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+                showInterestSummarySheet(it)
+            }
+        }
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {

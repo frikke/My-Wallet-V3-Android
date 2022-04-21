@@ -30,8 +30,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import piuk.blockchain.android.ui.interest.data.repository.AssetInterestRepository
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
-import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
-import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
+import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
+import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 
 @ExperimentalCoroutinesApi
@@ -77,7 +77,7 @@ class AssetInterestRepositoryTest {
     private val eligibilityBtc = Eligibility(true, IneligibilityReason.KYC_TIER)
     private val eligibilityEth = Eligibility(false, IneligibilityReason.REGION)
 
-    private val assetInterestInfoBtc = AssetInterestInfo(
+    private val assetInterestInfoBtc = InterestAsset(
         CryptoCurrency.BTC,
         AssetInterestDetail(
             totalInterest = interestAccountBalanceBtc.totalInterest,
@@ -89,9 +89,9 @@ class AssetInterestRepositoryTest {
         )
     )
 
-    private val assetInterestInfoBtcNull = AssetInterestInfo(CryptoCurrency.BTC, null)
+    private val assetInterestInfoBtcNull = InterestAsset(CryptoCurrency.BTC, null)
 
-    private val assetInterestInfoEth = AssetInterestInfo(
+    private val assetInterestInfoEth = InterestAsset(
         CryptoCurrency.ETHER,
         AssetInterestDetail(
             totalInterest = interestAccountBalanceEth.totalInterest,
@@ -110,8 +110,8 @@ class AssetInterestRepositoryTest {
         every { kycTierService.tiers() } returns Single.just(kycTiers)
         every { custodialWalletManager.getInterestEnabledAssets() } returns Single.just(enabledAssets)
 
-        val expected = InterestDetail(kycTiers, enabledAssets)
-        val result = service.getInterestDetail()
+        val expected = InterestDashboard(kycTiers, enabledAssets)
+        val result = service.getInterestDashboard()
 
         assertTrue { result is Outcome.Success }
 
@@ -124,7 +124,7 @@ class AssetInterestRepositoryTest {
         every { kycTierService.tiers() } returns Single.just(kycTiers)
         every { custodialWalletManager.getInterestEnabledAssets() } throws Throwable("error")
 
-        val result = service.getInterestDetail()
+        val result = service.getInterestDashboard()
         assertTrue { result is Outcome.Failure }
     }
 
@@ -133,7 +133,7 @@ class AssetInterestRepositoryTest {
         every { kycTierService.tiers() } throws Throwable("error")
         every { custodialWalletManager.getInterestEnabledAssets() } returns Single.just(enabledAssets)
 
-        val result = service.getInterestDetail()
+        val result = service.getInterestDashboard()
         assertTrue { result is Outcome.Failure }
     }
 
@@ -158,7 +158,7 @@ class AssetInterestRepositoryTest {
             Single.just(eligibilityEth)
 
         val expected = Outcome.Success(listOf(assetInterestInfoBtc, assetInterestInfoEth))
-        val result = service.getAssetsInterestInfo(listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER))
+        val result = service.getAssetsInterest(listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER))
         assertEquals(expected, result)
     }
 
@@ -179,7 +179,7 @@ class AssetInterestRepositoryTest {
             Single.just(eligibilityEth)
 
         val expected = Outcome.Success(listOf(assetInterestInfoBtcNull, assetInterestInfoEth))
-        val result = service.getAssetsInterestInfo(listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER))
+        val result = service.getAssetsInterest(listOf(CryptoCurrency.BTC, CryptoCurrency.ETHER))
         assertEquals(expected, result)
     }
 

@@ -17,8 +17,8 @@ import kotlinx.coroutines.rx3.awaitFirst
 import kotlinx.coroutines.rx3.awaitSingle
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
-import piuk.blockchain.android.ui.interest.domain.model.AssetInterestInfo
-import piuk.blockchain.android.ui.interest.domain.model.InterestDetail
+import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
+import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 import timber.log.Timber
 
@@ -31,7 +31,7 @@ internal class AssetInterestRepository(
     private val dispatcher: CoroutineDispatcher
 ) : AssetInterestService {
 
-    override suspend fun getInterestDetail(): Outcome<Throwable, InterestDetail> {
+    override suspend fun getInterestDashboard(): Outcome<Throwable, InterestDashboard> {
         return supervisorScope {
             val deferredTiers = async(dispatcher) { kycTierService.tiers().await() }
             val deferredEnabledAssets = async(dispatcher) { custodialWalletManager.getInterestEnabledAssets().await() }
@@ -40,16 +40,16 @@ internal class AssetInterestRepository(
                 val tiers = deferredTiers.await()
                 val enabledAssets = deferredEnabledAssets.await()
 
-                Outcome.Success(InterestDetail(tiers = tiers, enabledAssets = enabledAssets))
+                Outcome.Success(InterestDashboard(tiers = tiers, enabledAssets = enabledAssets))
             } catch (e: Throwable) {
                 Outcome.Failure(e)
             }
         }
     }
 
-    override suspend fun getAssetsInterestInfo(
+    override suspend fun getAssetsInterest(
         cryptoCurrencies: List<AssetInfo>
-    ): Outcome<Throwable, List<AssetInterestInfo>> {
+    ): Outcome<Throwable, List<InterestAsset>> {
         return coroutineScope {
             cryptoCurrencies.map { asset -> async(dispatcher) { getAssetInterestInfo(asset) } }
                 .map { deferred -> deferred.await() }
@@ -57,7 +57,7 @@ internal class AssetInterestRepository(
         }
     }
 
-    private suspend fun getAssetInterestInfo(cryptoCurrency: AssetInfo): AssetInterestInfo {
+    private suspend fun getAssetInterestInfo(cryptoCurrency: AssetInfo): InterestAsset {
         return supervisorScope {
             val deferredBalance =
                 async(dispatcher) { interestBalance.getBalanceForAsset(cryptoCurrency).awaitFirst() }
@@ -87,9 +87,9 @@ internal class AssetInterestRepository(
                 null
             }
 
-            AssetInterestInfo(
+            InterestAsset(
                 assetInfo = cryptoCurrency,
-                assetInterestDetail = assetInterestDetail
+                interestDetail = assetInterestDetail
             )
         }
     }
