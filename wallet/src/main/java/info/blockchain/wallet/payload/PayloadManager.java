@@ -69,9 +69,6 @@ import retrofit2.Response;
 public class PayloadManager {
 
     private static Logger log = LoggerFactory.getLogger(PayloadManager.class);
-
-    // TODO: clean up the v4 flags and refactor the tests
-    private boolean isV4Enabled = true;
     private WalletBase walletBase;
     private String password;
 
@@ -138,16 +135,14 @@ public class PayloadManager {
     public Wallet create(
         @Nonnull String defaultAccountName,
         @Nonnull String email,
-        @Nonnull String password,
-        boolean isPayloadV4Enabled
+        @Nonnull String password
     ) throws Exception {
-        this.isV4Enabled = isPayloadV4Enabled;
+
         this.password    = password;
         walletBase       = new WalletBase();
         walletBase.setWalletBody(
             new Wallet(
-                defaultAccountName,
-                isPayloadV4Enabled
+                defaultAccountName
             )
         );
 
@@ -168,19 +163,16 @@ public class PayloadManager {
         @Nonnull String mnemonic,
         @Nonnull String defaultAccountName,
         @Nonnull String email,
-        @Nonnull String password,
-        boolean isPayloadV4Enabled
+        @Nonnull String password
     ) throws Exception {
-        this.isV4Enabled = isPayloadV4Enabled;
         this.password = password;
         walletBase = new WalletBase();
 
-        Wallet wallet = new Wallet(defaultAccountName, isPayloadV4Enabled);
+        Wallet wallet = new Wallet(defaultAccountName);
         WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(
             mnemonic,
             defaultAccountName,
-            bitcoinApi,
-            isPayloadV4Enabled
+            bitcoinApi
         );
         wallet.setWalletBody(walletBody);
 
@@ -296,8 +288,7 @@ public class PayloadManager {
     public void initializeAndDecrypt(
         @Nonnull String sharedKey,
         @Nonnull String guid,
-        @Nonnull String password,
-        boolean isV4Enabled
+        @Nonnull String password
     ) throws IOException,
         InvalidCredentialsException,
         AccountLockedException,
@@ -310,8 +301,6 @@ public class PayloadManager {
         MnemonicChecksumException,
         DecoderException,
         HDWalletException {
-
-        this.isV4Enabled = isV4Enabled;
         this.password    = password;
 
         Call<ResponseBody> call = walletApi.fetchWalletData(guid, sharedKey);
@@ -342,8 +331,7 @@ public class PayloadManager {
     }
 
     public void initializeAndDecryptFromQR(
-        @Nonnull String qrData,
-        boolean isV4Enabled
+        @Nonnull String qrData
     ) throws Exception {
         MainNetParams netParams = MainNetParams.get();
         Pair qrComponents = Pairing.getQRComponentsFromRawString(qrData);
@@ -364,8 +352,7 @@ public class PayloadManager {
             initializeAndDecrypt(
                 sharedKey,
                 guid,
-                password,
-                isV4Enabled
+                password
             );
         }
         else {
@@ -716,7 +703,7 @@ public class PayloadManager {
 
     public boolean isV4UpgradeRequired() {
         int payloadVersion = getPayload().getWrapperVersion();
-        return payloadVersion < WalletWrapper.V4 && isV4Enabled;
+        return payloadVersion < WalletWrapper.V4;
     }
 
     public SigningKey getAddressSigningKey(

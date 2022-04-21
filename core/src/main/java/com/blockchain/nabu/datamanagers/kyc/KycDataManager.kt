@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers.kyc
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.KycService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
 import com.blockchain.nabu.models.responses.nabu.NodeId
@@ -9,7 +10,6 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
-import com.blockchain.remoteconfig.FeatureFlag
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 

@@ -1,6 +1,6 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.service.NabuService

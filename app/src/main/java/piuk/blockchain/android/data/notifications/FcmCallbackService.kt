@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.lifecycle.AppState
@@ -18,7 +19,6 @@ import com.blockchain.notifications.NotificationsUtil.Companion.ID_FOREGROUND_NO
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage

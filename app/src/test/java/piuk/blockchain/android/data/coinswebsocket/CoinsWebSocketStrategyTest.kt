@@ -3,9 +3,9 @@ package piuk.blockchain.android.data.coinswebsocket
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.websocket.MessagesSocketHandler
@@ -161,7 +161,7 @@ class CoinsWebSocketStrategyTest {
         }
     }
 
-    val replaceGsonKtxFF: IntegratedFeatureFlag = mock {
+    val replaceGsonKtxFF: FeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(true))
     }
 

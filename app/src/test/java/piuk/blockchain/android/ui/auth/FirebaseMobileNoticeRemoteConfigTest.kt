@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.auth
 
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock

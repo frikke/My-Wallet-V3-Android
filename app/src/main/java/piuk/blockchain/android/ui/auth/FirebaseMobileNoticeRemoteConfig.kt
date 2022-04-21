@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.auth
 
-import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Single

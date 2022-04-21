@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
@@ -37,6 +38,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
@@ -46,6 +49,7 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
+import retrofit2.HttpException
 
 class SellIntroFragment : ViewPagerFragment() {
     interface SellIntroHost {
@@ -120,6 +124,17 @@ class SellIntroFragment : ViewPagerFragment() {
                 }
             }, onError = {
                 renderSellError()
+                analytics.logEvent(
+                    ClientErrorAnalytics.ClientLogError(
+                        nabuApiException = if (it is HttpException) {
+                            NabuApiExceptionFactory.fromResponseBody(it)
+                        } else null,
+                        error = getString(R.string.transfer_wallets_load_error),
+                        source = ClientErrorAnalytics.Companion.Source.NABU,
+                        title = ClientErrorAnalytics.OOPS_ERROR,
+                        action = ClientErrorAnalytics.ACTION_SELL,
+                    )
+                )
             })
     }
 
@@ -255,6 +270,17 @@ class SellIntroFragment : ViewPagerFragment() {
                     }
                 }, onError = {
                     renderSellError()
+                    analytics.logEvent(
+                        ClientErrorAnalytics.ClientLogError(
+                            nabuApiException = if (it is HttpException) {
+                                NabuApiExceptionFactory.fromResponseBody(it)
+                            } else null,
+                            error = NABU_ERROR,
+                            source = ClientErrorAnalytics.Companion.Source.NABU,
+                            title = NABU_ERROR,
+                            action = ClientErrorAnalytics.ACTION_SELL,
+                        )
+                    )
                 })
         }
     }

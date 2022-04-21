@@ -6,11 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
@@ -18,7 +21,6 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -34,6 +36,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.BuyIntroFragmentBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.base.ViewPagerFragment
@@ -43,6 +46,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
+import retrofit2.HttpException
 
 class BuyIntroFragment :
     ViewPagerFragment(),
@@ -60,6 +64,7 @@ class BuyIntroFragment :
     private val compositeDisposable = CompositeDisposable()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
+    private val analytics: Analytics by inject()
     private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val userIdentity: UserIdentity by scopedInject()
 
@@ -114,6 +119,17 @@ class BuyIntroFragment :
                     },
                     onError = {
                         renderErrorState()
+                        analytics.logEvent(
+                            ClientErrorAnalytics.ClientLogError(
+                                nabuApiException = if (it is HttpException) {
+                                    NabuApiExceptionFactory.fromResponseBody(it)
+                                } else null,
+                                error = ClientErrorAnalytics.NABU_ERROR,
+                                source = ClientErrorAnalytics.Companion.Source.NABU,
+                                title = ClientErrorAnalytics.NABU_ERROR,
+                                action = ClientErrorAnalytics.ACTION_BUY,
+                            )
+                        )
                     }
                 )
     }

@@ -4,8 +4,8 @@ import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.outcome.fold
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue

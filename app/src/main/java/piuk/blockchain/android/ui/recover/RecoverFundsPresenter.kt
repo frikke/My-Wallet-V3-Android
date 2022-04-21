@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.recover
 
-import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.squareup.moshi.Moshi
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.metadata.Metadata

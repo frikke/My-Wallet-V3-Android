@@ -227,97 +227,126 @@ class SimpleBuyPaymentFragment :
         }
     }
 
-    private fun handleErrorStates(errorState: ErrorState) =
+    private fun logErrorAnalytics(title: String, error: String) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = null,
+                error = error,
+                source = ClientErrorAnalytics.Companion.Source.NABU,
+                title = title,
+                action = ClientErrorAnalytics.ACTION_BUY,
+            )
+        )
+    }
+
+    private fun handleErrorStates(errorState: ErrorState) {
         when (errorState) {
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid -> showError(
                 title = getString(R.string.bank_transfer_payment_invalid_title),
                 subtitle = addLink(R.string.bank_transfer_payment_invalid_subtitle),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankFailed,
             ErrorState.ApprovedBankFailedInternal -> showError(
                 title = getString(R.string.bank_transfer_payment_failed_title),
-                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle)
+                subtitle = addLink(R.string.bank_transfer_payment_failed_subtitle),
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankDeclined -> showError(
                 title = getString(R.string.bank_transfer_payment_declined_title),
                 subtitle = addLink(R.string.bank_transfer_payment_declined_subtitle),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankRejected -> showError(
                 title = getString(R.string.bank_transfer_payment_rejected_title),
                 subtitle = addLink(R.string.bank_transfer_payment_rejected_subtitle),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankExpired -> showError(
                 title = getString(R.string.bank_transfer_payment_expired_title),
                 subtitle = addLink(R.string.bank_transfer_payment_expired_subtitle),
-                resourceIcon = R.drawable.ic_pending_icon_circle
+                resourceIcon = R.drawable.ic_pending_icon_circle,
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankLimitedExceed -> showError(
                 title = getString(R.string.bank_transfer_payment_limited_exceeded_title),
                 subtitle = addLink(R.string.bank_transfer_payment_limited_exceeded_subtitle),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.ApprovedBankInsufficientFunds -> showError(
                 title = getString(R.string.bank_transfer_payment_insufficient_funds_title),
                 subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             is ErrorState.PaymentFailedError -> showError(
-                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                title = getString(R.string.payment_failed_title_with_reason),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             is ErrorState.ApprovedBankUndefinedError -> showError(
-                title = getString(R.string.payment_failed_title_with_reason, errorState.error),
+                title = getString(R.string.payment_failed_title_with_reason),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.CardPaymentDeclined -> showError(
                 title = getString(R.string.sb_checkout_card_declined_title),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.InternetConnectionError -> showError(
                 title = getString(
                     R.string.executing_connection_error
                 ),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             is ErrorState.UnhandledHttpError -> showError(
                 title = getString(
                     R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
                 ),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg
+                resourceIcon = R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.DailyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_daily_limit_title),
                 getString(R.string.sb_checkout_daily_limit_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.WeeklyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_weekly_limit_title),
                 getString(R.string.sb_checkout_weekly_limit_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.YearlyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_yearly_limit_title),
                 getString(R.string.sb_checkout_yearly_limit_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.ExistingPendingOrder -> showError(
                 getString(R.string.sb_checkout_pending_order_title),
                 getString(R.string.sb_checkout_pending_order_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.InsufficientCardFunds -> showError(
                 getString(R.string.sb_checkout_card_insufficient_funds_title),
                 getString(R.string.sb_checkout_card_insufficient_funds_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
                 " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
@@ -326,30 +355,40 @@ class SimpleBuyPaymentFragment :
             ErrorState.ProviderIsNotSupported -> showError(
                 getString(R.string.sb_card_provider_not_supported),
                 getString(R.string.sb_checkout_contact_support),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.DebitCardOnly -> showError(
                 getString(R.string.sb_checkout_card_debit_only_title),
                 getString(R.string.sb_checkout_card_debit_only_blurb),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
             )
             ErrorState.BankLinkingTimeout -> showError(
                 getString(R.string.bank_linking_timeout_error_title),
                 getString(R.string.bank_linking_timeout_error_subtitle),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = "BankLinkingTimeout"
             )
             ErrorState.Card3DsFailed -> showError(
                 getString(R.string.card_3ds),
                 getString(R.string.sb_checkout_contact_support),
-                R.drawable.ic_cross_white_bckg
+                R.drawable.ic_cross_white_bckg,
+                errorState = "Card3DsFailed"
             )
         }
+    }
 
     private fun showError(
         title: String,
         subtitle: CharSequence,
-        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
+        resourceIcon: Int = R.drawable.ic_alert_white_bkgd,
+        errorState: String,
     ) {
+        logErrorAnalytics(
+            title = title,
+            error = errorState
+        )
         with(binding) {
             transactionProgressView.apply {
                 onCtaClick(text = getString(R.string.common_try_again)) {

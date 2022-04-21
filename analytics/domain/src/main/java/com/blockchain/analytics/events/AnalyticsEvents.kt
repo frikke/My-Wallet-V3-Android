@@ -252,7 +252,8 @@ enum class AnalyticsNames(val eventName: String) {
     PUSH_NOTIFICATION_TAPPED("Push Notification Tapped"),
     CUSTOMER_SUPPORT_CLICKED("Customer Support Clicked"),
     CUSTOMER_SUPPORT_EMAIL_CLICKED("Email Us Clicked"),
-    CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked");
+    CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked"),
+    CLIENT_ERROR("Client error");
 }
 
 enum class LaunchOrigin {
@@ -277,6 +278,7 @@ enum class LaunchOrigin {
     SETTINGS,
     SAVINGS_PAGE,
     VERIFICATION,
+
     DCA_DETAILS_LINK,
     BUY_CONFIRMATION,
     RECURRING_BUY_DETAILS,

@@ -15,7 +15,6 @@ import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Timer
 import java.util.TimerTask
 import piuk.blockchain.android.R
@@ -33,8 +32,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     override val presenter: LandingPresenter by scopedInject()
     override val view: LandingView = this
-
-    private val compositeDisposable = CompositeDisposable()
 
     private val binding: ActivityLandingOnboardingBinding by lazy {
         ActivityLandingOnboardingBinding.inflate(layoutInflater)
@@ -124,11 +121,6 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
     override fun onResume() {
         super.onResume()
         presenter.loadAssets()
-    }
-
-    override fun onStop() {
-        compositeDisposable.clear()
-        super.onStop()
     }
 
     private fun launchSSOAccountRecoveryFlow() =

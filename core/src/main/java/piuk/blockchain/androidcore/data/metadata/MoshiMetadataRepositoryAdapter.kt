@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.metadata
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.serialization.JsonSerializable
 import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Completable
@@ -24,16 +24,14 @@ internal class MoshiMetadataRepositoryAdapter(
         adapter: KSerializer<T>,
         clazz: Class<T>
     ): Maybe<T> =
-        disableMoshiFeatureFlag.enabled.flatMapMaybe { isMoshiDisabled ->
-            metadataManager.fetchMetadata(metadataType)
-                .map {
-                    if (isMoshiDisabled) {
-                        json.decodeFromString(adapter, it)
-                    } else {
-                        adapter(clazz).fromJson(it) ?: throw IllegalStateException("Error parsing JSON")
-                    }
+        metadataManager.fetchMetadata(metadataType)
+            .map {
+                if (disableMoshiFeatureFlag.isEnabled) {
+                    json.decodeFromString(adapter, it)
+                } else {
+                    adapter(clazz).fromJson(it) ?: throw IllegalStateException("Error parsing JSON")
                 }
-        }
+            }
             .subscribeOn(Schedulers.io())
 
     override fun <T : JsonSerializable> saveMetadata(

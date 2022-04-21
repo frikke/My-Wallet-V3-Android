@@ -8,14 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
+import com.blockchain.analytics.Analytics
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import kotlinx.parcelize.Parcelize
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyBlockedFragmentBinding
 
 class SimpleBuyBlockedFragment : Fragment() {
     private var _binding: SimpleBuyBlockedFragmentBinding? = null
+
+    private val analytics: Analytics by inject()
 
     private val binding: SimpleBuyBlockedFragmentBinding
         get() = _binding!!
@@ -39,11 +43,24 @@ class SimpleBuyBlockedFragment : Fragment() {
             description.text = data.description
             notEligibleIcon.setImageResource(data.icon)
         }
+        logErrorAnalytics(description = data.description, error = data.title)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun logErrorAnalytics(description: String, error: String) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = null,
+                error = error,
+                source = ClientErrorAnalytics.Companion.Source.NABU,
+                title = description,
+                action = ClientErrorAnalytics.ACTION_BUY,
+            )
+        )
     }
 
     companion object {

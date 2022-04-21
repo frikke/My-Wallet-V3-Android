@@ -1,8 +1,8 @@
 package piuk.blockchain.android.support
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.remoteconfig.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 

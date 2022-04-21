@@ -2,7 +2,7 @@ package com.blockchain.core.payments.cards
 
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.Authenticator
 import io.reactivex.rxjava3.core.Single
 

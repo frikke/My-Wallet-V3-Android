@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.remoteconfig.FeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.exceptions.DecryptionException

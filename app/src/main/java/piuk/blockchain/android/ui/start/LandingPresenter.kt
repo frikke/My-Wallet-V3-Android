@@ -63,30 +63,33 @@ class LandingPresenter(
         compositeDisposable += assetCatalogue.initialise()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy { currencies ->
-                val assets = currencies.filterIsInstance<AssetInfo>().filter {
-                    it.isCustodial
-                }
+            .subscribeBy(
+                onSuccess = { currencies ->
+                    val assets = currencies.filterIsInstance<AssetInfo>().filter {
+                        it.isCustodial
+                    }
 
-                assetInfo = assets.associateBy {
-                    it.networkTicker
-                }
+                    assetInfo = assets.associateBy {
+                        it.networkTicker
+                    }
 
-                assets.forEach { assetInfo ->
-                    priceInfo[assetInfo.networkTicker] = PriceView.Price(
-                        icon = assetInfo.logo,
-                        name = assetInfo.name,
-                        displayTicker = assetInfo.displayTicker,
-                        networkTicker = assetInfo.networkTicker
-                    )
-                }
+                    assets.forEach { assetInfo ->
+                        priceInfo[assetInfo.networkTicker] = PriceView.Price(
+                            icon = assetInfo.logo,
+                            name = assetInfo.name,
+                            displayTicker = assetInfo.displayTicker,
+                            networkTicker = assetInfo.networkTicker
+                        )
+                    }
 
-                val priceList = priceInfo.values.toList()
-                priceList.take(NUM_INITIAL_PRICES).forEach { price ->
-                    getPrices(price)
-                }
-                view?.onLoadPrices(priceList)
-            }
+                    val priceList = priceInfo.values.toList()
+                    priceList.take(NUM_INITIAL_PRICES).forEach { price ->
+                        getPrices(price)
+                    }
+                    view?.onLoadPrices(priceList)
+                },
+                onError = { Timber.e("initialise $it") }
+            )
     }
 
     fun getPrices(price: PriceView.Price) {
@@ -107,7 +110,8 @@ class LandingPresenter(
                             }
                         )
                         view?.onLoadPrices(priceInfo.values.toList())
-                    }
+                    },
+                    onError = { Timber.e("getPricesWith24hDelta $it") }
                 )
         }
     }

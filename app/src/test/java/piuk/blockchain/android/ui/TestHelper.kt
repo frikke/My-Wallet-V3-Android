@@ -31,7 +31,11 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
     updatedAt = ""
 )
 
-val validOfflineTokenMetadata get() = NabuCredentialsMetadata("userId", "lifetimeToken")
+val validOfflineTokenMetadata
+    get() = NabuCredentialsMetadata(
+        "userId", "lifetimeToken", null,
+        null
+    )
 val validOfflineToken
     get() = NabuOfflineTokenResponse(
         "userId",

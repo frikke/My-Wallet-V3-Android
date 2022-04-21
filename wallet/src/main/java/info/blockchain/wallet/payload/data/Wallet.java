@@ -44,15 +44,11 @@ public class Wallet {
     }
 
     public Wallet(String defaultAccountName) throws Exception {
-        this(defaultAccountName, false);
-    }
-
-    public Wallet(String defaultAccountName, boolean createV4) throws Exception {
-        WalletBody walletBodyBody = new WalletBody(defaultAccountName, createV4);
+        WalletBody walletBodyBody = new WalletBody(defaultAccountName, true);
         ArrayList<WalletBody> walletBodies = new ArrayList<>();
         walletBodies.add(walletBodyBody);
         walletDto      = new WalletDto(walletBodies);
-        wrapperVersion = createV4 ? WalletWrapper.V4 : WalletWrapper.V3;
+        wrapperVersion = WalletWrapper.V4;
     }
 
     public String getGuid() {
@@ -259,7 +255,7 @@ public class Wallet {
         if (!isUpgradedToV3()) {
 
             //Create new hd wallet
-            WalletBody walletBodyBody = new WalletBody(defaultAccountName);
+            WalletBody walletBodyBody = new WalletBody(defaultAccountName, false);
             walletBodyBody.setWrapperVersion(wrapperVersion);
             addHDWallet(walletBodyBody);
 

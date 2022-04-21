@@ -1,6 +1,7 @@
 package com.blockchain.remoteconfig
 
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Completable

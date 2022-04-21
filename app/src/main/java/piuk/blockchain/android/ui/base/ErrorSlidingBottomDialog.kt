@@ -10,6 +10,7 @@ import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDialogBinding>() {
@@ -30,6 +31,19 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         binding.ctaButton.setOnClickListener {
             dismiss()
         }
+        logClientError(title = errorDialogData.description, error = errorDialogData.title)
+    }
+
+    private fun logClientError(title: String, error: String) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = null,
+                error = error,
+                source = ClientErrorAnalytics.Companion.Source.NABU,
+                title = title,
+                action = ClientErrorAnalytics.ACTION_BUY,
+            )
+        )
     }
 
     companion object {

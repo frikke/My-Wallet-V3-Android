@@ -9,7 +9,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
-import com.blockchain.core.eligibility.models.TransactionsLimit
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier

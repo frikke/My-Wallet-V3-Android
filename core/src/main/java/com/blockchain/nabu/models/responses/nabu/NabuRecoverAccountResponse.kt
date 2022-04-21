@@ -8,5 +8,13 @@ import retrofit2.http.Field
 data class NabuRecoverAccountResponse(
     @Field("token")
     @SerialName("token")
-    val token: String
+    val token: String,
+
+    @Field("userCredentialsId")
+    @SerialName("userCredentialsId")
+    val userCredentialsId: String?,
+
+    @Field("mercuryLifetimeToken")
+    @SerialName("mercuryLifetimeToken")
+    val mercuryLifetimeToken: String?
 )

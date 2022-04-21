@@ -1,7 +1,7 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.BigDecimalSerializer

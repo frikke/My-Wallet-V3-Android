@@ -13,7 +13,15 @@ data class NabuCredentialsMetadata(
 
     @field:Json(name = "lifetime_token")
     @SerialName("lifetime_token")
-    val lifetimeToken: String
+    val lifetimeToken: String,
+
+    @field:Json(name = "exchange_user_id")
+    @SerialName("exchange_user_id")
+    val exchangeUserId: String?,
+
+    @field:Json(name = "exchange_lifetime_token")
+    @SerialName("exchange_lifetime_token")
+    val exchangeLifetimeToken: String?
 ) : JsonSerializable {
 
     fun isValid() = userId.isNotEmpty() && lifetimeToken.isNotEmpty()

@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
@@ -127,6 +128,7 @@ import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
+import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
@@ -220,6 +222,10 @@ val applicationModule = module {
             beaconKey = BuildConfig.SIFT_BEACON_KEY
         )
     }.bind(DigitalTrust::class)
+
+    single {
+        InputAmountKeyboard()
+    }.bind(InputKeyboard::class)
 
     single(kotlinJsonAssetTicker) {
         Json {
@@ -338,7 +344,7 @@ val applicationModule = module {
                 environmentConfig = get(),
                 formatChecker = get(),
                 specificAnalytics = get(),
-                eligibilityDataManager = get()
+                eligibilityService = get()
             )
         }
 

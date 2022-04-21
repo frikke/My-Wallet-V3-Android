@@ -34,12 +34,10 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -71,7 +69,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
     }
 
     @Test
-    public void create_v3() throws Exception {
+    public void create_v4() throws Exception {
 
         LinkedList<String> responseList = new LinkedList<>();
         responseList.add("MyWallet save successful.");
@@ -82,12 +80,11 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "SomePassword",
-            false
+            "SomePassword"
         );
 
         Wallet walletBody = payloadManager
-                .getPayload();
+            .getPayload();
 
         assertEquals(36, walletBody.getGuid().length());//GUIDs are 36 in length
         assertEquals("My HDWallet", walletBody.getWalletBody().getAccounts().get(0).getLabel());
@@ -99,6 +96,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         assertEquals(10000, walletBody.getOptions().getFeePerKb());
     }
 
+
     @Test(expected = ServerConnectionException.class)
     public void create_ServerConnectionException() throws Exception {
 
@@ -107,13 +105,12 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "SomePassword",
-            true
+            "SomePassword"
         );
     }
 
     @Test
-    public void recoverFromMnemonic_v3() throws Exception {
+    public void recoverFromMnemonic_v4() throws Exception {
 
         String mnemonic = "all all all all all all all all all all all all";
 
@@ -130,28 +127,33 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
 
         String balance3 = loadResourceContent("balance/wallet_all_balance_3.txt");
         Call<Map<String, BalanceDto>> balanceResponse3 = makeBalanceResponse(balance3);
+        String balance4 = loadResourceContent("balance/wallet_all_balance_4.txt");
+        Call<Map<String, BalanceDto>> balanceResponse4 = makeBalanceResponse(balance4);
+        String balance5 = loadResourceContent("balance/wallet_all_balance_5.txt");
+        Call<Map<String, BalanceDto>> balanceResponse5 = makeBalanceResponse(balance5);
 
         when(bitcoinApi.getBalance(any(String.class), any(), any(), any()))
             .thenReturn(balanceResponse1)
             .thenReturn(balanceResponse2)
-            .thenReturn(balanceResponse3);
+            .thenReturn(balanceResponse3)
+            .thenReturn(balanceResponse4)
+            .thenReturn(balanceResponse5);
 
         payloadManager.recoverFromMnemonic(
             mnemonic,
             "My HDWallet",
             "name@email.com",
-            "SomePassword",
-            false
+            "SomePassword"
         );
 
         Wallet walletBody = payloadManager
-                .getPayload();
+            .getPayload();
 
         assertEquals(36, walletBody.getGuid().length());//GUIDs are 36 in length
         assertEquals("My HDWallet", walletBody.getWalletBody().getAccounts().get(0).getLabel());
         assertEquals("0660cc198330660cc198330660cc1983", walletBody.getWalletBody().getSeedHex());
 
-        assertEquals(10, walletBody.getWalletBody().getAccounts().size());
+        assertEquals(14, walletBody.getWalletBody().getAccounts().size());
 
         assertEquals(5000, walletBody.getOptions().getPbkdf2Iterations());
         assertEquals(600000, walletBody.getOptions().getLogoutTime());
@@ -181,22 +183,27 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
 
         String balance3 = loadResourceContent("balance/wallet_all_balance_3.txt");
         Call<Map<String, BalanceDto>> balanceResponse3 = makeBalanceResponse(balance3);
+        String balance4 = loadResourceContent("balance/wallet_all_balance_4.txt");
+        Call<Map<String, BalanceDto>> balanceResponse4 = makeBalanceResponse(balance4);
+        String balance5 = loadResourceContent("balance/wallet_all_balance_5.txt");
+        Call<Map<String, BalanceDto>> balanceResponse5 = makeBalanceResponse(balance5);
 
         when(bitcoinApi.getBalance(any(String.class), any(), any(), any()))
             .thenReturn(balanceResponse1)
             .thenReturn(balanceResponse2)
-            .thenReturn(balanceResponse3);
+            .thenReturn(balanceResponse3)
+            .thenReturn(balanceResponse4)
+            .thenReturn(balanceResponse5);
 
         payloadManager.recoverFromMnemonic(
             mnemonic,
             "My HDWallet",
             "name@email.com",
-            "SomePassword",
-            false
+            "SomePassword"
         );
 
         Wallet walletBody = payloadManager
-                .getPayload();
+            .getPayload();
 
         assertEquals(36, walletBody.getGuid().length());//GUIDs are 36 in length
         assertEquals("My HDWallet", walletBody.getWalletBody().getAccounts().get(0).getLabel());
@@ -217,28 +224,10 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.initializeAndDecrypt(
             "any_shared_key",
             "any_guid",
-            "SomeTestPassword",
-            true
+            "SomeTestPassword"
         );
     }
 
-    @Test
-    public void initializeAndDecrypt_v3() throws Exception {
-
-        String walletBase = loadResourceContent("wallet_v3_3.txt");
-
-        LinkedList<String> responseList = new LinkedList<>();
-        responseList.add(walletBase);
-        mockEmptyBalance(bitcoinApi);
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.initializeAndDecrypt(
-            "any",
-            "any",
-            "SomeTestPassword",
-            false
-        );
-    }
 
     @Test
     public void initializeAndDecrypt_v4() throws Exception {
@@ -252,107 +241,10 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "blockchain",
-            true
+            "blockchain"
         );
     }
 
-    @Test(expected = InvalidCredentialsException.class)
-    public void initializeAndDecrypt_invalidGuid() throws Exception {
-
-        String walletBase = loadResourceContent("invalid_guid.txt");
-
-        getMockInterceptor().setResponseString(walletBase);
-        getMockInterceptor().setResponseCode(500);
-        payloadManager.initializeAndDecrypt(
-            "any",
-            "any",
-            "SomeTestPassword",
-            false
-        );
-    }
-
-    @Test(expected = HDWalletException.class)
-    public void save_HDWalletException() throws Exception {
-        //Nothing to save
-        payloadManager.save();
-    }
-
-    @Test
-    public void save_v3() throws Exception {
-
-        LinkedList<String> responseList = new LinkedList<>();
-        responseList.add("MyWallet save successful.");
-        mockEmptyBalance(bitcoinApi);
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.create(
-            "My HDWallet",
-            "name@email.com",
-            "SomePassword",
-            false
-        );
-
-        getMockInterceptor().setResponseString("MyWallet save successful.");
-        payloadManager.save();
-    }
-
-    @Test
-    public void save_v4() throws Exception {
-
-        LinkedList<String> responseList = new LinkedList<>();
-        responseList.add("MyWallet save successful.");
-        mockEmptyBalance(bitcoinApi);
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.create(
-            "My HDWallet",
-            "name@email.com",
-            "SomePassword",
-            true
-        );
-
-        getMockInterceptor().setResponseString("MyWallet save successful.");
-        payloadManager.save();
-    }
-
-    @Test
-    public void upgradeV2PayloadToV3() {
-        // Tested in integration tests
-    }
-
-    @Test
-    public void addAccount_v3() throws Exception {
-
-        LinkedList<String> responseList = new LinkedList<>();
-        responseList.add("MyWallet save successful.");
-        mockEmptyBalance(bitcoinApi);
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.create(
-            "My HDWallet",
-            "name@email.com",
-            "MyTestWallet",
-            false
-        );
-
-        assertEquals(1, payloadManager.getPayload().getWalletBody().getAccounts().size());
-
-        responseList = new LinkedList<>();
-        responseList.add("MyWallet save successful");
-        mockEmptyBalance(bitcoinApi);
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.addAccount("Some Label", null);
-        assertEquals(2, payloadManager.getPayload().getWalletBody().getAccounts().size());
-
-        responseList = new LinkedList<>();
-        responseList.add("MyWallet save successful");
-
-        getMockInterceptor().setResponseStringList(responseList);
-        payloadManager.addAccount("Some Label", null);
-        assertEquals(3, payloadManager.getPayload().getWalletBody().getAccounts().size());
-    }
 
     @Test
     public void addLegacyAddress_v3() throws Exception {
@@ -365,8 +257,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         assertEquals(0, payloadManager.getPayload().getImportedAddressList().size());
@@ -398,8 +289,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         assertEquals(0, payloadManager.getPayload().getImportedAddressList().size());
@@ -413,7 +303,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         assertEquals(1, payloadManager.getPayload().getImportedAddressList().size());
 
         ImportedAddress importedAddressBody = payloadManager.getPayload()
-                .getImportedAddressList().get(0);
+            .getImportedAddressList().get(0);
 
         SigningKey key = new SigningKeyImpl(
             DeterministicKey.fromPrivate(Base58.decode(importedAddressBody.getPrivateKey()))
@@ -422,6 +312,20 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         importedAddressBody.setPrivateKey(null);
         getMockInterceptor().setResponseString("MyWallet save successful.");
         payloadManager.setKeyForImportedAddress(key, null);
+    }
+
+    @Test(expected = InvalidCredentialsException.class)
+    public void initializeAndDecrypt_invalidGuid() throws Exception {
+
+        String walletBase = loadResourceContent("invalid_guid.txt");
+
+        getMockInterceptor().setResponseString(walletBase);
+        getMockInterceptor().setResponseCode(500);
+        payloadManager.initializeAndDecrypt(
+            "any",
+            "any",
+            "SomeTestPassword"
+        );
     }
 
     @Test
@@ -435,8 +339,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         assertEquals(0, payloadManager.getPayload().getImportedAddressList().size());
@@ -449,7 +352,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         assertEquals(1, payloadManager.getPayload().getImportedAddressList().size());
 
         ImportedAddress existingImportedAddressBody = payloadManager.getPayload()
-                .getImportedAddressList().get(0);
+            .getImportedAddressList().get(0);
 
         //Try non matching ECKey
         SigningKey key = new SigningKeyImpl(new ECKey());
@@ -460,7 +363,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         getMockInterceptor().setResponseStringList(responseList);
 
         ImportedAddress newlyAdded = payloadManager
-                .setKeyForImportedAddress(key, null);
+            .setKeyForImportedAddress(key, null);
 
         //Ensure new address is created if no match found
         assertNotNull(newlyAdded);
@@ -481,8 +384,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.create(
             "My HDWallet",
             "name@email.com",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         assertEquals(0, payloadManager.getPayload().getImportedAddressList().size());
@@ -495,7 +397,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         assertEquals(1, payloadManager.getPayload().getImportedAddressList().size());
 
         ImportedAddress importedAddressBody = payloadManager.getPayload()
-                .getImportedAddressList().get(0);
+            .getImportedAddressList().get(0);
 
         SigningKey key = new SigningKeyImpl(
             DeterministicKey.fromPrivate(Base58.decode(importedAddressBody.getPrivateKey()))
@@ -508,6 +410,68 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
 
         // Ensure private key reverted on save fail
         assertNull(importedAddressBody.getPrivateKey());
+    }
+
+    @Test(expected = HDWalletException.class)
+    public void save_HDWalletException() throws Exception {
+        //Nothing to save
+        payloadManager.save();
+    }
+
+    @Test
+    public void addAccount_v4() throws Exception {
+
+        LinkedList<String> responseList = new LinkedList<>();
+        responseList.add("MyWallet save successful.");
+        mockEmptyBalance(bitcoinApi);
+
+        getMockInterceptor().setResponseStringList(responseList);
+        payloadManager.create(
+            "My HDWallet",
+            "name@email.com",
+            "MyTestWallet"
+        );
+
+        assertEquals(1, payloadManager.getPayload().getWalletBody().getAccounts().size());
+
+        responseList = new LinkedList<>();
+        responseList.add("MyWallet save successful");
+        mockEmptyBalance(bitcoinApi);
+
+        getMockInterceptor().setResponseStringList(responseList);
+        payloadManager.addAccount("Some Label", null);
+        assertEquals(2, payloadManager.getPayload().getWalletBody().getAccounts().size());
+
+        responseList = new LinkedList<>();
+        responseList.add("MyWallet save successful");
+
+        getMockInterceptor().setResponseStringList(responseList);
+        payloadManager.addAccount("Some Label", null);
+        assertEquals(3, payloadManager.getPayload().getWalletBody().getAccounts().size());
+    }
+
+
+    @Test
+    public void save_v4() throws Exception {
+
+        LinkedList<String> responseList = new LinkedList<>();
+        responseList.add("MyWallet save successful.");
+        mockEmptyBalance(bitcoinApi);
+
+        getMockInterceptor().setResponseStringList(responseList);
+        payloadManager.create(
+            "My HDWallet",
+            "name@email.com",
+            "SomePassword"
+        );
+
+        getMockInterceptor().setResponseString("MyWallet save successful.");
+        payloadManager.save();
+    }
+
+    @Test
+    public void upgradeV2PayloadToV3() {
+        // Tested in integration tests
     }
 
     @Test
@@ -548,8 +512,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.initializeAndDecrypt(
             "06f6fa9c-d0fe-403d-815a-111ee26888e2",
             "4750d125-5344-4b79-9cf9-6e3c97bc9523",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         Wallet wallet = payloadManager.getPayload();
@@ -582,8 +545,8 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         assertEquals("1NzpLHV6LLVFCYdYA5woYL9pHJ48KQJc9K", nextChangeAddress);
     }
 
-     @Test
-     public void balance() throws Exception {
+    @Test
+    public void balance() throws Exception {
         String walletBase = loadResourceContent("wallet_v3_6.txt");
 
         LinkedList<String> responseList = new LinkedList<>();
@@ -597,7 +560,8 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
             eq("btc"),
             any(),
             any(),
-            any())
+            any()
+             )
         ).thenReturn(btcResponse);
 
         // Bitcoin Cash
@@ -607,14 +571,14 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
             eq("bch"),
             any(),
             any(),
-            any())
+            any()
+             )
         ).thenReturn(bchResponse);
 
         payloadManager.initializeAndDecrypt(
             "any",
             "any",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         // 'All' wallet balance and transactions
@@ -637,10 +601,10 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         );
 
         XPubs second = new XPubs(
-             new XPub(
-                 "xpub6CdH6yzYXhTtTGPPL4Djjp1HqFmAPx4uyqoG6Ffz9nPysv8vR8t8PEJ3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL",
-                 XPub.Format.LEGACY
-             )
+            new XPub(
+                "xpub6CdH6yzYXhTtTGPPL4Djjp1HqFmAPx4uyqoG6Ffz9nPysv8vR8t8PEJ3RGaSRwMm7kRZ3MAcKgB6u4g1znFo82j4q2hdShmDyw3zuMxhDSL",
+                XPub.Format.LEGACY
+            )
         );
         assertEquals(
             BigInteger.valueOf(39217),
@@ -688,8 +652,7 @@ public final class PayloadManagerTest extends WalletApiMockedResponseTest {
         payloadManager.initializeAndDecrypt(
             "0f28735d-0b89-405d-a40f-ee3e85c3c78c",
             "5350e5d5-bd65-456f-b150-e6cc089f0b26",
-            "MyTestWallet",
-            false
+            "MyTestWallet"
         );
 
         //Account 1

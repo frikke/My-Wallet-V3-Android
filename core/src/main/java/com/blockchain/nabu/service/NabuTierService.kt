@@ -1,8 +1,8 @@
 package com.blockchain.nabu.service
 
-import com.blockchain.extensions.wrapErrorMessage
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.api.nabu.Nabu
+import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits

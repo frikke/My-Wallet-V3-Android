@@ -1,6 +1,6 @@
 package com.blockchain.nabu.cache
 
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.blockchain.nabu.service.NabuService

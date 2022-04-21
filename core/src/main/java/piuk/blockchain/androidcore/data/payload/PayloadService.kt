@@ -66,8 +66,7 @@ internal class PayloadService(
             mnemonic,
             walletName,
             email,
-            password,
-            true
+            password
         )
     }
 
@@ -87,8 +86,7 @@ internal class PayloadService(
         payloadManager.create(
             walletName,
             email,
-            password,
-            true
+            password
         )
     }
 
@@ -109,8 +107,7 @@ internal class PayloadService(
         payloadManager.initializeAndDecrypt(
             sharedKey,
             guid,
-            password,
-            true
+            password
         )
     }
 
@@ -124,8 +121,7 @@ internal class PayloadService(
         data: String
     ): Completable = Completable.fromCallable {
         payloadManager.initializeAndDecryptFromQR(
-            data,
-            true
+            data
         )
     }
 

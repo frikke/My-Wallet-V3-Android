@@ -14,7 +14,7 @@ import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.eligibility.models.TransactionsLimit
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import kotlinx.android.extensions.LayoutContainer
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemKycUpgradeNowBasicBinding
