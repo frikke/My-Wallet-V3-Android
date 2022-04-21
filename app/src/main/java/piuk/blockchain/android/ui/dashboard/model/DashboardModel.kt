@@ -9,8 +9,7 @@ import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionFlow
+import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import timber.log.Timber
 
 class DashboardModel(
@@ -52,24 +51,6 @@ class DashboardModel(
                 process(DashboardIntent.RefreshPrices(intent.asset))
                 null
             }
-            is DashboardIntent.UpdateLaunchDetailsFlow -> {
-                interactor.isRedesignCoinViewFlagEnabled().subscribeBy(
-                    onSuccess = {
-                        process(
-                            DashboardIntent.LaunchDetailsFlow(
-                                if (it) {
-                                    FullScreenCoinViewFlow(asset = intent.flow.asset)
-                                } else {
-                                    intent.flow
-                                }
-                            )
-                        )
-                    },
-                    onError = {
-                        DashboardIntent.LaunchDetailsFlow(intent.flow)
-                    }
-                )
-            }
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
             is DashboardIntent.AssetPriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -89,13 +70,12 @@ class DashboardModel(
             is DashboardIntent.ShowFiatAssetDetails,
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,
-            is DashboardIntent.UpdateLaunchDialogFlow,
             is DashboardIntent.ClearActiveFlow,
             is DashboardIntent.UpdateSelectedCryptoAccount,
             is DashboardIntent.ShowBackupSheet,
             is DashboardIntent.AssetListUpdate,
             is DashboardIntent.LaunchBankLinkFlow,
-            is DashboardIntent.ResetDashboardNavigation,
+            is DashboardIntent.ResetNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
             is DashboardIntent.LongCallStarted,
             is DashboardIntent.LongCallEnded,
@@ -104,8 +84,8 @@ class DashboardModel(
             is DashboardIntent.FetchOnboardingStepsSuccess,
             is DashboardIntent.LaunchDashboardOnboarding,
             is DashboardIntent.SetDepositVisibility,
-            is DashboardIntent.ResetDashboardAssets,
-            is DashboardIntent.LaunchDetailsFlow -> null
+            DashboardIntent.ResetDashboardAssets,
+            is DashboardIntent.UpdateNavigationAction -> null
         }
     }
 
@@ -148,8 +128,8 @@ class DashboardModel(
                 onSuccess = { isBackedUp ->
                     if (isBackedUp) {
                         process(
-                            DashboardIntent.UpdateLaunchDialogFlow(
-                                TransactionFlow(
+                            DashboardIntent.UpdateNavigationAction(
+                                DashboardNavigationAction.TransactionFlow(
                                     sourceAccount = account,
                                     action = action
                                 )
@@ -163,15 +143,4 @@ class DashboardModel(
                     Timber.e(it)
                 }
             )
-
-    override fun distinctIntentFilter(
-        previousIntent: DashboardIntent,
-        nextIntent: DashboardIntent
-    ): Boolean {
-        return when {
-            previousIntent is DashboardIntent.UpdateLaunchDialogFlow &&
-                nextIntent is DashboardIntent.ClearActiveFlow -> true
-            else -> super.distinctIntentFilter(previousIntent, nextIntent)
-        }
-    }
 }

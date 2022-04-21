@@ -21,7 +21,6 @@ import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingSte
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 data class AssetPriceState(
@@ -166,7 +165,6 @@ sealed class DashboardOnboardingState {
 data class DashboardState(
     val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
-    val activeFlow: DialogFlow? = null,
     val selectedAsset: AssetInfo? = null,
     val filterBy: String = "",
     val activeAssets: AssetMap = AssetMap(emptyMap()), // portfolio-only from here

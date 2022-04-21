@@ -17,10 +17,8 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
 
 // todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't have a dependency on core. Since there are a couple of others that are just passed through, though, this can be for later.
 sealed class DashboardIntent : MviIntent<DashboardState> {
@@ -47,7 +45,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,
-                activeFlow = null,
                 selectedAsset = null
             )
     }
@@ -127,20 +124,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    internal class UpdateLaunchDetailsFlow(
-        val flow: AssetDetailsFlow
+    class UpdateNavigationAction(
+        val action: DashboardNavigationAction
     ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState = oldState
-    }
-
-    class LaunchDetailsFlow(
-        private val flow: DialogFlow
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState =
-            oldState.copy(
-                dashboardNavigationAction = null,
-                activeFlow = flow
-            )
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            dashboardNavigationAction = action
+        )
     }
 
     class FilterAssets(private val searchString: String) : DashboardIntent() {
@@ -168,7 +157,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    object ResetDashboardNavigation : DashboardIntent() {
+    object ResetNavigation : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null
@@ -297,7 +286,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = DashboardNavigationAction.FiatFundsDetails(fiatAccount),
-                activeFlow = null
             )
     }
 
@@ -307,7 +295,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = DashboardNavigationAction.LinkOrDeposit(fiatAccount),
-                activeFlow = null
             )
     }
 
@@ -330,7 +317,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = DashboardNavigationAction.PaymentMethods(paymentMethodsForAction),
-                activeFlow = null,
                 selectedFiatAccount = fiatAccount
             )
     }
@@ -342,7 +328,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             // Custody sheet isn't displayed via this intent, so filter it out
             oldState.copy(
                 dashboardNavigationAction = dashboardNavigationAction,
-                activeFlow = null,
                 selectedFiatAccount = null
             )
     }
@@ -366,8 +351,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
-                dashboardNavigationAction = DashboardNavigationAction.BackUpBeforeSend(BackupDetails(account, action)),
-                activeFlow = null
+                dashboardNavigationAction = DashboardNavigationAction.BackUpBeforeSend(BackupDetails(account, action))
             )
     }
 
@@ -385,7 +369,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,
-                activeFlow = null,
                 backupSheetDetails = null
             )
     }
@@ -398,18 +381,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,
-                activeFlow = null,
-                backupSheetDetails = null
-            )
-    }
-
-    class UpdateLaunchDialogFlow(
-        private val flow: DialogFlow
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState =
-            oldState.copy(
-                dashboardNavigationAction = null,
-                activeFlow = flow,
                 backupSheetDetails = null
             )
     }
@@ -440,7 +411,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                     fiatAccount = fiatAccount,
                     assetAction = assetAction
                 ),
-                activeFlow = null,
                 backupSheetDetails = null
             )
     }

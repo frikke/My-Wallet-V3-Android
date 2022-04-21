@@ -20,8 +20,6 @@ import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.customviews.account.CellDecorator
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -161,4 +159,3 @@ private class AssetWalletViewHolder(
             else -> null
         } ?: throw IllegalStateException("Unsupported account type ${this::class.java}")
 }
-typealias AssetDetailsInfoDecorator = (AssetDetailsItem.CryptoDetailsInfo) -> CellDecorator
