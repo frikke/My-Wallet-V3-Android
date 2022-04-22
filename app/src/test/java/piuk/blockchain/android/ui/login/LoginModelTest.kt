@@ -4,8 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.PollResult
-import com.blockchain.remoteconfig.FeatureFlag
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
