@@ -365,17 +365,13 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        val requestType = RequestType.PUSH_TRANSACTION
-        val response: EthJsonRpcResponse = mockk {
-            coEvery { result } returns hash
-        }
-        coEvery { ethAccountApi.postEthNodeRequest(any(), requestType, any()) } returns Outcome.Success(response)
+        coEvery { ethAccountApi.pushTx(any()) } returns Single.just(hash)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.complete())
         // Act
         val result = subject.pushTx(byteArray).blockingGet()
         // Assert
         result `should be equal to` hash
-        coVerify { ethAccountApi.postEthNodeRequest(any(), requestType, any()) }
+        coVerify { ethAccountApi.pushTx(any()) }
     }
 
     @Test
@@ -383,11 +379,8 @@ class EthDataManagerTest {
         // Arrange
         val byteArray = ByteArray(32)
         val hash = "HASH"
-        val requestType = RequestType.PUSH_TRANSACTION
-        val response: EthJsonRpcResponse = mockk {
-            coEvery { result } returns hash
-        }
-        coEvery { ethAccountApi.postEthNodeRequest(any(), requestType, any()) } returns Outcome.Success(response)
+
+        coEvery { ethAccountApi.pushTx(any()) } returns Single.just(hash)
         whenever(lastTxUpdater.updateLastTxTime()).thenReturn(Completable.error(Exception()))
 
         // Act
@@ -395,6 +388,6 @@ class EthDataManagerTest {
 
         // Assert
         result `should be equal to` hash
-        coVerify { ethAccountApi.postEthNodeRequest(any(), requestType, any()) }
+        coVerify { ethAccountApi.pushTx(any()) }
     }
 }

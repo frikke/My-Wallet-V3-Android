@@ -7,16 +7,16 @@ class NabuCredentialsMetadataTest {
 
     @Test
     fun `should be valid`() {
-        NabuCredentialsMetadata("userId", "lifeTimeToken").isValid() `should be equal to` true
+        NabuCredentialsMetadata("userId", "lifeTimeToken", null, null).isValid() `should be equal to` true
     }
 
     @Test
     fun `empty id, should not be valid`() {
-        NabuCredentialsMetadata("", "lifeTimeToken").isValid() `should be equal to` false
+        NabuCredentialsMetadata("", "lifeTimeToken", null, null).isValid() `should be equal to` false
     }
 
     @Test
     fun `empty token, should not be valid`() {
-        NabuCredentialsMetadata("userId", "").isValid() `should be equal to` false
+        NabuCredentialsMetadata("userId", "", null, null).isValid() `should be equal to` false
     }
 }

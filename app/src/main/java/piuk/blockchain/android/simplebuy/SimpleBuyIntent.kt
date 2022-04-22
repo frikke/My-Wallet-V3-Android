@@ -3,12 +3,12 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.custodial.models.BrokerageQuote
-import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod

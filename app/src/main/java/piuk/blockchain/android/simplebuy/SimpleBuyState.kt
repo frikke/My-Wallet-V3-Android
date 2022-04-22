@@ -7,12 +7,12 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
-import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.LinkedBank
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType

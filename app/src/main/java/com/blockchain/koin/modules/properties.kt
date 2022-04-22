@@ -17,4 +17,5 @@ val urls = mapOf(
     "explorer-api" to BuildConfig.EXPLORER_URL,
     "blockchain-api" to BuildConfig.API_URL,
     "nabu-api" to "${BuildConfig.API_URL}nabu-gateway/",
+    "wallet-helper-url" to BuildConfig.WALLET_HELPER_URL,
 )

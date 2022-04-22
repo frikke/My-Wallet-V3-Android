@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.sheets
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.px
-import com.blockchain.core.eligibility.models.TransactionsLimit
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -25,9 +24,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetKycUpgradeNowBinding
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
-import piuk.blockchain.android.ui.dashboard.assetdetails.ClearSheetDataIntent
-import piuk.blockchain.android.ui.dashboard.assetdetails.NavigateToKyc
 
 class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBinding>() {
 
@@ -46,10 +42,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
         arguments?.getSerializable(ARG_TRANSACTIONS_LIMIT) as TransactionsLimit
     }
 
-    private val isHostAssetDetailsFlow: Boolean by lazy {
-        arguments?.getBoolean(ARG_IS_HOST_ASSET_DETAILS_FLOW, false) ?: false
-    }
-
     private var ctaClicked = false
     private val getHighestTierAndIsSdd: Single<Pair<Tier, Boolean>> by lazy {
         Singles.zip(
@@ -57,11 +49,6 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
         ).cache()
     }
-
-    // Only used when isHostAssetDetailsFlow == true, unfortunately we have to manipulate AssetDetailsModel when
-    // being used from AssetDetailsFlow, because the host is Portfolio or Prices and not AssetDetailsFlow
-    // so we have to communicate via the Model rather than relying on the host
-    private val assetDetailsModel: AssetDetailsModel by scopedInject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // This is because we need to show this as a regular fragment as well as a BottomSheet
@@ -89,10 +76,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
                         drawable = R.drawable.ic_close_circle_v2,
                         color = null,
                         onIconClick = {
-                            if (isHostAssetDetailsFlow) {
-                                assetDetailsModel.process(ClearSheetDataIntent)
-                                dismiss()
-                            } else if (showsDialog) dismiss()
+                            if (showsDialog) dismiss()
                         }
                     )
                 )
@@ -153,19 +137,8 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
     }
 
     private fun startKycClicked() {
-        if (isHostAssetDetailsFlow) {
-            assetDetailsModel.process(NavigateToKyc)
-            assetDetailsModel.process(ClearSheetDataIntent)
-            dismiss()
-        } else {
-            (host as Host).startKycClicked()
-            if (showsDialog) dismiss()
-        }
-    }
-
-    override fun onCancel(dialog: DialogInterface) {
-        if (isHostAssetDetailsFlow) assetDetailsModel.process(ClearSheetDataIntent)
-        else super.onCancel(dialog)
+        (host as Host).startKycClicked()
+        if (showsDialog) dismiss()
     }
 
     override fun onDestroyView() {
@@ -210,15 +183,12 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
 
     companion object {
         private const val ARG_TRANSACTIONS_LIMIT = "ARG_TRANSACTIONS_LIMIT"
-        private const val ARG_IS_HOST_ASSET_DETAILS_FLOW = "ARG_IS_HOST_ASSET_DETAILS_FLOW"
 
         fun newInstance(
             transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited,
-            isHostAssetDetailsFlow: Boolean = false
         ): KycUpgradeNowSheet = KycUpgradeNowSheet().apply {
             arguments = Bundle().apply {
                 putSerializable(ARG_TRANSACTIONS_LIMIT, transactionsLimit)
-                putBoolean(ARG_IS_HOST_ASSET_DETAILS_FLOW, isHostAssetDetailsFlow)
             }
         }
     }

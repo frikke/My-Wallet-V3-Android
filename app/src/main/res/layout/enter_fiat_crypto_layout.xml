@@ -15,7 +15,6 @@
         android:layout_margin="@dimen/small_margin"
         android:background="@android:color/transparent"
         android:contentDescription="@string/content_desc_enter_amount"
-        android:digits="0123456789-.,"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:gravity="center"

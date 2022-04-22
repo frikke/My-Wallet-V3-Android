@@ -8,8 +8,8 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore
 import com.blockchain.store.impl.Freshness
-import com.blockchain.store.impl.JsonPersistedStoreBuilder
-import com.blockchain.store_persisters_sqldelight.SqlDelightStoreIdScopedPersister
+import com.blockchain.store.impl.FreshnessMediator
+import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 
@@ -20,7 +20,7 @@ class PaymentMethodsEligibilityStore(
     PaymentMethodsEligibilityStore.Key,
     PaymentMethodsError,
     List<PaymentMethodResponse>
-    > by JsonPersistedStoreBuilder().buildKeyed(
+    > by PersistedJsonSqlDelightStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofSingle(
         mapper = { key ->
@@ -36,10 +36,9 @@ class PaymentMethodsEligibilityStore(
         },
         errorMapper = { PaymentMethodsError.RequestFailed((it as? NabuApiException)?.getErrorDescription()) }
     ),
-    persister = SqlDelightStoreIdScopedPersister.Builder(STORE_ID).build(),
     keySerializer = Key.serializer(),
     dataSerializer = ListSerializer(PaymentMethodResponse.serializer()),
-    freshness = Freshness.ofSeconds(20L)
+    mediator = FreshnessMediator(Freshness.ofSeconds(20L))
 ) {
 
     @Serializable

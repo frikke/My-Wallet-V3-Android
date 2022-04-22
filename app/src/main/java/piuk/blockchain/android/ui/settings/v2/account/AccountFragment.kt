@@ -17,9 +17,9 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -198,14 +198,14 @@ class AccountFragment :
                     secondaryText = null
                     tags = listOf(TagViewState(getString(R.string.order_card), TagType.InfoAlt()))
                     onClick = {
-                        navigator().goToOrderBlockchainDebitCard(blockchainCardOrderState.cardProducts.first())
+                        navigator().goToOrderBlockchainCard(blockchainCardOrderState.cardProducts.first())
                     }
                 }
                 is BlockchainCardOrderState.Ordered -> {
                     visibility = VISIBLE
                     secondaryText = null
                     onClick = {
-                        navigator().goToManageBlockchainDebitCard(blockchainCardOrderState.blockchainDebitCardId)
+                        navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
                     }
                 }
             }

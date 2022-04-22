@@ -27,9 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.blockchaincard.R
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
-import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -52,7 +52,7 @@ import com.blockchain.componentlib.theme.Grey000
 
 @Composable
 fun OrderOrLinkCard(
-    viewModel: BlockchainCardViewModel
+    viewModel: OrderCardViewModel
 ) {
     OrderOrLinkCardContent(
         onOrderCard = { viewModel.onIntent(BlockchainCardIntent.OrderCard) },
@@ -175,7 +175,7 @@ fun SelectCardForOrder(onCreateCard: () -> Unit, onSeeProductDetails: () -> Unit
 }
 
 @Composable
-fun ProductDetails(cardProduct: BlockchainDebitCardProduct?, onCloseProductDetailsBottomSheet: () -> Unit) {
+fun ProductDetails(cardProduct: BlockchainCardProduct?, onCloseProductDetailsBottomSheet: () -> Unit) {
 
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White

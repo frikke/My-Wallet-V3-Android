@@ -47,7 +47,8 @@ import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.payments.model.PartnerCredentials
 import com.blockchain.core.payments.model.PaymentMethodDetailsError
 import com.blockchain.core.payments.model.PaymentMethodsError
-import com.blockchain.extensions.wrapErrorMessage
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -61,7 +62,6 @@ import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.firstOutcome

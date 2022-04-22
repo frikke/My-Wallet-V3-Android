@@ -9,8 +9,8 @@ import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.NotificationAppOpened
-import com.blockchain.analytics.events.NotificationAnalyticsEvents
 import com.blockchain.koin.scopedInject
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

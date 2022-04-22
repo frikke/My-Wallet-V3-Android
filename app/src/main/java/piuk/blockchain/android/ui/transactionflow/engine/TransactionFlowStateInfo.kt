@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.transactionflow.engine
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money

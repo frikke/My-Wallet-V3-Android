@@ -32,3 +32,8 @@ class CardCreationRequestBody(
     val productCode: String,
     val ssn: String
 )
+
+@Serializable
+class CardWidgetTokenResponse(
+    val token: String
+)

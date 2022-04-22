@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.createwallet
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.eligibility.CountryIso
-import com.blockchain.core.eligibility.EligibilityDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.CountryIso
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -36,7 +36,7 @@ class CreateWalletPresenterTest {
     private val analytics: Analytics = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
-    private val eligibilityDataManager: EligibilityDataManager = mock()
+    private val eligibilityService: EligibilityService = mock()
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -53,7 +53,7 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             environmentConfig = environmentConfig,
             formatChecker = formatChecker,
-            eligibilityDataManager = eligibilityDataManager
+            eligibilityService = eligibilityService
         )
         subject.initView(view)
     }
@@ -61,10 +61,10 @@ class CreateWalletPresenterTest {
     @Test
     fun onViewReady() {
         val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
-        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
+        whenever(eligibilityService.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
         subject.onViewReady()
 
-        verify(eligibilityDataManager).getCustodialEligibleCountries()
+        verify(eligibilityService).getCustodialEligibleCountries()
     }
 
     @Test
@@ -247,20 +247,20 @@ class CreateWalletPresenterTest {
     @Test
     fun `on fetch eligible countries success and set these countries`() {
         val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
-        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
+        whenever(eligibilityService.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
         subject.onViewReady()
 
-        verify(eligibilityDataManager).getCustodialEligibleCountries()
+        verify(eligibilityService).getCustodialEligibleCountries()
         verify(view).setEligibleCountries(eligibleCountries)
     }
 
     @Test
     fun `on fetch eligible countries failure should fallback to Locale`() {
         val error = IllegalStateException("error")
-        whenever(eligibilityDataManager.getCustodialEligibleCountries()).thenReturn(Single.error(error))
+        whenever(eligibilityService.getCustodialEligibleCountries()).thenReturn(Single.error(error))
         subject.onViewReady()
 
-        verify(eligibilityDataManager).getCustodialEligibleCountries()
+        verify(eligibilityService).getCustodialEligibleCountries()
         verify(view).setEligibleCountries(Locale.getISOCountries().toList())
     }
 }

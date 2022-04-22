@@ -4,7 +4,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradingAccount
-import com.blockchain.remoteconfig.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.isErc20

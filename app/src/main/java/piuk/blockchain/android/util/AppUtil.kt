@@ -5,6 +5,7 @@ import android.content.Intent
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
@@ -18,7 +19,8 @@ class AppUtil(
     private var payloadScopeWiper: PayloadScopeWiper,
     private val prefs: PersistentPrefs,
     private val trust: DigitalTrust,
-    private val pinRepository: PinRepository
+    private val pinRepository: PinRepository,
+    private val isIntercomEnabledFlag: FeatureFlag
 ) : AppUtilAPI {
     override fun logout() {
         pinRepository.clearPin()
@@ -29,8 +31,9 @@ class AppUtil(
                 action = BlockchainActivity.LOGOUT_ACTION
             }
         )
-
-        Intercom.client().logout()
+        if (isIntercomEnabledFlag.isEnabled) {
+            Intercom.client().logout()
+        }
     }
 
     fun unpairWallet() {

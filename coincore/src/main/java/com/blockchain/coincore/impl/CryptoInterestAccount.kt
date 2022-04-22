@@ -16,6 +16,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -169,7 +170,7 @@ class CryptoInterestAccount(
             isEnabled
         ) { tier, balance, enabled ->
             return@zip when (tier) {
-                Tier.BRONZE -> emptySet()
+                Tier.BRONZE,
                 Tier.SILVER -> emptySet()
                 Tier.GOLD -> setOf(
                     StateAwareAction(
@@ -180,13 +181,10 @@ class CryptoInterestAccount(
                         if (balance.withdrawable.isPositive) ActionState.Available else ActionState.LockedForBalance,
                         AssetAction.InterestWithdraw
                     ),
-                    StateAwareAction(
-                        if (hasTransactions) ActionState.Available else ActionState.LockedForOther,
-                        AssetAction.ViewStatement
-                    ),
+                    StateAwareAction(ActionState.Available, AssetAction.ViewStatement),
                     StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
                 )
-            }
+            }.exhaustive
         }
 
     companion object {

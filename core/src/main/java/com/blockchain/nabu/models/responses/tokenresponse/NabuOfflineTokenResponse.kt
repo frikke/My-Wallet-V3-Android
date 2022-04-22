@@ -15,7 +15,7 @@ data class NabuOfflineTokenResponse(
 )
 
 fun NabuOfflineTokenResponse.mapToMetadata(): NabuCredentialsMetadata =
-    NabuCredentialsMetadata(this.userId, this.token)
+    NabuCredentialsMetadata(this.userId, this.token, null, null)
 
 fun NabuCredentialsMetadata.mapFromMetadata(): NabuOfflineTokenResponse =
     NabuOfflineTokenResponse(this.userId, this.lifetimeToken)

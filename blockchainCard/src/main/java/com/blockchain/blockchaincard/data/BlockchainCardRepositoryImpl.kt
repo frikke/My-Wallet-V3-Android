@@ -4,12 +4,12 @@ import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
+import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
+import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCard
-import com.blockchain.blockchaincard.domain.models.BlockchainDebitCardProduct
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -25,7 +25,7 @@ internal class BlockchainCardRepositoryImpl(
     private val authenticator: Authenticator
 ) : BlockchainCardRepository {
 
-    override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainDebitCardProduct>> =
+    override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
@@ -38,7 +38,7 @@ internal class BlockchainCardRepositoryImpl(
                 }
             }
 
-    override suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainDebitCard>> =
+    override suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainCard>> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
@@ -54,7 +54,7 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun createCard(
         productCode: String,
         ssn: String
-    ): Outcome<BlockchainCardError, BlockchainDebitCard> =
+    ): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
@@ -67,20 +67,55 @@ internal class BlockchainCardRepositoryImpl(
                 }
             }
 
-    override suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainDebitCard> =
+    override suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapLeft { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.deleteCard(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft { BlockchainCardError.DeleteCardRequestFailed }.map { card ->
+                ).mapLeft {
+                    BlockchainCardError.DeleteCardRequestFailed
+                }.map { card ->
                     card.toDomainModel()
                 }
             }
 
-    private fun ProductsResponse.toDomainModel(): BlockchainDebitCardProduct =
-        BlockchainDebitCardProduct(
+    override suspend fun getCardWidgetToken(cardId: String): Outcome<BlockchainCardError, String> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getCardWidgetToken(
+                    authHeader = tokenResponse,
+                    cardId = cardId
+                ).mapLeft {
+                    BlockchainCardError.GetCardWidgetTokenRequestFailed
+                }.map { widgetToken ->
+                    widgetToken.token
+                }
+            }
+
+    override suspend fun getCardWidgetUrl(cardId: String, last4Digits: String): Outcome<BlockchainCardError, String> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getCardWidgetToken(
+                    authHeader = tokenResponse,
+                    cardId = cardId,
+                ).mapLeft {
+                    BlockchainCardError.GetCardWidgetTokenRequestFailed
+                }.flatMap { widgetToken ->
+                    blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits)
+                }.mapLeft {
+                    BlockchainCardError.GetCardWidgetRequestFailed
+                }
+            }
+
+    //
+    // Domain Model Conversion
+    //
+    private fun ProductsResponse.toDomainModel(): BlockchainCardProduct =
+        BlockchainCardProduct(
             productCode = productCode,
             price = FiatValue.fromMajor(
                 fiatCurrency = FiatCurrency.fromCurrencyCode(price.symbol),
@@ -90,8 +125,8 @@ internal class BlockchainCardRepositoryImpl(
             type = BlockchainCardType.valueOf(type)
         )
 
-    private fun CardsResponse.toDomainModel(): BlockchainDebitCard =
-        BlockchainDebitCard(
+    private fun CardsResponse.toDomainModel(): BlockchainCard =
+        BlockchainCard(
             id = id,
             type = BlockchainCardType.valueOf(type),
             last4 = last4,

@@ -20,15 +20,11 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -58,8 +54,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
-import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
@@ -89,8 +83,6 @@ import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboarding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
@@ -108,9 +100,6 @@ class PortfolioFragment :
     ForceBackupForSendSheet.Host,
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
-    DialogFlow.FlowHost,
-    AssetDetailsFlow.AssetDetailsHost,
-    InterestSummarySheet.Host,
     BuyPendingOrdersBottomSheet.Host,
     BankLinkingHost {
 
@@ -215,33 +204,6 @@ class PortfolioFragment :
             }
         }
 
-        // Update/show dialog flow
-        if (state?.activeFlow != newState.activeFlow) {
-            state?.activeFlow?.let { clearBottomSheet() }
-
-            newState.activeFlow?.let {
-                when (it) {
-                    is TransactionFlow -> {
-                        startActivity(
-                            TransactionFlowActivity.newIntent(
-                                context = requireActivity(),
-                                sourceAccount = it.txSource,
-                                target = it.txTarget,
-                                action = it.txAction
-                            )
-                        )
-                    }
-                    is FullScreenCoinViewFlow -> {
-                        activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), it.asset))
-                        model.process(DashboardIntent.ClearActiveFlow)
-                    }
-                    else -> {
-                        it.startFlow(childFragmentManager, this)
-                    }
-                }
-            }
-        }
-
         // Update/show announcement
         if (this.state?.announcement != newState.announcement) {
             showAnnouncement(newState.announcement)
@@ -324,17 +286,32 @@ class PortfolioFragment :
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
-        when {
-            navigationAction is DashboardNavigationAction.BottomSheet -> {
+        when (navigationAction) {
+            is DashboardNavigationAction.BottomSheet -> {
                 handleBottomSheet(navigationAction)
-                model.process(DashboardIntent.ResetDashboardNavigation)
+                model.process(DashboardIntent.ResetNavigation)
             }
-            navigationAction is DashboardNavigationAction.LinkBankWithPartner -> {
+            is DashboardNavigationAction.LinkBankWithPartner -> {
                 startBankLinking(navigationAction)
             }
-            navigationAction is DashboardNavigationAction.DashboardOnboarding -> {
+            is DashboardNavigationAction.DashboardOnboarding -> {
                 launchDashboardOnboarding(navigationAction.initialSteps)
-                model.process(DashboardIntent.ResetDashboardNavigation)
+                model.process(DashboardIntent.ResetNavigation)
+            }
+            is DashboardNavigationAction.TransactionFlow -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = requireActivity(),
+                        sourceAccount = navigationAction.sourceAccount,
+                        target = navigationAction.target,
+                        action = navigationAction.action
+                    )
+                )
+                model.process(DashboardIntent.ResetNavigation)
+            }
+            is DashboardNavigationAction.Coinview -> {
+                activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), navigationAction.asset))
+                model.process(DashboardIntent.ResetNavigation)
             }
         }
     }
@@ -583,7 +560,7 @@ class PortfolioFragment :
                     )
                 }
             }
-            model.process(DashboardIntent.ResetDashboardNavigation)
+            model.process(DashboardIntent.ResetNavigation)
         }
 
     private val activityResultDashboardOnboarding =
@@ -596,7 +573,7 @@ class PortfolioFragment :
                 null -> {
                 }
             }
-            model.process(DashboardIntent.ResetDashboardNavigation)
+            model.process(DashboardIntent.ResetNavigation)
         }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -612,14 +589,15 @@ class PortfolioFragment :
             }
         }
 
-        model.process(DashboardIntent.ResetDashboardNavigation)
+        model.process(DashboardIntent.ResetNavigation)
     }
 
     private fun onAssetClicked(asset: AssetInfo) {
         analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(
-            DashboardIntent.UpdateLaunchDetailsFlow(
-                AssetDetailsFlow(
+
+            DashboardIntent.UpdateNavigationAction(
+                DashboardNavigationAction.Coinview(
                     asset = asset
                 )
             )
@@ -743,11 +721,6 @@ class PortfolioFragment :
         model.process(DashboardIntent.ClearActiveFlow)
     }
 
-    // DialogFlow.FlowHost
-    override fun onFlowFinished() {
-        model.process(DashboardIntent.ClearActiveFlow)
-    }
-
     // BankLinkingHost
     override fun onBankWireTransferSelected(currency: FiatCurrency) {
         state?.selectedFiatAccount?.let {
@@ -786,108 +759,6 @@ class PortfolioFragment :
         navigator().launchKyc(CampaignType.FiatFunds)
     }
 
-    private fun launchSendFor(account: SingleAccount, action: AssetAction) {
-        if (account is CustodialTradingAccount) {
-            model.process(DashboardIntent.CheckBackupStatus(account, action))
-        } else if (account is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        sourceAccount = account,
-                        action = action
-                    )
-                )
-            )
-        }
-    }
-
-    // AssetDetailsHost
-    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) {
-        clearBottomSheet()
-        when (action) {
-            AssetAction.Send -> launchSendFor(account as SingleAccount, action)
-            else -> navigator().performAssetActionFor(action, account)
-        }
-    }
-
-    override fun goToSellFrom(account: CryptoAccount) =
-        startActivity(
-            TransactionFlowActivity.newIntent(
-                context = requireActivity(),
-                sourceAccount = account,
-                action = AssetAction.Sell
-            )
-        )
-
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
-        if (toAccount is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        target = toAccount,
-                        action = AssetAction.InterestDeposit
-                    )
-                )
-            )
-        }
-    }
-
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
-        if (fromAccount is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        sourceAccount = fromAccount,
-                        action = AssetAction.InterestWithdraw
-                    )
-                )
-            )
-        }
-    }
-
-    override fun goToInterestDashboard() {
-        navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
-    }
-
-    override fun goToSummary(account: CryptoAccount) {
-        model.process(
-            DashboardIntent.UpdateSelectedCryptoAccount(
-                account
-            )
-        )
-        model.process(
-            DashboardIntent.ShowPortfolioSheet(
-                DashboardNavigationAction.InterestSummary(
-                    account
-                )
-            )
-        )
-    }
-
-    override fun goToKyc() {
-        navigator().launchKyc(CampaignType.None)
-    }
-
-    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
-        val blockedState = buyAccess as? FeatureAccess.Blocked
-        blockedState?.let {
-            when (val reason = it.reason) {
-                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
-                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
-                BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-            }.exhaustive
-        } ?: run {
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset, true)
-        }
-    }
-
-    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
-        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
-            childFragmentManager,
-            BuyPendingOrdersBottomSheet.TAG
-        )
-    }
-
     override fun startActivityRequested() {
         navigator().performAssetActionFor(AssetAction.ViewActivity)
     }
@@ -900,8 +771,8 @@ class PortfolioFragment :
     override fun startTransferFunds(account: SingleAccount, action: AssetAction) {
         if (account is CryptoAccount) {
             model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
+                DashboardIntent.UpdateNavigationAction(
+                    DashboardNavigationAction.TransactionFlow(
                         sourceAccount = account,
                         action = action
                     )

@@ -21,13 +21,13 @@ import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityDataManager
-import com.blockchain.core.eligibility.EligibilityDataManagerImpl
-import com.blockchain.core.eligibility.ProductsEligibilityCache
+import com.blockchain.core.eligibility.cache.ProductsEligibilityCache
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
+import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -37,7 +37,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
-import com.blockchain.datamanagers.DataManagerPayloadDecrypt
+import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataRepository
@@ -159,11 +159,11 @@ val coreModule = module {
         }
 
         scoped {
-            EligibilityDataManagerImpl(
+            EligibilityDataManager(
                 productsEligibilityCache = get(),
                 entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag)
             )
-        }.bind(EligibilityDataManager::class)
+        }.bind(EligibilityService::class)
 
         factory {
             InterestBalanceCallCache(

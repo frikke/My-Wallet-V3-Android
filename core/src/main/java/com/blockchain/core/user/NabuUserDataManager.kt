@@ -3,7 +3,7 @@ package com.blockchain.core.user
 import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
-import com.blockchain.caching.TimedCacheRequest
+import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import io.reactivex.rxjava3.core.Completable
@@ -18,6 +18,8 @@ interface NabuUserDataManager {
     fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
 
     fun signLatestTermsAndConditions(): Completable
+
+    fun reportLanguage(languageCode: String): Completable
 }
 
 class NabuUserDataManagerImpl(
@@ -56,6 +58,11 @@ class NabuUserDataManagerImpl(
     override fun signLatestTermsAndConditions(): Completable =
         authenticator.getAuthHeader().flatMapCompletable {
             nabuUserService.signLatestTermsAndConditions(it)
+        }
+
+    override fun reportLanguage(languageCode: String): Completable =
+        authenticator.getAuthHeader().flatMapCompletable {
+            nabuUserService.reportLanguage(it, languageCode)
         }
 }
 

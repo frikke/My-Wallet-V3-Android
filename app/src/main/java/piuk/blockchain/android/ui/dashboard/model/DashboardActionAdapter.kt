@@ -23,7 +23,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -48,7 +47,6 @@ import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCas
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
-import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
@@ -69,13 +67,8 @@ class DashboardActionAdapter(
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
     private val userIdentity: NabuUserIdentity,
     private val analytics: Analytics,
-    private val remoteLogger: RemoteLogger,
-    private val redesignCoinViewFlag: FeatureFlag
+    private val remoteLogger: RemoteLogger
 ) {
-
-    fun isRedesignCoinViewFlagEnabled(): Single<Boolean> =
-        redesignCoinViewFlag.enabled
-
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         coincore.fiatAssets.accountGroup()
             .map { g -> g.accounts }
@@ -441,8 +434,8 @@ class DashboardActionAdapter(
         when (fiatTxRequestResult) {
             is FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts -> {
                 model.process(
-                    DashboardIntent.UpdateLaunchDialogFlow(
-                        TransactionFlow(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.TransactionFlow(
                             target = fiatAccount,
                             action = action
                         )
@@ -451,8 +444,8 @@ class DashboardActionAdapter(
             }
             is FiatTransactionRequestResult.LaunchDepositFlow -> {
                 model.process(
-                    DashboardIntent.UpdateLaunchDialogFlow(
-                        TransactionFlow(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.TransactionFlow(
                             target = fiatAccount,
                             sourceAccount = fiatTxRequestResult.preselectedBankAccount,
                             action = action
@@ -462,8 +455,8 @@ class DashboardActionAdapter(
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlowWithMultipleAccounts -> {
                 model.process(
-                    DashboardIntent.UpdateLaunchDialogFlow(
-                        TransactionFlow(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.TransactionFlow(
                             sourceAccount = fiatAccount,
                             action = action
                         )
@@ -472,8 +465,8 @@ class DashboardActionAdapter(
             }
             is FiatTransactionRequestResult.LaunchWithdrawalFlow -> {
                 model.process(
-                    DashboardIntent.UpdateLaunchDialogFlow(
-                        TransactionFlow(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.TransactionFlow(
                             sourceAccount = fiatAccount,
                             target = fiatTxRequestResult.preselectedBankAccount,
                             action = action

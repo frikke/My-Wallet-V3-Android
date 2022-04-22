@@ -10,17 +10,20 @@ sealed class BlockchainCardError {
     object CreateCardRequestFailed : BlockchainCardError()
     object DeleteCardRequestFailed : BlockchainCardError()
     object GetProductsRequestFailed : BlockchainCardError()
+    object GetCardWidgetTokenRequestFailed : BlockchainCardError()
+    object GetCardWidgetRequestFailed : BlockchainCardError()
 }
 
 @Parcelize
-data class BlockchainDebitCardProduct(
+data class BlockchainCardProduct(
     val productCode: String,
     val price: FiatValue,
     val brand: BlockchainCardBrand,
     val type: BlockchainCardType
 ) : Parcelable
 
-data class BlockchainDebitCard(
+@Parcelize
+data class BlockchainCard(
     val id: String,
     val type: BlockchainCardType,
     val last4: String,
@@ -28,7 +31,7 @@ data class BlockchainDebitCard(
     val brand: BlockchainCardBrand,
     val status: BlockchainCardStatus,
     val createdAt: String
-)
+) : Parcelable
 
 enum class BlockchainCardBrand {
     VISA,

@@ -188,7 +188,7 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val offlineToken = NabuCredentialsMetadata("", "")
+        val offlineToken = NabuCredentialsMetadata("", "", null, null)
         val jwt = "JWT"
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
@@ -235,7 +235,7 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val invalidToken = NabuCredentialsMetadata("", "")
+        val invalidToken = NabuCredentialsMetadata("", "", null, null)
         val jwt = "JWT"
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
@@ -285,7 +285,7 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val offlineToken = NabuCredentialsMetadata("", "")
+        val offlineToken = NabuCredentialsMetadata("", "", null, null)
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)

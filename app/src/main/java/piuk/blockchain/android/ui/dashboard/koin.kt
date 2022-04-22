@@ -1,15 +1,10 @@
 package piuk.blockchain.android.ui.dashboard
 
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsInteractor
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsModel
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewModel
@@ -53,30 +48,7 @@ val dashboardModule = module {
                 analytics = get(),
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
-                getDashboardOnboardingStepsUseCase = get(),
-                redesignCoinViewFlag = get(redesignPart2CoinViewFeatureFlag)
-            )
-        }
-
-        scoped {
-            AssetDetailsModel(
-                initialState = AssetDetailsState(),
-                mainScheduler = AndroidSchedulers.mainThread(),
-                interactor = get(),
-                assetActionsComparator = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
-                environmentConfig = get(),
-                remoteLogger = get()
-            )
-        }
-
-        factory {
-            AssetDetailsInteractor(
-                dashboardPrefs = get(),
-                coincore = get(),
-                userIdentity = get(),
-                custodialWalletManager = get(),
-                paymentsDataManager = get()
+                getDashboardOnboardingStepsUseCase = get()
             )
         }
 

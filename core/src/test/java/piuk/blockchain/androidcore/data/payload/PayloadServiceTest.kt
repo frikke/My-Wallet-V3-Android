@@ -66,15 +66,14 @@ class PayloadServiceTest {
         val email = "EMAIL"
         val password = "PASSWORD"
         val mockWallet: Wallet = mock()
-        val v4Enabled = true
-        whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled))
+        whenever(mockPayloadManager.recoverFromMnemonic(mnemonic, walletName, email, password))
             .thenReturn(mockWallet)
 
         // Act
         val testObserver = subject.restoreHdWallet(mnemonic, walletName, email, password).test()
 
         // Assert
-        verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password, v4Enabled)
+        verify(mockPayloadManager).recoverFromMnemonic(mnemonic, walletName, email, password)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)
@@ -88,11 +87,11 @@ class PayloadServiceTest {
         val email = "EMAIL"
         val mockWallet: Wallet = mock()
         val v4Enabled = true
-        whenever(mockPayloadManager.create(walletName, email, password, v4Enabled)).thenReturn(mockWallet)
+        whenever(mockPayloadManager.create(walletName, email, password)).thenReturn(mockWallet)
         // Act
         val testObserver = subject.createHdWallet(password, walletName, email).test()
         // Assert
-        verify(mockPayloadManager).create(walletName, email, password, v4Enabled)
+        verify(mockPayloadManager).create(walletName, email, password)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
         testObserver.assertValue(mockWallet)
@@ -114,8 +113,7 @@ class PayloadServiceTest {
         verify(mockPayloadManager).initializeAndDecrypt(
             sharedKey,
             guid,
-            password,
-            v4Enabled
+            password
         )
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
@@ -131,7 +129,7 @@ class PayloadServiceTest {
         val testObserver = subject.handleQrCode(qrString).test()
 
         // Assert
-        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString, v4Enabled)
+        verify(mockPayloadManager).initializeAndDecryptFromQR(qrString)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }

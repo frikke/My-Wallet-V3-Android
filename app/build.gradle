@@ -135,6 +135,8 @@ android {
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
 
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
+
             def ciVersionCode = System.getenv("BITRISE_BUILD_NUMBER")
             if (ciVersionCode != null) {
                 versionCode = ciVersionCode.toInteger()
@@ -178,6 +180,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperProdURL']}\""
 
             applicationId "com.blockchain.wallet.internal"
 
@@ -225,6 +229,8 @@ android {
 
             buildConfigField "String", "INTERCOM_API_KEY", "\"${buildProperties.secrets['intercomApiKey']}\""
             buildConfigField "String", "INTERCOM_APP_ID", "\"${buildProperties.secrets['intercomApplicationId']}\""
+
+            buildConfigField "String", "WALLET_HELPER_URL", "\"${buildProperties.secrets['walletHelperStagingURL']}\""
 
             versionNameSuffix '-staging'
             applicationId "piuk.blockchain.android.staging"
@@ -331,6 +337,7 @@ dependencies {
     implementation project(':wallet')
     implementation project(':common:interface')
     implementation project(':common:network')
+    implementation project(':common:domain')
     implementation project(':common-view')
     implementation project(':payments:checkoutcom')
     implementation project(':payments:stripe')
@@ -341,8 +348,8 @@ dependencies {
     implementation project(':logging:data')
     implementation project(':analytics:domain')
     implementation project(':analytics:data')
-    implementation project(':store')
-    implementation project(':store-persisters-sqldelight')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':blockchainCard')
 
     implementation project(':appMaintenance:data')

@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.base.updateTitleToolbar
@@ -29,12 +30,14 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBuySellBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import retrofit2.HttpException
 
 class BuySellFragment :
     HomeScreenFragment,
@@ -114,6 +117,17 @@ class BuySellFragment :
                     },
                     onError = {
                         renderErrorState()
+                        analytics.logEvent(
+                            ClientErrorAnalytics.ClientLogError(
+                                nabuApiException = if (it is HttpException) {
+                                    NabuApiExceptionFactory.fromResponseBody(it)
+                                } else null,
+                                error = ClientErrorAnalytics.NABU_ERROR,
+                                source = ClientErrorAnalytics.Companion.Source.NABU,
+                                title = ClientErrorAnalytics.NABU_ERROR,
+                                action = ClientErrorAnalytics.ACTION_SELL,
+                            )
+                        )
                     }
                 )
     }

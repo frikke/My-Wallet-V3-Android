@@ -101,8 +101,8 @@ class WalletBody {
     }
 
     constructor()
-    constructor(defaultAccountName: String) : this(defaultAccountName, false)
-    constructor(defaultAccountName: String, createV4: Boolean) {
+
+    constructor(defaultAccountName: String, createV4: Boolean = true) {
         HD.createWallets(
             HDWalletFactory.Language.US,
             DEFAULT_MNEMONIC_LENGTH,
@@ -116,8 +116,9 @@ class WalletBody {
 
         hdAccounts?.forEachIndexed { index, _ ->
             var label = defaultAccountName
-            if (index > 0)
+            if (index > 0) {
                 label = defaultAccountName + " " + (index + 1)
+            }
             if (createV4) {
                 addAccount(label, HD.getLegacyAccount(index)!!, HD.getSegwitAccount(index))
             } else
@@ -342,41 +343,36 @@ class WalletBody {
         fun recoverFromMnemonic(
             mnemonic: String,
             defaultAccountName: String,
-            bitcoinApi: NonCustodialBitcoinService,
-            recoverV4: Boolean
+            bitcoinApi: NonCustodialBitcoinService
         ): WalletBody = recoverFromMnemonic(
             mnemonic = mnemonic,
             passphrase = "",
             defaultAccountName = defaultAccountName,
             _walletSize = 0,
-            bitcoinApi = bitcoinApi,
-            recoverV4 = recoverV4
+            bitcoinApi = bitcoinApi
         )
 
         fun recoverFromMnemonic(
             mnemonic: String,
             passphrase: String,
             defaultAccountName: String,
-            bitcoinApi: NonCustodialBitcoinService,
-            recoverV4: Boolean
+            bitcoinApi: NonCustodialBitcoinService
         ): WalletBody = recoverFromMnemonic(
             mnemonic = mnemonic,
             passphrase = passphrase,
             defaultAccountName = defaultAccountName,
             _walletSize = 0,
-            bitcoinApi = bitcoinApi,
-            recoverV4 = recoverV4
+            bitcoinApi = bitcoinApi
         )
 
-        fun recoverFromMnemonic(
+        private fun recoverFromMnemonic(
             mnemonic: String,
             passphrase: String,
             defaultAccountName: String,
             _walletSize: Int,
-            bitcoinApi: NonCustodialBitcoinService,
-            recoverV4: Boolean
+            bitcoinApi: NonCustodialBitcoinService
         ): WalletBody {
-            val wrapperVersion = if (recoverV4) WalletWrapper.V4 else WalletWrapper.V3
+            val wrapperVersion = WalletWrapper.V4
             val HD = HDWalletsContainer()
             // Start with initial wallet size of 1.
             // After wallet is recovered we'll check how many accounts to restore
@@ -431,11 +427,8 @@ class WalletBody {
                 } else defaultAccountName
 
                 val segwitAccount = segwitAccounts!![index]
-                val account = if (!recoverV4) {
-                    walletBody.addAccount(label = label, legacyAccount = legacyAccount, segWit = null)
-                } else {
+                val account =
                     walletBody.addAccount(label = label, legacyAccount = legacyAccount, segWit = segwitAccount)
-                }
                 if (wrapperVersion == WalletWrapper.V4) {
                     val accountV4 = account.upgradeToV4()
                     accountV4.addSegwitDerivation(segwitAccounts[index], index)
@@ -491,7 +484,6 @@ class WalletBody {
                 } else {
                     currentGap += 1
                 }
-
                 if (currentGap >= lookAheadTotal) {
                     return walletSize
                 }

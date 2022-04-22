@@ -20,11 +20,11 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -161,7 +161,7 @@ class LoginAuthActivity :
                 }
             })
             forgotPasswordButton.setOnClickListener {
-                showCustomerSupportSheet()
+                launchPasswordRecoveryFlow()
             }
 
             continueButton.setOnClickListener {
@@ -435,7 +435,7 @@ class LoginAuthActivity :
                     codeTextLayout.visible()
                     codeTextLayout.hint = getString(R.string.second_password_hint)
                     forgotSecondPasswordButton.visible()
-                    forgotSecondPasswordButton.setOnClickListener { showCustomerSupportSheet() }
+                    forgotSecondPasswordButton.setOnClickListener { launchPasswordRecoveryFlow() }
                     setup2FANotice(
                         textId = R.string.second_password_notice,
                         annotationForLink = SECOND_PASSWORD_LINK_ANNOTATION,

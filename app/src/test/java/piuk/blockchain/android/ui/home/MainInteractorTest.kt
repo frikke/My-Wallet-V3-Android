@@ -4,6 +4,7 @@ import android.content.Intent
 import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -12,7 +13,6 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
 import com.nhaarman.mockitokotlin2.any

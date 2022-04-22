@@ -1,5 +1,8 @@
 package com.blockchain.blockchaincard.ui.composables.managecard
 
+import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.blockchaincard.R
+import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -38,7 +44,7 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey000
 
 @Composable
-fun ManageCard(cardId: String?, onManageCardDetails: () -> Unit, onDeleteCard: () -> Unit) {
+fun ManageCard(card: BlockchainCard?, cardWidgetUrl: String?, onManageCardDetails: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -53,15 +59,32 @@ fun ManageCard(cardId: String?, onManageCardDetails: () -> Unit, onDeleteCard: (
                     horizontal = AppTheme.dimensions.paddingMedium
                 )
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.card_with_dummy_details),
-                contentDescription = stringResource(id = R.string.blockchain_card),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = AppTheme.dimensions.paddingLarge
-                    ),
-                contentScale = ContentScale.FillWidth
+
+            if (cardWidgetUrl != null)
+                AndroidView(
+                    factory = {
+                        WebView(it).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                            webViewClient = WebViewClient()
+                            settings.javaScriptEnabled = true
+                            loadUrl(cardWidgetUrl)
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(
+                            start = AppTheme.dimensions.paddingMedium,
+                            top = AppTheme.dimensions.paddingLarge,
+                            end = AppTheme.dimensions.paddingMedium
+                        ),
+                )
+            else CircularProgressIndicator(
+                modifier = Modifier.padding(
+                    horizontal = AppTheme.dimensions.paddingMedium,
+                    vertical = AppTheme.dimensions.xxxPaddingLarge
+                )
             )
 
             Row(
@@ -126,11 +149,11 @@ fun ManageCard(cardId: String?, onManageCardDetails: () -> Unit, onDeleteCard: (
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard("", {}, {})
+    ManageCard(null, "") {}
 }
 
 @Composable
-private fun ManageCardDetails(onDeleteCard: () -> Unit) {
+fun ManageCardDetails(onDeleteCard: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -143,7 +166,7 @@ private fun ManageCardDetails(onDeleteCard: () -> Unit) {
             )
         )
 
-        // Todo GPay save to phone button should be its own composable
+        // TODO (labreu): GPay save to phone button should be its own composable
         Button(
             onClick = { /*TODO*/ },
             modifier = Modifier

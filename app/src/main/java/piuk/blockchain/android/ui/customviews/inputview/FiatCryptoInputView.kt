@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.customviews.inputview
 
 import android.content.Context
 import android.text.Editable
+import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -44,6 +45,7 @@ class FiatCryptoInputView(
         binding.enterAmount.onImeAction
     }
 
+    private val inputAmountKeyboard: InputAmountKeyboard by inject()
     private val amountSubject: PublishSubject<Money> = PublishSubject.create()
     private val exchangeSubject: BehaviorSubject<Money> = BehaviorSubject.create()
 
@@ -58,6 +60,7 @@ class FiatCryptoInputView(
         }
 
     private val exchangeRates: ExchangeRatesDataManager by inject()
+    private val inputKeyboardAmount: InputAmountKeyboard by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -78,6 +81,9 @@ class FiatCryptoInputView(
 
     init {
         with(binding) {
+            addDigitsToView()
+            setInputTypeToView()
+
             disposables += enterAmount.textSize.subscribe { textSize ->
                 if (enterAmount.text.toString() == enterAmount.configuration.prefixOrSuffix) {
                     placeFakeHint(textSize, enterAmount.configuration.isPrefix)
@@ -116,6 +122,14 @@ class FiatCryptoInputView(
 
     var configured = false
         private set
+
+    private fun addDigitsToView() {
+        binding.enterAmount.keyListener = DigitsKeyListener.getInstance(inputAmountKeyboard.validInputCharacters())
+    }
+
+    private fun setInputTypeToView() {
+        binding.enterAmount.inputType = inputAmountKeyboard.inputTypeForAmount()
+    }
 
     private fun placeFakeHint(textSize: Int, hasPrefix: Boolean) {
         with(binding) {

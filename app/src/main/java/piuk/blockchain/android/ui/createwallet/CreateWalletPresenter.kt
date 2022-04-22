@@ -4,8 +4,8 @@ import androidx.annotation.StringRes
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.AnalyticsEvents
-import com.blockchain.core.eligibility.CountryIso
-import com.blockchain.core.eligibility.EligibilityDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.CountryIso
 import com.blockchain.enviroment.EnvironmentConfig
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -40,11 +40,11 @@ class CreateWalletPresenter(
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
     private val formatChecker: FormatChecker,
-    private val eligibilityDataManager: EligibilityDataManager
+    private val eligibilityService: EligibilityService
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
-        eligibilityDataManager.getCustodialEligibleCountries()
+        eligibilityService.getCustodialEligibleCountries()
             .subscribeBy(
                 onSuccess = { eligibleCountries ->
                     view.setEligibleCountries(eligibleCountries)

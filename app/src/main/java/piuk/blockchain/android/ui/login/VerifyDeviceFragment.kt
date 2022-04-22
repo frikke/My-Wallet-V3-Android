@@ -13,8 +13,8 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
-import com.blockchain.remoteconfig.FeatureFlag
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.get

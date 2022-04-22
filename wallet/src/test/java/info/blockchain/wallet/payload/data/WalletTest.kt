@@ -439,7 +439,7 @@ class WalletTest : WalletApiMockedResponseTest() {
     @Test
     fun createNewWallet() {
         val label = "HDAccount 1"
-        val payload = Wallet(label, true)
+        val payload = Wallet(label)
         assertEquals(36, payload.guid.length.toLong()) // GUIDs are 36 in length
         assertEquals(label, payload.walletBody!!.accounts?.get(0)!!.label)
         assertEquals(1, payload.walletBody!!.accounts!!.size.toLong())

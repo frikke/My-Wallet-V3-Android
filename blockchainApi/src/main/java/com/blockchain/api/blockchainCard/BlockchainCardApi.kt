@@ -2,6 +2,7 @@ package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
+import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.outcome.Outcome
@@ -35,4 +36,10 @@ internal interface BlockchainCardApi {
         @Path("cardId") cardId: String,
         @Header("authorization") authorization: String
     ): Outcome<ApiError, CardsResponse>
+
+    @POST("card-issuing/cards/{cardId}/marqeta-card-widget-token")
+    suspend fun getCardWidgetToken(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, CardWidgetTokenResponse>
 }

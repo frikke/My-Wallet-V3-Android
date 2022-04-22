@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TrendingPair
@@ -23,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
@@ -37,7 +39,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.remoteconfig.FeatureFlag
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -48,6 +49,9 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_SWAP
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -57,7 +61,7 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
-import timber.log.Timber
+import retrofit2.HttpException
 
 class SwapFragment :
     Fragment(),
@@ -241,12 +245,20 @@ class SwapFragment :
                     },
                     onError = {
                         showErrorUi()
-
+                        analytics.logEvent(
+                            ClientErrorAnalytics.ClientLogError(
+                                nabuApiException = if (it is HttpException) {
+                                    NabuApiExceptionFactory.fromResponseBody(it)
+                                } else null,
+                                title = getString(R.string.transfer_wallets_load_error),
+                                source = ClientErrorAnalytics.Companion.Source.NABU,
+                                error = OOPS_ERROR,
+                                action = ACTION_SWAP,
+                            )
+                        )
                         BlockchainSnackbar.make(
                             binding.root, getString(R.string.transfer_wallets_load_error), type = SnackbarType.Error
                         ).show()
-
-                        Timber.e("Error loading swap kyc service $it")
                     }
                 )
     }

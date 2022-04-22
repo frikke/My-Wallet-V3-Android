@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -26,8 +25,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsState
-import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
@@ -65,8 +62,6 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                 dismiss()
             }
             rbSheetCancel.setOnClickListener {
-                // sendAnalyticsForRecurringBuyCancelClicked(cacheState)
-
                 // TODO stopgap check while design make their mind up
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.settings_bank_remove_check_title)
@@ -83,25 +78,6 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
 
         recurringBuy?.let {
             model.process(RecurringBuyIntent.UpdateRecurringBuy(it))
-        }
-    }
-
-    private fun sendAnalyticsForRecurringBuyCancelClicked(state: AssetDetailsState) {
-        state.selectedRecurringBuy?.let {
-            val paymentMethodType = it.paymentDetails?.paymentDetails
-                ?: throw IllegalStateException("Missing Payment Method on RecurringBuy")
-            it.asset.let { assetInfo ->
-                analytics.logEvent(
-                    RecurringBuyAnalytics
-                        .RecurringBuyCancelClicked(
-                            LaunchOrigin.RECURRING_BUY_DETAILS,
-                            it.recurringBuyFrequency,
-                            it.amount,
-                            assetInfo,
-                            paymentMethodType
-                        )
-                )
-            }
         }
     }
 

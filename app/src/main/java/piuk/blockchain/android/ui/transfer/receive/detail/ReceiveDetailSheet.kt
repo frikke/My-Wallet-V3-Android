@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
@@ -63,6 +65,7 @@ internal class ReceiveDetailSheet :
             progressbar.visible()
             qrImage.invisible()
             shareBack.setOnClickListener {
+                setBottomSheetDraggable(true)
                 model.process(ClearShareList)
             }
         }
@@ -128,6 +131,7 @@ internal class ReceiveDetailSheet :
             } ?: emptyList()
 
             shareTitle.text = getString(R.string.receive_share_title, newState.account.currency.displayTicker)
+            setBottomSheetDraggable(false)
             with(shareList) {
                 layoutManager = LinearLayoutManager(context)
                 adapter = ShareListAdapter(dataIntent).apply {
@@ -135,6 +139,11 @@ internal class ReceiveDetailSheet :
                 }
             }
         }
+    }
+
+    private fun setBottomSheetDraggable(isDraggable: Boolean) {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
+        bottomSheetBehavior.isDraggable = isDraggable
     }
 
     private fun setCustomSlot(newState: ReceiveDetailState) {

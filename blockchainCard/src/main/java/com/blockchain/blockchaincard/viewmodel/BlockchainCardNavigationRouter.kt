@@ -45,6 +45,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 navController.popBackStack(BlockchainCardDestination.CreateCardSuccessDestination.route, true)
                 destination = BlockchainCardDestination.ManageCardDestination
             }
+
+            is BlockchainCardNavigationEvent.ManageCardDetails -> {
+                destination = BlockchainCardDestination.ManageCardDetailsDestination
+            }
         }
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -57,6 +61,8 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 }
 
 sealed class BlockchainCardNavigationEvent : NavigationEvent {
+
+    // Order Card
     object OrderOrLinkCard : BlockchainCardNavigationEvent()
 
     object CreateCardInProgress : BlockchainCardNavigationEvent()
@@ -72,6 +78,9 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object SeeProductDetails : BlockchainCardNavigationEvent()
 
     object ManageCard : BlockchainCardNavigationEvent()
+
+    // Manage Card
+    object ManageCardDetails : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -91,4 +100,6 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object SeeProductDetailsDestination : BlockchainCardDestination(route = "product_details")
 
     object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
+
+    object ManageCardDetailsDestination : BlockchainCardDestination(route = "manage_card_details")
 }

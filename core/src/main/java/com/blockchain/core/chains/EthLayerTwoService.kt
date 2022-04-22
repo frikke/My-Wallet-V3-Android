@@ -28,11 +28,14 @@ class EthLayerTwoService(
 ) {
     fun getSupportedNetworks(): Single<List<EthL2Chain>> {
         return remoteConfig.getRawJson(LAYER_TWO_NETWORKS).map { json ->
-            Json.decodeFromString<EthL2NetworkList>(json).networks
+            jsonBuilder.decodeFromString<EthL2NetworkList>(json).networks
         }
     }
 
     companion object {
+        private val jsonBuilder = Json {
+            ignoreUnknownKeys = true
+        }
         const val LAYER_TWO_NETWORKS = "android_ff_layer_two_networks"
     }
 }

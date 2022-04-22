@@ -57,7 +57,7 @@ class AccountInteractor internal constructor(
                 val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
                 if (activeCards.isNotEmpty()) {
                     // TODO(labreu): For now we only allow 1 card, but in the future we must pass the full list here
-                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first().id))
+                    Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first()))
                 } else {
                     blockchainCardRepository.getProducts()
                         .mapLeft { BlockchainCardError.GetProductsRequestFailed }

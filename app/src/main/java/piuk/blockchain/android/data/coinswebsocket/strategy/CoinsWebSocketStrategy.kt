@@ -2,9 +2,9 @@ package piuk.blockchain.android.data.coinswebsocket.strategy
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
-import com.blockchain.remoteconfig.FeatureFlag
 import com.blockchain.utils.appendSpaced
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler

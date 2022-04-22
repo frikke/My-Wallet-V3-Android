@@ -33,14 +33,16 @@ dependencies {
     implementation project(':sunriver')
     implementation project(':common:network')
     implementation project(':common:interface')
+    implementation project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':logging:domain')
     implementation project(':analytics:domain')
     implementation project(':veriff')
     implementation project(':blockchainApi')
     implementation project(':payments:googlepay')
-    implementation project(':store')
-    implementation project(':store-persisters-sqldelight')
+    implementation project(':store:core')
+    implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':store:caches:inmemory')
 
     api project(':balance')
 

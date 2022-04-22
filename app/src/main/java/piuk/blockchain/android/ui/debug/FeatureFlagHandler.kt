@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.debug
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.FeatureFlagState
-import com.blockchain.remoteconfig.FeatureFlag
 
 class FeatureFlagHandler(
     private val featureFlags: List<FeatureFlag>,

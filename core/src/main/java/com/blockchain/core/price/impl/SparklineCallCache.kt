@@ -1,7 +1,7 @@
 package com.blockchain.core.price.impl
 
 import com.blockchain.api.services.AssetPriceService
-import com.blockchain.caching.ParameteredSingleTimedCacheRequest
+import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.Currency

@@ -8,9 +8,9 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import androidx.annotation.StringRes
 import com.blockchain.coincore.AssetAction
-import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimitPeriod
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CurrencyType
 import java.io.Serializable

@@ -1,0 +1,21 @@
+plugins {
+    id 'kotlin'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
+dependencies {
+    implementation project(':store:core')
+    implementation Libraries.kotlinCoroutines
+
+    testImplementation Libraries.junit
+    testImplementation Libraries.turbine
+    testImplementation Libraries.kluent
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kotlinCoroutinesTest
+    testImplementation Libraries.mockk
+}

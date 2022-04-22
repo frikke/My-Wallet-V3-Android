@@ -40,6 +40,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.android.domain.repositories.TradeDataManager
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class CoinViewInteractor(
     private val coincore: Coincore,
@@ -341,13 +342,4 @@ class CoinViewInteractor(
                 }
             }.zipSingles()
         }
-
-    // converts a List<Single<Items>> -> Single<List<Items>>
-    private fun <T> List<Single<T>>.zipSingles(): Single<List<T>> {
-        if (this.isEmpty()) return Single.just(emptyList())
-        return Single.zip(this) {
-            @Suppress("UNCHECKED_CAST")
-            return@zip (it as Array<T>).toList()
-        }
-    }
 }

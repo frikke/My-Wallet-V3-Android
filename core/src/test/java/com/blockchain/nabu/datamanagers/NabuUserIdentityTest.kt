@@ -1,10 +1,10 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.core.eligibility.EligibilityDataManager
-import com.blockchain.core.eligibility.models.EligibleProduct
-import com.blockchain.core.eligibility.models.ProductEligibility
-import com.blockchain.core.eligibility.models.TransactionsLimit
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.domain.eligibility.model.ProductEligibility
+import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -28,7 +28,7 @@ class NabuUserIdentityTest {
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
     private val nabuUserDataManager: NabuUserDataManager = mock()
     private val nabuDataProvider: NabuDataUserProvider = mock()
-    private val eligibilityDataManager: EligibilityDataManager = mock()
+    private val eligibilityService: EligibilityService = mock()
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
@@ -36,7 +36,7 @@ class NabuUserIdentityTest {
         simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
         nabuUserDataManager = nabuUserDataManager,
         nabuDataProvider = nabuDataProvider,
-        eligibilityDataManager = eligibilityDataManager
+        eligibilityService = eligibilityService
     )
 
     @Test
@@ -123,7 +123,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             canUpgradeTier = false
         )
-        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.BUY))
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
             .thenReturn(Single.just(eligibility))
 
         subject.userAccessForFeature(Feature.Buy)
@@ -140,7 +140,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = transactionsLimit,
             canUpgradeTier = false
         )
-        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.SWAP))
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.SWAP))
             .thenReturn(Single.just(eligibility))
 
         subject.userAccessForFeature(Feature.Swap)
@@ -156,7 +156,7 @@ class NabuUserIdentityTest {
             maxTransactionsCap = TransactionsLimit.Unlimited,
             canUpgradeTier = true
         )
-        whenever(eligibilityDataManager.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT))
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT))
             .thenReturn(Single.just(eligibility))
 
         subject.userAccessForFeature(Feature.CryptoDeposit)

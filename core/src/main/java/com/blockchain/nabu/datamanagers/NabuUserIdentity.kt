@@ -1,8 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.core.eligibility.EligibilityDataManager
-import com.blockchain.core.eligibility.models.EligibleProduct
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.BlockedReason
@@ -18,6 +18,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class NabuUserIdentity(
     private val custodialWalletManager: CustodialWalletManager,
@@ -25,7 +26,7 @@ class NabuUserIdentity(
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
     private val nabuUserDataManager: NabuUserDataManager,
     private val nabuDataProvider: NabuDataUserProvider,
-    private val eligibilityDataManager: EligibilityDataManager
+    private val eligibilityService: EligibilityService
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -123,6 +124,13 @@ class NabuUserIdentity(
             }
         }
 
+    override fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>> =
+        features.map { feature ->
+            userAccessForFeature(feature).map { access ->
+                Pair(feature, access)
+            }
+        }.zipSingles()
+
     override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
         return when (feature) {
             Feature.SimpleBuy -> simpleBuyEligibilityProvider.simpleBuyTradingEligibility().zipWith(
@@ -147,21 +155,21 @@ class NabuUserIdentity(
                         }
                     }
                 }
-            Feature.Buy -> eligibilityDataManager.getProductEligibility(EligibleProduct.BUY).map { eligibility ->
+            Feature.Buy -> eligibilityService.getProductEligibility(EligibleProduct.BUY).map { eligibility ->
                 if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
                 else FeatureAccess.Blocked(
                     if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
                     else BlockedReason.NotEligible
                 )
             }
-            Feature.Swap -> eligibilityDataManager.getProductEligibility(EligibleProduct.SWAP).map { eligibility ->
+            Feature.Swap -> eligibilityService.getProductEligibility(EligibleProduct.SWAP).map { eligibility ->
                 if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
                 else FeatureAccess.Blocked(
                     if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
                     else BlockedReason.NotEligible
                 )
             }
-            Feature.CryptoDeposit -> eligibilityDataManager.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT)
+            Feature.CryptoDeposit -> eligibilityService.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT)
                 .map { eligibility ->
                     if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
                     else FeatureAccess.Blocked(
