@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.security.pin
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatus
@@ -14,6 +15,7 @@ import io.intercom.android.sdk.identity.Registration
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.ui.auth.MobileNoticeDialog
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
@@ -37,7 +39,8 @@ class PinInteractor internal constructor(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val authPrefs: AuthPrefs,
     private val defaultLabels: DefaultLabels,
-    private val walletStatus: WalletStatus
+    private val walletStatus: WalletStatus,
+    private val isIntercomEnabledFlag: FeatureFlag
 ) {
 
     fun shouldShowFingerprintLogin(): Boolean {
@@ -100,8 +103,11 @@ class PinInteractor internal constructor(
     fun validatePIN(pin: String, isForValidatingPinForResult: Boolean = false): Single<String> =
         authDataManager.validatePin(pin)
             .firstOrError()
-            .flatMap { validatedPin ->
-                registerIntercomUser()
+            .zipWith(isIntercomEnabledFlag.enabled)
+            .flatMap { (validatedPin, isIntercomEnabled) ->
+                if (isIntercomEnabled) {
+                    registerIntercomUser()
+                }
 
                 if (isForValidatingPinForResult) {
                     authDataManager.verifyCloudBackup().toSingle { validatedPin }

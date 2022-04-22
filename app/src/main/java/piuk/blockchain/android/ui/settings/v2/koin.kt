@@ -239,7 +239,8 @@ val redesignSettingsModule = module {
                 authPrefs = get(),
                 credentialsWiper = get(),
                 walletOptionsDataManager = get(),
-                defaultLabels = get()
+                defaultLabels = get(),
+                isIntercomEnabledFlag = get(intercomChatFeatureFlag)
             )
         }
 
