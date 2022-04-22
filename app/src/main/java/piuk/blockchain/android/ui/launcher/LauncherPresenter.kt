@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.remoteconfig.FeatureFlag
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase

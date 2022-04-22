@@ -31,6 +31,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':core')
     implementation project(':componentlib')
+    implementation project(':common:interface')
 
     // android
     implementation Libraries.design

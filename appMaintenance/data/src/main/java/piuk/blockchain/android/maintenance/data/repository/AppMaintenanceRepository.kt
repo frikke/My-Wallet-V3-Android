@@ -4,8 +4,6 @@ import com.blockchain.outcome.Outcome
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import piuk.blockchain.android.maintenance.data.appupdateapi.isDownloadTriggered
 import piuk.blockchain.android.maintenance.data.mapper.AppMaintenanceConfigMapper
@@ -15,8 +13,6 @@ import piuk.blockchain.android.maintenance.domain.appupdateapi.AppUpdateInfoFact
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 import piuk.blockchain.android.maintenance.domain.repository.AppMaintenanceService
 import timber.log.Timber
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 internal class AppMaintenanceRepository(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,

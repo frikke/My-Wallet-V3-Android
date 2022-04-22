@@ -1,7 +1,6 @@
 package piuk.blockchain.android.maintenance.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import app.cash.turbine.test
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
