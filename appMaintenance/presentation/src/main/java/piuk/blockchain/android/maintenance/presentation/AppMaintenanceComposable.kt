@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 
@@ -78,7 +78,7 @@ fun AppMaintenanceScreen(appMaintenanceViewState: AppMaintenanceViewState, viewM
                 Spacer(modifier = Modifier.weight(1f))
 
                 uiState.button1?.let { buttonSettings ->
-                    SecondaryButton(
+                    TertiaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = buttonSettings.buttonText),
                         onClick = { viewModel.onIntent(buttonSettings.intent) },

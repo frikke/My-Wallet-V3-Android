@@ -2878,16 +2878,4 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
-
-    <!-- App Maintenance Screens-->
-    <string name="app_maintenance_update_title">Time to Update!</string>
-    <string name="app_maintenance_update_description">We\'ve added awesome new features, security updates, and more.</string>
-    <string name="app_maintenance_down_title">Down for Maintenance</string>
-    <string name="app_maintenance_site_wide_description">Our systems are currently unavailable. Don’t worry, your funds are safe.</string>
-    <string name="app_maintenance_redirect_website_description">The app is currently under maintenance. Your funds are safe and you can always access your wallet on the web.</string>
-    <string name="app_maintenance_cta_update_now">Update App</string>
-    <string name="app_maintenance_cta_update_later">I’ll Do This Later</string>
-    <string name="app_maintenance_cta_redirect_website">Go to Web</string>
-    <string name="app_maintenance_cta_view_status">View Status</string>
-
 </resources>
