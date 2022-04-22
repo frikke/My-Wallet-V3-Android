@@ -71,7 +71,8 @@ class CustomerSupportSheet :
                 text = stringResource(id = R.string.customer_support_faq),
                 onClick = ::faqClicked,
                 type = ButtonType.MINIMAL
-            )
+            ),
+            shouldShowHeaderDivider = false
         )
     }
 
