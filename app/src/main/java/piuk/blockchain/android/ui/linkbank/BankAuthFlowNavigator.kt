@@ -18,5 +18,7 @@ interface BankAuthFlowNavigator {
     fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String)
     fun yapilyAgreementAccepted(institution: YapilyInstitution)
     fun yapilyApprovalAccepted(approvalDetails: BankPaymentApproval)
+    @Deprecated("will be deleted after FF is removed")
     fun yapilyAgreementCancelled(isFromApproval: Boolean)
+    fun yapilyAgreementCancelled()
 }

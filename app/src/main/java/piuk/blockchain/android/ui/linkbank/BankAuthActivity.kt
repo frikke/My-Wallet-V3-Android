@@ -117,7 +117,12 @@ class BankAuthActivity :
         supportFragmentManager.beginTransaction()
             .replace(
                 R.id.content_frame,
-                YapilyPermissionFragment.newInstance(
+                //                YapilyPermissionFragment.newInstance(
+                //                    institution = institution,
+                //                    entity = entity,
+                //                    authSource = authSource
+                //                )
+                piuk.blockchain.android.ui.linkbank.yapily.permission.YapilyPermissionFragment.newInstance(
                     institution = institution,
                     entity = entity,
                     authSource = authSource
@@ -158,6 +163,10 @@ class BankAuthActivity :
         } else {
             supportFragmentManager.popBackStack()
         }
+
+    override fun yapilyAgreementCancelled() {
+        supportFragmentManager.popBackStack()
+    }
 
     override fun onBackPressed() =
         if (approvalDetails != null) {
