@@ -59,7 +59,7 @@ class GetAssetsInterestUseCaseTest {
             )
         )
         // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
-        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(list)
+        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(listOf())
 
         val result = useCase(listOf())
         assertTrue { result is Outcome.Success }
