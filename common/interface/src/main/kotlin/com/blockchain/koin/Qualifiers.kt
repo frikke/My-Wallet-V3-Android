@@ -20,6 +20,7 @@ val sendToDomainsAnnouncementFeatureFlag = StringQualifier("ff_send_domain_annou
 val embraceFeatureFlag = StringQualifier("ff_embrace")
 val customerSupportSheetFeatureFlag = StringQualifier("ff_customer_support_sheet")
 val notificationPreferencesFeatureFlag = StringQualifier("ff_notification_preferences_rework")
+val removeSafeconnectFeatureFlag = StringQualifier("ff_remove_safeconnect_screen")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

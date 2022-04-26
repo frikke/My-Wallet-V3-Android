@@ -14,9 +14,12 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YapilyAttributes
 import com.blockchain.core.payments.model.YapilyInstitution
 import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.FiatCurrency
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
@@ -47,6 +50,8 @@ class BankAuthActivity :
 
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
 
+    private val removeSafeconnectFF: FeatureFlag by inject(removeSafeconnectFeatureFlag)
+
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
     }
@@ -65,12 +70,16 @@ class BankAuthActivity :
                     checkBankLinkingState(linkingId)
                 }
                 approvalDetails != null -> {
+
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
-                        if (true) {
-                            yapilyApprovalAccepted(it)
-                        } else {
-                            launchYapilyApproval(it)
+
+                        removeSafeconnectFF.enabled.subscribe { enabled ->
+                            if (enabled) {
+                                yapilyApprovalAccepted(it)
+                            } else {
+                                launchYapilyApproval(it)
+                            }
                         }
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
@@ -118,22 +127,28 @@ class BankAuthActivity :
     }
 
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.content_frame,
-                //                YapilyPermissionFragment.newInstance(
-                //                    institution = institution,
-                //                    entity = entity,
-                //                    authSource = authSource
-                //                )
-                piuk.blockchain.android.ui.linkbank.yapily.permission.YapilyPermissionFragment.newInstance(
-                    institution = institution,
-                    entity = entity,
-                    authSource = authSource
+        removeSafeconnectFF.enabled.subscribe { enabled ->
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.content_frame,
+                    if (enabled) {
+                        piuk.blockchain.android.ui.linkbank.yapily.permission.YapilyPermissionFragment.newInstance(
+                            institution = institution,
+                            entity = entity,
+                            authSource = authSource
+                        )
+                    } else {
+                        YapilyPermissionFragment.newInstance(
+                            institution = institution,
+                            entity = entity,
+                            authSource = authSource
+                        )
+                    }
+
                 )
-            )
-            .addToBackStack(null)
-            .commitAllowingStateLoss()
+                .addToBackStack(null)
+                .commitAllowingStateLoss()
+        }
     }
 
     private fun launchYapilyApproval(approvalDetails: BankPaymentApproval) {
@@ -227,11 +242,13 @@ class BankAuthActivity :
                 checkBankLinkingState(linkingId)
             }
             approvalDetails != null -> {
-                approvalDetails?.let {
-                    if (true) {
-                        yapilyApprovalAccepted(it)
-                    } else {
-                        launchYapilyApproval(it)
+                removeSafeconnectFF.enabled.subscribe { enabled ->
+                    approvalDetails?.let {
+                        if (enabled) {
+                            yapilyApprovalAccepted(it)
+                        } else {
+                            launchYapilyApproval(it)
+                        }
                     }
                 }
             }
