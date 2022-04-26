@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
@@ -26,13 +27,13 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import java.io.Serializable
-import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.io.Serializable
+import java.math.BigInteger
 
 /**
  * This is an object that gets serialized with Gson so any properties that we don't
@@ -149,6 +150,8 @@ data class SimpleBuyState constructor(
 
     fun shouldLaunchExternalFlow(): Boolean =
         authorisePaymentUrl != null && linkedBank != null && id != null
+
+    fun isOpenBankingTransfer() = selectedPaymentMethod?.isBank() == true && fiatCurrency.isOpenBankingCurrency()
 
     override val action: AssetAction
         get() = AssetAction.Buy

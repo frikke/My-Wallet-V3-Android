@@ -67,7 +67,11 @@ class BankAuthActivity :
                 approvalDetails != null -> {
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
-                        launchYapilyApproval(it)
+                        if (true) {
+                            yapilyApprovalAccepted(it)
+                        } else {
+                            launchYapilyApproval(it)
+                        }
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
                 else -> {
@@ -224,7 +228,11 @@ class BankAuthActivity :
             }
             approvalDetails != null -> {
                 approvalDetails?.let {
-                    launchYapilyApproval(it)
+                    if (true) {
+                        yapilyApprovalAccepted(it)
+                    } else {
+                        launchYapilyApproval(it)
+                    }
                 }
             }
             else -> onBackPressed()

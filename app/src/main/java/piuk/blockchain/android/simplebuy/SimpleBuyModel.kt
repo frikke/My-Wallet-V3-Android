@@ -7,6 +7,7 @@ import com.blockchain.api.isInternetConnectionError
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -146,20 +147,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                processCreateOrder(
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
+                    processCreateOrder(
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                }.subscribeBy(
+                    onSuccess = {
+                        process(it)
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
@@ -704,9 +705,6 @@ class SimpleBuyModel(
             else -> process(SimpleBuyIntent.GetAuthorisationUrl(order.id))
         }
     }
-
-    private fun Currency.isOpenBankingCurrency() =
-        this.networkTicker == "EUR" || this.networkTicker == "GBP"
 
     private fun processCreateOrder(
         selectedCryptoAsset: AssetInfo?,

@@ -2104,6 +2104,7 @@
     <string name="yapily_find_bank_title">Find Your Bank</string>
     <string name="yapily_permission_link_to_bank">Link to %1$s</string>
     <string name="yapily_permission_confirmation">By tapping approve you are agreeing to SafeConnect</string>
+    <string name="yapily_permission_confirmation_buy">By tapping Buy Now, you agree to SafeConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="yapily_permission_terms_service">Terms of Service</string>
     <string name="yapily_permission_privacy_policy">Privacy Policy</string>
     <string name="yapily_agreement_title_1">Data Sharing</string>

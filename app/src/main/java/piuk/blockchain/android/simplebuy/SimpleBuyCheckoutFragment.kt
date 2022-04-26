@@ -37,7 +37,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
-import java.time.ZonedDateTime
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
@@ -49,8 +48,11 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
+import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_TOS_POLICY
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.time.ZonedDateTime
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
@@ -140,6 +142,26 @@ class SimpleBuyCheckoutFragment :
                 visible()
                 movementMethod = LinkMovementMethod.getInstance()
                 text = note
+            }
+        }
+
+        binding.termsAndPrivacy.apply {
+            if (newState.isOpenBankingTransfer()) {
+                visible()
+
+                val linksMap = mapOf<String, Uri>(
+                    "terms" to Uri.parse(URL_TOS_POLICY),
+                    "privacy" to Uri.parse(URL_PRIVACY_POLICY)
+                )
+
+                text = StringUtils.getStringWithMappedAnnotations(
+                    context = requireContext(),
+                    stringId = R.string.yapily_permission_confirmation_buy,
+                    linksMap = linksMap
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            } else {
+                gone()
             }
         }
 
