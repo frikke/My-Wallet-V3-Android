@@ -46,7 +46,7 @@ interface AssetCatalogue {
     fun fromNetworkTicker(symbol: String): Currency?
     fun fiatFromNetworkTicker(symbol: String): FiatCurrency?
     fun assetInfoFromNetworkTicker(symbol: String): AssetInfo?
-    fun assetFromL1ChainByContractAddress(l1chain: AssetInfo, l2Id: String): AssetInfo?
+    fun assetFromL1ChainByContractAddress(l1chain: String, contractAddress: String): AssetInfo?
     fun supportedL2Assets(chain: AssetInfo): List<AssetInfo>
 }
 
@@ -137,6 +137,3 @@ open class CryptoCurrency(
         txExplorerUrlBase = "https://stellarchain.io/tx/"
     )
 }
-
-fun Currency.isErc20() =
-    (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true

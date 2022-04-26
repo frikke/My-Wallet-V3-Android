@@ -14,6 +14,7 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -50,7 +51,8 @@ internal class EthAsset(
     remoteLogger: RemoteLogger,
     identity: UserIdentity,
     private val formatUtils: FormatUtilities,
-    addressResolver: EthHotWalletAddressResolver
+    addressResolver: EthHotWalletAddressResolver,
+    private val layerTwoFeatureFlag: FeatureFlag
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -79,23 +81,54 @@ internal class EthAsset(
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
         Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
-            .map { ethereumWallet ->
+            .flatMap { ethereumWallet ->
                 ethereumWallet.account?.let { ethereumAccount ->
-                    EthCryptoWalletAccount(
-                        payloadManager = payloadManager,
-                        ethDataManager = ethDataManager,
-                        fees = feeDataManager,
-                        jsonAccount = ethereumAccount,
-                        walletPreferences = walletPrefs,
-                        exchangeRates = exchangeRates,
-                        custodialWalletManager = custodialManager,
-                        identity = identity,
-                        assetCatalogue = assetCatalogue.value,
-                        addressResolver = addressResolver
-                    )
+                    layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
+                        if (isEnabled) {
+                            ethDataManager.supportedNetworks.map { supportedNetworks ->
+                                supportedNetworks.firstOrNull { ethL2Chain ->
+                                    ethL2Chain.networkTicker == assetInfo.l1chainTicker ?: assetInfo.networkTicker
+                                }?.let { ethL2Chain ->
+                                    EthCryptoWalletAccount(
+                                        payloadManager = payloadManager,
+                                        ethDataManager = ethDataManager,
+                                        fees = feeDataManager,
+                                        jsonAccount = ethereumAccount,
+                                        walletPreferences = walletPrefs,
+                                        exchangeRates = exchangeRates,
+                                        custodialWalletManager = custodialManager,
+                                        identity = identity,
+                                        assetCatalogue = assetCatalogue.value,
+                                        addressResolver = addressResolver,
+                                        chainNetworkTicker = ethL2Chain.networkTicker,
+                                        chainId = ethL2Chain.chainId,
+                                        networkName = ethL2Chain.networkName
+                                    )
+                                } ?: throw Exception("No ethereum account found")
+                            }
+                        } else {
+                            Single.just(
+                                EthCryptoWalletAccount(
+                                    payloadManager = payloadManager,
+                                    ethDataManager = ethDataManager,
+                                    fees = feeDataManager,
+                                    jsonAccount = ethereumAccount,
+                                    walletPreferences = walletPrefs,
+                                    exchangeRates = exchangeRates,
+                                    custodialWalletManager = custodialManager,
+                                    identity = identity,
+                                    assetCatalogue = assetCatalogue.value,
+                                    addressResolver = addressResolver,
+                                    chainNetworkTicker = EthDataManager.ethChain.networkTicker,
+                                    chainId = EthDataManager.ethChain.chainId,
+                                    networkName = EthDataManager.ethChain.networkName
+                                )
+                            )
+                        }
+                    }
                 } ?: throw Exception("No ethereum account found")
-            }.doOnSuccess {
-                updateBackendNotificationAddresses(it)
+            }.doOnSuccess { ethAccount ->
+                updateBackendNotificationAddresses(ethAccount)
             }.map {
                 listOf(it)
             }

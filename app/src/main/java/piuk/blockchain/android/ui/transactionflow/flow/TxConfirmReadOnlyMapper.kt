@@ -9,9 +9,9 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl
 import piuk.blockchain.android.urllinks.CHECKOUT_PRICE_EXPLANATION

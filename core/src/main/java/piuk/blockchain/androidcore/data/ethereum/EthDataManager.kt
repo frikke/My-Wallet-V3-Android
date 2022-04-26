@@ -3,13 +3,14 @@ package piuk.blockchain.androidcore.data.ethereum
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.core.chains.EthL2Chain
 import com.blockchain.core.chains.EthLayerTwoService
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.isErc20
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.ethereum.Erc20TokenData
 import info.blockchain.wallet.ethereum.EthAccountApi
 import info.blockchain.wallet.ethereum.EthUrls
@@ -55,7 +56,10 @@ class EthDataManager(
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
     val supportedNetworks: Single<List<EthL2Chain>>
-        get() = ethLayerTwoService.getSupportedNetworks()
+        get() = ethLayerTwoService.getSupportedNetworks().map {
+            listOf(listOf(ethChain), it).flatten()
+        }
+            .onErrorReturn { listOf(ethChain) }
 
     /**
      * Clears the currently stored ETH account from memory.
@@ -381,5 +385,11 @@ class EthDataManager(
         // To account for the extra data we want to send
         private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
         const val ETH_CHAIN_ID: Int = 1
+        val ethChain: EthL2Chain = EthL2Chain(
+            CryptoCurrency.ETHER.networkTicker,
+            CryptoCurrency.ETHER.name,
+            ETH_CHAIN_ID,
+            EthUrls.ETH_NODES
+        )
     }
 }

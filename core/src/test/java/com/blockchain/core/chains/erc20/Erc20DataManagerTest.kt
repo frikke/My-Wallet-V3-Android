@@ -1,6 +1,7 @@
 package com.blockchain.core.chains.erc20
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.core.chains.EthL2Chain
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
@@ -40,17 +41,32 @@ class Erc20DataManagerTest {
 
     private val ethDataManager: EthDataManager = mockk {
         every { accountAddress } returns ACCOUNT_HASH
+        every { supportedNetworks } returns Single.just(
+            listOf(
+                EthL2Chain(
+                    CryptoCurrency.ETHER.networkTicker,
+                    CryptoCurrency.ETHER.name,
+                    EthDataManager.ETH_CHAIN_ID,
+                    ""
+                )
+            )
+        )
+        coEvery { getBalance() } returns Outcome.Success(BigInteger.ZERO)
     }
 
     private val balanceCallCache: Erc20BalanceCallCache = mock()
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag = mock()
+    private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     private val subject = Erc20DataManagerImpl(
         ethDataManager = ethDataManager,
         balanceCallCache = balanceCallCache,
         historyCallCache = historyCallCache,
-        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag
+        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag,
+        ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag
     )
 
     @Test
@@ -102,9 +118,8 @@ class Erc20DataManagerTest {
         whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
             .thenReturn(Single.just(mockResult))
 
-        subject.getErc20Balance(ERC20_TOKEN)
-            .test()
-            .assertValue(mockBalance)
+        val result = subject.getErc20Balance(ERC20_TOKEN).blockingFirst()
+        assertEquals(mockBalance, result)
 
         verify(balanceCallCache).getBalances(ACCOUNT_HASH)
         io.mockk.verify { ethDataManager.accountAddress }
@@ -120,9 +135,8 @@ class Erc20DataManagerTest {
         whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
             .thenReturn(Single.just(mockResult))
 
-        subject.getErc20Balance(UNKNOWN_ERC20_TOKEN)
-            .test()
-            .assertValue { it.balance.isZero }
+        val result = subject.getErc20Balance(UNKNOWN_ERC20_TOKEN).blockingFirst()
+        assert(result.balance.isZero)
 
         verify(balanceCallCache).getBalances(ACCOUNT_HASH)
         io.mockk.verify { ethDataManager.accountAddress }

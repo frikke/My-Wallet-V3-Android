@@ -2769,6 +2769,7 @@
     <string name="coinview_interest_with_balance">Earning %1$s%%</string>
     <string name="coinview_interest_no_balance">Earn %1$s%% APY</string>
     <string name="coinview_nc_desc">Non-custodial</string>
+    <string name="coinview_multi_nc_desc">%s Network</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
     <string name="coinview_c_available_desc">Custodial</string>
     <string name="coinview_about_asset">About %1$s</string>
@@ -2790,6 +2791,8 @@
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
     <string name="coinview_accounts_label">Wallets &amp; Accounts</string>
+    <string name="coinview_nc_accounts_label">Private Key Wallets</string>
+    <string name="coinview_custodial_accounts_label">Custodial Accounts</string>
     <string name="coinview_chart_load_error_title">Failed to Load Price Chart</string>
     <string name="coinview_chart_load_error_subtitle">Reload or exit and return to the page to view price chart.</string>
     <string name="coinview_wallet_load_error">Failed to load wallets and accounts</string>

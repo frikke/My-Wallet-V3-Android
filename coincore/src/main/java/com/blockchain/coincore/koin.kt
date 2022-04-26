@@ -15,6 +15,7 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
+import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -107,7 +108,8 @@ val coincoreModule = module {
                 identity = get(),
                 assetCatalogue = lazy { get() },
                 formatUtils = get(),
-                addressResolver = get()
+                addressResolver = get(),
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(CryptoAsset::class)
 
@@ -158,7 +160,8 @@ val coincoreModule = module {
                 identity = get(),
                 formatUtils = get(),
                 identityAddressResolver = get(),
-                ethHotWalletAddressResolver = get()
+                ethHotWalletAddressResolver = get(),
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(AssetLoader::class)
 
