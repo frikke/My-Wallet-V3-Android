@@ -10,6 +10,6 @@ import piuk.blockchain.android.ui.interest.domain.model.InterestDashboard
 interface AssetInterestService {
     suspend fun getInterestDashboard(): Outcome<Throwable, InterestDashboard>
     suspend fun getAssetsInterest(cryptoCurrencies: List<AssetInfo>): Outcome<Throwable, List<InterestAsset>>
-    // todo move to coincore after refactor
+    // todo (othman): move to coincore after refactor
     suspend fun getAccountGroup(cryptoCurrency: AssetInfo, filter: AssetFilter): Outcome<Throwable, AccountGroup>
 }
