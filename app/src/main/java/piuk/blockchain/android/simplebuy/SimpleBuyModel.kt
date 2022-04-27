@@ -36,6 +36,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -52,11 +53,14 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
+import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
+import piuk.blockchain.android.ui.linkbank.yapily.permission.SafeConnectRemoteConfig
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -79,7 +83,9 @@ class SimpleBuyModel(
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val safeConnectRemoteConfig: SafeConnectRemoteConfig,
+    private val downloadFileUseCase: DownloadFileUseCase
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -379,6 +385,15 @@ class SimpleBuyModel(
                         processOrderErrors(it)
                     }
                 )
+
+            is SimpleBuyIntent.DownloadSafeConnectTos -> {
+                rxSingle { downloadFileUseCase(intent.absolutePath, safeConnectRemoteConfig.getTosPdfLink()) }
+                    .subscribe { response ->
+                        response.doOnSuccess {
+                            process(SimpleBuyIntent.OpenSafeConnectTos(it))
+                        }
+                    }
+            }
             else -> null
         }
 

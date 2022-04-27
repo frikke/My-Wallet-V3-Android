@@ -48,9 +48,11 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
-import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
-import piuk.blockchain.android.urllinks.URL_TOS_POLICY
+import piuk.blockchain.android.urllinks.URL_YAPILY_PRIVACY_POLICY
+import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.getFilePath
+import piuk.blockchain.android.util.openPdfFile
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import java.time.ZonedDateTime
 
@@ -149,9 +151,9 @@ class SimpleBuyCheckoutFragment :
             if (newState.isOpenBankingTransfer()) {
                 visible()
 
-                val linksMap = mapOf<String, Uri>(
-                    "terms" to Uri.parse(URL_TOS_POLICY),
-                    "privacy" to Uri.parse(URL_PRIVACY_POLICY)
+                val linksMap = mapOf(
+                    "terms" to StringAnnotationClickEvent.CustomCta(::downloadSafeConnectTos),
+                    "privacy" to StringAnnotationClickEvent.OpenUri(Uri.parse(URL_YAPILY_PRIVACY_POLICY))
                 )
 
                 text = StringUtils.getStringWithMappedAnnotations(
@@ -227,6 +229,19 @@ class SimpleBuyCheckoutFragment :
 
                 model.process(SimpleBuyIntent.ClearGooglePayInfo)
             }
+        }
+
+        newState.safeConnectTosPdf?.let {
+            context.openPdfFile(it)
+            model.process(SimpleBuyIntent.SafeConnectTosOpened)
+        }
+    }
+
+    private fun downloadSafeConnectTos() {
+        context?.let { context ->
+            model.process(SimpleBuyIntent.DownloadSafeConnectTos(context.getFilePath(
+                fileName = SAFECONNECT_TERMS_FILE_NAME, extension = SAFECONNECT_TERMS_FILE_EXTENSION
+            )))
         }
     }
 

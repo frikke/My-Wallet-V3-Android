@@ -89,7 +89,7 @@ class YapilyPermissionFragment : MVIFragment<YapilyPermissionViewState>(),
         context?.let { context ->
             viewModel.onIntent(
                 YapilyPermissionIntents.DownloadTermsOfService(
-                    context.getFilePath(fileName = TERMS_FILE_NAME, extension = TERMS_FILE_EXTENSION)
+                    context.getFilePath(fileName = SAFECONNECT_TERMS_FILE_NAME, extension = SAFECONNECT_TERMS_FILE_EXTENSION)
                 )
             )
         }
@@ -140,8 +140,6 @@ class YapilyPermissionFragment : MVIFragment<YapilyPermissionViewState>(),
 
     companion object {
         private const val PARTNER = "YAPILY"
-        private const val TERMS_FILE_NAME = "SafeConnectToS"
-        private const val TERMS_FILE_EXTENSION = "pdf"
         fun newInstance(
             institution: YapilyInstitution,
             entity: String,

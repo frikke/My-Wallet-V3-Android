@@ -39,6 +39,57 @@ class StringUtils(private val context: Context) {
         fun getStringWithMappedAnnotations(
             context: Context,
             @StringRes stringId: Int,
+            linksMap: Map<String, StringAnnotationClickEvent>
+        ): CharSequence {
+
+            val text = context.getText(stringId)
+            val rawText = text as? SpannedString ?: return text
+            val out = SpannableString(rawText)
+            for (annotation in rawText.getSpans(0, rawText.length, android.text.Annotation::class.java)) {
+                if (annotation.key == "link") {
+                    out.setSpan(
+                        ClickableSpanWithoutUnderline {
+                            linksMap[annotation.value]?.let { clickEvent ->
+                                when (clickEvent) {
+                                    is StringAnnotationClickEvent.OpenUri -> {
+                                        Intent(Intent.ACTION_VIEW, clickEvent.uri)
+                                            .apply { addFlags(FLAG_ACTIVITY_NEW_TASK) }
+                                            .also { context.startActivity(it) }
+                                    }
+
+                                    is StringAnnotationClickEvent.CustomCta -> {
+                                        clickEvent()
+                                    }
+
+                                    StringAnnotationClickEvent.NoEvent -> {
+                                        // no action
+                                    }
+                                }
+                            }
+                        },
+                        rawText.getSpanStart(annotation),
+                        rawText.getSpanEnd(annotation),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                if (annotation.key == "font" && annotation.value == "bold") {
+                    out.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        rawText.getSpanStart(annotation),
+                        rawText.getSpanEnd(annotation),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+            return out
+        }
+
+        // TODO (othman): refactor to use the one with StringAnnotationClickEvent,
+        //  will create a pr following this one
+        @Deprecated("use the one with StringAnnotationClickEvent")
+        fun getStringWithMappedAnnotations(
+            context: Context,
+            @StringRes stringId: Int,
             linksMap: Map<String, Uri?>,
             onClick: () -> Unit = {}
         ): CharSequence {
@@ -112,4 +163,14 @@ private class ClickableSpanWithoutUnderline(val onClick: () -> Unit) : Clickable
         super.updateDrawState(ds)
         ds.isUnderlineText = false
     }
+}
+
+sealed interface StringAnnotationClickEvent {
+    data class OpenUri(val uri: Uri) : StringAnnotationClickEvent
+
+    data class CustomCta(val onClick: () -> Unit) : StringAnnotationClickEvent {
+        operator fun invoke() = onClick()
+    }
+
+    object NoEvent : StringAnnotationClickEvent
 }

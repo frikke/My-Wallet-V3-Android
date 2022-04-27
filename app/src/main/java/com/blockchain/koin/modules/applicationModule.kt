@@ -512,7 +512,9 @@ val applicationModule = module {
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                safeConnectRemoteConfig = get(),
+                downloadFileUseCase = get()
             )
         }
 

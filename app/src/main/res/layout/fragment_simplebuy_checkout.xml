@@ -92,7 +92,6 @@
         app:layout_constraintBottom_toTopOf="@id/terms_and_privacy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
         tools:text="@string/purchase_card_note_1" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -107,7 +106,6 @@
         app:layout_constraintBottom_toTopOf="@id/private_key_explanation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
         tools:text="@string/yapily_permission_confirmation_buy" />
 
     <androidx.appcompat.widget.AppCompatTextView

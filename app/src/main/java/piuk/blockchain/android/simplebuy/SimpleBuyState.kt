@@ -32,6 +32,7 @@ import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import java.io.File
 import java.io.Serializable
 import java.math.BigInteger
 
@@ -66,6 +67,7 @@ data class SimpleBuyState constructor(
     val googlePayMerchantBankCountryCode: String? = null,
     val googlePayAllowPrepaidCards: Boolean? = true,
     val googlePayAllowCreditCards: Boolean? = true,
+    @Transient @kotlinx.serialization.Transient val safeConnectTosPdf: File? = null,
     @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient @kotlinx.serialization.Transient
     override val errorState: TransactionErrorState = TransactionErrorState.NONE,

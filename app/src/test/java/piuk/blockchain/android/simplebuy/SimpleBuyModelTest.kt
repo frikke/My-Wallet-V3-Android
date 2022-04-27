@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.network.PollResult
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -36,8 +37,6 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.math.BigInteger
-import java.util.Date
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +45,9 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
+import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
+import java.math.BigInteger
+import java.util.Date
 
 @Ignore("Ignoring because CI fails on this, re-enabling ASAP")
 class SimpleBuyModelTest {
@@ -86,6 +88,10 @@ class SimpleBuyModelTest {
 
     private val serializer: SimpleBuyPrefsSerializer = mock()
 
+    private val downloadFileUseCase: DownloadFileUseCase = mock {
+        onBlocking { invoke(any(), any()) }.thenReturn(Outcome.Success(mock()))
+    }
+
     private val model = SimpleBuyModel(
         prefs = prefs,
         simpleBuyPrefs = simpleBuyPrefs,
@@ -105,7 +111,11 @@ class SimpleBuyModelTest {
         bankPartnerCallbackProvider = mock(),
         userIdentity = mock {
             on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
-        }
+        },
+        safeConnectRemoteConfig = mock {
+            onBlocking { getTosPdfLink() }.thenReturn("link")
+        },
+        downloadFileUseCase = downloadFileUseCase
     )
 
     @Test

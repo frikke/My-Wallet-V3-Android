@@ -20,9 +20,10 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
-import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
+import java.io.File
+import java.math.BigInteger
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
@@ -525,5 +526,17 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(
                 transferLimits = limits
             )
+    }
+
+    data class DownloadSafeConnectTos(val absolutePath: String) : SimpleBuyIntent()
+
+    data class OpenSafeConnectTos(val file: File) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(safeConnectTosPdf = file)
+    }
+
+    object SafeConnectTosOpened : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(safeConnectTosPdf = null)
     }
 }
