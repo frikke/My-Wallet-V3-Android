@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
+import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.core.payments.model.YapilyInstitution
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
@@ -17,9 +20,15 @@ import piuk.blockchain.android.ui.linkbank.bankAuthEvent
 import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.ui.linkbank.yapily.permission.YapilyPermissionArgs.Companion.ARGS_KEY
 import piuk.blockchain.android.ui.linkbank.yapily.permission.composables.YapilyPermissionScreen
+import piuk.blockchain.android.urllinks.URL_YAPILY_PRIVACY_POLICY
+import piuk.blockchain.android.util.getFilePath
+import piuk.blockchain.android.util.openPdfFile
+import piuk.blockchain.android.util.openUrl
+import java.io.File
 
-class YapilyPermissionFragment : Fragment(),
-    Analytics by get(Analytics::class.java) {
+class YapilyPermissionFragment : MVIFragment<YapilyPermissionViewState>(),
+    Analytics by get(Analytics::class.java),
+    NavigationRouter<YapilyPermissionNavigationEvent> {
 
     private val args: YapilyPermissionArgs by lazy {
         arguments?.run { getParcelable(ARGS_KEY) as? YapilyPermissionArgs }
@@ -31,12 +40,20 @@ class YapilyPermissionFragment : Fragment(),
             ?: error("Parent must implement BankAuthFlowNavigator")
     }
 
+    private val viewModel: YapilyPermissionViewModel by viewModel()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 ScreenContent()
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        bindViewModel(viewModel = viewModel, navigator = this, args = args)
     }
 
     /**
@@ -46,9 +63,40 @@ class YapilyPermissionFragment : Fragment(),
     private fun ScreenContent() {
         YapilyPermissionScreen(
             institution = args.institution,
+            termsOfServiceOnclick = ::termsOfServiceOnClick,
+            privacyPolicyOnClick = ::privacyPolicyOnClick,
             approveOnClick = ::approveOnClick,
             denyOnClick = ::denyOnClick
         )
+    }
+
+    override fun onStateUpdated(state: YapilyPermissionViewState) {
+    }
+
+    override fun route(navigationEvent: YapilyPermissionNavigationEvent) {
+        when (navigationEvent) {
+            is YapilyPermissionNavigationEvent.OpenFile -> {
+                openFile(navigationEvent.file)
+            }
+        }
+    }
+
+    private fun openFile(file: File) {
+        context?.openPdfFile(file)
+    }
+
+    private fun termsOfServiceOnClick() {
+        context?.let { context ->
+            viewModel.onIntent(
+                YapilyPermissionIntents.DownloadTermsOfService(
+                    context.getFilePath(fileName = TERMS_FILE_NAME, extension = TERMS_FILE_EXTENSION)
+                )
+            )
+        }
+    }
+
+    private fun privacyPolicyOnClick() {
+        context.openUrl(URL_YAPILY_PRIVACY_POLICY)
     }
 
     private fun approveOnClick() {
@@ -92,6 +140,8 @@ class YapilyPermissionFragment : Fragment(),
 
     companion object {
         private const val PARTNER = "YAPILY"
+        private const val TERMS_FILE_NAME = "SafeConnectToS"
+        private const val TERMS_FILE_EXTENSION = "pdf"
         fun newInstance(
             institution: YapilyInstitution,
             entity: String,

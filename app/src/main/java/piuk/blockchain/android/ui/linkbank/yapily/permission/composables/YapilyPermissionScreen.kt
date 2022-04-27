@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.linkbank.yapily.permission.composables
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +34,8 @@ import java.net.URL
 @Composable
 fun YapilyPermissionScreen(
     institution: YapilyInstitution,
+    termsOfServiceOnclick: () -> Unit,
+    privacyPolicyOnClick: () -> Unit,
     approveOnClick: () -> Unit,
     denyOnClick: () -> Unit
 ) {
@@ -69,7 +70,10 @@ fun YapilyPermissionScreen(
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.smallest_margin)))
 
-        TermAndPrivacyText()
+        TermAndPrivacyText(
+            termsOfServiceOnclick = termsOfServiceOnclick,
+            privacyPolicyOnClick = privacyPolicyOnClick
+        )
 
         Spacer(modifier = Modifier.height(100.dp))
 
@@ -90,7 +94,10 @@ fun YapilyPermissionScreen(
 }
 
 @Composable
-private fun TermAndPrivacyText() {
+private fun TermAndPrivacyText(
+    termsOfServiceOnclick: () -> Unit,
+    privacyPolicyOnClick: () -> Unit,
+) {
     val annotatedText = buildAnnotatedString {
         withStyle(style = SpanStyle(color = Grey900)) {
             append(stringResource(id = R.string.yapily_permission_confirmation))
@@ -99,7 +106,7 @@ private fun TermAndPrivacyText() {
         append(" ")
 
         pushStringAnnotation(
-            tag = stringResource(id = R.string.yapily_permission_terms_service),
+            tag = "tos",
             annotation = "https://developer.android.com"
         )
         withStyle(style = SpanStyle(color = Blue600)) {
@@ -110,7 +117,7 @@ private fun TermAndPrivacyText() {
         append(" & ")
 
         pushStringAnnotation(
-            tag = stringResource(id = R.string.yapily_permission_privacy_policy),
+            tag = "privacy",
             annotation = "https://developer.android.com"
         )
         withStyle(style = SpanStyle(color = Blue600)) {
@@ -127,13 +134,18 @@ private fun TermAndPrivacyText() {
             // We check if there is an *URL* annotation attached to the text
             // at the clicked position
             annotatedText.getStringAnnotations(
-                tag = "URL", start = offset,
+                tag = "tos", start = offset,
                 end = offset
-            )
-                .firstOrNull()?.let { annotation ->
-                    // If yes, we log its value
-                    Log.d("Clicked URL", annotation.item)
-                }
+            ).firstOrNull()?.let { annotation ->
+                termsOfServiceOnclick()
+            }
+
+            annotatedText.getStringAnnotations(
+                tag = "privacy", start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                privacyPolicyOnClick()
+            }
         }
     )
 }
@@ -148,6 +160,8 @@ private fun PreviewYapilyPermissionScreen() {
             "id",
             URL("https://images.yapily.com/image/0291d873-f7d5-4696-bda8-6ea17a788bb1?size=0")
         ),
+        termsOfServiceOnclick = {},
+        privacyPolicyOnClick = {},
         approveOnClick = {},
         denyOnClick = {}
     )
