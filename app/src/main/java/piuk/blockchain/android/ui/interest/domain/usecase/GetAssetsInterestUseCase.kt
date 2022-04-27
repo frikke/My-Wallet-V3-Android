@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.interest.domain.usecase
 
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
