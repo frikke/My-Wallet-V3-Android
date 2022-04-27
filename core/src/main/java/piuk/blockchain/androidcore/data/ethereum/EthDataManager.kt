@@ -164,7 +164,7 @@ class EthDataManager(
                     onSuccess = { response ->
                         // In order to distinguish between these two addresses we need to call eth_getCode,
                         // which will return contract code if it's a contract and nothing if it's a wallet
-                        response.result.isNotEmpty()
+                        response.result.removePrefix(EthUtils.PREFIX).isNotEmpty()
                     },
                     onFailure = { error ->
                         throw error.throwable
