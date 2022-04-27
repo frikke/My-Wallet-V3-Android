@@ -10,9 +10,11 @@ import com.blockchain.coincore.erc20.Erc20Asset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -23,7 +25,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isErc20
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -55,7 +56,8 @@ internal class DynamicAssetLoader(
     private val identity: UserIdentity,
     private val formatUtils: FormatUtilities,
     private val identityAddressResolver: IdentityAddressResolver,
-    private val ethHotWalletAddressResolver: EthHotWalletAddressResolver
+    private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
+    private val layerTwoFeatureFlag: FeatureFlag
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -218,6 +220,7 @@ internal class DynamicAssetLoader(
             availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
+            layerTwoFeatureFlag = layerTwoFeatureFlag
         )
     }
 

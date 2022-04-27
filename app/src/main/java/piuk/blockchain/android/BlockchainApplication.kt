@@ -93,7 +93,9 @@ open class BlockchainApplication : Application() {
         initRemoteLogger()
         initLifecycleListener()
 
-        Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
+        if (environmentSettings.isCompanyInternalBuild() || environmentSettings.isRunningInDebugMode()) {
+            Intercom.initialize(this, BuildConfig.INTERCOM_API_KEY, BuildConfig.INTERCOM_APP_ID)
+        }
 
         if (environmentSettings.isRunningInDebugMode()) {
             Stetho.initializeWithDefaults(this)

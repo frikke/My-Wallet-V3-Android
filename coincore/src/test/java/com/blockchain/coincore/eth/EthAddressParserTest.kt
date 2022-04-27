@@ -5,6 +5,7 @@ import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.custodial.TradingBalanceDataManager
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -40,6 +41,9 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val identity: UserIdentity = mock()
     private val formatUtils: FormatUtilities = mock()
     private val addressResolver: EthHotWalletAddressResolver = mock()
+    private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     private val subject = EthAsset(
         payloadManager = payloadManager,
@@ -58,7 +62,8 @@ class EthAddressParserTest : CoincoreTestBase() {
         remoteLogger = remoteLogger,
         identity = identity,
         formatUtils = formatUtils,
-        addressResolver = addressResolver
+        addressResolver = addressResolver,
+        ethLayerTwoFeatureFlag
     )
 
     @Test

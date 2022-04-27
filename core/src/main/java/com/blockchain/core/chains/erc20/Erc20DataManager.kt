@@ -1,15 +1,17 @@
 package com.blockchain.core.chains.erc20
 
+import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.core.chains.EthL2Chain
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.fold
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.isErc20
+import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -56,6 +58,8 @@ interface Erc20DataManager {
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
     fun getActiveAssets(): Single<Set<AssetInfo>>
 
+    fun getSupportedNetworks(): Single<List<EthL2Chain>>
+
     // TODO: Get assets with balance
     fun flushCaches(asset: AssetInfo)
 }
@@ -64,7 +68,8 @@ internal class Erc20DataManagerImpl(
     private val ethDataManager: EthDataManager,
     private val balanceCallCache: Erc20BalanceCallCache,
     private val historyCallCache: Erc20HistoryCallCache,
-    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
+    private val ethMemoForHotWalletFeatureFlag: FeatureFlag,
+    private val ethLayerTwoFeatureFlag: FeatureFlag
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -86,11 +91,31 @@ internal class Erc20DataManagerImpl(
 
     override fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance> {
         require(asset.isErc20())
+        requireNotNull(asset.l1chainTicker)
         requireNotNull(asset.l2identifier)
 
-        return balanceCallCache.getBalances(accountHash)
-            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-            .toObservable()
+        return ethLayerTwoFeatureFlag.enabled.flatMapObservable { isEnabled ->
+            if (isEnabled) {
+                ethDataManager.supportedNetworks.flatMapObservable { supportedL2Networks ->
+                    supportedL2Networks.firstOrNull { it.networkTicker == asset.l1chainTicker }?.let { ethL2Chain ->
+                        rxSingle {
+                            // Get the balance of the native token for example Matic in Polygon's case. Only load
+                            // the balances of the other tokens on that network if the native token balance is positive.
+                            ethDataManager.getBalance(ethL2Chain.chainId)
+                                .fold(
+                                    onFailure = { throw it.throwable },
+                                    onSuccess = { value -> Pair(ethL2Chain, value) }
+                                )
+                        }
+                            .flatMapObservable { (ethL2Chain, value) -> getErc20Balance(asset, ethL2Chain, value) }
+                    } ?: Observable.just(Erc20Balance.zero(asset))
+                }
+            } else {
+                balanceCallCache.getBalances(accountHash)
+                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                    .toObservable()
+            }
+        }
     }
 
     override fun getActiveAssets(): Single<Set<AssetInfo>> =
@@ -190,10 +215,35 @@ internal class Erc20DataManagerImpl(
     override fun latestBlockNumber(): Single<BigInteger> =
         ethDataManager.getLatestBlockNumber().map { it.number }
 
+    override fun getSupportedNetworks(): Single<List<EthL2Chain>> = ethDataManager.supportedNetworks
+
     override fun flushCaches(asset: AssetInfo) {
         require(asset.isErc20())
 
         balanceCallCache.flush(asset)
         historyCallCache.flush(asset)
     }
+
+    private fun getErc20Balance(
+        asset: AssetInfo,
+        ethL2Chain: EthL2Chain,
+        balance: BigInteger
+    ): Observable<Erc20Balance> {
+        val hasNativeTokenBalance = balance > BigInteger.ZERO
+        val isL2 = ethL2Chain.chainId != EthDataManager.ETH_CHAIN_ID
+        return when {
+            // Only load L2 balances if we have a balance of the network's native token
+            isL2 && hasNativeTokenBalance -> balanceCallCache.getBalances(accountHash, ethL2Chain.networkTicker)
+                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }.toObservable()
+            !isL2 -> balanceCallCache.getBalances(accountHash)
+                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                .toObservable()
+            else -> Observable.just(Erc20Balance.zero(asset))
+        }
+    }
 }
+
+// TODO this has to scale, need to find a way to get the networks from the remote config
+fun Currency.isErc20() =
+    (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true ||
+        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryService.MATIC) == true

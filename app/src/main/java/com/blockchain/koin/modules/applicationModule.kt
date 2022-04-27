@@ -20,6 +20,7 @@ import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
+import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -183,7 +184,8 @@ val applicationModule = module {
             payloadScopeWiper = get(),
             prefs = get(),
             trust = get(),
-            pinRepository = get()
+            pinRepository = get(),
+            isIntercomEnabledFlag = get(intercomChatFeatureFlag)
         )
     }.bind(AppUtilAPI::class)
 

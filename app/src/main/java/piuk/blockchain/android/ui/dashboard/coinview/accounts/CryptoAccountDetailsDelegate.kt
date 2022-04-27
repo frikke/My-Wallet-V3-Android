@@ -9,6 +9,7 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.viewextensions.gone
@@ -20,8 +21,6 @@ import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.customviews.account.CellDecorator
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsItem
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -50,7 +49,8 @@ class CryptoAccountDetailsDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
         items[position] as AssetDetailsItemNew.CryptoDetailsInfo,
-        items.indexOfFirst { it is AssetDetailsItemNew.CryptoDetailsInfo } == position
+        isFirstItemOfCategory = items.indexOfFirstItemOfCategory(AssetFilter.NonCustodial) == position ||
+            items.indexOfFirstItemOfCategory(AssetFilter.Custodial) == position
     )
 }
 
@@ -100,7 +100,13 @@ private class AssetWalletViewHolder(
                     bodyStart = buildAnnotatedString {
                         append(
                             when (item.assetFilter) {
-                                AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_desc)
+                                AssetFilter.NonCustodial -> {
+                                    if (account is MultiChainAccount) {
+                                        context.getString(R.string.coinview_multi_nc_desc, account.networkName)
+                                    } else {
+                                        context.getString(R.string.coinview_nc_desc)
+                                    }
+                                }
                                 AssetFilter.Custodial -> context.getString(R.string.coinview_c_available_desc)
                                 AssetFilter.Interest -> {
                                     val interestFormat = DecimalFormat("0.#")
@@ -146,7 +152,10 @@ private class AssetWalletViewHolder(
 
             walletsLabel.apply {
                 visibleIf { isFirstItemOfCategory }
-                title = context.getString(R.string.coinview_accounts_label)
+                title = when (item.assetFilter) {
+                    AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_accounts_label)
+                    else -> context.getString(R.string.coinview_custodial_accounts_label)
+                }
             }
         }
     }
@@ -161,4 +170,7 @@ private class AssetWalletViewHolder(
             else -> null
         } ?: throw IllegalStateException("Unsupported account type ${this::class.java}")
 }
-typealias AssetDetailsInfoDecorator = (AssetDetailsItem.CryptoDetailsInfo) -> CellDecorator
+
+private fun List<AssetDetailsItemNew>.indexOfFirstItemOfCategory(category: AssetFilter) = indexOfFirst { item ->
+    item is AssetDetailsItemNew.CryptoDetailsInfo && item.assetFilter == category
+}

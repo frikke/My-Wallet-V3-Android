@@ -10,18 +10,13 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.UiThread
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.price.Prices24HrWithDelta
-import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.BlockedReason
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
@@ -41,8 +36,6 @@ import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
-import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsFlow
-import piuk.blockchain.android.ui.dashboard.assetdetails.FullScreenCoinViewFlow
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
@@ -62,10 +55,7 @@ import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.BankLinkingHost
-import piuk.blockchain.android.ui.transactionflow.DialogFlow
-import piuk.blockchain.android.ui.transactionflow.TransactionFlow
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.getAccount
@@ -84,9 +74,6 @@ internal class PricesFragment :
     ForceBackupForSendSheet.Host,
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
-    DialogFlow.FlowHost,
-    AssetDetailsFlow.AssetDetailsHost,
-    InterestSummarySheet.Host,
     BuyPendingOrdersBottomSheet.Host,
     BankLinkingHost {
 
@@ -141,34 +128,6 @@ internal class PricesFragment :
             }
         }
 
-        // Update/show dialog flow
-        if (state?.activeFlow != newState.activeFlow) {
-            state?.activeFlow?.let {
-                clearBottomSheet()
-            }
-
-            newState.activeFlow?.let {
-                when (it) {
-                    is TransactionFlow -> {
-                        startActivity(
-                            TransactionFlowActivity.newIntent(
-                                context = requireActivity(),
-                                sourceAccount = it.txSource,
-                                target = it.txTarget,
-                                action = it.txAction
-                            )
-                        )
-                    }
-                    is FullScreenCoinViewFlow -> {
-                        activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), it.asset))
-                        model.process(DashboardIntent.ClearActiveFlow)
-                    }
-                    else -> {
-                        it.startFlow(childFragmentManager, this)
-                    }
-                }
-            }
-        }
         this.state = newState
     }
 
@@ -293,7 +252,7 @@ internal class PricesFragment :
             }
         }
 
-        model.process(DashboardIntent.ResetDashboardNavigation)
+        model.process(DashboardIntent.ResetNavigation)
     }
 
     private fun onGetAssetPrice(asset: AssetInfo) {
@@ -303,22 +262,35 @@ internal class PricesFragment :
     private fun onAssetClicked(asset: AssetInfo) {
         analytics.logEvent(assetActionEvent(AssetDetailsAnalytics.WALLET_DETAILS, asset))
         model.process(
-            DashboardIntent.UpdateLaunchDetailsFlow(
-                AssetDetailsFlow(
-                    asset = asset
-                )
+            DashboardIntent.UpdateNavigationAction(
+                DashboardNavigationAction.Coinview(asset)
             )
         )
     }
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
-        when {
-            navigationAction is DashboardNavigationAction.BottomSheet -> {
+        when (navigationAction) {
+            is DashboardNavigationAction.BottomSheet -> {
                 handleBottomSheet(navigationAction)
-                model.process(DashboardIntent.ResetDashboardNavigation)
+                model.process(DashboardIntent.ResetNavigation)
             }
-            navigationAction is DashboardNavigationAction.LinkBankWithPartner -> {
+            is DashboardNavigationAction.LinkBankWithPartner -> {
                 startBankLinking(navigationAction)
+            }
+            is DashboardNavigationAction.TransactionFlow -> {
+                startActivity(
+                    TransactionFlowActivity.newIntent(
+                        context = requireActivity(),
+                        sourceAccount = navigationAction.sourceAccount,
+                        target = navigationAction.target,
+                        action = navigationAction.action
+                    )
+                )
+                model.process(DashboardIntent.ResetNavigation)
+            }
+            is DashboardNavigationAction.Coinview -> {
+                activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), navigationAction.asset))
+                model.process(DashboardIntent.ResetNavigation)
             }
         }
     }
@@ -380,7 +352,6 @@ internal class PricesFragment :
     }
 
     private fun showFiatFundsKyc(): BottomSheetDialogFragment {
-
         return KycBenefitsBottomSheet.newInstance(
             KycBenefitsBottomSheet.BenefitsDetails(
                 title = getString(R.string.fiat_funds_no_kyc_announcement_title),
@@ -411,114 +382,6 @@ internal class PricesFragment :
     // DialogBottomSheet.Host
     override fun onSheetClosed() {
         model.process(DashboardIntent.ClearActiveFlow)
-    }
-
-    // DialogFlow.FlowHost
-    override fun onFlowFinished() {
-        model.process(DashboardIntent.ClearActiveFlow)
-    }
-
-    private fun launchSendFor(account: SingleAccount, action: AssetAction) {
-        if (account is CustodialTradingAccount) {
-            model.process(DashboardIntent.CheckBackupStatus(account, action))
-        } else if (account is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        sourceAccount = account,
-                        action = action
-                    )
-                )
-            )
-        }
-    }
-
-    // AssetDetailsHost
-    override fun performAssetActionFor(action: AssetAction, account: BlockchainAccount) {
-        clearBottomSheet()
-        when (action) {
-            AssetAction.Send -> launchSendFor(account as SingleAccount, action)
-            else -> navigator().performAssetActionFor(action, account)
-        }
-    }
-
-    override fun goToSellFrom(account: CryptoAccount) =
-        startActivity(
-            TransactionFlowActivity.newIntent(
-                context = requireActivity(),
-                sourceAccount = account,
-                action = AssetAction.Sell
-            )
-        )
-
-    override fun goToInterestDeposit(toAccount: BlockchainAccount) {
-        if (toAccount is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        target = toAccount,
-                        action = AssetAction.InterestDeposit
-                    )
-                )
-            )
-        }
-    }
-
-    override fun goToInterestWithdraw(fromAccount: BlockchainAccount) {
-        if (fromAccount is CryptoAccount) {
-            model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
-                        sourceAccount = fromAccount,
-                        action = AssetAction.InterestWithdraw
-                    )
-                )
-            )
-        }
-    }
-
-    override fun goToInterestDashboard() {
-        navigator().launchInterestDashboard(LaunchOrigin.CURRENCY_PAGE)
-    }
-
-    override fun goToSummary(account: CryptoAccount) {
-        model.process(
-            DashboardIntent.UpdateSelectedCryptoAccount(
-                account
-            )
-        )
-        model.process(
-            DashboardIntent.ShowPortfolioSheet(
-                DashboardNavigationAction.InterestSummary(
-                    account
-                )
-            )
-        )
-    }
-
-    override fun goToKyc() {
-        navigator().launchKyc(CampaignType.None)
-    }
-
-    override fun tryToLaunchBuy(asset: AssetInfo, buyAccess: FeatureAccess) {
-        val blockedState = buyAccess as? FeatureAccess.Blocked
-
-        blockedState?.let {
-            when (val reason = it.reason) {
-                is BlockedReason.TooManyInFlightTransactions -> showPendingBuysBottomSheet(reason.maxTransactions)
-                BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
-                BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-            }.exhaustive
-        } ?: run {
-            navigator().launchBuySell(BuySellFragment.BuySellViewType.TYPE_BUY, asset, true)
-        }
-    }
-
-    private fun showPendingBuysBottomSheet(pendingBuys: Int) {
-        BuyPendingOrdersBottomSheet.newInstance(pendingBuys).show(
-            childFragmentManager,
-            BuyPendingOrdersBottomSheet.TAG
-        )
     }
 
     // BankLinkingHost
@@ -567,8 +430,8 @@ internal class PricesFragment :
     override fun startTransferFunds(account: SingleAccount, action: AssetAction) {
         if (account is CryptoAccount) {
             model.process(
-                DashboardIntent.UpdateLaunchDialogFlow(
-                    TransactionFlow(
+                DashboardIntent.UpdateNavigationAction(
+                    DashboardNavigationAction.TransactionFlow(
                         sourceAccount = account,
                         action = action
                     )

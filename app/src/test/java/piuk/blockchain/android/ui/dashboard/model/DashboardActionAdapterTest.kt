@@ -61,8 +61,7 @@ class DashboardActionAdapterTest {
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
             exchangeRates = mock(),
-            paymentsDataManager = paymentsDataManager,
-            redesignCoinViewFlag = mock()
+            paymentsDataManager = paymentsDataManager
         )
     }
 
@@ -189,7 +188,7 @@ class DashboardActionAdapterTest {
             shouldLaunchBankLinkTransfer = false
         )
 
-        verify(model).process(any<DashboardIntent.UpdateLaunchDialogFlow>())
+        verify(model).process(any<DashboardIntent.UpdateNavigationAction>())
     }
 
     @Test

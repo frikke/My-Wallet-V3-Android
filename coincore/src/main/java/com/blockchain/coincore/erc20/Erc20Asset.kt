@@ -10,10 +10,13 @@ import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.chains.EthL2Chain
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -22,13 +25,14 @@ import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import thepit.PitLinking
@@ -51,7 +55,8 @@ internal class Erc20Asset(
     private val availableCustodialActions: Set<AssetAction>,
     private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities,
-    addressResolver: EthHotWalletAddressResolver
+    addressResolver: EthHotWalletAddressResolver,
+    private val layerTwoFeatureFlag: FeatureFlag
 ) : CryptoAssetBase(
     payloadManager,
     exchangeRates,
@@ -72,11 +77,31 @@ internal class Erc20Asset(
     override val multiWallet: Boolean = false
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Single.fromCallable {
-            if (assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL)) {
-                listOf(getNonCustodialAccount())
+        layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
+            if (isEnabled) {
+                erc20DataManager.getSupportedNetworks().map { supportedL2Networks ->
+                    if (assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL)) {
+                        supportedL2Networks.firstOrNull { ethL2Chain ->
+                            ethL2Chain.networkTicker == assetInfo.l1chainTicker
+                        }?.let { ethL2Chain ->
+                            listOf(getNonCustodialAccount(ethL2Chain))
+                        } ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
+                }
             } else {
-                emptyList()
+                Single.fromCallable {
+                    // Only load ERC20 accounts on the Ethereum network when the FF is disabled
+                    if (
+                        assetInfo.categories.contains(AssetCategory.NON_CUSTODIAL) &&
+                        CryptoCurrency.ETHER.networkTicker == assetInfo.l1chainTicker
+                    ) {
+                        listOf(getNonCustodialAccount(EthDataManager.ethChain))
+                    } else {
+                        emptyList()
+                    }
+                }
             }
         }
 
@@ -99,7 +124,7 @@ internal class Erc20Asset(
             Single.just(emptyList())
         }
 
-    private fun getNonCustodialAccount(): Erc20NonCustodialAccount =
+    private fun getNonCustodialAccount(l2Chain: EthL2Chain): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
             payloadManager,
             assetInfo,
@@ -112,7 +137,10 @@ internal class Erc20Asset(
             custodialManager,
             availableNonCustodialActions,
             identity,
-            addressResolver
+            addressResolver,
+            chainNetworkTicker = l2Chain.networkTicker,
+            chainId = l2Chain.chainId,
+            networkName = l2Chain.networkName
         )
 
     @CommonCode("Exists in EthAsset")
