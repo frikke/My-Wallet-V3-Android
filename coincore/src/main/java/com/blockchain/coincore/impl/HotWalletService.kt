@@ -4,10 +4,10 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
-import info.blockchain.balance.isErc20
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles

@@ -1780,8 +1780,6 @@ Compra criptomonedas hoy.</string>
     <string name="security_error_two_fa">Se produjo un error al actualizar la autenticación de dos factores, inténtalo otra vez.</string>
     <string name="security_error_screenshots">Se produjo un error al actualizar las capturas de pantalla, inténtalo otra vez.</string>
     <string name="sb_checkout_card_insufficient_funds_blurb">Tu banco nos indica que no tienes fondos suficientes en tu cuenta. Compruébalo e intenta otra vez.</string>
-    <string name="sb_checkout_card_declined_title">Pago rechazado</string>
-    <string name="sb_checkout_card_declined_blurb">Tu banco rechazó esta transacción, intenta con otro banco o método de pago.</string>
     <string name="sb_checkout_contact_support">Si crees que el pago debería haber funcionado, <annotation link="contact_support">comunícate con el soporte</annotation></string>
     <string name="profile_update_error_phone_invalid">Número de teléfono no válido</string>
     <string name="tx_title_added">Se agregó %s</string>

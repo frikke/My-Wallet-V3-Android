@@ -2281,10 +2281,6 @@ Se já o tiver feito, por favor <annotation link="contact_support">contacte o ap
     <string name="security_error_biometrics_disable">Ocorreu um erro ao desativar a biometria. Tente novamente.</string>
     <string name="security_error_two_fa">Ocorreu um erro ao atualizar a autenticação de dois fatores. Tente novamente.</string>
     <string name="security_error_screenshots">Ocorreu um erro ao atualizar as capturas de ecrã. Tente novamente.</string>
-    <string name="sb_checkout_card_insufficient_funds_title">Fundos insuficientes</string>
-    <string name="sb_checkout_card_insufficient_funds_blurb">O seu banco informa-nos que você não tem fundos suficientes na sua conta; verifique e tente novamente.</string>
-    <string name="sb_checkout_card_declined_title">Pagamento recusado</string>
-    <string name="sb_checkout_card_declined_blurb">O seu banco recusou esta transação. Tente outro banco ou método de pagamento.</string>
     <string name="sb_checkout_contact_support">Se pensa que o pagamento deveria ter funcionado, <annotation link="contact_support"> entre em contacto com o apoio ao cliente </annotation></string>
     <string name="profile_update_error_phone_invalid">Número de telefone inválido</string>
     <string name="tx_title_added">Adicionado %s</string>
@@ -2486,8 +2482,5 @@ Se já o tiver feito, por favor <annotation link="contact_support">contacte o ap
     <string name="card_activation_debit_only_blurb">Use qualquer cartão de débito Visa ou Mastercard.</string>
     <string name="card_activation_debit_only_cta_primary">Tente outro cartão</string>
     <string name="add_debit_card">Cartão de débito</string>
-    <string name="sb_checkout_card_debit_only_title">Tente um cartão de débito em vez disso</string>
-    <string name="sb_checkout_card_debit_only_blurb">Está com problemas com seu cartão de crédito?
- Tente qualquer cartão de débito Visa ou Mastercard em vez disso.</string>
     <string name="sb_checkout_card_debit_only_cta">Experimente um método de pagamento diferente</string>
 </resources>

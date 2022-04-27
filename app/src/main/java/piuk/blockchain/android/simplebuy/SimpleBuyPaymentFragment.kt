@@ -296,12 +296,6 @@ class SimpleBuyPaymentFragment :
                 resourceIcon = R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
-            ErrorState.CardPaymentDeclined -> showError(
-                title = getString(R.string.sb_checkout_card_declined_title),
-                subtitle = addLink(R.string.sb_checkout_contact_support),
-                resourceIcon = R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
-            )
             ErrorState.InternetConnectionError -> showError(
                 title = getString(
                     R.string.executing_connection_error
@@ -343,8 +337,86 @@ class SimpleBuyPaymentFragment :
                 errorState = errorState.toString()
             )
             ErrorState.InsufficientCardFunds -> showError(
-                getString(R.string.sb_checkout_card_insufficient_funds_title),
-                getString(R.string.sb_checkout_card_insufficient_funds_blurb),
+                getString(R.string.title_cardInsufficientFunds),
+                getString(R.string.msg_cardInsufficientFunds),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardBankDeclined -> showError(
+                getString(R.string.title_cardBankDecline),
+                getString(R.string.msg_cardBankDecline),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardDuplicated -> showError(
+                getString(R.string.title_cardDuplicate),
+                getString(R.string.msg_cardDuplicate),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardBlockchainDeclined -> showError(
+                getString(R.string.title_cardBlockchainDecline),
+                getString(R.string.msg_cardBlockchainDecline),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardAcquirerDeclined -> showError(
+                getString(R.string.title_cardAcquirerDecline),
+                getString(R.string.msg_cardAcquirerDecline),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardPaymentNotSupported -> showError(
+                getString(R.string.title_cardPaymentNotSupported),
+                getString(R.string.msg_cardPaymentNotSupported),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardCreateFailed -> showError(
+                getString(R.string.title_cardCreateFailed),
+                getString(R.string.msg_cardCreateFailed),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardPaymentFailed -> showError(
+                getString(R.string.title_cardPaymentFailed),
+                getString(R.string.msg_cardPaymentFailed),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardCreateAbandoned -> showError(
+                getString(R.string.title_cardCreateAbandoned),
+                getString(R.string.msg_cardCreateAbandoned),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardCreateAbandoned -> showError(
+                getString(R.string.title_cardCreateExpired),
+                getString(R.string.msg_cardCreateExpired),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardCreateBankDeclined -> showError(
+                getString(R.string.title_cardCreateBankDeclined),
+                getString(R.string.msg_cardCreateBankDeclined),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardCreateDebitOnly -> showError(
+                getString(R.string.title_cardCreateDebitOnly),
+                getString(R.string.msg_cardCreateDebitOnly),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardPaymentDebitOnly -> showError(
+                getString(R.string.title_cardPaymentDebitOnly),
+                getString(R.string.msg_cardPaymentDebitOnly),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString()
+            )
+            ErrorState.CardNoToken -> showError(
+                getString(R.string.title_cardCreateNoToken),
+                getString(R.string.msg_cardCreateNoToken),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
@@ -355,12 +427,6 @@ class SimpleBuyPaymentFragment :
             ErrorState.ProviderIsNotSupported -> showError(
                 getString(R.string.sb_card_provider_not_supported),
                 getString(R.string.sb_checkout_contact_support),
-                R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
-            )
-            ErrorState.DebitCardOnly -> showError(
-                getString(R.string.sb_checkout_card_debit_only_title),
-                getString(R.string.sb_checkout_card_debit_only_blurb),
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )

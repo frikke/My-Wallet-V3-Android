@@ -13,7 +13,7 @@ object Versions {
     const val buildTools = "30.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "7.0.2"
+    const val androidPlugin = "7.1.3"
     const val kotlin = "1.5.31"
 
     // Coroutines

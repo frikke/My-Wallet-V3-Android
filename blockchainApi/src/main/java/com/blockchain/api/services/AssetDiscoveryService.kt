@@ -46,8 +46,7 @@ data class DetailedAssetInformation(
 typealias DynamicAssetList = List<DynamicAsset>
 
 class AssetDiscoveryService internal constructor(
-    private val api: AssetDiscoveryApiInterface,
-    private val apiCode: String
+    private val api: AssetDiscoveryApiInterface
 ) {
     fun getNonCustodialAssets(): Single<DynamicAssetList> =
         api.getCurrencies()
@@ -88,10 +87,9 @@ class AssetDiscoveryService internal constructor(
         } else {
             null
         }
-
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
-            coinType is Erc20Asset && coinType.parentChain != ETHEREUM -> null
+            coinType is Erc20Asset && !supportedErc20Chains.contains(coinType.parentChain) -> null
             coinType is CeloTokenAsset && coinType.parentChain != CELO -> null
             coinType is UnsupportedAsset -> null
             else -> DynamicAsset(
@@ -104,7 +102,7 @@ class AssetDiscoveryService internal constructor(
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {
-                    is Erc20Asset -> if (coinType.parentChain == ETHEREUM) {
+                    is Erc20Asset -> if (supportedErc20Chains.contains(coinType.parentChain)) {
                         ERC20_CONFIRMATIONS
                     } else {
                         throw IllegalStateException("Unknown parent chain")
@@ -137,6 +135,8 @@ class AssetDiscoveryService internal constructor(
 
     companion object {
         const val ETHEREUM = "ETH"
+        const val MATIC = "MATIC"
+        val supportedErc20Chains = listOf(ETHEREUM, MATIC)
         const val CELO = "CELO"
         private const val ERC20_CONFIRMATIONS = 12
         private const val CELO_CONFIRMATIONS = 1

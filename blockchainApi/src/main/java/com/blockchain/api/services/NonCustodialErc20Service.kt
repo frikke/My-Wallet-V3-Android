@@ -30,7 +30,6 @@ typealias Erc20TransferList = List<Erc20Transfer>
 
 class NonCustodialErc20Service internal constructor(
     private val api: EthereumApiInterface,
-    private val apiCode: String
 ) {
     fun getTokenBalances(accountHash: String): Single<Erc20TokenBalanceList> =
         api.fetchErc20AccountBalances(accountHash)

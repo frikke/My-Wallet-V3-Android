@@ -2281,10 +2281,6 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="security_error_biometrics_disable">Biyometriniz devre dışı bırakılırken bir hata oluştu, lütfen tekrar deneyin.</string>
     <string name="security_error_two_fa">İki Faktörlü Kimlik Doğrulama güncellenirken bir hata oluştu, lütfen tekrar deneyin.</string>
     <string name="security_error_screenshots">Ekran Görüntüleri güncellenirken bir hata oluştu, lütfen tekrar deneyin.</string>
-    <string name="sb_checkout_card_insufficient_funds_title">Yetersiz bakiye</string>
-    <string name="sb_checkout_card_insufficient_funds_blurb">Bankanız bize hesabınızda yeterli bakiye olmadığını bildirdi, kontrol edin ve tekrar deneyin.</string>
-    <string name="sb_checkout_card_declined_title">Ödeme reddedildi</string>
-    <string name="sb_checkout_card_declined_blurb">Bankanız bu işlemi reddetti, lütfen başka bir banka veya ödeme yöntemi deneyin.</string>
     <string name="sb_checkout_contact_support">Ödemenin işe yaraması gerektiğini düşünüyorsanız, lütfen <annotation link="contact_support"> destek ile iletişime geçin </annotation></string>
     <string name="profile_update_error_phone_invalid">Geçersiz telefon numarası</string>
     <string name="tx_title_added">%s eklendi</string>
@@ -2486,8 +2482,5 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="card_activation_debit_only_blurb">Herhangi bir Visa veya Mastercard banka kartı kullanın.</string>
     <string name="card_activation_debit_only_cta_primary">Başka bir kart deneyin</string>
     <string name="add_debit_card">Banka kartı</string>
-    <string name="sb_checkout_card_debit_only_title">Bunun yerine bir banka kartı deneyin</string>
-    <string name="sb_checkout_card_debit_only_blurb">Kredi kartınızla ilgili sorun mu yaşıyorsunuz?
- Bunun yerine herhangi bir Visa veya Mastercard banka kartını deneyin.</string>
     <string name="sb_checkout_card_debit_only_cta">Farklı Bir Ödeme Yöntemi Deneyin</string>
 </resources>

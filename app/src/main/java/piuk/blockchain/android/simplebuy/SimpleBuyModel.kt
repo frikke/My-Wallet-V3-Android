@@ -854,11 +854,44 @@ class SimpleBuyModel(
                 NabuErrorCodes.InsufficientCardFunds -> process(
                     SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
                 )
-                NabuErrorCodes.CardPaymentDeclined -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDeclined)
+                NabuErrorCodes.CardBankDeclined -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardBankDeclined)
                 )
-                NabuErrorCodes.DebitCardOnlyPayment -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.DebitCardOnly)
+                NabuErrorCodes.CardDuplicate -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardDuplicated)
+                )
+                NabuErrorCodes.CardBlockchainDecline -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardBlockchainDeclined)
+                )
+                NabuErrorCodes.CardAcquirerDecline -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardAcquirerDeclined)
+                )
+                NabuErrorCodes.CardPaymentNotSupported -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentNotSupported)
+                )
+                NabuErrorCodes.CardCreateFailed -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateFailed)
+                )
+                NabuErrorCodes.CardPaymentFailed -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentFailed)
+                )
+                NabuErrorCodes.CardCreateAbandoned -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateAbandoned)
+                )
+                NabuErrorCodes.CardCreateExpired -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateExpired)
+                )
+                NabuErrorCodes.CardCreateBankDeclined -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateBankDeclined)
+                )
+                NabuErrorCodes.CardCreateDebitOnly -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateDebitOnly)
+                )
+                NabuErrorCodes.CardPaymentDebitOnly -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDebitOnly)
+                )
+                NabuErrorCodes.CardCreateNoToken -> process(
+                    SimpleBuyIntent.ErrorIntent(ErrorState.CardNoToken)
                 )
                 else -> process(SimpleBuyIntent.ErrorIntent(ErrorState.UnhandledHttpError(it)))
             }

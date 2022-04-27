@@ -2,6 +2,7 @@ package piuk.blockchain.android.data.coinswebsocket.strategy
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
@@ -13,7 +14,6 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.isErc20
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.payload.data.allAddresses
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

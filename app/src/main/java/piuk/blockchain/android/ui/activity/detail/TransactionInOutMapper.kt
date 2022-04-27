@@ -4,11 +4,11 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
-import info.blockchain.balance.isErc20
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.util.FormatsUtil
 import io.reactivex.rxjava3.core.Single

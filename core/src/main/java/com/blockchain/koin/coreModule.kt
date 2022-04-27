@@ -220,6 +220,7 @@ val coreModule = module {
         factory {
             Erc20BalanceCallCache(
                 erc20Service = get(),
+                erc20L2Service = get(),
                 assetCatalogue = get()
             )
         }
@@ -236,7 +237,8 @@ val coreModule = module {
                 ethDataManager = get(),
                 balanceCallCache = get(),
                 historyCallCache = get(),
-                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
+                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag),
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
