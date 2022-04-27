@@ -2182,10 +2182,6 @@ Compre hoy criptomonedas.</string>
     <string name="security_error_biometrics_disable">Se produjo un error al deshabilitar sus datos biométricos. Vuelva a intentarlo.</string>
     <string name="security_error_two_fa">Se produjo un error al actualizar la autenticación de dos factores. Vuelva a intentarlo.</string>
     <string name="security_error_screenshots">Se produjo un error al actualizar las capturas de pantalla. Vuelva a intentarlo.</string>
-    <string name="sb_checkout_card_insufficient_funds_title">Fondos insuficientes</string>
-    <string name="sb_checkout_card_insufficient_funds_blurb">Su banco nos comunica que no tiene fondos suficientes en su cuenta. Compruébelo e inténtelo de nuevo.</string>
-    <string name="sb_checkout_card_declined_title">Pago rechazado</string>
-    <string name="sb_checkout_card_declined_blurb">Su banco ha rechazado esta transacción. Utilice otro banco o método de pago.</string>
     <string name="sb_checkout_contact_support">Si cree que el pago debería haber funcionado, <annotation link="contact_support">contacte con el equipo de asistencia</annotation></string>
     <string name="profile_update_error_phone_invalid">Número de teléfono no válido</string>
     <string name="tx_title_added">Se han añadido %s</string>
@@ -2387,8 +2383,5 @@ Compre hoy criptomonedas.</string>
     <string name="card_activation_debit_only_blurb">Utilice cualquier tarjeta de débito Visa o Mastercard.</string>
     <string name="card_activation_debit_only_cta_primary">Prueba con otra tarjeta</string>
     <string name="add_debit_card">Tarjeta de débito</string>
-    <string name="sb_checkout_card_debit_only_title">Pruebe con una tarjeta de débito en su lugar</string>
-    <string name="sb_checkout_card_debit_only_blurb">¿Tiene problemas con su tarjeta de crédito?
- Pruebe cualquier tarjeta de débito Visa o Mastercard en su lugar.</string>
     <string name="sb_checkout_card_debit_only_cta">Pruebe con un método de pago diferente</string>
 </resources>

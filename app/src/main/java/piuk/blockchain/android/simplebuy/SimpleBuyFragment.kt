@@ -17,6 +17,7 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
         preselectedPaymentMethodId: String?,
         preselectedAmount: String?
     )
+
     fun goToCheckOutScreen(addToBackStack: Boolean = true)
     fun goToKycVerificationScreen(addToBackStack: Boolean = true)
     fun startKyc()
@@ -31,4 +32,9 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
 interface SmallSimpleBuyNavigator {
     fun exitSimpleBuyFlow()
     fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean)
+    fun showErrorInBottomSheet(
+        title: String,
+        description: String,
+        button: String? = null
+    )
 }

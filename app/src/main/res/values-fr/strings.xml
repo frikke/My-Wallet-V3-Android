@@ -1029,7 +1029,7 @@ Veuillez réessayer plus tard.</string>
     <string name="backup_before_send_later_cta">Continuer sans sauvegarde</string>
     <plurals name="backup_before_send_later_label">
         <item quantity="one">Vous avez %1$d envoi sans sauvegarde restant</item>
-        <item quantity="other">Vous avez %1$d envois sans sauvegarde restants</item>
+        <item quantity="many">Vous avez %1$d envois sans sauvegarde restants</item>
     </plurals>
     <string name="backup_before_send_now_label">Vous devez sauvegarder avant d\'envoyer</string>
     <string name="card_info_title">Cartes virtuelles non acceptées</string>
@@ -2214,10 +2214,6 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="security_error_biometrics_disable">Une erreur s\'est produite lors de la désactivation de vos données biométriques, veuillez réessayer.</string>
     <string name="security_error_two_fa">Une erreur s\'est produite lors de la mise à jour de l\'Authentification à deux facteurs, veuillez réessayer.</string>
     <string name="security_error_screenshots">Une erreur s\'est produite lors de la mise à jour des Captures d\'écran, veuillez réessayer.</string>
-    <string name="sb_checkout_card_insufficient_funds_title">Fonds insuffisants</string>
-    <string name="sb_checkout_card_insufficient_funds_blurb">Votre banque nous fait savoir que le solde sur votre compte est insuffisant, vérifiez et réessayez.</string>
-    <string name="sb_checkout_card_declined_title">Paiement refusé</string>
-    <string name="sb_checkout_card_declined_blurb">Votre banque a rejeté cette transaction, veuillez essayer une autre banque ou un autre mode de paiement.</string>
     <string name="sb_checkout_contact_support">Si vous pensez que le paiement aurait dû fonctionner, veuillez <annotation link="contact_support">contacter l\'assistance</annotation></string>
     <string name="profile_update_error_phone_invalid">Numéro de téléphone invalide</string>
     <string name="tx_title_added">%s ajouté</string>
@@ -2288,7 +2284,7 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="coinview_c_available_desc">Gardé</string>
     <plurals name="wallet_connect_connected_apps">
         <item quantity="one">%d appli connectée</item>
-        <item quantity="other">%d applis connectées</item>
+        <item quantity="many">%d applis connectées</item>
     </plurals>
     <string name="coinview_about_asset">À propos de %1$s</string>
     <string name="coinview_chart_tab_day">1D</string>
@@ -2419,8 +2415,5 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="card_activation_debit_only_blurb">Utilisez n\'importe quelle carte de débit Visa ou Mastercard.</string>
     <string name="card_activation_debit_only_cta_primary">Essayez une autre carte</string>
     <string name="add_debit_card">Carte de débit</string>
-    <string name="sb_checkout_card_debit_only_title">Essayez plutôt une carte de débit</string>
-    <string name="sb_checkout_card_debit_only_blurb">Vous rencontrez des problèmes avec votre carte de crédit ?
- Essayez plutôt n\'importe quelle carte de débit Visa ou Mastercard.</string>
     <string name="sb_checkout_card_debit_only_cta">Essayez une autre méthode de paiement</string>
 </resources>
