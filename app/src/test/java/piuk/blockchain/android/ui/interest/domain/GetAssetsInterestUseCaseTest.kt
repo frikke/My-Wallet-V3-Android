@@ -5,7 +5,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -13,6 +12,7 @@ import piuk.blockchain.android.ui.interest.domain.model.AssetInterestDetail
 import piuk.blockchain.android.ui.interest.domain.model.InterestAsset
 import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestService
 import piuk.blockchain.android.ui.interest.domain.usecase.GetAssetsInterestUseCase
+import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class GetAssetsInterestUseCaseTest {
@@ -59,7 +59,7 @@ class GetAssetsInterestUseCaseTest {
             )
         )
         // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
-        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(list)
+        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(listOf())
 
         // testing why bitrise fails here
 
