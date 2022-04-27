@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -26,8 +27,12 @@ import com.blockchain.componentlib.theme.Grey900
  * Figma: https://www.figma.com/file/Khjv2OKUvZ7xwTx2qmSadw/iOS---Upgrade-Prompts?node-id=0%3A1
  */
 @Composable
-fun AppMaintenanceScreen(appMaintenanceViewState: AppMaintenanceViewState, viewModel: AppMaintenanceViewModel) {
-    with(appMaintenanceViewState) {
+fun AppMaintenanceScreen(
+    uiState: AppMaintenanceStatusUiState,
+    button1OnClick: (AppMaintenanceIntents) -> Unit,
+    button2OnClick: (AppMaintenanceIntents) -> Unit
+) {
+    with(uiState) {
         Box {
             Image(
                 modifier = Modifier.fillMaxSize(),
@@ -54,15 +59,17 @@ fun AppMaintenanceScreen(appMaintenanceViewState: AppMaintenanceViewState, viewM
                     )
                 )
 
-                Image(
-                    imageResource = ImageResource.Local(uiState.image)
-                )
+                image?.let {
+                    Image(
+                        imageResource = ImageResource.Local(image)
+                    )
+                }
 
                 Text(
                     modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
                     style = AppTheme.typography.title3,
                     color = Grey900,
-                    text = stringResource(id = uiState.title),
+                    text = stringResource(id = title),
                 )
 
                 Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
@@ -72,31 +79,67 @@ fun AppMaintenanceScreen(appMaintenanceViewState: AppMaintenanceViewState, viewM
                     style = AppTheme.typography.body1,
                     color = Grey900,
                     textAlign = TextAlign.Center,
-                    text = stringResource(id = uiState.description)
+                    text = stringResource(id = description)
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                uiState.button1?.let { buttonSettings ->
+                button1?.let { buttonSettings ->
                     TertiaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = buttonSettings.buttonText),
-                        onClick = { viewModel.onIntent(buttonSettings.intent) },
+                        onClick = { button1OnClick(buttonSettings.intent) }
                     )
                 }
 
-                if (uiState.button1 != null && uiState.button2 != null) {
+                if (button1 != null && button2 != null) {
                     Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
                 }
 
-                uiState.button2?.let { buttonSettings ->
+                button2?.let { buttonSettings ->
                     PrimaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = buttonSettings.buttonText),
-                        onClick = { viewModel.onIntent(buttonSettings.intent) }
+                        onClick = { button2OnClick(buttonSettings.intent) }
                     )
                 }
             }
         }
     }
+}
+
+@Preview(name = "NO_STATUS", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenNO_STATUS() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.NO_STATUS, {}, {})
+}
+
+@Preview(name = "OS_NOT_SUPPORTED", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenOS_NOT_SUPPORTED() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.OS_NOT_SUPPORTED, {}, {})
+}
+
+@Preview(name = "SITE_WIDE_MAINTENANCE", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCE() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.SITE_WIDE_MAINTENANCE, {}, {})
+}
+
+@Preview(name = "REDIRECT_TO_WEBSITE", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITE() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.REDIRECT_TO_WEBSITE, {}, {})
+}
+
+@Preview(name = "MANDATORY_UPDATE", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenMANDATORY_UPDATE() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.MANDATORY_UPDATE, {}, {})
+}
+
+@Preview(name = "OPTIONAL_UPDATE", showBackground = true)
+@Composable
+fun PreviewAppMaintenanceScreenOPTIONAL_UPDATE() {
+    AppMaintenanceScreen(AppMaintenanceStatusUiState.OPTIONAL_UPDATE, {}, {})
 }

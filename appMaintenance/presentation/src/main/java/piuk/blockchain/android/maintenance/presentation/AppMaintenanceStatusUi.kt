@@ -5,14 +5,14 @@ import androidx.annotation.StringRes
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 
 enum class AppMaintenanceStatusUiState(
-    @DrawableRes val image: Int,
+    @DrawableRes val image: Int?,
     @StringRes val title: Int,
     @StringRes val description: Int,
     val button1: AppMaintenanceButtonSettings?,
     val button2: AppMaintenanceButtonSettings?
 ) {
     NO_STATUS(
-        image = R.drawable.ic_maintenance,
+        image = null,
         title = R.string.empty,
         description = R.string.empty,
         button1 = null,

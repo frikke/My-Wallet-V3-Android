@@ -62,7 +62,11 @@ class AppMaintenanceFragment :
     @Composable
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
-        AppMaintenanceScreen(state.value, viewModel)
+        AppMaintenanceScreen(
+            state.value.uiState,
+            button1OnClick = { viewModel.onIntent(it) },
+            button2OnClick = { viewModel.onIntent(it) }
+        )
     }
 
     override fun onStateUpdated(state: AppMaintenanceViewState) {
