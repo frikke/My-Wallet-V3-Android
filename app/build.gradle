@@ -484,7 +484,9 @@ dependencies {
     testImplementation Libraries.mockk
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.kluent
+    testImplementation Libraries.turbine
     testImplementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
     }
