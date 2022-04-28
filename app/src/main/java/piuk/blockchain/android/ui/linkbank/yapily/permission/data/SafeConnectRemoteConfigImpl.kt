@@ -1,17 +1,17 @@
-package piuk.blockchain.android.ui.linkbank.yapily.permission
+package piuk.blockchain.android.ui.linkbank.yapily.permission.data
 
 import com.blockchain.remoteconfig.RemoteConfig
 import kotlinx.coroutines.rx3.await
+import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
 
-// TODO (othman): move to data module when refactoring linkbank
-class SafeConnectRemoteConfig(
+class SafeConnectRemoteConfigImpl(
     private val remoteConfig: RemoteConfig
-) {
+) : SafeConnectRemoteConfig {
     companion object {
         private const val SAFECONNECT_TOS_PDF_KEY = "android_safeconnect_tos_pdf"
     }
 
-    suspend fun getTosPdfLink(): String {
+    override suspend fun getTosPdfLink(): String {
         return remoteConfig.getRawJson(SAFECONNECT_TOS_PDF_KEY).await()
     }
 }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
 
 @ExperimentalCoroutinesApi
 class SafeConnectRemoteConfigTest {

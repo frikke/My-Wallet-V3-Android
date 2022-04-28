@@ -17,6 +17,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
+import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
 
 @ExperimentalCoroutinesApi
 class YapilyPermissionViewModelTest {

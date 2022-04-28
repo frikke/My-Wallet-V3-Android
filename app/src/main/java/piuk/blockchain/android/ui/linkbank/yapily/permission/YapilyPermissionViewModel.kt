@@ -6,6 +6,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnSuccess
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
+import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
 
 class YapilyPermissionViewModel(
     private val safeConnectRemoteConfig: SafeConnectRemoteConfig,
@@ -35,7 +36,10 @@ class YapilyPermissionViewModel(
 
     private fun downloadTermsOfService(absolutePath: String) {
         viewModelScope.launch {
-            downloadFileUseCase(absolutePath = absolutePath, safeConnectRemoteConfig.getTosPdfLink()).doOnSuccess {
+            downloadFileUseCase(
+                absolutePath = absolutePath,
+                fileGsLink = safeConnectRemoteConfig.getTosPdfLink()
+            ).doOnSuccess {
                 navigate(YapilyPermissionNavigationEvent.OpenFile(it))
             }
         }

@@ -60,7 +60,7 @@ import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateU
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
-import piuk.blockchain.android.ui.linkbank.yapily.permission.SafeConnectRemoteConfig
+import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
