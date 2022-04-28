@@ -68,6 +68,11 @@ class BuyIntroFragment :
     private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val userIdentity: UserIdentity by scopedInject()
 
+    private val adapter = BuyCryptoCurrenciesAdapter(
+        assetResources = assetResources,
+        onItemClick = ::onItemClick
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -85,14 +90,16 @@ class BuyIntroFragment :
             label = R.string.select_crypto_you_want,
             title = R.string.buy_with_cash
         )
-        binding.rvCryptos.addItemDecoration(
-            HeaderDecoration.with(requireContext())
-                .parallax(0.5f)
-                .setView(introHeaderView)
-                .build()
-        )
-        binding.rvCryptos.layoutManager = LinearLayoutManager(activity)
-        binding.rvCryptos.adapter = adapter
+        with(binding.rvCryptos) {
+            addItemDecoration(
+                HeaderDecoration.with(requireContext())
+                    .parallax(0.5f)
+                    .setView(introHeaderView)
+                    .build()
+            )
+            layoutManager = LinearLayoutManager(activity)
+            adapter = adapter
+        }
     }
 
     override fun onResume() {
@@ -114,8 +121,11 @@ class BuyIntroFragment :
                 .trackProgress(activityIndicator.takeIf { showLoading })
                 .subscribeBy(
                     onSuccess = { isNotEligible ->
-                        if (isNotEligible) renderKycUpgradeNow()
-                        else loadBuyDetails(showLoading)
+                        if (isNotEligible) {
+                            renderKycUpgradeNow()
+                        } else {
+                            loadBuyDetails(showLoading)
+                        }
                     },
                     onError = {
                         renderErrorState()
@@ -135,7 +145,7 @@ class BuyIntroFragment :
     }
 
     private fun loadBuyDetails(showLoading: Boolean = true) {
-        custodialWalletManager.getSupportedBuySellCryptoCurrencies()
+        compositeDisposable += custodialWalletManager.getSupportedBuySellCryptoCurrencies()
             .map { pairs ->
                 pairs.map {
                     it.source
@@ -169,11 +179,6 @@ class BuyIntroFragment :
                 onError = { renderErrorState() },
             )
     }
-
-    private val adapter = BuyCryptoCurrenciesAdapter(
-        assetResources = assetResources,
-        onItemClick = ::onItemClick
-    )
 
     private fun onItemClick(item: BuyCryptoItem) {
         compositeDisposable += userIdentity.userAccessForFeature(Feature.SimpleBuy).subscribeBy { accessState ->
@@ -210,7 +215,7 @@ class BuyIntroFragment :
         if (childFragmentManager.findFragmentById(R.id.fragment_container) == null) {
             childFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, KycUpgradeNowSheet.newInstance())
-                .commit()
+                .commitAllowingStateLoss()
         }
         binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
     }
@@ -218,19 +223,17 @@ class BuyIntroFragment :
     private fun renderBuyIntro(
         pricesAssets: List<PricedAsset>
     ) {
-        with(binding) {
-            viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
-            adapter.items =
-                pricesAssets.map { pricedAsset ->
-                    BuyCryptoItem(
-                        asset = pricedAsset.asset,
-                        price = pricedAsset.priceHistory
-                            .currentExchangeRate
-                            .price,
-                        percentageDelta = pricedAsset.priceHistory.percentageDelta
-                    )
-                }
-        }
+        binding.viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
+        adapter.items =
+            pricesAssets.map { pricedAsset ->
+                BuyCryptoItem(
+                    asset = pricedAsset.asset,
+                    price = pricedAsset.priceHistory
+                        .currentExchangeRate
+                        .price,
+                    percentageDelta = pricedAsset.priceHistory.percentageDelta
+                )
+            }
     }
 
     private fun renderErrorState() {

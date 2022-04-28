@@ -36,9 +36,9 @@ data class AirdropStatus(
     val campaignState: CampaignState,
     @SerialName("userCampaignState")
     @field:Json(name = "userCampaignState")
-    val userState: UserCampaignState,
+    val userState: UserCampaignState? = null,
     val attributes: CampaignAttributes = CampaignAttributes(),
-    val updatedAt: @Contextual Date,
+    val updatedAt: @Contextual Date? = null,
     @SerialName("userCampaignTransactionResponseList")
     @field:Json(name = "userCampaignTransactionResponseList")
     val txResponseList: List<CampaignTransaction>

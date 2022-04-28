@@ -2,17 +2,14 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/standard_margin"
         android:clipChildren="false"
-        >
+        android:paddingBottom="@dimen/standard_margin">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/sheet_indicator"
@@ -32,67 +29,61 @@
 
         <TextView
             android:id="@+id/title"
+            style="@style/Text.Semibold.16"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/Text.Semibold.16"
-            android:text="@string/kyc_upgrade_now_sheet_title"
-            android:lineSpacingExtra="5sp"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/small_margin"
             android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:lineSpacingExtra="5sp"
+            android:text="@string/kyc_upgrade_now_sheet_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintStart_toEndOf="@+id/verification_badge"
-            />
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
         <ImageView
             android:id="@+id/verification_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_verification_badge"
             android:layout_marginStart="@dimen/standard_margin"
             android:layout_marginTop="@dimen/small_margin"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintStart_toStartOf="parent"
-            />
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:srcCompat="@drawable/ic_verification_badge" />
 
         <TextView
             android:id="@+id/subtitle"
+            style="@style/Text.Standard.12"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/Text.Standard.12"
-            android:textColor="@color/primary_grey"
-            android:text="@string/kyc_upgrade_now_sheet_subtitle"
             android:lineSpacingExtra="3sp"
-            app:layout_constraintStart_toStartOf="@id/title"
+            android:text="@string/kyc_upgrade_now_sheet_subtitle"
+            android:textColor="@color/primary_grey"
             app:layout_constraintEnd_toEndOf="@id/title"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            />
+            app:layout_constraintStart_toStartOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop="@dimen/medium_margin"
             android:layout_marginStart="28dp"
+            android:layout_marginTop="@dimen/medium_margin"
             android:layout_marginEnd="28dp"
             android:background="@drawable/rounded_view_gray_100"
-            app:tabIndicatorColor="@color/white"
-            app:tabIndicatorGravity="stretch"
-            app:tabTextColor="@color/grey_600"
-            app:tabSelectedTextColor="@color/blue_600"
             android:clipChildren="false"
             app:layout_constraintTop_toBottomOf="@id/subtitle"
-            />
+            app:tabIndicatorColor="@color/white"
+            app:tabIndicatorGravity="stretch"
+            app:tabSelectedTextColor="@color/blue_600"
+            app:tabTextColor="@color/grey_600" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_margin"
-            app:layout_constraintTop_toBottomOf="@id/tab_layout"
-            />
-
+            app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
