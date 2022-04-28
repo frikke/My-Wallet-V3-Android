@@ -37,27 +37,27 @@ class GetAssetsInterestUseCaseTest {
                     totalBalanceFiat = Money.fromMajor(CryptoCurrency.ETHER, 100.toBigDecimal())
                 )
             ),
-            InterestAsset(
-                CryptoCurrency.BTC,
-                AssetInterestDetail(
-                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
-                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 0.toBigDecimal())
-                )
-            ),
-            InterestAsset(
-                CryptoCurrency.XLM,
-                AssetInterestDetail(
-                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
-                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 200.toBigDecimal())
-                )
-            ),
-            InterestAsset(
-                CryptoCurrency.BCH,
-                AssetInterestDetail(
-                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
-                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 0.toBigDecimal())
-                )
-            )
+//            InterestAsset(
+//                CryptoCurrency.BTC,
+//                AssetInterestDetail(
+//                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
+//                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.BTC, 0.toBigDecimal())
+//                )
+//            ),
+//            InterestAsset(
+//                CryptoCurrency.XLM,
+//                AssetInterestDetail(
+//                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
+//                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 200.toBigDecimal())
+//                )
+//            ),
+//            InterestAsset(
+//                CryptoCurrency.BCH,
+//                AssetInterestDetail(
+//                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
+//                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 0.toBigDecimal())
+//                )
+//            )
         )
 
         coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(listOf())
