@@ -24,6 +24,6 @@ class AuthApiService internal constructor(
     }
 
     companion object {
-        private const val PRODUCT_WALLET = "wallet"
+        private const val PRODUCT_WALLET = "WALLET"
     }
 }
