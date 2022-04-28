@@ -125,7 +125,7 @@ object Versions {
     const val cardForm = "4.2.0"
     const val xlmSunriver = "0.21.1"
     const val lottieVersion = "3.5.0"
-    const val zendeskChatVersion = "3.3.0"
+    const val zendeskChatVersion = "3.3.4"
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "18.2.0"
