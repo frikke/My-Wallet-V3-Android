@@ -5,6 +5,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -60,25 +61,17 @@ class GetAssetsInterestUseCaseTest {
             )
         )
 
+        // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
         coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(list)
 
-        assertTrue { useCase(listOf()) is Outcome.Success }
+        val result = useCase(listOf())
+        assertTrue { result is Outcome.Success }
 
-        //
-        // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
-        //        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(listOf())
-        //
-        //        // testing why bitrise fails here
-        //
-        //        val result = useCase(listOf())
-        //        assertTrue { result is Outcome.Success }
-
-        //        //
-        //        (result as Outcome.Success).value.let { value ->
-        //            assertEquals(CryptoCurrency.XLM, value[0].assetInfo)
-        //            assertEquals(CryptoCurrency.ETHER, value[1].assetInfo)
-        //            assertEquals(CryptoCurrency.BTC, value[2].assetInfo)
-        //            assertEquals(CryptoCurrency.BCH, value[3].assetInfo)
-        //        }
+        (result as Outcome.Success).value.let { value ->
+            assertEquals(CryptoCurrency.XLM, value[0].assetInfo)
+            assertEquals(CryptoCurrency.ETHER, value[1].assetInfo)
+            assertEquals(CryptoCurrency.BTC, value[2].assetInfo)
+            assertEquals(CryptoCurrency.BCH, value[3].assetInfo)
+        }
     }
 }
