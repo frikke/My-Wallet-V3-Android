@@ -37,7 +37,11 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import timber.log.Timber
 
-class InterestDashboardFragment : Fragment() {
+@Deprecated(
+    message = "refactored with new mvi and compose",
+    replaceWith = ReplaceWith("piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment")
+)
+class InterestDashboardFragmentLegacy : Fragment() {
 
     interface InterestDashboardHost {
         fun startKyc()
@@ -191,6 +195,6 @@ class InterestDashboardFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): InterestDashboardFragment = InterestDashboardFragment()
+        fun newInstance(): InterestDashboardFragmentLegacy = InterestDashboardFragmentLegacy()
     }
 }

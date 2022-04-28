@@ -12,4 +12,6 @@ sealed interface InterestDashboardIntents : Intent<InterestDashboardModelState> 
         val cryptoCurrency: AssetInfo,
         val hasBalance: Boolean
     ) : InterestDashboardIntents
+
+    object StartKyc : InterestDashboardIntents
 }

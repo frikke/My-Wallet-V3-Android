@@ -5,6 +5,7 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
@@ -42,7 +43,11 @@ class InterestDashboardViewModel(
             is InterestDashboardIntents.InterestItemClicked -> {
                 handleInterestItemClicked(cryptoCurrency = intent.cryptoCurrency, hasBalance = intent.hasBalance)
             }
-        }
+
+            InterestDashboardIntents.StartKyc -> {
+                navigate(InterestDashboardNavigationEvent.StartKyc)
+            }
+        }.exhaustive
     }
 
     override fun reduce(state: InterestDashboardModelState): InterestDashboardViewState {
@@ -108,9 +113,9 @@ class InterestDashboardViewModel(
                     val interestAccount = it.accounts.first() as CryptoInterestAccount
                     navigate(
                         if (hasBalance) {
-                            InterestDashboardNavigationEvent.NavigateToInterestSummarySheet(interestAccount)
+                            InterestDashboardNavigationEvent.InterestSummary(interestAccount)
                         } else {
-                            InterestDashboardNavigationEvent.NavigateToTransactionFlow(interestAccount)
+                            InterestDashboardNavigationEvent.InterestDeposit(interestAccount)
                         }
                     )
                 }

@@ -4,49 +4,36 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
-import com.blockchain.componentlib.control.Search
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.androidx.viewmodel.scope.getViewModel
-import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardAssetItem
-import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardError
-import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardLoading
-import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardVerificationItem
-import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardScreen
 
 class InterestDashboardFragment :
-    MVIFragment<InterestDashboardViewState>(),
-    NavigationRouter<InterestDashboardNavigationEvent> {
+    MVIFragment<InterestDashboardViewState>() {
 
     private val viewModel: InterestDashboardViewModel by lazy {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
     private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()
+
+    private val navigationRouter: NavigationRouter<InterestDashboardNavigationEvent> by lazy {
+        activity as? NavigationRouter<InterestDashboardNavigationEvent>
+            ?: error("host does not implement NavigationRouter<InterestDashboardNavigationEvent>")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,7 +55,7 @@ class InterestDashboardFragment :
     }
 
     private fun setupViewModel() {
-        bindViewModel(viewModel = viewModel, navigator = this, args = ModelConfigArgs.NoArgs)
+        bindViewModel(viewModel = viewModel, navigator = navigationRouter, args = ModelConfigArgs.NoArgs)
 
         lifecycleScope.launch {
             sharedViewModel.refreshBalancesFlow.flowWithLifecycle(lifecycle).collect {
@@ -81,70 +68,16 @@ class InterestDashboardFragment :
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
 
-        when {
-            state.value.isLoading -> {
-                InterestDashboardLoading()
-            }
-
-            state.value.isError -> {
-                InterestDashboardError(::loadDashboard)
-            }
-
-            state.value.isLoading.not() && state.value.isError.not() -> {
-                Column {
-                    Box(
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.standard_margin),
-                            end = dimensionResource(R.dimen.standard_margin)
-                        )
-                    ) {
-                        Search(label = stringResource(R.string.search_coins_hint)) {
-                            viewModel.onIntent(InterestDashboardIntents.FilterData(it))
-                        }
-                    }
-
-                    LazyColumn {
-                        if (state.value.isKycGold.not()) {
-                            item {
-                                InterestDashboardVerificationItem(::startKyc)
-                            }
-                        }
-
-                        items(
-                            items = state.value.data,
-                        ) {
-                            InterestDashboardAssetItem(
-                                assetInfo = it.assetInfo,
-                                assetInterestDetail = it.interestDetail,
-                                isKycGold = state.value.isKycGold,
-                                interestItemClicked = ::interestItemClicked
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        InterestDashboardScreen(
+            viewState = state.value,
+            loadDashboard = ::loadDashboard,
+            startKyc = ::startKyc,
+            interestItemClicked = ::interestItemClicked,
+            filterData = ::filterData
+        )
     }
 
     override fun onStateUpdated(state: InterestDashboardViewState) {
-    }
-
-    override fun route(navigationEvent: InterestDashboardNavigationEvent) {
-        when (navigationEvent) {
-            is InterestDashboardNavigationEvent.NavigateToInterestSummarySheet -> {
-                sharedViewModel.showInterestSummary(navigationEvent.account)
-            }
-
-            is InterestDashboardNavigationEvent.NavigateToTransactionFlow -> {
-                startActivity(
-                    TransactionFlowActivity.newIntent(
-                        context = requireContext(),
-                        target = navigationEvent.account,
-                        action = AssetAction.InterestDeposit
-                    )
-                )
-            }
-        }
     }
 
     private fun interestItemClicked(cryptoCurrency: AssetInfo, hasBalance: Boolean) {
@@ -157,14 +90,12 @@ class InterestDashboardFragment :
         viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
     }
 
-    private fun startKyc() {
-        sharedViewModel.startKyc()
+    private fun filterData(filter: String) {
+        viewModel.onIntent(InterestDashboardIntents.FilterData(filter))
     }
 
-    @Preview
-    @Composable
-    fun PreviewScreenContent() {
-        ScreenContent()
+    private fun startKyc() {
+        viewModel.onIntent(InterestDashboardIntents.StartKyc)
     }
 
     companion object {

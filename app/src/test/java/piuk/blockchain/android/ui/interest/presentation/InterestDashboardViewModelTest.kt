@@ -134,7 +134,7 @@ class InterestDashboardViewModelTest {
 
                 viewModel.onIntent(InterestDashboardIntents.InterestItemClicked(CryptoCurrency.BTC, true))
 
-                assertTrue { expectMostRecentItem() is InterestDashboardNavigationEvent.NavigateToInterestSummarySheet }
+                assertTrue { expectMostRecentItem() is InterestDashboardNavigationEvent.InterestSummary }
             }
         }
 
@@ -146,7 +146,19 @@ class InterestDashboardViewModelTest {
 
                 viewModel.onIntent(InterestDashboardIntents.InterestItemClicked(CryptoCurrency.BTC, false))
 
-                assertTrue { expectMostRecentItem() is InterestDashboardNavigationEvent.NavigateToTransactionFlow }
+                assertTrue { expectMostRecentItem() is InterestDashboardNavigationEvent.InterestDeposit }
+            }
+        }
+
+    @Test
+    fun `WHEN StartKyc intent is triggered, THEN StartKyc nav should be triggered`() =
+        runTest {
+            viewModel.navigationEventFlow.test {
+                viewModel.onIntent(InterestDashboardIntents.LoadDashboard)
+
+                viewModel.onIntent(InterestDashboardIntents.StartKyc)
+
+                assertTrue { expectMostRecentItem() is InterestDashboardNavigationEvent.StartKyc }
             }
         }
 }

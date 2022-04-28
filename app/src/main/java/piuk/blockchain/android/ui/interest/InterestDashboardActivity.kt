@@ -3,27 +3,27 @@ package piuk.blockchain.android.ui.interest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityInterestDashboardBinding
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
+import piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment
+import piuk.blockchain.android.ui.interest.presentation.InterestDashboardNavigationEvent
 import piuk.blockchain.android.ui.interest.presentation.InterestDashboardSharedViewModel
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
@@ -34,7 +34,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class InterestDashboardActivity :
     BlockchainActivity(),
     InterestSummarySheet.Host,
-    InterestDashboardFragment.InterestDashboardHost {
+    InterestDashboardFragmentLegacy.InterestDashboardHost,
+    NavigationRouter<InterestDashboardNavigationEvent> {
 
     private val binding: ActivityInterestDashboardBinding by lazy {
         ActivityInterestDashboardBinding.inflate(layoutInflater)
@@ -47,9 +48,8 @@ class InterestDashboardActivity :
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
-    private val fragment: InterestDashboardFragment by lazy { InterestDashboardFragment.newInstance() }
-    private val fragmentOrdered: piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment by lazy {
-        piuk.blockchain.android.ui.interest.presentation.InterestDashboardFragment.newInstance()
+    private val fragmentLegacy: InterestDashboardFragmentLegacy by lazy {
+        InterestDashboardFragmentLegacy.newInstance()
     }
 
     private val orderRewardsFF: FeatureFlag by inject(orderRewardsFeatureFlag)
@@ -70,17 +70,31 @@ class InterestDashboardActivity :
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.content_frame,
-                    if (enabled) fragmentOrdered else fragment,
+                    if (enabled) InterestDashboardFragment.newInstance() else fragmentLegacy,
                     InterestDashboardFragment::class.simpleName
                 )
                 .commitAllowingStateLoss()
         }
-
-        observeViewModel()
     }
 
     override fun onSupportNavigateUp(): Boolean = consume {
         onBackPressed()
+    }
+
+    override fun route(navigationEvent: InterestDashboardNavigationEvent) {
+        when (navigationEvent) {
+            is InterestDashboardNavigationEvent.InterestSummary -> {
+                showInterestSummarySheet(navigationEvent.account)
+            }
+
+            is InterestDashboardNavigationEvent.InterestDeposit -> {
+                goToInterestDeposit(navigationEvent.account)
+            }
+
+            InterestDashboardNavigationEvent.StartKyc -> {
+                startKyc()
+            }
+        }.exhaustive
     }
 
     override fun goToActivityFor(account: BlockchainAccount) {
@@ -98,20 +112,6 @@ class InterestDashboardActivity :
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
-    }
-
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            sharedViewModel.startKycFlow.flowWithLifecycle(lifecycle).collect {
-                startKyc()
-            }
-        }
-
-        lifecycleScope.launch {
-            sharedViewModel.showInterestSummaryFlow.flowWithLifecycle(lifecycle).collect {
-                showInterestSummarySheet(it)
-            }
-        }
     }
 
     override fun goToInterestDeposit(toAccount: BlockchainAccount) {
@@ -198,7 +198,7 @@ class InterestDashboardActivity :
                 if (enabled) {
                     sharedViewModel.requestBalanceRefresh()
                 } else {
-                    fragment.refreshBalances()
+                    fragmentLegacy.refreshBalances()
                 }
             }
         }
