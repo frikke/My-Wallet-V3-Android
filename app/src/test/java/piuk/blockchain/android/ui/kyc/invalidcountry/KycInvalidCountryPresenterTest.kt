@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -24,6 +25,9 @@ class KycInvalidCountryPresenterTest {
     private val nabuDataManager: NabuDataManager = mock()
     private val metadataRepo: MetadataRepository = mock()
     private val view: KycInvalidCountryView = mock()
+    private val accountMetadataFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -33,7 +37,7 @@ class KycInvalidCountryPresenterTest {
 
     @Before
     fun setUp() {
-        subject = KycInvalidCountryPresenter(nabuDataManager, metadataRepo)
+        subject = KycInvalidCountryPresenter(nabuDataManager, metadataRepo, accountMetadataFlag)
         subject.initView(view)
     }
 
@@ -94,9 +98,9 @@ class KycInvalidCountryPresenterTest {
         whenever(
             metadataRepo.saveMetadata(
                 any(),
-                eq(NabuCredentialsMetadata::class.java),
+                eq(NabuUserCredentialsMetadata::class.java),
                 any(),
-                eq(NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE)
+                eq(NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE)
             )
         ).thenReturn(Completable.complete())
     }

@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.reset.password
 
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -40,9 +40,9 @@ class ResetPasswordInteractor(
                 .then {
                     metadataRepository.saveMetadata(
                         nabuMetadata,
-                        NabuCredentialsMetadata::class.java,
-                        NabuCredentialsMetadata::class.serializer(),
-                        NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                        NabuUserCredentialsMetadata::class.java,
+                        NabuUserCredentialsMetadata::class.serializer(),
+                        NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                     )
                 }
         }

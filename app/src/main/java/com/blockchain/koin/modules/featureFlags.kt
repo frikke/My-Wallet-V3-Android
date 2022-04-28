@@ -14,6 +14,7 @@ import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
@@ -167,6 +168,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_caching_store",
                 "Caching Store"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(metadataMigrationFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_account_metadata_migration",
+                "Metadata Migration"
             )
         )
     }.bind(FeatureFlag::class)
