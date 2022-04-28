@@ -24,9 +24,9 @@ class GetAssetsInterestUseCaseTest {
 
     @Test
     fun `WHEN service returns mixed data, THEN filter before returning`() = runTest {
-        coEvery { service.getAssetsInterest(any()) } returns Outcome.Failure(Throwable("error"))
+        coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(listOf())
 
-        assertTrue { useCase(listOf()) is Outcome.Failure }
+        assertTrue { useCase(listOf()) is Outcome.Success }
 
 //        val list = listOf(
 //            InterestAsset(
