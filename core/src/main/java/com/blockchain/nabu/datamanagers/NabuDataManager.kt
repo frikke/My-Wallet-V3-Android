@@ -6,7 +6,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.cache.UserCache
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
@@ -119,7 +119,7 @@ interface NabuDataManager {
 
     fun currentToken(offlineToken: NabuOfflineTokenResponse): Single<NabuSessionTokenResponse>
 
-    fun recoverAccount(userId: String, recoveryToken: String): Single<NabuCredentialsMetadata>
+    fun recoverAccount(userId: String, recoveryToken: String): Single<NabuUserCredentialsMetadata>
 
     fun resetUserKyc(): Completable
 
@@ -390,7 +390,7 @@ internal class NabuDataManagerImpl(
                 .singleOrError()
         }
 
-    override fun recoverAccount(userId: String, recoveryToken: String): Single<NabuCredentialsMetadata> {
+    override fun recoverAccount(userId: String, recoveryToken: String): Single<NabuUserCredentialsMetadata> {
         return requestJwt().flatMap { jwt ->
             nabuService.recoverAccount(
                 userId = userId,
@@ -398,7 +398,7 @@ internal class NabuDataManagerImpl(
                 recoveryToken = recoveryToken
             )
                 .map { recoverAccountResponse ->
-                    NabuCredentialsMetadata(
+                    NabuUserCredentialsMetadata(
                         userId = userId,
                         lifetimeToken = recoverAccountResponse.token,
                         exchangeUserId = recoverAccountResponse.userCredentialsId,

@@ -12,8 +12,8 @@ import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.chains.erc20.isErc20
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isErc20
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemFeeCheckoutCompoundExpandableInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate

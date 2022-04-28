@@ -1,14 +1,18 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuAccountMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuUserMetadata
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -18,7 +22,8 @@ import timber.log.Timber
 @OptIn(InternalSerializationApi::class)
 class KycInvalidCountryPresenter(
     private val nabuDataManager: NabuDataManager,
-    private val metadataRepository: MetadataRepository
+    private val metadataRepository: MetadataRepository,
+    private val accountMetadataMigrationFF: FeatureFlag
 ) : BasePresenter<KycInvalidCountryView>() {
 
     override fun onViewReady() = Unit
@@ -56,18 +61,29 @@ class KycInvalidCountryPresenter(
 
     private fun createUserAndStoreInMetadata(): Single<Pair<String, NabuOfflineTokenResponse>> =
         nabuDataManager.requestJwt()
+            .zipWith(accountMetadataMigrationFF.enabled)
             .subscribeOn(Schedulers.io())
-            .flatMap { jwt ->
+            .flatMap { (jwt, enabled) ->
                 nabuDataManager.getAuthToken(jwt)
                     .subscribeOn(Schedulers.io())
                     .flatMap { tokenResponse ->
-                        val nabuMetadata = tokenResponse.mapToMetadata()
-                        metadataRepository.saveMetadata(
-                            nabuMetadata,
-                            NabuCredentialsMetadata::class.java,
-                            NabuCredentialsMetadata::class.serializer(),
-                            NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
-                        ).toSingle { jwt to tokenResponse }
+                        if (enabled) {
+                            val nabuMetadata = tokenResponse.mapToNabuAccountMetadata()
+                            metadataRepository.saveMetadata(
+                                nabuMetadata,
+                                NabuAccountCredentialsMetadata::class.java,
+                                NabuAccountCredentialsMetadata::class.serializer(),
+                                NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
+                            ).toSingle { jwt to tokenResponse }
+                        } else {
+                            val nabuMetadata = tokenResponse.mapToNabuUserMetadata()
+                            metadataRepository.saveMetadata(
+                                nabuMetadata,
+                                NabuUserCredentialsMetadata::class.java,
+                                NabuUserCredentialsMetadata::class.serializer(),
+                                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                            ).toSingle { jwt to tokenResponse }
+                        }
                     }
             }
 

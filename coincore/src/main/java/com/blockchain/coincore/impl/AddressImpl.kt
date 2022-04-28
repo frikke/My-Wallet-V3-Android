@@ -8,10 +8,10 @@ import com.blockchain.coincore.custodialonly.DynamicCustodialAddress
 import com.blockchain.coincore.erc20.Erc20Address
 import com.blockchain.coincore.eth.EthAddress
 import com.blockchain.coincore.xlm.XlmAddress
+import com.blockchain.core.chains.erc20.isErc20
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.isCustodialOnly
-import info.blockchain.balance.isErc20
 import io.reactivex.rxjava3.core.Completable
 
 internal fun makeExternalAssetAddress(

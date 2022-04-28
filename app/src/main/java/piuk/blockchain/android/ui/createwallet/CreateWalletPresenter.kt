@@ -4,8 +4,8 @@ import androidx.annotation.StringRes
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
-import com.blockchain.domain.eligibility.model.CountryIso
 import com.blockchain.enviroment.EnvironmentConfig
 import info.blockchain.wallet.util.PasswordUtil
 import io.reactivex.rxjava3.kotlin.plusAssign

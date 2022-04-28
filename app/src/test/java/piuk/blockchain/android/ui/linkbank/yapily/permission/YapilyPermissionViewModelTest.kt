@@ -5,6 +5,8 @@ import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import java.io.File
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,8 +17,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
-import java.io.File
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class YapilyPermissionViewModelTest {

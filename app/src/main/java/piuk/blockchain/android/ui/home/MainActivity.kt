@@ -428,7 +428,7 @@ class MainActivity :
     private fun startTxFlowWithTargets(targets: Collection<CryptoTarget>) {
         if (targets.size > 1) {
             disambiguateSendScan(targets)
-        } else {
+        } else if (targets.size == 1) {
             val targetAddress = targets.first()
             // FIXME selecting a source account shows UI, refactor so this can be called from the interactor
             compositeDisposable += qrProcessor.selectSourceAccount(this, targetAddress)
@@ -814,6 +814,10 @@ class MainActivity :
             fragmentName,
             if (popInclusive) POP_BACK_STACK_INCLUSIVE else 0
         )
+    }
+
+    override fun showErrorInBottomSheet(title: String, description: String, button: String?) {
+        // do nothing
     }
 
     override fun logout() {

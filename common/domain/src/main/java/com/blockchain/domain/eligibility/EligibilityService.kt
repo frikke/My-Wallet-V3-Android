@@ -1,6 +1,6 @@
 package com.blockchain.domain.eligibility
 
-import com.blockchain.domain.eligibility.model.CountryIso
+import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import io.reactivex.rxjava3.core.Single

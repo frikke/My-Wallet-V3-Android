@@ -2086,16 +2086,12 @@
     <string name="sb_checkout_yearly_limit_blurb">Oops, looks like you’ve used up your yearly transaction limit for Buys and Deposits.</string>
     <string name="sb_checkout_pending_order_title">Order in progress</string>
     <string name="sb_checkout_pending_order_blurb">Oops, looks like you’ve already got a Buy order in progress, please wait until it completes before buying again.</string>
-    <string name="sb_checkout_card_insufficient_funds_title">Insufficient funds</string>
     <string name="sb_card_provider_not_supported">Card provider is not supported</string>
     <string name="sb_checkout_card_insufficient_funds_blurb">Your bank tells us you don’t have enough funds in your account, check and try again.</string>
-    <string name="sb_checkout_card_declined_title">Payment declined</string>
     <string name="common_oops_bank">Oops! Something went wrong.</string>
     <string name="common_oops_kyc">Oops! Something went wrong.</string>
     <string name="sb_checkout_card_declined_blurb">Your bank has declined this transaction, please try another bank or payment method.</string>
     <string name="sb_checkout_contact_support">If you think the payment should have worked, please <annotation link="contact_support">contact support</annotation></string>
-    <string name="sb_checkout_card_debit_only_title">Try a debit card instead</string>
-    <string name="sb_checkout_card_debit_only_blurb">Having trouble with your Credit card?\n Try any Visa or Mastercard debit card instead.</string>
     <string name="sb_checkout_card_debit_only_cta">Try A Different Payment Method</string>
 
     <!-- Yapily -->
@@ -2774,6 +2770,7 @@
     <string name="coinview_interest_with_balance">Earning %1$s%%</string>
     <string name="coinview_interest_no_balance">Earn %1$s%% APY</string>
     <string name="coinview_nc_desc">Non-custodial</string>
+    <string name="coinview_multi_nc_desc">%s Network</string>
     <string name="coinview_c_unavailable_desc">Buy &amp; Sell %1$s</string>
     <string name="coinview_c_available_desc">Custodial</string>
     <string name="coinview_about_asset">About %1$s</string>
@@ -2795,6 +2792,8 @@
     <string name="coinview_not_tradeable_subtitle">Add to your Watchlist to be notified when %1$s becomes available to trade.</string>
     <string name="coinview_chart_loading">Loading chart…</string>
     <string name="coinview_accounts_label">Wallets &amp; Accounts</string>
+    <string name="coinview_nc_accounts_label">Private Key Wallets</string>
+    <string name="coinview_custodial_accounts_label">Custodial Accounts</string>
     <string name="coinview_chart_load_error_title">Failed to Load Price Chart</string>
     <string name="coinview_chart_load_error_subtitle">Reload or exit and return to the page to view price chart.</string>
     <string name="coinview_wallet_load_error">Failed to load wallets and accounts</string>
@@ -2883,4 +2882,34 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
+
+    <!-- Card errors -->
+    <string name="title_cardInsufficientFunds">Insufficient Funds</string>
+    <string name="msg_cardInsufficientFunds">This payment method lacks sufficient funds. You can add funds or choose a different method.</string>
+    <string name="title_cardBankDecline">The Bank has declined this card</string>
+    <string name="msg_cardBankDecline">Your bank declined this card. Please try again or choose another payment method.</string>
+    <string name="title_cardDuplicate">This card already exists</string>
+    <string name="msg_cardDuplicate">The card you tried to add is already linked to your account.</string>
+    <string name="title_cardBlockchainDecline">Blocked</string>
+    <string name="msg_cardBlockchainDecline">Blockchain.com does not allow payments from this card. Please choose a different payment method.</string>
+    <string name="title_cardAcquirerDecline">Blocked By Card Issuer</string>
+    <string name="msg_cardAcquirerDecline">Your card issuer does not allow cryptocurrency purchases. Please choose a different payment method.</string>
+    <string name="title_cardPaymentNotSupported">Unsupported Payment Method</string>
+    <string name="msg_cardPaymentNotSupported">Blockchain.com does not support payments from this card. Please choose a different payment method.</string>
+    <string name="title_cardCreateFailed">Unable to add card</string>
+    <string name="msg_cardCreateFailed">Blockchain.com was unable to add your card. Please try again or choose a different payment method.</string>
+    <string name="title_cardPaymentFailed">Payment Failed</string>
+    <string name="msg_cardPaymentFailed">This payment was unsuccessful. Please try again or choose a different payment method.</string>
+    <string name="title_cardCreateAbandoned">Did you authorize your card payment?</string>
+    <string name="msg_cardCreateAbandoned">Authorizing your card payments is a great way to increase the security of your transactions. If you see this message repeatedly, consider choosing a different payment method.</string>
+    <string name="title_cardCreateExpired">Did you forget to authorize your card payment?</string>
+    <string name="msg_cardCreateExpired">Authorizing your card payments is a great way to increase the security of your transactions. If you see this message repeatedly, consider choosing a different payment method.</string>
+    <string name="title_cardCreateBankDeclined">Failed To Add Card</string>
+    <string name="msg_cardCreateBankDeclined">Blockchain.com only allows debit payments for this card. Please choose a different payment method.</string>
+    <string name="title_cardCreateDebitOnly">Invalid Card</string>
+    <string name="msg_cardCreateDebitOnly">Blockchain.com only allows debit payments for this card. Please choose a different payment method.</string>
+    <string name="title_cardPaymentDebitOnly">Payment Failed</string>
+    <string name="msg_cardPaymentDebitOnly">This payment method was unsuccessful. Please try another payment method.</string>
+    <string name="title_cardCreateNoToken">Card Not Supported</string>
+    <string name="msg_cardCreateNoToken">We were unable to add your card. Please try again or choose a different payment method.</string>
 </resources>

@@ -30,6 +30,8 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -322,6 +324,22 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
 
     override fun startKycClicked() {
         startKyc()
+    }
+
+    override fun showErrorInBottomSheet(
+        title: String,
+        description: String,
+        button: String?
+    ) {
+        showBottomSheet(
+            ErrorSlidingBottomDialog.newInstance(
+                ErrorDialogData(
+                    title,
+                    description,
+                    button ?: getString(R.string.common_ok)
+                )
+            )
+        )
     }
 
     companion object {

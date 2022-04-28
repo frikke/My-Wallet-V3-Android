@@ -98,12 +98,12 @@
         <activity
             android:name=".ui.debug.FeatureFlagsHandlingActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait"
+            android:screenOrientation="fullSensor"
             android:taskAffinity="piuk.blockchain.com.FeatureFlagsHandlingActivity" />
         <activity
             android:name="com.blockchain.componentlib.demo.ComponentLibDemoActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".ui.home.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

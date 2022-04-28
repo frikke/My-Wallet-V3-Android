@@ -9,10 +9,12 @@ import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.embraceFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
+import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
+import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
@@ -167,6 +169,24 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_caching_store",
                 "Caching Store"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(metadataMigrationFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_account_metadata_migration",
+                "Metadata Migration"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(ethLayerTwoFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_eth_layer_two_networks",
+                "Enable Eth L2 Networks"
             )
         )
     }.bind(FeatureFlag::class)

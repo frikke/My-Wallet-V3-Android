@@ -2,13 +2,16 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuAccountMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuUserMetadata
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -17,6 +20,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -37,7 +41,8 @@ class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val metadataRepository: MetadataRepository,
-    private val stringUtils: StringUtils
+    private val stringUtils: StringUtils,
+    private val accountMetadataMigrationFF: FeatureFlag
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -54,11 +59,21 @@ class KycProfilePresenter(
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
         compositeDisposable +=
-            metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
-            ).toOptional()
+            accountMetadataMigrationFF.enabled.flatMapMaybe {
+                if (it) {
+                    metadataRepository.loadMetadata(
+                        NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE,
+                        NabuAccountCredentialsMetadata::class.serializer(),
+                        NabuAccountCredentialsMetadata::class.java
+                    )
+                } else {
+                    metadataRepository.loadMetadata(
+                        NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                        NabuUserCredentialsMetadata::class.serializer(),
+                        NabuUserCredentialsMetadata::class.java
+                    )
+                }
+            }.toOptional()
                 .flatMapCompletable { optionalToken ->
                     if (optionalToken.isPresent) {
                         val metadata = optionalToken.get()
@@ -133,18 +148,29 @@ class KycProfilePresenter(
     }
 
     private fun createUserAndStoreInMetadata(): Completable = nabuDataManager.requestJwt()
+        .zipWith(accountMetadataMigrationFF.enabled)
         .subscribeOn(Schedulers.io())
-        .flatMapCompletable { jwt ->
+        .flatMapCompletable { (jwt, enabled) ->
             nabuDataManager.getAuthToken(jwt)
                 .subscribeOn(Schedulers.io())
                 .flatMapCompletable { tokenResponse ->
-                    metadataRepository.saveMetadata(
-                        tokenResponse.mapToMetadata(),
-                        NabuCredentialsMetadata::class.java,
-                        NabuCredentialsMetadata::class.serializer(),
-                        NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
-                    ).toSingle { tokenResponse }
-                        .flatMapCompletable { createBasicUser(it) }
+                    if (enabled) {
+                        metadataRepository.saveMetadata(
+                            tokenResponse.mapToNabuAccountMetadata(),
+                            NabuAccountCredentialsMetadata::class.java,
+                            NabuAccountCredentialsMetadata::class.serializer(),
+                            NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
+                        ).toSingle { tokenResponse }
+                            .flatMapCompletable { createBasicUser(it) }
+                    } else {
+                        metadataRepository.saveMetadata(
+                            tokenResponse.mapToNabuUserMetadata(),
+                            NabuUserCredentialsMetadata::class.java,
+                            NabuUserCredentialsMetadata::class.serializer(),
+                            NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                        ).toSingle { tokenResponse }
+                            .flatMapCompletable { createBasicUser(it) }
+                    }
                 }
         }
 

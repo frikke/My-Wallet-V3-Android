@@ -12,9 +12,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import java.io.File
 import piuk.blockchain.android.R
 import piuk.blockchain.android.fileutils.domain.utils.getMimeType
-import java.io.File
 
 fun Context.loadInterMedium(): Typeface =
     ResourcesCompat.getFont(this, R.font.inter_medium)!!
@@ -53,7 +53,7 @@ fun Context.getFilePath(fileName: String, extension: String = "") =
 
 fun Context?.openPdfFile(file: File) {
     this?.run {
-        val contentUri = FileProvider.getUriForFile(this, "${packageName}.fileProvider", file)
+        val contentUri = FileProvider.getUriForFile(this, "$packageName.fileProvider", file)
 
         val target = Intent(Intent.ACTION_VIEW)
         target.setDataAndType(contentUri, getMimeType(file))

@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.linkbank.yapily.permission
 import com.blockchain.remoteconfig.RemoteConfig
 import kotlinx.coroutines.rx3.await
 
-//TODO (othman): move to data module when refactoring linkbank
+// TODO (othman): move to data module when refactoring linkbank
 class SafeConnectRemoteConfig(
     private val remoteConfig: RemoteConfig
 ) {

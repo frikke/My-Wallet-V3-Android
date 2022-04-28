@@ -17,6 +17,8 @@ data class EthL2NetworkList(
 data class EthL2Chain(
     @SerialName("networkTicker")
     val networkTicker: String,
+    @SerialName("networkName")
+    val networkName: String,
     @SerialName("chainId")
     val chainId: Int,
     @SerialName("nodeUrl")

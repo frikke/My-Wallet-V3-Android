@@ -76,7 +76,7 @@ class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding
     private fun search(searchQuery: String) {
         searchResults.clear()
         for (item in items) {
-            if (item.label.toLowerCase(Locale.getDefault()).contains(searchQuery.toLowerCase(Locale.getDefault()))) {
+            if (item.label.lowercase(Locale.getDefault()).contains(searchQuery.lowercase(Locale.getDefault()))) {
                 searchResults.add(item)
             }
         }
@@ -94,7 +94,7 @@ class SearchPickerItemBottomSheet : SlidingModalBottomDialog<PickerLayoutBinding
     }
 }
 
-interface PickerItem {
+interface PickerItem : Serializable {
     val label: String
     val code: String
     val icon: String?

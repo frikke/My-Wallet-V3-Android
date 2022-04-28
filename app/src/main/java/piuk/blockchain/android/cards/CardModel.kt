@@ -95,10 +95,10 @@ class CardModel(
                         NabuErrorCodes.InsufficientCardFunds -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.INSUFFICIENT_CARD_BALANCE))
                         )
-                        NabuErrorCodes.CardPaymentDeclined -> process(
+                        NabuErrorCodes.CardBankDeclined -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DECLINED))
                         )
-                        NabuErrorCodes.DebitCardOnlyCreate -> process(
+                        NabuErrorCodes.CardCreateDebitOnly -> process(
                             CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.DEBIT_CARD_ONLY))
                         )
                         else -> process(

@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.core.payments.model.YapilyInstitution
+import java.io.File
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
@@ -24,9 +25,9 @@ import piuk.blockchain.android.urllinks.URL_YAPILY_PRIVACY_POLICY
 import piuk.blockchain.android.util.getFilePath
 import piuk.blockchain.android.util.openPdfFile
 import piuk.blockchain.android.util.openUrl
-import java.io.File
 
-class YapilyPermissionFragment : MVIFragment<YapilyPermissionViewState>(),
+class YapilyPermissionFragment :
+    MVIFragment<YapilyPermissionViewState>(),
     Analytics by get(Analytics::class.java),
     NavigationRouter<YapilyPermissionNavigationEvent> {
 
@@ -89,7 +90,10 @@ class YapilyPermissionFragment : MVIFragment<YapilyPermissionViewState>(),
         context?.let { context ->
             viewModel.onIntent(
                 YapilyPermissionIntents.DownloadTermsOfService(
-                    context.getFilePath(fileName = SAFECONNECT_TERMS_FILE_NAME, extension = SAFECONNECT_TERMS_FILE_EXTENSION)
+                    context.getFilePath(
+                        fileName = SAFECONNECT_TERMS_FILE_NAME,
+                        extension = SAFECONNECT_TERMS_FILE_EXTENSION
+                    )
                 )
             )
         }

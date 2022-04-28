@@ -2,10 +2,10 @@ package piuk.blockchain.android.fileutils.data.repository
 
 import com.blockchain.outcome.Outcome
 import com.google.firebase.storage.FirebaseStorage
-import piuk.blockchain.android.fileutils.domain.service.FileService
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import piuk.blockchain.android.fileutils.domain.service.FileService
 
 class FileRepository(
     private val firebaseStorage: FirebaseStorage
@@ -31,4 +31,3 @@ class FileRepository(
             }
     }
 }
-

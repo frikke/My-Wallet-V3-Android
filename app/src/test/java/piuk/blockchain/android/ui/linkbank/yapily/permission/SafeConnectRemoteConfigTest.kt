@@ -4,11 +4,11 @@ import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class SafeConnectRemoteConfigTest {

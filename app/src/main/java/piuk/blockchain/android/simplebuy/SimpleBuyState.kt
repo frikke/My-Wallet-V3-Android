@@ -27,14 +27,14 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.io.File
+import java.io.Serializable
+import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.File
-import java.io.Serializable
-import java.math.BigInteger
 
 /**
  * This is an object that gets serialized with Gson so any properties that we don't
@@ -219,12 +219,25 @@ sealed class ErrorState : Serializable {
     object YearlyLimitExceeded : ErrorState()
     object ExistingPendingOrder : ErrorState()
     object InsufficientCardFunds : ErrorState()
+    object CardBankDeclined : ErrorState()
+    object CardDuplicated : ErrorState()
+    object CardBlockchainDeclined : ErrorState()
+    object CardAcquirerDeclined : ErrorState()
+    object CardPaymentNotSupported : ErrorState()
+    object CardCreateFailed : ErrorState()
+    object CardPaymentFailed : ErrorState()
+    object CardCreateAbandoned : ErrorState()
+    object CardCreateExpired : ErrorState()
+    object CardCreateBankDeclined : ErrorState()
+    object CardCreateDebitOnly : ErrorState()
+    object CardPaymentDebitOnly : ErrorState()
+    object CardNoToken : ErrorState()
     object ProviderIsNotSupported : ErrorState()
     object Card3DsFailed : ErrorState()
     object UnknownCardProvider : ErrorState()
-    object CardPaymentDeclined : ErrorState()
+
     class PaymentFailedError(val error: String) : ErrorState()
-    object DebitCardOnly : ErrorState()
+
     class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
 }

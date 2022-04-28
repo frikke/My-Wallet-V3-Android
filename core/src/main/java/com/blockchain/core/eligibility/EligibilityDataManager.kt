@@ -2,8 +2,8 @@ package com.blockchain.core.eligibility
 
 import com.blockchain.core.eligibility.cache.ProductsEligibilityCache
 import com.blockchain.core.eligibility.mapper.toDomain
+import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
-import com.blockchain.domain.eligibility.model.CountryIso
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.featureflag.FeatureFlag

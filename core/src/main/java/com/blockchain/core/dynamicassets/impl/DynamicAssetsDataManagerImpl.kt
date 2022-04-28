@@ -62,11 +62,14 @@ private fun DynamicAsset.toAssetInfo(): AssetInfo =
         name = assetName,
         categories = mapCategories(products),
         precisionDp = precision,
-        l1chainTicker = when (parentChain) {
-            AssetDiscoveryService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
-            AssetDiscoveryService.CELO -> AssetDiscoveryService.CELO
-            null -> null
-            else -> throw IllegalStateException("Unknown l1 chain")
+        l1chainTicker = parentChain?.let { chain ->
+            // TODO this is not scalable, need a way to enable L2 networks from remote config/service
+            when (chain) {
+                AssetDiscoveryService.ETHEREUM -> CryptoCurrency.ETHER.networkTicker
+                AssetDiscoveryService.MATIC -> AssetDiscoveryService.MATIC
+                AssetDiscoveryService.CELO -> AssetDiscoveryService.CELO
+                else -> throw IllegalStateException("Unknown l1 chain")
+            }
         },
         l2identifier = chainIdentifier,
         requiredConfirmations = minConfirmations,

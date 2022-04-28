@@ -38,8 +38,11 @@ import timber.log.Timber
     private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity,
-    override val addressResolver: AddressResolver
-) : CryptoNonCustodialAccount(
+    override val addressResolver: AddressResolver,
+    override val chainNetworkTicker: String,
+    override val chainId: Int,
+    override val networkName: String
+) : MultiChainAccount, CryptoNonCustodialAccount(
     payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity
 ) {
 
@@ -55,16 +58,22 @@ import timber.log.Timber
 
     override fun getOnChainBalance(): Observable<Money> =
         rxSingle {
-            ethDataManager.getBalance()
-                .fold(
-                    onSuccess = { Money.fromMinor(currency, it) },
-                    onFailure = { error ->
-                        // TODO AND-5913 Use result/either and coroutines
-                        // for getting the balance for non-custodial account
-                        Timber.e(error.throwable)
-                        Money.fromMajor(currency, BigDecimal.ZERO)
-                    }
-                )
+            // Only get the balance for ETH from the node if we are on the Ethereum network
+            if (chainNetworkTicker == currency.networkTicker) {
+                ethDataManager.getBalance(chainId)
+                    .fold(
+                        onSuccess = { Money.fromMinor(currency, it) },
+                        onFailure = { error ->
+                            // TODO AND-5913 Use result/either and coroutines
+                            // for getting the balance for non-custodial account
+                            Timber.e(error.throwable)
+                            Money.fromMajor(currency, BigDecimal.ZERO)
+                        }
+                    )
+            } else {
+                // TODO get the L2 balance of Eth from the backend
+                Money.fromMajor(currency, BigDecimal.ZERO)
+            }
         }
             .toObservable()
             .doOnNext { hasFunds.set(it.isPositive) }
