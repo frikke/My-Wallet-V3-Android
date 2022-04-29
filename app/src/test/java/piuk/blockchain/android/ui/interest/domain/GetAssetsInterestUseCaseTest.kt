@@ -51,13 +51,13 @@ class GetAssetsInterestUseCaseTest {
                     totalBalanceFiat = Money.fromMajor(CryptoCurrency.XLM, 200.toBigDecimal())
                 )
             ),
-//            InterestAsset(
-//                CryptoCurrency.BCH,
-//                AssetInterestDetail(
-//                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
-//                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.BCH, 0.toBigDecimal())
-//                )
-//            )
+            InterestAsset(
+                CryptoCurrency.BCH,
+                AssetInterestDetail(
+                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
+                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.BCH, 0.toBigDecimal())
+                )
+            )
         )
 
         // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
