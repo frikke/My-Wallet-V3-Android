@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.interest.domain
 
 import com.blockchain.outcome.Outcome
+import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import io.mockk.coEvery
@@ -28,6 +29,29 @@ class GetAssetsInterestUseCaseTest {
 
     @Test
     fun `WHEN service returns mixed data, THEN filter before returning`() = runTest {
+        val FAKE_CC_1 = CryptoCurrency(
+            displayTicker = "FAKE_CC_1",
+            networkTicker = "FAKE_CC_1",
+            name = "FAKE_CC_1",
+            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            precisionDp = 18,
+            requiredConfirmations = 5,
+            l1chainTicker = CryptoCurrency.ETHER.networkTicker,
+            l2identifier = "0xF0DF0DF0DF0DF0DF0DFAD",
+            colour = "#123456"
+        )
+
+        val FAKE_CC_2 = CryptoCurrency(
+            displayTicker = "FAKE_CC_2",
+            networkTicker = "FAKE_CC_2",
+            name = "FAKE_CC_2",
+            categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+            precisionDp = 18,
+            requiredConfirmations = 5,
+            l1chainTicker = CryptoCurrency.ETHER.networkTicker,
+            l2identifier = "0xF0DF0DF0DF0DF0DF0DFAD",
+            colour = "#123456"
+        )
 
         val list = listOf(
             InterestAsset(
@@ -52,15 +76,23 @@ class GetAssetsInterestUseCaseTest {
                 )
             ),
             InterestAsset(
-                CryptoCurrency.BCH,
+                FAKE_CC_1,
                 AssetInterestDetail(
                     mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
-                    totalBalanceFiat = Money.fromMajor(CryptoCurrency.BCH, 0.toBigDecimal())
+                    totalBalanceFiat = Money.fromMajor(FAKE_CC_1, 100.toBigDecimal())
+                )
+            ),
+            InterestAsset(
+                FAKE_CC_2,
+                AssetInterestDetail(
+                    mockk(), mockk(), mockk(relaxed = true), mockk(relaxed = true), mockk(),
+                    totalBalanceFiat = Money.fromMajor(FAKE_CC_2, 0.toBigDecimal())
                 )
             )
         )
 
-        // sort should be xlm (higher balance) - eth (lower balance) - btc (balance 0 but has priority) - bch
+        // sort should be xlm (higher balance) - eth (lower balance) CC1 (same balance as eth but lower priority) -
+        // btc (balance 0 but has priority) - CC2
         coEvery { service.getAssetsInterest(any()) } returns Outcome.Success(list)
 
         val result = useCase(listOf())
