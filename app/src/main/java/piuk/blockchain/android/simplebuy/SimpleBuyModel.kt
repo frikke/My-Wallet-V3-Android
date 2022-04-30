@@ -383,12 +383,13 @@ class SimpleBuyModel(
                     }
                 )
 
-//            is SimpleBuyIntent.DownloadSafeConnectTos -> {
-//                rxSingle { safeConnectService.getTosLink() }
-//                    .subscribe { response ->
-//                        process(SimpleBuyIntent.OpenSafeConnectTos(response))
-//                    }
-//            }
+            SimpleBuyIntent.GetSafeConnectTermsOfServiceLink -> {
+                rxSingle { safeConnectService.getTosLink() }
+                    .subscribe { termsOfServiceLink ->
+                        process(SimpleBuyIntent.UpdateSafeConnectTermsOfServiceLink(termsOfServiceLink))
+                    }
+            }
+
             else -> null
         }
 

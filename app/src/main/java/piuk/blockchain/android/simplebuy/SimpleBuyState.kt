@@ -27,13 +27,14 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.io.File
+import java.io.Serializable
+import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInfo
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import java.io.Serializable
-import java.math.BigInteger
 
 /**
  * This is an object that gets serialized with Gson so any properties that we don't
@@ -66,6 +67,7 @@ data class SimpleBuyState constructor(
     val googlePayMerchantBankCountryCode: String? = null,
     val googlePayAllowPrepaidCards: Boolean? = true,
     val googlePayAllowCreditCards: Boolean? = true,
+    @Transient @kotlinx.serialization.Transient val safeConnectTosLink: String? = null,
     @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient @kotlinx.serialization.Transient
     override val errorState: TransactionErrorState = TransactionErrorState.NONE,

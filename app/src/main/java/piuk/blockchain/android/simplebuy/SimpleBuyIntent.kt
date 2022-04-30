@@ -527,6 +527,14 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             )
     }
 
-    data class OpenSafeConnectTos(val file: String) : SimpleBuyIntent()
-    object SafeConnectTosOpened : SimpleBuyIntent()
+    object GetSafeConnectTermsOfServiceLink : SimpleBuyIntent()
+
+    data class UpdateSafeConnectTermsOfServiceLink(
+        private val termsOfServiceLink: String
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                safeConnectTosLink = termsOfServiceLink
+            )
+    }
 }

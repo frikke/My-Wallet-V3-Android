@@ -90,6 +90,8 @@ class SimpleBuyCheckoutFragment :
         }
 
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
+
+        model.process(SimpleBuyIntent.GetSafeConnectTermsOfServiceLink)
     }
 
     private fun setupToolbar() {
@@ -148,7 +150,7 @@ class SimpleBuyCheckoutFragment :
                 visible()
 
                 val linksMap = mapOf(
-//                    "terms" to StringAnnotationClickEvent.CustomCta(::downloadSafeConnectTos),
+                    "terms" to StringAnnotationClickEvent.OpenUri(Uri.parse(newState.safeConnectTosLink)),
                     "privacy" to StringAnnotationClickEvent.OpenUri(Uri.parse(URL_YAPILY_PRIVACY_POLICY))
                 )
 
