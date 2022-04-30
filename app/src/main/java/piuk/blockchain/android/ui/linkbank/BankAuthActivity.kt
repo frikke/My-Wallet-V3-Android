@@ -22,8 +22,9 @@ import info.blockchain.balance.FiatCurrency
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
+import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
-import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragment
+import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragmentLegacy
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -132,13 +133,13 @@ class BankAuthActivity :
                 .replace(
                     R.id.content_frame,
                     if (enabled) {
-                        piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionFragment.newInstance(
+                        YapilyPermissionFragment.newInstance(
                             institution = institution,
                             entity = entity,
                             authSource = authSource
                         )
                     } else {
-                        YapilyPermissionFragment.newInstance(
+                        YapilyPermissionFragmentLegacy.newInstance(
                             institution = institution,
                             entity = entity,
                             authSource = authSource
@@ -154,7 +155,7 @@ class BankAuthActivity :
     private fun launchYapilyApproval(approvalDetails: BankPaymentApproval) {
         supportFragmentManager.beginTransaction()
             .replace(
-                R.id.content_frame, YapilyPermissionFragment.newInstance(approvalDetails, authSource)
+                R.id.content_frame, YapilyPermissionFragmentLegacy.newInstance(approvalDetails, authSource)
             )
             .commitAllowingStateLoss()
     }

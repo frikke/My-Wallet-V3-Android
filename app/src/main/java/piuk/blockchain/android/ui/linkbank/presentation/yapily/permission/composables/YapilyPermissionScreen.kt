@@ -28,9 +28,9 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.core.payments.model.YapilyInstitution
+import java.net.URL
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_YAPILY_PRIVACY_POLICY
-import java.net.URL
 
 @Composable
 fun YapilyPermissionScreen(
@@ -144,7 +144,6 @@ private fun TermAndPrivacyText(
                 tag = privacyTag, start = offset, end = offset
             ).firstOrNull()?.let { annotation ->
                 urlOnclick(annotation.item)
-
             }
         }
     )

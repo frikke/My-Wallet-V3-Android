@@ -20,9 +20,9 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import java.math.BigInteger
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 

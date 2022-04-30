@@ -27,7 +27,6 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import java.io.File
 import java.io.Serializable
 import java.math.BigInteger
 import kotlinx.serialization.Contextual

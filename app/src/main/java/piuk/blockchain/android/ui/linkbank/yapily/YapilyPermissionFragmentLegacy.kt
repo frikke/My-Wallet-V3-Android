@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyApprovalDelegat
 import piuk.blockchain.android.ui.linkbank.yapily.adapters.YapilyPermissionItem
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 
-class YapilyPermissionFragment : Fragment() {
+class YapilyPermissionFragmentLegacy : Fragment() {
 
     private var _binding: FragmentYapilyAgreementBinding? = null
     private val binding: FragmentYapilyAgreementBinding
@@ -269,8 +269,8 @@ class YapilyPermissionFragment : Fragment() {
             institution: YapilyInstitution,
             entity: String,
             authSource: BankAuthSource
-        ): YapilyPermissionFragment =
-            YapilyPermissionFragment().apply {
+        ): YapilyPermissionFragmentLegacy =
+            YapilyPermissionFragmentLegacy().apply {
                 arguments = Bundle().apply {
                     putSerializable(INSTITUTION, institution)
                     putString(ENTITY, entity)
@@ -281,8 +281,8 @@ class YapilyPermissionFragment : Fragment() {
         fun newInstance(
             approvalDetails: BankPaymentApproval,
             authSource: BankAuthSource
-        ): YapilyPermissionFragment =
-            YapilyPermissionFragment().apply {
+        ): YapilyPermissionFragmentLegacy =
+            YapilyPermissionFragmentLegacy().apply {
                 arguments = Bundle().apply {
                     putBoolean(IS_APPROVAL, true)
                     putSerializable(APPROVAL_DETAILS, approvalDetails)
