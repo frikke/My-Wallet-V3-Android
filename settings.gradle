@@ -23,5 +23,4 @@ include ':app',
         ':logging:domain', ':logging:data',
         ':analytics:domain', ':analytics:data',
         ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
-        ':blockchainCard',
-        ':fileUtils:domain', ':fileUtils:data'
+        ':blockchainCard'

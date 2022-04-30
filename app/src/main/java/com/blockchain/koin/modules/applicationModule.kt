@@ -513,8 +513,7 @@ val applicationModule = module {
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
-                safeConnectRemoteConfig = get(),
-                downloadFileUseCase = get()
+                safeConnectService = get()
             )
         }
 

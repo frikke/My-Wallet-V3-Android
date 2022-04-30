@@ -132,7 +132,7 @@ class BankAuthActivity :
                 .replace(
                     R.id.content_frame,
                     if (enabled) {
-                        piuk.blockchain.android.ui.linkbank.yapily.permission.YapilyPermissionFragment.newInstance(
+                        piuk.blockchain.android.ui.linkbank.presentation.permission.YapilyPermissionFragment.newInstance(
                             institution = institution,
                             entity = entity,
                             authSource = authSource

@@ -36,7 +36,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
-import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -59,8 +58,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
-import piuk.blockchain.android.ui.linkbank.yapily.permission.domain.SafeConnectRemoteConfig
+import piuk.blockchain.android.ui.linkbank.domain.yapily.SafeConnectService
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -84,8 +82,7 @@ class SimpleBuyModel(
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity,
-    private val safeConnectRemoteConfig: SafeConnectRemoteConfig,
-    private val downloadFileUseCase: DownloadFileUseCase
+    private val safeConnectService: SafeConnectService
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -153,20 +150,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                processCreateOrder(
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
+                    processCreateOrder(
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                }.subscribeBy(
+                    onSuccess = {
+                        process(it)
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
@@ -386,14 +383,12 @@ class SimpleBuyModel(
                     }
                 )
 
-            is SimpleBuyIntent.DownloadSafeConnectTos -> {
-                rxSingle { downloadFileUseCase(intent.absolutePath, safeConnectRemoteConfig.getTosPdfLink()) }
-                    .subscribe { response ->
-                        response.doOnSuccess {
-                            process(SimpleBuyIntent.OpenSafeConnectTos(it))
-                        }
-                    }
-            }
+//            is SimpleBuyIntent.DownloadSafeConnectTos -> {
+//                rxSingle { safeConnectService.getTosLink() }
+//                    .subscribe { response ->
+//                        process(SimpleBuyIntent.OpenSafeConnectTos(response))
+//                    }
+//            }
             else -> null
         }
 
