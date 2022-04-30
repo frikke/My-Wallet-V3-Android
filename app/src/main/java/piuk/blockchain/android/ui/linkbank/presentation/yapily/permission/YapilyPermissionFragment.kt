@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.permission
+package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,8 +18,8 @@ import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
-import piuk.blockchain.android.ui.linkbank.presentation.permission.YapilyPermissionArgs.Companion.ARGS_KEY
-import piuk.blockchain.android.ui.linkbank.presentation.permission.composables.YapilyPermissionScreen
+import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionArgs.Companion.ARGS_KEY
+import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.composables.YapilyPermissionScreen
 import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.util.openUrl
 

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.permission.data
+package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.data
 
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.linkbank.data.yapily.SafeConnectRepository

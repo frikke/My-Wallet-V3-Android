@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.permission
+package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
 
 import com.blockchain.remoteconfig.RemoteConfig
 import io.mockk.every
