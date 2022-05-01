@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
-import piuk.blockchain.android.ui.linkbank.domain.yapily.service.SafeConnectService
 import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
 
 class YapilyPermissionViewModel(

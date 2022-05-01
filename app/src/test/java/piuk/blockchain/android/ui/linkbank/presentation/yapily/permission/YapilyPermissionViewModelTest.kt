@@ -2,23 +2,25 @@ package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
 
 import app.cash.turbine.test
 import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class YapilyPermissionViewModelTest {
+
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var coroutineTestRule = CoroutineTestRule()
+
     private val getSafeConnectTosLinkUseCase = mockk<GetSafeConnectTosLinkUseCase>()
     private lateinit var viewModel: YapilyPermissionViewModel
     private val tosLink = "TosLink"
@@ -31,18 +33,11 @@ class YapilyPermissionViewModelTest {
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-
         viewModel = YapilyPermissionViewModel(
             getSafeConnectTosLinkUseCase
         )
 
         coEvery { getSafeConnectTosLinkUseCase() } returns tosLink
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test
@@ -70,7 +65,6 @@ class YapilyPermissionViewModelTest {
             }
         }
 
-
     @Test
     fun `WHEN DenyClicked is triggered, THEN AgreementDenied should be triggered`() =
         runTest {
@@ -80,6 +74,4 @@ class YapilyPermissionViewModelTest {
                 assertEquals(YapilyPermissionNavigationEvent.AgreementDenied, expectMostRecentItem())
             }
         }
-
-
 }

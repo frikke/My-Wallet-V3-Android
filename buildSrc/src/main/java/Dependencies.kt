@@ -50,7 +50,6 @@ object Versions {
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
     const val firebaseBom = "29.2.1"
-    const val firebaseStorage = "20.0.1"
     const val supportTesting = "1.0.2"
     const val biometrics = "1.1.0-rc01"
     const val adsIdentifier = "17.0.0"
@@ -201,7 +200,6 @@ object Libraries {
     const val firebaseBom = "com.google.firebase:firebase-bom:${Versions.firebaseBom}"
     const val firebaseConfig = "com.google.firebase:firebase-config"
     const val firebaseMessaging = "com.google.firebase:firebase-messaging"
-    const val firebaseStorage = "com.google.firebase:firebase-storage-ktx:${Versions.firebaseStorage}"
     const val firebaseDynamicLink = "com.google.firebase:firebase-dynamic-links"
     const val googlePlayServicesBase =
         "com.google.android.gms:play-services-base:${Versions.googleServices}"

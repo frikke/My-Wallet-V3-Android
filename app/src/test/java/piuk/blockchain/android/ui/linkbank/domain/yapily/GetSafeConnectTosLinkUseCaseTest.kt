@@ -2,13 +2,13 @@ package piuk.blockchain.android.ui.linkbank.domain.yapily
 
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.linkbank.domain.yapily.service.SafeConnectService
 import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
-import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class GetSafeConnectTosLinkUseCaseTest {

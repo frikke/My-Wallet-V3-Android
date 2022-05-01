@@ -28,7 +28,6 @@ import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
@@ -37,8 +36,8 @@ import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
+import java.math.BigInteger
+import java.util.Date
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -47,10 +46,6 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
-import java.math.BigInteger
-import java.util.Date
-import kotlin.test.assertEquals
 
 @Ignore("Ignoring because CI fails on this, re-enabling ASAP")
 class SimpleBuyModelTest {
