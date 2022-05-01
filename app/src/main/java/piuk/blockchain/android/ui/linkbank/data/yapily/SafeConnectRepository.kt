@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.linkbank.data.yapily
 
 import com.blockchain.remoteconfig.RemoteConfig
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.android.ui.linkbank.domain.yapily.SafeConnectService
+import piuk.blockchain.android.ui.linkbank.domain.yapily.service.SafeConnectService
 
-class SafeConnectRepository(
+internal class SafeConnectRepository(
     private val remoteConfig: RemoteConfig
 ) : SafeConnectService {
     companion object {

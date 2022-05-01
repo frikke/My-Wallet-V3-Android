@@ -1,12 +1,10 @@
 package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
 
 import app.cash.turbine.test
-import com.blockchain.outcome.Outcome
+import com.blockchain.core.payments.model.YapilyInstitution
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import java.io.File
-import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -16,31 +14,30 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.fileutils.domain.usecase.DownloadFileUseCase
-import piuk.blockchain.android.ui.linkbank.domain.yapily.SafeConnectService
+import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class YapilyPermissionViewModelTest {
-    private val safeConnectRemoteConfig = mockk<SafeConnectService>()
-    private val downloadFileUseCase = mockk<DownloadFileUseCase>()
-
+    private val getSafeConnectTosLinkUseCase = mockk<GetSafeConnectTosLinkUseCase>()
     private lateinit var viewModel: YapilyPermissionViewModel
+    private val tosLink = "TosLink"
 
-    private val path = "absolute/path/to/pdf"
-    private val link = "fb/link/to/pdf"
-    private val data = Outcome.Success(mockk<File>())
+    private val institution = mockk<YapilyInstitution>()
+    private val args = YapilyPermissionArgs(
+        institution = institution,
+        entity = "", authSource = mockk()
+    )
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
 
         viewModel = YapilyPermissionViewModel(
-            safeConnectRemoteConfig,
-            downloadFileUseCase
+            getSafeConnectTosLinkUseCase
         )
 
-        coEvery { safeConnectRemoteConfig.getTosPdfLink() } returns link
-        coEvery { downloadFileUseCase(any(), any()) } returns data
+        coEvery { getSafeConnectTosLinkUseCase() } returns tosLink
     }
 
     @After
@@ -49,21 +46,40 @@ class YapilyPermissionViewModelTest {
     }
 
     @Test
-    fun `WHEN DownloadTermsOfService is triggered, THEN downloadFileUseCase should be called`() =
+    fun `WHEN GetTermsOfServiceLink is triggered, THEN UseCase should be called and tos should be updated`() =
         runTest {
-            viewModel.onIntent(YapilyPermissionIntents.DownloadTermsOfService(path))
+            viewModel.viewState.test {
+                viewModel.onIntent(YapilyPermissionIntents.GetTermsOfServiceLink)
 
-            coVerify(exactly = 1) { downloadFileUseCase(absolutePath = path, fileGsLink = link) }
+                coVerify(exactly = 1) { getSafeConnectTosLinkUseCase() }
+
+                assertEquals(tosLink, expectMostRecentItem().termsOfServiceLink)
+            }
         }
 
     @Test
-    fun `WHEN downloadFileUseCase returns, THEN OpenFile should be triggered`() =
+    fun `WHEN ApproveClicked is triggered, THEN AgreementAccepted should be triggered`() =
         runTest {
-            viewModel.navigationEventFlow.test {
-                viewModel.onIntent(YapilyPermissionIntents.DownloadTermsOfService(path))
 
-                val expected = YapilyPermissionNavigationEvent.OpenFile(data.value)
-                assertEquals(expected, expectMostRecentItem())
+            viewModel.viewCreated(args)
+
+            viewModel.navigationEventFlow.test {
+                viewModel.onIntent(YapilyPermissionIntents.ApproveClicked)
+
+                assertEquals(YapilyPermissionNavigationEvent.AgreementAccepted(institution), expectMostRecentItem())
             }
         }
+
+
+    @Test
+    fun `WHEN DenyClicked is triggered, THEN AgreementDenied should be triggered`() =
+        runTest {
+            viewModel.navigationEventFlow.test {
+                viewModel.onIntent(YapilyPermissionIntents.DenyClicked)
+
+                assertEquals(YapilyPermissionNavigationEvent.AgreementDenied, expectMostRecentItem())
+            }
+        }
+
+
 }

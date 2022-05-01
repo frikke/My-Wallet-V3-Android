@@ -58,7 +58,7 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.ui.linkbank.domain.yapily.SafeConnectService
+import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -82,7 +82,7 @@ class SimpleBuyModel(
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity,
-    private val safeConnectService: SafeConnectService
+    private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -150,20 +150,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                processCreateOrder(
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
+                    processCreateOrder(
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                }.subscribeBy(
+                    onSuccess = {
+                        process(it)
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
@@ -384,7 +384,7 @@ class SimpleBuyModel(
                 )
 
             SimpleBuyIntent.GetSafeConnectTermsOfServiceLink -> {
-                rxSingle { safeConnectService.getTosLink() }
+                rxSingle { getSafeConnectTosLinkUseCase() }
                     .subscribe { termsOfServiceLink ->
                         process(SimpleBuyIntent.UpdateSafeConnectTermsOfServiceLink(termsOfServiceLink))
                     }

@@ -6,7 +6,7 @@ import org.koin.dsl.module
 val bankAuthPresentationModule = module {
     viewModel {
         YapilyPermissionViewModel(
-            safeConnectService = get()
+            getSafeConnectTosLinkUseCase = get()
         )
     }
 }
