@@ -7,6 +7,7 @@ import android.os.Bundle
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.core.payments.model.BankPartner
@@ -14,6 +15,7 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YapilyAttributes
 import com.blockchain.core.payments.model.YapilyInstitution
 import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -23,6 +25,7 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionFragment
+import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionNavigationEvent
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragmentLegacy
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
@@ -32,7 +35,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class BankAuthActivity :
     BlockchainActivity(),
     BankAuthFlowNavigator,
-    SlidingModalBottomDialog.Host {
+    SlidingModalBottomDialog.Host,
+    NavigationRouter<YapilyPermissionNavigationEvent> {
 
     private val linkBankTransfer: LinkBankTransfer
         get() = intent.getSerializableExtra(LINK_BANK_TRANSFER_KEY) as LinkBankTransfer
@@ -184,10 +188,6 @@ class BankAuthActivity :
             supportFragmentManager.popBackStack()
         }
 
-    override fun yapilyAgreementCancelled() {
-        supportFragmentManager.popBackStack()
-    }
-
     override fun onBackPressed() =
         if (approvalDetails != null) {
             resetLocalState()
@@ -199,6 +199,22 @@ class BankAuthActivity :
         bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
         setResult(Activity.RESULT_CANCELED)
         finish()
+    }
+
+    override fun route(navigationEvent: YapilyPermissionNavigationEvent) {
+        when (navigationEvent) {
+            is YapilyPermissionNavigationEvent.AgreementAccepted -> {
+                launchBankLinking(
+                    accountProviderId = "",
+                    accountId = navigationEvent.institution.id,
+                    bankId = linkBankTransfer.id
+                )
+            }
+
+            YapilyPermissionNavigationEvent.AgreementDenied -> {
+                supportFragmentManager.popBackStack()
+            }
+        }.exhaustive
     }
 
     override fun launchYodleeSplash(attributes: YodleeAttributes, bankId: String) {

@@ -16,12 +16,21 @@ class YapilyPermissionViewModel(
     initialState = YapilyPermissionModelState()
 ) {
     override fun viewCreated(args: YapilyPermissionArgs) {
+        updateState { it.copy(institution = args.institution) }
     }
 
     override suspend fun handleIntent(modelState: YapilyPermissionModelState, intent: YapilyPermissionIntents) {
         when (intent) {
             is YapilyPermissionIntents.GetTermsOfServiceLink -> {
                 getTermsOfServiceLink()
+            }
+
+            is YapilyPermissionIntents.ApproveClicked -> {
+                modelState.institution?.let { navigate(YapilyPermissionNavigationEvent.AgreementAccepted(it)) }
+            }
+
+            YapilyPermissionIntents.DenyClicked -> {
+                navigate(YapilyPermissionNavigationEvent.AgreementDenied)
             }
         }.exhaustive
     }

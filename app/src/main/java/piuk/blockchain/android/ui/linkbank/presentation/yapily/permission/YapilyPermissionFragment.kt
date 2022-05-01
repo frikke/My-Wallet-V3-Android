@@ -16,7 +16,6 @@ import com.blockchain.core.payments.model.YapilyInstitution
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
-import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
 import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionArgs.Companion.ARGS_KEY
@@ -26,7 +25,6 @@ import piuk.blockchain.android.util.openUrl
 
 class YapilyPermissionFragment :
     MVIFragment<YapilyPermissionViewState>(),
-    NavigationRouter<YapilyPermissionNavigationEvent>,
     Analytics by get(Analytics::class.java) {
 
     private val args: YapilyPermissionArgs by lazy {
@@ -34,15 +32,15 @@ class YapilyPermissionFragment :
             ?: error("missing args")
     }
 
-    private val navigator: BankAuthFlowNavigator by lazy {
-        (activity as? BankAuthFlowNavigator)
-            ?: error("Parent must implement BankAuthFlowNavigator")
+    private val navigationRouter: NavigationRouter<YapilyPermissionNavigationEvent> by lazy {
+        activity as? NavigationRouter<YapilyPermissionNavigationEvent>
+            ?: error("host does not implement NavigationRouter<YapilyPermissionNavigationEvent>")
     }
 
     private val viewModel: YapilyPermissionViewModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        bindViewModel(viewModel = viewModel, navigator = this, args = args)
+        bindViewModel(viewModel = viewModel, navigator = navigationRouter, args = args)
         viewModel.onIntent(YapilyPermissionIntents.GetTermsOfServiceLink)
 
         return ComposeView(requireContext()).apply {
@@ -70,8 +68,6 @@ class YapilyPermissionFragment :
 
     override fun onStateUpdated(state: YapilyPermissionViewState) {}
 
-    override fun route(navigationEvent: YapilyPermissionNavigationEvent) {}
-
     private fun openUrl(url: String) {
         context.openUrl(url)
     }
@@ -79,12 +75,14 @@ class YapilyPermissionFragment :
     private fun approveOnClick() {
         logApproveAnalytics()
         logLinkBankConditionsApproved()
-        navigator.yapilyAgreementAccepted(args.institution)
+
+        viewModel.onIntent(YapilyPermissionIntents.ApproveClicked)
     }
 
     private fun denyOnClick() {
         logDenyAnalytics()
-        navigator.yapilyAgreementCancelled()
+
+        viewModel.onIntent(YapilyPermissionIntents.DenyClicked)
     }
 
     private fun logApproveAnalytics() {
