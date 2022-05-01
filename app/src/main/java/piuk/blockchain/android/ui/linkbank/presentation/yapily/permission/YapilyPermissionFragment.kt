@@ -11,6 +11,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.withArgs
 import com.blockchain.core.payments.model.YapilyInstitution
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
@@ -116,18 +117,15 @@ class YapilyPermissionFragment :
 
     companion object {
         private const val PARTNER = "YAPILY"
+
         fun newInstance(
             institution: YapilyInstitution,
             entity: String,
             authSource: BankAuthSource
         ): YapilyPermissionFragment =
-            YapilyPermissionFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(
-                        ARGS_KEY,
-                        YapilyPermissionArgs(institution = institution, authSource = authSource, entity = entity)
-                    )
-                }
-            }
+            YapilyPermissionFragment().withArgs(
+                key = ARGS_KEY,
+                args = YapilyPermissionArgs(institution = institution, authSource = authSource, entity = entity)
+            )
     }
 }

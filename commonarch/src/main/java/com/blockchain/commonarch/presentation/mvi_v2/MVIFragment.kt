@@ -1,14 +1,25 @@
 package com.blockchain.commonarch.presentation.mvi_v2
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 abstract class MVIFragment<TViewState : ViewState> : Fragment() {
     abstract fun onStateUpdated(state: TViewState)
+}
+
+fun <TViewState : ViewState, FRAGMENT : MVIFragment<TViewState>, ARGS : ParcelableArgs> FRAGMENT.withArgs(
+    key: String,
+    args: ARGS
+) = apply {
+    arguments = Bundle().apply {
+        putParcelable(key, args)
+    }
 }
 
 fun <TIntent : Intent<TModelState>,
