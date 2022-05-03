@@ -13,7 +13,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
 import com.blockchain.core.payments.model.YapilyInstitution
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.androidx.viewmodel.scope.getViewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -37,7 +39,9 @@ class YapilyPermissionFragment :
             ?: error("host does not implement NavigationRouter<YapilyPermissionNavigationEvent>")
     }
 
-    private val viewModel: YapilyPermissionViewModel by viewModel()
+    private val viewModel: YapilyPermissionViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bindViewModel(viewModel = viewModel, navigator = navigationRouter, args = args)
