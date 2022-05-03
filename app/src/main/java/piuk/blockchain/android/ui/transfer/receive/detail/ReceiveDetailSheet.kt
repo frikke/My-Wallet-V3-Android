@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.RequestAnalyticsEvents
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.commonarch.presentation.mvi.MviBottomSheet
+import com.blockchain.componentlib.alert.AlertType
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
@@ -114,6 +116,25 @@ internal class ReceiveDetailSheet :
             receivingAddress.apply {
                 text = newState.cryptoAddress.address
                 setTextIsSelectable(true)
+            }
+
+            val account = newState.account
+            if (account is MultiChainAccount) {
+                networkAlert.apply {
+                    title = getString(
+                        R.string.receive_network_alert_title,
+                        account.currency.displayTicker,
+                        account.networkName
+                    )
+                    subtitle = getString(
+                        R.string.receive_network_alert_subtitle,
+                        account.currency.displayTicker,
+                        account.networkName
+                    )
+                    alertType = AlertType.Warning
+                    isDismissable = false
+                    visible()
+                }
             }
         }
 
