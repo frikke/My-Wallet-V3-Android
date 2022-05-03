@@ -13,10 +13,10 @@ abstract class MVIFragment<TViewState : ViewState> : Fragment() {
     abstract fun onStateUpdated(state: TViewState)
 }
 
-fun <TViewState : ViewState, FRAGMENT : MVIFragment<TViewState>, ARGS : ParcelableArgs> FRAGMENT.withArgs(
+fun <TViewState : ViewState, TFragment : MVIFragment<TViewState>, TArgs : ParcelableArgs> TFragment.withArgs(
     key: String,
-    args: ARGS
-) = apply {
+    args: TArgs
+): TFragment = apply {
     arguments = Bundle().apply {
         putParcelable(key, args)
     }
