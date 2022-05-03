@@ -16,6 +16,8 @@ import com.blockchain.notifications.NotificationsUtil
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_BACKGROUND_NOTIFICATION_2FA
 import com.blockchain.notifications.NotificationsUtil.Companion.ID_FOREGROUND_NOTIFICATION
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus
@@ -56,6 +58,13 @@ class FcmCallbackService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // Send data to analytics
+        analytics.logEvent(
+            NotificationAnalyticsEvents.PushNotificationReceived(
+                createCampaignPayload(remoteMessage.data, remoteMessage.notification?.title)
+            )
+        )
+
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
             Timber.d("Message data payload: %s", remoteMessage.data)
@@ -179,11 +188,16 @@ class FcmCallbackService : FirebaseMessagingService() {
             foreground -> Maybe.just(
                 MainActivity.newIntent(
                     context = applicationContext,
-                    intentFromNotification = true
+                    intentFromNotification = true,
+                    notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
                 )
             )
             else -> Maybe.just(
-                LauncherActivity.newInstance(context = applicationContext, intentFromNotification = true)
+                LauncherActivity.newInstance(
+                    context = applicationContext,
+                    intentFromNotification = true,
+                    notificationAnalyticsPayload = createCampaignPayload(payload.payload, payload.title)
+                )
             )
         }
     }

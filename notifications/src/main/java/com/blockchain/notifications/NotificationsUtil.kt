@@ -15,7 +15,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.NotificationReceived
-import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 
 class NotificationsUtil(
     private val context: Context,
@@ -70,7 +69,6 @@ class NotificationsUtil(
 
         notificationManager.notify(id, builder.build())
         analytics.logEvent(NotificationReceived)
-        analytics.logEvent(NotificationAnalyticsEvents.PushNotificationReceived(title, text))
     }
 
     companion object {
