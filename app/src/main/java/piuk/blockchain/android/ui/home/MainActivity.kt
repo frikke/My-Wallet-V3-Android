@@ -821,10 +821,6 @@ class MainActivity :
         )
     }
 
-    override fun showErrorInBottomSheet(title: String, description: String, button: String?) {
-        // do nothing
-    }
-
     override fun logout() {
         analytics.logEvent(AnalyticsEvents.Logout)
         model.process(MainIntent.UnpairWallet)
