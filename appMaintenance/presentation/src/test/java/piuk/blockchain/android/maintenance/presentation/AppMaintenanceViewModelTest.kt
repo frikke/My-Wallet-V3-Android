@@ -127,7 +127,7 @@ class AppMaintenanceViewModelTest {
                 viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
                 assertEquals(
-                    AppMaintenanceViewState(AppMaintenanceStatusUiState.SITE_WIDE_MAINTENANCE),
+                    AppMaintenanceViewState.SITE_WIDE_MAINTENANCE,
                     expectMostRecentItem()
                 )
             }
@@ -142,7 +142,7 @@ class AppMaintenanceViewModelTest {
             viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiState.REDIRECT_TO_WEBSITE), expectMostRecentItem()
+                AppMaintenanceViewState.REDIRECT_TO_WEBSITE, expectMostRecentItem()
             )
         }
     }
@@ -156,7 +156,7 @@ class AppMaintenanceViewModelTest {
             viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiState.MANDATORY_UPDATE), expectMostRecentItem()
+                AppMaintenanceViewState.MANDATORY_UPDATE, expectMostRecentItem()
             )
         }
     }
@@ -170,7 +170,7 @@ class AppMaintenanceViewModelTest {
             viewModel.onIntent(AppMaintenanceIntents.GetStatus)
 
             assertEquals(
-                AppMaintenanceViewState(AppMaintenanceStatusUiState.OPTIONAL_UPDATE), expectMostRecentItem()
+                AppMaintenanceViewState.OPTIONAL_UPDATE, expectMostRecentItem()
             )
         }
     }
