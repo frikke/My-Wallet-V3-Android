@@ -1,8 +1,11 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.koin.intercomChatFeatureFlag
+import com.blockchain.koin.ioDispatcher
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import kotlinx.coroutines.Dispatchers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import piuk.blockchain.android.support.SupportInteractor
 import piuk.blockchain.android.support.SupportModel
@@ -10,6 +13,10 @@ import piuk.blockchain.android.support.SupportState
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
 import piuk.blockchain.android.ui.settings.v2.account.AccountModel
 import piuk.blockchain.android.ui.settings.v2.account.AccountState
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesInteractor
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesViewModel
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.details.NotificationPreferencesDetailsInteractor
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.details.NotificationPreferencesDetailsViewModel
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsInteractor
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsModel
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsState
@@ -152,6 +159,26 @@ val redesignSettingsModule = module {
                 settingsDataManager = get(),
                 payloadDataManager = get()
             )
+        }
+
+        factory {
+            NotificationPreferencesInteractor(get())
+        }
+
+        viewModel {
+            NotificationPreferencesViewModel(
+                interactor = get(),
+                ioDispatcher = Dispatchers.IO,
+                analytics = get()
+            )
+        }
+
+        viewModel {
+            NotificationPreferencesDetailsViewModel(get(), get())
+        }
+
+        factory {
+            NotificationPreferencesDetailsInteractor(get())
         }
 
         factory {

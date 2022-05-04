@@ -3,6 +3,8 @@ package com.blockchain.api.nabu
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
 import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
+import com.blockchain.api.nabu.data.contactpreferences.ContactPreferencesResponse
+import com.blockchain.api.nabu.data.contactpreferences.PreferenceUpdates
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
@@ -33,5 +35,16 @@ interface NabuUserApi {
     @PUT("user/terms-and-conditions/sign-latest")
     fun signLatestTermsAndConditions(
         @Header("authorization") authorization: String
+    ): Completable
+
+    @GET("users/contact-preferences")
+    fun getContactPreferences(
+        @Header("authorization") authorization: String
+    ): Single<ContactPreferencesResponse>
+
+    @PUT("users/contact-preferences")
+    fun updateContactPreference(
+        @Header("authorization") authorization: String,
+        @Body preferences: PreferenceUpdates
     ): Completable
 }
