@@ -185,6 +185,7 @@ val applicationModule = module {
             prefs = get(),
             trust = get(),
             pinRepository = get(),
+            remoteLogger = get(),
             isIntercomEnabledFlag = get(intercomChatFeatureFlag)
         )
     }.bind(AppUtilAPI::class)
@@ -816,7 +817,8 @@ val applicationModule = module {
                 walletConnectServiceAPI = get(),
                 assetActivityRepository = get(),
                 walletPrefs = get(),
-                payloadScopeWiper = get()
+                payloadScopeWiper = get(),
+                remoteLogger = get()
             )
         }.bind(DataWiper::class)
     }

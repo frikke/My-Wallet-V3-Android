@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
+import java.io.Serializable
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -34,7 +35,11 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
-            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped)
+        }
+
+        if (intent.hasExtra(INTENT_FROM_NOTIFICATION_ANALYTICS)) {
+            val analyticsPayload = intent.getSerializableExtra(INTENT_FROM_NOTIFICATION_ANALYTICS)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(analyticsPayload))
         }
     }
 
@@ -116,10 +121,16 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     companion object {
         const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
+        private const val INTENT_FROM_NOTIFICATION_ANALYTICS = "INTENT_FROM_NOTIFICATION_ANALYTICS"
 
-        fun newInstance(context: Context, intentFromNotification: Boolean): Intent =
+        fun newInstance(
+            context: Context,
+            intentFromNotification: Boolean,
+            notificationAnalyticsPayload: Serializable
+        ): Intent =
             Intent(context, LauncherActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+                putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS, notificationAnalyticsPayload)
             }
     }
 }

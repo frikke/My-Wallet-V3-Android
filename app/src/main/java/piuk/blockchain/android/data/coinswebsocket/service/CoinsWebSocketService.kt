@@ -51,7 +51,7 @@ class CoinsWebSocketService(
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
             0,
-            MainActivity.newIntent(applicationContext, intentFromNotification = true),
+            MainActivity.newIntent(applicationContext, intentFromNotification = true, null),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
 

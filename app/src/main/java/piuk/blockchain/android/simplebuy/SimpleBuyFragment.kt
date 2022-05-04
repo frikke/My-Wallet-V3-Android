@@ -10,7 +10,10 @@ interface SimpleBuyScreen : SlidingModalBottomDialog.Host, FlowFragment {
     override fun onSheetClosed() {}
 }
 
-interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavigator {
+interface SimpleBuyNavigator :
+    SlidingModalBottomDialog.Host,
+    SmallSimpleBuyNavigator,
+    ErrorBuyNavigator {
     fun goToBuyCryptoScreen(
         addToBackStack: Boolean = true,
         preselectedAsset: AssetInfo,
@@ -32,6 +35,9 @@ interface SimpleBuyNavigator : SlidingModalBottomDialog.Host, SmallSimpleBuyNavi
 interface SmallSimpleBuyNavigator {
     fun exitSimpleBuyFlow()
     fun popFragmentsInStackUntilFind(fragmentName: String, popInclusive: Boolean)
+}
+
+interface ErrorBuyNavigator {
     fun showErrorInBottomSheet(
         title: String,
         description: String,

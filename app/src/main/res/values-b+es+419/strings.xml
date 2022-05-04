@@ -2210,9 +2210,9 @@ Compra criptomonedas hoy.</string>
     <string name="connect_to_dapps_description">Conecta de manera segura tu billetera a cualquier aplicación web 3.0.</string>
     <string name="coinview_interest_with_balance">Obteniendo %1$s%%</string>
     <string name="coinview_interest_no_balance">Obtener %1$s%% APY</string>
-    <string name="coinview_nc_desc">No asistencial</string>
+    <string name="coinview_nc_desc">Sin Custodia</string>
     <string name="coinview_c_unavailable_desc">Comprar y vender %1$s</string>
-    <string name="coinview_c_available_desc">Asistencial</string>
+    <string name="coinview_c_available_desc">Bajo Custodia</string>
     <plurals name="wallet_connect_connected_apps">
         <item quantity="one">%d aplicación conectada</item>
         <item quantity="other">%d aplicaciones conectadas</item>

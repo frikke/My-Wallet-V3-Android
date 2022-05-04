@@ -18,8 +18,6 @@ interface NabuUserDataManager {
     fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
 
     fun signLatestTermsAndConditions(): Completable
-
-    fun reportLanguage(languageCode: String): Completable
 }
 
 class NabuUserDataManagerImpl(
@@ -58,11 +56,6 @@ class NabuUserDataManagerImpl(
     override fun signLatestTermsAndConditions(): Completable =
         authenticator.getAuthHeader().flatMapCompletable {
             nabuUserService.signLatestTermsAndConditions(it)
-        }
-
-    override fun reportLanguage(languageCode: String): Completable =
-        authenticator.getAuthHeader().flatMapCompletable {
-            nabuUserService.reportLanguage(it, languageCode)
         }
 }
 

@@ -68,7 +68,7 @@ class BuyIntroFragment :
     private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val userIdentity: UserIdentity by scopedInject()
 
-    private val adapter = BuyCryptoCurrenciesAdapter(
+    private val buyAdapter = BuyCryptoCurrenciesAdapter(
         assetResources = assetResources,
         onItemClick = ::onItemClick
     )
@@ -98,7 +98,7 @@ class BuyIntroFragment :
                     .build()
             )
             layoutManager = LinearLayoutManager(activity)
-            adapter = adapter
+            adapter = buyAdapter
         }
     }
 
@@ -170,7 +170,7 @@ class BuyIntroFragment :
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(activityIndicator.takeIf { showLoading })
             .doOnSubscribe {
-                adapter.items = emptyList()
+                buyAdapter.items = emptyList()
             }
             .subscribeBy(
                 onSuccess = { items ->
@@ -224,7 +224,7 @@ class BuyIntroFragment :
         pricesAssets: List<PricedAsset>
     ) {
         binding.viewFlipper.displayedChild = ViewFlipperItem.INTRO.ordinal
-        adapter.items =
+        buyAdapter.items =
             pricesAssets.map { pricedAsset ->
                 BuyCryptoItem(
                     asset = pricedAsset.asset,
