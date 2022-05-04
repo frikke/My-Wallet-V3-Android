@@ -1,7 +1,5 @@
 package piuk.blockchain.android.maintenance.data
 
-import com.blockchain.koin.currentAppVersionCode
-import com.blockchain.koin.currentOsVersion
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import kotlinx.coroutines.Dispatchers
@@ -32,8 +30,7 @@ val appMaintenanceDataModule = module {
         AppMaintenanceRepository(
             appMaintenanceRemoteConfig = get(),
             appUpdateInfoFactory = get(),
-            currentVersionCode = get(currentAppVersionCode),
-            currentOsVersion = get(currentOsVersion),
+            versionsInfo = get(),
             dispatcher = Dispatchers.IO
         )
     }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -63,7 +62,7 @@ class AppMaintenanceFragment :
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
         AppMaintenanceScreen(
-            state.value.uiState,
+            state.value,
             button1OnClick = { viewModel.onIntent(it) },
             button2OnClick = { viewModel.onIntent(it) }
         )
@@ -90,7 +89,7 @@ class AppMaintenanceFragment :
     }
 
     private fun openUrl(url: String) {
-        context.openUrl(url)
+        context?.run { openUrl(url) }
     }
 
     private fun launchAppUpdate() {
@@ -122,11 +121,5 @@ class AppMaintenanceFragment :
 
     companion object {
         fun newInstance() = AppMaintenanceFragment()
-    }
-
-    @Preview
-    @Composable
-    private fun PreviewScreenContent() {
-        ScreenContent()
     }
 }

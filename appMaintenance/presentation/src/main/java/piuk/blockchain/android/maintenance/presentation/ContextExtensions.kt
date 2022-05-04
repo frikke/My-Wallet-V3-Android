@@ -6,10 +6,10 @@ import android.net.Uri
 
 // TODO this file to be moved to proper module
 
-fun Context?.openUrl(url: String) {
+fun Context.openUrl(url: String) {
     openUrl(Uri.parse(url))
 }
 
-fun Context?.openUrl(url: Uri) {
-    this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+fun Context.openUrl(url: Uri) {
+    startActivity(Intent(Intent.ACTION_VIEW, url))
 }

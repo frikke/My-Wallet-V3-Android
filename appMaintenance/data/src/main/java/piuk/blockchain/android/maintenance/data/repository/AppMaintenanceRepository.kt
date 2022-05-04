@@ -1,6 +1,7 @@
 package piuk.blockchain.android.maintenance.data.repository
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.versions.VersionsInfo
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
@@ -17,8 +18,7 @@ import timber.log.Timber
 internal class AppMaintenanceRepository(
     private val appMaintenanceRemoteConfig: AppMaintenanceRemoteConfig,
     private val appUpdateInfoFactory: AppUpdateInfoFactory,
-    private val currentVersionCode: Int,
-    private val currentOsVersion: Int,
+    private val versionsInfo: VersionsInfo,
     private val dispatcher: CoroutineDispatcher
 ) : AppMaintenanceService {
 
@@ -52,7 +52,7 @@ internal class AppMaintenanceRepository(
             } else {
                 Outcome.Success(
                     AppMaintenanceConfigMapper.map(
-                        appUpdateInfo, maintenanceConfig, currentVersionCode, currentOsVersion
+                        appUpdateInfo, maintenanceConfig, versionsInfo.versionCode, versionsInfo.osVersion
                     )
                 )
             }

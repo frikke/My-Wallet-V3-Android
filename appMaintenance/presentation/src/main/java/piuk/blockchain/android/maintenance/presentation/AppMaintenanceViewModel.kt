@@ -26,9 +26,7 @@ class AppMaintenanceViewModel(
     }
 
     override fun reduce(state: AppMaintenanceModelState): AppMaintenanceViewState {
-        return AppMaintenanceViewState(
-            uiState = AppMaintenanceStatusUiState.fromStatus(state.status)
-        )
+        return AppMaintenanceViewState.fromStatus(state.status)
     }
 
     override suspend fun handleIntent(modelState: AppMaintenanceModelState, intent: AppMaintenanceIntents) {

@@ -3,8 +3,6 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
-val currentAppVersionCode = StringQualifier("currentAppVersionCode")
-val currentOsVersion = StringQualifier("currentOsVersion")
 val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
 val redesignPart2CoinViewFeatureFlag = StringQualifier("ff_redesign_part_2coinview")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")

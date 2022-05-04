@@ -28,7 +28,7 @@ import com.blockchain.componentlib.theme.Grey900
  */
 @Composable
 fun AppMaintenanceScreen(
-    uiState: AppMaintenanceStatusUiState,
+    uiState: AppMaintenanceViewState,
     button1OnClick: (AppMaintenanceIntents) -> Unit,
     button2OnClick: (AppMaintenanceIntents) -> Unit
 ) {
@@ -111,35 +111,35 @@ fun AppMaintenanceScreen(
 @Preview(name = "NO_STATUS", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenNO_STATUS() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.NO_STATUS, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.NO_STATUS, {}, {})
 }
 
 @Preview(name = "OS_NOT_SUPPORTED", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenOS_NOT_SUPPORTED() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.OS_NOT_SUPPORTED, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.OS_NOT_SUPPORTED, {}, {})
 }
 
 @Preview(name = "SITE_WIDE_MAINTENANCE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCE() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.SITE_WIDE_MAINTENANCE, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.SITE_WIDE_MAINTENANCE, {}, {})
 }
 
 @Preview(name = "REDIRECT_TO_WEBSITE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITE() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.REDIRECT_TO_WEBSITE, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.REDIRECT_TO_WEBSITE, {}, {})
 }
 
 @Preview(name = "MANDATORY_UPDATE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenMANDATORY_UPDATE() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.MANDATORY_UPDATE, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.MANDATORY_UPDATE, {}, {})
 }
 
 @Preview(name = "OPTIONAL_UPDATE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenOPTIONAL_UPDATE() {
-    AppMaintenanceScreen(AppMaintenanceStatusUiState.OPTIONAL_UPDATE, {}, {})
+    AppMaintenanceScreen(AppMaintenanceViewState.OPTIONAL_UPDATE, {}, {})
 }
