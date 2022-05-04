@@ -3,10 +3,11 @@ package piuk.blockchain.android.ui.kyc.profile
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.exceptions.MetadataNotFoundException
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
@@ -47,6 +48,9 @@ class KycProfilePresenterTest {
     private val metadataRepository: MetadataRepository = mock()
     private val stringUtils: StringUtils = mock()
     private val nabuToken: NabuToken = mock()
+    private val accountMetadataFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
 
     @Suppress("unused")
     @get:Rule
@@ -61,7 +65,8 @@ class KycProfilePresenterTest {
             nabuToken,
             nabuDataManager,
             metadataRepository,
-            stringUtils
+            stringUtils,
+            accountMetadataFlag
         )
         whenever(stringUtils.getString(any())).thenReturn("")
         subject.initView(view)
@@ -131,9 +136,9 @@ class KycProfilePresenterTest {
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
         whenever(
             metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.error { Throwable() })
         // Act
@@ -160,9 +165,9 @@ class KycProfilePresenterTest {
         ).thenReturn(Single.just(validOfflineToken))
         whenever(
             metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.just(validOfflineTokenMetadata))
         whenever(
@@ -188,7 +193,7 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val offlineToken = NabuCredentialsMetadata("", "", null, null)
+        val offlineToken = NabuUserCredentialsMetadata("", "", null, null)
         val jwt = "JWT"
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
@@ -196,9 +201,9 @@ class KycProfilePresenterTest {
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
             metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.empty())
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
@@ -207,9 +212,9 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.saveMetadata(
                 offlineToken,
-                NabuCredentialsMetadata::class.java,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                NabuUserCredentialsMetadata::class.java,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())
         whenever(
@@ -235,7 +240,7 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val invalidToken = NabuCredentialsMetadata("", "", null, null)
+        val invalidToken = NabuUserCredentialsMetadata("", "", null, null)
         val jwt = "JWT"
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
@@ -243,9 +248,9 @@ class KycProfilePresenterTest {
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
             metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.just(invalidToken))
         whenever(
@@ -257,9 +262,9 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.saveMetadata(
                 validOfflineTokenMetadata,
-                NabuCredentialsMetadata::class.java,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                NabuUserCredentialsMetadata::class.java,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())
         whenever(
@@ -285,16 +290,16 @@ class KycProfilePresenterTest {
         val lastName = "Bennett"
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         val countryCode = "UK"
-        val offlineToken = NabuCredentialsMetadata("", "", null, null)
+        val offlineToken = NabuUserCredentialsMetadata("", "", null, null)
         whenever(view.firstName).thenReturn(firstName)
         whenever(view.lastName).thenReturn(lastName)
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
             metadataRepository.loadMetadata(
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata::class.java
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata::class.java
             )
         ).thenReturn(Maybe.empty())
         val jwt = "JTW"
@@ -304,9 +309,9 @@ class KycProfilePresenterTest {
         whenever(
             metadataRepository.saveMetadata(
                 offlineToken,
-                NabuCredentialsMetadata::class.java,
-                NabuCredentialsMetadata::class.serializer(),
-                NabuCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                NabuUserCredentialsMetadata::class.java,
+                NabuUserCredentialsMetadata::class.serializer(),
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         ).thenReturn(Completable.complete())
         val responseBody =

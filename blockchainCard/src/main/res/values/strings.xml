@@ -17,9 +17,9 @@
     <string name="contactless_payment">Contactless Payment</string>
     <string name="yes">Yes</string>
     <string name="consumer_financial_protection_bureau">Consumer Financial Protection Bureau</string>
-    <string name="blockchain_terms_and_conditions"><![CDATA[Blockchain.com Terms & Conditions]]></string>
+    <string name="blockchain_terms_and_conditions">Blockchain.com Terms &amp; Conditions</string>
     <string name="short_form_disclosure">Short Form Disclosure</string>
-    <string name="terms_and_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="terms_and_conditions">Terms &amp; Conditions</string>
     <string name="card_created">Card Created!</string>
     <string name="your_card_is_now_linked">Your card is now linked to your Blockchain.com Wallet.</string>
     <string name="gpay_save_to_phone">Google Pay Save to Phone</string>

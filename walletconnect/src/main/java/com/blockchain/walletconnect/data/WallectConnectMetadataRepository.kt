@@ -30,20 +30,22 @@ class WalletConnectMetadataRepository(
         metadataManager.fetchMetadata(METADATA_WALLET_CONNECT).map { json ->
             jsonBuilder.decodeFromString<WalletConnectMetadata>(json)
         }.map { walletConnectMetadata ->
-            walletConnectMetadata.sessions.v1.map { dapp ->
-                WalletConnectSession(
-                    url = dapp.url,
-                    dAppInfo = DAppInfo(
-                        peerId = dapp.dAppInfo.peerId,
-                        peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
-                        chainId = dapp.dAppInfo.chainId ?: DEFAULT_WALLET_CONNECT_CHAIN_ID
-                    ),
-                    walletInfo = WalletInfo(
-                        clientId = dapp.walletInfo.clientId,
-                        sourcePlatform = dapp.walletInfo.sourcePlatform
+            walletConnectMetadata.sessions?.let { sessions ->
+                sessions.v1.map { dapp ->
+                    WalletConnectSession(
+                        url = dapp.url,
+                        dAppInfo = DAppInfo(
+                            peerId = dapp.dAppInfo.peerId,
+                            peerMeta = dapp.dAppInfo.peerMeta.toClientMeta(),
+                            chainId = dapp.dAppInfo.chainId ?: DEFAULT_WALLET_CONNECT_CHAIN_ID
+                        ),
+                        walletInfo = WalletInfo(
+                            clientId = dapp.walletInfo.clientId,
+                            sourcePlatform = dapp.walletInfo.sourcePlatform
+                        )
                     )
-                )
-            }
+                }
+            } ?: emptyList()
         }.switchIfEmpty(Single.just(emptyList()))
 
     private fun updateRemoteSessions(sessions: List<WalletConnectSession>): Completable =

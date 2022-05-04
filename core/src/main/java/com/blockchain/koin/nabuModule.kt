@@ -58,6 +58,7 @@ import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.nabu.stores.NabuSessionTokenStore
+import org.koin.core.scope.get
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -78,7 +79,7 @@ val nabuModule = module {
             MetadataRepositoryNabuTokenAdapter(
                 metadataRepository = get(),
                 createNabuToken = get(),
-                metadataManager = get()
+                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag),
             )
         }.bind(NabuToken::class)
 

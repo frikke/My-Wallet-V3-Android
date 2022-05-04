@@ -16,6 +16,7 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AppLaunchEvent
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
@@ -51,6 +52,7 @@ import piuk.blockchain.android.util.lifecycle.AppLifecycleListener
 import piuk.blockchain.androidcore.data.connectivity.ConnectionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.rxjava.SSLPinningObservable
+import retrofit2.HttpException
 import timber.log.Timber
 
 open class BlockchainApplication : Application() {
@@ -109,6 +111,9 @@ open class BlockchainApplication : Application() {
                 (_throwable is OnErrorNotImplementedException) -> _throwable.cause
                 (_throwable is UndeliverableException) -> _throwable.cause
                 else -> _throwable
+            }
+            if (exception is HttpException) {
+                throw NabuApiExceptionFactory.fromResponseBody(exception)
             }
             if (exception is RuntimeException) {
                 throw exception

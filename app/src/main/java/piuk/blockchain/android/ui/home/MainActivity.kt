@@ -52,6 +52,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.io.Serializable
 import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -185,7 +186,11 @@ class MainActivity :
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
-            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped)
+        }
+
+        if (intent.hasExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD)) {
+            val analyticsPayload = intent.getSerializableExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(analyticsPayload))
         }
 
         if (savedInstanceState == null) {
@@ -428,7 +433,7 @@ class MainActivity :
     private fun startTxFlowWithTargets(targets: Collection<CryptoTarget>) {
         if (targets.size > 1) {
             disambiguateSendScan(targets)
-        } else {
+        } else if (targets.size == 1) {
             val targetAddress = targets.first()
             // FIXME selecting a source account shows UI, refactor so this can be called from the interactor
             compositeDisposable += qrProcessor.selectSourceAccount(this, targetAddress)
@@ -816,10 +821,6 @@ class MainActivity :
         )
     }
 
-    override fun showErrorInBottomSheet(title: String, description: String, button: String?) {
-        // do nothing
-    }
-
     override fun logout() {
         analytics.logEvent(AnalyticsEvents.Logout)
         model.process(MainIntent.UnpairWallet)
@@ -1059,6 +1060,7 @@ class MainActivity :
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
+        private const val INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD = "INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD"
         private const val PENDING_DESTINATION = "PENDING_DESTINATION"
         const val ACCOUNT_EDIT = 2008
         const val SETTINGS_EDIT = 2009
@@ -1103,9 +1105,14 @@ class MainActivity :
             }
         }
 
-        fun newIntent(context: Context, intentFromNotification: Boolean): Intent =
+        fun newIntent(
+            context: Context,
+            intentFromNotification: Boolean,
+            notificationAnalyticsPayload: Serializable?
+        ): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
+                putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD, notificationAnalyticsPayload)
             }
 
         fun newIntent(context: Context, pendingDestination: Destination): Intent =

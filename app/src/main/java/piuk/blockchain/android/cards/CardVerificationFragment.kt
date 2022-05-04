@@ -148,25 +148,59 @@ class CardVerificationFragment :
             icon.visibility = View.VISIBLE
             primaryBtn.visibility = View.VISIBLE
 
-            if (error == CardError.DEBIT_CARD_ONLY) renderCreditCardNotSupportedError() else renderError()
+            if (error == CardError.CARD_CREATE_DEBIT_ONLY) {
+                renderCreditCardNotSupportedButtonsError()
+            } else {
+                renderButtonsError()
+            }
+
+            title.text = getString(
+                when (error) {
+                    CardError.INSUFFICIENT_CARD_BALANCE -> R.string.title_cardInsufficientFunds
+                    CardError.CARD_BANK_DECLINED -> R.string.title_cardBankDecline
+                    CardError.CARD_DUPLICATE -> R.string.title_cardDuplicate
+                    CardError.CARD_BLOCKCHAIN_DECLINED -> R.string.title_cardBlockchainDecline
+                    CardError.CARD_ACQUIRER_DECLINED -> R.string.title_cardAcquirerDecline
+                    CardError.CARD_PAYMENT_NOT_SUPPORTED -> R.string.title_cardPaymentNotSupported
+                    CardError.CARD_CREATED_FAILED -> R.string.title_cardCreateFailed
+                    CardError.CARD_PAYMENT_FAILED -> R.string.title_cardPaymentFailed
+                    CardError.CARD_CREATED_ABANDONED -> R.string.title_cardCreateAbandoned
+                    CardError.CARD_CREATED_EXPIRED -> R.string.title_cardCreateExpired
+                    CardError.CARD_CREATE_BANK_DECLINED -> R.string.title_cardCreateBankDeclined
+                    CardError.CARD_CREATE_DEBIT_ONLY -> R.string.title_cardCreateDebitOnly
+                    CardError.CARD_PAYMENT_DEBIT_ONLY -> R.string.title_cardPaymentDebitOnly
+                    CardError.CARD_CREATE_NO_TOKEN -> R.string.title_cardCreateNoToken
+                    else -> R.string.linking_card_error_title
+                }
+            )
 
             subtitle.text = getString(
                 when (error) {
+                    CardError.INSUFFICIENT_CARD_BALANCE -> R.string.msg_cardInsufficientFunds
+                    CardError.CARD_BANK_DECLINED -> R.string.msg_cardBankDecline
+                    CardError.CARD_DUPLICATE -> R.string.msg_cardDuplicate
+                    CardError.CARD_BLOCKCHAIN_DECLINED -> R.string.msg_cardBlockchainDecline
+                    CardError.CARD_ACQUIRER_DECLINED -> R.string.msg_cardAcquirerDecline
+                    CardError.CARD_PAYMENT_NOT_SUPPORTED -> R.string.msg_cardPaymentNotSupported
+                    CardError.CARD_CREATED_FAILED -> R.string.msg_cardCreateFailed
+                    CardError.CARD_PAYMENT_FAILED -> R.string.msg_cardPaymentFailed
+                    CardError.CARD_CREATED_ABANDONED -> R.string.msg_cardCreateAbandoned
+                    CardError.CARD_CREATED_EXPIRED -> R.string.msg_cardCreateExpired
+                    CardError.CARD_CREATE_BANK_DECLINED -> R.string.msg_cardCreateBankDeclined
+                    CardError.CARD_CREATE_DEBIT_ONLY -> R.string.msg_cardCreateDebitOnly
+                    CardError.CARD_PAYMENT_DEBIT_ONLY -> R.string.msg_cardPaymentDebitOnly
+                    CardError.CARD_CREATE_NO_TOKEN -> R.string.msg_cardCreateNoToken
                     CardError.CREATION_FAILED -> R.string.could_not_save_card
                     CardError.ACTIVATION_FAIL -> R.string.could_not_activate_card
                     CardError.PENDING_AFTER_POLL -> R.string.card_still_pending
                     CardError.LINK_FAILED -> R.string.card_link_failed
-                    CardError.INSUFFICIENT_CARD_BALANCE -> R.string.sb_checkout_card_insufficient_funds_blurb
-                    CardError.CARD_PAYMENT_DECLINED -> R.string.sb_checkout_card_declined_blurb
-                    CardError.DEBIT_CARD_ONLY -> R.string.card_activation_debit_only_blurb
                 }
             )
         }
     }
 
-    private fun renderCreditCardNotSupportedError() {
+    private fun renderCreditCardNotSupportedButtonsError() {
         with(binding) {
-            title.text = getString(R.string.card_activation_debit_only_title)
             with(primaryBtn) {
                 buttonState = ButtonState.Enabled
                 text = getString(R.string.card_activation_debit_only_cta_primary)
@@ -181,9 +215,8 @@ class CardVerificationFragment :
         }
     }
 
-    private fun renderError() {
+    private fun renderButtonsError() {
         with(binding) {
-            title.text = getString(R.string.linking_card_error_title)
             with(primaryBtn) {
                 buttonState = ButtonState.Enabled
                 text = getString(R.string.common_ok)

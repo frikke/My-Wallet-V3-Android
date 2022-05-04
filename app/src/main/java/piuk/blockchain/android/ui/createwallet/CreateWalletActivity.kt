@@ -20,7 +20,7 @@ import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.domain.eligibility.model.CountryIso
+import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents

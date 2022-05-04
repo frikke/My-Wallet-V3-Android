@@ -12,12 +12,12 @@ val payloadScope: Scope
         val koin = KoinJavaComponent.getKoin()
         val logger: RemoteLogger = koin.get()
         return koin.getScopeOrNull(SCOPE_ID) ?: koin.createScope(SCOPE_ID, payloadScopeQualifier).also {
-            logger.logState("Payload Scope", "Payload scope opened")
+            logger.logEvent("Payload scope opened")
         }.apply {
             this.registerCallback(
                 object : ScopeCallback {
                     override fun onScopeClose(scope: Scope) {
-                        logger.logState("Payload Scope", "Payload scope closed")
+                        logger.logEvent("Payload scope closed")
                     }
                 }
             )

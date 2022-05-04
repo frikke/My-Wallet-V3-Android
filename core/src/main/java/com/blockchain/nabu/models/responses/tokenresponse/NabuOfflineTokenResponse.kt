@@ -1,6 +1,8 @@
 package com.blockchain.nabu.models.responses.tokenresponse
 
-import com.blockchain.nabu.metadata.NabuCredentialsMetadata
+import com.blockchain.nabu.metadata.CredentialMetadata
+import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,8 +16,20 @@ data class NabuOfflineTokenResponse(
     val token: String
 )
 
-fun NabuOfflineTokenResponse.mapToMetadata(): NabuCredentialsMetadata =
-    NabuCredentialsMetadata(this.userId, this.token, null, null)
+fun NabuOfflineTokenResponse.mapToNabuUserMetadata(): NabuUserCredentialsMetadata =
+    NabuUserCredentialsMetadata(this.userId, this.token)
 
-fun NabuCredentialsMetadata.mapFromMetadata(): NabuOfflineTokenResponse =
-    NabuOfflineTokenResponse(this.userId, this.lifetimeToken)
+fun NabuOfflineTokenResponse.mapToNabuAccountMetadata(): NabuAccountCredentialsMetadata =
+    NabuAccountCredentialsMetadata(this.userId, this.token)
+
+fun CredentialMetadata.mapFromMetadata(): NabuOfflineTokenResponse {
+    require(userId != null) {
+        "Nabu userId cannot be null"
+    }
+    require(lifetimeToken != null) {
+        "Nabu lifetime token cannot be null"
+    }
+
+    // requires ensure these values cannot be null, so double bang is ok here
+    return NabuOfflineTokenResponse(userId!!, lifetimeToken!!)
+}

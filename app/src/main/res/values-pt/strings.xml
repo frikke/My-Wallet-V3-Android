@@ -477,7 +477,7 @@ Euros/Dólares</string>
     <string name="tour_card_cta">Faça uma visita</string>
     <string name="tour_card_dismiss">Talvez mais tarde</string>
     <string name="verify_email_card_title">Verifique seu endereço de e-mail</string>
-    <string name="verify_email_card_body">Para começar a utilizar a sua Blockchain Wallet, tem de confirmar o seu endereço de correio eletrónico.</string>
+    <string name="verify_email_card_body">Para começar a utilizar a sua Blockchain Wallet, tem de confirmar o seu endereço de correio electrónico.</string>
     <string name="verify_email_card_cta">Verificar endereço de email</string>
     <string name="two_fa_card_body">Proteja sua carteira contra acesso não autorizado, ativando a verificação em duas etapas.</string>
     <string name="two_fa_card_cta">Ativar a Verificação em 2 Etapas</string>
@@ -1164,7 +1164,7 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
     <string name="trending_label">Tendências</string>
     <string name="trending_swap">Trocar %1$s</string>
     <string name="trending_empty">Financie as suas Carteiras de Negociação para ver as Tendências de Trocas com taxas mais baixas.</string>
-    <string name="common_receive_to">Receber %1$s</string>
+    <string name="trending_receive">Receber %1$s</string>
     <string name="select_a_wallet">Selecione uma Wallet</string>
     <string name="pending_swap_info_message">Tem 1 troca pendente. Depois de este ser eliminado, pode fazer uma nova troca.</string>
     <string name="deposit_fee">Taxa de rede</string>
@@ -1198,6 +1198,8 @@ Troque crypto com a sua Carteira de Negociação.</string>
     <string name="common_retry">Tentar novamente</string>
     <string name="strength_hint">Utilize pelo menos 8 carateres, uma mistura de letras, números e símbolos.</string>
     <string name="content_desc_enter_amount">Introduzir Montante</string>
+    <string name="min_with_value">%1$s Mín</string>
+    <string name="max_with_value">%1$s Máx</string>
     <string name="upgrade_now">Atualizar agora</string>
     <string name="swap_faster_cheaper">Trocas mais rápidas. Mais baratas. Melhores.</string>
     <string name="swap_better">Troque melhor.</string>
@@ -1729,7 +1731,8 @@ Comprará menos criptomoeda.</string>
 Nos últimos 5 anos, comprar Bitcoin todas as semanas teve um desempenho melhor do que cronometrar o mercado</string>
     <string name="recurring_buy_title_5_2">
 86% das vezes.</string>
-    <string name="recurring_buy_note">O cálculo é baseado numa compra de 30 dólares por semana num dia aleatório. \"cronometrando o mercado\" é definido como a compra de Bitcoin em cada descida de 6%%. <annotation link="learn_more">Saiba mais →</annotation></string>
+    <string name="recurring_buy_note">O cálculo é baseado numa compra de 30 dólares por semana num dia aleatório. \"Timing the market\" é definido como a compra de Bitcoin em cada descida de 6%.
+<annotation link="learn_more">Saiba mais →</annotation></string>
     <string name="recurring_buy_daily_1">Todos os dias</string>
     <string name="recurring_buy_daily_selector">Diariamente</string>
     <string name="recurring_buy_weekly_1">Uma vez por semana</string>
@@ -1884,6 +1887,7 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="reset_account_description_1">A redefinição irá restaurar suas contas de negociação, recompensas e câmbio.</string>
     <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
+    <string name="common_oops">Ups! Ocorreu um erro.</string>
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Recusar</string>
     <string name="item_the_exchange">Exchange</string>
@@ -1940,8 +1944,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="kyc_enter_address_manually">Insira manualmente -&gt;</string>
     <string name="kyc_autocomplete_addresses_error">Falha ao recuperar endereços</string>
     <string name="kyc_autocomplete_selected_address_error">Falha ao recuperar o endereço</string>
-    <string name="min_with_value">%1$s Mín</string>
-    <string name="max_with_value">%1$s Máx</string>
     <string name="unification_sheet_title">Atualizar conta</string>
     <string name="unification_sheet_later_cta">Farei isso mais tarde</string>
     <string name="unification_sheet_now_cta">Atualize a minha conta</string>
@@ -2174,7 +2176,7 @@ Compre cripto hoje.</string>
     <string name="swap_empty_state_sheet_title">Irá precisar de alguma cripto primeiro!</string>
     <string name="swap_empty_state_sheet_subtitle">Associe um banco ou cartão e compre agora ou receba de um amigo. Depois de ter um saldo, pode trocar cripto a qualquer momento.</string>
     <string name="settings_initials">%1$s %2$s</string>
-    <string name="settings_bank_transfer_blurb">Envie fundos diretamente do seu banco para sua Blockchain Wallet. Assim que recebermos a transferência eletrónica, concluiremos a sua compra.</string>
+    <string name="settings_bank_transfer_blurb">Envie fundos diretamente do seu banco para sua Blockchain Wallet. Assim que recebermos a transferência electrónica, concluiremos a sua compra.</string>
     <string name="settings_logout_error">Ocorreu um problema ao terminar a sessão, tente novamente!</string>
     <string name="select_a_display_currency">Selecione uma moeda de exibição.</string>
     <string name="account_toolbar">Conta</string>

@@ -2416,6 +2416,9 @@
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
     <string name="search_results">%s Results</string>
+    <string name="receive_details_address_label">Wallet Address</string>
+    <string name="receive_network_alert_title">%1$s on %2$s Network</string>
+    <string name="receive_network_alert_subtitle">Please receive %1$s on %2$s Network to this address only. We cannot recover lost funds.</string>
 
     <!-- Account Unification -->
     <string name="unification_sheet_title">Upgrade Account</string>

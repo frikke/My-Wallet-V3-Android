@@ -1,6 +1,7 @@
 package piuk.blockchain.android.util.wiper
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -9,6 +10,7 @@ import info.blockchain.wallet.payload.PayloadScopeWiper
 import org.amshove.kluent.internal.assertFalse
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
@@ -24,6 +26,7 @@ class DataWiperImplTest {
     private val assetActivityRepository: AssetActivityRepository = mock()
     private val walletPrefs: WalletStatus = mock()
     private val payloadScopeWiper: PayloadScopeWiper = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     private lateinit var subject: DataWiper
 
@@ -37,7 +40,8 @@ class DataWiperImplTest {
             walletConnectServiceAPI,
             assetActivityRepository,
             walletPrefs,
-            payloadScopeWiper
+            payloadScopeWiper,
+            remoteLogger
         )
     }
 
@@ -47,6 +51,7 @@ class DataWiperImplTest {
         subject.clearData()
 
         // Assert
+        verify(remoteLogger).logEvent(anyString())
         verify(ethDataManager).clearAccountDetails()
         verify(bchDataManager).clearAccountDetails()
         verify(assetActivityRepository).clear()

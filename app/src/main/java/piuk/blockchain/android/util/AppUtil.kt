@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.logging.RemoteLogger
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
@@ -20,6 +21,7 @@ class AppUtil(
     private val prefs: PersistentPrefs,
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
+    private val remoteLogger: RemoteLogger,
     private val isIntercomEnabledFlag: FeatureFlag
 ) : AppUtilAPI {
     override fun logout() {
@@ -44,6 +46,7 @@ class AppUtil(
     override var activityIndicator: ActivityIndicator? = null
 
     fun clearCredentials() {
+        remoteLogger.logEvent("Clearing credentials")
         payloadScopeWiper.wipe()
         prefs.clear()
     }
