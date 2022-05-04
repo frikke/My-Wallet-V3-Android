@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WalletConnectMetadata(
-    val sessions: WalletConnectSessions
+    val sessions: WalletConnectSessions?
 )
 
 @Serializable
