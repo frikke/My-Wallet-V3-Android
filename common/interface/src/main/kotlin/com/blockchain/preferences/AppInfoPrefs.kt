@@ -9,4 +9,3 @@ interface AppInfoPrefs {
         const val DEFAULT_APP_VERSION_NAME = ""
     }
 }
-
