@@ -71,6 +71,17 @@ class WalletConnectMetadataRepositoryTest {
     }
 
     @Test
+    fun `load json sessions from metadata with empty response should not create any v1 sessions`() {
+        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(Maybe.just("{}"))
+
+        val test = subject.retrieve().test()
+
+        test.assertValue { sessions ->
+            sessions.isEmpty()
+        }
+    }
+
+    @Test
     fun `load json sessions from metadata with null chainID should set chainID to 1`() {
         whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
             Maybe.just(
