@@ -16,7 +16,8 @@ import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.VerifyIdentityBenefitsLayoutBinding
 
-class VerifyIdentityBenefitsView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+class VerifyIdentityBenefitsView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    ConstraintLayout(context, attrs) {
 
     private val binding: VerifyIdentityBenefitsLayoutBinding = VerifyIdentityBenefitsLayoutBinding.inflate(
         LayoutInflater.from(context), this, true
