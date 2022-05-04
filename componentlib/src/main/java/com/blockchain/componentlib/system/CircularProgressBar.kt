@@ -81,3 +81,13 @@ fun CircularProgressBarPreview() {
         }
     }
 }
+
+@Preview
+@Composable
+fun CircularProgressBarPreviewNoText() {
+    AppTheme {
+        AppSurface {
+            CircularProgressBar()
+        }
+    }
+}

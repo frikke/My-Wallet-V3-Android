@@ -16,9 +16,9 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun Search(
-    onValueChange: (String) -> Unit = {},
     label: String = "",
-    isDarkMode: Boolean = isSystemInDarkTheme()
+    isDarkMode: Boolean = isSystemInDarkTheme(),
+    onValueChange: (String) -> Unit = {}
 ) {
 
     val focusManager = LocalFocusManager.current
