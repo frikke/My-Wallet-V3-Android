@@ -73,16 +73,18 @@ class AppMaintenanceViewModel(
                         modelState.status is AppMaintenanceStatus.Actionable.MandatoryUpdate
                 ) { "Intent UpdateApp called with incorrect status ${modelState.status}" }
 
-                when (modelState.status) {
+                // get update location: either in-app or via external url
+                val updateLocation = when (modelState.status) {
                     is AppMaintenanceStatus.Actionable.MandatoryUpdate -> modelState.status.updateLocation
                     is AppMaintenanceStatus.Actionable.OptionalUpdate -> modelState.status.updateLocation
                     else -> UpdateLocation.InAppUpdate
-                }.run {
-                    when (this) {
-                        UpdateLocation.InAppUpdate -> launchAppUpdate()
-                        is UpdateLocation.ExternalUrl -> openUrl(url)
-                    }
-                }
+                }.exhaustive
+
+                // trigger update based on location ^
+                when (updateLocation) {
+                    UpdateLocation.InAppUpdate -> launchAppUpdate()
+                    is UpdateLocation.ExternalUrl -> openUrl(updateLocation.url)
+                }.exhaustive
             }
         }.exhaustive
     }

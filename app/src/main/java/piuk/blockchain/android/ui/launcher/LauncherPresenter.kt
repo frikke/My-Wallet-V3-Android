@@ -5,6 +5,7 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
@@ -13,6 +14,7 @@ import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
+import timber.log.Timber
 
 interface LauncherView : MvpView {
     fun onAppMaintenance()
@@ -45,18 +47,24 @@ class LauncherPresenter internal constructor(
         appMaintenanceFF.enabled.subscribe { enabled ->
             if (enabled) {
                 // check app maintenance status
-                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
-                    when (status) {
-                        AppMaintenanceStatus.NonActionable.Unknown,
-                        AppMaintenanceStatus.NonActionable.AllClear -> {
-                            extractDataAndStart()
-                        }
+                rxSingle { getAppMaintenanceConfigUseCase() }.subscribeBy(
+                    onSuccess = { status ->
+                        when (status) {
+                            AppMaintenanceStatus.NonActionable.Unknown,
+                            AppMaintenanceStatus.NonActionable.AllClear -> {
+                                extractDataAndStart()
+                            }
 
-                        else -> {
-                            view?.onAppMaintenance()
+                            else -> {
+                                view?.onAppMaintenance()
+                            }
                         }
+                    },
+                    onError = {
+                        Timber.e("Cannot get maintenance config, $it")
+                        extractDataAndStart()
                     }
-                }
+                )
             }
         }
     }
