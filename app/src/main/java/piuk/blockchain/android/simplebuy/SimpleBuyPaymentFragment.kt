@@ -390,7 +390,7 @@ class SimpleBuyPaymentFragment :
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
-            ErrorState.CardCreateAbandoned -> showError(
+            ErrorState.CardCreateExpired -> showError(
                 getString(R.string.title_cardCreateExpired),
                 getString(R.string.msg_cardCreateExpired),
                 R.drawable.ic_cross_white_bckg,
