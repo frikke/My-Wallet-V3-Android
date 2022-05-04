@@ -1,5 +1,7 @@
 package com.blockchain.core.user
 
+import com.blockchain.api.services.ContactPreference
+import com.blockchain.api.services.ContactPreferenceUpdate
 import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
@@ -18,6 +20,10 @@ interface NabuUserDataManager {
     fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
 
     fun signLatestTermsAndConditions(): Completable
+
+    fun getContactPreferences(): Single<List<ContactPreference>>
+
+    fun updateContactPreferences(updates: List<ContactPreferenceUpdate>): Completable
 }
 
 class NabuUserDataManagerImpl(
@@ -56,6 +62,16 @@ class NabuUserDataManagerImpl(
     override fun signLatestTermsAndConditions(): Completable =
         authenticator.getAuthHeader().flatMapCompletable {
             nabuUserService.signLatestTermsAndConditions(it)
+        }
+
+    override fun getContactPreferences(): Single<List<ContactPreference>> =
+        authenticator.getAuthHeader().flatMap {
+            nabuUserService.getContactPreferences(it)
+        }
+
+    override fun updateContactPreferences(updates: List<ContactPreferenceUpdate>) =
+        authenticator.getAuthHeader().flatMapCompletable {
+            nabuUserService.updateContactPreferences(it, updates)
         }
 }
 

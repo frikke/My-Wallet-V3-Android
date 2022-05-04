@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.utils.extensions
 
 import com.blockchain.outcome.Outcome
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlin.coroutines.CoroutineContext
@@ -31,6 +32,13 @@ fun <E, R : Any?> rxMaybeOutcome(
 }
 
 suspend fun <T : Any> Single<T>.awaitOutcome(): Outcome<Exception, T> =
+    try {
+        Outcome.Success(await())
+    } catch (ex: Exception) {
+        Outcome.Failure(ex)
+    }
+
+suspend fun Completable.awaitOutcome(): Outcome<Exception, Unit> =
     try {
         Outcome.Success(await())
     } catch (ex: Exception) {
