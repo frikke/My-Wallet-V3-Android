@@ -106,7 +106,7 @@
         app:layout_constraintBottom_toTopOf="@id/private_key_explanation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="@string/yapily_permission_confirmation_buy" />
+        tools:text="@string/open_banking_permission_confirmation_buy" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/private_key_explanation"

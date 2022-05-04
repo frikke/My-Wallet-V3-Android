@@ -24,8 +24,8 @@ import info.blockchain.balance.FiatCurrency
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
-import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionFragment
-import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionNavigationEvent
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionFragment
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionNavEvent
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragmentLegacy
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
@@ -36,7 +36,7 @@ class BankAuthActivity :
     BlockchainActivity(),
     BankAuthFlowNavigator,
     SlidingModalBottomDialog.Host,
-    NavigationRouter<YapilyPermissionNavigationEvent> {
+    NavigationRouter<OpenBankingPermissionNavEvent> {
 
     private val linkBankTransfer: LinkBankTransfer
         get() = intent.getSerializableExtra(LINK_BANK_TRANSFER_KEY) as LinkBankTransfer
@@ -137,7 +137,7 @@ class BankAuthActivity :
                 .replace(
                     R.id.content_frame,
                     if (enabled) {
-                        YapilyPermissionFragment.newInstance(
+                        OpenBankingPermissionFragment.newInstance(
                             institution = institution,
                             entity = entity,
                             authSource = authSource
@@ -201,9 +201,9 @@ class BankAuthActivity :
         finish()
     }
 
-    override fun route(navigationEvent: YapilyPermissionNavigationEvent) {
+    override fun route(navigationEvent: OpenBankingPermissionNavEvent) {
         when (navigationEvent) {
-            is YapilyPermissionNavigationEvent.AgreementAccepted -> {
+            is OpenBankingPermissionNavEvent.AgreementAccepted -> {
                 launchBankLinking(
                     accountProviderId = "",
                     accountId = navigationEvent.institution.id,
@@ -211,7 +211,7 @@ class BankAuthActivity :
                 )
             }
 
-            YapilyPermissionNavigationEvent.AgreementDenied -> {
+            OpenBankingPermissionNavEvent.AgreementDenied -> {
                 supportFragmentManager.popBackStack()
             }
         }.exhaustive

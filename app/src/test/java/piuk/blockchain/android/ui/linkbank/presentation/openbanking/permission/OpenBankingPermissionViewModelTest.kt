@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
+package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission
 
 import app.cash.turbine.test
 import com.blockchain.core.payments.model.YapilyInstitution
@@ -12,28 +12,28 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
+import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 
 @ExperimentalCoroutinesApi
-class YapilyPermissionViewModelTest {
+class OpenBankingPermissionViewModelTest {
 
     @ExperimentalCoroutinesApi
     @get:Rule
     var coroutineTestRule = CoroutineTestRule()
 
     private val getSafeConnectTosLinkUseCase = mockk<GetSafeConnectTosLinkUseCase>()
-    private lateinit var viewModel: YapilyPermissionViewModel
+    private lateinit var viewModel: OpenBankingPermissionViewModel
     private val tosLink = "TosLink"
 
     private val institution = mockk<YapilyInstitution>()
-    private val args = YapilyPermissionArgs(
+    private val args = OpenBankingPermissionArgs(
         institution = institution,
         entity = "", authSource = mockk()
     )
 
     @Before
     fun setUp() {
-        viewModel = YapilyPermissionViewModel(
+        viewModel = OpenBankingPermissionViewModel(
             getSafeConnectTosLinkUseCase
         )
 
@@ -44,7 +44,7 @@ class YapilyPermissionViewModelTest {
     fun `WHEN GetTermsOfServiceLink is triggered, THEN UseCase should be called and tos should be updated`() =
         runTest {
             viewModel.viewState.test {
-                viewModel.onIntent(YapilyPermissionIntents.GetTermsOfServiceLink)
+                viewModel.onIntent(OpenBankingPermissionIntents.GetTermsOfServiceLink)
 
                 coVerify(exactly = 1) { getSafeConnectTosLinkUseCase() }
 
@@ -59,9 +59,9 @@ class YapilyPermissionViewModelTest {
             viewModel.viewCreated(args)
 
             viewModel.navigationEventFlow.test {
-                viewModel.onIntent(YapilyPermissionIntents.ApproveClicked)
+                viewModel.onIntent(OpenBankingPermissionIntents.ApproveClicked)
 
-                assertEquals(YapilyPermissionNavigationEvent.AgreementAccepted(institution), expectMostRecentItem())
+                assertEquals(OpenBankingPermissionNavEvent.AgreementAccepted(institution), expectMostRecentItem())
             }
         }
 
@@ -69,9 +69,9 @@ class YapilyPermissionViewModelTest {
     fun `WHEN DenyClicked is triggered, THEN AgreementDenied should be triggered`() =
         runTest {
             viewModel.navigationEventFlow.test {
-                viewModel.onIntent(YapilyPermissionIntents.DenyClicked)
+                viewModel.onIntent(OpenBankingPermissionIntents.DenyClicked)
 
-                assertEquals(YapilyPermissionNavigationEvent.AgreementDenied, expectMostRecentItem())
+                assertEquals(OpenBankingPermissionNavEvent.AgreementDenied, expectMostRecentItem())
             }
         }
 }

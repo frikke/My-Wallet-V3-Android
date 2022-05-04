@@ -2098,11 +2098,11 @@
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>
     <string name="yapily_empty_cta">Show Transfer Details</string>
     <string name="yapily_find_bank_title">Find Your Bank</string>
-    <string name="yapily_permission_link_to_bank">Link to %1$s</string>
-    <string name="yapily_permission_confirmation">By tapping approve you are agreeing to SafeConnect</string>
-    <string name="yapily_permission_confirmation_buy">By tapping Buy Now, you agree to SafeConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
-    <string name="yapily_permission_terms_service">Terms of Service</string>
-    <string name="yapily_permission_privacy_policy">Privacy Policy</string>
+    <string name="open_banking_permission_link_to_bank">Link to %1$s</string>
+    <string name="open_banking_permission_confirmation">By tapping approve you are agreeing to SafeConnect</string>
+    <string name="open_banking_permission_confirmation_buy">By tapping Buy Now, you agree to SafeConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
+    <string name="open_banking_permission_terms_service">Terms of Service</string>
+    <string name="open_banking_permission_privacy_policy">Privacy Policy</string>
     <string name="yapily_agreement_title_1">Data Sharing</string>
     <string name="yapily_agreement_blurb_1_1">%1$s will retrieve your bank data based on your request and provide this information to Blockchain.</string>
     <string name="yapily_agreement_title_2">Secure Connection</string>

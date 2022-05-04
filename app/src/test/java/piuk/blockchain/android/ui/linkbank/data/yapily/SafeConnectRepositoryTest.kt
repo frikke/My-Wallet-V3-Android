@@ -9,7 +9,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.linkbank.domain.yapily.service.SafeConnectService
+import piuk.blockchain.android.ui.linkbank.data.openbanking.SafeConnectRepository
+import piuk.blockchain.android.ui.linkbank.domain.openbanking.service.SafeConnectService
 
 @ExperimentalCoroutinesApi
 class SafeConnectRepositoryTest {

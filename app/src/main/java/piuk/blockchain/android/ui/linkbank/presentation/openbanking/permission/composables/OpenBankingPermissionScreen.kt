@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.composables
+package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,10 +30,10 @@ import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.core.payments.model.YapilyInstitution
 import java.net.URL
 import piuk.blockchain.android.R
-import piuk.blockchain.android.urllinks.URL_YAPILY_PRIVACY_POLICY
+import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 
 @Composable
-fun YapilyPermissionScreen(
+fun OpenBankingPermissionScreen(
     institution: YapilyInstitution,
     termsOfServiceLink: String,
     urlOnclick: (String) -> Unit,
@@ -66,7 +66,7 @@ fun YapilyPermissionScreen(
             style = AppTheme.typography.title3,
             color = Grey900,
             textAlign = TextAlign.Center,
-            text = stringResource(id = R.string.yapily_permission_link_to_bank, institution.name)
+            text = stringResource(id = R.string.open_banking_permission_link_to_bank, institution.name)
         )
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.smallest_margin)))
@@ -103,7 +103,7 @@ private fun TermAndPrivacyText(
     val privacyTag = "PRIVACY"
     val annotatedText = buildAnnotatedString {
         withStyle(style = SpanStyle(color = Grey900)) {
-            append(stringResource(id = R.string.yapily_permission_confirmation))
+            append(stringResource(id = R.string.open_banking_permission_confirmation))
         }
 
         append(" ")
@@ -113,7 +113,7 @@ private fun TermAndPrivacyText(
             annotation = termsOfServiceLink
         )
         withStyle(style = SpanStyle(color = Blue600)) {
-            append(stringResource(id = R.string.yapily_permission_terms_service))
+            append(stringResource(id = R.string.open_banking_permission_terms_service))
         }
         pop()
 
@@ -121,10 +121,10 @@ private fun TermAndPrivacyText(
 
         pushStringAnnotation(
             tag = privacyTag,
-            annotation = URL_YAPILY_PRIVACY_POLICY
+            annotation = URL_OPEN_BANKING_PRIVACY_POLICY
         )
         withStyle(style = SpanStyle(color = Blue600)) {
-            append(stringResource(id = R.string.yapily_permission_privacy_policy))
+            append(stringResource(id = R.string.open_banking_permission_privacy_policy))
         }
         pop()
     }
@@ -151,8 +151,8 @@ private fun TermAndPrivacyText(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewYapilyPermissionScreen() {
-    YapilyPermissionScreen(
+private fun PreviewOpenBankingPermissionScreen() {
+    OpenBankingPermissionScreen(
         institution = YapilyInstitution(
             listOf(),
             "Institution Name",

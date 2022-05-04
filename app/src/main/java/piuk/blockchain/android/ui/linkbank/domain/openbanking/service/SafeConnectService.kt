@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.domain.yapily.service
+package piuk.blockchain.android.ui.linkbank.domain.openbanking.service
 
 interface SafeConnectService {
     suspend fun getTosLink(): String

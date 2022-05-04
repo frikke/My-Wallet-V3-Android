@@ -7,8 +7,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.ui.linkbank.domain.yapily.service.SafeConnectService
-import piuk.blockchain.android.ui.linkbank.domain.yapily.usecase.GetSafeConnectTosLinkUseCase
+import piuk.blockchain.android.ui.linkbank.domain.openbanking.service.SafeConnectService
+import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 
 @ExperimentalCoroutinesApi
 class GetSafeConnectTosLinkUseCaseTest {

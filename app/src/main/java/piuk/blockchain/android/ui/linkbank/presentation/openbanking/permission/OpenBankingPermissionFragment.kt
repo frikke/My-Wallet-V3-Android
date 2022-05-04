@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.linkbank.presentation.yapily.permission
+package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,32 +20,32 @@ import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.linkbank.BankAuthAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.bankAuthEvent
-import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.YapilyPermissionArgs.Companion.ARGS_KEY
-import piuk.blockchain.android.ui.linkbank.presentation.yapily.permission.composables.YapilyPermissionScreen
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionArgs.Companion.ARGS_KEY
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.composables.OpenBankingPermissionScreen
 import piuk.blockchain.android.ui.linkbank.toAnalyticsBankProvider
 import piuk.blockchain.android.util.openUrl
 
-class YapilyPermissionFragment :
-    MVIFragment<YapilyPermissionViewState>(),
+class OpenBankingPermissionFragment :
+    MVIFragment<OpenBankingPermissionViewState>(),
     Analytics by get(Analytics::class.java) {
 
-    private val args: YapilyPermissionArgs by lazy {
-        arguments?.run { getParcelable(ARGS_KEY) as? YapilyPermissionArgs }
+    private val args: OpenBankingPermissionArgs by lazy {
+        arguments?.run { getParcelable(ARGS_KEY) as? OpenBankingPermissionArgs }
             ?: error("missing args")
     }
 
-    private val navigationRouter: NavigationRouter<YapilyPermissionNavigationEvent> by lazy {
-        activity as? NavigationRouter<YapilyPermissionNavigationEvent>
-            ?: error("host does not implement NavigationRouter<YapilyPermissionNavigationEvent>")
+    private val navigationRouter: NavigationRouter<OpenBankingPermissionNavEvent> by lazy {
+        activity as? NavigationRouter<OpenBankingPermissionNavEvent>
+            ?: error("host does not implement NavigationRouter<OpenBankingPermissionNavEvent>")
     }
 
-    private val viewModel: YapilyPermissionViewModel by lazy {
+    private val viewModel: OpenBankingPermissionViewModel by lazy {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         bindViewModel(viewModel = viewModel, navigator = navigationRouter, args = args)
-        viewModel.onIntent(YapilyPermissionIntents.GetTermsOfServiceLink)
+        viewModel.onIntent(OpenBankingPermissionIntents.GetTermsOfServiceLink)
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -61,7 +61,7 @@ class YapilyPermissionFragment :
     private fun ScreenContent() {
         val state = viewModel.viewState.collectAsState()
 
-        YapilyPermissionScreen(
+        OpenBankingPermissionScreen(
             institution = args.institution,
             termsOfServiceLink = state.value.termsOfServiceLink,
             urlOnclick = ::openUrl,
@@ -70,7 +70,7 @@ class YapilyPermissionFragment :
         )
     }
 
-    override fun onStateUpdated(state: YapilyPermissionViewState) {}
+    override fun onStateUpdated(state: OpenBankingPermissionViewState) {}
 
     private fun openUrl(url: String) {
         context.openUrl(url)
@@ -80,13 +80,13 @@ class YapilyPermissionFragment :
         logApproveAnalytics()
         logLinkBankConditionsApproved()
 
-        viewModel.onIntent(YapilyPermissionIntents.ApproveClicked)
+        viewModel.onIntent(OpenBankingPermissionIntents.ApproveClicked)
     }
 
     private fun denyOnClick() {
         logDenyAnalytics()
 
-        viewModel.onIntent(YapilyPermissionIntents.DenyClicked)
+        viewModel.onIntent(OpenBankingPermissionIntents.DenyClicked)
     }
 
     private fun logApproveAnalytics() {
@@ -124,10 +124,10 @@ class YapilyPermissionFragment :
             institution: YapilyInstitution,
             entity: String,
             authSource: BankAuthSource
-        ): YapilyPermissionFragment =
-            YapilyPermissionFragment().withArgs(
+        ): OpenBankingPermissionFragment =
+            OpenBankingPermissionFragment().withArgs(
                 key = ARGS_KEY,
-                args = YapilyPermissionArgs(institution = institution, authSource = authSource, entity = entity)
+                args = OpenBankingPermissionArgs(institution = institution, authSource = authSource, entity = entity)
             )
     }
 }
