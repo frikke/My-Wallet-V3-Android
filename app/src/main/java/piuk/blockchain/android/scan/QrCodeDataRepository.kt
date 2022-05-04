@@ -4,20 +4,12 @@ import info.blockchain.wallet.crypto.AESUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.nio.charset.StandardCharsets
 import org.spongycastle.util.encoders.Hex
+import java.nio.charset.StandardCharsets
 
-class QrCodeDataManager {
-    /**
-     * Generates a pairing QR code in Bitmap format from a given password, sharedkey and encryption
-     * phrase to specified dimensions, wrapped in a Single. Will throw an error if the Bitmap
-     * is null.
-     *
-     * @param password Wallet's plain text password
-     * @param sharedKey Wallet's plain text sharedkey
-     * @param encryptionPhrase The pairing encryption password
-     */
-    fun generatePairingCode(
+class QrCodeDataRepository : QrCodeDataService {
+
+    override fun generatePairingCode(
         guid: String,
         password: String,
         sharedKey: String,

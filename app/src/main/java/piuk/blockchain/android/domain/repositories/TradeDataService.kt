@@ -6,7 +6,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
-interface TradeDataManager {
+interface TradeDataService {
 
     fun isFirstTimeBuyer(): Single<Boolean>
 

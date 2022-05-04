@@ -5,10 +5,10 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.FundsAccount
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class RecurringBuyInteractor(
-    private val tradeDataManager: TradeDataManager,
+    private val tradeDataService: TradeDataService,
     private val paymentsDataManager: PaymentsDataManager
 ) {
 
@@ -31,5 +31,5 @@ class RecurringBuyInteractor(
         }
     }
 
-    fun deleteRecurringBuy(id: String) = tradeDataManager.cancelRecurringBuy(id)
+    fun deleteRecurringBuy(id: String) = tradeDataService.cancelRecurringBuy(id)
 }

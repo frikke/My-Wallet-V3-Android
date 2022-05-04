@@ -4,10 +4,10 @@ import com.blockchain.android.testutils.rxInit
 import java.lang.Exception
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.scan.QrCodeDataManager
+import piuk.blockchain.android.scan.QrCodeDataService
 
-class QrCodeDataManagerTest {
-    private val subject: QrCodeDataManager = QrCodeDataManager()
+class QrCodeDataServiceTest {
+    private val subject: QrCodeDataService = QrCodeDataManager()
 
     @get:Rule
     val rx = rxInit {

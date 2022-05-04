@@ -102,7 +102,7 @@ val dashboardModule = module {
         factory {
             CoinViewInteractor(
                 coincore = get(),
-                tradeDataManager = get(),
+                tradeDataService = get(),
                 currencyPrefs = get(),
                 dashboardPrefs = get(),
                 identity = get(),
@@ -125,7 +125,7 @@ val dashboardModule = module {
 
         factory {
             RecurringBuyInteractor(
-                tradeDataManager = get(),
+                tradeDataService = get(),
                 paymentsDataManager = get()
             )
         }
