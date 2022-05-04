@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.login
 
+import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
@@ -17,6 +18,8 @@ val loginUiModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 interactor = get(),
+                getAppMaintenanceConfigUseCase = get(),
+                appMaintenanceFF = get(appMaintenanceFeatureFlag),
                 analytics = get()
             )
         }

@@ -7,6 +7,20 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 sealed class LoginIntents : MviIntent<LoginState> {
 
+    data class CheckAppMaintenanceStatus(val action: String?, val uri: Uri?) : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState {
+            return oldState.copy()
+        }
+    }
+
+    object ShowAppMaintenance : LoginIntents() {
+        override fun reduce(oldState: LoginState): LoginState {
+            return oldState.copy(
+                currentStep = LoginStep.APP_MAINTENANCE
+            )
+        }
+    }
+
     data class UpdateEmail(private val email: String) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =
             oldState.copy(

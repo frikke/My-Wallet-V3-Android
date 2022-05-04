@@ -2887,6 +2887,20 @@
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
 
+    <!-- App Maintenance Screens-->
+    <string name="app_maintenance_os_not_supported_title">Your OS is Not Supported</string>
+    <string name="app_maintenance_os_not_supported_description">It looks like you are not on the latest version of your operating system. Please update to continue using our mobile app.</string>
+    <string name="app_maintenance_update_title">Time to Update!</string>
+    <string name="app_maintenance_update_description">We\'ve added awesome new features, security updates, and more.</string>
+    <string name="app_maintenance_down_title">Down for Maintenance</string>
+    <string name="app_maintenance_site_wide_description">Our systems are currently unavailable. Don’t worry, your funds are safe.</string>
+    <string name="app_maintenance_redirect_website_description">The app is currently under maintenance. Your funds are safe and you can always access your wallet on the web.</string>
+    <string name="app_maintenance_cta_update_now">Update App</string>
+    <string name="app_maintenance_cta_update_later">I’ll Do This Later</string>
+    <string name="app_maintenance_cta_redirect_website">Go to Web</string>
+    <string name="app_maintenance_cta_view_status">View Status</string>
+    <string name="app_maintenance_error_inapp_update">Something went wrong, please try again</string>
+
     <!-- Card errors -->
     <string name="title_cardInsufficientFunds">Insufficient Funds</string>
     <string name="msg_cardInsufficientFunds">This payment method lacks sufficient funds. You can add funds or choose a different method.</string>

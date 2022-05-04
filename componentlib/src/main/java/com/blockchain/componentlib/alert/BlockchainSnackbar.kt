@@ -1,11 +1,9 @@
-package piuk.blockchain.android.ui.customviews
+package com.blockchain.componentlib.alert
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import com.blockchain.componentlib.alert.SnackbarAlertView
-import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.findSuitableParent
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar

@@ -23,6 +23,7 @@ val customerSupportSheetFeatureFlag = StringQualifier("ff_customer_support_sheet
 val notificationPreferencesFeatureFlag = StringQualifier("ff_notification_preferences_rework")
 val ethLayerTwoFeatureFlag = StringQualifier("ff_eth_layer_two")
 val orderRewardsFeatureFlag = StringQualifier("ff_order_rewards")
+val appMaintenanceFeatureFlag = StringQualifier("ff_app_maintenance")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

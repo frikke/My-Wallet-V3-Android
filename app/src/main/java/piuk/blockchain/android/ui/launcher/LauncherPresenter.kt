@@ -3,14 +3,21 @@ package piuk.blockchain.android.ui.launcher
 import android.content.Intent
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
+import timber.log.Timber
 
 interface LauncherView : MvpView {
+    fun onAppMaintenance()
     fun onCorruptPayload()
     fun getViewIntentData(): ViewIntentData
     fun onNoGuid()
@@ -31,10 +38,50 @@ class LauncherPresenter internal constructor(
     private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val envSettings: EnvironmentConfig,
-    private val authPrefs: AuthPrefs
+    private val authPrefs: AuthPrefs,
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
+    private val appMaintenanceFF: FeatureFlag
 ) : MvpPresenter<LauncherView>() {
 
+    override fun onViewCreated() {
+        appMaintenanceFF.enabled.subscribe { enabled ->
+            if (enabled) {
+                // check app maintenance status
+                rxSingle { getAppMaintenanceConfigUseCase() }.subscribeBy(
+                    onSuccess = { status ->
+                        when (status) {
+                            AppMaintenanceStatus.NonActionable.Unknown,
+                            AppMaintenanceStatus.NonActionable.AllClear -> {
+                                extractDataAndStart()
+                            }
+
+                            else -> {
+                                view?.onAppMaintenance()
+                            }
+                        }
+                    },
+                    onError = {
+                        Timber.e("Cannot get maintenance config, $it")
+                        extractDataAndStart()
+                    }
+                )
+            }
+        }
+    }
+
     override fun onViewAttached() {
+        appMaintenanceFF.enabled.subscribe { enabled ->
+            if (!enabled) {
+                extractDataAndStart()
+            }
+        }
+    }
+
+    fun resumeAppFlow() {
+        extractDataAndStart()
+    }
+
+    private fun extractDataAndStart() {
         val viewIntentData = view?.getViewIntentData()
 
         // Store incoming bitcoin URI if needed
@@ -80,7 +127,8 @@ class LauncherPresenter internal constructor(
     fun clearCredentialsAndRestart() =
         appUtil.clearCredentialsAndRestart()
 
-    override fun onViewDetached() {}
+    override fun onViewDetached() {
+    }
 
     override val alwaysDisableScreenshots: Boolean = false
     override val enableLogoutTimer: Boolean = true

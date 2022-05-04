@@ -1,8 +1,10 @@
 package piuk.blockchain.android.ui.login
 
+import android.net.Uri
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import io.reactivex.rxjava3.core.Scheduler
@@ -11,10 +13,13 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLPeerUnverifiedException
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
 import org.json.JSONObject
+import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
+import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import retrofit2.HttpException
 import timber.log.Timber
@@ -25,11 +30,17 @@ class LoginModel(
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val interactor: LoginInteractor,
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
+    private val appMaintenanceFF: FeatureFlag,
     private val analytics: Analytics
 ) : MviModel<LoginState, LoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
 
     override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable? {
         return when (intent) {
+            is LoginIntents.CheckAppMaintenanceStatus -> {
+                checkAppMaintenanceStatus(intent.action, intent.uri)
+                null
+            }
             is LoginIntents.LoginWithQr -> loginWithQrCode(intent.qrString)
             is LoginIntents.ObtainSessionIdForEmail ->
                 obtainSessionId(
@@ -74,6 +85,33 @@ class LoginModel(
                 null
             }
             else -> null
+        }
+    }
+
+    private fun checkAppMaintenanceStatus(action: String?, uri: Uri?) {
+        appMaintenanceFF.enabled.subscribe { enabled ->
+            if (enabled) {
+                rxSingle { getAppMaintenanceConfigUseCase() }.subscribe { status ->
+                    when (status) {
+                        AppMaintenanceStatus.NonActionable.Unknown,
+                        AppMaintenanceStatus.NonActionable.AllClear -> {
+                            checkExistingSessionOrDeepLink(action, uri)
+                        }
+
+                        else -> {
+                            process(LoginIntents.ShowAppMaintenance)
+                        }
+                    }
+                }
+            } else {
+                checkExistingSessionOrDeepLink(action, uri)
+            }
+        }
+    }
+
+    private fun checkExistingSessionOrDeepLink(action: String?, uri: Uri?) {
+        if (action != null && uri != null) {
+            process(LoginIntents.CheckForExistingSessionOrDeepLink(action, uri))
         }
     }
 

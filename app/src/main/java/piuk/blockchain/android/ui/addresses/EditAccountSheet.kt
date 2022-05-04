@@ -14,6 +14,7 @@ import com.blockchain.coincore.bch.BchCryptoWalletAccount
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
@@ -30,7 +31,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogAccountEditBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 import timber.log.Timber

@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -72,7 +73,6 @@ import kotlin.math.min
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityScanBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
 

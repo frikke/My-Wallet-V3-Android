@@ -688,6 +688,9 @@ class PrefsUtil(
         private const val CONFIG_STALE = "CONFIG_STALE"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
+
+        // AppUpdate (app maintenance)
+        private const val KEY_SKIPPED_VERSION_CODE = "KEY_SKIPPED_VERSION_CODE"
     }
 }
 

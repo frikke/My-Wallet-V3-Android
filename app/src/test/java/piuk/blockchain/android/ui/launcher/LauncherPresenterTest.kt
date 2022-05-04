@@ -2,13 +2,17 @@ package piuk.blockchain.android.ui.launcher
 
 import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
@@ -23,12 +27,19 @@ class LauncherPresenterTest {
     private val viewIntentData: ViewIntentData = mock()
     private val authPrefs: AuthPrefs = mock()
 
+    private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock()
+    private val appMaintenanceFF: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
+    }
+
     private val subject = LauncherPresenter(
         appUtil,
         prefsUtil,
         deepLinkPersistence,
         environmentConfig,
-        authPrefs
+        authPrefs,
+        getAppMaintenanceConfigUseCase,
+        appMaintenanceFF
     )
 
     @Test
@@ -44,6 +55,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_SCHEME_URL, "bitcoin uri")
@@ -62,6 +74,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(prefsUtil).setValue(PersistentPrefs.KEY_METADATA_URI, "blockchain")
@@ -76,6 +89,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onCorruptPayload()
@@ -90,6 +104,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onRequestPin()
@@ -104,6 +119,7 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onReenterPassword()
@@ -118,13 +134,14 @@ class LauncherPresenterTest {
         whenever(prefsUtil.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onNoGuid()
     }
 
     @Test
-    fun onViewAttached_noGuidAndBackup_callsOnRequestPin() {
+    fun onViewAttached_noGuidAndBackup_callsOnRequestPin() = runBlocking {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
         whenever(prefsUtil.hasBackup()).thenReturn(true)
@@ -133,6 +150,7 @@ class LauncherPresenterTest {
 
         // Act
         subject.attachView(launcherActivity)
+        subject.resumeAppFlow()
 
         // Assert
         verify(launcherActivity).onRequestPin()

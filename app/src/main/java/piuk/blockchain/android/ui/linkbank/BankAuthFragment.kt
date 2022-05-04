@@ -16,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatButton
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -30,7 +31,6 @@ import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentLinkABankBinding
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable

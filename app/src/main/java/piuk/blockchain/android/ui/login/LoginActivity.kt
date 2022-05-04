@@ -7,7 +7,9 @@ import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
@@ -23,13 +25,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityLoginBinding
+import piuk.blockchain.android.maintenance.presentation.AppMaintenanceFragment
+import piuk.blockchain.android.maintenance.presentation.AppMaintenanceSharedViewModel
 import piuk.blockchain.android.ui.customersupport.CustomerSupportAnalytics
 import piuk.blockchain.android.ui.customersupport.CustomerSupportSheet
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthActivity
 import piuk.blockchain.android.ui.scan.QrExpected
@@ -44,6 +51,9 @@ class LoginActivity :
     LoginIntentCoordinator, MviActivity<LoginModel, LoginIntents, LoginState, ActivityLoginBinding>() {
 
     override val model: LoginModel by scopedInject()
+
+    private val appMaintenanceViewModel: AppMaintenanceSharedViewModel by viewModel()
+    private var appMaintenanceJob: Job? = null
 
     override val alwaysDisableScreenshots: Boolean = true
 
@@ -71,15 +81,8 @@ class LoginActivity :
 
         setupToolbar()
         recaptchaClient.initReCaptcha()
-        checkExistingSessionOrDeeplink(intent)
-    }
 
-    private fun checkExistingSessionOrDeeplink(intent: Intent) {
-        val action = intent.action
-        val data = intent.data
-        if (action != null && data != null) {
-            model.process(LoginIntents.CheckForExistingSessionOrDeepLink(action, data))
-        }
+        model.process(LoginIntents.CheckAppMaintenanceStatus(action = intent.action, uri = intent.data))
     }
 
     override fun onStart() {
@@ -170,6 +173,14 @@ class LoginActivity :
         checkExistingSessionOrDeeplink(intent)
     }
 
+    private fun checkExistingSessionOrDeeplink(intent: Intent) {
+        val action = intent.action
+        val data = intent.data
+        if (action != null && data != null) {
+            model.process(LoginIntents.CheckForExistingSessionOrDeepLink(action, data))
+        }
+    }
+
     override fun initBinding(): ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
 
     private fun setupToolbar() {
@@ -201,6 +212,7 @@ class LoginActivity :
         }
         state = newState
         when (newState.currentStep) {
+            LoginStep.APP_MAINTENANCE -> navigateToAppMaintenance()
             LoginStep.SHOW_SCAN_ERROR -> {
                 showSnackbar(SnackbarType.Error, R.string.pairing_failed)
                 if (newState.shouldRestartApp) {
@@ -352,6 +364,29 @@ class LoginActivity :
             }
             continueButton.isEnabled =
                 emailRegex.matches(newState.email) || (newState.isTypingEmail && emailRegex.matches(newState.email))
+        }
+    }
+
+    private fun navigateToAppMaintenance() {
+        showBottomSheet(AppMaintenanceFragment.newInstance())
+        observeResumeAppFlow()
+    }
+
+    /**
+     * Because the maintenance screen is shown and the app/servers might be broken,
+     * the flow will stop until notified by [AppMaintenanceSharedViewModel.resumeAppFlow]
+     */
+    private fun observeResumeAppFlow() {
+        appMaintenanceJob?.cancel()
+        appMaintenanceJob = lifecycleScope.launch {
+            appMaintenanceViewModel.resumeAppFlow.collect {
+
+                // resume by checking deeplinks
+                checkExistingSessionOrDeeplink(intent)
+
+                appMaintenanceJob?.cancel()
+                appMaintenanceJob = null
+            }
         }
     }
 

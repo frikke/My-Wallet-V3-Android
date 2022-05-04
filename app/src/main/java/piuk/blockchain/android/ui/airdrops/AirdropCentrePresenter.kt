@@ -39,6 +39,8 @@ class AirdropCentrePresenter(
     override val alwaysDisableScreenshots: Boolean = false
     override val enableLogoutTimer: Boolean = false
 
+    override fun onViewCreated() {}
+
     override fun onViewAttached() {
         fetchAirdropStatus()
     }

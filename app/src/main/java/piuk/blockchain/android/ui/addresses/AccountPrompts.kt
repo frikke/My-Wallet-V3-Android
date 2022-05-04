@@ -11,12 +11,12 @@ import android.widget.ImageView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatEditText
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.getAlertDialogPaddedView
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.google.android.material.snackbar.Snackbar
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 private const val ADDRESS_LABEL_MAX_LENGTH = 17
 
