@@ -1,4 +1,4 @@
-package piuk.blockchain.android.scan
+package piuk.blockchain.android.scan.domain
 
 import io.reactivex.rxjava3.core.Single
 

@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
-import piuk.blockchain.android.scan.QrCodeDataService
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 

@@ -13,7 +13,7 @@ import okhttp3.ResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.scan.QrCodeDataService
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 

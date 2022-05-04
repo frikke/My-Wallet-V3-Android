@@ -100,8 +100,8 @@ import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.scan.QrCodeDataRepository
-import piuk.blockchain.android.scan.QrCodeDataService
+import piuk.blockchain.android.scan.data.QrCodeDataRepository
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
