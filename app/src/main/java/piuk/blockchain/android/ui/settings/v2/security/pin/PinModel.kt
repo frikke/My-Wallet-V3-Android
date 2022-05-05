@@ -6,6 +6,7 @@ import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.WalletUpgradeEvent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.RemoteLogger
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -19,15 +20,16 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
+import io.embrace.android.embracesdk.Embrace
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.net.SocketTimeoutException
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import timber.log.Timber
+import java.net.SocketTimeoutException
 
 class PinModel(
     initialState: PinState,
@@ -37,6 +39,7 @@ class PinModel(
     environmentConfig: EnvironmentConfig,
     private val remoteLogger: RemoteLogger,
     private val analytics: Analytics,
+    private val momentLogger: MomentLogger
 ) : MviModel<PinState, PinIntent>(
     initialState,
     mainScheduler,
@@ -76,6 +79,8 @@ class PinModel(
                 }
             }
             is PinIntent.ValidatePIN -> {
+                momentLogger.startEvent("Pin->Dashboard")
+
                 interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult)
                     .handleProgress(R.string.validating_pin)
                     .subscribeBy(

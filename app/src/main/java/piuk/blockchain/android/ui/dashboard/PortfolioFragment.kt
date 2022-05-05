@@ -25,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -160,6 +161,8 @@ class PortfolioFragment :
         }
     }
 
+    private val momentLogger: MomentLogger by inject()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -269,6 +272,8 @@ class PortfolioFragment :
                 isLoading && showPortfolio -> {
                     portfolioRecyclerView.visible()
                     dashboardProgress.gone()
+
+                    momentLogger.endEvent("Pin->Dashboard")
                 }
                 isLoading -> {
                     portfolioRecyclerView.gone()
@@ -280,6 +285,8 @@ class PortfolioFragment :
                     emptyPortfolioGroup.visibleIf { !showPortfolio }
                     setupCtaButtons(showDepositButton, showPortfolio)
                     dashboardProgress.gone()
+
+                    momentLogger.endEvent("Pin->Dashboard")
                 }
             }
         }
