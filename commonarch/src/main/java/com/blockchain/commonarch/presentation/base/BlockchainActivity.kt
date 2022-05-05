@@ -101,7 +101,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
         toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
     }
 
-    fun updateToolbarBackAction(backAction: (() -> Unit)) {
+    fun updateToolbarBackAction(backAction: (() -> Unit)?) {
         toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
     }
 
