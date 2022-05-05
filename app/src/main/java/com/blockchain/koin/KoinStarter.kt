@@ -19,6 +19,7 @@ import com.blockchain.koin.modules.moshiModule
 import com.blockchain.koin.modules.nabuUrlModule
 import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
+import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
 import com.blockchain.logging.data.koin.loggingModule
 import com.blockchain.network.modules.apiModule
@@ -34,6 +35,9 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.campaign.campaignModule
+import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
+import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
+import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
@@ -72,6 +76,7 @@ object KoinStarter {
             androidContext(application)
             modules(
                 listOf(
+                    versionsModule,
                     activitiesModule,
                     apiInterceptorsModule,
                     apiModule,
@@ -119,6 +124,7 @@ object KoinStarter {
                     storeCachesPersistedJsonSqlDelightModule,
                     blockchainCardModule,
                     interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
+                    appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule
                 )
             )

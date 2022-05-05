@@ -7,6 +7,7 @@ import android.text.method.LinkMovementMethod
 import androidx.annotation.StringRes
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
@@ -14,7 +15,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivityAccountRecoveryBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.reset.ResetAccountFragment
 import piuk.blockchain.android.ui.reset.password.ResetPasswordFragment
 import piuk.blockchain.android.util.StringUtils

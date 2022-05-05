@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -27,7 +28,6 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity

@@ -352,6 +352,10 @@ dependencies {
     implementation project(':store:caches:persistedjsonsqldelight')
     implementation project(':blockchainCard')
 
+    implementation project(':appMaintenance:data')
+    implementation project(':appMaintenance:domain')
+    implementation project(':appMaintenance:presentation')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 

@@ -253,7 +253,17 @@ enum class AnalyticsNames(val eventName: String) {
     CUSTOMER_SUPPORT_CLICKED("Customer Support Clicked"),
     CUSTOMER_SUPPORT_EMAIL_CLICKED("Email Us Clicked"),
     CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked"),
-    CLIENT_ERROR("Client error");
+    CLIENT_ERROR("Client error"),
+    NOTIFICATION_CLICKED("Notification Clicked"),
+    NOTIFICATION_VIEWED("Notification Viewed"),
+    NOTIFICATION_PREFERENCES_CLICKED("Notification Preferences Clicked"),
+    NOTIFICATION_PREFERENCES_VIEWED("Notification Preferences Viewed"),
+    NOTIFICATIONS_CLOSED("Notifications Closed"),
+    NOTIFICATION_NEWS_SET_UP("News Set Up"),
+    NOTIFICATION_PRICE_ALERTS_SET_UP("Price Alerts Set Up"),
+    NOTIFICATION_SECURITY_ALERTS_SET_UP("Security Alerts Set Up"),
+    NOTIFICATION_WALLET_ACTIVITY_SET_UP("Wallet Activity Set Up"),
+    NOTIFICATION_STATUS_CHANGE_ERROR("Status Change Error");
 }
 
 enum class LaunchOrigin {

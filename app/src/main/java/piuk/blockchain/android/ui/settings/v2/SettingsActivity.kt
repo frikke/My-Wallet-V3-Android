@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.events.AnalyticsEvents
+import com.blockchain.api.services.ContactPreference
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.ui.BlockchainCardFragment
@@ -32,7 +33,9 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
 import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesFragment
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.details.NotificationPreferenceDetailsFragment
 import piuk.blockchain.android.ui.settings.v2.notifications.NotificationsFragment
 import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
@@ -122,6 +125,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
 
     override fun goToNotifications() {
         if (notificationReworkFeatureFlag.isEnabled) {
+            analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationClicked)
             replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
         } else {
             replaceCurrentFragment(NotificationsFragment.newInstance())
@@ -130,6 +134,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
 
     override fun goToNotificationPreferences() {
         replaceCurrentFragment(NotificationPreferencesFragment.newInstance())
+    }
+
+    override fun goToNotificationPreferencesDetails(preference: ContactPreference) {
+        replaceCurrentFragment(NotificationPreferenceDetailsFragment.newInstance(preference))
     }
 
     override fun goToSecurity() {
@@ -221,6 +229,7 @@ interface SettingsNavigator {
     fun goToPinChange()
     fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
     fun goToManageBlockchainCard(blockchainCard: BlockchainCard)
+    fun goToNotificationPreferencesDetails(preference: ContactPreference)
 }
 
 interface SettingsScreen : FlowFragment {

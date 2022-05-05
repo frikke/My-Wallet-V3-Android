@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
@@ -17,7 +18,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupCompleteBinding
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingFragment
 import piuk.blockchain.android.ui.base.BaseFragment
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 
 class BackupWalletCompletedFragment :
     BaseFragment<BackupWalletCompletedView, BackupWalletCompletedPresenter>(),

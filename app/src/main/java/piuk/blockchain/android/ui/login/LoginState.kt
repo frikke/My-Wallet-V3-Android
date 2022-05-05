@@ -5,6 +5,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 
 enum class LoginStep {
+    APP_MAINTENANCE,
     SELECT_METHOD,
     LOG_IN,
     SHOW_SCAN_ERROR,

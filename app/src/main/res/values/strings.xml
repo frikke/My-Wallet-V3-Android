@@ -2583,6 +2583,12 @@
     <string name="settings_signout_wallet">Sign Out</string>
     <string name="settings_ask_you_sure_signout">Are you sure you want to sign out from this wallet?</string>
     <string name="settings_btn_signout">Sign out</string>
+    <string name="settings_notification_preferences_title">Notification Preferences</string>
+    <string name="settings_notification_preferences_subtitle">Choose how you want to stay informed.</string>
+    <string name="settings_notification_error">Notification settings failed to load</string>
+    <string name="settings_notification_error_details">There was a problem fetching your notifications settings. Please reload or try again later.</string>
+    <string name="settings_notification_error_back">Go Back</string>
+
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>
@@ -2885,6 +2891,20 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
+
+    <!-- App Maintenance Screens-->
+    <string name="app_maintenance_os_not_supported_title">Your OS is Not Supported</string>
+    <string name="app_maintenance_os_not_supported_description">It looks like you are not on the latest version of your operating system. Please update to continue using our mobile app.</string>
+    <string name="app_maintenance_update_title">Time to Update!</string>
+    <string name="app_maintenance_update_description">We\'ve added awesome new features, security updates, and more.</string>
+    <string name="app_maintenance_down_title">Down for Maintenance</string>
+    <string name="app_maintenance_site_wide_description">Our systems are currently unavailable. Don’t worry, your funds are safe.</string>
+    <string name="app_maintenance_redirect_website_description">The app is currently under maintenance. Your funds are safe and you can always access your wallet on the web.</string>
+    <string name="app_maintenance_cta_update_now">Update App</string>
+    <string name="app_maintenance_cta_update_later">I’ll Do This Later</string>
+    <string name="app_maintenance_cta_redirect_website">Go to Web</string>
+    <string name="app_maintenance_cta_view_status">View Status</string>
+    <string name="app_maintenance_error_inapp_update">Something went wrong, please try again</string>
 
     <!-- Card errors -->
     <string name="title_cardInsufficientFunds">Insufficient Funds</string>

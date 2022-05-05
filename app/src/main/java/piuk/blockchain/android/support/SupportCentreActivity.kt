@@ -8,6 +8,7 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
@@ -19,7 +20,6 @@ import io.intercom.android.sdk.UserAttributes
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivitySupportCentreBinding
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -43,7 +44,6 @@ import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
-import piuk.blockchain.android.ui.customviews.BlockchainSnackbar
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -390,7 +390,7 @@ class SimpleBuyPaymentFragment :
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
-            ErrorState.CardCreateAbandoned -> showError(
+            ErrorState.CardCreateExpired -> showError(
                 getString(R.string.title_cardCreateExpired),
                 getString(R.string.msg_cardCreateExpired),
                 R.drawable.ic_cross_white_bckg,

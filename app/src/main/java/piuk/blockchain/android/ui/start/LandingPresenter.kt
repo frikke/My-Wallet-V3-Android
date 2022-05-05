@@ -44,6 +44,8 @@ class LandingPresenter(
     var assetInfo: Map<String, AssetInfo> = emptyMap()
     val priceInfo: MutableMap<String, PriceView.Price> = mutableMapOf()
 
+    override fun onViewCreated() {}
+
     override fun onViewAttached() {
         if (environmentSettings.isRunningInDebugMode()) {
             view?.showSnackbar(

@@ -15,6 +15,11 @@ abstract class MvpPresenter<T : MvpView> {
     protected var view: T? = null
         private set
 
+    fun onCreateView(view: T) {
+        this.view = view
+        onViewCreated()
+    }
+
     fun attachView(view: T) {
         this.view = view
         onViewAttached()
@@ -31,10 +36,11 @@ abstract class MvpPresenter<T : MvpView> {
     // These 3 methods are provided for compatibility with existing
     // code. Try not to use them in new code, because they are
     // going once the send and receive screen have been updated
-    open fun onViewResumed() { }
-    open fun onViewPaused() { }
-    open fun onViewReady() { }
+    open fun onViewResumed() {}
+    open fun onViewPaused() {}
+    open fun onViewReady() {}
 
+    protected abstract fun onViewCreated()
     protected abstract fun onViewAttached() // initView() in old framework
     protected abstract fun onViewDetached() // onViewDestroyed() in old framework
 

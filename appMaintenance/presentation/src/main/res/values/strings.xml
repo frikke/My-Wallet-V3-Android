@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="empty" />
+
+    <!-- App Maintenance Screens-->
+    <string name="app_maintenance_os_not_supported_title"/>
+    <string name="app_maintenance_os_not_supported_description"/>
+    <string name="app_maintenance_update_title"/>
+    <string name="app_maintenance_update_description"/>
+    <string name="app_maintenance_down_title"/>
+    <string name="app_maintenance_site_wide_description"/>
+    <string name="app_maintenance_redirect_website_description"/>
+    <string name="app_maintenance_cta_update_now"/>
+    <string name="app_maintenance_cta_update_later"/>
+    <string name="app_maintenance_cta_redirect_website"/>
+    <string name="app_maintenance_cta_view_status"/>
+
+    <string name="app_maintenance_error_inapp_update"/>
+</resources>

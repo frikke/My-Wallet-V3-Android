@@ -57,6 +57,8 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     val timerDisposable = CompositeDisposable()
     private lateinit var pollService: PollService<Response<ResponseBody>>
 
+    override fun onViewCreated() {}
+
     override fun onViewAttached() {
         if (authComplete) {
             view?.goToPinPage()
