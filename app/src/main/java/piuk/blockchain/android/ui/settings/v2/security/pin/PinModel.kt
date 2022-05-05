@@ -21,16 +21,15 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import info.blockchain.wallet.exceptions.ServerConnectionException
 import info.blockchain.wallet.exceptions.UnsupportedVersionException
-import io.embrace.android.embracesdk.Embrace
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.net.SocketTimeoutException
 import org.spongycastle.crypto.InvalidCipherTextException
 import piuk.blockchain.android.R
 import timber.log.Timber
-import java.net.SocketTimeoutException
 
 class PinModel(
     initialState: PinState,

@@ -1,6 +1,7 @@
 package com.blockchain.logging.data
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import io.embrace.android.embracesdk.Embrace
 
@@ -11,15 +12,15 @@ internal class EmbraceMomentLogger(
     private val embrace
         get() = Embrace.getInstance()
 
-    override fun startEvent(name: String) {
+    override fun startEvent(event: MomentEvent) {
         checkEmbrace {
-            embrace.startEvent(name)
+            embrace.startEvent(event.value)
         }
     }
 
-    override fun endEvent(name: String) {
+    override fun endEvent(event: MomentEvent) {
         checkEmbrace {
-            embrace.endEvent(name)
+            embrace.endEvent(event.value)
         }
     }
 
