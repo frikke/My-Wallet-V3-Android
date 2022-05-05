@@ -511,7 +511,8 @@ val applicationModule = module {
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                getSafeConnectTosLinkUseCase = payloadScope.get()
             )
         }
 
