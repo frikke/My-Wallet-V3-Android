@@ -14,11 +14,18 @@ import retrofit2.HttpException
 data class RecurringBuyModelState(
     val recurringBuy: RecurringBuy? = null,
     val error: RecurringBuyError = RecurringBuyError.None,
+    val viewState: RecurringBuyViewState = RecurringBuyViewState.Loading
 ) : MviState
+
+sealed class RecurringBuyViewState {
+    object Loading : RecurringBuyViewState()
+    class ShowRecurringBuy(rb: RecurringBuy) : RecurringBuyViewState()
+}
 
 sealed class RecurringBuyError {
     object None : RecurringBuyError()
     object RecurringBuyDelete : RecurringBuyError()
+    object LoadFailed : RecurringBuyError()
     data class HttpError(val errorMessage: String) : RecurringBuyError()
 }
 
@@ -76,6 +83,15 @@ class RecurringBuyModel(
                         )
                 }
             }
+            is RecurringBuyIntent.LoadRecurringBuy -> interactor.getRecurringBuyById(intent.rbId)
+                .subscribeBy(
+                    onSuccess = {
+                        process(RecurringBuyIntent.UpdateRecurringBuy(it))
+                    },
+                    onError = {
+                        process(RecurringBuyIntent.UpdateRecurringBuyError(RecurringBuyError.LoadFailed))
+                    }
+                )
             is RecurringBuyIntent.UpdatePaymentDetails,
             RecurringBuyIntent.UpdateRecurringBuyState,
             is RecurringBuyIntent.UpdateRecurringBuyError,
