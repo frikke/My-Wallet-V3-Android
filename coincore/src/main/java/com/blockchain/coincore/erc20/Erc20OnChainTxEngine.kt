@@ -172,7 +172,10 @@ class Erc20OnChainTxEngine(
     private fun validateAddresses(): Completable {
         val tgt = txTarget as CryptoAddress
 
-        return erc20DataManager.isContractAddress(tgt.address)
+        return erc20DataManager.isContractAddress(
+            tgt.address,
+            tgt.asset.l1chainTicker
+        )
             .map { isContract ->
                 if (isContract || tgt !is Erc20Address) {
                     throw TxValidationFailure(ValidationState.INVALID_ADDRESS)

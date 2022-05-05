@@ -7,6 +7,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BalancesResponse(
+    @SerialName("results")
+    val addresses: List<L2AddressResponse>
+)
+
+@Serializable
+data class L2AddressResponse(
     @SerialName("address")
     val address: String,
     @SerialName("balances")
@@ -19,7 +25,7 @@ data class L2BalanceResponse(
     val contractAddress: String,
     @SerialName("currency")
     val name: String,
-    @SerialName("amount")
+    @SerialName("balance")
     val amount: @Contextual BigInteger
 ) {
     companion object {

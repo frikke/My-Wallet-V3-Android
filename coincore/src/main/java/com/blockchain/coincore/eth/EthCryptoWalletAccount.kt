@@ -60,7 +60,7 @@ import timber.log.Timber
         rxSingle {
             // Only get the balance for ETH from the node if we are on the Ethereum network
             if (chainNetworkTicker == currency.networkTicker) {
-                ethDataManager.getBalance(chainId)
+                ethDataManager.getBalance()
                     .fold(
                         onSuccess = { Money.fromMinor(currency, it) },
                         onFailure = { error ->

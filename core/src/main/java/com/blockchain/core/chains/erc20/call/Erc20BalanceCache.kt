@@ -59,8 +59,13 @@ internal class Erc20BalanceCallCache(
             erc20L2Service.getBalances(account.get(), network)
                 .fold(
                     onFailure = { throw it.throwable },
-                    onSuccess = { balanceList ->
-                        balanceList.balances.mapNotNull { balance ->
+                    onSuccess = { addressList ->
+                        // The backend is now accepting an array of addresses/pubkeys for balance query.
+                        // We only pass a single address of an account so in theory we should only get
+                        // its balances in the response.
+                        addressList.addresses.firstOrNull {
+                            it.address == account.get()
+                        }?.balances?.mapNotNull { balance ->
                             // For the native token of the L2 network the backend returns "native" in the contract
                             // address field. Use the currency name (ticker) for lookup.
                             val asset = if (balance.contractAddress == L2BalanceResponse.NATIVE_IDENTIFIER) {
@@ -77,7 +82,7 @@ internal class Erc20BalanceCallCache(
                                     hasTransactions = balance.amount > BigInteger.ZERO
                                 )
                             }
-                        }.toMap()
+                        }?.toMap() ?: emptyMap()
                     }
                 )
         }

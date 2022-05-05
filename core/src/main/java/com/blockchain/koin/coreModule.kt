@@ -228,7 +228,9 @@ val coreModule = module {
         factory {
             Erc20HistoryCallCache(
                 ethDataManager = get(),
-                erc20Service = get()
+                erc20Service = get(),
+                erc20L2Service = get(),
+                assetCatalogue = get()
             )
         }
 

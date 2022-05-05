@@ -11,19 +11,19 @@ class NonCustodialEthL2Service(
 ) {
     suspend fun getBalances(address: String, network: String) = l2Api.getBalances(
         request = BalancesRequest(
-            address = address,
+            addresses = listOf(address),
             apiCode = apiCode,
             network = network
         )
     )
 
-    suspend fun getTransactionHistory(address: String, tickerId: String, network: String) =
+    suspend fun getTransactionHistory(address: String, contractAddress: String, parentChain: String) =
         l2Api.getTransactionHistory(
             request = TransactionHistoryRequest(
-                address = address,
+                addresses = listOf(address),
                 apiCode = apiCode,
-                tickerId = tickerId,
-                network = network
+                contractAddress = contractAddress,
+                network = parentChain
             )
         )
 
