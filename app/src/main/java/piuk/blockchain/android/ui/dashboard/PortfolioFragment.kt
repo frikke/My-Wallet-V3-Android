@@ -25,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentEvent.PIN_TO_DASHBOARD
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
@@ -273,7 +274,7 @@ class PortfolioFragment :
                     portfolioRecyclerView.visible()
                     dashboardProgress.gone()
 
-                    momentLogger.endEvent("Pin->Dashboard")
+                    momentLogger.endEvent(PIN_TO_DASHBOARD)
                 }
                 isLoading -> {
                     portfolioRecyclerView.gone()
@@ -286,7 +287,7 @@ class PortfolioFragment :
                     setupCtaButtons(showDepositButton, showPortfolio)
                     dashboardProgress.gone()
 
-                    momentLogger.endEvent("Pin->Dashboard")
+                    momentLogger.endEvent(PIN_TO_DASHBOARD)
                 }
             }
         }
