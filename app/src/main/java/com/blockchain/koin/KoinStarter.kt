@@ -39,7 +39,8 @@ import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
-import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
+import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
@@ -104,7 +105,7 @@ object KoinStarter {
                     notificationModule,
                     receiveCryptoModule,
                     resetAccountModule,
-                    secureChannelModule,
+                    secureChannelPresentationModule, secureChannelDataModule,
                     serviceModule,
                     startupUiModule,
                     sunriverModule,

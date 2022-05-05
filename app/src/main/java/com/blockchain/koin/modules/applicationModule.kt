@@ -100,9 +100,9 @@ import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
+import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
-import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
@@ -121,7 +121,8 @@ import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.auth.newlogin.data.repository.SecureChannelRepository
+import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
@@ -273,15 +274,6 @@ val applicationModule = module {
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get()
-            )
-        }
-
-        scoped {
-            SecureChannelManager(
-                secureChannelPrefs = get(),
-                authPrefs = get(),
-                payloadManager = get(),
-                walletApi = get()
             )
         }
 

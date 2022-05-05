@@ -39,7 +39,7 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
@@ -70,7 +70,7 @@ class MainInteractor internal constructor(
     private val database: Database,
     private val credentialsWiper: CredentialsWiper,
     private val qrScanResultProcessor: QrScanResultProcessor,
-    private val secureChannelManager: SecureChannelManager,
+    private val secureChannelService: SecureChannelService,
     private val cancelOrderUseCase: CancelOrderUseCase,
     private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val onboardingPrefs: OnboardingPrefs
@@ -171,7 +171,7 @@ class MainInteractor internal constructor(
         qrScanResultProcessor.processScan(decodedData)
 
     fun sendSecureChannelHandshake(handshake: String) =
-        secureChannelManager.sendHandshake(handshake)
+        secureChannelService.sendHandshake(handshake)
 
     fun cancelOrder(orderId: String): Completable =
         cancelOrderUseCase.invoke(orderId)

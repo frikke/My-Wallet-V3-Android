@@ -1,10 +1,11 @@
-package piuk.blockchain.android.ui.auth.newlogin
+package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import piuk.blockchain.android.databinding.ItemListInfoRowBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginDetailsType
 
 class NewLoginAuthInfoItemDelegate : AdapterDelegate<AuthNewLoginDetailsType> {
     override fun isForViewType(items: List<AuthNewLoginDetailsType>, position: Int): Boolean {

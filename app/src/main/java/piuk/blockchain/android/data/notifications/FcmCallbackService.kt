@@ -29,10 +29,10 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.serialization.encodeToString
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.auth.newlogin.domain.model.mapArg
+import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import timber.log.Timber
@@ -44,7 +44,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val analytics: Analytics by inject()
     private val walletPrefs: WalletStatus by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
-    private val secureChannelManager: SecureChannelManager by scopedInject()
+    private val secureChannelService: SecureChannelService by scopedInject()
     private val compositeDisposable = CompositeDisposable()
     private val lifecycleObservable: LifecycleObservable by inject()
     private var isAppOnForegrounded = true
@@ -211,7 +211,7 @@ class FcmCallbackService : FirebaseMessagingService() {
         val messageRawEncrypted = payload[NotificationPayload.DATA_MESSAGE]
             ?: return Maybe.empty()
 
-        val message = secureChannelManager.decryptMessage(pubKeyHash, messageRawEncrypted)
+        val message = secureChannelService.decryptMessage(pubKeyHash, messageRawEncrypted)
             ?: return Maybe.empty()
 
         return Maybe.just(
@@ -219,7 +219,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                 context = applicationContext,
                 launchAuthFlow = true,
                 pubKeyHash = pubKeyHash,
-                message = SecureChannelManager.jsonBuilder.encodeToString(message),
+                message = message.mapArg(),
                 originIp = payload[NotificationPayload.ORIGIN_IP],
                 originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
                 originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],

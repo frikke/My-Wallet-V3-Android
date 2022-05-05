@@ -1,10 +1,12 @@
-package piuk.blockchain.android.ui.auth.newlogin
+package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginModel
+import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginState
 
-val secureChannelModule = module {
+val secureChannelPresentationModule = module {
 
     scope(payloadScopeQualifier) {
 
@@ -14,7 +16,7 @@ val secureChannelModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 remoteLogger = get(),
-                secureChannelManager = get(),
+                secureChannelService = get(),
                 secureChannelPrefs = get(),
                 walletApi = get()
             )
