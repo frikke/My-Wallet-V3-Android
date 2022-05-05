@@ -169,7 +169,7 @@ data class TransactionState(
         get() = pendingTx?.availableBalance ?: sendingAccount.getZeroAmountForAccount()
 
     val canGoBack: Boolean
-        get() = stepsBackStack.isNotEmpty()
+        get() = currentStep != TransactionStep.IN_PROGRESS && stepsBackStack.isNotEmpty()
 
     val targetCount: Int
         get() = availableTargets.size

@@ -173,6 +173,12 @@ class TransactionFlowActivity :
 
             currentStep = step
         }
+
+        if (!state.canGoBack) {
+            updateToolbarBackAction(null)
+        } else {
+            updateToolbarBackAction { onBackPressed() }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
