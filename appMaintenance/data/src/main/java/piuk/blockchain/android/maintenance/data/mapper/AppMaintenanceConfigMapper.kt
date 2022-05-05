@@ -6,8 +6,9 @@ import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 
 internal object AppMaintenanceConfigMapper {
     /**
-     * [appUpdateInfo] could be null in non-prod-release builds, or just as an edge case it fails to load,
-     * so we use [AppMaintenanceConfigDto.playStoreVersion] instead
+     * @param appUpdateInfo could be null in non-prod-release builds, or just as an edge case it fails to load,
+     * so we use [AppMaintenanceConfigDto.playStoreVersion] instead of [AppUpdateInfo.availableVersionCode]
+     * and external [AppMaintenanceConfigDto.inAppUpdateFallbackUrl] instead of the in-app update
      */
     fun map(
         appUpdateInfo: AppUpdateInfo?,
