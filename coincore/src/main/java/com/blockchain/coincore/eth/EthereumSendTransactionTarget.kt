@@ -4,6 +4,7 @@ import com.blockchain.coincore.TxResult
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
+import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Completable
 import java.math.BigInteger
 
@@ -27,14 +28,14 @@ class EthereumSendTransactionTarget(
         get() = transaction.data
     val nonce: BigInteger?
         get() = transaction.nonce?.let {
-            it.removeHexPrefix().toLong(16).toBigInteger()
+            EthUtils.convertHexToBigInteger(it)
         }
 
     override val amount: Money
         get() = transaction.value?.let {
             Money.fromMinor(
                 asset,
-                it.removeHexPrefix().toLong(16).toBigInteger()
+                EthUtils.convertHexToBigInteger(it)
             )
         } ?: Money.zero(asset)
 
@@ -43,17 +44,15 @@ class EthereumSendTransactionTarget(
 
     val gasPrice: BigInteger?
         get() = transaction.gasPrice?.let {
-            it.removeHexPrefix().toLong(16).toBigInteger()
+            EthUtils.convertHexToBigInteger(it)
         }
 
     val gasLimit: BigInteger?
         get() = transaction.gas?.let {
-            it.removeHexPrefix().toLong(16).toBigInteger()
+            EthUtils.convertHexToBigInteger(it)
         }
 
     enum class Method {
         SEND, SIGN
     }
 }
-
-private fun String.removeHexPrefix(): String = removePrefix("0x")

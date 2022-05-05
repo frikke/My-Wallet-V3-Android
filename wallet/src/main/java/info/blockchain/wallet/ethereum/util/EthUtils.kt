@@ -4,7 +4,7 @@ import org.spongycastle.util.encoders.Hex
 
 object EthUtils {
 
-    fun convertHexToBigInteger(hex: String) = hex.removePrefix(PREFIX).toLong(RADIX).toBigInteger()
+    fun convertHexToBigInteger(hex: String) = hex.removePrefix(PREFIX).toBigInteger(RADIX)
 
     fun decorateAndEncode(signedBytes: ByteArray) = PREFIX + String(Hex.encode(signedBytes))
 
