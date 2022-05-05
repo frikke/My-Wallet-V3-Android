@@ -74,9 +74,9 @@ class MetadataInteractor(
             .map {
                 decryptMetadata(metadata, it.payload)
             }.onErrorResumeNext {
-                if (it is HttpException && it.code() == 404) // haven't been created
+                if (it is HttpException && it.code() == 404) { // haven't been created{
                     Maybe.empty()
-                else Maybe.error(it)
+                } else Maybe.error(it)
             }
     }
 

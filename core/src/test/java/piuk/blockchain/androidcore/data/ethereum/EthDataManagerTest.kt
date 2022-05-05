@@ -244,14 +244,14 @@ class EthDataManagerTest {
     fun getLatestBlock() {
         // Arrange
         val latestBlock = EthLatestBlockNumber()
-        every { ethAccountApi.latestBlockNumber } returns Single.just(latestBlock)
+        coEvery { ethAccountApi.getLatestBlockNumber(any()) } returns Outcome.Success(latestBlock)
         // Act
-        val testObserver = subject.getLatestBlockNumber().test()
+        val testObserver = subject.getLatestBlockNumber().test().await()
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
         testObserver.assertValue(latestBlock)
-        io.mockk.verify { ethAccountApi.latestBlockNumber }
+        coVerify { ethAccountApi.getLatestBlockNumber(any()) }
     }
 
     @Test

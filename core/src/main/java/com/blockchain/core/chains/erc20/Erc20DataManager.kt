@@ -52,8 +52,8 @@ interface Erc20DataManager {
     fun putErc20TxNote(asset: AssetInfo, txHash: String, note: String): Completable
 
     fun hasUnconfirmedTransactions(): Single<Boolean>
-    fun latestBlockNumber(): Single<BigInteger>
-    fun isContractAddress(address: String): Single<Boolean>
+    fun latestBlockNumber(parentChain: String? = null): Single<BigInteger>
+    fun isContractAddress(address: String, parentChain: String? = null): Single<Boolean>
 
     fun getErc20Balance(asset: AssetInfo): Observable<Erc20Balance>
     fun getActiveAssets(): Single<Set<AssetInfo>>
@@ -101,7 +101,7 @@ internal class Erc20DataManagerImpl(
                         rxSingle {
                             // Get the balance of the native token for example Matic in Polygon's case. Only load
                             // the balances of the other tokens on that network if the native token balance is positive.
-                            ethDataManager.getBalance(ethL2Chain.chainId)
+                            ethDataManager.getBalance(ethL2Chain.nodeUrl)
                                 .fold(
                                     onFailure = { throw it.throwable },
                                     onSuccess = { value -> Pair(ethL2Chain, value) }
@@ -142,8 +142,12 @@ internal class Erc20DataManagerImpl(
         return ethDataManager.updateErc20TransactionNotes(asset, txHash, note)
     }
 
-    override fun isContractAddress(address: String): Single<Boolean> =
-        ethDataManager.isContractAddress(address)
+    override fun isContractAddress(address: String, parentChain: String?): Single<Boolean> =
+        ethDataManager.supportedNetworks.flatMap { supportedL2Networks ->
+            supportedL2Networks.firstOrNull { it.networkTicker == parentChain }?.let { ethL2Chain ->
+                ethDataManager.isContractAddress(address, ethL2Chain.nodeUrl)
+            } ?: ethDataManager.isContractAddress(address)
+        }
 
     override fun createErc20Transaction(
         asset: AssetInfo,
@@ -212,8 +216,12 @@ internal class Erc20DataManagerImpl(
     override fun hasUnconfirmedTransactions(): Single<Boolean> =
         ethDataManager.isLastTxPending()
 
-    override fun latestBlockNumber(): Single<BigInteger> =
-        ethDataManager.getLatestBlockNumber().map { it.number }
+    override fun latestBlockNumber(parentChain: String?): Single<BigInteger> =
+        ethDataManager.supportedNetworks.flatMap { supportedL2Networks ->
+            supportedL2Networks.firstOrNull { it.networkTicker == parentChain }?.let { ethL2Chain ->
+                ethDataManager.getLatestBlockNumber(ethL2Chain.nodeUrl).map { it.number }
+            } ?: ethDataManager.getLatestBlockNumber().map { it.number }
+        }
 
     override fun getSupportedNetworks(): Single<List<EthL2Chain>> = ethDataManager.supportedNetworks
 

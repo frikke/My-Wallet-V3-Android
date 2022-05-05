@@ -29,7 +29,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Utf8String
@@ -83,9 +82,9 @@ class EthDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    suspend fun getBalance(chainId: Int = ETH_CHAIN_ID): Outcome<ApiError, BigInteger> {
+    suspend fun getBalance(nodeUrl: String = EthUrls.ETH_NODES): Outcome<ApiError, BigInteger> {
         return ethAccountApi.postEthNodeRequest(
-            nodeUrl = getNodeUrlForChain(chainId),
+            nodeUrl = nodeUrl,
             requestType = RequestType.GET_BALANCE,
             accountAddress,
             EthJsonRpcRequest.defaultBlock
@@ -149,13 +148,19 @@ class EthDataManager(
      *
      * @return An [Observable] wrapping a [Number]
      */
-    fun getLatestBlockNumber(): Single<EthLatestBlockNumber> =
-        ethAccountApi.latestBlockNumber.applySchedulers()
+    fun getLatestBlockNumber(nodeUrl: String = EthUrls.ETH_NODES): Single<EthLatestBlockNumber> =
+        rxSingle {
+            ethAccountApi.getLatestBlockNumber(nodeUrl = nodeUrl)
+                .fold(
+                    onSuccess = { latestBlockNumber -> latestBlockNumber },
+                    onFailure = { throw it.throwable }
+                )
+        }.applySchedulers()
 
-    fun isContractAddress(address: String, chainId: Int = ETH_CHAIN_ID): Single<Boolean> =
+    fun isContractAddress(address: String, nodeUrl: String = EthUrls.ETH_NODES): Single<Boolean> =
         rxSingle {
             ethAccountApi.postEthNodeRequest(
-                nodeUrl = getNodeUrlForChain(chainId),
+                nodeUrl = nodeUrl,
                 requestType = RequestType.IS_CONTRACT,
                 address,
                 EthJsonRpcRequest.defaultBlock
@@ -260,9 +265,9 @@ class EthDataManager(
         ethAccountApi.getTransaction(hash)
             .applySchedulers()
 
-    fun getNonce(chainId: Int = ETH_CHAIN_ID): Single<BigInteger> = rxSingle {
+    fun getNonce(nodeUrl: String = EthUrls.ETH_NODES): Single<BigInteger> = rxSingle {
         ethAccountApi.postEthNodeRequest(
-            nodeUrl = getNodeUrlForChain(chainId),
+            nodeUrl = nodeUrl,
             requestType = RequestType.GET_NONCE,
             accountAddress,
             EthJsonRpcRequest.defaultBlock
@@ -376,10 +381,6 @@ class EthDataManager(
 
     // Exposing it for ERC20 and for testing
     fun extraGasLimitForMemo() = extraGasLimitForMemo
-
-    private suspend fun getNodeUrlForChain(chainId: Int): String {
-        return supportedNetworks.await().find { l2Chain -> l2Chain.chainId == chainId }?.nodeUrl ?: EthUrls.ETH_NODES
-    }
 
     companion object {
         // To account for the extra data we want to send

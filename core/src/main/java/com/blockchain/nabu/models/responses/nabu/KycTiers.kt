@@ -55,7 +55,7 @@ data class Tier(
     val limits: Limits? = null
 )
 
-@Serializable(with = KycTierStateAdapter.KycTierStateSerializer::class)
+@Serializable(with = KycTierStateSerializer::class)
 enum class KycTierState {
     None,
     Rejected,

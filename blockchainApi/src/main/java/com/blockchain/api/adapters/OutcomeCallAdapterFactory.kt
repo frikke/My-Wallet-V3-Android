@@ -10,28 +10,24 @@ import retrofit2.Retrofit
 class OutcomeCallAdapterFactory : CallAdapter.Factory() {
 
     override fun get(
-        returnType: Type,
+        callType: Type,
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *>? {
-        // Check that the return type is a Call and is also a parameterized (generic) type
-        check(returnType is ParameterizedType) { "Return type must be a parameterized type." }
-        return when (getRawType(returnType)) {
-            Call::class.java -> outcomeAdapter(returnType)
-            else -> null
-        }
-    }
+        // Call<*>
+        if (callType !is ParameterizedType) return null
+        val rawCallType = getRawType(callType)
+        if (rawCallType != Call::class.java) return null
 
-    private fun outcomeAdapter(returnType: ParameterizedType): CallAdapter<Type, out Call<out Any>>? {
-        // Check that the type parameter upper bound on position 0 is Outcome and is parameterized
-        val responseType = getParameterUpperBound(0, returnType)
-        check(responseType is ParameterizedType) { "Response type must be a parameterized type." }
-        return when (getRawType(responseType)) {
-            Outcome::class.java -> {
-                extractReturnType(responseType)?.let { type -> OutcomeCallAdapter(type) }
-            }
-            else -> null
-        }
+        // Call<Outcome<*, *>>
+        val outcomeType = getParameterUpperBound(0, callType)
+        if (outcomeType !is ParameterizedType) return null
+        val rawOutcomeType = getRawType(outcomeType)
+        if (rawOutcomeType != Outcome::class.java) return null
+
+        // Call<Outcome<ApiError, returnType>>
+        val returnType = extractReturnType(outcomeType) ?: return null
+        return OutcomeCallAdapter<Any>(returnType)
     }
 
     private fun extractReturnType(responseType: ParameterizedType): Type? {

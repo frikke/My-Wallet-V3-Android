@@ -16,6 +16,7 @@ class AppMaintenanceConfigMapperTest {
     private val currentOsVersion = 10
     private val configDto = AppMaintenanceConfigDto(
         bannedVersions = listOf(123),
+        playStoreVersion = 2000,
         minimumAppVersion = 500,
         softUpgradeVersion = 100,
         minimumOSVersion = 14,
@@ -23,6 +24,7 @@ class AppMaintenanceConfigMapperTest {
         redirectToWebsite = true,
         statusUrl = "statusUrl",
         storeUrl = "storeUrl",
+        inAppUpdateFallbackUrl = "inAppUpdateFallbackUrl",
         websiteUrl = "websiteUrl"
     )
 

@@ -182,6 +182,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val data = offlineToken.mapToNabuAccountMetadata()
         val metadataRepository: MetadataRepository = mock()
         metadataRepository.givenAccountMetadata(Maybe.empty()).expectSave(data)
+        metadataRepository.givenUserMetaData(Maybe.empty()).expectSave(data)
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             metadataRepository,
@@ -377,7 +378,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
                 this.userId `should be equal to` "USER1"
                 this.token `should be equal to` "TOKEN2"
             }
-        metadataRepository.verifyJustLoadCalledNTimes(0, 2)
+        metadataRepository.verifyJustLoadCalledNTimes(2, 2)
     }
 
     private fun givenCantCreate(): CreateNabuToken =

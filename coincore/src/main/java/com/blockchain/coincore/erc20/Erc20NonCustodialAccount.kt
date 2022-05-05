@@ -64,7 +64,7 @@ class Erc20NonCustodialAccount(
 
             return Single.zip(
                 feedTransactions,
-                erc20DataManager.latestBlockNumber()
+                erc20DataManager.latestBlockNumber(parentChain = currency.l1chainTicker)
             ) { transactions, latestBlockNumber ->
                 transactions.map { transaction ->
                     Erc20ActivitySummaryItem(

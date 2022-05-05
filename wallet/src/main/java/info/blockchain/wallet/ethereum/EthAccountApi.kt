@@ -2,7 +2,7 @@ package info.blockchain.wallet.ethereum
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import info.blockchain.wallet.ethereum.data.EthAddressResponse
 import info.blockchain.wallet.ethereum.data.EthLatestBlock
 import info.blockchain.wallet.ethereum.data.EthLatestBlockNumber
@@ -16,7 +16,6 @@ import info.blockchain.wallet.ethereum.util.EthUtils
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.rx3.rxSingle
 
 class EthAccountApi internal constructor(
     private val ethEndpoints: EthEndpoints,
@@ -28,25 +27,19 @@ class EthAccountApi internal constructor(
      *
      * @return An [Single] wrapping an [EthLatestBlock]
      */
-    val latestBlockNumber: Single<EthLatestBlockNumber>
-        get() = rxSingle {
-            ethNodeEndpoints.processRequest(
-                request = EthJsonRpcRequest.create(
-                    params = arrayOf(),
-                    type = RequestType.LATEST_BLOCK_NUMBER
-                )
+    suspend fun getLatestBlockNumber(nodeUrl: String): Outcome<ApiError, EthLatestBlockNumber> {
+        return ethNodeEndpoints.processRequest(
+            nodeUrl = nodeUrl,
+            request = EthJsonRpcRequest.create(
+                params = arrayOf(),
+                type = RequestType.LATEST_BLOCK_NUMBER
             )
-                .fold(
-                    onSuccess = { response ->
-                        EthLatestBlockNumber().apply {
-                            number = EthUtils.convertHexToBigInteger(response.result)
-                        }
-                    },
-                    onFailure = {
-                        throw it.throwable
-                    }
-                )
+        ).map { response ->
+            EthLatestBlockNumber().apply {
+                number = EthUtils.convertHexToBigInteger(response.result)
+            }
         }
+    }
 
     /**
      * Returns an [EthAddressResponse] object for a list of given ETH addresses as an [ ].

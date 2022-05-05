@@ -58,7 +58,6 @@ object Versions {
     const val chucker = "3.4.0"
     const val retrofit = "2.9.0"
     const val okHttp = "4.9.0"
-    const val moshi = "1.8.0"
     const val gson = "2.8.5"
     const val kotlinJson = "1.3.2"
     const val kotlinJsonConverter = "0.8.0"
@@ -217,7 +216,6 @@ object Libraries {
 
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-    const val retrofitRxMoshiConverter = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
     const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:2.5.0"
     const val retrofitKotlinJsonConverter =
@@ -225,9 +223,6 @@ object Libraries {
     const val okHttp = "com.squareup.okhttp3:okhttp:${Versions.okHttp}"
     const val okHttpSse = "com.squareup.okhttp3:okhttp-sse:${Versions.okHttp}"
     const val okHttpInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
-    const val moshi = "com.squareup.moshi:moshi:${Versions.moshi}"
-    const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:${Versions.moshi}"
-    const val moshiAdapters = "com.squareup.moshi:moshi-adapters:${Versions.moshi}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val kotlinJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinJson}"
 

@@ -3,10 +3,6 @@ package com.blockchain.nabu.models.responses.nabu
 import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.PrimitiveSerializer
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonDataException
-import com.squareup.moshi.ToJson
 import kotlin.math.max
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -108,7 +104,6 @@ data class Address(
     val state: String? = null,
     val postCode: String? = null,
     @SerialName("country")
-    @field:Json(name = "country")
     val countryCode: String? = null
 )
 
@@ -150,7 +145,7 @@ data class AddAddressRequest(
     }
 }
 
-@Serializable(with = KycStateAdapter.KycStateSerializer::class)
+@Serializable(with = KycStateSerializer::class)
 sealed class KycState {
     object None : KycState()
     object Pending : KycState()
@@ -160,7 +155,7 @@ sealed class KycState {
     object Verified : KycState()
 }
 
-@Serializable(with = UserStateAdapter.UserStateSerializer::class)
+@Serializable(with = UserStateSerializer::class)
 sealed class UserState {
     object None : UserState()
     object Created : UserState()
@@ -168,58 +163,32 @@ sealed class UserState {
     object Blocked : UserState()
 }
 
-@Deprecated("Use [KycStateSerializer] instead.")
-// TODO Remove Moshi and migrate KycStateAdapter to KycStateSerializer
-class KycStateAdapter {
+class KycStateSerializer : KSerializer<KycState> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("KycState", PrimitiveKind.STRING)
 
-    @FromJson
-    fun fromJson(input: String): KycState = when (input) {
-        NONE -> KycState.None
-        PENDING -> KycState.Pending
-        UNDER_REVIEW -> KycState.UnderReview
-        REJECTED -> KycState.Rejected
-        EXPIRED -> KycState.Expired
-        VERIFIED -> KycState.Verified
-        else -> throw JsonDataException("Unknown KYC State: $input, unsupported data type")
-    }
-
-    @ToJson
-    fun toJson(kycState: KycState): String = when (kycState) {
-        KycState.None -> NONE
-        KycState.Pending -> PENDING
-        KycState.UnderReview -> UNDER_REVIEW
-        KycState.Rejected -> REJECTED
-        KycState.Expired -> EXPIRED
-        KycState.Verified -> VERIFIED
-    }
-
-    object KycStateSerializer : KSerializer<KycState> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("KycState", PrimitiveKind.STRING)
-
-        override fun serialize(encoder: Encoder, value: KycState) {
-            encoder.encodeString(
-                when (value) {
-                    KycState.None -> NONE
-                    KycState.Pending -> PENDING
-                    KycState.Rejected -> REJECTED
-                    KycState.UnderReview -> UNDER_REVIEW
-                    KycState.Expired -> EXPIRED
-                    KycState.Verified -> VERIFIED
-                }
-            )
-        }
-
-        override fun deserialize(decoder: Decoder): KycState {
-            return when (val input = decoder.decodeString()) {
-                NONE -> KycState.None
-                PENDING -> KycState.Pending
-                UNDER_REVIEW -> KycState.UnderReview
-                REJECTED -> KycState.Rejected
-                EXPIRED -> KycState.Expired
-                VERIFIED -> KycState.Verified
-                else -> throw JsonDataException("Unknown KYC State: $input, unsupported data type")
+    override fun serialize(encoder: Encoder, value: KycState) {
+        encoder.encodeString(
+            when (value) {
+                KycState.None -> NONE
+                KycState.Pending -> PENDING
+                KycState.Rejected -> REJECTED
+                KycState.UnderReview -> UNDER_REVIEW
+                KycState.Expired -> EXPIRED
+                KycState.Verified -> VERIFIED
             }
+        )
+    }
+
+    override fun deserialize(decoder: Decoder): KycState {
+        return when (val input = decoder.decodeString()) {
+            NONE -> KycState.None
+            PENDING -> KycState.Pending
+            UNDER_REVIEW -> KycState.UnderReview
+            REJECTED -> KycState.Rejected
+            EXPIRED -> KycState.Expired
+            VERIFIED -> KycState.Verified
+            else -> throw Exception("Unknown KYC State: $input, unsupported data type")
         }
     }
 
@@ -233,50 +202,28 @@ class KycStateAdapter {
     }
 }
 
-@Deprecated("Use [UserStateSerializer] instead.")
-// TODO Remove Moshi and migrate UserStateAdapter to UserStateSerializer
-class UserStateAdapter {
+class UserStateSerializer : KSerializer<UserState> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("UserState", PrimitiveKind.STRING)
 
-    @FromJson
-    fun fromJson(input: String): UserState = when (input) {
-        NONE -> UserState.None
-        CREATED -> UserState.Created
-        ACTIVE -> UserState.Active
-        BLOCKED -> UserState.Blocked
-        else -> throw JsonDataException("Unknown User State: $input, unsupported data type")
-    }
-
-    @ToJson
-    fun toJson(userState: UserState): String = when (userState) {
-        UserState.None -> NONE
-        UserState.Created -> CREATED
-        UserState.Active -> ACTIVE
-        UserState.Blocked -> BLOCKED
-    }
-
-    object UserStateSerializer : KSerializer<UserState> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("UserState", PrimitiveKind.STRING)
-
-        override fun serialize(encoder: Encoder, value: UserState) {
-            encoder.encodeString(
-                when (value) {
-                    UserState.None -> NONE
-                    UserState.Created -> CREATED
-                    UserState.Active -> ACTIVE
-                    UserState.Blocked -> BLOCKED
-                }
-            )
-        }
-
-        override fun deserialize(decoder: Decoder): UserState {
-            return when (val input = decoder.decodeString()) {
-                NONE -> UserState.None
-                CREATED -> UserState.Created
-                ACTIVE -> UserState.Active
-                BLOCKED -> UserState.Blocked
-                else -> throw JsonDataException("Unknown User State: $input, unsupported data type")
+    override fun serialize(encoder: Encoder, value: UserState) {
+        encoder.encodeString(
+            when (value) {
+                UserState.None -> NONE
+                UserState.Created -> CREATED
+                UserState.Active -> ACTIVE
+                UserState.Blocked -> BLOCKED
             }
+        )
+    }
+
+    override fun deserialize(decoder: Decoder): UserState {
+        return when (val input = decoder.decodeString()) {
+            NONE -> UserState.None
+            CREATED -> UserState.Created
+            ACTIVE -> UserState.Active
+            BLOCKED -> UserState.Blocked
+            else -> throw Exception("Unknown User State: $input, unsupported data type")
         }
     }
 

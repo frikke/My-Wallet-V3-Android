@@ -11,31 +11,24 @@ import org.bitcoinj.params.MainNetParams
 
 @Serializable
 data class ImportedAddress(
-    @field:com.squareup.moshi.Json(name = "addr")
     @SerialName("addr")
     var address: String = "",
 
-    @field:com.squareup.moshi.Json(name = "priv")
     @SerialName("priv")
     var privateKey: String? = null,
 
-    @field:com.squareup.moshi.Json(name = "label")
     @SerialName("label")
     private var labelField: String? = null,
 
-    @field:com.squareup.moshi.Json(name = "created_time")
     @SerialName("created_time")
     val createdTime: Long? = null,
 
-    @field:com.squareup.moshi.Json(name = "tag")
     @SerialName("tag")
     var tag: Int = 0,
 
-    @field:com.squareup.moshi.Json(name = "created_device_name")
     @SerialName("created_device_name")
     val createdDeviceName: String? = null,
 
-    @field:com.squareup.moshi.Json(name = "created_device_version")
     @SerialName("created_device_version")
     val createdDeviceVersion: String? = null,
 ) : JsonSerializableAccount {
