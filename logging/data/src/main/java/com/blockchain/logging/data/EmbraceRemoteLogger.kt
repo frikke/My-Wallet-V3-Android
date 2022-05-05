@@ -1,14 +1,11 @@
 package com.blockchain.logging.data
 
 import android.content.Context
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.BuildConfig
 import com.blockchain.logging.RemoteLogger
 import io.embrace.android.embracesdk.Embrace
 
-class EmbraceRemoteLogger(
-    private val embraceFeatureFlag: Lazy<FeatureFlag>
-) : RemoteLogger {
+class EmbraceRemoteLogger : RemoteLogger {
 
     private val embrace
         get() = Embrace.getInstance()
@@ -64,13 +61,8 @@ class EmbraceRemoteLogger(
             onEmbraceInitialized?.invoke()
         } else {
             context?.let { ctx ->
-                embraceFeatureFlag.value.enabled
-                    .subscribe { enabled ->
-                        if (enabled) {
-                            embrace.start(ctx, isDebugBuild)
-                            onEmbraceInitialized?.invoke()
-                        }
-                    }
+                embrace.start(ctx, isDebugBuild)
+                onEmbraceInitialized?.invoke()
             }
         }
     }

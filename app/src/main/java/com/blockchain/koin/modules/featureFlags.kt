@@ -7,7 +7,6 @@ import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
-import com.blockchain.koin.embraceFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
@@ -124,15 +123,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_intercom",
                 "Show intercom chat"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(embraceFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_embrace",
-                "Embrace.io"
             )
         )
     }.bind(FeatureFlag::class)
