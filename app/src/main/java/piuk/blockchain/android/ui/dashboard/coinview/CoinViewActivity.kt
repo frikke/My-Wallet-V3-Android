@@ -48,6 +48,7 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -60,6 +61,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActi
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -74,7 +76,8 @@ class CoinViewActivity :
     AccountExplainerBottomSheet.Host,
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
-    NoBalanceActionBottomSheet.Host {
+    NoBalanceActionBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -979,6 +982,10 @@ class CoinViewActivity :
 
     override fun navigateToKyc() {
         showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
     override fun navigateToAction(

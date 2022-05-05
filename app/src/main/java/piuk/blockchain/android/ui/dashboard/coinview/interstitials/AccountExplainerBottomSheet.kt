@@ -31,7 +31,6 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
 
     interface Host {
         fun navigateToActionSheet(actions: Array<StateAwareAction>)
-        fun navigateToKyc()
     }
 
     val host: Host by lazy {
