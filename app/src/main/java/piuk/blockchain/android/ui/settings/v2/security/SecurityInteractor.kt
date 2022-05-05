@@ -47,12 +47,20 @@ class SecurityInteractor internal constructor(
     fun checkTwoFaState(): Single<SecurityIntent> =
         settingsDataManager.getSettings().firstOrError().flatMap {
             if (it.authType == Settings.AUTH_TYPE_OFF) {
-                if (!it.isSmsVerified) {
-                    Single.just(
-                        SecurityIntent.UpdateViewState(SecurityViewState.ShowVerifyPhoneNumberRequired(it.smsNumber))
+                when {
+                    it.smsNumber.isEmpty() -> Single.just(
+                        SecurityIntent.UpdateViewState(SecurityViewState.ShowEnterPhoneNumberRequired)
                     )
-                } else {
-                    Single.just(SecurityIntent.UpdateViewState(SecurityViewState.ShowConfirmTwoFaEnabling))
+                    !it.isSmsVerified -> {
+                        Single.just(
+                            SecurityIntent.UpdateViewState(
+                                SecurityViewState.ShowVerifyPhoneNumberRequired(it.smsNumber)
+                            )
+                        )
+                    }
+                    else -> {
+                        Single.just(SecurityIntent.UpdateViewState(SecurityViewState.ShowConfirmTwoFaEnabling))
+                    }
                 }
             } else {
                 if (it.authType == Settings.AUTH_TYPE_GOOGLE_AUTHENTICATOR ||

@@ -13,6 +13,7 @@ sealed class SecurityViewState {
     object ConfirmBiometricsDisabling : SecurityViewState()
     object ShowEnrollBiometrics : SecurityViewState()
     object ShowEnableBiometrics : SecurityViewState()
+    object ShowEnterPhoneNumberRequired : SecurityViewState()
     class ShowVerifyPhoneNumberRequired(val phoneNumber: String) : SecurityViewState()
     object ShowDisablingOnWebRequired : SecurityViewState()
     object ShowConfirmTwoFaEnabling : SecurityViewState()

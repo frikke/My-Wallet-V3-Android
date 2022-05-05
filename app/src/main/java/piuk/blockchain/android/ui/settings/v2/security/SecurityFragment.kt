@@ -28,6 +28,7 @@ import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.WalletBiometricData
 import piuk.blockchain.android.databinding.FragmentSecurityBinding
+import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
@@ -44,6 +45,7 @@ class SecurityFragment :
     TwoFactorInfoSheet.Host,
     BiometricsInfoSheet.Host,
     BackupPhraseInfoSheet.Host,
+    BottomSheetInformation.Host,
     SettingsScreen {
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSecurityBinding =
@@ -184,6 +186,9 @@ class SecurityFragment :
             }
             SecurityViewState.ShowEnableBiometrics -> {
                 showBiometricsConfirmationSheet()
+            }
+            SecurityViewState.ShowEnterPhoneNumberRequired -> {
+                showPhoneNumberRequired()
             }
             is SecurityViewState.ShowVerifyPhoneNumberRequired -> {
                 showBottomSheet(SMSPhoneVerificationBottomSheet.newInstance(viewState.phoneNumber))
@@ -336,6 +341,16 @@ class SecurityFragment :
         )
     }
 
+    private fun showPhoneNumberRequired() {
+        showBottomSheet(
+            BottomSheetInformation.newInstance(
+                title = getString(R.string.security_missing_phone_number),
+                description = getString(R.string.security_missing_phone_number_description),
+                ctaPrimaryText = getString(R.string.security_missing_phone_number_cta),
+            )
+        )
+    }
+
     override fun onPhoneNumberVerified() {
         model.process(SecurityIntent.ToggleTwoFa)
     }
@@ -377,5 +392,13 @@ class SecurityFragment :
 
     companion object {
         fun newInstance() = SecurityFragment()
+    }
+
+    override fun primaryButtonClicked() {
+        navigator().goToProfile()
+    }
+
+    override fun secondButtonClicked() {
+        // do nothing
     }
 }

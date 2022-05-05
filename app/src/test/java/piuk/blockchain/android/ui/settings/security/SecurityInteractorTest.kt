@@ -57,6 +57,7 @@ class SecurityInteractorTest {
         val settingsMock: Settings = mock {
             on { authType }.thenReturn(Settings.AUTH_TYPE_SMS)
             on { isBlockTorIps }.thenReturn(true)
+            on { smsNumber }.thenReturn("+34655898909")
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
 
@@ -96,6 +97,7 @@ class SecurityInteractorTest {
         val settingsMock: Settings = mock {
             on { authType }.thenReturn(Settings.AUTH_TYPE_OFF)
             on { isSmsVerified }.thenReturn(true)
+            on { smsNumber }.thenReturn("0044785758493")
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
 
@@ -103,6 +105,24 @@ class SecurityInteractorTest {
         test.assertValue {
             (it is SecurityIntent.UpdateViewState) &&
                 (it.viewState == SecurityViewState.ShowConfirmTwoFaEnabling)
+        }
+
+        verify(settingsDataManager).getSettings()
+        verifyNoMoreInteractions(settingsDataManager)
+    }
+
+    @Test
+    fun `check two fa smsNumber empty should update settings`() {
+        val settingsMock: Settings = mock {
+            on { authType }.thenReturn(Settings.AUTH_TYPE_OFF)
+            on { smsNumber }.thenReturn("")
+        }
+        whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
+
+        val test = interactor.checkTwoFaState().test()
+        test.assertValue {
+            (it is SecurityIntent.UpdateViewState) &&
+                (it.viewState == SecurityViewState.ShowEnterPhoneNumberRequired)
         }
 
         verify(settingsDataManager).getSettings()

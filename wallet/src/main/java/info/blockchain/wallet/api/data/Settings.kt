@@ -92,7 +92,7 @@ data class Settings(
     }
 
     val smsNumber: String
-        get() = _smsNumber ?: ""
+        get() = _smsNumber.orEmpty()
 
     companion object {
         const val NOTIFICATION_ON = 2

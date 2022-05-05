@@ -2697,6 +2697,9 @@
     <string name="security_backup_sheet_title">Recovery Phrase Not Backed Up</string>
     <string name="security_backup_sheet_blurb">Before you change your password, back up your secret 12 word key. This allows you to recover your account if you forget your password.</string>
     <string name="security_backup_sheet_cta">Back Up Now</string>
+    <string name="security_missing_phone_number">Missing phone number</string>
+    <string name="security_missing_phone_number_description">In order to enable 2FA, you must first update your phone number so we can verify your device.</string>
+    <string name="security_missing_phone_number_cta">Add phone number</string>
     <string name="password_change_blurb">Enter your current password. Then enter and confirm your new password.</string>
     <string name="password_change_cta">Update password</string>
     <string name="change_password_title">Change Password</string>
