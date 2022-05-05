@@ -41,12 +41,10 @@ internal class AppMaintenanceRepository(
                 null
             }
 
-            if (maintenanceConfig == null || appUpdateInfo == null) {
+            if (maintenanceConfig == null) {
                 Outcome.Failure(
                     Throwable(
-                        "maintenanceConfig: $maintenanceConfig" +
-                            "\nappUpdateInfo: $appUpdateInfo" +
-                            "\nboth must not be null"
+                        "maintenanceConfig: $maintenanceConfig must not be null"
                     )
                 )
             } else {
