@@ -18,8 +18,12 @@ internal class InAppUpdateSettingsImpl(
                 this,
                 AppUpdateType.IMMEDIATE,
                 activity,
-                InAppUpdateSettings.REQUEST_CODE
+                REQUEST_CODE
             )
         }
+    }
+
+    companion object {
+        const val REQUEST_CODE = 29138
     }
 }
