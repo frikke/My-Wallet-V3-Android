@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.metadata.save
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
@@ -69,10 +70,8 @@ class KycInvalidCountryPresenter(
                     .flatMap { tokenResponse ->
                         if (enabled) {
                             val nabuMetadata = tokenResponse.mapToNabuAccountMetadata()
-                            metadataRepository.saveMetadata(
+                            metadataRepository.save(
                                 nabuMetadata,
-                                NabuAccountCredentialsMetadata::class.java,
-                                NabuAccountCredentialsMetadata::class.serializer(),
                                 NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
                             ).toSingle { jwt to tokenResponse }
                         } else {

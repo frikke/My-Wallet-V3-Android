@@ -4,6 +4,8 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.metadata.load
+import com.blockchain.metadata.save
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
@@ -28,7 +30,6 @@ import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
@@ -61,16 +62,12 @@ class KycProfilePresenter(
         compositeDisposable +=
             accountMetadataMigrationFF.enabled.flatMapMaybe {
                 if (it) {
-                    metadataRepository.loadMetadata(
-                        NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE,
-                        NabuAccountCredentialsMetadata::class.serializer(),
-                        NabuAccountCredentialsMetadata::class.java
+                    metadataRepository.load<NabuAccountCredentialsMetadata>(
+                        NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
                     )
                 } else {
-                    metadataRepository.loadMetadata(
-                        NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                        NabuUserCredentialsMetadata::class.serializer(),
-                        NabuUserCredentialsMetadata::class.java
+                    metadataRepository.load<NabuUserCredentialsMetadata>(
+                        NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                     )
                 }
             }.toOptional()
@@ -155,18 +152,14 @@ class KycProfilePresenter(
                 .subscribeOn(Schedulers.io())
                 .flatMapCompletable { tokenResponse ->
                     if (enabled) {
-                        metadataRepository.saveMetadata(
+                        metadataRepository.save(
                             tokenResponse.mapToNabuAccountMetadata(),
-                            NabuAccountCredentialsMetadata::class.java,
-                            NabuAccountCredentialsMetadata::class.serializer(),
                             NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
                         ).toSingle { tokenResponse }
                             .flatMapCompletable { createBasicUser(it) }
                     } else {
-                        metadataRepository.saveMetadata(
+                        metadataRepository.save(
                             tokenResponse.mapToNabuUserMetadata(),
-                            NabuUserCredentialsMetadata::class.java,
-                            NabuUserCredentialsMetadata::class.serializer(),
                             NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                         ).toSingle { tokenResponse }
                             .flatMapCompletable { createBasicUser(it) }
