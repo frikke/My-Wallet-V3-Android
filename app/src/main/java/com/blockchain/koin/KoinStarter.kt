@@ -15,7 +15,6 @@ import com.blockchain.koin.modules.coroutinesModule
 import com.blockchain.koin.modules.environmentModule
 import com.blockchain.koin.modules.featureFlagsModule
 import com.blockchain.koin.modules.keys
-import com.blockchain.koin.modules.moshiModule
 import com.blockchain.koin.modules.nabuUrlModule
 import com.blockchain.koin.modules.serviceModule
 import com.blockchain.koin.modules.urls
@@ -98,7 +97,6 @@ object KoinStarter {
                     kycUiNabuModule,
                     loginUiModule,
                     loaderModule,
-                    moshiModule,
                     nabuModule,
                     nabuUrlModule,
                     notificationModule,

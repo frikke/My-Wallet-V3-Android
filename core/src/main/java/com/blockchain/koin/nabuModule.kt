@@ -38,27 +38,18 @@ import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilit
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProvider
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimitsProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestRepository
-import com.blockchain.nabu.datamanagers.repositories.serialization.InterestLimitsMapAdapter
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProviderImpl
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
-import com.blockchain.nabu.models.responses.nabu.CampaignStateMoshiAdapter
-import com.blockchain.nabu.models.responses.nabu.CampaignTransactionStateMoshiAdapter
-import com.blockchain.nabu.models.responses.nabu.IsoDateMoshiAdapter
-import com.blockchain.nabu.models.responses.nabu.KycStateAdapter
-import com.blockchain.nabu.models.responses.nabu.KycTierStateAdapter
-import com.blockchain.nabu.models.responses.nabu.UserCampaignStateMoshiAdapter
-import com.blockchain.nabu.models.responses.nabu.UserStateAdapter
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.service.NabuTierService
 import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.service.TierService
 import com.blockchain.nabu.service.TierUpdater
 import com.blockchain.nabu.stores.NabuSessionTokenStore
-import org.koin.core.scope.get
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -261,10 +252,6 @@ val nabuModule = module {
         }
     }
 
-    moshiInterceptor(interestLimits) { builder ->
-        builder.add(InterestLimitsMapAdapter())
-    }
-
     single { NabuSessionTokenStore() }
 
     single {
@@ -279,19 +266,8 @@ val nabuModule = module {
         RetailWalletTokenService(
             explorerPath = getProperty("explorer-api"),
             apiCode = getProperty("api-code"),
-            retrofit = get(moshiExplorerRetrofit)
+            retrofit = get(serializerExplorerRetrofit)
         )
-    }
-
-    moshiInterceptor(kyc) { builder ->
-        builder
-            .add(KycStateAdapter())
-            .add(KycTierStateAdapter())
-            .add(UserStateAdapter())
-            .add(IsoDateMoshiAdapter())
-            .add(UserCampaignStateMoshiAdapter())
-            .add(CampaignStateMoshiAdapter())
-            .add(CampaignTransactionStateMoshiAdapter())
     }
 }
 

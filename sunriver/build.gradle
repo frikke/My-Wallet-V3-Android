@@ -10,7 +10,6 @@ dependencies {
     implementation project(':common:network')
     implementation project(':logging:domain')
 
-    implementation Libraries.moshiKotlin
     implementation Libraries.kotlinJson
     implementation Libraries.sunriver
 

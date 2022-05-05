@@ -18,8 +18,6 @@ dependencies {
     // Networking
     api Libraries.okHttpMock
     api Libraries.retrofit
-    api Libraries.moshi
-    api Libraries.retrofitRxMoshiConverter
     api Libraries.retrofitRxJavaAdapter
 
     // Injection

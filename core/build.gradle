@@ -47,7 +47,6 @@ dependencies {
     api project(':balance')
 
     // Networking
-    implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation Libraries.okHttpInterceptor
     implementation Libraries.kotlinJson

@@ -1,17 +1,13 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.serialization.BigDecimalAdapter
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.BigDecimalSerializer
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.squareup.moshi.Moshi
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
@@ -22,7 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @InternalSerializationApi
-class MoshiMetadataRepositoryAdapterTest {
+class MetadataRepositoryAdapterTest {
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -36,10 +32,6 @@ class MoshiMetadataRepositoryAdapterTest {
         val field2: BigDecimal
     ) : JsonSerializable
 
-    private val moshi: Moshi = Moshi.Builder().add(BigDecimalAdapter()).build()
-    private val disableMoshiFeatureFlag: IntegratedFeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
     private val json = Json {
         explicitNulls = false
         ignoreUnknownKeys = true
@@ -51,7 +43,7 @@ class MoshiMetadataRepositoryAdapterTest {
         val metadataManager = mock<MetadataManager> {
             on { saveToMetadata(any(), any()) }.thenReturn(Completable.complete())
         }
-        MoshiMetadataRepositoryAdapter(metadataManager, moshi, json, disableMoshiFeatureFlag)
+        MetadataRepositoryAdapter(metadataManager, json)
             .saveMetadata(
                 ExampleClass("ABC", 123.toBigDecimal()),
                 ExampleClass::class.java,
@@ -73,7 +65,7 @@ class MoshiMetadataRepositoryAdapterTest {
                 )
             )
         }
-        MoshiMetadataRepositoryAdapter(metadataManager, moshi, json, disableMoshiFeatureFlag)
+        MetadataRepositoryAdapter(metadataManager, json)
             .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertComplete()
@@ -85,7 +77,7 @@ class MoshiMetadataRepositoryAdapterTest {
         val metadataManager = mock<MetadataManager> {
             on { fetchMetadata(199) }.thenReturn(Maybe.empty())
         }
-        MoshiMetadataRepositoryAdapter(metadataManager, moshi, json, disableMoshiFeatureFlag)
+        MetadataRepositoryAdapter(metadataManager, json)
             .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertComplete()
@@ -101,7 +93,7 @@ class MoshiMetadataRepositoryAdapterTest {
                 )
             )
         }
-        MoshiMetadataRepositoryAdapter(metadataManager, moshi, json, disableMoshiFeatureFlag)
+        MetadataRepositoryAdapter(metadataManager, json)
             .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertError(Exception::class.java)
