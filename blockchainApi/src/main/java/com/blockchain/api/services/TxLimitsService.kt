@@ -6,14 +6,14 @@ class TxLimitsService(
     private val api: TxLimitsApi
 ) {
 
-    fun getSeamlessLimits(
+    fun getCrossborderLimits(
         authHeader: String,
         outputCurrency: String,
         sourceCurrency: String,
         targetCurrency: String,
         sourceAccountType: String,
         targetAccountType: String
-    ) = api.getSeamlessLimits(
+    ) = api.getCrossborderLimits(
         authorization = authHeader,
         outputCurrency = outputCurrency,
         sourceCurrency = sourceCurrency,
