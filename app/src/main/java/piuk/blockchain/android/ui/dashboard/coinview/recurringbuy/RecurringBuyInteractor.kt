@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.coinview.recurringbuy
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.FundsAccount
+import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyPaymentDetails
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.domain.repositories.TradeDataManager
@@ -32,4 +33,7 @@ class RecurringBuyInteractor(
     }
 
     fun deleteRecurringBuy(id: String) = tradeDataManager.cancelRecurringBuy(id)
+
+    fun getRecurringBuyById(recurringBuyId: String): Single<RecurringBuy> =
+        tradeDataManager.getRecurringBuyForId(recurringBuyId)
 }

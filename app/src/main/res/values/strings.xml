@@ -2369,6 +2369,7 @@
     <string name="recurring_buy_info_purchase_label_1">Next Buy</string>
     <string name="recurring_buy_cancelled_toast">Recurring buy cancelled</string>
     <string name="recurring_buy_cancelled_error_toast">Oops! There was an issue cancelling your recurring buy. Please try again later.</string>
+    <string name="recurring_buy_failed_loading">Oops! We had a problem loading the details for your recurring buy, please try again.</string>
     <string name="recurring_buy_cancel_dialog_desc">Are you sure you want to cancel this Recurring Buy?</string>
     <string name="recurring_buy_activity_pending">Pending</string>
     <string name="recurring_buy_details_next_payment">Next Payment</string>

@@ -964,7 +964,7 @@ class CoinViewActivity :
             )
         )
 
-        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy))
+        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy.id))
     }
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
