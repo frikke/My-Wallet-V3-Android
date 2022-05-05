@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
@@ -396,7 +397,6 @@ class CoinViewActivity :
                 renderBalanceInformation(
                     state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance, state.isAddedToWatchlist
                 )
-
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
             is CoinViewViewState.ShowNonTradeableAccount -> renderNonTradeableAsset(newState, state.isAddedToWatchlist)
@@ -572,7 +572,7 @@ class CoinViewActivity :
             newState.asset?.assetInfo?.let { assetInfo ->
                 newState.selectedFiat?.let { selectedFiat ->
                     renderBalanceInformation(
-                        totalCryptoBalance = CryptoValue.zero(assetInfo),
+                        totalCryptoBalance = hashMapOf(AssetFilter.All to CryptoValue.zero(assetInfo)),
                         totalFiatBalance = FiatValue.zero(selectedFiat),
                         isInWatchList = isAddedToWatchlist
                     )
@@ -835,18 +835,20 @@ class CoinViewActivity :
     }
 
     private fun renderBalanceInformation(
-        totalCryptoBalance: Money,
+        totalCryptoBalance: Map<AssetFilter, Money>,
         totalFiatBalance: Money,
-        isInWatchList: Boolean
+        isInWatchList: Boolean,
     ) {
-        with(binding) {
-            assetBalance.apply {
-                labelText = getString(R.string.coinview_balance_label, assetTicker)
-                primaryText = totalFiatBalance.toStringWithSymbol()
-                secondaryText = totalCryptoBalance.toStringWithSymbol()
-                updateIcon(isInWatchList)
+        totalCryptoBalance[AssetFilter.All]?.let {
+            with(binding) {
+                assetBalance.apply {
+                    labelText = getString(R.string.coinview_balance_label, assetTicker)
+                    primaryText = totalFiatBalance.toStringWithSymbol()
+                    secondaryText = it.toStringWithSymbol()
+                    updateIcon(isInWatchList)
+                }
+                assetBalancesSwitcher.displayedChild = BALANCES_VIEW
             }
-            assetBalancesSwitcher.displayedChild = BALANCES_VIEW
         }
     }
 
