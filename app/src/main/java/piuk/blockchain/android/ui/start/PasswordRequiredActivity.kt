@@ -10,6 +10,9 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.controls.TextInputState
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
+import com.blockchain.logging.MomentParam
 import com.blockchain.preferences.WalletStatus
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -34,6 +37,8 @@ class PasswordRequiredActivity :
     override val view: PasswordRequiredView = this
     private val walletPrefs: WalletStatus by inject()
 
+    private val momentLogger: MomentLogger by inject()
+
     private var isTwoFATimerRunning = false
     private val twoFATimer by lazy {
         object : CountDownTimer(TWO_FA_COUNTDOWN, TWO_FA_STEP) {
@@ -51,6 +56,11 @@ class PasswordRequiredActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        momentLogger.endEvent(
+            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
+            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
+        )
 
         with(binding) {
             walletIdentifier.apply {

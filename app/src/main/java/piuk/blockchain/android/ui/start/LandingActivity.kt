@@ -16,8 +16,12 @@ import com.blockchain.componentlib.carousel.CarouselViewType
 import com.blockchain.componentlib.price.PriceView
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
+import com.blockchain.logging.MomentParam
 import java.util.Timer
 import java.util.TimerTask
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.connectivity.ConnectivityStatus
 import piuk.blockchain.android.databinding.ActivityLandingOnboardingBinding
@@ -39,9 +43,16 @@ class LandingActivity : MvpActivity<LandingView, LandingPresenter>(), LandingVie
 
     private lateinit var timer: Timer
 
+    private val momentLogger: MomentLogger by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        momentLogger.endEvent(
+            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
+            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
+        )
 
         with(binding) {
             if (!ConnectivityStatus.hasConnectivity(this@LandingActivity)) {
