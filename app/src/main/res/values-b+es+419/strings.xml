@@ -2352,6 +2352,7 @@ Intenta con cualquier tarjeta Visa o Mastercard.</string>
     <string name="sb_checkout_card_debit_only_cta">Prueba con un método de pago diferente</string>
     <string name="executing_connection_error">Al parecer, se produjo un problema con tu conexión a Internet. Verifícala e intenta nuevamente.</string>
     <string name="common_http_error_with_message">¡Ups! Algo salió mal %1$s.</string>
+    <string name="common_http_error_with_new_line_message">¡Ups! Algo salió mal.\n%1$s</string>
     <string name="invalid_domain_address">Dirección del dominio no válida</string>
     <string name="coinview_prices_missing">Se produjo un error al obtener los datos del token</string>
     <string name="transaction_denied">Transacción denegada</string>

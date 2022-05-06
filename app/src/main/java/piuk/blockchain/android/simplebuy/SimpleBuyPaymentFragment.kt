@@ -306,7 +306,7 @@ class SimpleBuyPaymentFragment :
             )
             is ErrorState.UnhandledHttpError -> showError(
                 title = getString(
-                    R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
+                    R.string.common_http_error_with_new_line_message, errorState.nabuApiException.getErrorDescription()
                 ),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
