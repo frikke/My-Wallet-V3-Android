@@ -17,7 +17,7 @@ import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelBrowserM
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelMessageDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingCodeDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingResponseDto
-import piuk.blockchain.android.ui.auth.newlogin.data.model.map
+import piuk.blockchain.android.ui.auth.newlogin.data.model.mapDomain
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.androidcore.utils.pubKeyHash
@@ -86,7 +86,7 @@ class SecureChannelRepository(
             return null
         }
 
-        return message.map()
+        return message.mapDomain()
     }
 
     private fun sendMessage(
@@ -121,7 +121,7 @@ class SecureChannelRepository(
     private fun getDeviceKey() = SigningKey.createSigningKeyFromPrivateKey(secureChannelPrefs.deviceKey)
 
     companion object {
-        const val TIME_OUT_IN_MINUTES: Long = 10
+        private const val TIME_OUT_IN_MINUTES: Long = 10
     }
 }
 

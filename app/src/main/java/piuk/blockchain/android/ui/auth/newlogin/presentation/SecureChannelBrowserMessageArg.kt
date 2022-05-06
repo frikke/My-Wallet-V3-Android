@@ -11,7 +11,7 @@ data class SecureChannelBrowserMessageArg(
     val timestamp: Long
 ) : Parcelable
 
-fun SecureChannelBrowserMessageArg.map(): SecureChannelBrowserMessage = this.run {
+fun SecureChannelBrowserMessageArg.mapDomain(): SecureChannelBrowserMessage = this.run {
     SecureChannelBrowserMessage(
         type = type,
         channelId = channelId,

@@ -10,7 +10,7 @@ internal data class SecureChannelBrowserMessageDto(
     val timestamp: Long
 )
 
-internal fun SecureChannelBrowserMessageDto.map(): SecureChannelBrowserMessage = this.run {
+internal fun SecureChannelBrowserMessageDto.mapDomain(): SecureChannelBrowserMessage = this.run {
     SecureChannelBrowserMessage(
         type = type,
         channelId = channelId,

@@ -9,7 +9,6 @@ import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginState
 val secureChannelPresentationModule = module {
 
     scope(payloadScopeQualifier) {
-
         factory {
             AuthNewLoginModel(
                 initialState = AuthNewLoginState(),
