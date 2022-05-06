@@ -10,6 +10,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import java.io.Serializable
 import kotlinx.coroutines.Job
@@ -36,8 +38,13 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
 
     private val dataWiper: DataWiper by scopedInject()
 
+    private val momentLogger: MomentLogger by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        momentLogger.endEvent(MomentEvent.LAUNCHER_TO_SPLASH)
+        momentLogger.startEvent(MomentEvent.SPLASH_TO_FIRST_SCREEN)
 
         dataWiper.clearData()
 

@@ -6,7 +6,7 @@ import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.WalletUpgradeEvent
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.logging.MomentEvent.PIN_TO_DASHBOARD
+import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.logging.RemoteLogger
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -79,7 +79,7 @@ class PinModel(
                 }
             }
             is PinIntent.ValidatePIN -> {
-                momentLogger.startEvent(PIN_TO_DASHBOARD)
+                momentLogger.startEvent(MomentEvent.PIN_TO_DASHBOARD)
 
                 interactor.validatePIN(intent.pin, intent.isForValidatingPinForResult)
                     .handleProgress(R.string.validating_pin)
