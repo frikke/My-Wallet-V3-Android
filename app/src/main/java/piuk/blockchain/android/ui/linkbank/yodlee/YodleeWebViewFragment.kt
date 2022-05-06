@@ -64,7 +64,7 @@ class YodleeWebViewFragment :
     private val bearerParam: String by lazy { "Bearer ${attributes.token}" }
     private val extraParamsKey = "extraParams"
     private val extraParamConfigName: String
-        get() = "configName=${attributes.configName}"
+        get() = "configName=${attributes.configName}&intentUrl=https://${BuildConfig.YODLEE_DEEPLINK_HOST}"
     private val extraParamEncoding = "UTF-8"
 
     private val yodleeQuery: String by lazy {

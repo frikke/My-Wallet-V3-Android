@@ -160,12 +160,14 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
 
         fun newInstance(
             context: Context,
-            intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Serializable
+            intentFromNotification: Boolean = false,
+            notificationAnalyticsPayload: Serializable? = null
         ): Intent =
             Intent(context, LauncherActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
-                putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS, notificationAnalyticsPayload)
+                notificationAnalyticsPayload?.let { payload ->
+                    putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS, payload)
+                }
             }
     }
 }

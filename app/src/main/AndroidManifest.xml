@@ -41,6 +41,19 @@
         android:theme="@style/AppTheme"
         tools:replace="android:label, android:allowBackup, android:theme">
         <activity
+            android:name=".ui.linkbank.yodlee.YodleeEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/AppTheme.Splash">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="${YODLEE_LINK_HOST}"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ui.launcher.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.Splash">
