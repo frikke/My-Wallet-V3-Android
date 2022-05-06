@@ -981,7 +981,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.executing_connection_error
             )
             is TransactionError.HttpError -> resources.getString(
-                R.string.common_http_error_with_message,
+                R.string.common_http_error_with_new_line_message,
                 error.nabuApiException.getErrorDescription()
             )
             TransactionError.InvalidDomainAddress -> resources.getString(

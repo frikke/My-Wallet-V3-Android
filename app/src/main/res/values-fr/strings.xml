@@ -2419,6 +2419,7 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="add_debit_card">Carte de débit</string>
     <string name="executing_connection_error">Il semble que votre connexion Internet soit défaillante. Veuillez vérifier et réessayer.</string>
     <string name="common_http_error_with_message">Oups! Un problème est survenu %1$s.</string>
+    <string name="common_http_error_with_new_line_message">Oups! Un problème est survenu.\n%1$s</string>
     <string name="invalid_domain_address">Adresse de domaine invalide</string>
     <string name="coinview_prices_missing">Un problème est survenu lors de la récupération des données de jeton</string>
     <string name="transaction_denied">Transaction refusée</string>

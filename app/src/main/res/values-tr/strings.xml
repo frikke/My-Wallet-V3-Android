@@ -2484,6 +2484,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="sb_checkout_card_debit_only_cta">Farklı Bir Ödeme Yöntemi Deneyin</string>
     <string name="executing_connection_error">İnternet bağlantınızla ilgili bir sorun var gibi görünüyor. Lütfen kontrol edip tekrar deneyin.</string>
     <string name="common_http_error_with_message">Hata! Bir şeyler ters gitti %1$s.</string>
+    <string name="common_http_error_with_new_line_message">Hata! Bir şeyler ters gitti.\n%1$s</string>
     <string name="invalid_domain_address">Geçersiz alan adresi</string>
     <string name="coinview_prices_missing">Token verileri alınırken bir sorun oluştu</string>
     <string name="transaction_denied">İşlem reddedildi</string>
