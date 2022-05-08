@@ -7,6 +7,7 @@ import android.os.Bundle
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.core.payments.model.BankPartner
@@ -14,13 +15,19 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YapilyAttributes
 import com.blockchain.core.payments.model.YapilyInstitution
 import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
 import info.blockchain.balance.FiatCurrency
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionFragment
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionNavEvent
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
-import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragment
+import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragmentLegacy
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -28,7 +35,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.consume
 class BankAuthActivity :
     BlockchainActivity(),
     BankAuthFlowNavigator,
-    SlidingModalBottomDialog.Host {
+    SlidingModalBottomDialog.Host,
+    NavigationRouter<OpenBankingPermissionNavEvent> {
 
     private val linkBankTransfer: LinkBankTransfer
         get() = intent.getSerializableExtra(LINK_BANK_TRANSFER_KEY) as LinkBankTransfer
@@ -46,6 +54,8 @@ class BankAuthActivity :
         get() = intent.getBooleanExtra(LAUNCHED_FROM_DEEP_LINK, false)
 
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
+
+    private val removeSafeconnectFF: FeatureFlag by inject(removeSafeconnectFeatureFlag)
 
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
@@ -65,9 +75,17 @@ class BankAuthActivity :
                     checkBankLinkingState(linkingId)
                 }
                 approvalDetails != null -> {
+
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
-                        launchYapilyApproval(it)
+
+                        removeSafeconnectFF.enabled.subscribe { enabled ->
+                            if (enabled) {
+                                yapilyApprovalAccepted(it)
+                            } else {
+                                launchYapilyApproval(it)
+                            }
+                        }
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
                 else -> {
@@ -114,23 +132,34 @@ class BankAuthActivity :
     }
 
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.content_frame,
-                YapilyPermissionFragment.newInstance(
-                    institution = institution,
-                    entity = entity,
-                    authSource = authSource
+        removeSafeconnectFF.enabled.subscribe { enabled ->
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.content_frame,
+                    if (enabled) {
+                        OpenBankingPermissionFragment.newInstance(
+                            institution = institution,
+                            entity = entity,
+                            authSource = authSource
+                        )
+                    } else {
+                        YapilyPermissionFragmentLegacy.newInstance(
+                            institution = institution,
+                            entity = entity,
+                            authSource = authSource
+                        )
+                    }
+
                 )
-            )
-            .addToBackStack(null)
-            .commitAllowingStateLoss()
+                .addToBackStack(null)
+                .commitAllowingStateLoss()
+        }
     }
 
     private fun launchYapilyApproval(approvalDetails: BankPaymentApproval) {
         supportFragmentManager.beginTransaction()
             .replace(
-                R.id.content_frame, YapilyPermissionFragment.newInstance(approvalDetails, authSource)
+                R.id.content_frame, YapilyPermissionFragmentLegacy.newInstance(approvalDetails, authSource)
             )
             .commitAllowingStateLoss()
     }
@@ -170,6 +199,22 @@ class BankAuthActivity :
         bankLinkingPrefs.setBankLinkingState(BankAuthDeepLinkState().toPreferencesValue())
         setResult(Activity.RESULT_CANCELED)
         finish()
+    }
+
+    override fun route(navigationEvent: OpenBankingPermissionNavEvent) {
+        when (navigationEvent) {
+            is OpenBankingPermissionNavEvent.AgreementAccepted -> {
+                launchBankLinking(
+                    accountProviderId = "",
+                    accountId = navigationEvent.institution.id,
+                    bankId = linkBankTransfer.id
+                )
+            }
+
+            OpenBankingPermissionNavEvent.AgreementDenied -> {
+                supportFragmentManager.popBackStack()
+            }
+        }.exhaustive
     }
 
     override fun launchYodleeSplash(attributes: YodleeAttributes, bankId: String) {
@@ -214,8 +259,14 @@ class BankAuthActivity :
                 checkBankLinkingState(linkingId)
             }
             approvalDetails != null -> {
-                approvalDetails?.let {
-                    launchYapilyApproval(it)
+                removeSafeconnectFF.enabled.subscribe { enabled ->
+                    approvalDetails?.let {
+                        if (enabled) {
+                            yapilyApprovalAccepted(it)
+                        } else {
+                            launchYapilyApproval(it)
+                        }
+                    }
                 }
             }
             else -> onBackPressed()

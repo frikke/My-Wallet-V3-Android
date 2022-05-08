@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class BalancesRequest(
-    @SerialName("address")
-    val address: String,
+    @SerialName("addresses")
+    val addresses: List<String>,
     @SerialName("apiCode")
     val apiCode: String,
     @SerialName("network")

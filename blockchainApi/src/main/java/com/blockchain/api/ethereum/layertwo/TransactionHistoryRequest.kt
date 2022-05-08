@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TransactionHistoryRequest(
-    @SerialName("address")
-    val address: String,
+    @SerialName("addresses")
+    val addresses: List<String>,
     @SerialName("apiCode")
     val apiCode: String,
     @SerialName("network")
     val network: String,
     @SerialName("identifier")
-    val tickerId: String
+    val contractAddress: String
 )

@@ -526,4 +526,15 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 transferLimits = limits
             )
     }
+
+    object GetSafeConnectTermsOfServiceLink : SimpleBuyIntent()
+
+    data class UpdateSafeConnectTermsOfServiceLink(
+        private val termsOfServiceLink: String
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(
+                safeConnectTosLink = termsOfServiceLink
+            )
+    }
 }

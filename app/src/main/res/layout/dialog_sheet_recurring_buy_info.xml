@@ -21,8 +21,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/rb_sheet_indicator"
         app:srcCompat="@drawable/ic_arrow_back_blue" />
@@ -32,14 +32,21 @@
         style="@style/Text.Semibold.20"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="@id/rb_sheet_back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/rb_sheet_back"
         app:layout_constraintTop_toTopOf="@id/rb_sheet_back"
         tools:text="Recurring BTC Buy" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/rb_info_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="rb_sheet_header, rb_sheet_items, rb_sheet_cancel" />
 
     <piuk.blockchain.android.ui.transactionflow.plugin.SimpleInfoHeaderView
         android:id="@+id/rb_sheet_header"
@@ -64,4 +71,25 @@
         android:layout_margin="@dimen/standard_margin"
         android:text="@string/common_remove"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/rb_loading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/rb_sheet_back">
+
+        <com.blockchain.componentlib.system.LoadingTableRowView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.system.LoadingTableRowView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.system.LoadingTableRowView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.constraintlayout.widget.ConstraintLayout>

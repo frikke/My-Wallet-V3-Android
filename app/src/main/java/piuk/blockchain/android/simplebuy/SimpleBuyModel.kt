@@ -7,6 +7,7 @@ import com.blockchain.api.isInternetConnectionError
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -51,11 +52,13 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
+import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -78,7 +81,8 @@ class SimpleBuyModel(
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -378,6 +382,14 @@ class SimpleBuyModel(
                         processOrderErrors(it)
                     }
                 )
+
+            SimpleBuyIntent.GetSafeConnectTermsOfServiceLink -> {
+                rxSingle { getSafeConnectTosLinkUseCase() }
+                    .subscribe { termsOfServiceLink ->
+                        process(SimpleBuyIntent.UpdateSafeConnectTermsOfServiceLink(termsOfServiceLink))
+                    }
+            }
+
             else -> null
         }
 
@@ -704,9 +716,6 @@ class SimpleBuyModel(
             else -> process(SimpleBuyIntent.GetAuthorisationUrl(order.id))
         }
     }
-
-    private fun Currency.isOpenBankingCurrency() =
-        this.networkTicker == "EUR" || this.networkTicker == "GBP"
 
     private fun processCreateOrder(
         selectedCryptoAsset: AssetInfo?,

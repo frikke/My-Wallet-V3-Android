@@ -74,7 +74,8 @@ class PinModelTest {
             remoteLogger = mock(),
             interactor = interactor,
             specificAnalytics = specificAnalytics,
-            analytics = analytics
+            analytics = analytics,
+            momentLogger = mock()
         )
     }
 

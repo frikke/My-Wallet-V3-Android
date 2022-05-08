@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TransactionHistoryResponse(
-    @SerialName("address")
-    val address: String,
     @SerialName("history")
     val history: List<L2TransactionResponse>
 )
@@ -22,8 +20,41 @@ data class L2TransactionResponse(
     @SerialName("timestamp")
     val timeStamp: Long,
     @SerialName("fee")
-    val fee: @Contextual BigInteger
+    val fee: @Contextual BigInteger,
+    @SerialName("extraData")
+    val extraData: L2TransactionData,
+    @SerialName("movements")
+    val movements: List<TransactionMovement>
 )
+
+@Serializable
+data class L2TransactionData(
+    @SerialName("gasPrice")
+    val gasPrice: @Contextual BigInteger,
+    @SerialName("gasLimit")
+    val gasLimit: @Contextual BigInteger,
+    @SerialName("gasUsed")
+    val gasUsed: @Contextual BigInteger,
+    @SerialName("blockNumber")
+    val blockNumber: @Contextual BigInteger
+)
+
+@Serializable
+data class TransactionMovement(
+    @SerialName("type")
+    val type: TransactionDirection,
+    @SerialName("address")
+    val address: String,
+    @SerialName("amount")
+    val amount: @Contextual BigInteger,
+    @SerialName("identifier")
+    val contractAddress: String
+)
+
+enum class TransactionDirection {
+    SENT,
+    RECEIVED
+}
 
 enum class Status {
     PENDING,

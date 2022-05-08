@@ -253,7 +253,7 @@ enum class AnalyticsNames(val eventName: String) {
     CUSTOMER_SUPPORT_CLICKED("Customer Support Clicked"),
     CUSTOMER_SUPPORT_EMAIL_CLICKED("Email Us Clicked"),
     CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked"),
-    CLIENT_ERROR("Client error"),
+    CLIENT_ERROR("Client Error"),
     NOTIFICATION_CLICKED("Notification Clicked"),
     NOTIFICATION_VIEWED("Notification Viewed"),
     NOTIFICATION_PREFERENCES_CLICKED("Notification Preferences Clicked"),

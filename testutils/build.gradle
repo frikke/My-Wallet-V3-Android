@@ -15,8 +15,6 @@ dependencies {
     // Networking
     implementation Libraries.okHttpMock
     implementation Libraries.retrofit
-    implementation Libraries.moshi
-    implementation Libraries.retrofitRxMoshiConverter
     implementation Libraries.retrofitRxJavaAdapter
     implementation(Libraries.mockitoKotlin) {
         ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }

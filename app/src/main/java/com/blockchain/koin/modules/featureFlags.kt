@@ -7,8 +7,6 @@ import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
-import com.blockchain.koin.disableMoshiSerializerFeatureFlag
-import com.blockchain.koin.embraceFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
@@ -19,6 +17,7 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
+import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
@@ -53,15 +52,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_memo",
                 "ETH Memo for Hot Wallets"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(disableMoshiSerializerFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_disable_moshi",
-                "Use Kotlinx Serializer (Moshi)"
             )
         )
     }.bind(FeatureFlag::class)
@@ -138,15 +128,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(embraceFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_embrace",
-                "Embrace.io"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(customerSupportSheetFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -206,6 +187,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_app_maintenance",
                 "App Maintenance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(removeSafeconnectFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_remove_safeconnect_screen",
+                "Remove Safeconnect Screen"
             )
         )
     }.bind(FeatureFlag::class)

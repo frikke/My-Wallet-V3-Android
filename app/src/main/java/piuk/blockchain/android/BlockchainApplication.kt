@@ -20,6 +20,7 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.KoinStarter
 import com.blockchain.lifecycle.LifecycleInterestedComponent
+import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AppInfoPrefs.Companion.DEFAULT_APP_VERSION_CODE
@@ -29,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
+import io.embrace.android.embracesdk.Embrace
 import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +40,6 @@ import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.RuntimeException
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.data.coinswebsocket.service.CoinsWebSocketService
 import piuk.blockchain.android.data.connectivity.ConnectivityManager
@@ -81,6 +82,9 @@ open class BlockchainApplication : Application() {
         }
 
         super.onCreate()
+
+        Embrace.getInstance().start(this, BuildConfig.DEBUG)
+        Embrace.getInstance().startEvent(MomentEvent.LAUNCHER_TO_SPLASH.value)
 
         // TODO disable dark mode for now, re-enable once we're further into the redesign
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

@@ -50,7 +50,7 @@ data class SuggestedUpgrade(
 )
 
 @Serializable
-data class GetSeamlessLimitsResponse(
+data class GetCrossborderLimitsResponse(
     @SerialName("currency")
     val currency: String,
     @SerialName("current")

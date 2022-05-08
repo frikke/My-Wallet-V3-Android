@@ -21,6 +21,7 @@ class AppMaintenanceRemoteConfigTest {
 
     private val configObject = AppMaintenanceConfigDto(
         bannedVersions = listOf(1000),
+        playStoreVersion = 20,
         minimumAppVersion = 12,
         softUpgradeVersion = 23,
         minimumOSVersion = 34,
@@ -28,6 +29,7 @@ class AppMaintenanceRemoteConfigTest {
         redirectToWebsite = false,
         statusUrl = "statusUrl",
         storeUrl = "storeUrl",
+        inAppUpdateFallbackUrl = "inAppUpdateFallbackUrl",
         websiteUrl = "websiteUrl"
     )
 
@@ -36,6 +38,7 @@ class AppMaintenanceRemoteConfigTest {
           "bannedVersions": [
             1000
           ],
+          "playStoreVersion": 20,
           "minimumAppVersion": 12,
           "softUpgradeVersion": 23,
           "minimumOSVersion": 34,
@@ -43,6 +46,7 @@ class AppMaintenanceRemoteConfigTest {
           "redirectToWebsite": false,
           "statusURL": "statusUrl",
           "storeURI": "storeUrl",
+          "inAppUpdateFallbackUrl": "inAppUpdateFallbackUrl",
           "websiteUrl": "websiteUrl"
         }
     """.trimIndent()

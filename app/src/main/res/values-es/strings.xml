@@ -2387,6 +2387,7 @@ Compre hoy criptomonedas.</string>
     <string name="add_debit_card">Tarjeta de débito</string>
     <string name="executing_connection_error">Parece que hay un problema con tu conexión a Internet. Compruébalo y vuelve a intentarlo.</string>
     <string name="common_http_error_with_message">¡Vaya, se ha producido un error %1$s!</string>
+    <string name="common_http_error_with_new_line_message">¡Vaya, se ha producido un error.\n%1$s</string>
     <string name="invalid_domain_address">La dirección de dominio no es válida</string>
     <string name="coinview_prices_missing">Se ha producido un error al obtener los datos del token</string>
     <string name="transaction_denied">Transacción denegada</string>

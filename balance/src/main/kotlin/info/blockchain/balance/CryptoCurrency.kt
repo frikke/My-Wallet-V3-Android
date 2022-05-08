@@ -1,11 +1,13 @@
 package info.blockchain.balance
 
+import java.io.Serializable
+
 enum class AssetCategory {
     CUSTODIAL,
     NON_CUSTODIAL
 }
 
-interface AssetInfo : Currency {
+interface AssetInfo : Currency, Serializable {
     val requiredConfirmations: Int
 
     // If non-null, then this is an l2 asset, and this contains the ticker of the chain on which this is implemented?

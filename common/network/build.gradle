@@ -14,11 +14,9 @@ dependencies {
     implementation Libraries.kotlinJson
     implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.retrofitRxJavaAdapter
-    implementation Libraries.retrofitRxMoshiConverter
 
     implementation Libraries.timber
 
-    implementation Libraries.moshiKotlin
     implementation Libraries.kotlinJson
 
     // Testing

@@ -38,8 +38,12 @@ sealed class RecurringBuyIntent : MviIntent<RecurringBuyModelState> {
             )
     }
 
+    class LoadRecurringBuy(val rbId: String) : RecurringBuyIntent() {
+        override fun reduce(oldState: RecurringBuyModelState): RecurringBuyModelState = oldState
+    }
+
     class UpdateRecurringBuy(private val rb: RecurringBuy) : RecurringBuyIntent() {
         override fun reduce(oldState: RecurringBuyModelState): RecurringBuyModelState =
-            oldState.copy(recurringBuy = rb)
+            oldState.copy(recurringBuy = rb, viewState = RecurringBuyViewState.ShowRecurringBuy(rb))
     }
 }

@@ -249,7 +249,8 @@ val redesignSettingsModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 specificAnalytics = get(),
-                analytics = get()
+                analytics = get(),
+                momentLogger = get()
             )
         }
 

@@ -35,6 +35,9 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.logging.MomentEvent
+import com.blockchain.logging.MomentLogger
+import com.blockchain.logging.MomentParam
 import com.blockchain.ui.password.SecondPasswordHandler
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -88,6 +91,8 @@ class PinActivity :
 
     private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
+    private val momentLogger: MomentLogger by inject()
+
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
@@ -118,6 +123,12 @@ class PinActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        momentLogger.endEvent(
+            event = MomentEvent.SPLASH_TO_FIRST_SCREEN,
+            params = mapOf(MomentParam.SCREEN_NAME to javaClass.simpleName)
+        )
+
         appUpdateManager = AppUpdateManagerFactory.create(this)
 
         setToolbar()

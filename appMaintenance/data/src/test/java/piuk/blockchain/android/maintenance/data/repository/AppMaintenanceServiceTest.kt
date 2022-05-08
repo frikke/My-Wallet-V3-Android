@@ -37,6 +37,7 @@ class AppMaintenanceServiceTest {
 
     private val dataDto = AppMaintenanceConfigDto(
         bannedVersions = listOf(123),
+        playStoreVersion = 2000,
         minimumAppVersion = 500,
         softUpgradeVersion = 100,
         minimumOSVersion = 14,
@@ -44,6 +45,7 @@ class AppMaintenanceServiceTest {
         redirectToWebsite = true,
         statusUrl = "statusUrl",
         storeUrl = "storeUrl",
+        inAppUpdateFallbackUrl = "inAppUpdateFallbackUrl",
         websiteUrl = "websiteUrl"
     )
 
@@ -132,7 +134,7 @@ class AppMaintenanceServiceTest {
         }
 
     @Test
-    fun `WHEN appUpdateInfo throws, THEN Outcome Failure should be returned`() =
+    fun `WHEN appUpdateInfo throws, THEN Outcome Success should be returned`() =
         runBlocking {
             coEvery { appUpdateInfoFactory.getAppUpdateInfo() } throws Throwable()
 
@@ -140,6 +142,6 @@ class AppMaintenanceServiceTest {
 
             val result = appMaintenanceRepository.getAppMaintenanceConfig()
 
-            assertEquals(true, result is Outcome.Failure)
+            assertEquals(true, result is Outcome.Success)
         }
 }

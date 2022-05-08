@@ -1,21 +1,18 @@
 package com.blockchain.sunriver.datamanager
 
 import com.blockchain.serialization.JsonSerializable
-import com.squareup.moshi.Json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class XlmMetaData(
 
-    @field:Json(name = "default_account_idx")
     @SerialName("default_account_idx")
     val defaultAccountIndex: Int = 0,
 
     @SerialName("accounts")
     val accounts: List<XlmAccount>?,
 
-    @field:Json(name = "tx_notes")
     @SerialName("tx_notes")
     val transactionNotes: Map<String, String>?
 ) : JsonSerializable {

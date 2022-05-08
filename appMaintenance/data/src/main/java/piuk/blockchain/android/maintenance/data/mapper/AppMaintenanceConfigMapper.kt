@@ -5,8 +5,13 @@ import piuk.blockchain.android.maintenance.data.model.AppMaintenanceConfigDto
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceConfig
 
 internal object AppMaintenanceConfigMapper {
+    /**
+     * @param appUpdateInfo could be null in non-prod-release builds, or just as an edge case it fails to load,
+     * so we use [AppMaintenanceConfigDto.playStoreVersion] instead of [AppUpdateInfo.availableVersionCode]
+     * and external [AppMaintenanceConfigDto.inAppUpdateFallbackUrl] instead of the in-app update
+     */
     fun map(
-        appUpdateInfo: AppUpdateInfo,
+        appUpdateInfo: AppUpdateInfo?,
         maintenanceConfig: AppMaintenanceConfigDto,
         currentVersionCode: Int,
         currentOsVersion: Int
@@ -14,7 +19,7 @@ internal object AppMaintenanceConfigMapper {
         return AppMaintenanceConfig(
             currentVersionCode = currentVersionCode,
             currentOsVersion = currentOsVersion,
-            playStoreVersion = appUpdateInfo.availableVersionCode(),
+            playStoreVersion = appUpdateInfo?.availableVersionCode() ?: maintenanceConfig.playStoreVersion,
             bannedVersions = maintenanceConfig.bannedVersions,
             minimumAppVersion = maintenanceConfig.minimumAppVersion,
             softUpgradeVersion = maintenanceConfig.softUpgradeVersion,
@@ -22,7 +27,10 @@ internal object AppMaintenanceConfigMapper {
             siteWideMaintenance = maintenanceConfig.siteWideMaintenance,
             redirectToWebsite = maintenanceConfig.redirectToWebsite,
             statusUrl = maintenanceConfig.statusUrl,
-            storeUrl = maintenanceConfig.storeUrl,
+            storeUrl = with(maintenanceConfig) {
+                if (appUpdateInfo == null && storeUrl.isBlank()) inAppUpdateFallbackUrl
+                else storeUrl
+            },
             websiteUrl = maintenanceConfig.websiteUrl
         )
     }

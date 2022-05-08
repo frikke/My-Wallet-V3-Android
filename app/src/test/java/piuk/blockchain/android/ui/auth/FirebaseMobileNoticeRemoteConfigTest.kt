@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.auth
 
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
@@ -13,9 +12,7 @@ import org.mockito.ArgumentMatchers.anyString
 class FirebaseMobileNoticeRemoteConfigTest {
 
     private val remoteConfig: RemoteConfig = mock()
-    private val disableMoshiFeatureFlag: IntegratedFeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
+
     private val json = Json {
         explicitNulls = false
         ignoreUnknownKeys = true
@@ -26,7 +23,7 @@ class FirebaseMobileNoticeRemoteConfigTest {
 
     @Before
     fun setup() {
-        subject = FirebaseMobileNoticeRemoteConfig(remoteConfig, json, disableMoshiFeatureFlag)
+        subject = FirebaseMobileNoticeRemoteConfig(remoteConfig, json)
     }
 
     @Test

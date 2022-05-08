@@ -82,7 +82,7 @@ class CoinViewInteractor(
         watchlistDataManager.addToWatchlist(asset, listOf(AssetTag.Favourite))
 
     fun loadQuickActions(
-        totalCryptoBalance: Money,
+        totalCryptoBalance: Map<AssetFilter, Money>,
         accountList: List<BlockchainAccount>,
         asset: CryptoAsset
     ): Single<QuickActionData> =
@@ -102,7 +102,7 @@ class CoinViewInteractor(
                     buyAccess is FeatureAccess.Granted -> {
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
-                            if (totalCryptoBalance.isPositive) {
+                            if (totalCryptoBalance[AssetFilter.Custodial]?.isPositive == true) {
                                 QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
                             } else {
                                 QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
@@ -111,7 +111,7 @@ class CoinViewInteractor(
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
                         }
                     } else {
-                        if (totalCryptoBalance.isPositive) {
+                        if (totalCryptoBalance[AssetFilter.Custodial]?.isPositive == true) {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.Send, custodialAccount)
                         } else {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
@@ -121,7 +121,11 @@ class CoinViewInteractor(
                 ncAccount != null -> {
                     QuickActionData(
                         QuickActionCta.Receive,
-                        if (totalCryptoBalance.isPositive) QuickActionCta.Send else QuickActionCta.None,
+                        if (totalCryptoBalance[AssetFilter.NonCustodial]?.isPositive == true) {
+                            QuickActionCta.Send
+                        } else {
+                            QuickActionCta.None
+                        },
                         ncAccount
                     )
                 }
@@ -217,10 +221,13 @@ class CoinViewInteractor(
                 val accountsList = mapAccounts(
                     nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate
                 )
-                var totalCryptoBalance = Money.zero(asset.assetInfo)
+                val totalCryptoMoney = Money.zero(asset.assetInfo)
+                val totalCryptoBalance = hashMapOf(AssetFilter.All to totalCryptoMoney)
                 var totalFiatBalance = Money.zero(currencyPrefs.selectedFiatCurrency)
+
                 accountsList.forEach { account ->
-                    totalCryptoBalance = totalCryptoBalance.plus(account.amount)
+                    totalCryptoBalance[account.filter] = totalCryptoMoney.plus(account.amount)
+                    totalCryptoBalance[AssetFilter.All]?.plus(account.amount)
                     totalFiatBalance = totalFiatBalance.plus(account.fiatValue)
                 }
                 AssetInformation.AccountsInfo(

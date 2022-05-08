@@ -3,6 +3,7 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
+import com.blockchain.coincore.fiat.isOpenBankingCurrency
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
@@ -65,6 +66,7 @@ data class SimpleBuyState constructor(
     val googlePayMerchantBankCountryCode: String? = null,
     val googlePayAllowPrepaidCards: Boolean? = true,
     val googlePayAllowCreditCards: Boolean? = true,
+    @Transient @kotlinx.serialization.Transient val safeConnectTosLink: String? = null,
     @Transient @kotlinx.serialization.Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient @kotlinx.serialization.Transient
     override val errorState: TransactionErrorState = TransactionErrorState.NONE,
@@ -149,6 +151,8 @@ data class SimpleBuyState constructor(
 
     fun shouldLaunchExternalFlow(): Boolean =
         authorisePaymentUrl != null && linkedBank != null && id != null
+
+    fun isOpenBankingTransfer() = selectedPaymentMethod?.isBank() == true && fiatCurrency.isOpenBankingCurrency()
 
     override val action: AssetAction
         get() = AssetAction.Buy

@@ -16,7 +16,6 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
-import com.blockchain.koin.disableMoshiSerializerFeatureFlag
 import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -349,9 +348,7 @@ val applicationModule = module {
                 prefs = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
-                moshi = get(),
-                json = get(),
-                disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
+                json = get()
             )
         }
 
@@ -505,7 +502,8 @@ val applicationModule = module {
                 isFirstTimeBuyerUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
-                userIdentity = get()
+                userIdentity = get(),
+                getSafeConnectTosLinkUseCase = payloadScope.get()
             )
         }
 
@@ -817,8 +815,7 @@ val applicationModule = module {
     factory {
         FirebaseMobileNoticeRemoteConfig(
             remoteConfig = get(),
-            json = get(),
-            disableMoshiFeatureFlag = get(disableMoshiSerializerFeatureFlag)
+            json = get()
         )
     }.bind(MobileNoticeRemoteConfig::class)
 

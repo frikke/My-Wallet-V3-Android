@@ -152,7 +152,10 @@ internal class Erc20Asset(
             Single.just(isValidAddress(address))
                 .flatMapMaybe { isValid ->
                     if (isValid) {
-                        erc20DataManager.isContractAddress(address)
+                        erc20DataManager.isContractAddress(
+                            address = address,
+                            parentChain = assetInfo.l1chainTicker
+                        )
                             .flatMapMaybe { isContract ->
                                 Maybe.just(
                                     Erc20Address(
@@ -205,7 +208,10 @@ internal class Erc20Asset(
             it.startsWith(ERC20_ADDRESS_PART, true)
         }?.removePrefix(ERC20_ADDRESS_PART) ?: return Maybe.empty()
 
-        return erc20DataManager.isContractAddress(addressSegment)
+        return erc20DataManager.isContractAddress(
+            address = addressSegment,
+            parentChain = assetInfo.l1chainTicker
+        )
             .flatMapMaybe { isContract ->
                 Maybe.just(
                     Erc20Address(

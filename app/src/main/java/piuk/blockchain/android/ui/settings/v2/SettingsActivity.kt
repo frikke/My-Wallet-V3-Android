@@ -42,14 +42,18 @@ import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
+import timber.log.Timber
 
-class SettingsActivity : BlockchainActivity(), SettingsNavigator {
+class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragment.Host {
 
     private val notificationReworkFeatureFlag: FeatureFlag by scopedInject(notificationPreferencesFeatureFlag)
 
     private val binding: ActivitySettingsBinding by lazy {
         ActivitySettingsBinding.inflate(layoutInflater)
     }
+
+    private var basicProfileInfo: BasicProfileInfo? = null
+    private var tier: Tier? = null
 
     override val alwaysDisableScreenshots: Boolean = true
 
@@ -68,7 +72,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
-                binding.settingsContentFrame.id, RedesignSettingsFragment.newInstance()
+                binding.settingsContentFrame.id, SettingsFragment.newInstance()
             )
             .commitNowAllowingStateLoss()
 
@@ -115,8 +119,20 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
         )
     }
 
-    override fun goToProfile(basicProfileInfo: BasicProfileInfo, tier: Tier) {
-        startActivity(ProfileActivity.newIntent(this, basicProfileInfo, tier))
+    override fun updateBasicProfile(basicProfileInfo: BasicProfileInfo) {
+        this.basicProfileInfo = basicProfileInfo
+    }
+
+    override fun updateTier(tier: Tier) {
+        this.tier = tier
+    }
+
+    override fun goToProfile() {
+        if (basicProfileInfo != null && tier != null) {
+            startActivity(ProfileActivity.newIntent(this, basicProfileInfo!!, tier!!))
+        } else {
+            Timber.e("initialization for basicProfileInfo and tier went wrong")
+        }
     }
 
     override fun goToAccount() {
@@ -213,7 +229,7 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator {
 
 interface SettingsNavigator {
     fun goToAboutApp()
-    fun goToProfile(basicProfileInfo: BasicProfileInfo, tier: Tier)
+    fun goToProfile()
     fun goToAccount()
     fun goToNotifications()
     fun goToNotificationPreferences()

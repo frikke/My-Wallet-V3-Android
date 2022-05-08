@@ -3,6 +3,8 @@ package com.blockchain.nabu.metadata
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.metadata.load
+import com.blockchain.metadata.save
 import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
@@ -14,7 +16,6 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 
 @OptIn(InternalSerializationApi::class)
 class MetadataRepositoryNabuTokenAdapter(
@@ -36,18 +37,14 @@ class MetadataRepositoryNabuTokenAdapter(
             .flatMapMaybe { credentialsMetadata ->
                 when (credentialsMetadata) {
                     is NabuAccountCredentialsMetadata -> {
-                        metadataRepository.saveMetadata(
+                        metadataRepository.save(
                             credentialsMetadata,
-                            NabuAccountCredentialsMetadata::class.java,
-                            NabuAccountCredentialsMetadata::class.serializer(),
                             NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
                         ).andThen(Maybe.just(credentialsMetadata))
                     }
                     is NabuUserCredentialsMetadata -> {
-                        metadataRepository.saveMetadata(
+                        metadataRepository.save(
                             credentialsMetadata,
-                            NabuUserCredentialsMetadata::class.java,
-                            NabuUserCredentialsMetadata::class.serializer(),
                             NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                         ).andThen(Maybe.just(credentialsMetadata))
                     }
@@ -56,25 +53,21 @@ class MetadataRepositoryNabuTokenAdapter(
     }
 
     private val defer = Maybe.defer {
-        metadataRepository.loadMetadata(
+        metadataRepository.load<NabuAccountCredentialsMetadata>(
             NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE,
-            NabuAccountCredentialsMetadata::class.serializer(),
-            NabuAccountCredentialsMetadata::class.java
+        ).switchIfEmpty(
+            Maybe.just(NabuAccountCredentialsMetadata())
         ).flatMap {
             if (it.isValid()) {
-                return@flatMap Maybe.just(it)
+                Maybe.just(it)
             } else {
-                metadataRepository.loadMetadata(
-                    NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                    NabuUserCredentialsMetadata::class.serializer(),
-                    NabuUserCredentialsMetadata::class.java
+                metadataRepository.load<NabuUserCredentialsMetadata>(
+                    NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
                 )
             }
         }.onErrorResumeNext {
-            metadataRepository.loadMetadata(
-                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE,
-                NabuUserCredentialsMetadata::class.serializer(),
-                NabuUserCredentialsMetadata::class.java
+            metadataRepository.load<NabuUserCredentialsMetadata>(
+                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
             )
         }
     }.maybeCache()

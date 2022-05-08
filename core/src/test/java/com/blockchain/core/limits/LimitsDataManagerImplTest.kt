@@ -7,8 +7,8 @@ import com.blockchain.api.txlimits.data.CurrentLimits
 import com.blockchain.api.txlimits.data.FeatureLimitResponse
 import com.blockchain.api.txlimits.data.FeatureName
 import com.blockchain.api.txlimits.data.FeaturePeriodicLimit
+import com.blockchain.api.txlimits.data.GetCrossborderLimitsResponse
 import com.blockchain.api.txlimits.data.GetFeatureLimitsResponse
-import com.blockchain.api.txlimits.data.GetSeamlessLimitsResponse
 import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitRange
 import com.blockchain.api.txlimits.data.PeriodicLimit
@@ -76,8 +76,8 @@ class LimitsDataManagerImplTest {
 
     @Test
     fun `given crypto output currency should call legacy api and convert it's limits to output currency`() {
-        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
-            .thenReturn(Single.just(NO_SEAMLESS_LIMITS))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(NO_CROSSBORDER_LIMITS))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
         val convertedMinLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 2000.0.toBigDecimal())
@@ -125,8 +125,8 @@ class LimitsDataManagerImplTest {
 
     @Test
     fun `given fiat output currency should not convert legacy api limits`() {
-        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
-            .thenReturn(Single.just(NO_SEAMLESS_LIMITS))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(NO_CROSSBORDER_LIMITS))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
         val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L.toBigInteger())
@@ -155,14 +155,14 @@ class LimitsDataManagerImplTest {
     }
 
     @Test
-    fun `should fetch seamless limits and correctly construct TxLimits`() {
-        val seamlessLimitsResponse = createFakeSeamlessLimits(OUTPUT_CRYPTO_CURRENCY.networkTicker)
-        val seamlessMaxLimit = CryptoValue.fromMinor(
+    fun `should fetch crossborder limits and correctly construct TxLimits`() {
+        val crossborderLimitsResponse = createFakeCrossborderLimits(OUTPUT_CRYPTO_CURRENCY.networkTicker)
+        val crossborderMaxLimit = CryptoValue.fromMinor(
             OUTPUT_CRYPTO_CURRENCY,
             AVAILABLE_LIMIT.toBigInteger()
         )
-        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
-            .thenReturn(Single.just(seamlessLimitsResponse))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(crossborderLimitsResponse))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
         val convertedMinLimit = CryptoValue.fromMinor(OUTPUT_CRYPTO_CURRENCY, 2000.0.toBigDecimal())
@@ -198,7 +198,7 @@ class LimitsDataManagerImplTest {
             .assertValue { limits ->
                 limits.min.amount == convertedMinLimit &&
                     limits.max is TxLimit.Limited &&
-                    limits.max.amount == Money.min(convertedMaxLimit, seamlessMaxLimit) &&
+                    limits.max.amount == Money.min(convertedMaxLimit, crossborderMaxLimit) &&
                     limits.periodicLimits.containsAll(
                         listOf(
                             TxPeriodicLimit(
@@ -240,7 +240,7 @@ class LimitsDataManagerImplTest {
             }
 
         legacyLimitsSingle.test().assertComplete()
-        verify(limitsService).getSeamlessLimits(
+        verify(limitsService).getCrossborderLimits(
             authHeader = FakeNabuSessionTokenFactory.any.authHeader,
             outputCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
             sourceCurrency = OUTPUT_CRYPTO_CURRENCY.networkTicker,
@@ -255,12 +255,12 @@ class LimitsDataManagerImplTest {
     }
 
     @Test
-    fun `when legacy max limit and seamless current limits are present, max limit should be the lower of them`() {
-        val seamlessLimitsResponse = createFakeSeamlessLimits(OUTPUT_FIAT_CURRENCY.networkTicker)
-        val seamlessMaxLimit =
+    fun `when legacy max limit and crossborder current limits are present, max limit should be the lower of them`() {
+        val crossborderLimitsResponse = createFakeCrossborderLimits(OUTPUT_FIAT_CURRENCY.networkTicker)
+        val crossborderMaxLimit =
             FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, AVAILABLE_LIMIT.toBigInteger())
-        whenever(limitsService.getSeamlessLimits(any(), any(), any(), any(), any(), any()))
-            .thenReturn(Single.just(seamlessLimitsResponse))
+        whenever(limitsService.getCrossborderLimits(any(), any(), any(), any(), any(), any()))
+            .thenReturn(Single.just(crossborderLimitsResponse))
 
         val legacyMinLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 1123L.toBigInteger())
         val legacyMaxLimit = FiatValue.fromMinor(OUTPUT_FIAT_CURRENCY, 4123L.toBigInteger())
@@ -281,11 +281,11 @@ class LimitsDataManagerImplTest {
             .assertComplete()
             .assertValue { limits ->
                 limits.min.amount == legacyMinLimit &&
-                    limits.max.amount == seamlessMaxLimit
+                    limits.max.amount == crossborderMaxLimit
             }
 
         legacyLimitsSingle.test().assertComplete()
-        verify(limitsService).getSeamlessLimits(
+        verify(limitsService).getCrossborderLimits(
             FakeNabuSessionTokenFactory.any.authHeader,
             OUTPUT_FIAT_CURRENCY.networkTicker,
             OUTPUT_FIAT_CURRENCY.networkTicker,
@@ -376,7 +376,7 @@ class LimitsDataManagerImplTest {
     companion object {
         private val OUTPUT_CRYPTO_CURRENCY = CryptoCurrency.BTC
 
-        private val NO_SEAMLESS_LIMITS = GetSeamlessLimitsResponse("NOOP", null, null)
+        private val NO_CROSSBORDER_LIMITS = GetCrossborderLimitsResponse("NOOP", null, null)
 
         private const val AVAILABLE_LIMIT = "850"
         private const val DAILY_LIMIT = "1000"
@@ -384,7 +384,7 @@ class LimitsDataManagerImplTest {
         private const val YEARLY_LIMIT = "10000"
         private const val SUGGESTED_DAILY_LIMIT = "200000"
         private const val SUGGESTED_YEARLY_LIMIT = "1000000"
-        private fun createFakeSeamlessLimits(currency: String) = GetSeamlessLimitsResponse(
+        private fun createFakeCrossborderLimits(currency: String) = GetCrossborderLimitsResponse(
             currency = currency,
             current = CurrentLimits(
                 available = Limit(currency, AVAILABLE_LIMIT),

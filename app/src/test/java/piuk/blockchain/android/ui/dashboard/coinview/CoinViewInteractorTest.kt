@@ -168,7 +168,8 @@ class CoinViewInteractorTest {
         }
         val btcAsset = CryptoCurrency.BTC
         val account: CustodialTradingAccount = mock()
-        val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
 
         val test = subject.loadQuickActions(totalCryptoBalance, listOf(account), asset).test()
@@ -200,10 +201,11 @@ class CoinViewInteractorTest {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
         }
         val btcAsset = CryptoCurrency.BTC
-        val totalCryptoBalance = CryptoValue.zero(btcAsset)
         val account: CustodialTradingAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
 
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.zero(btcAsset))
         val test = subject.loadQuickActions(totalCryptoBalance, listOf(account), asset).test()
 
         test.assertValue {
@@ -230,7 +232,8 @@ class CoinViewInteractorTest {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
-        val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
 
         val account: CustodialTradingAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
@@ -260,7 +263,8 @@ class CoinViewInteractorTest {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Blocked(mock())))
 
         val btcAsset = CryptoCurrency.BTC
-        val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(AssetFilter.NonCustodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
 
         val account: CryptoNonCustodialAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
@@ -291,7 +295,8 @@ class CoinViewInteractorTest {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
-        val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.ZERO)
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.ZERO))
 
         val account: CryptoNonCustodialAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(false))
@@ -322,7 +327,11 @@ class CoinViewInteractorTest {
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
-        val totalCryptoBalance = CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
+        val totalCryptoBalance =
+            hashMapOf<AssetFilter, Money>(
+                AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN),
+                AssetFilter.NonCustodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
+            )
 
         val account: CryptoNonCustodialAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(false))
@@ -383,7 +392,12 @@ class CoinViewInteractorTest {
         test.assertValue {
             it.prices == prices &&
                 it is AssetInformation.AccountsInfo &&
-                it.totalCryptoBalance == Money.fromMajor(testAsset, BigDecimal.ZERO) &&
+                it.totalCryptoBalance == hashMapOf(
+                AssetFilter.All to Money.fromMajor(testAsset, BigDecimal.ZERO),
+                AssetFilter.Interest to Money.fromMajor(testAsset, BigDecimal.ZERO),
+                AssetFilter.NonCustodial to Money.fromMajor(testAsset, BigDecimal.ZERO),
+                AssetFilter.Custodial to Money.fromMajor(testAsset, BigDecimal.ZERO)
+            ) &&
                 it.totalFiatBalance == Money.fromMajor(FiatCurrency.Dollars, BigDecimal.ZERO) &&
                 it.accountsList.size == 4 &&
                 it.accountsList[0].account is CryptoNonCustodialAccount &&

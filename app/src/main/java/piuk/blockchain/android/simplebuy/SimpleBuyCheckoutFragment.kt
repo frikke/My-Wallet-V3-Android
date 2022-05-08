@@ -47,6 +47,8 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
+import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
+import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -88,6 +90,8 @@ class SimpleBuyCheckoutFragment :
         }
 
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
+
+        model.process(SimpleBuyIntent.GetSafeConnectTermsOfServiceLink)
     }
 
     private fun setupToolbar() {
@@ -138,6 +142,26 @@ class SimpleBuyCheckoutFragment :
                 visible()
                 movementMethod = LinkMovementMethod.getInstance()
                 text = note
+            }
+        }
+
+        binding.termsAndPrivacy.apply {
+            if (newState.isOpenBankingTransfer()) {
+                visible()
+
+                val linksMap = mapOf(
+                    "terms" to StringAnnotationClickEvent.OpenUri(Uri.parse(newState.safeConnectTosLink)),
+                    "privacy" to StringAnnotationClickEvent.OpenUri(Uri.parse(URL_OPEN_BANKING_PRIVACY_POLICY))
+                )
+
+                text = StringUtils.getStringWithMappedAnnotations(
+                    context = requireContext(),
+                    stringId = R.string.open_banking_permission_confirmation_buy,
+                    linksMap = linksMap
+                )
+                movementMethod = LinkMovementMethod.getInstance()
+            } else {
+                gone()
             }
         }
 

@@ -89,11 +89,24 @@
         android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginBottom="@dimen/very_small_margin"
         android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/terms_and_privacy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="@string/purchase_card_note_1" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/terms_and_privacy"
+        style="@style/Text.Light.12"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/very_small_margin"
+        android:gravity="center"
         app:layout_constraintBottom_toTopOf="@id/private_key_explanation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
-        tools:text="@string/purchase_card_note_1" />
+        tools:text="@string/open_banking_permission_confirmation_buy" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/private_key_explanation"

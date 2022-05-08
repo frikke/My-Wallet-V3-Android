@@ -2041,6 +2041,7 @@
     <string name="executing_transaction_error">Oops! Something went wrong while executing the %1$s on-chain transaction.</string>
     <string name="executing_connection_error">Looks like there is an issue with your internet connection. Please check and try again.</string>
     <string name="common_http_error_with_message">Oops! Something went wrong %1$s.</string>
+    <string name="common_http_error_with_new_line_message">Oops! Something went wrong.\n%1$s</string>
     <string name="invalid_domain_address">Invalid domain Address</string>
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
     <string name="trading_invalid_destination_amount">Oops! Looks like that isn’t a valid amount, please try again.</string>
@@ -2098,6 +2099,11 @@
     <string name="yapily_empty_blurb">We couldn’t find your bank. Send funds from your bank to your Blockchain Wallet with a Manual Transfer.</string>
     <string name="yapily_empty_cta">Show Transfer Details</string>
     <string name="yapily_find_bank_title">Find Your Bank</string>
+    <string name="open_banking_permission_link_to_bank">Link to %1$s</string>
+    <string name="open_banking_permission_confirmation">By tapping approve you are agreeing to SafeConnect</string>
+    <string name="open_banking_permission_confirmation_buy">By tapping Buy Now, you agree to SafeConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
+    <string name="open_banking_permission_terms_service">Terms of Service</string>
+    <string name="open_banking_permission_privacy_policy">Privacy Policy</string>
     <string name="yapily_agreement_title_1">Data Sharing</string>
     <string name="yapily_agreement_blurb_1_1">%1$s will retrieve your bank data based on your request and provide this information to Blockchain.</string>
     <string name="yapily_agreement_title_2">Secure Connection</string>
@@ -2369,6 +2375,7 @@
     <string name="recurring_buy_info_purchase_label_1">Next Buy</string>
     <string name="recurring_buy_cancelled_toast">Recurring buy cancelled</string>
     <string name="recurring_buy_cancelled_error_toast">Oops! There was an issue cancelling your recurring buy. Please try again later.</string>
+    <string name="recurring_buy_failed_loading">Oops! We had a problem loading the details for your recurring buy, please try again.</string>
     <string name="recurring_buy_cancel_dialog_desc">Are you sure you want to cancel this Recurring Buy?</string>
     <string name="recurring_buy_activity_pending">Pending</string>
     <string name="recurring_buy_details_next_payment">Next Payment</string>
@@ -2696,6 +2703,9 @@
     <string name="security_backup_sheet_title">Recovery Phrase Not Backed Up</string>
     <string name="security_backup_sheet_blurb">Before you change your password, back up your secret 12 word key. This allows you to recover your account if you forget your password.</string>
     <string name="security_backup_sheet_cta">Back Up Now</string>
+    <string name="security_missing_phone_number">Missing phone number</string>
+    <string name="security_missing_phone_number_description">In order to enable 2FA, you must first update your phone number so we can verify your device.</string>
+    <string name="security_missing_phone_number_cta">Add phone number</string>
     <string name="password_change_blurb">Enter your current password. Then enter and confirm your new password.</string>
     <string name="password_change_cta">Update password</string>
     <string name="change_password_title">Change Password</string>

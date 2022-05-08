@@ -1,7 +1,5 @@
 package piuk.blockchain.android.ui.recover
 
-import com.blockchain.featureflag.FeatureFlag
-import com.squareup.moshi.Moshi
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
@@ -29,9 +27,7 @@ class RecoverFundsPresenter(
     private val prefs: PersistentPrefs,
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
-    private val moshi: Moshi,
-    private val json: Json,
-    private val disableMoshiFeatureFlag: FeatureFlag
+    private val json: Json
 ) : BasePresenter<RecoverFundsView>() {
 
     private val mnemonicChecker: MnemonicCode by unsafeLazy {
@@ -76,23 +72,17 @@ class RecoverFundsPresenter(
         val masterKey = payloadDataManager.generateMasterKeyFromSeed(recoveryPhrase)
         val metadataNode = metadataDerivation.deriveMetadataNode(masterKey)
 
-        return disableMoshiFeatureFlag.enabled.flatMapMaybe { isMoshiDisabled ->
-            metadataInteractor.loadRemoteMetadata(
-                Metadata.newInstance(
-                    metaDataHDNode = metadataDerivation.deserializeMetadataNode(metadataNode),
-                    type = WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
-                    metadataDerivation = metadataDerivation
-                )
+        return metadataInteractor.loadRemoteMetadata(
+            Metadata.newInstance(
+                metaDataHDNode = metadataDerivation.deserializeMetadataNode(metadataNode),
+                type = WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                metadataDerivation = metadataDerivation
             )
-                .map {
-                    if (isMoshiDisabled) {
-                        json.decodeFromString<WalletCredentialsMetadata>(it)
-                    } else {
-                        moshi.adapter(WalletCredentialsMetadata::class.java).fromJson(it)
-                            ?: throw NoSuchElementException()
-                    }
-                }
-        }.toSingle()
+        )
+            .map {
+                json.decodeFromString<WalletCredentialsMetadata>(it)
+            }
+            .toSingle()
     }
 
     private fun recoverWallet(recoveryPhrase: String) {

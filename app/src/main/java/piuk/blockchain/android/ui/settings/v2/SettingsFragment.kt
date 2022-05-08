@@ -58,12 +58,22 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
 import piuk.blockchain.android.util.AndroidUtils
 
-class RedesignSettingsFragment :
+class SettingsFragment :
     MviFragment<SettingsModel, SettingsIntent, SettingsState, FragmentRedesignSettingsBinding>(),
     AddPaymentMethodsBottomSheet.Host,
     RemoveCardBottomSheet.Host,
     RemoveLinkedBankBottomSheet.Host,
     SettingsScreen {
+
+    interface Host {
+        fun updateBasicProfile(basicProfileInfo: BasicProfileInfo)
+        fun updateTier(tier: Tier)
+    }
+
+    val host: Host by lazy {
+        activity as? Host
+            ?: throw IllegalStateException("Host activity is not a SettingsFragment.Host")
+    }
 
     private val onCardAddedResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == AppCompatActivity.RESULT_OK) {
@@ -110,8 +120,10 @@ class RedesignSettingsFragment :
 
     override fun render(newState: SettingsState) {
         setupMenuItems(newState.basicProfileInfo, newState.tier)
+        host.updateTier(newState.tier)
         newState.basicProfileInfo?.let { userInfo ->
             setInfoHeader(userInfo, newState.tier)
+            host.updateBasicProfile(userInfo)
         } ?: setupEmptyHeader()
 
         showUserTierIcon(newState.tier)
@@ -165,7 +177,7 @@ class RedesignSettingsFragment :
         when (newState.viewToLaunch) {
             ViewToLaunch.Profile ->
                 newState.basicProfileInfo?.let {
-                    navigator().goToProfile(it, newState.tier)
+                    navigator().goToProfile()
                 }
             is ViewToLaunch.BankAccount -> {
                 val fiatCurrency = newState.viewToLaunch.currency
@@ -379,7 +391,7 @@ class RedesignSettingsFragment :
                 text = context.getString(R.string.settings_see_profile)
                 onClick = {
                     basicProfileInfo?.let {
-                        navigator().goToProfile(it, userTier)
+                        navigator().goToProfile()
                     }
                 }
             }
@@ -550,6 +562,6 @@ class RedesignSettingsFragment :
     companion object {
         private const val LOTTIE_LOADER_PATH = "lottie/loader.json"
 
-        fun newInstance(): RedesignSettingsFragment = RedesignSettingsFragment()
+        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 }

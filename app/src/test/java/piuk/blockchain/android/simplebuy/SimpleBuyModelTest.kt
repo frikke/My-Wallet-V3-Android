@@ -105,7 +105,8 @@ class SimpleBuyModelTest {
         bankPartnerCallbackProvider = mock(),
         userIdentity = mock {
             on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
-        }
+        },
+        getSafeConnectTosLinkUseCase = mock()
     )
 
     @Test

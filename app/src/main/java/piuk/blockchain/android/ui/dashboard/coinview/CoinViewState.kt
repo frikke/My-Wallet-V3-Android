@@ -88,7 +88,7 @@ sealed class AssetInformation(
         override val isAddedToWatchlist: Boolean,
         override val prices: Prices24HrWithDelta,
         val accountsList: List<AssetDisplayInfo>,
-        val totalCryptoBalance: Money,
+        val totalCryptoBalance: Map<AssetFilter, Money>,
         val totalFiatBalance: Money
     ) : AssetInformation(prices, isAddedToWatchlist)
 

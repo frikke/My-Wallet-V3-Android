@@ -60,7 +60,7 @@ class LimitsDataManagerImpl(
 
         Single.zip(
             legacyLimitsToOutputCurrency,
-            limitsService.getSeamlessLimits(
+            limitsService.getCrossborderLimits(
                 authHeader = token.authHeader,
                 outputCurrency = outputCurrency.networkTicker,
                 sourceCurrency = sourceCurrency.networkTicker,
@@ -68,34 +68,34 @@ class LimitsDataManagerImpl(
                 sourceAccountType = sourceAccountType.name,
                 targetAccountType = targetAccountType.name
             )
-        ) { legacyLimits, seamlessLimits ->
+        ) { legacyLimits, crossborderLimits ->
             val maxLegacyLimit = legacyLimits.max
-            val maxSeamlessLimit = seamlessLimits.current?.available?.toMoneyValue()
+            val maxCrossborderLimit = crossborderLimits.current?.available?.toMoneyValue()
             val maxLimit = when {
-                maxSeamlessLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
-                    Money.min(maxLegacyLimit, maxSeamlessLimit)
+                maxCrossborderLimit != null && maxLegacyLimit != null -> TxLimit.Limited(
+                    Money.min(maxLegacyLimit, maxCrossborderLimit)
                 )
                 maxLegacyLimit != null -> TxLimit.Limited(maxLegacyLimit)
-                maxSeamlessLimit != null -> TxLimit.Limited(maxSeamlessLimit)
+                maxCrossborderLimit != null -> TxLimit.Limited(maxCrossborderLimit)
                 else -> TxLimit.Unlimited
             }
 
             val periodicLimits = listOfNotNull(
-                seamlessLimits.current?.daily?.let {
+                crossborderLimits.current?.daily?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.DAILY,
                         it.effective ?: false
                     )
                 },
-                seamlessLimits.current?.monthly?.let {
+                crossborderLimits.current?.monthly?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.MONTHLY,
                         it.effective ?: false
                     )
                 },
-                seamlessLimits.current?.yearly?.let {
+                crossborderLimits.current?.yearly?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.YEARLY,
@@ -105,21 +105,21 @@ class LimitsDataManagerImpl(
             )
 
             val upgradedLimits = listOfNotNull(
-                seamlessLimits.suggestedUpgrade?.daily?.let {
+                crossborderLimits.suggestedUpgrade?.daily?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.DAILY,
                         false
                     )
                 },
-                seamlessLimits.suggestedUpgrade?.monthly?.let {
+                crossborderLimits.suggestedUpgrade?.monthly?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.MONTHLY,
                         false
                     )
                 },
-                seamlessLimits.suggestedUpgrade?.yearly?.let {
+                crossborderLimits.suggestedUpgrade?.yearly?.let {
                     TxPeriodicLimit(
                         it.limit.toMoneyValue(),
                         TxLimitPeriod.YEARLY,
@@ -132,7 +132,7 @@ class LimitsDataManagerImpl(
                 min = TxLimit.Limited(legacyLimits.min),
                 max = maxLimit,
                 periodicLimits = periodicLimits,
-                suggestedUpgrade = seamlessLimits.suggestedUpgrade?.let {
+                suggestedUpgrade = crossborderLimits.suggestedUpgrade?.let {
                     SuggestedUpgrade(
                         type = UpgradeType.Kyc(Tier.values()[it.requiredTier]),
                         upgradedLimits = upgradedLimits

@@ -203,21 +203,6 @@
 -dontwarn afu.org.checkerframework.**
 -dontwarn org.checkerframework.**
 
-# Moshi
--dontwarn okio.**
--dontwarn javax.annotation.**
--keepclasseswithmembers class * {
-    @com.squareup.moshi.* <methods>;
-}
--keep @com.squareup.moshi.JsonQualifier interface *
--keepclassmembers class kotlin.Metadata {
-    public <methods>;
-}
--keepclassmembers class ** {
-    @com.squareup.moshi.FromJson *;
-    @com.squareup.moshi.ToJson *;
-}
-
 # XLM
 -keep public class org.stellar.sdk.responses.** { *; }
 

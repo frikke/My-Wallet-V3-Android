@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
+import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.InterestAccount
@@ -48,6 +49,7 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
+import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
@@ -60,6 +62,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.interstitials.NoBalanceActi
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyDetailsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
+import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -74,7 +77,8 @@ class CoinViewActivity :
     AccountExplainerBottomSheet.Host,
     AccountActionsBottomSheet.Host,
     InterestSummarySheet.Host,
-    NoBalanceActionBottomSheet.Host {
+    NoBalanceActionBottomSheet.Host,
+    KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -393,7 +397,6 @@ class CoinViewActivity :
                 renderBalanceInformation(
                     state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance, state.isAddedToWatchlist
                 )
-
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
             is CoinViewViewState.ShowNonTradeableAccount -> renderNonTradeableAsset(newState, state.isAddedToWatchlist)
@@ -569,7 +572,7 @@ class CoinViewActivity :
             newState.asset?.assetInfo?.let { assetInfo ->
                 newState.selectedFiat?.let { selectedFiat ->
                     renderBalanceInformation(
-                        totalCryptoBalance = CryptoValue.zero(assetInfo),
+                        totalCryptoBalance = hashMapOf(AssetFilter.All to CryptoValue.zero(assetInfo)),
                         totalFiatBalance = FiatValue.zero(selectedFiat),
                         isInWatchList = isAddedToWatchlist
                     )
@@ -832,18 +835,20 @@ class CoinViewActivity :
     }
 
     private fun renderBalanceInformation(
-        totalCryptoBalance: Money,
+        totalCryptoBalance: Map<AssetFilter, Money>,
         totalFiatBalance: Money,
-        isInWatchList: Boolean
+        isInWatchList: Boolean,
     ) {
-        with(binding) {
-            assetBalance.apply {
-                labelText = getString(R.string.coinview_balance_label, assetTicker)
-                primaryText = totalFiatBalance.toStringWithSymbol()
-                secondaryText = totalCryptoBalance.toStringWithSymbol()
-                updateIcon(isInWatchList)
+        totalCryptoBalance[AssetFilter.All]?.let {
+            with(binding) {
+                assetBalance.apply {
+                    labelText = getString(R.string.coinview_balance_label, assetTicker)
+                    primaryText = totalFiatBalance.toStringWithSymbol()
+                    secondaryText = it.toStringWithSymbol()
+                    updateIcon(isInWatchList)
+                }
+                assetBalancesSwitcher.displayedChild = BALANCES_VIEW
             }
-            assetBalancesSwitcher.displayedChild = BALANCES_VIEW
         }
     }
 
@@ -961,7 +966,7 @@ class CoinViewActivity :
             )
         )
 
-        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy))
+        showBottomSheet(RecurringBuyDetailsSheet.newInstance(recurringBuy.id))
     }
 
     override fun onRecurringBuyDeleted(asset: AssetInfo) {
@@ -979,6 +984,10 @@ class CoinViewActivity :
 
     override fun navigateToKyc() {
         showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    override fun startKycClicked() {
+        KycNavHostActivity.startForResult(this, CampaignType.SimpleBuy, SimpleBuyActivity.KYC_STARTED)
     }
 
     override fun navigateToAction(
