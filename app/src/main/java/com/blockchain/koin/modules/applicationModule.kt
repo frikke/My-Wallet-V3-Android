@@ -121,8 +121,6 @@ import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.auth.newlogin.data.repository.SecureChannelRepository
-import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
@@ -559,7 +557,7 @@ val applicationModule = module {
             )
         }
 
-        factory {
+        factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
                 authenticator = get(),
@@ -567,7 +565,7 @@ val applicationModule = module {
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
                 recurringBuyMapper = get()
             )
-        }.bind(TradeDataService::class)
+        }
 
         factory {
             RecurringBuyResponseToRecurringBuyMapper(
