@@ -1,8 +1,8 @@
 package com.blockchain.nabu.models.responses.tokenresponse
 
+import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.CredentialMetadata
-import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
-import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,11 +16,11 @@ data class NabuOfflineTokenResponse(
     val token: String
 )
 
-fun NabuOfflineTokenResponse.mapToNabuUserMetadata(): NabuUserCredentialsMetadata =
-    NabuUserCredentialsMetadata(this.userId, this.token)
+fun NabuOfflineTokenResponse.mapToLegacyCredentials(): NabuLegacyCredentialsMetadata =
+    NabuLegacyCredentialsMetadata(userId = this.userId, lifetimeToken = this.token)
 
-fun NabuOfflineTokenResponse.mapToNabuAccountMetadata(): NabuAccountCredentialsMetadata =
-    NabuAccountCredentialsMetadata(this.userId, this.token)
+fun NabuOfflineTokenResponse.mapToBlockchainCredentialsMetadata(): BlockchainAccountCredentialsMetadata =
+    BlockchainAccountCredentialsMetadata(userId = this.userId, lifetimeToken = this.token)
 
 fun CredentialMetadata.mapFromMetadata(): NabuOfflineTokenResponse {
     require(userId != null) {

@@ -4,11 +4,11 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.save
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
-import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
+import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuAccountMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuUserMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredentialsMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.mapToLegacyCredentials
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -69,18 +69,18 @@ class KycInvalidCountryPresenter(
                     .subscribeOn(Schedulers.io())
                     .flatMap { tokenResponse ->
                         if (enabled) {
-                            val nabuMetadata = tokenResponse.mapToNabuAccountMetadata()
+                            val nabuMetadata = tokenResponse.mapToBlockchainCredentialsMetadata()
                             metadataRepository.save(
                                 nabuMetadata,
-                                NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
+                                BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
                             ).toSingle { jwt to tokenResponse }
                         } else {
-                            val nabuMetadata = tokenResponse.mapToNabuUserMetadata()
+                            val nabuMetadata = tokenResponse.mapToLegacyCredentials()
                             metadataRepository.saveMetadata(
                                 nabuMetadata,
-                                NabuUserCredentialsMetadata::class.java,
-                                NabuUserCredentialsMetadata::class.serializer(),
-                                NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
+                                NabuLegacyCredentialsMetadata::class.java,
+                                NabuLegacyCredentialsMetadata::class.serializer(),
+                                NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
                             ).toSingle { jwt to tokenResponse }
                         }
                     }

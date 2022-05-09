@@ -5,27 +5,21 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NabuUserCredentialsMetadata(
+data class NabuLegacyCredentialsMetadata(
     @SerialName("user_id")
     override val userId: String,
 
     @SerialName("lifetime_token")
     override val lifetimeToken: String,
-
-    @SerialName("exchange_user_id")
-    override val exchangeUserId: String? = null,
-
-    @SerialName("exchange_lifetime_token")
-    override val exchangeLifetimeToken: String? = null
 ) : CredentialMetadata {
 
     companion object {
-        const val USER_CREDENTIALS_METADATA_NODE = 10
+        const val NABU_LEGACY_CREDENTIALS_METADATA_NODE = 10
     }
 }
 
 @Serializable
-data class NabuAccountCredentialsMetadata(
+data class BlockchainAccountCredentialsMetadata(
     @SerialName("nabu_user_id")
     override val userId: String? = null,
 
@@ -33,22 +27,22 @@ data class NabuAccountCredentialsMetadata(
     override val lifetimeToken: String? = null,
 
     @SerialName("exchange_user_id")
-    override val exchangeUserId: String? = null,
+    val exchangeUserId: String? = null,
 
     @SerialName("exchange_lifetime_token")
-    override val exchangeLifetimeToken: String? = null
+    val exchangeLifetimeToken: String? = null
 ) : CredentialMetadata {
 
     companion object {
-        const val ACCOUNT_CREDENTIALS_METADATA_NODE = 13
+        const val BLOCKCHAIN_CREDENTIALS_METADATA_NODE = 13
+
+        fun invalid(): BlockchainAccountCredentialsMetadata = BlockchainAccountCredentialsMetadata()
     }
 }
 
 sealed interface CredentialMetadata : JsonSerializable {
     val userId: String?
     val lifetimeToken: String?
-    val exchangeUserId: String?
-    val exchangeLifetimeToken: String?
 
     fun isValid() = userId.isNullOrEmpty().not() && lifetimeToken.isNullOrEmpty().not()
 }

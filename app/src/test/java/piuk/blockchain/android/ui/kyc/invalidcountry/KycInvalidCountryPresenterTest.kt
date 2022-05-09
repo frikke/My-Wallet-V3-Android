@@ -4,7 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
+import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -98,9 +98,9 @@ class KycInvalidCountryPresenterTest {
         whenever(
             metadataRepo.saveMetadata(
                 any(),
-                eq(NabuUserCredentialsMetadata::class.java),
+                eq(NabuLegacyCredentialsMetadata::class.java),
                 any(),
-                eq(NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE)
+                eq(NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE)
             )
         ).thenReturn(Completable.complete())
     }
