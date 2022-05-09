@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.analytics.Analytics
 import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -19,6 +20,8 @@ class UiTourView @JvmOverloads constructor(
 ) : ConstraintLayout(ctx, attr, defStyle) {
 
     interface Host {
+        val analytics: Analytics
+
         fun startDashboardOnboarding()
         fun startBuy()
         fun dismiss()
@@ -29,8 +32,8 @@ class UiTourView @JvmOverloads constructor(
     private val binding: ViewUiTourBinding =
         ViewUiTourBinding.inflate(LayoutInflater.from(context), this, true)
 
-    private var currentStep: UiTourStep = UiTourStep.values().first()
-        set(step) {
+    var currentStep: UiTourStep = UiTourStep.values().first()
+        private set(step) {
             field = step
             updateNavigationIndicators(step)
             updateContent(step)
@@ -90,8 +93,13 @@ class UiTourView @JvmOverloads constructor(
         }
         binding.buttonNext.onClick = {
             val nextStep = UiTourStep.values().getOrNull(currentStep.ordinal + 1)
-            if (nextStep != null) currentStep = nextStep
-            else host.startBuy()
+            if (nextStep != null) {
+                host.analytics.logEvent(UiTourAnalytics.ProgressClicked(nextStep))
+                currentStep = nextStep
+            } else {
+                host.analytics.logEvent(UiTourAnalytics.CtaClicked(currentStep))
+                host.startBuy()
+            }
         }
         binding.buttonClose.setOnClickListener {
             host.dismiss()

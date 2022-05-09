@@ -81,6 +81,7 @@ import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
+import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
 import piuk.blockchain.android.ui.interest.InterestDashboardActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -786,6 +787,7 @@ class MainActivity :
     }
 
     private fun showUiTour() {
+        analytics.logEvent(UiTourAnalytics.Viewed)
         binding.uiTour.apply {
             alpha = 0f
             visible()
@@ -798,6 +800,7 @@ class MainActivity :
 
     private fun hideUiTour(onAnimationEnd: (() -> Unit)? = null) {
         binding.uiTour.apply {
+            analytics.logEvent(UiTourAnalytics.Dismissed(currentStep))
             animate()
                 .alpha(0f)
                 .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())

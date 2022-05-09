@@ -263,7 +263,11 @@ enum class AnalyticsNames(val eventName: String) {
     NOTIFICATION_PRICE_ALERTS_SET_UP("Price Alerts Set Up"),
     NOTIFICATION_SECURITY_ALERTS_SET_UP("Security Alerts Set Up"),
     NOTIFICATION_WALLET_ACTIVITY_SET_UP("Wallet Activity Set Up"),
-    NOTIFICATION_STATUS_CHANGE_ERROR("Status Change Error");
+    NOTIFICATION_STATUS_CHANGE_ERROR("Status Change Error"),
+    UI_TOUR_VIEWED("UI Tour Viewed"),
+    UI_TOUR_CTA_CLICKED("UI Tour CTA Clicked"),
+    UI_TOUR_PROGRESS_CLICKED("UI Tour Progress Clicked"),
+    UI_TOUR_DISMISSED("UI Tour Progress Dismissed");
 }
 
 enum class LaunchOrigin {
