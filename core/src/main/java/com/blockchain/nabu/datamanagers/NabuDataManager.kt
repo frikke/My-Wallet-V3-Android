@@ -6,6 +6,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.cache.UserCache
+import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
@@ -119,7 +120,9 @@ interface NabuDataManager {
 
     fun currentToken(offlineToken: NabuOfflineTokenResponse): Single<NabuSessionTokenResponse>
 
-    fun recoverAccount(userId: String, recoveryToken: String): Single<NabuLegacyCredentialsMetadata>
+    fun recoverLegacyAccount(userId: String, recoveryToken: String): Single<NabuLegacyCredentialsMetadata>
+
+    fun recoverBlockchainAccount(userId: String, recoveryToken: String): Single<BlockchainAccountCredentialsMetadata>
 
     fun resetUserKyc(): Completable
 
@@ -390,7 +393,7 @@ internal class NabuDataManagerImpl(
                 .singleOrError()
         }
 
-    override fun recoverAccount(userId: String, recoveryToken: String): Single<NabuLegacyCredentialsMetadata> {
+    override fun recoverLegacyAccount(userId: String, recoveryToken: String): Single<NabuLegacyCredentialsMetadata> {
         return requestJwt().flatMap { jwt ->
             nabuService.recoverAccount(
                 userId = userId,
@@ -400,11 +403,29 @@ internal class NabuDataManagerImpl(
                 .map { recoverAccountResponse ->
                     NabuLegacyCredentialsMetadata(
                         userId = userId,
-                        lifetimeToken = recoverAccountResponse.token/*,
-                        exchangeUserId = recoverAccountResponse.userCredentialsId,
-                        exchangeLifetimeToken = recoverAccountResponse.mercuryLifetimeToken*/
+                        lifetimeToken = recoverAccountResponse.token
                     )
                 }
+        }
+    }
+
+    override fun recoverBlockchainAccount(
+        userId: String,
+        recoveryToken: String
+    ): Single<BlockchainAccountCredentialsMetadata> {
+        return requestJwt().flatMap { jwt ->
+            nabuService.recoverAccount(
+                userId = userId,
+                jwt = jwt,
+                recoveryToken = recoveryToken
+            ).map { recoverAccountResponse ->
+                BlockchainAccountCredentialsMetadata(
+                    userId = userId,
+                    lifetimeToken = recoverAccountResponse.token,
+                    exchangeUserId = recoverAccountResponse.userCredentialsId,
+                    exchangeLifetimeToken = recoverAccountResponse.mercuryLifetimeToken
+                )
+            }
         }
     }
 

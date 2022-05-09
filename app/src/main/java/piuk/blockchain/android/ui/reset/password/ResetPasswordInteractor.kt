@@ -1,11 +1,13 @@
 package piuk.blockchain.android.ui.reset.password
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.metadata.save
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -19,7 +21,8 @@ class ResetPasswordInteractor(
     private val prefs: PersistentPrefs,
     private val nabuDataManager: NabuDataManager,
     private val metadataManager: MetadataManager,
-    private val metadataRepository: MetadataRepository
+    private val metadataRepository: MetadataRepository,
+    private val accountMetadataFF: FeatureFlag
 ) {
 
     fun createWalletForAccount(email: String, password: String, walletName: String): Completable {
@@ -35,16 +38,28 @@ class ResetPasswordInteractor(
     }
 
     fun recoverAccount(userId: String, recoveryToken: String): Completable =
-        nabuDataManager.recoverAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
-            metadataManager.attemptMetadataSetup()
-                .then {
-                    metadataRepository.saveMetadata(
-                        nabuMetadata,
-                        NabuLegacyCredentialsMetadata::class.java,
-                        NabuLegacyCredentialsMetadata::class.serializer(),
-                        NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
-                    )
+        accountMetadataFF.enabled.flatMapCompletable {
+            if (it) {
+                nabuDataManager.recoverBlockchainAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
+                    metadataManager.attemptMetadataSetup()
+                        .then {
+                            metadataRepository.save(
+                                nabuMetadata,
+                                BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+                            )
+                        }
                 }
+            } else {
+                nabuDataManager.recoverLegacyAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
+                    metadataManager.attemptMetadataSetup()
+                        .then {
+                            metadataRepository.save(
+                                nabuMetadata,
+                                NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+                            )
+                        }
+                }
+            }
         }
 
     fun setNewPassword(password: String): Completable {
