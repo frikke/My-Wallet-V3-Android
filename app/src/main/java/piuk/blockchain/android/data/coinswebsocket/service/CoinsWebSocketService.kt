@@ -18,6 +18,8 @@ import piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrate
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.androidcore.utils.extensions.then
 
 class CoinsWebSocketService(
     private val applicationContext: Context
@@ -32,19 +34,20 @@ class CoinsWebSocketService(
 
     fun start() {
         compositeDisposable.clear()
-        coinsWebSocketStrategy.close()
-        coinsWebSocketStrategy.setMessagesHandler(this)
-        coinsWebSocketStrategy.open()
+        compositeDisposable += coinsWebSocketStrategy.close().then {
+            coinsWebSocketStrategy.setMessagesHandler(this)
+            coinsWebSocketStrategy.open()
+        }.onErrorComplete().emptySubscribe()
 
         compositeDisposable += lifecycleInterestedComponent
             .appStateUpdated
-            .subscribe {
+            .flatMapCompletable {
                 if (it == AppState.FOREGROUNDED) {
                     coinsWebSocketStrategy.open()
                 } else {
                     coinsWebSocketStrategy.close()
                 }
-            }
+            }.onErrorComplete().emptySubscribe()
     }
 
     override fun triggerNotification(title: String, marquee: String, text: String) {
@@ -75,7 +78,8 @@ class CoinsWebSocketService(
     }
 
     fun release() {
-        coinsWebSocketStrategy.close()
-        compositeDisposable.clear()
+        compositeDisposable += coinsWebSocketStrategy.close().onErrorComplete().doOnTerminate {
+            compositeDisposable.clear()
+        }.emptySubscribe()
     }
 }

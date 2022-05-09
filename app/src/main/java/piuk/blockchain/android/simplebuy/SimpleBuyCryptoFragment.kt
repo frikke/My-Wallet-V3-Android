@@ -759,7 +759,9 @@ class SimpleBuyCryptoFragment :
             ErrorState.BankLinkingTimeout,
             ErrorState.Card3DsFailed,
             ErrorState.UnknownCardProvider,
-            ErrorState.LinkedBankNotSupported -> throw IllegalStateException("Error should not presented here")
+            ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
+                "Error $errorState should not presented here"
+            )
         }.exhaustive
     }
 

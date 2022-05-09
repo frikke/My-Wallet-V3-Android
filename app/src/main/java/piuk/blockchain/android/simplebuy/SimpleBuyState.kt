@@ -207,7 +207,7 @@ sealed class ErrorState : Serializable {
     object ApprovedBankLimitedExceed : ErrorState()
     object ApprovedBankAccountInvalid : ErrorState()
     object ApprovedBankFailedInternal : ErrorState()
-    class ApprovedBankUndefinedError(val error: String) : ErrorState()
+    data class ApprovedBankUndefinedError(val error: String) : ErrorState()
     object ApprovedBankInsufficientFunds : ErrorState()
     object DailyLimitExceeded : ErrorState()
     object WeeklyLimitExceeded : ErrorState()
@@ -231,9 +231,9 @@ sealed class ErrorState : Serializable {
     object Card3DsFailed : ErrorState()
     object UnknownCardProvider : ErrorState()
 
-    class PaymentFailedError(val error: String) : ErrorState()
+    data class PaymentFailedError(val error: String) : ErrorState()
 
-    class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
+    data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
 }
 

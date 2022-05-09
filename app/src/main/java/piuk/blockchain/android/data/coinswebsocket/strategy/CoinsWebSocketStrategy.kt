@@ -94,10 +94,12 @@ class CoinsWebSocketStrategy(
         this.messagesSocketHandler = messagesSocketHandler
     }
 
-    fun open() {
-        initInput()
-        subscribeToEvents()
-        coinsWebSocket.open()
+    fun open(): Completable {
+        return Completable.fromCallable {
+            initInput()
+            subscribeToEvents()
+            coinsWebSocket.open()
+        }
     }
 
     private fun sendMessage(message: SocketRequest) {
@@ -386,10 +388,12 @@ class CoinsWebSocketStrategy(
         }
     }
 
-    fun close() {
-        unsubscribeFromAddresses()
-        coinsWebSocket.close()
-        compositeDisposable.clear()
+    fun close(): Completable {
+        return Completable.fromCallable {
+            unsubscribeFromAddresses()
+            coinsWebSocket.close()
+            compositeDisposable.clear()
+        }.onErrorComplete()
     }
 
     private fun unsubscribeFromAddresses() {

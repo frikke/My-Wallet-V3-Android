@@ -31,7 +31,7 @@ class ExchangeRate(
         return ExchangeRate(
             from = to,
             to = from,
-            rate = rate?.let { rate ->
+            rate = rate?.takeIf { it != BigDecimal.ZERO }.let { rate ->
                 BigDecimal.ONE.divide(
                     rate,
                     if (scale == -1) from.precisionDp else scale,

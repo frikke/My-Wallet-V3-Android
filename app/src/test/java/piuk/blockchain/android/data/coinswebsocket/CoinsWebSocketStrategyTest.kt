@@ -185,7 +185,7 @@ class CoinsWebSocketStrategyTest {
     @Before
     fun setup() {
         strategy.setMessagesHandler(messagesSocketHandler)
-        strategy.open()
+        strategy.open().test()
     }
 
     @Test
