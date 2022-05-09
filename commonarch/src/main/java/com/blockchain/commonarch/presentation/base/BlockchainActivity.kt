@@ -8,6 +8,8 @@ import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.auth.LogoutTimer
@@ -16,6 +18,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.SecurityPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -38,6 +41,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
 
     val environment: EnvironmentConfig by inject()
     val logoutTimer: LogoutTimer by inject()
+    private val remoteLogger: RemoteLogger by inject()
 
     protected abstract val alwaysDisableScreenshots: Boolean
     protected open val toolbarBinding: ToolbarGeneralBinding?
@@ -70,6 +74,16 @@ abstract class BlockchainActivity : ToolBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lockScreenOrientation()
+
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentResumed(fragmentManager: FragmentManager, fragment: Fragment) {
+                    super.onFragmentResumed(fragmentManager, fragment)
+                    remoteLogger.logView(fragment::class.java.name)
+                }
+            },
+            true
+        )
     }
 
     /**

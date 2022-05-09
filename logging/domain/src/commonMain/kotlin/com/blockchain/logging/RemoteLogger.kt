@@ -11,6 +11,7 @@ interface RemoteLogger {
     // Log various app state information. Extend this as required
     fun onlineState(isOnline: Boolean)
     fun userLanguageLocale(locale: String)
+    fun logView(viewName: String)
 
     val isDebugBuild: Boolean
 }
