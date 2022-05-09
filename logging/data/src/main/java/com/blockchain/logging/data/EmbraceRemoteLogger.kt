@@ -45,6 +45,12 @@ class EmbraceRemoteLogger : RemoteLogger {
         }
     }
 
+    override fun logView(viewName: String) {
+        checkEmbrace {
+            embrace.logBreadcrumb("VIEW = $viewName")
+        }
+    }
+
     override fun logException(throwable: Throwable, logMessage: String) {
         checkEmbrace {
             embrace.logError(throwable, logMessage.ifEmpty { throwable.message }.orEmpty(), emptyMap(), true)

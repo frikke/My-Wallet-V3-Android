@@ -10,6 +10,7 @@ import com.blockchain.analytics.data.AnalyticsFileLocalPersistence
 import com.blockchain.analytics.data.AnalyticsImpl
 import com.blockchain.analytics.data.NabuAnalytics
 import com.blockchain.analytics.data.UserAnalyticsImpl
+import com.blockchain.koin.embraceLogger
 import com.blockchain.koin.nabu
 import com.blockchain.operations.AppStartUpFlushable
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -24,6 +25,7 @@ val analyticsModule = module {
         AnalyticsImpl(
             firebaseAnalytics = get(),
             nabuAnalytics = get(nabu),
+            remoteLogger = get(embraceLogger),
             store = get()
         )
     }

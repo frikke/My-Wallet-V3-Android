@@ -1,5 +1,6 @@
 package com.blockchain.logging.data.koin
 
+import com.blockchain.koin.embraceLogger
 import com.blockchain.logging.EventLogger
 import com.blockchain.logging.Logger
 import com.blockchain.logging.MomentLogger
@@ -20,7 +21,7 @@ val loggingModule = module {
         CompoundRemoteLogger(
             listOf(
                 FirebaseRemoteLogger(),
-                EmbraceRemoteLogger()
+                get(embraceLogger)
             )
         )
     }.bind(RemoteLogger::class)
@@ -40,4 +41,8 @@ val loggingModule = module {
     single<MomentLogger> {
         EmbraceMomentLogger
     }
+
+    single(embraceLogger) {
+        EmbraceRemoteLogger()
+    }.bind(RemoteLogger::class)
 }
