@@ -7,16 +7,12 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityKycLimitsBinding
@@ -31,7 +27,6 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
 
-    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val userIdentity: UserIdentity by scopedInject()
 
     private val disposables = CompositeDisposable()
@@ -49,11 +44,7 @@ class KycLimitsActivity : BlockchainActivity(), KycUpgradeNowSheet.Host {
 
     override fun onResume() {
         super.onResume()
-        disposables += entitySwitchSilverEligibilityFF.enabled
-            .flatMap { enabled ->
-                if (enabled) userIdentity.getHighestApprovedKycTier()
-                else Single.just(Tier.GOLD)
-            }
+        disposables += userIdentity.getHighestApprovedKycTier()
             .doOnSubscribe { showLoading() }
             .doOnTerminate { hideLoading() }
             .subscribeBy(

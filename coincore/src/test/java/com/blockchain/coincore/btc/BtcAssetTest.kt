@@ -5,7 +5,6 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -58,9 +57,6 @@ class BtcAssetTest {
     private val remoteLogger: RemoteLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
     private val notificationUpdater: BackendNotificationUpdater = mock()
 
     private val subject = BtcAsset(

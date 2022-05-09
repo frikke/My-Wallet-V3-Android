@@ -18,8 +18,6 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -88,7 +86,6 @@ class SimpleBuyCryptoFragment :
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -146,10 +143,7 @@ class SimpleBuyCryptoFragment :
             )
         )
         model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
-        compositeDisposable += entitySwitchSilverEligibilityFF.enabled
-            .subscribe { enabled ->
-                if (enabled) model.process(SimpleBuyIntent.FetchEligibility)
-            }
+        model.process(SimpleBuyIntent.FetchEligibility)
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
         preselectedAmount

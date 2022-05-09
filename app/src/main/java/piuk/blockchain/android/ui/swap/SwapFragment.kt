@@ -24,8 +24,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -98,7 +96,6 @@ class SwapFragment :
     private val trendingPairsProvider: TrendingPairsProvider by scopedInject()
     private val walletManager: CustodialWalletManager by scopedInject()
     private val userIdentity: UserIdentity by scopedInject()
-    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
 
     private val currencyPrefs: CurrencyPrefs by inject()
     private val walletPrefs: WalletStatus by inject()
@@ -191,23 +188,20 @@ class SwapFragment :
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },
                 coincore.allWalletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
-                userIdentity.userAccessForFeature(Feature.Swap),
-                entitySwitchSilverEligibilityFF.enabled
+                userIdentity.userAccessForFeature(Feature.Swap)
             ) { tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility,
-                isFFEnabled ->
+                eligibility ->
                 SwapComposite(
                     tiers,
                     pairs,
                     limits,
                     orders,
                     hasAtLeastOneAccountToSwapFrom,
-                    eligibility,
-                    isFFEnabled
+                    eligibility
                 )
             }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -233,7 +227,7 @@ class SwapFragment :
                             )
 
                             val eligibility = composite.eligibility
-                            if (eligibility is FeatureAccess.Blocked && composite.isFFEnabled) {
+                            if (eligibility is FeatureAccess.Blocked) {
                                 showKycUpgradeNow()
                             } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
@@ -402,8 +396,7 @@ class SwapFragment :
         val limits: TransferLimits,
         val orders: List<CustodialOrder>,
         val hasAtLeastOneAccountToSwapFrom: Boolean,
-        val eligibility: FeatureAccess,
-        val isFFEnabled: Boolean
+        val eligibility: FeatureAccess
     )
 
     override fun onDestroyView() {

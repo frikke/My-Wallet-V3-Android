@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.home
 
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
@@ -47,7 +46,6 @@ val mainModule = module {
                 qrScanResultProcessor = get(),
                 secureChannelManager = get(),
                 cancelOrderUseCase = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
                 onboardingPrefs = get()
             )
         }

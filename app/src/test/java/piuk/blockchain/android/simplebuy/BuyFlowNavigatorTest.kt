@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -28,16 +27,12 @@ class BuyFlowNavigatorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val simpleBuySyncFactory: SimpleBuySyncFactory = mock()
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
     private lateinit var subject: BuyFlowNavigator
 
     @Before
     fun setUp() {
         subject = BuyFlowNavigator(
-            simpleBuySyncFactory, userIdentity, currencyPrefs, custodialWalletManager,
-            entitySwitchSilverEligibilityFeatureFlag
+            simpleBuySyncFactory, userIdentity, currencyPrefs, custodialWalletManager
         )
     }
 
@@ -47,7 +42,6 @@ class BuyFlowNavigatorTest {
         mockCurrencyIsSupported(true)
         whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
         whenever(userIdentity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(eligibility))
-        whenever(entitySwitchSilverEligibilityFeatureFlag.enabled).thenReturn(Single.just(true))
 
         val test = subject.navigateTo(
             startedFromKycResume = false,

@@ -1,6 +1,5 @@
 package piuk.blockchain.android.simplebuy
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -17,8 +16,7 @@ class BuyFlowNavigator(
     private val simpleBuySyncFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag
+    private val custodialWalletManager: CustodialWalletManager
 ) {
 
     val currentState: SimpleBuyState
@@ -80,57 +78,31 @@ class BuyFlowNavigator(
         val cryptoCurrency = preselectedCrypto
             ?: currentState.selectedCryptoAsset ?: throw IllegalStateException("CryptoCurrency is not available")
 
-        return entitySwitchSilverEligibilityFeatureFlag.enabled
-            .flatMap { enabled ->
-                if (enabled) {
-                    Singles.zip(
-                        currencyCheck(),
-                        userIdentity.userAccessForFeature(Feature.Buy)
-                    ).flatMap { (currencySupported, eligibility) ->
-                        if (eligibility is FeatureAccess.Blocked) {
-                            Single.just(BuyNavigation.TransactionsLimitReached)
-                        } else if (!currencySupported) {
-                            if (!failOnUnavailableCurrency) {
-                                custodialWalletManager.getSupportedFiatCurrencies().map {
-                                    BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
-                                }
-                            } else {
-                                Single.just(BuyNavigation.CurrencyNotAvailable)
-                            }
-                        } else {
-                            checkForEligibilityOrPendingOrders().switchIfEmpty(
-                                stateCheck(
-                                    startedFromKycResume,
-                                    startedFromDashboard,
-                                    startedFromApprovalDeepLink,
-                                    cryptoCurrency
-                                )
-                            )
-                        }
+        return Singles.zip(
+            currencyCheck(),
+            userIdentity.userAccessForFeature(Feature.Buy)
+        ).flatMap { (currencySupported, eligibility) ->
+            if (eligibility is FeatureAccess.Blocked) {
+                Single.just(BuyNavigation.TransactionsLimitReached)
+            } else if (!currencySupported) {
+                if (!failOnUnavailableCurrency) {
+                    custodialWalletManager.getSupportedFiatCurrencies().map {
+                        BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
                     }
                 } else {
-                    currencyCheck().flatMap { currencySupported ->
-                        if (!currencySupported) {
-                            if (!failOnUnavailableCurrency) {
-                                custodialWalletManager.getSupportedFiatCurrencies().map {
-                                    BuyNavigation.CurrencySelection(it, currencyPrefs.selectedFiatCurrency)
-                                }
-                            } else {
-                                Single.just(BuyNavigation.CurrencyNotAvailable)
-                            }
-                        } else {
-                            checkForEligibilityOrPendingOrders().switchIfEmpty(
-                                stateCheck(
-                                    startedFromKycResume,
-                                    startedFromDashboard,
-                                    startedFromApprovalDeepLink,
-                                    cryptoCurrency
-                                )
-                            )
-                        }
-                    }
+                    Single.just(BuyNavigation.CurrencyNotAvailable)
                 }
+            } else {
+                checkForEligibilityOrPendingOrders().switchIfEmpty(
+                    stateCheck(
+                        startedFromKycResume,
+                        startedFromDashboard,
+                        startedFromApprovalDeepLink,
+                        cryptoCurrency
+                    )
+                )
             }
+        }
     }
 
     private fun checkForEligibilityOrPendingOrders(): Maybe<BuyNavigation> =

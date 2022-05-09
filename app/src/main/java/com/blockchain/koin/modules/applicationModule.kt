@@ -16,7 +16,6 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
 import com.blockchain.koin.gbp
@@ -536,8 +535,7 @@ val applicationModule = module {
 
         factory {
             GetReceiveAccountsForAssetUseCase(
-                coincore = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag)
+                coincore = get()
             )
         }
 
@@ -619,8 +617,7 @@ val applicationModule = module {
                 simpleBuySyncFactory = get(),
                 userIdentity = get(),
                 currencyPrefs = get(),
-                custodialWalletManager = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag)
+                custodialWalletManager = get()
             )
         }
 

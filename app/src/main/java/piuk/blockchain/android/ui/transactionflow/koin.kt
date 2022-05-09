@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.transactionflow
 
 import android.content.Context
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -206,7 +205,6 @@ val transactionModule = module {
                 initialState = TransactionState(),
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag),
                 errorLogger = get(),
                 environmentConfig = get(),
                 remoteLogger = get()

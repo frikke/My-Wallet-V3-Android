@@ -4,7 +4,6 @@ import android.content.Intent
 import com.blockchain.core.Database
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -67,7 +66,6 @@ class MainInteractorTest {
     private val secureChannelManager: SecureChannelManager = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
 
     @Before
@@ -93,7 +91,6 @@ class MainInteractorTest {
             secureChannelManager = secureChannelManager,
             cancelOrderUseCase = cancelOrderUseCase,
             paymentsDataManager = paymentsDataManager,
-            entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
             onboardingPrefs = onboardingPrefs,
         )
     }

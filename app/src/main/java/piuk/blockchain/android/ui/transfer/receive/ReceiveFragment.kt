@@ -10,8 +10,6 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -36,7 +34,6 @@ class ReceiveFragment :
 
     private val assetResources: AssetResources by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val upsellManager: KycUpgradePromptManager by scopedInject()
 
     override val model: ReceiveModel by scopedInject()
@@ -113,42 +110,21 @@ class ReceiveFragment :
     }
 
     private fun doOnAccountSelected(account: CryptoAccount) {
-        compositeDisposable += entitySwitchSilverEligibilityFF.enabled
-            .subscribe { enabled ->
-                if (enabled) {
-                    compositeDisposable += account.stateAwareActions
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { stateAwareActions ->
-                            val receiveAction = stateAwareActions.find { it.action == AssetAction.Receive }
-                            if (receiveAction?.state == ActionState.Available) {
-                                ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
-                            } else {
-                                showBottomSheet(KycUpgradeNowSheet.newInstance())
-                            }
-                            analytics.logEvent(
-                                TransferAnalyticsEvent.ReceiveAccountSelected(
-                                    TxFlowAnalyticsAccountType.fromAccount(account),
-                                    account.currency
-                                )
-                            )
-                        }
+        compositeDisposable += account.stateAwareActions
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { stateAwareActions ->
+                val receiveAction = stateAwareActions.find { it.action == AssetAction.Receive }
+                if (receiveAction?.state == ActionState.Available) {
+                    ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
                 } else {
-                    compositeDisposable += upsellManager.queryUpsell(AssetAction.Receive, account)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { type ->
-                            if (type == KycUpgradePromptManager.Type.NONE) {
-                                ReceiveDetailSheet.newInstance(account).show(childFragmentManager, BOTTOM_SHEET)
-                            } else {
-                                showBottomSheet(KycUpgradeNowSheet.newInstance())
-                            }
-                            analytics.logEvent(
-                                TransferAnalyticsEvent.ReceiveAccountSelected(
-                                    TxFlowAnalyticsAccountType.fromAccount(account),
-                                    account.currency
-                                )
-                            )
-                        }
+                    showBottomSheet(KycUpgradeNowSheet.newInstance())
                 }
+                analytics.logEvent(
+                    TransferAnalyticsEvent.ReceiveAccountSelected(
+                        TxFlowAnalyticsAccountType.fromAccount(account),
+                        account.currency
+                    )
+                )
             }
     }
 

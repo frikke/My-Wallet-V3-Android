@@ -10,7 +10,6 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -72,7 +71,6 @@ class MainInteractor internal constructor(
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelManager: SecureChannelManager,
     private val cancelOrderUseCase: CancelOrderUseCase,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     private val onboardingPrefs: OnboardingPrefs
 ) {
 
@@ -177,19 +175,12 @@ class MainInteractor internal constructor(
         cancelOrderUseCase.invoke(orderId)
 
     fun shouldShowEntitySwitchSilverKycUpsell(): Single<Boolean> =
-        entitySwitchSilverEligibilityFeatureFlag.enabled
-            .flatMap { enabled ->
-                if (enabled) {
-                    userIdentity.getHighestApprovedKycTier().map { tier ->
-                        val showUpsell =
-                            tier != Tier.GOLD && !onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed
-                        if (showUpsell) onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed = true
-                        showUpsell
-                    }
-                } else {
-                    Single.just(false)
-                }
-            }
+        userIdentity.getHighestApprovedKycTier().map { tier ->
+            val showUpsell =
+                tier != Tier.GOLD && !onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed
+            if (showUpsell) onboardingPrefs.isEntitySwitchSilverKycUpsellDismissed = true
+            showUpsell
+        }
 
     fun processDeepLinkV2(url: Uri): Completable =
         deeplinkRedirector.processDeeplinkURL(url)

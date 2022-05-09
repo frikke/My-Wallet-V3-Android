@@ -6,13 +6,11 @@ import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
-import com.blockchain.featureflag.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
 
 class EligibilityDataManager(
-    private val productsEligibilityCache: ProductsEligibilityCache,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag
+    private val productsEligibilityCache: ProductsEligibilityCache
 ) : EligibilityService {
     override fun getCustodialEligibleCountries(): Single<List<CountryIso>> = Single.just(
         Locale.getISOCountries()
@@ -21,15 +19,8 @@ class EligibilityDataManager(
     )
 
     private fun getProductsEligibility(): Single<List<ProductEligibility>> =
-        entitySwitchSilverEligibilityFeatureFlag.enabled
-            .flatMap { enabled ->
-                if (enabled) {
-                    productsEligibilityCache.productsEligibility()
-                        .map { response -> response.toDomain() }
-                } else {
-                    Single.just(emptyList())
-                }
-            }
+        productsEligibilityCache.productsEligibility()
+            .map { response -> response.toDomain() }
 
     override fun getProductEligibility(product: EligibleProduct): Single<ProductEligibility> =
         getProductsEligibility().map { products ->

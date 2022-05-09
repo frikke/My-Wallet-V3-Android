@@ -30,7 +30,6 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -228,7 +227,6 @@ class TransactionModel(
     mainScheduler: Scheduler,
     private val interactor: TransactionInteractor,
     private val errorLogger: TxFlowErrorReporting,
-    private val entitySwitchSilverEligibilityFeatureFlag: FeatureFlag,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<TransactionState, TransactionIntent>(
@@ -531,11 +529,7 @@ class TransactionModel(
         action: AssetAction,
         passwordRequired: Boolean
     ): Disposable =
-        entitySwitchSilverEligibilityFeatureFlag.enabled
-            .flatMapMaybe { enabled ->
-                if (enabled) fetchProductEligibility(action, sourceAccount, transactionTarget)
-                else Maybe.empty()
-            }
+        fetchProductEligibility(action, sourceAccount, transactionTarget)
             .subscribeBy(
                 onSuccess = {
                     if (it is FeatureAccess.Blocked) {

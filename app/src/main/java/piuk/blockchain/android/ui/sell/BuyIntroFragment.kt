@@ -13,8 +13,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.entitySwitchSilverEligibilityFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -28,7 +26,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -65,7 +62,6 @@ class BuyIntroFragment :
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
     private val analytics: Analytics by inject()
-    private val entitySwitchSilverEligibilityFF: FeatureFlag by inject(entitySwitchSilverEligibilityFeatureFlag)
     private val userIdentity: UserIdentity by scopedInject()
 
     private val buyAdapter = BuyCryptoCurrenciesAdapter(
@@ -110,11 +106,8 @@ class BuyIntroFragment :
 
     private fun checkEligibilityAndLoadBuyDetails(showLoading: Boolean = true) {
         compositeDisposable +=
-            Singles.zip(
-                entitySwitchSilverEligibilityFF.enabled,
-                userIdentity.userAccessForFeature(Feature.Buy)
-            ) { isFFEnabled, eligibility ->
-                eligibility is FeatureAccess.Blocked && isFFEnabled
+            userIdentity.userAccessForFeature(Feature.Buy).map { eligibility ->
+                eligibility is FeatureAccess.Blocked
             }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

@@ -160,8 +160,7 @@ val coreModule = module {
 
         scoped {
             EligibilityDataManager(
-                productsEligibilityCache = get(),
-                entitySwitchSilverEligibilityFeatureFlag = get(entitySwitchSilverEligibilityFeatureFlag)
+                productsEligibilityCache = get()
             )
         }.bind(EligibilityService::class)
 
