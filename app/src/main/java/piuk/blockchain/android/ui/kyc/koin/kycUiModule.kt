@@ -75,9 +75,7 @@ val kycUiModule = module {
             KycProfilePresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                metadataRepository = get(),
                 stringUtils = get(),
-                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag)
             )
         }
 

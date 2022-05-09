@@ -2,18 +2,9 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.metadata.MetadataRepository
-import com.blockchain.metadata.load
-import com.blockchain.metadata.save
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuAccountCredentialsMetadata
-import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuAccountMetadata
-import com.blockchain.nabu.models.responses.tokenresponse.mapToNabuUserMetadata
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -22,7 +13,6 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -41,9 +31,7 @@ import timber.log.Timber
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val metadataRepository: MetadataRepository,
-    private val stringUtils: StringUtils,
-    private val accountMetadataMigrationFF: FeatureFlag
+    private val stringUtils: StringUtils
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -59,54 +47,33 @@ class KycProfilePresenter(
         check(view.lastName.isNotEmpty()) { "lastName is empty" }
         check(view.dateOfBirth != null) { "dateOfBirth is null" }
 
-        compositeDisposable +=
-            accountMetadataMigrationFF.enabled.flatMapMaybe {
-                if (it) {
-                    metadataRepository.load<NabuAccountCredentialsMetadata>(
-                        NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
-                    )
-                } else {
-                    metadataRepository.load<NabuUserCredentialsMetadata>(
-                        NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
-                    )
-                }
-            }.toOptional()
-                .flatMapCompletable { optionalToken ->
-                    if (optionalToken.isPresent) {
-                        val metadata = optionalToken.get()
-                        if (metadata.isValid()) {
-                            createBasicUser(metadata.mapFromMetadata())
-                        } else {
-                            createUserAndStoreInMetadata()
-                        }
+        compositeDisposable += fetchOfflineToken.flatMapCompletable {
+            createBasicUser(it)
+        }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { view.showProgressDialog() }
+            .doOnTerminate { view.dismissProgressDialog() }
+            .doOnError(Timber::e)
+            .subscribeBy(
+                onComplete = {
+                    ProfileModel(
+                        firstName = view.firstName,
+                        lastName = view.lastName,
+                        countryCode = view.countryCode,
+                        stateCode = view.stateCode,
+                        stateName = view.stateName
+                    ).run { view.continueSignUp(this) }
+                },
+                onError = {
+                    if (it is NabuApiException &&
+                        it.getErrorStatusCode() == NabuErrorStatusCodes.Conflict
+                    ) {
+                        view.showErrorSnackbar(stringUtils.getString(R.string.kyc_profile_error_conflict))
                     } else {
-                        createUserAndStoreInMetadata()
+                        view.showErrorSnackbar(stringUtils.getString(R.string.kyc_profile_error))
                     }
                 }
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { view.showProgressDialog() }
-                .doOnTerminate { view.dismissProgressDialog() }
-                .doOnError(Timber::e)
-                .subscribeBy(
-                    onComplete = {
-                        ProfileModel(
-                            firstName = view.firstName,
-                            lastName = view.lastName,
-                            countryCode = view.countryCode,
-                            stateCode = view.stateCode,
-                            stateName = view.stateName
-                        ).run { view.continueSignUp(this) }
-                    },
-                    onError = {
-                        if (it is NabuApiException &&
-                            it.getErrorStatusCode() == NabuErrorStatusCodes.Conflict
-                        ) {
-                            view.showErrorSnackbar(stringUtils.getString(R.string.kyc_profile_error_conflict))
-                        } else {
-                            view.showErrorSnackbar(stringUtils.getString(R.string.kyc_profile_error))
-                        }
-                    }
-                )
+            )
     }
 
     private fun restoreDataIfPresent() {
@@ -143,29 +110,6 @@ class KycProfilePresenter(
                     )
         }
     }
-
-    private fun createUserAndStoreInMetadata(): Completable = nabuDataManager.requestJwt()
-        .zipWith(accountMetadataMigrationFF.enabled)
-        .subscribeOn(Schedulers.io())
-        .flatMapCompletable { (jwt, enabled) ->
-            nabuDataManager.getAuthToken(jwt)
-                .subscribeOn(Schedulers.io())
-                .flatMapCompletable { tokenResponse ->
-                    if (enabled) {
-                        metadataRepository.save(
-                            tokenResponse.mapToNabuAccountMetadata(),
-                            NabuAccountCredentialsMetadata.ACCOUNT_CREDENTIALS_METADATA_NODE
-                        ).toSingle { tokenResponse }
-                            .flatMapCompletable { createBasicUser(it) }
-                    } else {
-                        metadataRepository.save(
-                            tokenResponse.mapToNabuUserMetadata(),
-                            NabuUserCredentialsMetadata.USER_CREDENTIALS_METADATA_NODE
-                        ).toSingle { tokenResponse }
-                            .flatMapCompletable { createBasicUser(it) }
-                    }
-                }
-        }
 
     private fun createBasicUser(offlineToken: NabuOfflineTokenResponse): Completable =
         nabuDataManager.createBasicUser(

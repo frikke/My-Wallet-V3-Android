@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui
 
-import com.blockchain.nabu.metadata.NabuUserCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -31,11 +30,6 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
     updatedAt = ""
 )
 
-val validOfflineTokenMetadata
-    get() = NabuUserCredentialsMetadata(
-        "userId", "lifetimeToken", null,
-        null
-    )
 val validOfflineToken
     get() = NabuOfflineTokenResponse(
         "userId",

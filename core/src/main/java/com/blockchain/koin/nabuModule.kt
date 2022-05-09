@@ -44,6 +44,7 @@ import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.SwapActivityProviderImpl
 import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProvider
 import com.blockchain.nabu.datamanagers.repositories.swap.TradingPairsProviderImpl
+import com.blockchain.nabu.metadata.AccountCredentialsMetadata
 import com.blockchain.nabu.metadata.MetadataRepositoryNabuTokenAdapter
 import com.blockchain.nabu.models.responses.nabu.CampaignStateMoshiAdapter
 import com.blockchain.nabu.models.responses.nabu.CampaignTransactionStateMoshiAdapter
@@ -77,11 +78,17 @@ val nabuModule = module {
 
         factory {
             MetadataRepositoryNabuTokenAdapter(
-                metadataRepository = get(),
                 createNabuToken = get(),
-                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag),
+                accountCredentialsMetadata = get()
             )
         }.bind(NabuToken::class)
+
+        factory {
+            AccountCredentialsMetadata(
+                metadataRepository = get(),
+                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag),
+            )
+        }
 
         factory {
             NabuDataManagerImpl(
