@@ -35,16 +35,6 @@ import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragmentDirection
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-interface StartKyc {
-    fun startKycActivity(context: Any, campaignType: CampaignType)
-}
-
-internal class KycStarter : StartKyc {
-    override fun startKycActivity(context: Any, campaignType: CampaignType) {
-        KycNavHostActivity.start(context as Context, campaignType, true)
-    }
-}
-
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
     KycProgressListener,
@@ -68,9 +58,6 @@ class KycNavHostActivity :
     override val campaignType by unsafeLazy {
         intent.getSerializableExtra(EXTRA_CAMPAIGN_TYPE) as CampaignType
     }
-    override val showTiersLimitsSplash by unsafeLazy {
-        intent.getBooleanExtra(EXTRA_SHOW_TIERS_LIMITS_SPLASH, false)
-    }
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar
@@ -82,14 +69,12 @@ class KycNavHostActivity :
             toolbarTitle = getString(R.string.identity_verification),
             backAction = { onBackPressed() }
         )
-        if (!showTiersLimitsSplash) {
-            analytics.logEvent(
-                KYCAnalyticsEvents.UpgradeKycVeriffClicked(
-                    campaignType.toLaunchOrigin(),
-                    Tier.GOLD.ordinal
-                )
+        analytics.logEvent(
+            KYCAnalyticsEvents.UpgradeKycVeriffClicked(
+                campaignType.toLaunchOrigin(),
+                Tier.GOLD.ordinal
             )
-        }
+        )
         navController.setGraph(R.navigation.kyc_nav, intent.extras)
 
         onViewReady()
@@ -213,17 +198,10 @@ class KycNavHostActivity :
         const val RESULT_KYC_FOR_SDD_COMPLETE = 35432
         const val RESULT_KYC_FOR_TIER_COMPLETE = 8954234
         private const val EXTRA_CAMPAIGN_TYPE = "piuk.blockchain.android.EXTRA_CAMPAIGN_TYPE"
-        const val EXTRA_SHOW_TIERS_LIMITS_SPLASH = "piuk.blockchain.android.EXTRA_SHOW_TIERS_LIMITS_SPLASH"
 
         @JvmStatic
         fun start(context: Context, campaignType: CampaignType) {
             newIntent(context, campaignType)
-                .run { context.startActivity(this) }
-        }
-
-        @JvmStatic
-        fun start(context: Context, campaignType: CampaignType, showLimits: Boolean) {
-            newIntent(context, campaignType, showLimits)
                 .run { context.startActivity(this) }
         }
 
@@ -237,23 +215,20 @@ class KycNavHostActivity :
         fun startForResult(
             fragment: Fragment,
             campaignType: CampaignType,
-            requestCode: Int,
-            showTiersLimitsSplash: Boolean = false
+            requestCode: Int
         ) {
-            newIntent(fragment.requireContext(), campaignType, showTiersLimitsSplash)
+            newIntent(fragment.requireContext(), campaignType)
                 .run { fragment.startActivityForResult(this, requestCode) }
         }
 
         @JvmStatic
         fun newIntent(
             context: Context,
-            campaignType: CampaignType,
-            showTiersLimitsSplash: Boolean = false
+            campaignType: CampaignType
         ): Intent =
             Intent(context, KycNavHostActivity::class.java)
                 .apply {
                     putExtra(EXTRA_CAMPAIGN_TYPE, campaignType)
-                    putExtra(EXTRA_SHOW_TIERS_LIMITS_SPLASH, showTiersLimitsSplash)
                 }
 
         fun kycStatusUpdated(resultCode: Int) =

@@ -107,7 +107,6 @@ class KycNavHostPresenterTest {
         // Arrange
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
-        whenever(view.showTiersLimitsSplash).thenReturn(true).thenReturn(false)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
         whenever(nabuDataManager.getUser(validOfflineToken))
             .thenReturn(

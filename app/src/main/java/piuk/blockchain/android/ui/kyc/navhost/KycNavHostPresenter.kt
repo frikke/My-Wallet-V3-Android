@@ -102,7 +102,7 @@ class KycNavHostPresenter(
                 view.campaignType == CampaignType.SimpleBuy ||
                 view.campaignType == CampaignType.Interest ||
                 view.campaignType == CampaignType.FiatFunds ||
-                (view.campaignType == CampaignType.None && !view.showTiersLimitsSplash) ||
+                view.campaignType == CampaignType.None ||
                 view.campaignType == CampaignType.Swap -> {
                 compositeDisposable += kycNavigator.findNextStep()
                     .observeOn(AndroidSchedulers.mainThread())
@@ -111,7 +111,7 @@ class KycNavHostPresenter(
                         onSuccess = { view.navigate(it) }
                     )
             }
-            user.state != UserState.None && user.kycState == KycState.None && !view.showTiersLimitsSplash -> {
+            user.state != UserState.None && user.kycState == KycState.None -> {
                 val current = user.tiers?.current
                 if (current == null || current == 0) {
                     compositeDisposable += reentryDecision.findReentryPoint(user)

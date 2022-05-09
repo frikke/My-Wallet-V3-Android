@@ -25,8 +25,6 @@ import piuk.blockchain.android.ui.kyc.limits.KycLimitsModel
 import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostPresenter
-import piuk.blockchain.android.ui.kyc.navhost.KycStarter
-import piuk.blockchain.android.ui.kyc.navhost.StartKyc
 import piuk.blockchain.android.ui.kyc.profile.KycProfilePresenter
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
@@ -37,8 +35,6 @@ import piuk.blockchain.android.ui.kyc.tiersplash.KycTierSplashPresenter
 import piuk.blockchain.android.ui.kyc.veriffsplash.VeriffSplashPresenter
 
 val kycUiModule = module {
-
-    factory { KycStarter() }.bind(StartKyc::class)
 
     scope(payloadScopeQualifier) {
 
@@ -59,9 +55,8 @@ val kycUiModule = module {
 
         factory {
             KycTierSplashPresenter(
-                tierUpdater = get(),
                 tierService = get(),
-                kycNavigator = get()
+                analytics = get()
             )
         }
 
