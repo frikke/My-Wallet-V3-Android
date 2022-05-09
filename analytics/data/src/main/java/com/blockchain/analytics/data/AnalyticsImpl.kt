@@ -6,15 +6,12 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.ProviderSpecificAnalytics
 import com.blockchain.analytics.events.AnalyticsNames
-import com.blockchain.logging.RemoteLogger
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.io.Serializable
-import java.lang.StringBuilder
 
 class AnalyticsImpl internal constructor(
     private val firebaseAnalytics: FirebaseAnalytics,
     private val nabuAnalytics: Analytics,
-    private val remoteLogger: RemoteLogger,
     private val store: SharedPreferences
 ) : Analytics, ProviderSpecificAnalytics {
 
@@ -26,7 +23,6 @@ class AnalyticsImpl internal constructor(
         } else {
             firebaseAnalytics.logEvent(analyticsEvent.event, toBundle(analyticsEvent.params))
         }
-        remoteLogger.logEvent(buildRemoteLogEvent(analyticsEvent))
     }
 
     override fun logEventOnce(analyticsEvent: AnalyticsEvent) {
@@ -82,10 +78,4 @@ class AnalyticsImpl internal constructor(
         b.putString(FirebaseAnalytics.Param.METHOD, share)
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, b)
     }
-
-    private fun buildRemoteLogEvent(event: AnalyticsEvent) =
-        StringBuilder("EVENT = ${event.event}[ORIGIN=${event.origin}")
-            .apply { event.params.forEach { append(", ${it.key}=${it.value}") } }
-            .append("]")
-            .toString()
 }

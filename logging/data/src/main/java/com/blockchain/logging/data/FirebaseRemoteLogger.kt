@@ -48,8 +48,6 @@ class FirebaseRemoteLogger : RemoteLogger {
         }
     }
 
-    override fun logView(viewName: String) {}
-
     override fun logException(throwable: Throwable, logMessage: String) {
         if (BuildConfig.USE_CRASHLYTICS) {
             firebaseInstance.recordException(throwable)

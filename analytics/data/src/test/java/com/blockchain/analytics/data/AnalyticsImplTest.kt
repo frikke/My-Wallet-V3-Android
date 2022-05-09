@@ -29,8 +29,7 @@ class AnalyticsImplTest {
         AnalyticsImpl(
             firebaseAnalytics = mockFirebase,
             store = mockStore,
-            nabuAnalytics = mock(),
-            remoteLogger = mock()
+            nabuAnalytics = mock()
         ).logEvent(event)
 
         verify(mockFirebase).logEvent(event.event, null)
@@ -48,8 +47,7 @@ class AnalyticsImplTest {
         AnalyticsImpl(
             firebaseAnalytics = mockFirebase,
             store = mockStore,
-            nabuAnalytics = mock(),
-            remoteLogger = mock()
+            nabuAnalytics = mock()
         ).logEventOnce(event)
         verify(mockFirebase).logEvent(event.event, null)
     }
@@ -64,8 +62,7 @@ class AnalyticsImplTest {
         AnalyticsImpl(
             firebaseAnalytics = mockFirebase,
             store = mockStore,
-            nabuAnalytics = mock(),
-            remoteLogger = mock()
+            nabuAnalytics = mock()
         ).logEventOnce(event)
         verify(mockFirebase, never()).logEvent(event.event, null)
     }

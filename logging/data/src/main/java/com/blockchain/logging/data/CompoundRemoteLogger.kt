@@ -42,9 +42,4 @@ class CompoundRemoteLogger(
     override fun userLanguageLocale(locale: String) {
         remoteLoggers.forEach { it.userLanguageLocale(locale) }
     }
-
-    override fun logView(viewName: String) {
-        Timber.i("Logging view: $viewName")
-        remoteLoggers.forEach { it.logView(viewName) }
-    }
 }
