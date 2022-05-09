@@ -1,8 +1,12 @@
 package piuk.blockchain.androidcore.data.metadata
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.metadata.save
+import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -12,10 +16,13 @@ import java.math.BigDecimal
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.serializer
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 @InternalSerializationApi
 class MetadataRepositoryAdapterTest {
@@ -36,6 +43,12 @@ class MetadataRepositoryAdapterTest {
         explicitNulls = false
         ignoreUnknownKeys = true
         isLenient = true
+        encodeDefaults = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+            contextual(IsoDateSerializer)
+        }
     }
 
     @Test
@@ -97,5 +110,29 @@ class MetadataRepositoryAdapterTest {
             .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertError(Exception::class.java)
+    }
+
+    @Test
+    fun `missing fields should not get serialised`() {
+        val metadataManager: MetadataManager = mock {
+            on { saveToMetadata(any(), any()) }.thenReturn(Completable.complete())
+        }
+
+        val metadataRepository = MetadataRepositoryAdapter(metadataManager, json)
+
+        val test = metadataRepository.save(
+            BlockchainAccountCredentialsMetadata(
+                userId = "UserId",
+                lifetimeToken = "lifetimetoken"
+            ),
+            10
+        ).test()
+
+        test.assertComplete()
+        Mockito.verify(metadataManager)
+            .saveToMetadata(
+                "{\"nabu_user_id\":\"UserId\",\"nabu_lifetime_token\":\"lifetimetoken\"}",
+                10
+            )
     }
 }

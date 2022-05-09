@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.reset
 
+import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.module
@@ -37,7 +38,8 @@ val resetAccountModule = module {
                 prefs = get(),
                 nabuDataManager = get(),
                 metadataManager = get(),
-                metadataRepository = get()
+                metadataRepository = get(),
+                accountMetadataFF = get(metadataMigrationFeatureFlag)
             )
         }
     }
