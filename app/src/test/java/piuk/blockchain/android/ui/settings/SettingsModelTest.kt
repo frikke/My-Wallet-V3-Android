@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.Partner
 import com.blockchain.enviroment.EnvironmentConfig
@@ -152,6 +153,7 @@ class SettingsModelTest {
                     Date(),
                     CardType.AMEX,
                     CardStatus.ACTIVE,
+                    MobilePaymentType.GOOGLE_PAY,
                     true
                 )
             )

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
@@ -147,10 +148,11 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
         )
 
     private fun PaymentMethodDetails.mapPaymentDetailsToString(): String {
-        return if (label.isNullOrBlank()) {
-            getString(R.string.checkout_funds_label_1, currency)
-        } else {
-            """${this.label} ${this.endDigits}"""
+        return when {
+            mobilePaymentType?.equals(MobilePaymentType.GOOGLE_PAY) == true -> getString(R.string.google_pay)
+            mobilePaymentType?.equals(MobilePaymentType.APPLE_PAY) == true -> getString(R.string.apple_pay)
+            label.isNullOrBlank() -> getString(R.string.checkout_funds_label_1, currency)
+            else -> """${this.label} ${this.endDigits}"""
         }
     }
 

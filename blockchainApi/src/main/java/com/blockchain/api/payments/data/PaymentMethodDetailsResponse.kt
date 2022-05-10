@@ -27,7 +27,9 @@ data class PaymentMethodDetailsResponse(
 @Serializable
 data class CardResponse(
     @SerialName("card")
-    val card: CardDetailsResponse?
+    val card: CardDetailsResponse?,
+    @SerialName("mobilePaymentType")
+    val mobilePaymentType: String? = null
 )
 
 @Serializable
@@ -37,7 +39,7 @@ data class CardDetailsResponse(
     @SerialName("type")
     val type: String,
     @SerialName("label")
-    val label: String
+    val label: String?
 )
 
 // BANK_TRANSFER

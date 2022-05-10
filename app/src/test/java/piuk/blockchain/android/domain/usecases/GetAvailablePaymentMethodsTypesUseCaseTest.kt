@@ -1,6 +1,7 @@
 package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentMethodTypeWithEligibility
 import com.blockchain.core.payments.PaymentsDataManager
@@ -146,7 +147,16 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         )
         private val CARD =
             LinkedPaymentMethod.Card(
-                "id", "", "", Partner.CARDPROVIDER, Date(), CardType.AMEX, CardStatus.ACTIVE, CARD_FUND_SOURCES, FIAT
+                cardId = "id",
+                label = "",
+                endDigits = "",
+                partner = Partner.CARDPROVIDER,
+                expireDate = Date(),
+                cardType = CardType.AMEX,
+                status = CardStatus.ACTIVE,
+                cardFundSources = CARD_FUND_SOURCES,
+                mobilePaymentType = MobilePaymentType.GOOGLE_PAY,
+                currency = FIAT
             )
     }
 }

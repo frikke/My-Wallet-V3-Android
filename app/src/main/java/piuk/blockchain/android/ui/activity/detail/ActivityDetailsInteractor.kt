@@ -357,7 +357,12 @@ class ActivityDetailsInteractor(
             list.add(
                 BuyPaymentMethod(
                     PaymentDetails(
-                        it.id, it.label(), it.endDigits(), it.accountType(), it.type
+                        paymentMethodId = it.id,
+                        label = it.label(),
+                        endDigits = it.endDigits(),
+                        accountType = it.accountType(),
+                        paymentMethodType = it.type,
+                        mobilePaymentType = (it as? PaymentMethod.Card)?.mobilePaymentType
                     )
                 )
             )

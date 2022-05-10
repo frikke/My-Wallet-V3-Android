@@ -15,9 +15,7 @@ class YodleeEntryActivity : Activity() {
                     addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 }
             )
-            finish()
-        } else {
-            finish()
         }
+        finish()
     }
 }

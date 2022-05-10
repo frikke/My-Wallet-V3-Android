@@ -1,6 +1,7 @@
 package com.blockchain.api.services
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_ACCOUNT
@@ -34,7 +35,8 @@ private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetail
         PAYMENT_CARD -> {
             PaymentMethodDetails(
                 label = cardDetails?.card?.label,
-                endDigits = cardDetails?.card?.number
+                endDigits = cardDetails?.card?.number,
+                mobilePaymentType = cardDetails?.mobilePaymentType?.toMobilePaymentType()
             )
         }
         BANK_TRANSFER -> {
@@ -59,7 +61,8 @@ private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetail
 
 data class PaymentMethodDetails(
     val label: String? = null,
-    val endDigits: String? = null
+    val endDigits: String? = null,
+    val mobilePaymentType: MobilePaymentType? = null
 )
 
 private fun WithdrawalLocksResponse.toWithdrawalLocks() =
@@ -86,3 +89,16 @@ data class CollateralLock(
     val value: String,
     val date: String
 )
+
+enum class MobilePaymentType {
+    GOOGLE_PAY,
+    APPLE_PAY,
+    UNKNOWN
+}
+
+fun String.toMobilePaymentType(): MobilePaymentType =
+    when (this) {
+        CardResponse.GOOGLE_PAY -> MobilePaymentType.GOOGLE_PAY
+        CardResponse.APPLE_PAY -> MobilePaymentType.APPLE_PAY
+        else -> MobilePaymentType.UNKNOWN
+    }

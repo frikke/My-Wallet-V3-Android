@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
@@ -663,6 +664,7 @@ sealed class PaymentMethod(
         val expireDate: Date,
         val cardType: CardType,
         val status: CardStatus,
+        val mobilePaymentType: MobilePaymentType? = null,
         override val isEligible: Boolean
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
         Serializable,

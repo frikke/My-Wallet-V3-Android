@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.activity.detail
 
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
@@ -72,7 +73,8 @@ data class PaymentDetails(
     val label: String? = null,
     val endDigits: String? = null,
     val accountType: String? = null,
-    val paymentMethodType: PaymentMethodType? = null
+    val paymentMethodType: PaymentMethodType? = null,
+    val mobilePaymentType: MobilePaymentType? = null
 )
 
 enum class DescriptionState {

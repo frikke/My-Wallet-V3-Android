@@ -62,7 +62,9 @@ data class CardResponse(
     @SerialName("currency")
     val currency: String,
     @SerialName("card")
-    val card: CardDetailsResponse? = null
+    val card: CardDetailsResponse? = null,
+    @SerialName("mobilePaymentType")
+    val mobilePaymentType: String? = null
 ) {
     companion object {
         const val ACTIVE = "ACTIVE"
@@ -70,6 +72,10 @@ data class CardResponse(
         const val BLOCKED = "BLOCKED"
         const val CREATED = "CREATED"
         const val EXPIRED = "EXPIRED"
+
+        const val GOOGLE_PAY = "GOOGLE_PAY"
+        const val APPLE_PAY = "APPLE_PAY"
+        const val UNKNOWN = "UNKNOWN"
     }
 }
 

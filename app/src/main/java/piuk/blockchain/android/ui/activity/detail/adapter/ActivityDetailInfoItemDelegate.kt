@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -212,6 +213,12 @@ private class InfoItemViewHolder(
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
                             context.getString(R.string.checkout_funds_label_1, label)
+                        }
+                        mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
+                            context.getString(R.string.google_pay)
+                        }
+                        mobilePaymentType == MobilePaymentType.APPLE_PAY -> {
+                            context.getString(R.string.apple_pay)
                         }
                         else -> {
                             context.getString(R.string.activity_details_payment_load_fail)

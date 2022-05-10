@@ -23,9 +23,11 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.paymentmethods.models.UpdateProviderAccountBody
+import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
+import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -548,7 +550,8 @@ class PaymentsDataManagerImpl(
             cardType = card?.type?.toCardType() ?: CardType.UNKNOWN,
             status = state.toCardStatus(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
-                ?: throw IllegalStateException("Unknown currency $currency")
+                ?: throw IllegalStateException("Unknown currency $currency"),
+            mobilePaymentType = mobilePaymentType?.toMobilePaymentType()
         )
     }
 
@@ -562,7 +565,8 @@ class PaymentsDataManagerImpl(
             expireDate = expireDate,
             cardType = cardType,
             status = status,
-            isEligible = true
+            isEligible = true,
+            mobilePaymentType = mobilePaymentType
         )
 
     private fun BankInfoResponse.toPaymentMethod(): LinkedPaymentMethod.Bank? {
@@ -793,6 +797,7 @@ sealed class LinkedPaymentMethod(
         val cardType: CardType,
         val status: CardStatus,
         val cardFundSources: List<String>? = null,
+        val mobilePaymentType: MobilePaymentType? = null,
         override val currency: FiatCurrency
     ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
 
