@@ -13,8 +13,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.scope.getViewModel
 import org.koin.java.KoinJavaComponent.get
+import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionViewModel
 import piuk.blockchain.android.ui.referral.domain.model.ReferralData
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
@@ -29,7 +33,9 @@ class ReferralSheet :
         arguments?.getParcelable<ReferralArgs>(ReferralArgs.ARGS_KEY) ?: error("missing ReferralArgs")
     }
 
-    private val viewModel: ReferralViewModel by viewModel()
+    private val viewModel: ReferralViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
 
     override fun onStateUpdated(state: ReferralViewState) {
     }

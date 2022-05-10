@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.PrimaryButton
@@ -50,7 +51,7 @@ fun ReferralScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = "", onBackButtonClick = onBackPressed)
+        NavigationBar(title = stringResource(id = R.string.empty), onBackButtonClick = onBackPressed)
 
         Column(
             modifier = Modifier
@@ -70,7 +71,7 @@ fun ReferralScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.xhuge_margin)))
+            Spacer(modifier = Modifier.size(55.dp))
 
             Text(
                 style = AppTheme.typography.title2,
@@ -91,7 +92,7 @@ fun ReferralScreen(
             Text(
                 style = AppTheme.typography.paragraph1,
                 color = Grey600,
-                text = "Your referral code",
+                text = stringResource(R.string.referral_code_title),
             )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
@@ -102,7 +103,7 @@ fun ReferralScreen(
                 copyToClipboard = copyToClipboard
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.epic_margin)))
+            Spacer(modifier = Modifier.size(67.dp))
 
             Text(
                 style = AppTheme.typography.paragraph1,
@@ -110,11 +111,11 @@ fun ReferralScreen(
                 text = stringResource(R.string.referral_criteria_title),
             )
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(27.dp))
 
             ReferralCriteria(criteria)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.epic_margin)))
+            Spacer(modifier = Modifier.size(111.dp))
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -225,6 +226,10 @@ fun SingleReferralCriteria(
         )
     }
 }
+
+/////////////////
+// PREVIEWS
+/////////////////
 
 @Preview(name = "Full Screen", showBackground = true)
 @Composable

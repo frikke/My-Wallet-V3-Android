@@ -2942,6 +2942,7 @@
     <string name="msg_cardCreateNoToken">We were unable to add your card. Please try again or choose a different payment method.</string>
 
     <!--  Referral -->
+    <string name="referral_code_title">Your referral code</string>
     <string name="referral_criteria_title">What my invited friends need to do?</string>
 
 </resources>
