@@ -30,8 +30,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
 import kotlinx.coroutines.rx3.rxSingle
-import org.web3j.abi.TypeEncoder
-import org.web3j.abi.datatypes.Utf8String
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
@@ -301,15 +299,15 @@ class EthDataManager(
             account.signMessage(data, payloadDataManager.masterKey)
         }
 
-    override fun signEthTypedMessage(message: String, secondPassword: String): Single<ByteArray> =
-        Single.fromCallable {
-            val data = TypeEncoder.encode(Utf8String(message)).decodeHex()
+    override fun signEthTypedMessage(message: String, secondPassword: String): Single<ByteArray> {
+        return Single.fromCallable {
             if (payloadDataManager.isDoubleEncrypted) {
                 payloadDataManager.decryptHDWallet(secondPassword)
             }
             val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
-            account.signMessage(data, payloadDataManager.masterKey)
+            account.signEthTypedMessage(message, payloadDataManager.masterKey)
         }
+    }
 
     private fun String.decodeHex(): ByteArray {
         check(length % 2 == 0) { "Must have an even length" }
