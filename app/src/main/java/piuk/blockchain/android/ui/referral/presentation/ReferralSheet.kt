@@ -18,6 +18,7 @@ import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.referral.domain.model.ReferralData
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
+import piuk.blockchain.android.util.shareText
 
 class ReferralSheet :
     MVIBottomSheet<ReferralViewState>(),
@@ -75,7 +76,7 @@ class ReferralSheet :
     }
 
     private fun shareCode(code: String) {
-
+        context?.shareText(code)
     }
 
     override fun route(navigationEvent: ReferralNavigationEvent) {

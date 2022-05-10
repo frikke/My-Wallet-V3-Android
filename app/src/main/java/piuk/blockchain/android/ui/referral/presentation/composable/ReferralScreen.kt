@@ -107,7 +107,7 @@ fun ReferralScreen(
             Text(
                 style = AppTheme.typography.paragraph1,
                 color = Grey600,
-                text = "What my invited friends need to do?",
+                text = stringResource(R.string.referral_criteria_title),
             )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
@@ -119,7 +119,7 @@ fun ReferralScreen(
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = "Share",
-                onClick = { }
+                onClick = { shareCode(code) }
             )
         }
     }
