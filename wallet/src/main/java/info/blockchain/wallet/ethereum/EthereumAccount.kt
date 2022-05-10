@@ -15,6 +15,7 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign
+import org.web3j.crypto.StructuredDataEncoder
 import org.web3j.crypto.TransactionEncoder
 
 @Serializable
@@ -67,6 +68,20 @@ class EthereumAccount : JsonSerializableAccount {
          * We want to return a byte[] with the concatenation of those as the return array of the
          * message sign which will be size of 65 containing R + S + V
          */
+        val retval = ByteArray(65)
+        System.arraycopy(signedData.r, 0, retval, 0, 32)
+        System.arraycopy(signedData.s, 0, retval, 32, 32)
+        System.arraycopy(signedData.v, 0, retval, 64, 1)
+        return retval
+    }
+
+    fun signEthTypedMessage(data: String, masterKey: MasterKey): ByteArray {
+        val signingKey = deriveSigningKey(masterKey)
+        val credentials = Credentials.create(signingKey.privateKeyAsHex)
+
+        val structuredData = StructuredDataEncoder(data).hashStructuredData()
+        val signedData = Sign.signMessage(structuredData, credentials.ecKeyPair, false)
+
         val retval = ByteArray(65)
         System.arraycopy(signedData.r, 0, retval, 0, 32)
         System.arraycopy(signedData.s, 0, retval, 32, 32)
