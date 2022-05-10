@@ -18,7 +18,6 @@ import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.androidx.viewmodel.scope.getViewModel
 import org.koin.java.KoinJavaComponent.get
-import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionViewModel
 import piuk.blockchain.android.ui.referral.domain.model.ReferralData
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard

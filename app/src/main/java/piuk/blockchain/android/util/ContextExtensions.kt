@@ -12,8 +12,6 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import com.blockchain.componentlib.alert.BlockchainSnackbar
-import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.android.R
 
 fun Context.loadInterMedium(): Typeface =
@@ -56,7 +54,7 @@ fun Context.copyToClipboard(label: String, text: String) {
     }
 }
 
-fun Context.shareText(text: String){
+fun Context.shareText(text: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, text)

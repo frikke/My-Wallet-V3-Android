@@ -6,13 +6,14 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs.ParcelableArgs
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : ModelConfigArgs.ParcelableArgs> TFragment.withArgs(
+fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : ParcelableArgs> TFragment.withArgs(
     key: String,
     args: TArgs
 ): TFragment = apply {
@@ -20,7 +21,6 @@ fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : Mod
         putParcelable(key, args)
     }
 }
-
 
 abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragment() {
 

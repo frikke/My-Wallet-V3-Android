@@ -33,8 +33,8 @@ import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.UltraLight
 import com.blockchain.utils.isNotLastIn
-import piuk.blockchain.android.R
 import kotlin.math.max
+import piuk.blockchain.android.R
 
 @Composable
 fun ReferralScreen(
@@ -227,9 +227,9 @@ fun SingleReferralCriteria(
     }
 }
 
-/////////////////
+// ///////////////
 // PREVIEWS
-/////////////////
+// ///////////////
 
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
