@@ -22,7 +22,6 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetFeeSelectionBinding
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
@@ -220,7 +219,6 @@ class FeeSelectionBottomSheet :
     }
 
     private fun setCustomFeeValues(customFee: Long, error: String = "", feeSelection: String) {
-        logErrorAnalytics(title = error, error = feeSelection)
         with(binding) {
             if (customFee != -1L) {
                 val fee = customFee.toString()
@@ -231,18 +229,6 @@ class FeeSelectionBottomSheet :
             }
             feeCustomError.text = error
         }
-    }
-
-    private fun logErrorAnalytics(title: String, error: String) {
-        analytics.logEvent(
-            ClientErrorAnalytics.ClientLogError(
-                nabuApiException = null,
-                error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
-                title = title,
-                action = ClientErrorAnalytics.ACTION_BUY,
-            )
-        )
     }
 
     private fun sendFeeUpdate(model: TransactionModel, level: FeeLevel, customFeeAmount: Long? = null) {
