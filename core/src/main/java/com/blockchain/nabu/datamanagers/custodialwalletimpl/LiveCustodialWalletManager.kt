@@ -569,7 +569,7 @@ class LiveCustodialWalletManager(
                     SUPPORTED_FUNDS_CURRENCIES.contains(it.currency) && it.eligible
             }.mapNotNull {
                 it.currency?.let { currency ->
-                    assetCatalogue.fromNetworkTicker(currency) as FiatCurrency
+                    assetCatalogue.fromNetworkTicker(currency) as? FiatCurrency
                 }
             }
         }
