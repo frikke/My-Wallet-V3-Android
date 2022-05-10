@@ -175,11 +175,11 @@ class CoinsWebSocketStrategyTest {
         replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
-        pinRepository = mock(),
         appUtil = mock(),
         prefs = prefs,
         rxBus = rxBus,
-        assetCatalogue = assetCatalogue
+        assetCatalogue = assetCatalogue,
+        crashLogger = mock()
     )
 
     @Before

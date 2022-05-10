@@ -4,6 +4,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
 import com.blockchain.utils.appendSpaced
@@ -43,7 +44,6 @@ import piuk.blockchain.android.data.coinswebsocket.models.TokenTransfer
 import piuk.blockchain.android.data.coinswebsocket.models.TransactionState
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.StringUtils
-import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
@@ -80,10 +80,10 @@ class CoinsWebSocketStrategy(
     private val replaceGsonKtxFF: FeatureFlag,
     private val rxBus: RxBus,
     private val prefs: PersistentPrefs,
-    private val pinRepository: PinRepository,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val crashLogger: RemoteLogger
 ) : CoinsWebSocketInterface {
 
     private var coinWebSocketInput: CoinWebSocketInput? = null
@@ -121,23 +121,28 @@ class CoinsWebSocketStrategy(
             }
 
         compositeDisposable += coinsWebSocket.responses.distinctUntilChanged()
-            .subscribe { response ->
-                replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
-                    val socketResponse: SocketResponse =
-                        if (replaceGsonKtx) json.decodeFromString(response)
-                        else gson.fromJson(response, SocketResponse::class.java)
+            .subscribeBy(
+                onNext = { response ->
+                    replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+                        val socketResponse: SocketResponse =
+                            if (replaceGsonKtx) json.decodeFromString(response)
+                            else gson.fromJson(response, SocketResponse::class.java)
 
-                    if (socketResponse.op == "on_change")
-                        checkForWalletChange(socketResponse.checksum)
-                    when (socketResponse.coin) {
-                        Coin.ETH -> handleEthTransaction(response)
-                        Coin.BTC -> handleBtcTransaction(response)
-                        Coin.BCH -> handleBchTransaction(response)
-                        else -> {
+                        if (socketResponse.op == "on_change")
+                            checkForWalletChange(socketResponse.checksum)
+                        when (socketResponse.coin) {
+                            Coin.ETH -> handleEthTransaction(response)
+                            Coin.BTC -> handleBtcTransaction(response)
+                            Coin.BCH -> handleBchTransaction(response)
+                            else -> {
+                            }
                         }
                     }
+                },
+                onError = {
+                    crashLogger.logException(it, "Error handling websocket response")
                 }
-            }
+            )
     }
 
     private fun checkForWalletChange(checksum: String?) {
@@ -324,7 +329,7 @@ class CoinsWebSocketStrategy(
             ) {
                 val tokenTransaction = ethResponse.tokenTransfer
                 val asset = ethResponse.getTokenType()
-                if (asset.isErc20()) {
+                if (asset?.isErc20() == true) {
                     triggerErc20NotificationAndUpdate(asset, tokenTransaction, title)
                 }
             }
@@ -508,8 +513,8 @@ class CoinsWebSocketStrategy(
                 val importedList = it.importedAddressList
                 importedList.forEach { element ->
                     val address = element.address
-                    if (address.isNullOrEmpty().not()) {
-                        add(address!!)
+                    if (address.isEmpty().not()) {
+                        add(address)
                     }
                 }
             }
@@ -607,13 +612,16 @@ class CoinsWebSocketStrategy(
         sendMessage(SocketRequest.PingRequest)
     }
 
-    private fun EthResponse.getTokenType(): AssetInfo {
+    private fun EthResponse.getTokenType(): AssetInfo? {
         require(entity == Entity.Account || entity == Entity.TokenAccount)
         return when {
             entity == Entity.Account && !isErc20Token() -> CryptoCurrency.ETHER
             entity == Entity.TokenAccount -> getErc20ParamType()
             else -> {
-                throw IllegalStateException("This should never trigger!")
+                crashLogger.logEvent(
+                    "This should never trigger! Unknown Token Type in ETH response - ${this.transaction?.to}"
+                )
+                null
             }
         }
     }

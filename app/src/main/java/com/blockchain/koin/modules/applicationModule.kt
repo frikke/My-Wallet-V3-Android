@@ -308,8 +308,8 @@ val applicationModule = module {
                 rxBus = get(),
                 prefs = get(),
                 appUtil = get(),
-                pinRepository = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                crashLogger = get()
             )
         }.bind(CoinsWebSocketInterface::class)
 
