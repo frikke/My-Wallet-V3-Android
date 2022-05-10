@@ -5,15 +5,22 @@ import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalTimeSpan
+import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore2
+import com.blockchain.core.price.model.AssetPriceRecord2
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.USD
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyBlocking
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -34,7 +41,7 @@ class ExchangeRatesDataManagerImplTest {
                 start = any(),
                 scale = any()
             )
-        }.thenReturn(Single.just(PRICE_DATA))
+        }.thenReturn(Single.just(PRICE_DATA_OLD))
     }
 
     private val currencyPrefs: CurrencyPrefs = mock {
@@ -46,10 +53,24 @@ class ExchangeRatesDataManagerImplTest {
     }
 
     private val priceStore: AssetPriceStore = mock()
+    private val priceStore2: AssetPriceStore2 = mock() {
+        onBlocking {
+            getHistoricalPriceForAsset(
+                base = any(),
+                quote = any(),
+                timeSpan = any()
+            )
+        }.thenReturn(Outcome.Success(PRICE_DATA))
+    }
+    private val newAssetPriceStoreFF: FeatureFlag = mock() {
+        on { enabled }.thenReturn(Single.just(true))
+    }
     private val sparklineCall: SparklineCallCache = mock()
 
     private val subject = ExchangeRatesDataManagerImpl(
         priceStore = priceStore,
+        priceStore2 = priceStore2,
+        newAssetPriceStoreFeatureFlag = newAssetPriceStoreFF,
         sparklineCall = sparklineCall,
         assetCatalogue = mock(),
         assetPriceService = priceService,
@@ -58,6 +79,24 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun `get All Time Price`() {
+        subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME)
+            .test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.ALL_TIME
+            )
+        }
+    }
+
+    @Test
+    fun `get All Time Price OLD`() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
         subject.getHistoricPriceSeries(OLD_ASSET, HistoricalTimeSpan.ALL_TIME)
             .test()
             .assertComplete()
@@ -79,6 +118,27 @@ class ExchangeRatesDataManagerImplTest {
             HistoricalTimeSpan.YEAR,
             calendar
         ).test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.YEAR
+            )
+        }
+    }
+
+    @Test
+    fun getYearPriceOld() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.YEAR,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -93,6 +153,27 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun getMonthPrice() {
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.MONTH,
+            calendar
+        ).test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.MONTH
+            )
+        }
+    }
+
+    @Test
+    fun getMonthPriceOld() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
 
         subject.getHistoricPriceSeries(
             OLD_ASSET,
@@ -112,7 +193,28 @@ class ExchangeRatesDataManagerImplTest {
     }
 
     @Test
-    fun getWeekPrice() {
+    fun getWeekPrice() = runTest {
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.WEEK,
+            calendar
+        ).test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.WEEK
+            )
+        }
+    }
+
+    @Test
+    fun getWeekPriceOld() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
         subject.getHistoricPriceSeries(
             OLD_ASSET,
             HistoricalTimeSpan.WEEK,
@@ -137,6 +239,27 @@ class ExchangeRatesDataManagerImplTest {
             HistoricalTimeSpan.DAY,
             calendar
         ).test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.DAY
+            )
+        }
+    }
+
+    @Test
+    fun getDayPriceOld() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
+        subject.getHistoricPriceSeries(
+            OLD_ASSET,
+            HistoricalTimeSpan.DAY,
+            calendar
+        ).test()
             .assertComplete()
             .assertNoErrors()
 
@@ -151,6 +274,27 @@ class ExchangeRatesDataManagerImplTest {
 
     @Test
     fun `get year price on new asset`() {
+        subject.getHistoricPriceSeries(
+            NEW_ASSET,
+            HistoricalTimeSpan.WEEK,
+            calendar
+        ).test()
+            .await()
+            .assertComplete()
+            .assertNoErrors()
+
+        verifyBlocking(priceStore2) {
+            getHistoricalPriceForAsset(
+                OLD_ASSET,
+                SELECTED_FIAT,
+                HistoricalTimeSpan.WEEK
+            )
+        }
+    }
+
+    @Test
+    fun `get year price on new asset OLD`() {
+        whenever(newAssetPriceStoreFF.enabled).thenReturn(Single.just(false))
         subject.getHistoricPriceSeries(
             NEW_ASSET,
             HistoricalTimeSpan.WEEK,
@@ -199,12 +343,20 @@ class ExchangeRatesDataManagerImplTest {
             colour = "#123456"
         ) {}
 
-        private val PRICE_DATA = listOf(
+        private val PRICE_DATA_OLD = listOf(
             AssetPrice(
                 base = OLD_ASSET.networkTicker,
                 quote = SELECTED_FIAT.networkTicker,
                 price = 100.toDouble(),
-                timestamp = 200000
+                timestampSeconds = 200000
+            )
+        )
+        private val PRICE_DATA = listOf(
+            AssetPriceRecord2(
+                base = OLD_ASSET.networkTicker,
+                quote = SELECTED_FIAT.networkTicker,
+                rate = 100.toBigDecimal(),
+                fetchedAt = 200000
             )
         )
     }

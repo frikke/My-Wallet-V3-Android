@@ -29,7 +29,7 @@ data class AvailableSymbolsDto(
 @Serializable(with = AssetPriceDeserializer::class)
 internal data class AssetPriceDto(
     @SerialName("timestamp")
-    val timestamp: Long,
+    val timestampSeconds: Long,
     @SerialName("price")
     val price: Double? = null,
     @SerialName("volume24h")

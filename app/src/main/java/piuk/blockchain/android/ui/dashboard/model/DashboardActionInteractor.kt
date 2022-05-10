@@ -54,7 +54,7 @@ import timber.log.Timber
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 class DashboardBalanceLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
 
-class DashboardActionAdapter(
+class DashboardActionInteractor(
     private val coincore: Coincore,
     private val payloadManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
@@ -119,7 +119,8 @@ class DashboardActionAdapter(
                     model.process(
                         DashboardIntent.AssetPriceUpdate(
                             asset = asset,
-                            prices24HrWithDelta = it
+                            prices24HrWithDelta = it,
+                            shouldFetchDayHistoricalPrices = false
                         )
                     )
                 },
@@ -266,7 +267,9 @@ class DashboardActionAdapter(
 
     fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
-            .map { pricesWithDelta -> DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta) }
+            .map { pricesWithDelta ->
+                DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta, shouldFetchDayHistoricalPrices = true)
+            }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = {

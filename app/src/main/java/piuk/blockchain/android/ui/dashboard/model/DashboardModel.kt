@@ -15,7 +15,7 @@ import timber.log.Timber
 class DashboardModel(
     initialState: DashboardState,
     mainScheduler: Scheduler,
-    private val interactor: DashboardActionAdapter,
+    private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<DashboardState, DashboardIntent>(
@@ -52,7 +52,9 @@ class DashboardModel(
                 null
             }
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is DashboardIntent.AssetPriceUpdate -> interactor.refreshPriceHistory(this, intent.asset)
+            is DashboardIntent.AssetPriceUpdate ->
+                if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPriceHistory(this, intent.asset)
+                else null
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
             is DashboardIntent.CancelSimpleBuyOrder -> interactor.cancelSimpleBuyOrder(intent.orderId)
             is DashboardIntent.LaunchBankTransferFlow -> processBankTransferFlow(intent)

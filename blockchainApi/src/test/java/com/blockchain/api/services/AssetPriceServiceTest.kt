@@ -108,7 +108,7 @@ class AssetPriceServiceTest {
         val assetPrice = 2000.0
         val expectedApiOutputDto =
             AssetPriceDto(
-                timestamp = timestamp,
+                timestampSeconds = timestamp,
                 price = assetPrice,
                 volume24h = null
             )
@@ -137,7 +137,7 @@ class AssetPriceServiceTest {
             .assertValue {
                 it.count() == 1 &&
                     it[0].price == assetPrice &&
-                    it[0].timestamp == timestamp
+                    it[0].timestampSeconds == timestamp
             }
 
         verify(mockApi).getCurrentPrices(
@@ -158,7 +158,7 @@ class AssetPriceServiceTest {
         val assetPrice = 2000.0
         val expectedApiOutputDto =
             AssetPriceDto(
-                timestamp = timestamp,
+                timestampSeconds = timestamp,
                 price = assetPrice,
                 volume24h = null
             )
@@ -189,7 +189,7 @@ class AssetPriceServiceTest {
             .assertValue {
                 it.count() == 1 &&
                     it[0].price == assetPrice &&
-                    it[0].timestamp == timestamp
+                    it[0].timestampSeconds == timestamp
             }
 
         verify(mockApi).getHistoricPrices(
@@ -220,7 +220,7 @@ class AssetPriceServiceTest {
         val assetPriceBtc = 2000.0
         val expectedApiOutputBtcDto =
             AssetPriceDto(
-                timestamp = timestampBtc,
+                timestampSeconds = timestampBtc,
                 price = assetPriceBtc,
                 volume24h = null
             )
@@ -229,7 +229,7 @@ class AssetPriceServiceTest {
         val assetPriceEth = 300.0
         val expectedApiOutputEthDto =
             AssetPriceDto(
-                timestamp = timestampEth,
+                timestampSeconds = timestampEth,
                 price = assetPriceEth,
                 volume24h = null
             )
@@ -279,19 +279,19 @@ class AssetPriceServiceTest {
 
         val expectedApiOutputDto1 =
             AssetPriceDto(
-                timestamp = timestamp1,
+                timestampSeconds = timestamp1,
                 price = assetPrice1,
                 volume24h = null
             )
         val expectedApiOutputDto2 =
             AssetPriceDto(
-                timestamp = timestamp2,
+                timestampSeconds = timestamp2,
                 price = assetPrice2,
                 volume24h = null
             )
         val expectedApiOutputDto3 =
             AssetPriceDto(
-                timestamp = timestamp3,
+                timestampSeconds = timestamp3,
                 price = assetPrice3,
                 volume24h = null
             )

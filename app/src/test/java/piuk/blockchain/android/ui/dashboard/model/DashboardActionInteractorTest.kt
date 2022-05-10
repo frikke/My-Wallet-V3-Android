@@ -26,9 +26,9 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 
-class DashboardActionAdapterTest {
+class DashboardActionInteractorTest {
 
-    private lateinit var actionAdapter: DashboardActionAdapter
+    private lateinit var actionInteractor: DashboardActionInteractor
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
@@ -48,7 +48,7 @@ class DashboardActionAdapterTest {
 
     @Before
     fun setUp() {
-        actionAdapter = DashboardActionAdapter(
+        actionInteractor = DashboardActionInteractor(
             coincore = mock(),
             payloadManager = mock(),
             custodialWalletManager = custodialWalletManager,
@@ -78,7 +78,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        actionAdapter.getBankDepositFlow(
+        actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -119,7 +119,7 @@ class DashboardActionAdapterTest {
                 )
             )
         )
-        actionAdapter.getBankDepositFlow(
+        actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -150,7 +150,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        actionAdapter.getBankDepositFlow(
+        actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -181,7 +181,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        actionAdapter.getBankDepositFlow(
+        actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -212,7 +212,7 @@ class DashboardActionAdapterTest {
             )
         )
 
-        actionAdapter.getBankDepositFlow(
+        actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
             action = AssetAction.FiatDeposit,
@@ -235,7 +235,7 @@ class DashboardActionAdapterTest {
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(
             Single.just(Tier.GOLD)
         )
-        actionAdapter.canDeposit().test()
+        actionInteractor.canDeposit().test()
 
         verify(userIdentity).getHighestApprovedKycTier()
         verifyNoMoreInteractions(userIdentity)

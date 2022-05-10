@@ -1,9 +1,10 @@
 package com.blockchain.core.price
 
-import com.blockchain.core.price.impl.SupportedTickerList
+import com.blockchain.domain.common.model.Seconds
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.Calendar
@@ -21,7 +22,7 @@ enum class HistoricalTimeSpan(val value: Int) {
 }
 
 data class HistoricalRate(
-    val timestamp: Long,
+    val timestamp: Seconds,
     val rate: Double
 )
 
@@ -51,7 +52,7 @@ interface ExchangeRates {
 }
 
 interface ExchangeRatesDataManager : ExchangeRates {
-    fun init(): Single<SupportedTickerList>
+    fun init(): Completable
 
     fun exchangeRate(fromAsset: Currency, toAsset: Currency): Observable<ExchangeRate>
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>

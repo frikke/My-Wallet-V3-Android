@@ -3,6 +3,7 @@ package com.blockchain.core.price.impl
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.PriceTimescale
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Single
@@ -47,11 +48,11 @@ internal fun HistoricalTimeSpan.suggestTimescaleInterval(): PriceTimescale =
         HistoricalTimeSpan.DAY -> PriceTimescale.FIFTEEN_MINUTES
     }
 
-internal fun Single<List<AssetPrice>>.toHistoricalRateList() =
+internal fun Single<List<AssetPrice>>.toHistoricalRateList(): Single<HistoricalRateList> =
     this.map { list ->
         list.map {
             HistoricalRate(
-                it.timestamp,
+                it.timestampSeconds,
                 it.price
             )
         }

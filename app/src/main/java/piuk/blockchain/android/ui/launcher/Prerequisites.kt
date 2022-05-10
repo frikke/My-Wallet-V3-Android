@@ -86,7 +86,7 @@ class Prerequisites(
     )
 
     fun warmCaches(): Completable =
-        exchangeRates.init().ignoreElement() // TODO: Check returned result against dynamic list
+        exchangeRates.init()
 
     companion object {
         private const val METADATA_ERROR_MESSAGE = "metadata_init"

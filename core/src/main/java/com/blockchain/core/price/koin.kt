@@ -6,6 +6,10 @@ import com.blockchain.core.price.historic.HistoricRateRemoteSource
 import com.blockchain.core.price.impl.AssetPriceStore
 import com.blockchain.core.price.impl.ExchangeRatesDataManagerImpl
 import com.blockchain.core.price.impl.SparklineCallCache
+import com.blockchain.core.price.impl.assetpricestore.AssetPriceStore2
+import com.blockchain.core.price.impl.assetpricestore.AssetPriceStoreCache
+import com.blockchain.core.price.impl.assetpricestore.SupportedTickersStore
+import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -20,6 +24,8 @@ val pricesModule = module {
     single {
         ExchangeRatesDataManagerImpl(
             priceStore = get(),
+            priceStore2 = get(),
+            newAssetPriceStoreFeatureFlag = get(newAssetPriceStoreFeatureFlag),
             sparklineCall = get(),
             assetPriceService = get(),
             currencyPrefs = get(),
@@ -33,6 +39,26 @@ val pricesModule = module {
             assetPriceService = get(),
             assetCatalogue = get(),
             prefs = get()
+        )
+    }
+
+    factory {
+        AssetPriceStore2(
+            cache = get(),
+            supportedTickersStore = get()
+        )
+    }
+
+    factory {
+        AssetPriceStoreCache(
+            assetPriceService = get(),
+            supportedTickersStore = get()
+        )
+    }
+
+    factory {
+        SupportedTickersStore(
+            assetPriceService = get()
         )
     }
 

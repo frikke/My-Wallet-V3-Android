@@ -2,7 +2,7 @@ package com.blockchain.store
 
 import kotlinx.coroutines.flow.*
 
-typealias Millis = Long
+internal typealias Millis = Long
 typealias StoreId = String
 
 

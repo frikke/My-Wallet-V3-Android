@@ -12,7 +12,7 @@ import piuk.blockchain.android.ui.dashboard.coinview.CoinViewState
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyInteractor
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModel
 import piuk.blockchain.android.ui.dashboard.coinview.recurringbuy.RecurringBuyModelState
-import piuk.blockchain.android.ui.dashboard.model.DashboardActionAdapter
+import piuk.blockchain.android.ui.dashboard.model.DashboardActionInteractor
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
 import piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingInteractor
@@ -35,7 +35,7 @@ val dashboardModule = module {
         }
 
         factory {
-            DashboardActionAdapter(
+            DashboardActionInteractor(
                 coincore = get(),
                 exchangeRates = get(),
                 payloadManager = get(),

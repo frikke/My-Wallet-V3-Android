@@ -88,7 +88,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class AssetPriceUpdate(
         val asset: AssetInfo,
-        private val prices24HrWithDelta: Prices24HrWithDelta
+        private val prices24HrWithDelta: Prices24HrWithDelta,
+        // Only fetch day historical prices for active assets, the ones with balance, to draw the small graph
+        val shouldFetchDayHistoricalPrices: Boolean
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val updatedActiveList = if (oldState.activeAssets.contains(asset)) {

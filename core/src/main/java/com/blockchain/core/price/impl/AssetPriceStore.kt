@@ -2,6 +2,7 @@ package com.blockchain.core.price.impl
 
 import com.blockchain.api.services.AssetPrice
 import com.blockchain.api.services.AssetPriceService
+import com.blockchain.core.price.model.AssetPriceNotCached
 import com.blockchain.preferences.CurrencyPrefs
 import com.jakewharton.rxrelay3.BehaviorRelay
 import info.blockchain.balance.AssetCatalogue
@@ -45,9 +46,6 @@ private data class AssetPair(
     val base: String,
     val quote: String
 )
-
-private class AssetPriceNotCached(pair: AssetPair) :
-    Throwable("No cached price available for ${pair.base} to ${pair.quote}")
 
 private typealias AssetPricesMap = MutableMap<AssetPair, AssetPriceRecord>
 // TEMP to get supported user fiats. This should come from the dynamic endpoints and
@@ -160,7 +158,7 @@ internal class AssetPriceStore(
                 fetchedAtMillis = System.currentTimeMillis()
             )
         } else {
-            map[assetPair] ?: throw AssetPriceNotCached(assetPair)
+            map[assetPair] ?: throw AssetPriceNotCached(assetPair.base, assetPair.quote)
         }
     }
 
@@ -171,7 +169,7 @@ internal class AssetPriceStore(
                 it
             )
         }.map {
-            it.takeIf { !it.isStale() } ?: throw AssetPriceNotCached(AssetPair(base, quote))
+            it.takeIf { !it.isStale() } ?: throw AssetPriceNotCached(base, quote)
         }.doOnSubscribe {
             checkStartRefreshTimer()
         }.doOnDispose {
@@ -223,7 +221,7 @@ internal class AssetPriceStore(
     fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord {
         val pair = AssetPair(fromAsset.networkTicker, toFiat.networkTicker)
         return pricesCache.value?.get(pair) ?: throw AssetPriceNotCached(
-            pair
+            pair.base, pair.quote
         )
     }
 
@@ -231,7 +229,7 @@ internal class AssetPriceStore(
     fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord {
         val pair = AssetPair(fromFiat.networkTicker, toFiat.networkTicker)
         return pricesCache.value?.get(pair) ?: throw AssetPriceNotCached(
-            pair
+            pair.base, pair.quote
         )
     }
 

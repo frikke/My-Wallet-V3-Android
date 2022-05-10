@@ -8,6 +8,7 @@ val redesignPart2CoinViewFeatureFlag = StringQualifier("ff_redesign_part_2coinvi
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val cachingStoreFeatureFlag = StringQualifier("ff_caching_store")
+val newAssetPriceStoreFeatureFlag = StringQualifier("ff_new_asset_price_store")
 val ethMemoHotWalletFeatureFlag = StringQualifier("ff_eth_memo")
 val intercomChatFeatureFlag = StringQualifier("ff_intercom_chat")
 val blockchainCardFeatureFlag = StringQualifier("ff_blockchain_card")

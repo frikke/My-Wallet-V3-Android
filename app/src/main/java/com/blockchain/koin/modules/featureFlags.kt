@@ -13,6 +13,7 @@ import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
+import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
@@ -142,6 +143,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_caching_store",
                 "Caching Store"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(newAssetPriceStoreFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_new_asset_price_store",
+                "New AssetPriceStore with Store Cache"
             )
         )
     }.bind(FeatureFlag::class)
