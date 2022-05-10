@@ -153,6 +153,7 @@ class ChartView : FrameLayout {
     }
 
     fun setData(entries: List<ChartEntry>) {
+        selectedEntry = null
         setEntryData(
             entries.map {
                 Entry(it.x, it.y)
