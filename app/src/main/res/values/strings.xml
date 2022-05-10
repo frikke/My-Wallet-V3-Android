@@ -60,7 +60,9 @@
     <string name="common_unavailable">Unavailable</string>
     <string name="common_connect">Connect</string>
     <string name="common_receive_to">Receive %1$s</string>
-
+    <string name="common_copy">Copy</string>
+    <string name="common_copied">Copied</string>
+    <string name="common_share">Share</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>

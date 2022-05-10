@@ -34,6 +34,12 @@ data class AppTypography(
         fontSize = 20.sp,
         lineHeight = 30.sp
     ),
+    val title4: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 24.sp,
+        letterSpacing = 12.sp,
+        lineHeight = 30.sp
+    ),
     val subheading: TextStyle = TextStyle(
         fontFamily = interMedium,
         fontSize = 20.sp,

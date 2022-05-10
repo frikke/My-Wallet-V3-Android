@@ -12,6 +12,16 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+fun <TViewState : ViewState, TFragment : MVIBottomSheet<TViewState>, TArgs : ModelConfigArgs.ParcelableArgs> TFragment.withArgs(
+    key: String,
+    args: TArgs
+): TFragment = apply {
+    arguments = Bundle().apply {
+        putParcelable(key, args)
+    }
+}
+
+
 abstract class MVIBottomSheet<TViewState : ViewState> : BottomSheetDialogFragment() {
 
     abstract fun onStateUpdated(state: TViewState)

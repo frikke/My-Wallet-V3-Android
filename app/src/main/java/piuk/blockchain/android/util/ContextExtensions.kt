@@ -1,5 +1,7 @@
 package piuk.blockchain.android.util
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
@@ -10,6 +12,8 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.android.R
 
 fun Context.loadInterMedium(): Typeface =
@@ -42,4 +46,12 @@ fun Context?.openUrl(url: String) {
 
 fun Context?.openUrl(url: Uri) {
     this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+}
+
+fun Context.copyToClipboard(label: String, text: String) {
+    (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
+        ClipData.newPlainText(label, text).also { clipData ->
+            setPrimaryClip(clipData)
+        }
+    }
 }
