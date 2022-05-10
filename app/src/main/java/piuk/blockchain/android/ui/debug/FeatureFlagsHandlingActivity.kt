@@ -24,6 +24,9 @@ import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
+// todo (othman): revert this back to AppCompatActivity once referrals api is implemented
+// PR - https://github.com/blockchain/wallet-android-private/pull/3266/
+// jira - https://blockchain.atlassian.net/browse/AND-6144
 class FeatureFlagsHandlingActivity : BlockchainActivity() {
 
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
