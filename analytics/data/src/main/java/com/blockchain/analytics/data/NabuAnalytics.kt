@@ -81,6 +81,10 @@ class NabuAnalytics(
         return localAnalyticsPersistence.size().flatMapCompletable {
             if (it >= BATCH_SIZE) {
                 batchToApiAndFlush()
+                    .doOnError {
+                        remoteLogger.logException(it, "Error sending batched analytics")
+                    }
+                    .onErrorComplete()
             } else {
                 Completable.complete()
             }
