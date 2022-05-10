@@ -96,10 +96,12 @@ class CoinViewInteractor(
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
+            val isTradable = custodialAccount != null
+            val canTrade = simpleBuyAccess is FeatureAccess.Granted && buyAccess is FeatureAccess.Granted
+
             when {
-                custodialAccount != null &&
-                    simpleBuyAccess is FeatureAccess.Granted &&
-                    buyAccess is FeatureAccess.Granted -> {
+                isTradable && canTrade -> {
+                    require(custodialAccount != null)
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
                             if (totalCryptoBalance[AssetFilter.Custodial]?.isPositive == true) {
@@ -116,6 +118,14 @@ class CoinViewInteractor(
                         } else {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
                         }
+                    }
+                }
+                isTradable && !canTrade -> {
+                    require(custodialAccount != null)
+                    if (isSupportedPair) {
+                        QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
+                    } else {
+                        QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
                     }
                 }
                 ncAccount != null -> {
