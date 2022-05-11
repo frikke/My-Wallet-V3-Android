@@ -1,0 +1,32 @@
+plugins {
+}
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+android {
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {}
+    }
+
+    lintOptions {
+        warningsAsErrors true
+        abortOnError true
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':common:interface')
+
+    // koin
+    implementation Libraries.koin
+
+    // test
+    testImplementation Libraries.junit
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.mockk
+    testImplementation Libraries.kotlinCoroutinesTest
+}
