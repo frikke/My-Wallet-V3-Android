@@ -75,8 +75,8 @@ data class EthAccount(val address: String, val txHash: String, val tx: EthTransa
 @Serializable
 data class EthTransaction(
     val hash: String,
-    val blockHash: String,
-    val blockNumber: Long,
+    val blockHash: String? = null,
+    val blockNumber: Long? = null,
     val from: String,
     val to: String,
     val value: @Contextual BigInteger,
