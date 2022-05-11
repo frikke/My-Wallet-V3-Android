@@ -60,6 +60,7 @@
     <string name="common_unavailable">Unavailable</string>
     <string name="common_connect">Connect</string>
     <string name="common_receive_to">Receive %1$s</string>
+    <string name="common_submit">Submit</string>
 
 
     <string name="exit">Exit</string>

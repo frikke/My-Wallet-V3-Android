@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_rating_title">Do you like our app?</string>
+    <string name="app_rating_description">Help us improve our app by rating your experience.</string>
+    <string name="common_submit">Submit</string>
+    <string name="common_cancel">Cancel</string>
+
+</resources>
