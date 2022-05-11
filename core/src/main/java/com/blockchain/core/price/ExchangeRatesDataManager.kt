@@ -31,7 +31,8 @@ typealias HistoricalRateList = List<HistoricalRate>
 data class Prices24HrWithDelta(
     val delta24h: Double,
     val previousRate: ExchangeRate,
-    val currentRate: ExchangeRate
+    val currentRate: ExchangeRate,
+    val marketCap: Double? = null,
 )
 
 interface ExchangeRates {

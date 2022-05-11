@@ -132,7 +132,7 @@ data class CryptoAssetState(
     val prices24HrWithDelta: Prices24HrWithDelta? = null,
     val priceTrend: List<Float> = emptyList(),
     val hasBalanceError: Boolean = false,
-    val hasCustodialBalance: Boolean = false
+    val hasCustodialBalance: Boolean = false,
 ) : DashboardItem {
     val fiatBalance: Money? by unsafeLazy {
         prices24HrWithDelta?.currentRate?.let { p -> accountBalance?.total?.let { p.convert(it) } }

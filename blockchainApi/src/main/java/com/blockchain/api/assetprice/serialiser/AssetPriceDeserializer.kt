@@ -20,6 +20,7 @@ internal class AssetPriceDeserializer : KSerializer<AssetPriceDto> {
         var timestamp = System.currentTimeMillis()
         var price: Double? = null
         var volume24h: Double? = null
+        var marketCap: Double? = null
 
         if (decoder.decodeNotNullMark()) {
             decoder.beginStructure(descriptor).run {
@@ -41,13 +42,20 @@ internal class AssetPriceDeserializer : KSerializer<AssetPriceDto> {
                                 } else {
                                     null
                                 }
+                        ELEMENT_MARKET_CAP ->
+                            marketCap =
+                                if (decoder.decodeNotNullMark()) {
+                                    decodeDoubleElement(descriptor, i)
+                                } else {
+                                    null
+                                }
                         else -> throw SerializationException("Unknown index $i")
                     }
                 }
                 endStructure(descriptor)
             }
         }
-        return AssetPriceDto(timestamp, price, volume24h)
+        return AssetPriceDto(timestamp, price, volume24h, marketCap)
     }
 
     override fun serialize(encoder: Encoder, value: AssetPriceDto) {
@@ -58,11 +66,13 @@ internal class AssetPriceDeserializer : KSerializer<AssetPriceDto> {
         element<Long>("timestamp", isOptional = false)
         element<Double>("price", isOptional = true)
         element<Double>("volume24h", isOptional = true)
+        element<Double>("marketCap", isOptional = true)
     }
 
     companion object {
         private const val ELEMENT_IDX_TIMESTAMP = 0
         private const val ELEMENT_IDX_PRICE = 1
         private const val ELEMENT_IDX_VOLUME = 2
+        private const val ELEMENT_MARKET_CAP = 3
     }
 }

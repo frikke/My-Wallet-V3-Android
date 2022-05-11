@@ -348,7 +348,8 @@ class ExchangeRatesDataManagerImplTest {
                 base = OLD_ASSET.networkTicker,
                 quote = SELECTED_FIAT.networkTicker,
                 price = 100.toDouble(),
-                timestampSeconds = 200000
+                timestampSeconds = 200000,
+                marketCap = 0.0,
             )
         )
         private val PRICE_DATA = listOf(
@@ -356,7 +357,8 @@ class ExchangeRatesDataManagerImplTest {
                 base = OLD_ASSET.networkTicker,
                 quote = SELECTED_FIAT.networkTicker,
                 rate = 100.toBigDecimal(),
-                fetchedAt = 200000
+                fetchedAt = 200000,
+                marketCap = 0.0,
             )
         )
     }
