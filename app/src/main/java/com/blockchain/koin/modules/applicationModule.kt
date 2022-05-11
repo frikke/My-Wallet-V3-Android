@@ -820,7 +820,7 @@ val applicationModule = module {
     }.bind(MobileNoticeRemoteConfig::class)
 
     factory<QrCodeDataService> {
-        QrCodeDataRepository()
+        QrCodeDataRepository
     }
 
     single {
