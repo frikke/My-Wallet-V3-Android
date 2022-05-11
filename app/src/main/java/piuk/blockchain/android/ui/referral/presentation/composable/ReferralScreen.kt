@@ -36,6 +36,9 @@ import com.blockchain.utils.isNotLastIn
 import kotlin.math.max
 import piuk.blockchain.android.R
 
+/**
+ * Figma: https://www.figma.com/file/myZmBbJrKunDZfUPyARL6Y/AND-%7C-Referrals?node-id=3%3A14841
+ */
 @Composable
 fun ReferralScreen(
     rewardTitle: String,
