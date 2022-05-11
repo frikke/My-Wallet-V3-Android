@@ -8,7 +8,9 @@ import java.nio.charset.StandardCharsets
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.android.scan.domain.QrCodeDataService
 
-class QrCodeDataRepository : QrCodeDataService {
+object QrCodeDataRepository : QrCodeDataService {
+
+    private const val PAIRING_CODE_PBKDF2_ITERATIONS = 10
 
     override fun generatePairingCode(
         guid: String,
@@ -32,9 +34,5 @@ class QrCodeDataRepository : QrCodeDataService {
             val encrypted = AESUtil.encrypt("$sharedKey|$pwHex", encryptionPhrase, PAIRING_CODE_PBKDF2_ITERATIONS)
             "1|$guid|$encrypted"
         }
-    }
-
-    companion object {
-        private const val PAIRING_CODE_PBKDF2_ITERATIONS = 10
     }
 }

@@ -131,7 +131,7 @@ class CoinViewInteractorTest {
     fun setUp() {
         subject = CoinViewInteractor(
             coincore = coincore,
-            tradeDataManager = tradeDataService,
+            tradeDataService = tradeDataService,
             currencyPrefs = currencyPrefs,
             dashboardPrefs = dashboardPrefs,
             identity = identity,

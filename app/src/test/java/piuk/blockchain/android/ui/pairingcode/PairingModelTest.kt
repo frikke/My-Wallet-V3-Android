@@ -65,7 +65,7 @@ class PairingModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
-            qrCodeDataManager = qrCodeDataService,
+            qrCodeDataService = qrCodeDataService,
             payloadDataManager = payloadDataManager,
             authDataManager = authDataManager,
             analytics = mock()

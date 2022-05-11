@@ -90,7 +90,7 @@ class MainInteractorTest {
             database = database,
             credentialsWiper = credentialsWiper,
             qrScanResultProcessor = qrScanResultProcessor,
-            secureChannelManager = secureChannelService,
+            secureChannelService = secureChannelService,
             cancelOrderUseCase = cancelOrderUseCase,
             paymentsDataManager = paymentsDataManager,
             entitySwitchSilverEligibilityFeatureFlag = entitySwitchSilverEligibilityFeatureFlag,
