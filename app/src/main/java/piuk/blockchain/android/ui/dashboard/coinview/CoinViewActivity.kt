@@ -200,6 +200,9 @@ class CoinViewActivity :
             assetChart.apply {
                 isChartLive = false
                 onEntryHighlighted = { entry ->
+                    updateScrubPriceInformation(entry)
+                }
+                onActionPressDown = {
                     analytics.logEvent(
                         CoinViewAnalytics.ChartEngaged(
                             origin = LaunchOrigin.COIN_VIEW,
@@ -207,7 +210,6 @@ class CoinViewActivity :
                             timeInterval = stringPositionToTimeInterval(binding.chartControls.selectedItemIndex)
                         )
                     )
-                    updateScrubPriceInformation(entry)
                 }
                 onScrubRelease = {
                     analytics.logEvent(

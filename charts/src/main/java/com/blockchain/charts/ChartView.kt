@@ -57,6 +57,7 @@ class ChartView : FrameLayout {
         }
 
     var onEntryHighlighted: ((Entry) -> Unit)? = null
+    var onActionPressDown: (() -> Unit)? = null
     var onScrubRelease: (() -> Unit)? = null
     var fiatSymbol: String = ""
 
@@ -80,6 +81,7 @@ class ChartView : FrameLayout {
 
             if (event?.action == ACTION_DOWN) {
                 scrollHandler?.removeCallbacks(mLongPressed)
+                onActionPressDown?.invoke()
                 scrollHandler = Handler(Looper.getMainLooper()).apply {
                     postDelayed(mLongPressed, LONG_PRESS_DURATION)
                 }
