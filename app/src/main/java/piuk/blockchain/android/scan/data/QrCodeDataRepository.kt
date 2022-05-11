@@ -4,9 +4,9 @@ import info.blockchain.wallet.crypto.AESUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.nio.charset.StandardCharsets
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.android.scan.domain.QrCodeDataService
-import java.nio.charset.StandardCharsets
 
 class QrCodeDataRepository : QrCodeDataService {
 

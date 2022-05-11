@@ -10,6 +10,8 @@ import info.blockchain.wallet.payload.PayloadManager
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,13 +19,11 @@ import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelBrowserM
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelMessageDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingCodeDto
 import piuk.blockchain.android.ui.auth.newlogin.data.model.SecureChannelPairingResponseDto
-import piuk.blockchain.android.ui.auth.newlogin.data.model.mapDomain
+import piuk.blockchain.android.ui.auth.newlogin.data.model.toDomain
 import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.androidcore.utils.pubKeyHash
 import timber.log.Timber
-import java.nio.charset.Charset
-import java.util.concurrent.TimeUnit
 
 class SecureChannelRepository(
     private val secureChannelPrefs: SecureChannelPrefs,
@@ -86,7 +86,7 @@ class SecureChannelRepository(
             return null
         }
 
-        return message.mapDomain()
+        return message.toDomain()
     }
 
     private fun sendMessage(
@@ -124,10 +124,3 @@ class SecureChannelRepository(
         private const val TIME_OUT_IN_MINUTES: Long = 10
     }
 }
-
-
-
-
-
-
-

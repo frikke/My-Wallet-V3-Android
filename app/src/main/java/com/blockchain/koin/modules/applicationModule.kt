@@ -57,6 +57,7 @@ import com.squareup.sqldelight.db.SqlDriver
 import info.blockchain.serializers.AssetInfoKSerializer
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -170,7 +171,6 @@ import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 import thepit.PitLinking
-import java.io.File
 
 val applicationModule = module {
 

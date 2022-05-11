@@ -31,7 +31,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
-import piuk.blockchain.android.ui.auth.newlogin.domain.model.mapArg
+import piuk.blockchain.android.ui.auth.newlogin.domain.model.toArg
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
@@ -219,7 +219,7 @@ class FcmCallbackService : FirebaseMessagingService() {
                 context = applicationContext,
                 launchAuthFlow = true,
                 pubKeyHash = pubKeyHash,
-                message = message.mapArg(),
+                message = message.toArg(),
                 originIp = payload[NotificationPayload.ORIGIN_IP],
                 originLocation = payload[NotificationPayload.ORIGIN_COUNTRY],
                 originBrowser = payload[NotificationPayload.ORIGIN_BROWSER],

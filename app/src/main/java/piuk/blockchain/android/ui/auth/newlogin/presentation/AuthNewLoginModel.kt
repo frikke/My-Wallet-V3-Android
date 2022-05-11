@@ -30,7 +30,7 @@ class AuthNewLoginModel(
             is AuthNewLoginIntents.InitAuthInfo ->
                 parseMessage(
                     pubKeyHash = intent.pubKeyHash,
-                    message = intent.message.mapDomain(),
+                    message = intent.message.toDomain(),
                     originIp = intent.originIp
                 )
             is AuthNewLoginIntents.ProcessBrowserMessage ->

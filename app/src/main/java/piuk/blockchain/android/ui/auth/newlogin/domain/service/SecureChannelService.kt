@@ -8,4 +8,3 @@ interface SecureChannelService {
     fun sendLoginMessage(channelId: String, pubKeyHash: String)
     fun decryptMessage(pubKeyHash: String, messageEncrypted: String): SecureChannelBrowserMessage?
 }
-

@@ -8,7 +8,7 @@ data class SecureChannelBrowserMessage(
     val timestamp: Long
 )
 
-fun SecureChannelBrowserMessage.mapArg() : SecureChannelBrowserMessageArg = this.run {
+fun SecureChannelBrowserMessage.toArg(): SecureChannelBrowserMessageArg = this.run {
     SecureChannelBrowserMessageArg(
         type = type,
         channelId = channelId,
