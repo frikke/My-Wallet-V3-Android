@@ -34,7 +34,10 @@ class PaymentMethodsEligibilityStore(
                     )
                 }
         },
-        errorMapper = { PaymentMethodsError.RequestFailed((it as? NabuApiException)?.getErrorDescription()) }
+        errorMapper = {
+            val error = (it as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() } ?: it.message
+            PaymentMethodsError.RequestFailed(error)
+        }
     ),
     keySerializer = Key.serializer(),
     dataSerializer = ListSerializer(PaymentMethodResponse.serializer()),

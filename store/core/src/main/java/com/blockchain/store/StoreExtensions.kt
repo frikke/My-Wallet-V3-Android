@@ -15,7 +15,11 @@ suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
     mapNotNull {
         when (it) {
             StoreResponse.Loading -> null
-            is StoreResponse.Data -> Outcome.Success(it.data)
+            is StoreResponse.Data -> if (it.isStale) {
+                null
+            } else {
+                Outcome.Success(it.data)
+            }
             is StoreResponse.Error -> Outcome.Failure(it.error)
         }
     }.first()
@@ -23,15 +27,7 @@ suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
 fun <E, T : Any> Flow<StoreResponse<E, T>>.asSingle(
     errorMapper: (E) -> Throwable
 ): Single<T> = rxSingle {
-    val result = this@asSingle.mapNotNull {
-        when (it) {
-            StoreResponse.Loading -> null
-            is StoreResponse.Data -> Outcome.Success(it.data)
-            is StoreResponse.Error -> Outcome.Failure(it.error)
-        }
-    }.first()
-
-    when (result) {
+    when (val result = this@asSingle.firstOutcome()) {
         is Outcome.Success -> result.value
         is Outcome.Failure -> throw errorMapper(result.failure)
     }

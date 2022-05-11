@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StoreTest {
@@ -110,13 +111,17 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
+            val firstItem = awaitItem()
+            assertEquals(StoreResponse.Data(cachedItem), firstItem)
+            assertTrue(firstItem is StoreResponse.Data && firstItem.isStale)
             assertEquals(StoreResponse.Loading, awaitItem())
             // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
             expectNoEvents()
 
             cacheReadState.emit(CachedData(KEY, resultData, 2))
-            assertEquals(StoreResponse.Data(resultData), awaitItem())
+            val secondItem = awaitItem()
+            assertEquals(StoreResponse.Data(resultData), secondItem)
+            assertTrue(secondItem is StoreResponse.Data && !secondItem.isStale)
             expectNoEvents()
         }
 
@@ -135,13 +140,17 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
-            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
+            val firstItem = awaitItem()
+            assertEquals(StoreResponse.Data(cachedItem), firstItem)
+            assertTrue(firstItem is StoreResponse.Data && firstItem.isStale)
             assertEquals(StoreResponse.Loading, awaitItem())
             assertEquals(StoreResponse.Error(error), awaitItem())
 
             val futureItem = Item(2)
             cacheReadState.emit(CachedData(KEY, futureItem, 2))
-            assertEquals(StoreResponse.Data(futureItem), awaitItem())
+            val secondItem = awaitItem()
+            assertEquals(StoreResponse.Data(futureItem), secondItem)
+            assertTrue(secondItem is StoreResponse.Data && !secondItem.isStale)
             expectNoEvents()
         }
 
