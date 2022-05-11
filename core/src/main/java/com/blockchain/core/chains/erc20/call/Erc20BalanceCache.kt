@@ -1,9 +1,9 @@
 package com.blockchain.core.chains.erc20.call
 
-import com.blockchain.api.ethereum.layertwo.L2BalanceResponse
+import com.blockchain.api.ethereum.evm.EvmBalanceResponse
 import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.api.services.NonCustodialErc20Service
-import com.blockchain.api.services.NonCustodialEthL2Service
+import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.core.common.caching.TimedCacheRequest
@@ -21,7 +21,7 @@ internal typealias Erc20BalanceMap = Map<AssetInfo, Erc20Balance>
 
 internal class Erc20BalanceCallCache(
     private val erc20Service: NonCustodialErc20Service,
-    private val erc20L2Service: NonCustodialEthL2Service,
+    private val evmService: NonCustodialEvmService,
     private val assetCatalogue: AssetCatalogue
 ) {
     private val cacheRequest: TimedCacheRequest<Erc20BalanceMap> by lazy {
@@ -56,7 +56,7 @@ internal class Erc20BalanceCallCache(
 
     private fun refreshL2Cache(network: String): Single<Erc20BalanceMap> {
         return rxSingle {
-            erc20L2Service.getBalances(account.get(), network)
+            evmService.getBalances(account.get(), network)
                 .fold(
                     onFailure = { throw it.throwable },
                     onSuccess = { addressList ->
@@ -68,7 +68,7 @@ internal class Erc20BalanceCallCache(
                         }?.balances?.mapNotNull { balance ->
                             // For the native token of the L2 network the backend returns "native" in the contract
                             // address field. Use the currency name (ticker) for lookup.
-                            val asset = if (balance.contractAddress == L2BalanceResponse.NATIVE_IDENTIFIER) {
+                            val asset = if (balance.contractAddress == EvmBalanceResponse.NATIVE_IDENTIFIER) {
                                 assetCatalogue.assetInfoFromNetworkTicker(balance.name)
                             } else {
                                 assetCatalogue.assetFromL1ChainByContractAddress(

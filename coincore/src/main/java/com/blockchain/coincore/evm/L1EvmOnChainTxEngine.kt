@@ -1,4 +1,4 @@
-package com.blockchain.coincore.erc20
+package com.blockchain.coincore.evm
 
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
@@ -31,8 +31,9 @@ import org.web3j.crypto.RawTransaction
 import org.web3j.utils.Convert
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
+import timber.log.Timber
 
-class Erc20OnChainTxEngine(
+class L1EvmOnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
     private val feeManager: FeeDataManager,
     walletPreferences: WalletStatus,
@@ -45,21 +46,21 @@ class Erc20OnChainTxEngine(
 ) {
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        l1Asset.map { l1Asset ->
+        Single.just(
             PendingTx(
                 amount = Money.zero(sourceAsset),
                 totalBalance = Money.zero(sourceAsset),
                 availableBalance = Money.zero(sourceAsset),
-                feeForFullAvailable = Money.zero(l1Asset),
-                feeAmount = Money.zero(l1Asset),
+                feeForFullAvailable = Money.zero(sourceAssetInfo),
+                feeAmount = Money.zero(sourceAssetInfo),
                 feeSelection = FeeSelection(
-                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAsset as AssetInfo)),
+                    selectedLevel = mapSavedFeeToFeeLevel(fetchDefaultFeeLevel(sourceAssetInfo)),
                     availableLevels = AVAILABLE_FEE_LEVELS,
-                    asset = l1Asset
+                    asset = sourceAssetInfo
                 ),
                 selectedFiat = userFiat
             )
-        }
+        )
 
     private fun buildConfirmationTotal(pendingTx: PendingTx): TxConfirmationValue.Total {
         val fiatAmount = pendingTx.amount.toUserFiat(exchangeRates) as FiatValue
@@ -95,23 +96,19 @@ class Erc20OnChainTxEngine(
         )
 
     private fun absoluteFees(): Single<Map<FeeLevel, CryptoValue>> =
-        Singles.zip(
-            feeOptions(),
-            l1Asset
-        )
-            .map { (feeOptions, asset) ->
-                val gasLimitContract = feeOptions.gasLimitContract
-                mapOf(
-                    FeeLevel.None to CryptoValue.zero(asset),
-                    FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, feeOptions.regularFee, asset),
-                    FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, asset),
-                    FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee, asset)
-                )
-            }
+        feeOptions().map { feeOptions ->
+            val gasLimitContract = feeOptions.gasLimitContract
+            mapOf(
+                FeeLevel.None to CryptoValue.zero(sourceAssetInfo),
+                FeeLevel.Regular to getValueForFeeLevel(gasLimitContract, feeOptions.regularFee),
+                FeeLevel.Priority to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee),
+                FeeLevel.Custom to getValueForFeeLevel(gasLimitContract, feeOptions.priorityFee)
+            )
+        }
 
-    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long, assetInfo: AssetInfo) =
+    private fun getValueForFeeLevel(gasLimitContract: Long, feeLevel: Long) =
         CryptoValue.fromMinor(
-            assetInfo,
+            sourceAssetInfo,
             Convert.toWei(
                 BigDecimal.valueOf(gasLimitContract * feeLevel),
                 Convert.Unit.GWEI
@@ -129,8 +126,12 @@ class Erc20OnChainTxEngine(
     private val sourceAssetInfo: AssetInfo
         get() = sourceAsset as AssetInfo
 
+    private val evmNetworkTicker: String
+        get() = (sourceAccount as? L1EvmNonCustodialAccount)?.l1Network?.networkTicker
+            ?: sourceAssetInfo.networkTicker
+
     private fun feeOptions(): Single<FeeOptions> =
-        feeManager.getErc20FeeOptions(sourceAssetInfo.l1chainTicker, sourceAssetInfo.l2identifier)
+        feeManager.getEvmFeeOptions(evmNetworkTicker)
             .singleOrError()
 
     override fun doUpdateAmount(amount: Money, pendingTx: PendingTx): Single<PendingTx> {
@@ -138,10 +139,9 @@ class Erc20OnChainTxEngine(
         require(amount.currency == sourceAsset)
         return Single.zip(
             sourceAccount.balance.firstOrError(),
-            absoluteFees(),
-            l1Asset
-        ) { balance, feesForLevels, asset ->
-            val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(asset)
+            absoluteFees()
+        ) { balance, feesForLevels ->
+            val fee = feesForLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)
 
             pendingTx.copy(
                 amount = amount,
@@ -178,10 +178,10 @@ class Erc20OnChainTxEngine(
 
         return erc20DataManager.isContractAddress(
             address = tgt.address,
-            l1Chain = tgt.asset.l1chainTicker
+            l1Chain = evmNetworkTicker
         )
             .map { isContract ->
-                if (isContract || tgt !is Erc20Address) {
+                if (isContract || tgt !is MaticAddress) {
                     throw TxValidationFailure(ValidationState.INVALID_ADDRESS)
                 } else {
                     isContract
@@ -210,11 +210,10 @@ class Erc20OnChainTxEngine(
 
     private fun validateSufficientGas(pendingTx: PendingTx): Completable =
         Single.zip(
-            erc20DataManager.getL1TokenBalance(sourceAssetInfo),
-            absoluteFees(),
-            l1Asset
-        ) { balance, feeLevels, asset ->
-            val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(asset)
+            sourceAccount.balance.map { it.total }.firstOrError(),
+            absoluteFees()
+        ) { balance, feeLevels ->
+            val fee = feeLevels[pendingTx.feeSelection.selectedLevel] ?: CryptoValue.zero(sourceAssetInfo)
 
             if (fee > balance) {
                 throw TxValidationFailure(ValidationState.INSUFFICIENT_GAS)
@@ -246,14 +245,11 @@ class Erc20OnChainTxEngine(
                 erc20DataManager.signErc20Transaction(
                     it,
                     secondPassword,
-                    sourceAssetInfo.l1chainTicker ?: throw TransactionError.ExecutionFailed
+                    evmNetworkTicker
                 )
             }
             .flatMap {
-                erc20DataManager.pushErc20Transaction(
-                    it,
-                    sourceAssetInfo.l1chainTicker ?: throw TransactionError.ExecutionFailed
-                )
+                erc20DataManager.pushErc20Transaction(it, evmNetworkTicker)
             }
             .flatMap { hash ->
                 pendingTx.getOption<TxConfirmationValue.Description>(
@@ -264,6 +260,7 @@ class Erc20OnChainTxEngine(
                     hash
                 } ?: Single.just(hash)
             }.onErrorResumeNext {
+                Timber.e(it)
                 Single.error(TransactionError.ExecutionFailed)
             }.map {
                 TxResult.HashedTxResult(it, pendingTx.amount)
@@ -277,7 +274,7 @@ class Erc20OnChainTxEngine(
             resolvedHotWalletAddress
         )
             .flatMap { (fees, hotWalletAddress) ->
-                erc20DataManager.createErc20Transaction(
+                erc20DataManager.createEvmTransaction(
                     asset = sourceAssetInfo,
                     to = tgt.address,
                     amount = pendingTx.amount.toBigInteger(),
@@ -285,13 +282,10 @@ class Erc20OnChainTxEngine(
                         pendingTx.feeSelection.selectedLevel
                     ),
                     gasLimitGwei = fees.gasLimitGwei,
-                    hotWalletAddress = hotWalletAddress
+                    hotWalletAddress = hotWalletAddress,
+                    evmNetwork = evmNetworkTicker
                 )
             }
-    }
-
-    private val l1Asset: Single<AssetInfo> by lazy {
-        erc20DataManager.getL1AssetFor(sourceAsset as AssetInfo)
     }
 
     private fun FeeOptions.gasPrice(feeLevel: FeeLevel): BigInteger =

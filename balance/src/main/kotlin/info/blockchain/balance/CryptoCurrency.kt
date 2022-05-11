@@ -138,4 +138,17 @@ open class CryptoCurrency(
         logo = "file:///android_asset/logo/stellar/logo.png",
         txExplorerUrlBase = "https://stellarchain.io/tx/"
     )
+
+    object MATIC : CryptoCurrency(
+        displayTicker = "MATIC",
+        networkTicker = "MATIC.MATIC",
+        name = "Matic",
+        categories = setOf(AssetCategory.NON_CUSTODIAL),
+        precisionDp = 18,
+        requiredConfirmations = 12,
+        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
+        colour = "#8247E5",
+        logo = "file:///android_asset/logo/matic/logo.png",
+        txExplorerUrlBase = "https://www.blockchain.com/matic/tx/"
+    )
 }

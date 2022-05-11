@@ -83,49 +83,21 @@ internal class EthAsset(
         Single.just(ethDataManager.getEthWallet() ?: throw Exception("No ether wallet found"))
             .flatMap { ethereumWallet ->
                 ethereumWallet.account?.let { ethereumAccount ->
-                    layerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-                        if (isEnabled) {
-                            ethDataManager.supportedNetworks.map { supportedNetworks ->
-                                supportedNetworks.firstOrNull { ethL2Chain ->
-                                    ethL2Chain.networkTicker == assetInfo.l1chainTicker ?: assetInfo.networkTicker
-                                }?.let { ethL2Chain ->
-                                    EthCryptoWalletAccount(
-                                        payloadManager = payloadManager,
-                                        ethDataManager = ethDataManager,
-                                        fees = feeDataManager,
-                                        jsonAccount = ethereumAccount,
-                                        walletPreferences = walletPrefs,
-                                        exchangeRates = exchangeRates,
-                                        custodialWalletManager = custodialManager,
-                                        identity = identity,
-                                        assetCatalogue = assetCatalogue.value,
-                                        addressResolver = addressResolver,
-                                        chainNetworkTicker = ethL2Chain.networkTicker,
-                                        chainId = ethL2Chain.chainId,
-                                        networkName = ethL2Chain.networkName
-                                    )
-                                } ?: throw Exception("No ethereum account found")
-                            }
-                        } else {
-                            Single.just(
-                                EthCryptoWalletAccount(
-                                    payloadManager = payloadManager,
-                                    ethDataManager = ethDataManager,
-                                    fees = feeDataManager,
-                                    jsonAccount = ethereumAccount,
-                                    walletPreferences = walletPrefs,
-                                    exchangeRates = exchangeRates,
-                                    custodialWalletManager = custodialManager,
-                                    identity = identity,
-                                    assetCatalogue = assetCatalogue.value,
-                                    addressResolver = addressResolver,
-                                    chainNetworkTicker = EthDataManager.ethChain.networkTicker,
-                                    chainId = EthDataManager.ethChain.chainId,
-                                    networkName = EthDataManager.ethChain.networkName
-                                )
-                            )
-                        }
-                    }
+                    Single.just(
+                        EthCryptoWalletAccount(
+                            payloadManager = payloadManager,
+                            ethDataManager = ethDataManager,
+                            fees = feeDataManager,
+                            jsonAccount = ethereumAccount,
+                            walletPreferences = walletPrefs,
+                            exchangeRates = exchangeRates,
+                            custodialWalletManager = custodialManager,
+                            identity = identity,
+                            assetCatalogue = assetCatalogue.value,
+                            addressResolver = addressResolver,
+                            l1Network = EthDataManager.ethChain
+                        )
+                    )
                 } ?: throw Exception("No ethereum account found")
             }.doOnSuccess { ethAccount ->
                 updateBackendNotificationAddresses(ethAccount)

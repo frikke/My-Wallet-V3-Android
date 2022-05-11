@@ -1,8 +1,9 @@
 package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.core.chains.EthL2Chain
-import com.blockchain.core.chains.EthLayerTwoService
+import com.blockchain.api.services.NonCustodialEvmService
+import com.blockchain.core.chains.EvmNetwork
+import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
@@ -43,7 +44,8 @@ class EthDataManager(
     private val ethDataStore: EthDataStore,
     private val metadataManager: MetadataManager,
     private val lastTxUpdater: LastTxUpdater,
-    private val ethLayerTwoService: EthLayerTwoService
+    private val evmNetworksService: EvmNetworksService,
+    private val nonCustodialEvmService: NonCustodialEvmService
 ) : EthMessageSigner {
 
     private val internalAccountAddress: String?
@@ -52,8 +54,8 @@ class EthDataManager(
     val accountAddress: String
         get() = internalAccountAddress ?: throw Exception("No ETH address found")
 
-    val supportedNetworks: Single<List<EthL2Chain>>
-        get() = ethLayerTwoService.getSupportedNetworks().map {
+    val supportedNetworks: Single<List<EvmNetwork>>
+        get() = evmNetworksService.getSupportedNetworks().map {
             listOf(listOf(ethChain), it).flatten()
         }
             .onErrorReturn { listOf(ethChain) }
@@ -280,13 +282,17 @@ class EthDataManager(
             )
     }
 
-    fun signEthTransaction(rawTransaction: RawTransaction, secondPassword: String = ""): Single<ByteArray> =
+    fun signEthTransaction(
+        rawTransaction: RawTransaction,
+        secondPassword: String = "",
+        chainId: Int = ETH_CHAIN_ID
+    ): Single<ByteArray> =
         Single.fromCallable {
             if (payloadDataManager.isDoubleEncrypted) {
                 payloadDataManager.decryptHDWallet(secondPassword)
             }
             val account = ethDataStore.ethWallet?.account ?: throw IllegalStateException("No Eth wallet defined")
-            account.signTransaction(rawTransaction, payloadDataManager.masterKey)
+            account.signTransaction(rawTransaction, payloadDataManager.masterKey, chainId)
         }
 
     override fun signEthMessage(message: String, secondPassword: String): Single<ByteArray> =
@@ -324,6 +330,20 @@ class EthDataManager(
                     .onErrorComplete()
                     .andThen(Single.just(it))
             }
+            .applySchedulers()
+
+    fun pushEvmTx(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
+        rxSingle {
+            nonCustodialEvmService.pushTransaction(EthUtils.decorateAndEncode(signedTxBytes), l1Chain)
+                .fold(
+                    onFailure = { throw it.throwable },
+                    onSuccess = { response -> response.txId }
+                )
+        }.flatMap {
+            lastTxUpdater.updateLastTxTime()
+                .onErrorComplete()
+                .andThen(Single.just(it))
+        }
             .applySchedulers()
 
     private fun fetchOrCreateEthereumWallet(
@@ -384,7 +404,7 @@ class EthDataManager(
         // To account for the extra data we want to send
         private val extraGasLimitForMemo: BigInteger = 600.toBigInteger()
         const val ETH_CHAIN_ID: Int = 1
-        val ethChain: EthL2Chain = EthL2Chain(
+        val ethChain: EvmNetwork = EvmNetwork(
             CryptoCurrency.ETHER.networkTicker,
             CryptoCurrency.ETHER.name,
             ETH_CHAIN_ID,

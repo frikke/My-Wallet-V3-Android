@@ -7,7 +7,7 @@ import com.blockchain.core.Database
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.chains.EthLayerTwoService
+import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
 import com.blockchain.core.chains.erc20.Erc20DataManager
@@ -200,7 +200,7 @@ val coreModule = module {
         }.bind(InterestBalanceDataManager::class)
 
         factory {
-            EthLayerTwoService(
+            EvmNetworksService(
                 remoteConfig = get()
             )
         }
@@ -212,14 +212,15 @@ val coreModule = module {
                 ethDataStore = get(),
                 metadataManager = get(),
                 lastTxUpdater = get(),
-                ethLayerTwoService = get()
+                evmNetworksService = get(),
+                nonCustodialEvmService = get()
             )
         }.bind(EthMessageSigner::class)
 
         factory {
             Erc20BalanceCallCache(
                 erc20Service = get(),
-                erc20L2Service = get(),
+                evmService = get(),
                 assetCatalogue = get()
             )
         }
@@ -228,7 +229,7 @@ val coreModule = module {
             Erc20HistoryCallCache(
                 ethDataManager = get(),
                 erc20Service = get(),
-                erc20L2Service = get(),
+                evmService = get(),
                 assetCatalogue = get()
             )
         }
@@ -238,6 +239,7 @@ val coreModule = module {
                 ethDataManager = get(),
                 balanceCallCache = get(),
                 historyCallCache = get(),
+                assetCatalogue = get(),
                 ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag),
                 ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )

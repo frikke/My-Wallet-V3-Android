@@ -1,7 +1,7 @@
 package com.blockchain.coincore.eth
 
+import com.blockchain.core.chains.EvmNetwork
+
 interface MultiChainAccount {
-    val chainNetworkTicker: String
-    val chainId: Int
-    val networkName: String
+    val l1Network: EvmNetwork
 }

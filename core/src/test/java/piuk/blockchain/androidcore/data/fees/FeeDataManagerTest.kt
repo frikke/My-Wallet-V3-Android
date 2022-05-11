@@ -93,9 +93,9 @@ class FeeDataManagerTest {
 
     @Test
     fun `Use default ERC20 fee on API Error`() {
-        whenever(feeApi.getErc20FeeOptions(""))
+        whenever(feeApi.getEvmFeeOptions("eth", ""))
             .thenReturn(Observable.error(Throwable()))
-        subject.getErc20FeeOptions("")
+        subject.getErc20FeeOptions("eth", "")
             .test()
             .values()
             .first()

@@ -1,15 +1,15 @@
 package com.blockchain.api.services
 
-import com.blockchain.api.ethereum.layertwo.BalancesRequest
-import com.blockchain.api.ethereum.layertwo.EthL2Api
-import com.blockchain.api.ethereum.layertwo.PushTransactionRequest
-import com.blockchain.api.ethereum.layertwo.TransactionHistoryRequest
+import com.blockchain.api.ethereum.evm.BalancesRequest
+import com.blockchain.api.ethereum.evm.EvmApi
+import com.blockchain.api.ethereum.evm.PushTransactionRequest
+import com.blockchain.api.ethereum.evm.TransactionHistoryRequest
 
-class NonCustodialEthL2Service(
-    private val l2Api: EthL2Api,
+class NonCustodialEvmService(
+    private val evmApi: EvmApi,
     private val apiCode: String
 ) {
-    suspend fun getBalances(address: String, network: String) = l2Api.getBalances(
+    suspend fun getBalances(address: String, network: String) = evmApi.getBalances(
         request = BalancesRequest(
             addresses = listOf(address),
             apiCode = apiCode,
@@ -17,8 +17,8 @@ class NonCustodialEthL2Service(
         )
     )
 
-    suspend fun getTransactionHistory(address: String, contractAddress: String, parentChain: String) =
-        l2Api.getTransactionHistory(
+    suspend fun getTransactionHistory(address: String, contractAddress: String?, parentChain: String) =
+        evmApi.getTransactionHistory(
             request = TransactionHistoryRequest(
                 addresses = listOf(address),
                 apiCode = apiCode,
@@ -27,7 +27,7 @@ class NonCustodialEthL2Service(
             )
         )
 
-    suspend fun pushTransaction(rawTransaction: String, network: String) = l2Api.pushTransaction(
+    suspend fun pushTransaction(rawTransaction: String, network: String) = evmApi.pushTransaction(
         request = PushTransactionRequest(
             rawTransaction = rawTransaction,
             networkName = network,

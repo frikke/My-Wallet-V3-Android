@@ -1,10 +1,10 @@
 package com.blockchain.core.chains.erc20.call
 
-import com.blockchain.api.ethereum.layertwo.L2TransactionResponse
-import com.blockchain.api.ethereum.layertwo.TransactionDirection
+import com.blockchain.api.ethereum.evm.EvmTransactionResponse
+import com.blockchain.api.ethereum.evm.TransactionDirection
 import com.blockchain.api.services.Erc20Transfer
 import com.blockchain.api.services.NonCustodialErc20Service
-import com.blockchain.api.services.NonCustodialEthL2Service
+import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
 import com.blockchain.outcome.fold
@@ -23,33 +23,29 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 internal class Erc20HistoryCallCache(
     private val ethDataManager: EthDataManager,
     private val erc20Service: NonCustodialErc20Service,
-    private val erc20L2Service: NonCustodialEthL2Service,
+    private val evmService: NonCustodialEvmService,
     private val assetCatalogue: AssetCatalogue
 ) {
-    fun fetch(accountHash: String, asset: AssetInfo): Single<Erc20HistoryList> {
-        val contractAddress = asset.l2identifier
-        checkNotNull(contractAddress)
+    fun fetch(accountHash: String, asset: AssetInfo, parentChain: String): Single<Erc20HistoryList> {
 
-        return asset.l1chainTicker?.let { parentChain ->
-            if (parentChain == CryptoCurrency.ETHER.networkTicker) {
-                fetchErc20FromEthNetwork(accountHash, asset)
-            } else {
-                rxSingle {
-                    erc20L2Service.getTransactionHistory(accountHash, contractAddress, parentChain)
-                        .fold(
-                            onFailure = { throw it.throwable },
-                            onSuccess = { response ->
-                                response.history.map { l2TransactionResponse ->
-                                    l2TransactionResponse.toHistoryEvent(
-                                        asset,
-                                        getFeeForL2(l2TransactionResponse, parentChain)
-                                    )
-                                }
+        return if (parentChain == CryptoCurrency.ETHER.networkTicker) {
+            fetchErc20FromEthNetwork(accountHash, asset)
+        } else {
+            rxSingle {
+                evmService.getTransactionHistory(accountHash, asset.l2identifier, parentChain)
+                    .fold(
+                        onFailure = { throw it.throwable },
+                        onSuccess = { response ->
+                            response.history.map { l2TransactionResponse ->
+                                l2TransactionResponse.toHistoryEvent(
+                                    asset,
+                                    getFeeFromEvmNetwork(l2TransactionResponse, parentChain)
+                                )
                             }
-                        )
-                }
+                        }
+                    )
             }
-        } ?: fetchErc20FromEthNetwork(accountHash, asset)
+        }
     }
 
     private fun fetchErc20FromEthNetwork(accountHash: String, asset: AssetInfo): Single<Erc20HistoryList> {
@@ -73,11 +69,14 @@ internal class Erc20HistoryCallCache(
                 Money.fromMinor(CryptoCurrency.ETHER, fee)
             }.firstOrError()
 
-    private fun getFeeForL2(l2TransactionResponse: L2TransactionResponse, parentChain: String): Single<Money> =
+    private fun getFeeFromEvmNetwork(
+        evmTransactionResponse: EvmTransactionResponse,
+        parentChain: String
+    ): Single<Money> =
         ethDataManager.supportedNetworks.map { supportedNetworks ->
-            supportedNetworks.firstOrNull { it.networkTicker == parentChain }?.let { ethL2Chain ->
-                assetCatalogue.fromNetworkTicker(ethL2Chain.networkTicker)?.let { asset ->
-                    val fee = l2TransactionResponse.extraData.gasUsed * l2TransactionResponse.extraData.gasPrice
+            supportedNetworks.firstOrNull { it.networkTicker == parentChain }?.let { evmNetwork ->
+                assetCatalogue.fromNetworkTicker(evmNetwork.networkTicker)?.let { asset ->
+                    val fee = evmTransactionResponse.extraData.gasUsed * evmTransactionResponse.extraData.gasPrice
                     Money.fromMinor(asset, fee)
                 } ?: throw IllegalAccessException("Unsupported L2 Network")
             } ?: throw IllegalAccessException("Unsupported L2 Network")
@@ -102,7 +101,7 @@ private fun Erc20Transfer.toHistoryEvent(
         fee = feeFetcher
     )
 
-private fun L2TransactionResponse.toHistoryEvent(
+private fun EvmTransactionResponse.toHistoryEvent(
     asset: AssetInfo,
     feeFetcher: Single<Money>
 ): Erc20HistoryEvent {

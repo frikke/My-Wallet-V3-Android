@@ -240,11 +240,12 @@ public class EthereumWalletTest extends MockedResponseTest {
 
         subject = new EthereumWallet(wallet.getMasterKey(), defaultLabel);
         RawTransaction tx = createEtherTransaction();
+        int ethChainId = 1;
 
         //Act
         EthereumAccount account = subject.getAccount();
         byte[] signTransaction = account.signTransaction(
-            tx, wallet.getMasterKey()
+            tx, wallet.getMasterKey(), ethChainId
         );
 
         //Assert

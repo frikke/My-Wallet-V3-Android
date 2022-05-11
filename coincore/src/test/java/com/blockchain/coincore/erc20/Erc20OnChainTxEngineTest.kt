@@ -14,6 +14,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -27,6 +28,7 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.api.data.FeeLimits
 import info.blockchain.wallet.api.data.FeeOptions
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import kotlin.test.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -35,12 +37,14 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 @Suppress("UnnecessaryVariable")
 class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
-    private val erc20DataManager: Erc20DataManager = mock()
+    private val erc20DataManager: Erc20DataManager = mock {
+        on { getL1AssetFor(any()) }.thenReturn(Single.just(FEE_ASSET))
+    }
 
     private val ethFeeOptions: FeeOptions = mock()
 
     private val feeManager: FeeDataManager = mock {
-        on { getErc20FeeOptions(CONTRACT_ADDRESS) }.thenReturn(Observable.just(ethFeeOptions))
+        on { getErc20FeeOptions("ETH", CONTRACT_ADDRESS) }.thenReturn(Observable.just(ethFeeOptions))
     }
     private val walletPreferences: WalletStatus = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
@@ -169,6 +173,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
         verify(walletPreferences).getFeeTypeForAsset(ASSET)
         verify(currencyPrefs).selectedFiatCurrency
+        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -228,10 +233,11 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
-        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
         verify(ethFeeOptions, times(2)).priorityFee
+        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -289,10 +295,11 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
-        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions).regularFee
         verify(ethFeeOptions, times(2)).priorityFee
+        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -369,11 +376,12 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
 
         verify(sourceAccount, atLeastOnce()).currency
         verify(sourceAccount).balance
-        verify(feeManager).getErc20FeeOptions(CONTRACT_ADDRESS)
+        verify(feeManager).getErc20FeeOptions(FEE_ASSET.networkTicker, CONTRACT_ADDRESS)
         verify(ethFeeOptions).gasLimitContract
         verify(ethFeeOptions, times(2)).priorityFee
         verify(ethFeeOptions).regularFee
         verify(walletPreferences).setFeeTypeForAsset(ASSET, FeeLevel.Priority.ordinal)
+        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }
@@ -421,6 +429,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             -1
         ).test()
 
+        verify(erc20DataManager).getL1AssetFor(ASSET)
+
         noMoreInteractions(sourceAccount, txTarget)
     }
 
@@ -466,6 +476,8 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
             FeeLevel.Custom,
             100
         ).test()
+
+        verify(erc20DataManager).getL1AssetFor(ASSET)
 
         noMoreInteractions(sourceAccount, txTarget)
     }

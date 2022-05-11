@@ -19,8 +19,9 @@ interface FeeEndpoints {
     @GET("mempool/fees/{currency}")
     fun getFeeOptions(@Path("currency") currency: String?): Observable<FeeOptions>
 
-    @GET("mempool/fees/eth")
-    fun getErc20FeeOptions(
+    @GET("mempool/fees/{network}")
+    fun getEvmFeeOptions(
+        @Path("network") network: String,
         @Query("contractAddress") contractAddress: String?
     ): Observable<FeeOptions>
 }

@@ -2,7 +2,8 @@ package piuk.blockchain.androidcore.data.ethereum
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.core.chains.EthLayerTwoService
+import com.blockchain.api.services.NonCustodialEvmService
+import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
@@ -55,9 +56,10 @@ class EthDataManagerTest {
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val metadataManager: MetadataManager = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
-    private val ethLayerTwoService: EthLayerTwoService = mock {
+    private val evmNetworksService: EvmNetworksService = mock {
         on { getSupportedNetworks() }.thenReturn(Single.just(emptyList()))
     }
+    private val nonCustodialEvmService: NonCustodialEvmService = mock()
 
     private val subject = EthDataManager(
         payloadDataManager = payloadManager,
@@ -65,7 +67,8 @@ class EthDataManagerTest {
         ethDataStore = ethDataStore,
         metadataManager = metadataManager,
         lastTxUpdater = lastTxUpdater,
-        ethLayerTwoService = ethLayerTwoService
+        evmNetworksService = evmNetworksService,
+        nonCustodialEvmService = nonCustodialEvmService
     )
 
     @Test
@@ -344,7 +347,8 @@ class EthDataManagerTest {
         whenever(
             ethDataStore.ethWallet!!.account!!.signTransaction(
                 eq(rawTransaction),
-                eq(masterKey)
+                eq(masterKey),
+                eq(EthDataManager.ETH_CHAIN_ID)
             )
         ).thenReturn(byteArray)
 

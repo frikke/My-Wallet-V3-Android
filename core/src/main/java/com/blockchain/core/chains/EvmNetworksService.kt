@@ -8,13 +8,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class EthL2NetworkList(
+data class EvmNetworkList(
     @SerialName("networks")
-    val networks: List<EthL2Chain> = listOf()
+    val networks: List<EvmNetwork> = listOf()
 )
 
 @Serializable
-data class EthL2Chain(
+data class EvmNetwork(
     @SerialName("networkTicker")
     val networkTicker: String,
     @SerialName("networkName")
@@ -25,12 +25,12 @@ data class EthL2Chain(
     val nodeUrl: String
 )
 
-class EthLayerTwoService(
+class EvmNetworksService(
     private val remoteConfig: RemoteConfig
 ) {
-    fun getSupportedNetworks(): Single<List<EthL2Chain>> {
+    fun getSupportedNetworks(): Single<List<EvmNetwork>> {
         return remoteConfig.getRawJson(LAYER_TWO_NETWORKS).map { json ->
-            jsonBuilder.decodeFromString<EthL2NetworkList>(json).networks
+            jsonBuilder.decodeFromString<EvmNetworkList>(json).networks
         }
     }
 

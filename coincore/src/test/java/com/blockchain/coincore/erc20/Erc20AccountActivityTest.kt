@@ -3,6 +3,7 @@ package com.blockchain.coincore.erc20
 import com.blockchain.coincore.impl.CryptoAccountBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
+import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.nabu.datamanagers.CurrencyPair
@@ -46,9 +47,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
         identity = mock(),
         baseActions = CryptoAccountBase.defaultActions,
         addressResolver = mock(),
-        chainNetworkTicker = "DUMMY",
-        chainId = 1,
-        networkName = "Dummy"
+        l1Network = dummyEvmNetwork
     )
 
     @Before
@@ -87,7 +86,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
         val summaryList = listOf(swapSummary)
 
-        whenever(erc20DataManager.getErc20History(ERC20_TOKEN))
+        whenever(erc20DataManager.getErc20History(ERC20_TOKEN, dummyEvmNetwork))
             .thenReturn(Single.just(erc20HistoryList))
 
         whenever(erc20DataManager.latestBlockNumber())
@@ -120,7 +119,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
                 }
             }
 
-        verify(erc20DataManager).getErc20History(ERC20_TOKEN)
+        verify(erc20DataManager).getErc20History(ERC20_TOKEN, dummyEvmNetwork)
     }
 
     companion object {
@@ -137,5 +136,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
             requiredConfirmations = 5,
             colour = "#123456"
         )
+
+        private val dummyEvmNetwork = EvmNetwork("DUMMY", "DUMMY", 1, "")
     }
 }

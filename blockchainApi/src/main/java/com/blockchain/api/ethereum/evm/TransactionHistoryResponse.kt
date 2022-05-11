@@ -1,4 +1,4 @@
-package com.blockchain.api.ethereum.layertwo
+package com.blockchain.api.ethereum.evm
 
 import java.math.BigInteger
 import kotlinx.serialization.Contextual
@@ -8,11 +8,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TransactionHistoryResponse(
     @SerialName("history")
-    val history: List<L2TransactionResponse>
+    val history: List<EvmTransactionResponse>
 )
 
 @Serializable
-data class L2TransactionResponse(
+data class EvmTransactionResponse(
     @SerialName("txId")
     val id: String,
     @SerialName("status")
@@ -22,13 +22,13 @@ data class L2TransactionResponse(
     @SerialName("fee")
     val fee: @Contextual BigInteger,
     @SerialName("extraData")
-    val extraData: L2TransactionData,
+    val extraData: EvmTransactionData,
     @SerialName("movements")
     val movements: List<TransactionMovement>
 )
 
 @Serializable
-data class L2TransactionData(
+data class EvmTransactionData(
     @SerialName("gasPrice")
     val gasPrice: @Contextual BigInteger,
     @SerialName("gasLimit")

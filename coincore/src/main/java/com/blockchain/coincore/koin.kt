@@ -3,6 +3,7 @@ package com.blockchain.coincore
 import com.blockchain.coincore.bch.BchAsset
 import com.blockchain.coincore.btc.BtcAsset
 import com.blockchain.coincore.eth.EthAsset
+import com.blockchain.coincore.evm.MaticAsset
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.coincore.impl.BackendNotificationUpdater
@@ -107,6 +108,33 @@ val coincoreModule = module {
                 notificationUpdater = get(),
                 identity = get(),
                 assetCatalogue = lazy { get() },
+                formatUtils = get(),
+                addressResolver = get(),
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+            )
+        }.bind(CryptoAsset::class)
+
+        scoped {
+            MaticAsset(
+                availableNonCustodialActions = setOf(
+                    AssetAction.Send,
+                    AssetAction.Receive,
+                    AssetAction.ViewActivity,
+                ),
+                ethDataManager = get(),
+                erc20DataManager = get(),
+                feeDataManager = get(),
+                walletPreferences = get(),
+                payloadManager = get(),
+                exchangeRates = get(),
+                currencyPrefs = get(),
+                remoteLogger = get(),
+                custodialManager = get(),
+                tradingBalances = get(),
+                interestBalances = get(),
+                pitLinking = get(),
+                labels = get(),
+                identity = get(),
                 formatUtils = get(),
                 addressResolver = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
@@ -253,5 +281,6 @@ fun nonCustodialAssetList() =
         CryptoCurrency.BTC,
         CryptoCurrency.BCH,
         CryptoCurrency.ETHER,
-        CryptoCurrency.XLM
+        CryptoCurrency.XLM,
+        CryptoCurrency.MATIC
     )

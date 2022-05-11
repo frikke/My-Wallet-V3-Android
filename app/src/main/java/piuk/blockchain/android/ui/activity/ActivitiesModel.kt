@@ -77,6 +77,7 @@ class ActivitiesModel(
                                 // do nothing
                             },
                             onError = {
+                                Timber.e(it)
                                 process(ActivityListUpdatedErrorIntent)
                             }
                         )

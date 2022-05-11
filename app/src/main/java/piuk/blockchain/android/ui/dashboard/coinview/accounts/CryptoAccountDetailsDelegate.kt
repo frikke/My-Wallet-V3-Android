@@ -102,7 +102,10 @@ private class AssetWalletViewHolder(
                             when (item.assetFilter) {
                                 AssetFilter.NonCustodial -> {
                                     if (account is MultiChainAccount) {
-                                        context.getString(R.string.coinview_multi_nc_desc, account.networkName)
+                                        context.getString(
+                                            R.string.coinview_multi_nc_desc,
+                                            account.l1Network.networkName
+                                        )
                                     } else {
                                         context.getString(R.string.coinview_nc_desc)
                                     }

@@ -1,4 +1,4 @@
-package com.blockchain.api.ethereum.layertwo
+package com.blockchain.api.ethereum.evm
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,5 +12,5 @@ data class TransactionHistoryRequest(
     @SerialName("network")
     val network: String,
     @SerialName("identifier")
-    val contractAddress: String
+    val contractAddress: String?
 )

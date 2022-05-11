@@ -14,6 +14,7 @@ import com.blockchain.coincore.bch.BchActivitySummaryItem
 import com.blockchain.coincore.btc.BtcActivitySummaryItem
 import com.blockchain.coincore.erc20.Erc20ActivitySummaryItem
 import com.blockchain.coincore.eth.EthActivitySummaryItem
+import com.blockchain.coincore.evm.L1EvmActivitySummaryItem
 import com.blockchain.coincore.selectFirstAccount
 import com.blockchain.coincore.xlm.XlmActivitySummaryItem
 import com.blockchain.core.payments.PaymentsDataManager
@@ -643,6 +644,7 @@ class ActivityDetailsInteractor(
             is BchActivitySummaryItem -> activityItem.updateDescription(description)
             is EthActivitySummaryItem -> activityItem.updateDescription(description)
             is Erc20ActivitySummaryItem -> activityItem.updateDescription(description)
+            is L1EvmActivitySummaryItem -> activityItem.updateDescription(description)
             is XlmActivitySummaryItem -> activityItem.updateDescription(description)
             else -> {
                 Completable.error(

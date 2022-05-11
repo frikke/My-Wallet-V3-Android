@@ -51,11 +51,11 @@ class EthereumAccount : JsonSerializableAccount {
         return HashUtil.sha3omit12(pubBytes.copyOfRange(1, pubBytes.size))
     }
 
-    fun signTransaction(transaction: RawTransaction, masterKey: MasterKey): ByteArray {
+    fun signTransaction(transaction: RawTransaction, masterKey: MasterKey, chainId: Int): ByteArray {
         val signingKey = deriveSigningKey(masterKey)
         val credentials = Credentials.create(signingKey.privateKeyAsHex)
         // Have to pass the chain ID (1 for Ethereum) for the transaction to be replay-protected
-        return TransactionEncoder.signMessage(transaction, CHAIN_ID, credentials)
+        return TransactionEncoder.signMessage(transaction, chainId.toLong(), credentials)
     }
 
     fun signMessage(data: ByteArray, masterKey: MasterKey): ByteArray {
@@ -104,7 +104,6 @@ class EthereumAccount : JsonSerializableAccount {
         private const val DERIVATION_PATH_COIN = 60
         private const val CHANGE_INDEX = 0
         private const val ADDRESS_INDEX = 0
-        private const val CHAIN_ID = 1L
 
         fun deriveAccount(masterKey: DeterministicKey, accountIndex: Int, label: String): EthereumAccount {
             val ethereumAccount = EthereumAccount(deriveECKey(masterKey, accountIndex))

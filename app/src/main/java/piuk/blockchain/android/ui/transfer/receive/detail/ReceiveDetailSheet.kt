@@ -124,12 +124,12 @@ internal class ReceiveDetailSheet :
                     title = getString(
                         R.string.receive_network_alert_title,
                         account.currency.displayTicker,
-                        account.networkName
+                        account.l1Network.networkName
                     )
                     subtitle = getString(
                         R.string.receive_network_alert_subtitle,
                         account.currency.displayTicker,
-                        account.networkName
+                        account.l1Network.networkName
                     )
                     alertType = AlertType.Warning
                     isDismissable = false

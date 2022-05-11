@@ -14,7 +14,7 @@ import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
 import com.blockchain.api.eligibility.ProductEligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
-import com.blockchain.api.ethereum.layertwo.EthL2Api
+import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.kyc.KycApi
 import com.blockchain.api.nabu.NabuUserApi
@@ -33,7 +33,7 @@ import com.blockchain.api.services.KycService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
-import com.blockchain.api.services.NonCustodialEthL2Service
+import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ProductEligibilityApiService
@@ -155,8 +155,8 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(blockchainApi).create(EthL2Api::class.java)
-        NonCustodialEthL2Service(
+        val api = get<Retrofit>(blockchainApi).create(EvmApi::class.java)
+        NonCustodialEvmService(
             api,
             getProperty("api-code")
         )

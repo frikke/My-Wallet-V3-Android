@@ -3,6 +3,7 @@ package com.blockchain.coincore.eth
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -54,9 +55,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
                 assetCatalogue = mock(),
                 identity = mock(),
                 addressResolver = mock(),
-                chainNetworkTicker = "DUMMY",
-                chainId = 1,
-                networkName = "Dummy"
+                l1Network = EvmNetwork("DUMMY", "Dummy", 1, "")
             )
         )
 

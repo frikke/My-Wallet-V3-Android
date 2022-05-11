@@ -509,6 +509,7 @@ fun Completable.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> =
 
 fun Single<PendingTx>.updateTxValidity(pendingTx: PendingTx): Single<PendingTx> =
     this.onErrorResumeNext {
+        Timber.e(it)
         if (it is TxValidationFailure) {
             Single.just(pendingTx.copy(validationState = it.state))
         } else {

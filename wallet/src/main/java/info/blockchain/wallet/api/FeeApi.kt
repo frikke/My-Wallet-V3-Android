@@ -38,12 +38,12 @@ data class FeeApi(private val feeEndpoints: FeeEndpoints) {
         }
 
     /**
-     * Returns a [FeeOptions] object for ERC20 tokens which contains both a "regular" and a "priority"
+     * Returns a [FeeOptions] object for ERC20 and EVM-like tokens which contains both a "regular" and a "priority"
      * fee option.
-     * @param contractAddress the contract address for ERC20
+     * @param contractAddress the contract address for ERC20, empty for EVM native tokens
      */
-    fun getErc20FeeOptions(contractAddress: String = ""): Observable<FeeOptions> {
-        return byCache("ETH") { feeEndpoints.getErc20FeeOptions(contractAddress) }
+    fun getEvmFeeOptions(parentChain: String, contractAddress: String? = null): Observable<FeeOptions> {
+        return byCache(parentChain) { feeEndpoints.getEvmFeeOptions(parentChain.lowercase(), contractAddress) }
     }
 
     companion object {

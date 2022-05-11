@@ -8,6 +8,7 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
+import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -39,9 +40,7 @@ import timber.log.Timber
     private val assetCatalogue: AssetCatalogue,
     identity: UserIdentity,
     override val addressResolver: AddressResolver,
-    override val chainNetworkTicker: String,
-    override val chainId: Int,
-    override val networkName: String
+    override val l1Network: EvmNetwork
 ) : MultiChainAccount, CryptoNonCustodialAccount(
     payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity
 ) {
@@ -59,7 +58,7 @@ import timber.log.Timber
     override fun getOnChainBalance(): Observable<Money> =
         rxSingle {
             // Only get the balance for ETH from the node if we are on the Ethereum network
-            if (chainNetworkTicker == currency.networkTicker) {
+            if (l1Network.networkTicker == currency.networkTicker) {
                 ethDataManager.getBalance()
                     .fold(
                         onSuccess = { Money.fromMinor(currency, it) },
