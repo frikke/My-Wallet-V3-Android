@@ -25,7 +25,7 @@ import piuk.blockchain.android.rating.presentaion.R
  * Figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=109%3A4789
  */
 @Composable
-fun AppRatingStarsScreen() {
+fun AppRatingStarsScreen(onRatingChanged: (rating: Int) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -46,7 +46,8 @@ fun AppRatingStarsScreen() {
             count = 5,
             imageFilled = R.drawable.ic_favorite_filled,
             imageOutline = R.drawable.ic_favorite_outline,
-            rating = 3
+            initialRating = 3,
+            onRatingChanged = onRatingChanged
         )
 
         Row {
@@ -70,5 +71,5 @@ fun AppRatingStarsScreen() {
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
 fun PreviewAppRatingStarsScreen() {
-    AppRatingStarsScreen()
+    AppRatingStarsScreen {}
 }
