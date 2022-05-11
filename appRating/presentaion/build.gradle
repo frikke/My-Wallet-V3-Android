@@ -47,9 +47,7 @@ dependencies {
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial
     implementation Libraries.composePreview
-    implementation Libraries.composeActivity
-    implementation Libraries.composeCoil
-    implementation Libraries.composeCoilSvg
+    implementation Libraries.composeNavigation
 
     // test
     testImplementation Libraries.kotlinTest

@@ -362,6 +362,8 @@ dependencies {
     implementation project(':appMaintenance:domain')
     implementation project(':appMaintenance:presentation')
 
+    implementation project(':appRating:presentaion')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 

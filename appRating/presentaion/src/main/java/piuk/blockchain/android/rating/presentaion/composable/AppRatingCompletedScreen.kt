@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -27,15 +26,10 @@ import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.R
 
 /**
- * Figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=109%3A4789
+ * Figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=133%3A5341
  */
 @Composable
-fun AppRatingStarsScreen(
-    onRatingSubmitted: (rating: Int) -> Unit,
-    onCanceled: () -> Unit
-) {
-    var rating = remember { 0 }
-
+fun AppRatingCompletedScreen() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,17 +41,11 @@ fun AppRatingStarsScreen(
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            modifier = Modifier.size(dimensionResource(R.dimen.size_medium)),
-            imageResource = ImageResource.Local(R.drawable.ic_favorite_filled)
-        )
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
 
         Text(
             style = AppTheme.typography.body2,
             color = Grey900,
-            text = stringResource(R.string.app_rating_title)
+            text = stringResource(R.string.app_rating_completed_title)
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
@@ -65,41 +53,22 @@ fun AppRatingStarsScreen(
         Text(
             style = AppTheme.typography.paragraph1,
             color = Grey600,
-            text = stringResource(R.string.app_rating_description)
+            text = stringResource(R.string.app_rating_completed_description)
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-        RatingBar(
-            count = 5,
-            imageFilled = R.drawable.ic_favorite_filled,
-            imageOutline = R.drawable.ic_favorite_outline,
-            initialRating = 0,
-            onRatingChanged = { rating = it }
+        SmallPrimaryButton(
+            text = stringResource(R.string.common_submit),
+            onClick = { /*TODO*/ },
+            state = ButtonState.Enabled
         )
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
-
-        Row {
-            SmallMinimalButton(
-                text = stringResource(R.string.common_submit),
-                onClick = onCanceled,
-                state = ButtonState.Enabled
-            )
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_margin)))
-
-            SmallPrimaryButton(
-                text = stringResource(R.string.common_submit),
-                onClick = { onRatingSubmitted(rating) },
-                state = ButtonState.Enabled
-            )
-        }
     }
 }
 
+
 @Preview(name = "Full Screen", showBackground = true)
 @Composable
-fun PreviewAppRatingStarsScreen() {
-    AppRatingStarsScreen({}, {})
+fun PreviewAppRatingCompletedScreen() {
+    AppRatingCompletedScreen()
 }
