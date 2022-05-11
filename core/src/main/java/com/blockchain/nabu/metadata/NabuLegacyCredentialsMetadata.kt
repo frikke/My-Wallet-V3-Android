@@ -34,7 +34,7 @@ data class BlockchainAccountCredentialsMetadata(
 ) : CredentialMetadata {
 
     companion object {
-        const val BLOCKCHAIN_CREDENTIALS_METADATA_NODE = 13
+        const val BLOCKCHAIN_CREDENTIALS_METADATA_NODE = 14
 
         fun invalid(): BlockchainAccountCredentialsMetadata = BlockchainAccountCredentialsMetadata()
     }
