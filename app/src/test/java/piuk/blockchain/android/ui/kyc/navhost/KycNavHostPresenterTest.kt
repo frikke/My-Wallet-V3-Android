@@ -17,14 +17,12 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.ui.getBlankNabuUser
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
@@ -35,7 +33,6 @@ class KycNavHostPresenterTest {
 
     private lateinit var subject: KycNavHostPresenter
     private val view: KycNavHostView = mock()
-    private val sunriverCampaign: SunriverCampaignRegistration = mock()
     private val nabuDataManager: NabuDataManager = mock()
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
@@ -54,7 +51,6 @@ class KycNavHostPresenterTest {
         subject = KycNavHostPresenter(
             nabuToken = nabuToken,
             nabuDataManager = nabuDataManager,
-            sunriverCampaign = sunriverCampaign,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
                 nabuToken, nabuDataManager, reentryDecision, analytics
@@ -132,110 +128,6 @@ class KycNavHostPresenterTest {
         // Assert
         verify(view).displayLoading(true)
         verify(view).navigate(KycNavXmlDirections.actionStartCountrySelection())
-        verify(view).displayLoading(false)
-    }
-
-    @Test
-    fun `register for sunriver campaign if campaign type is sunriver but not registered yet`() {
-        // Arrange
-        whenever(view.campaignType).thenReturn(CampaignType.Sunriver)
-        whenever(sunriverCampaign.registerCampaign()).thenReturn(Completable.complete())
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(tierUpdater.setUserTier(2)).thenReturn(Completable.complete())
-        whenever(sunriverCampaign.userIsInCampaign()).thenReturn(Single.just(false))
-        whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(
-                Single.just(
-                    NabuUser(
-                        firstName = "FIRST_NAME",
-                        lastName = "LAST_NAME",
-                        email = "",
-                        emailVerified = false,
-                        dob = null,
-                        mobile = null,
-                        mobileVerified = false,
-                        address = null,
-                        state = UserState.None,
-                        kycState = KycState.None,
-                        insertedAt = null,
-                        updatedAt = null
-                    )
-                )
-            )
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).displayLoading(true)
-        verify(sunriverCampaign).registerCampaign()
-        verify(view).displayLoading(false)
-    }
-
-    @Test
-    fun `not register for sunriver campaign if campaign type is sunriver and user is registered`() {
-        // Arrange
-        whenever(view.campaignType).thenReturn(CampaignType.Sunriver)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(tierUpdater.setUserTier(2)).thenReturn(Completable.complete())
-        whenever(sunriverCampaign.userIsInCampaign()).thenReturn(Single.just(true))
-        whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(
-                Single.just(
-                    NabuUser(
-                        firstName = "FIRST_NAME",
-                        lastName = "LAST_NAME",
-                        email = "",
-                        emailVerified = false,
-                        dob = null,
-                        mobile = null,
-                        mobileVerified = false,
-                        address = null,
-                        state = UserState.None,
-                        kycState = KycState.None,
-                        insertedAt = null,
-                        updatedAt = null
-                    )
-                )
-            )
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).displayLoading(true)
-        verify(sunriverCampaign, never()).registerCampaign()
-        verify(view).displayLoading(false)
-    }
-
-    @Test
-    fun `onViewReady sunriver, should redirect to splash`() {
-        // Arrange
-        givenReentryDecision(ReentryPoint.CountrySelection)
-        whenever(view.campaignType).thenReturn(CampaignType.Sunriver)
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(tierUpdater.setUserTier(2)).thenReturn(Completable.complete())
-        whenever(sunriverCampaign.userIsInCampaign()).thenReturn(Single.just(true))
-        whenever(nabuDataManager.getUser(validOfflineToken))
-            .thenReturn(
-                Single.just(
-                    NabuUser(
-                        firstName = "FIRST_NAME",
-                        lastName = "LAST_NAME",
-                        email = "",
-                        emailVerified = false,
-                        dob = null,
-                        mobile = null,
-                        mobileVerified = false,
-                        address = null,
-                        state = UserState.None,
-                        kycState = KycState.None,
-                        insertedAt = null,
-                        updatedAt = null
-                    )
-                )
-            )
-        // Act
-        subject.onViewReady()
-        // Assert
-        verify(view).displayLoading(true)
-        verify(view).navigateToKycSplash()
         verify(view).displayLoading(false)
     }
 

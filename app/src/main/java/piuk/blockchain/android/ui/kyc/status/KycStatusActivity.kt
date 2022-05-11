@@ -52,7 +52,6 @@ class KycStatusActivity :
 
         val title = when (campaignType) {
             CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.Sunriver,
             CampaignType.Blockstack,
             CampaignType.SimpleBuy,
             CampaignType.Resubmission,
@@ -98,15 +97,7 @@ class KycStatusActivity :
 
     private fun onPending() {
         with(binding) {
-            imageViewKycStatus.setImageDrawable(
-                getResolvedDrawable(
-                    if (campaignType == CampaignType.Sunriver) {
-                        R.drawable.vector_xlm_check
-                    } else {
-                        R.drawable.vector_in_progress
-                    }
-                )
-            )
+            imageViewKycStatus.setImageDrawable(getResolvedDrawable(R.drawable.vector_in_progress))
             textViewVerificationSubtitle.visible()
             textViewVerificationState.setTextColor(getResolvedColor(R.color.kyc_in_progress))
             textViewVerificationState.setText(R.string.kyc_status_title_in_progress)
@@ -117,7 +108,6 @@ class KycStatusActivity :
                 CampaignType.Resubmission -> R.string.kyc_status_message_in_progress
                 CampaignType.Blockstack,
                 CampaignType.SimpleBuy,
-                CampaignType.Sunriver,
                 CampaignType.FiatFunds,
                 CampaignType.Interest -> R.string.sunriver_status_message
             }

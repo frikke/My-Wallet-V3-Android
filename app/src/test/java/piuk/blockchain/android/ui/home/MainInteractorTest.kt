@@ -7,13 +7,9 @@ import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.responses.nabu.CampaignData
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
-import com.blockchain.sunriver.XlmAccountReference
-import com.blockchain.sunriver.XlmDataManager
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -29,7 +25,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -38,7 +33,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.models.MainInteractor
-import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import thepit.PitLinking
@@ -52,9 +46,6 @@ class MainInteractorTest {
     private val exchangeLinking: PitLinking = mock()
     private val exchangePrefs: ThePitLinkingPrefs = mock()
     private val assetCatalogue: AssetCatalogue = mock()
-    private val xlmDataManager: XlmDataManager = mock()
-    private val sunriverCampaignRegistration: SunriverCampaignRegistration = mock()
-    private val kycStatusHelper: KycStatusHelper = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val simpleBuySync: SimpleBuySyncFactory = mock()
@@ -77,9 +68,6 @@ class MainInteractorTest {
             exchangeLinking = exchangeLinking,
             exchangePrefs = exchangePrefs,
             assetCatalogue = assetCatalogue,
-            xlmDataManager = xlmDataManager,
-            sunriverCampaignRegistration = sunriverCampaignRegistration,
-            kycStatusHelper = kycStatusHelper,
             bankLinkingPrefs = bankLinkingPrefs,
             custodialWalletManager = custodialWalletManager,
             simpleBuySync = simpleBuySync,
@@ -158,24 +146,6 @@ class MainInteractorTest {
 
         verify(assetCatalogue).assetInfoFromNetworkTicker(ticker)
         Assert.assertEquals(assetInfo, resultAsset)
-    }
-
-    @Test
-    fun registerForCampaign() {
-        val data: CampaignData = mock()
-        val defaultAccount: XlmAccountReference = mock()
-        val kycMock: KycState = mock()
-
-        whenever(xlmDataManager.defaultAccount()).thenReturn(Single.just(defaultAccount))
-        whenever(sunriverCampaignRegistration.registerCampaign(data)).thenReturn(Completable.complete())
-        whenever(kycStatusHelper.getKycStatus()).thenReturn(Single.just(kycMock))
-
-        val observer = interactor.registerForCampaign(data).test()
-        observer.assertValue(kycMock)
-
-        verify(xlmDataManager).defaultAccount()
-        verify(sunriverCampaignRegistration).registerCampaign(data)
-        verify(kycStatusHelper).getKycStatus()
     }
 
     @Test

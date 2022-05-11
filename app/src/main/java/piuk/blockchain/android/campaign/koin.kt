@@ -6,14 +6,5 @@ import org.koin.dsl.module
 val campaignModule = module {
 
     scope(payloadScopeQualifier) {
-
-        factory {
-            SunriverCampaignRegistration(
-                nabuDataManager = get(),
-                nabuToken = get(),
-                kycStatusHelper = get(),
-                xlmDataManager = get()
-            )
-        }
     }
 }

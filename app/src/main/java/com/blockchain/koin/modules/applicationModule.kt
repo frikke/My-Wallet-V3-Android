@@ -112,7 +112,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
-import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.PitLinkingImpl
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 import piuk.blockchain.android.ui.addresses.AccountPresenter
@@ -418,12 +417,6 @@ val applicationModule = module {
         }
 
         factory {
-            SunriverDeepLinkHelper(
-                linkHandler = get()
-            )
-        }
-
-        factory {
             KycDeepLinkHelper(
                 linkHandler = get()
             )
@@ -443,7 +436,6 @@ val applicationModule = module {
             DeepLinkProcessor(
                 linkHandler = get(),
                 kycDeepLinkHelper = get(),
-                sunriverDeepLinkHelper = get(),
                 emailVerifiedLinkHelper = get(),
                 thePitDeepLinkParser = get(),
                 openBankingDeepLinkParser = get(),

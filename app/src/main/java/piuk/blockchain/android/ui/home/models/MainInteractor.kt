@@ -14,14 +14,11 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.responses.nabu.CampaignData
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ThePitLinkingPrefs
-import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
@@ -30,7 +27,6 @@ import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
@@ -40,7 +36,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.home.CredentialsWiper
-import piuk.blockchain.android.ui.kyc.settings.KycStatusHelper
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -57,9 +52,6 @@ class MainInteractor internal constructor(
     private val exchangeLinking: PitLinking,
     private val exchangePrefs: ThePitLinkingPrefs,
     private val assetCatalogue: AssetCatalogue,
-    private val xlmDataManager: XlmDataManager,
-    private val sunriverCampaignRegistration: SunriverCampaignRegistration,
-    private val kycStatusHelper: KycStatusHelper,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val paymentsDataManager: PaymentsDataManager,
@@ -96,14 +88,6 @@ class MainInteractor internal constructor(
         ticker?.let {
             assetCatalogue.assetInfoFromNetworkTicker(ticker)
         }
-
-    fun registerForCampaign(data: CampaignData): Single<KycState> =
-        xlmDataManager.defaultAccount()
-            .flatMapCompletable {
-                sunriverCampaignRegistration
-                    .registerCampaign(data)
-            }
-            .andThen(kycStatusHelper.getKycStatus())
 
     fun resetLocalBankAuthState() =
         bankLinkingPrefs.setBankLinkingState(

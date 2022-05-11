@@ -87,9 +87,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             KycIncompleteAnnouncement(
                 userIdentity = get(),
-                sunriverCampaignRegistration = get(),
-                dismissRecorder = get(),
-                mainScheduler = AndroidSchedulers.mainThread()
+                dismissRecorder = get()
             )
         }.bind(AnnouncementRule::class)
 

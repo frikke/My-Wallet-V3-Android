@@ -10,14 +10,11 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierUpdater
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.CampaignRegistration
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
@@ -27,7 +24,6 @@ import timber.log.Timber
 class KycNavHostPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val sunriverCampaign: SunriverCampaignRegistration,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
     private val tierUpdater: TierUpdater,
@@ -39,8 +35,6 @@ class KycNavHostPresenter(
             fetchOfflineToken.flatMap {
                 nabuDataManager.getUser(it)
                     .subscribeOn(Schedulers.io())
-            }.flatMap {
-                updateTier2SelectedTierIfNeeded().toSingle { it }
             }.observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.displayLoading(true) }
                 .subscribeBy(
@@ -64,33 +58,6 @@ class KycNavHostPresenter(
      * Registers the user to the various campaigns if they are not yet registered with them, on completion of Gold
      */
     private fun registerForCampaignsIfNeeded() {
-        if (view.campaignType == CampaignType.Sunriver) {
-            checkAndRegisterForCampaign(sunriverCampaign)
-        }
-    }
-
-    private fun checkAndRegisterForCampaign(campaign: CampaignRegistration) {
-        compositeDisposable += campaign.userIsInCampaign()
-            .flatMapCompletable { isInCampaign ->
-                if (isInCampaign) {
-                    Completable.complete()
-                } else {
-                    campaign.registerCampaign()
-                }
-            }
-            .subscribeOn(Schedulers.io())
-            .doOnError(Timber::e)
-            .subscribe()
-    }
-
-    private fun updateTier2SelectedTierIfNeeded(): Completable {
-        if (view.campaignType != CampaignType.Sunriver) {
-            return Completable.complete()
-        }
-
-        return tierUpdater
-            .setUserTier(2)
-            .onErrorComplete()
     }
 
     private fun redirectUserFlow(user: NabuUser) {
@@ -127,9 +94,6 @@ class KycNavHostPresenter(
                             }
                         )
                 }
-            }
-            view.campaignType == CampaignType.Sunriver -> {
-                view.navigateToKycSplash()
             }
         }
 

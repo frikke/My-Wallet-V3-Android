@@ -14,7 +14,6 @@ import com.blockchain.extensions.valueOf
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
@@ -25,7 +24,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
@@ -35,7 +33,6 @@ import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.sell.BuySellFragment
@@ -220,7 +217,6 @@ class MainModel(
 
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
-            is LinkState.SunriverDeepLink -> handleSunriverDeepLink(linkState)
             is LinkState.EmailVerifiedDeepLink -> handleEmailVerifiedForExchangeLinking(linkState)
             is LinkState.KycDeepLink -> handleKycDeepLink(linkState)
             is LinkState.ThePitDeepLink ->
@@ -315,23 +311,6 @@ class MainModel(
                 }
             )
 
-    private fun handleSunriverDeepLink(linkState: LinkState.SunriverDeepLink) {
-        when (linkState.link) {
-            is CampaignLinkState.WrongUri -> process(
-                MainIntent.UpdateViewToLaunch(
-                    ViewToLaunch.DisplayAlertDialog(
-                        R.string.sunriver_invalid_url_title,
-                        R.string.sunriver_invalid_url_message
-                    )
-                )
-            )
-            is CampaignLinkState.Data -> registerForCampaign(linkState.link.campaignData)
-            else -> {
-                // do nothing
-            }
-        }
-    }
-
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {
             is KycLinkState.Resubmit -> process(
@@ -343,7 +322,6 @@ class MainModel(
             is KycLinkState.General -> {
                 val data = linkState.link.campaignData
                 if (data != null) {
-                    // FIXME this feels really wrong, as we direct to Sunriver KYC - what is a General link?!
                     registerForCampaign(data)
                 } else {
                     process(
@@ -358,33 +336,7 @@ class MainModel(
     }
 
     private fun registerForCampaign(campaignData: CampaignData) {
-        // keep the call to prompt users to KYC if they somehow come into the app wanting to register
-        compositeDisposable += interactor.registerForCampaign(campaignData)
-            .subscribeBy(
-                onSuccess = { status ->
-                    if (status != KycState.Verified) {
-                        process(
-                            MainIntent.UpdateViewToLaunch(
-                                ViewToLaunch.LaunchKyc(
-                                    CampaignType.Sunriver
-                                )
-                            )
-                        )
-                    }
-                },
-                onError = { throwable ->
-                    Timber.e(throwable)
-
-                    process(
-                        MainIntent.UpdateViewToLaunch(
-                            ViewToLaunch.DisplayAlertDialog(
-                                R.string.sunriver_invalid_url_title,
-                                R.string.sunriver_campaign_expired
-                            )
-                        )
-                    )
-                }
-            )
+        // Future campaigns register here
     }
 
     private fun handleOpenBankingDeepLink(state: LinkState.OpenBankingLink) =

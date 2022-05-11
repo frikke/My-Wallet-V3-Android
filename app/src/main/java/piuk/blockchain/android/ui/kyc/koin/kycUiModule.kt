@@ -120,7 +120,6 @@ val kycUiModule = module {
             KycNavHostPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                sunriverCampaign = get(),
                 reentryDecision = get(),
                 tierUpdater = get(),
                 kycNavigator = get(),
