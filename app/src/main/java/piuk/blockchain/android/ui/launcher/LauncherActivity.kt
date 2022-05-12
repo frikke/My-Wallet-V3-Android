@@ -13,7 +13,7 @@ import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
-import java.io.Serializable
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -52,11 +52,15 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
+            val payload = createCampaignPayload(intent.extras)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
-        if (intent.hasExtra(INTENT_FROM_NOTIFICATION_ANALYTICS)) {
-            val analyticsPayload = intent.getSerializableExtra(INTENT_FROM_NOTIFICATION_ANALYTICS)
-            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(analyticsPayload))
+        if (intent.hasExtra(INTENT_DIRECT_FROM_FCM)) {
+            intent.extras?.let {
+                val analyticsPayload = createCampaignPayload(it)
+                analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(analyticsPayload))
+            }
         }
     }
 
@@ -163,17 +167,20 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
     companion object {
         const val INTENT_AUTOMATION_TEST = "IS_AUTOMATION_TESTING"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
-        private const val INTENT_FROM_NOTIFICATION_ANALYTICS = "INTENT_FROM_NOTIFICATION_ANALYTICS"
+
+        private const val INTENT_DIRECT_FROM_FCM = "google.message_id"
 
         fun newInstance(
             context: Context,
             intentFromNotification: Boolean = false,
-            notificationAnalyticsPayload: Serializable? = null
+            notificationAnalyticsPayload: Map<String, String>? = null
         ): Intent =
             Intent(context, LauncherActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
-                notificationAnalyticsPayload?.let { payload ->
-                    putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS, payload)
+                notificationAnalyticsPayload?.keys?.forEach { key ->
+                    notificationAnalyticsPayload[key]?.let { value ->
+                        putExtra(key, value)
+                    }
                 }
             }
     }
