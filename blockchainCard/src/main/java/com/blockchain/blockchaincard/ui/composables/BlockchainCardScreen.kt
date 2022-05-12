@@ -24,7 +24,7 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
 import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.commonarch.presentation.mvi_v2.compose.MviNavHost
+import com.blockchain.commonarch.presentation.mvi_v2.compose.MviBottomSheetNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -51,7 +51,7 @@ fun BlockchainCardNavHost(
     }
     val state by stateFlowLifecycleAware.collectAsState(null)
 
-    MviNavHost(
+    MviBottomSheetNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = BlockchainCardNavigationRouter(rememberNavController()),
         startDestination = startDestination,
