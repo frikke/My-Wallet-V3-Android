@@ -4,198 +4,216 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/subtitle"
-        style="@style/Text.Standard.16"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/tiny_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Blurb about screen" />
-
-    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
-        android:id="@+id/title_from"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subtitle"/>
-
-    <FrameLayout
-        android:id="@+id/from_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_from" />
-
-    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
-        android:id="@+id/title_to"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/small_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/from_details"/>
-
-    <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
-    <ViewSwitcher
-        android:id="@+id/input_switcher"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:measureAllChildren="false"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_to"
-        tools:visibility="visible">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/address_entry"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:paddingStart="@dimen/very_small_margin"
-            android:paddingTop="@dimen/very_small_margin"
-            android:paddingEnd="@dimen/very_small_margin"
-            android:paddingBottom="@dimen/very_small_margin"
-            app:boxStrokeColor="@color/text_input_color_states"
-            app:endIconMode="custom"
-            app:endIconTint="@color/grey_400"
-            app:endIconDrawable="@drawable/ic_qr_scan_inverse"
-            android:imeOptions="actionDone"
-            android:inputType="textNoSuggestions"
-            app:expandedHintEnabled="true"
-            app:hintEnabled="false"
-            app:hintTextAppearance="@style/TextAppearance.Blockchain.Body1"
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/field_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/send_enter_asset_address_or_domain_hint"
-                android:inputType="textNoSuggestions"
-                android:maxLines="1" />
-
-            <TextView
-                android:id="@+id/warning_message"
-                style="@style/Text.Semibold.12"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tiny_margin"
-                android:layout_marginTop="@dimen/minuscule_margin"
-                android:text="@string/send_address_warning"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/address_entry"
-                tools:visibility="visible" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/minuscule_margin"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="@dimen/very_small_margin"
+        android:fillViewport="true"
+        android:requiresFadingEdge="vertical"
+        app:layout_constraintBottom_toTopOf="@id/cta_button"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/standard_margin"
-            android:layout_marginTop="@dimen/tiny_margin"
-            android:layout_marginEnd="@dimen/standard_margin"
-            android:layout_marginBottom="@dimen/tiny_margin"
-            android:background="@drawable/rounded_view_grey_border"
-            android:orientation="vertical"
-            android:padding="@dimen/small_margin">
+            android:animateLayoutChanges="true">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/internal_send_close"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/subtitle"
+                style="@style/Text.Standard.16"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/minuscule_margin"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_close_circle_grey" />
+                tools:text="Blurb about screen" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/internal_send_title"
-                style="@style/Text.Semibold.14"
+            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+                android:id="@+id/title_from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/send_warn_internal_send_only"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginTop="@dimen/small_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/subtitle" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/no_manual_enter_msg"
-                style="@style/Text.Light.12"
+            <FrameLayout
+                android:id="@+id/from_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/minuscule_margin"
-                android:text="@string/send_internal_transfer_message_1_1"
-                app:layout_constraintTop_toBottomOf="@id/internal_send_title" />
+                android:layout_marginTop="@dimen/small_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title_from" />
+
+            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+                android:id="@+id/title_to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/small_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/from_details" />
+
+            <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
+            <ViewSwitcher
+                android:id="@+id/input_switcher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:measureAllChildren="false"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title_to"
+                tools:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/address_entry"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="textNoSuggestions"
+                    android:paddingStart="@dimen/very_small_margin"
+                    android:paddingTop="@dimen/very_small_margin"
+                    android:paddingEnd="@dimen/very_small_margin"
+                    android:paddingBottom="@dimen/very_small_margin"
+                    app:boxStrokeColor="@color/text_input_color_states"
+                    app:endIconDrawable="@drawable/ic_qr_scan_inverse"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/grey_400"
+                    app:expandedHintEnabled="true"
+                    app:hintEnabled="false"
+                    app:hintTextAppearance="@style/TextAppearance.Blockchain.Body1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/field_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/send_enter_asset_address_or_domain_hint"
+                        android:inputType="textNoSuggestions"
+                        android:maxLines="1" />
+
+                    <TextView
+                        android:id="@+id/warning_message"
+                        style="@style/Text.Semibold.12"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/tiny_margin"
+                        android:layout_marginTop="@dimen/minuscule_margin"
+                        android:text="@string/send_address_warning"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/address_entry"
+                        tools:visibility="visible" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/standard_margin"
+                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:layout_marginEnd="@dimen/standard_margin"
+                    android:layout_marginBottom="@dimen/tiny_margin"
+                    android:background="@drawable/rounded_view_grey_border"
+                    android:orientation="vertical"
+                    android:padding="@dimen/small_margin">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/internal_send_close"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/minuscule_margin"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_close_circle_grey" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/internal_send_title"
+                        style="@style/Text.Semibold.14"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_warn_internal_send_only"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/no_manual_enter_msg"
+                        style="@style/Text.Light.12"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/minuscule_margin"
+                        android:text="@string/send_internal_transfer_message_1_1"
+                        app:layout_constraintTop_toBottomOf="@id/internal_send_title" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </ViewSwitcher>
+
+            <include
+                android:id="@+id/on_hold_cell"
+                layout="@layout/funds_locked_summary_item"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/input_switcher" />
+
+            <com.blockchain.componentlib.alert.CardAlertView
+                android:id="@+id/domains_alert"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/medium_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/on_hold_cell" />
+
+            <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
+                android:id="@+id/title_pick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_margin"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/domains_alert" />
+
+            <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
+            <piuk.blockchain.android.ui.customviews.account.AccountList
+                android:id="@+id/wallet_select"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/very_small_margin"
+                android:layout_marginBottom="@dimen/small_margin"
+                android:nestedScrollingEnabled="false"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title_pick"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_goneMarginBottom="@dimen/standard_margin"
+                tools:itemCount="1"
+                tools:listitem="@layout/item_account_select_crypto"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ViewSwitcher>
+    </androidx.core.widget.NestedScrollView>
 
-    <include
-        android:id="@+id/on_hold_cell"
-        layout="@layout/funds_locked_summary_item"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_switcher" />
-
-    <com.blockchain.componentlib.alert.CardAlertView
-        android:id="@+id/domains_alert"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
-        android:layout_marginTop="@dimen/medium_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/on_hold_cell"
-        android:visibility="gone"
-        />
-
-    <com.blockchain.componentlib.sectionheader.SmallSectionHeaderView
-        android:id="@+id/title_pick"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/domains_alert"/>
-
-    <!-- Visibility is deliberately set to gone here to prevent the bottom sheet from taking up unnecessary space -->
-    <piuk.blockchain.android.ui.customviews.account.AccountList
-        android:id="@+id/wallet_select"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/very_small_margin"
-        android:layout_marginBottom="@dimen/small_margin"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@id/cta_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_pick"
-        app:layout_constraintVertical_bias="0"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:layout_goneMarginBottom="@dimen/standard_margin"
-        tools:listitem="@layout/item_account_select_crypto"
-        tools:itemCount="1"
-        tools:visibility="visible" />
     <Button
         android:id="@+id/cta_button"
         style="@style/CtaButton.Blue"
