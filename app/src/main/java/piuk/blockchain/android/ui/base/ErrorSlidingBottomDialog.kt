@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
@@ -31,17 +32,28 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         binding.ctaButton.setOnClickListener {
             dismiss()
         }
-        logClientError(title = errorDialogData.description, error = errorDialogData.title)
+        logClientError(
+            title = errorDialogData.title,
+            error = errorDialogData.error.orEmpty(),
+            nabuApiException = errorDialogData.nabuApiException,
+            action = errorDialogData.action
+        )
     }
 
-    private fun logClientError(title: String, error: String) {
+    private fun logClientError(
+        title: String,
+        error: String,
+        nabuApiException: NabuApiException?,
+        action: String?
+    ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
-                nabuApiException = null,
+                nabuApiException = nabuApiException,
                 error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
+                source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
+                    ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
-                action = ClientErrorAnalytics.ACTION_BUY,
+                action = action,
             )
         )
     }
@@ -62,7 +74,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                         ErrorDialogData(
                             context.getString(R.string.ops),
                             context.getString(R.string.something_went_wrong_try_again),
-                            context.getString(R.string.common_ok)
+                            context.getString(R.string.common_ok),
                         )
                     )
                 }
@@ -71,4 +83,11 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 }
 
 @Parcelize
-data class ErrorDialogData(val title: String, val description: String, val buttonText: String) : Parcelable
+data class ErrorDialogData(
+    val title: String,
+    val description: String,
+    val buttonText: String,
+    val error: String? = null,
+    val nabuApiException: NabuApiException? = null,
+    val action: String? = null
+) : Parcelable

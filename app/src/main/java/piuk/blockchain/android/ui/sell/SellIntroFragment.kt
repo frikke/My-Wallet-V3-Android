@@ -40,6 +40,7 @@ import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
@@ -129,8 +130,12 @@ class SellIntroFragment : ViewPagerFragment() {
                         nabuApiException = if (it is HttpException) {
                             NabuApiExceptionFactory.fromResponseBody(it)
                         } else null,
-                        error = getString(R.string.transfer_wallets_load_error),
-                        source = ClientErrorAnalytics.Companion.Source.NABU,
+                        error = ClientErrorAnalytics.OOPS_ERROR,
+                        source = if (it is HttpException) {
+                            ClientErrorAnalytics.Companion.Source.NABU
+                        } else {
+                            ClientErrorAnalytics.Companion.Source.CLIENT
+                        },
                         title = ClientErrorAnalytics.OOPS_ERROR,
                         action = ClientErrorAnalytics.ACTION_SELL,
                     )
@@ -276,8 +281,12 @@ class SellIntroFragment : ViewPagerFragment() {
                                 NabuApiExceptionFactory.fromResponseBody(it)
                             } else null,
                             error = NABU_ERROR,
-                            source = ClientErrorAnalytics.Companion.Source.NABU,
-                            title = NABU_ERROR,
+                            source = if (it is HttpException) {
+                                ClientErrorAnalytics.Companion.Source.NABU
+                            } else {
+                                ClientErrorAnalytics.Companion.Source.CLIENT
+                            },
+                            title = OOPS_ERROR,
                             action = ClientErrorAnalytics.ACTION_SELL,
                         )
                     )

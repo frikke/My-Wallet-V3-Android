@@ -42,6 +42,11 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
 import piuk.blockchain.android.databinding.PromoLayoutBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
@@ -453,108 +458,132 @@ class SimpleBuyCheckoutFragment :
             ErrorState.DailyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.sb_checkout_daily_limit_title),
-                    description = getString(R.string.sb_checkout_daily_limit_blurb)
+                    description = getString(R.string.sb_checkout_daily_limit_blurb),
+                    error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
             ErrorState.WeeklyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.sb_checkout_weekly_limit_title),
-                    description = getString(R.string.sb_checkout_weekly_limit_blurb)
+                    description = getString(R.string.sb_checkout_weekly_limit_blurb),
+                    error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
             ErrorState.YearlyLimitExceeded ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.sb_checkout_yearly_limit_title),
-                    description = getString(R.string.sb_checkout_yearly_limit_blurb)
+                    description = getString(R.string.sb_checkout_yearly_limit_blurb),
+                    error = OVER_MAXIMUM_SOURCE_LIMIT
                 )
             ErrorState.ExistingPendingOrder ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.sb_checkout_pending_order_title),
-                    description = getString(R.string.sb_checkout_pending_order_blurb)
+                    description = getString(R.string.sb_checkout_pending_order_blurb),
+                    error = PENDING_ORDERS_LIMIT_REACHED
                 )
             ErrorState.InsufficientCardFunds ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardInsufficientFunds),
-                    description = getString(R.string.msg_cardInsufficientFunds)
+                    description = getString(R.string.msg_cardInsufficientFunds),
+                    error = INSUFFICIENT_FUNDS
                 )
             ErrorState.CardBankDeclined ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardBankDecline),
-                    description = getString(R.string.msg_cardBankDecline)
+                    description = getString(R.string.msg_cardBankDecline),
+                    error = errorState.toString()
                 )
             ErrorState.CardDuplicated ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardDuplicate),
-                    description = getString(R.string.msg_cardDuplicate)
+                    description = getString(R.string.msg_cardDuplicate),
+                    error = errorState.toString()
                 )
             ErrorState.CardBlockchainDeclined ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardBlockchainDecline),
-                    description = getString(R.string.msg_cardBlockchainDecline)
+                    description = getString(R.string.msg_cardBlockchainDecline),
+                    error = errorState.toString()
                 )
             ErrorState.CardAcquirerDeclined ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardAcquirerDecline),
-                    description = getString(R.string.msg_cardAcquirerDecline)
+                    description = getString(R.string.msg_cardAcquirerDecline),
+                    error = errorState.toString()
                 )
             ErrorState.CardPaymentNotSupported ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardPaymentNotSupported),
-                    description = getString(R.string.msg_cardPaymentNotSupported)
+                    description = getString(R.string.msg_cardPaymentNotSupported),
+                    error = errorState.toString()
                 )
             ErrorState.CardCreateFailed ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateFailed),
-                    description = getString(R.string.msg_cardCreateFailed)
+                    description = getString(R.string.msg_cardCreateFailed),
+                    error = errorState.toString()
                 )
             ErrorState.CardPaymentFailed ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardPaymentFailed),
-                    description = getString(R.string.msg_cardPaymentFailed)
+                    description = getString(R.string.msg_cardPaymentFailed),
+                    error = errorState.toString()
                 )
             ErrorState.CardCreateAbandoned ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateAbandoned),
-                    description = getString(R.string.msg_cardCreateAbandoned)
+                    description = getString(
+                        R.string.msg_cardCreateAbandoned,
+                    ),
+                    error = errorState.toString()
                 )
             ErrorState.CardCreateExpired ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateExpired),
-                    description = getString(R.string.msg_cardCreateExpired)
+                    description = getString(R.string.msg_cardCreateExpired),
+                    error = errorState.toString()
                 )
             ErrorState.CardCreateBankDeclined ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateBankDeclined),
-                    description = getString(R.string.msg_cardCreateBankDeclined)
+                    description = getString(R.string.msg_cardCreateBankDeclined),
+                    error = errorState.toString()
                 )
             ErrorState.CardCreateDebitOnly ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateDebitOnly),
                     description = getString(R.string.msg_cardCreateDebitOnly),
-                    button = getString(R.string.sb_checkout_card_debit_only_cta)
+                    button = getString(R.string.sb_checkout_card_debit_only_cta),
+                    error = errorState.toString()
                 )
             ErrorState.CardPaymentDebitOnly ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardPaymentDebitOnly),
-                    description = getString(R.string.msg_cardPaymentDebitOnly)
+                    description = getString(R.string.msg_cardPaymentDebitOnly),
+                    error = errorState.toString()
                 )
             ErrorState.CardNoToken ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateNoToken),
-                    description = getString(R.string.msg_cardCreateNoToken)
+                    description = getString(R.string.msg_cardCreateNoToken),
+                    error = errorState.toString()
                 )
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.common_http_error_with_message),
-                    description = errorState.nabuApiException.getErrorDescription()
+                    description = errorState.nabuApiException.getErrorDescription(),
+                    error = NABU_ERROR,
+                    nabuApiException = errorState.nabuApiException
                 )
             ErrorState.InternetConnectionError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.executing_connection_error),
-                    description = getString(R.string.something_went_wrong_try_again)
+                    description = getString(R.string.something_went_wrong_try_again),
+                    error = INTERNET_CONNECTION_ERROR
                 )
             is ErrorState.ApprovedBankUndefinedError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.payment_failed_title_with_reason),
-                    description = getString(R.string.something_went_wrong_try_again)
+                    description = getString(R.string.something_went_wrong_try_again),
+                    error = errorState.toString()
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,

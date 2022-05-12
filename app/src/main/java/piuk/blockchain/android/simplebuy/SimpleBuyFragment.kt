@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import info.blockchain.balance.AssetInfo
@@ -41,6 +42,8 @@ interface ErrorBuyNavigator {
     fun showErrorInBottomSheet(
         title: String,
         description: String,
-        button: String? = null
+        button: String? = null,
+        error: String,
+        nabuApiException: NabuApiException? = null
     )
 }

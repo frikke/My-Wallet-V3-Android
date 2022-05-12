@@ -128,6 +128,7 @@ class CoinViewActivity :
             onBackPressed()
         })
         initUI()
+        analytics.logEvent(CoinViewAnalytics.CoinViewOpen)
     }
 
     private fun initUI() {
@@ -306,7 +307,6 @@ class CoinViewActivity :
 
     override fun onResume() {
         super.onResume()
-        analytics.logEvent(CoinViewAnalytics.CoinViewOpen)
         model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 

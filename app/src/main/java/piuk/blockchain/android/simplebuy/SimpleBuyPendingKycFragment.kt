@@ -138,7 +138,7 @@ class SimpleBuyPendingKycFragment :
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
                 error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
+                source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
             )

@@ -9,7 +9,6 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.bumptech.glide.Glide
 import java.lang.IllegalStateException
 import piuk.blockchain.android.databinding.TxFlowInfoBottomSheetLayoutBinding
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 
 class TransactionFlowInfoBottomSheet : SlidingModalBottomDialog<TxFlowInfoBottomSheetLayoutBinding>() {
@@ -41,22 +40,6 @@ class TransactionFlowInfoBottomSheet : SlidingModalBottomDialog<TxFlowInfoBottom
                 infoActionContainer.gone()
             }
         }
-        logError(
-            description = info.description.toString(),
-            error = info.type.name
-        )
-    }
-
-    private fun logError(description: String, error: String) {
-        analytics.logEvent(
-            ClientErrorAnalytics.ClientLogError(
-                nabuApiException = null,
-                error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
-                title = description,
-                action = ClientErrorAnalytics.ACTION_BUY,
-            )
-        )
     }
 
     companion object {
