@@ -39,25 +39,27 @@ class ResetPasswordInteractor(
 
     fun recoverAccount(userId: String, recoveryToken: String): Completable =
         accountMetadataFF.enabled.flatMapCompletable {
-            if (it) {
-                nabuDataManager.recoverBlockchainAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
-                    metadataManager.attemptMetadataSetup()
-                        .then {
-                            metadataRepository.save(
-                                nabuMetadata,
-                                BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
-                            )
-                        }
-                }
-            } else {
-                nabuDataManager.recoverLegacyAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
-                    metadataManager.attemptMetadataSetup()
-                        .then {
-                            metadataRepository.save(
-                                nabuMetadata,
-                                NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
-                            )
-                        }
+            nabuDataManager.recoverLegacyAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
+                metadataManager.attemptMetadataSetup()
+                    .then {
+                        metadataRepository.save(
+                            nabuMetadata,
+                            NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+                        )
+                    }
+            }.then {
+                if (it) {
+                    nabuDataManager.recoverBlockchainAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
+                        metadataManager.attemptMetadataSetup()
+                            .then {
+                                metadataRepository.save(
+                                    nabuMetadata,
+                                    BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+                                )
+                            }
+                    }
+                } else {
+                    Completable.complete()
                 }
             }
         }
