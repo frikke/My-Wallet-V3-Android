@@ -38,13 +38,13 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class CoinViewInteractor(
     private val coincore: Coincore,
-    private val tradeDataManager: TradeDataManager,
+    private val tradeDataService: TradeDataService,
     private val currencyPrefs: CurrencyPrefs,
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
@@ -69,7 +69,7 @@ class CoinViewInteractor(
 
     fun loadRecurringBuys(asset: AssetInfo): Single<Pair<List<RecurringBuy>, Boolean>> =
         Single.zip(
-            tradeDataManager.getRecurringBuysForAsset(asset),
+            tradeDataService.getRecurringBuysForAsset(asset),
             custodialWalletManager.isCurrencyAvailableForTrading(asset)
         ) { rbList, isSupportedPair ->
             Pair(rbList, isSupportedPair)

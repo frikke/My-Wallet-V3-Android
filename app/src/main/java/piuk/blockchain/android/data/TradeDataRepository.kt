@@ -10,16 +10,16 @@ import com.blockchain.nabu.models.data.RecurringBuy
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 
-class TradeDataManagerImpl(
+class TradeDataRepository(
     private val tradeService: TradeService,
     private val authenticator: Authenticator,
     private val accumulatedInPeriodMapper: Mapper<List<AccumulatedInPeriod>, Boolean>,
     private val nextPaymentRecurringBuyMapper:
         Mapper<List<NextPaymentRecurringBuy>, List<EligibleAndNextPaymentRecurringBuy>>,
     private val recurringBuyMapper: Mapper<List<RecurringBuyResponse>, List<RecurringBuy>>
-) : TradeDataManager {
+) : TradeDataService {
 
     override fun isFirstTimeBuyer(): Single<Boolean> {
         return authenticator.authenticate { tokenResponse ->

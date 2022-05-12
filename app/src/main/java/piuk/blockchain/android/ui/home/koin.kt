@@ -41,7 +41,7 @@ val mainModule = module {
                 database = get(),
                 credentialsWiper = get(),
                 qrScanResultProcessor = get(),
-                secureChannelManager = get(),
+                secureChannelService = get(),
                 cancelOrderUseCase = get(),
                 onboardingPrefs = get()
             )

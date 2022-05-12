@@ -1,4 +1,4 @@
-package piuk.blockchain.android.scan
+package piuk.blockchain.android.scan.data
 
 import info.blockchain.wallet.crypto.AESUtil
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -6,18 +6,13 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.nio.charset.StandardCharsets
 import org.spongycastle.util.encoders.Hex
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 
-class QrCodeDataManager {
-    /**
-     * Generates a pairing QR code in Bitmap format from a given password, sharedkey and encryption
-     * phrase to specified dimensions, wrapped in a Single. Will throw an error if the Bitmap
-     * is null.
-     *
-     * @param password Wallet's plain text password
-     * @param sharedKey Wallet's plain text sharedkey
-     * @param encryptionPhrase The pairing encryption password
-     */
-    fun generatePairingCode(
+object QrCodeDataRepository : QrCodeDataService {
+
+    private const val PAIRING_CODE_PBKDF2_ITERATIONS = 10
+
+    override fun generatePairingCode(
         guid: String,
         password: String,
         sharedKey: String,
@@ -39,9 +34,5 @@ class QrCodeDataManager {
             val encrypted = AESUtil.encrypt("$sharedKey|$pwHex", encryptionPhrase, PAIRING_CODE_PBKDF2_ITERATIONS)
             "1|$guid|$encrypted"
         }
-    }
-
-    companion object {
-        private const val PAIRING_CODE_PBKDF2_ITERATIONS = 10
     }
 }

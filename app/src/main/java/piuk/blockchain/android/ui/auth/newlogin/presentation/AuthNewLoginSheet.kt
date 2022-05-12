@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.auth.newlogin
+package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +11,9 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import piuk.blockchain.android.databinding.AuthNewLoginSheetBinding
+import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginBrowserInfo
+import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginIpAddress
+import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginLocation
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.login.LoginAnalytics
 
@@ -74,7 +77,7 @@ class AuthNewLoginSheet :
             model.process(
                 AuthNewLoginIntents.InitAuthInfo(
                     pubKeyHash = bundle.pubKeyHash,
-                    messageInJson = bundle.message,
+                    message = bundle.message,
                     items = items,
                     forcePin = bundle.getBoolean(FORCE_PIN),
                     originIp = bundle.originIp
@@ -94,7 +97,7 @@ class AuthNewLoginSheet :
         )
 
     private val Bundle?.message
-        get() = this?.getString(MESSAGE) ?: throw IllegalArgumentException(
+        get() = this?.getParcelable<SecureChannelBrowserMessageArg>(MESSAGE) ?: throw IllegalArgumentException(
             "Message should not be null"
         )
 
@@ -121,9 +124,10 @@ class AuthNewLoginSheet :
         const val ORIGIN_LOCATION = "ORIGIN_LOCATION"
         const val ORIGIN_BROWSER = "ORIGIN_BROWSER"
 
+        // todo (othman): with new MVI this will be bundled into one ARG class
         fun newInstance(
             pubKeyHash: String?,
-            messageInJson: String?,
+            message: SecureChannelBrowserMessageArg?,
             forcePin: Boolean?,
             originIP: String?,
             originLocation: String?,
@@ -132,7 +136,7 @@ class AuthNewLoginSheet :
             AuthNewLoginSheet().apply {
                 arguments = Bundle().apply {
                     putString(PUB_KEY_HASH, pubKeyHash)
-                    putString(MESSAGE, messageInJson)
+                    putParcelable(MESSAGE, message)
                     putBoolean(FORCE_PIN, forcePin ?: false)
                     putString(ORIGIN_IP, originIP)
                     putString(ORIGIN_LOCATION, originLocation)

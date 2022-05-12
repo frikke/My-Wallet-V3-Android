@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.auth.newlogin
+package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

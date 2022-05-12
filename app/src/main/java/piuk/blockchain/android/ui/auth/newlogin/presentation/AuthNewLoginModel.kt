@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.auth.newlogin
+package piuk.blockchain.android.ui.auth.newlogin.presentation
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
@@ -10,7 +10,8 @@ import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.serialization.decodeFromString
+import piuk.blockchain.android.ui.auth.newlogin.domain.model.SecureChannelBrowserMessage
+import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.androidcore.utils.pubKeyHash
 import timber.log.Timber
 
@@ -19,7 +20,7 @@ class AuthNewLoginModel(
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val secureChannelManager: SecureChannelManager,
+    private val secureChannelService: SecureChannelService,
     private val secureChannelPrefs: SecureChannelPrefs,
     private val walletApi: WalletApi
 ) : MviModel<AuthNewLoginState, AuthNewLoginIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
@@ -29,7 +30,7 @@ class AuthNewLoginModel(
             is AuthNewLoginIntents.InitAuthInfo ->
                 parseMessage(
                     pubKeyHash = intent.pubKeyHash,
-                    messageInJson = intent.messageInJson,
+                    message = intent.message.toDomain(),
                     originIp = intent.originIp
                 )
             is AuthNewLoginIntents.ProcessBrowserMessage ->
@@ -45,7 +46,7 @@ class AuthNewLoginModel(
     }
 
     private fun processLoginApproved(previousState: AuthNewLoginState): Nothing? {
-        secureChannelManager.sendLoginMessage(
+        secureChannelService.sendLoginMessage(
             channelId = previousState.message.channelId,
             pubKeyHash = previousState.browserIdentity.pubKeyHash()
         )
@@ -57,19 +58,19 @@ class AuthNewLoginModel(
     }
 
     private fun processLoginDenied(previousState: AuthNewLoginState): Nothing? {
-        secureChannelManager.sendErrorMessage(
+        secureChannelService.sendErrorMessage(
             channelId = previousState.message.channelId,
             pubKeyHash = previousState.browserIdentity.pubKeyHash()
         )
         return null
     }
 
-    private fun parseMessage(pubKeyHash: String, messageInJson: String, originIp: String): Disposable? {
+    private fun parseMessage(pubKeyHash: String, message: SecureChannelBrowserMessage, originIp: String): Disposable? {
         process(
             AuthNewLoginIntents.ProcessBrowserMessage(
                 originIp = originIp,
                 browserIdentity = secureChannelPrefs.getBrowserIdentity(pubKeyHash)!!,
-                message = SecureChannelManager.jsonBuilder.decodeFromString(messageInJson)
+                message = message
             )
         )
         return null

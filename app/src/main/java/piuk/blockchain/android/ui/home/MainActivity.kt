@@ -67,7 +67,8 @@ import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
-import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
+import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
+import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
@@ -217,7 +218,7 @@ class MainActivity :
                 showBottomSheet(
                     AuthNewLoginSheet.newInstance(
                         pubKeyHash = it.getString(AuthNewLoginSheet.PUB_KEY_HASH),
-                        messageInJson = it.getString(AuthNewLoginSheet.MESSAGE),
+                        message = it.getParcelable(AuthNewLoginSheet.MESSAGE),
                         forcePin = it.getBoolean(AuthNewLoginSheet.FORCE_PIN),
                         originIP = it.getString(AuthNewLoginSheet.ORIGIN_IP),
                         originLocation = it.getString(AuthNewLoginSheet.ORIGIN_LOCATION),
@@ -1084,7 +1085,7 @@ class MainActivity :
             context: Context,
             launchAuthFlow: Boolean,
             pubKeyHash: String,
-            message: String,
+            message: SecureChannelBrowserMessageArg,
             originIp: String?,
             originLocation: String?,
             originBrowser: String?,

@@ -40,7 +40,7 @@ import java.math.BigDecimal
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.ui.dashboard.assetdetails.StateAwareActionsComparator
 
 class CoinViewInteractorTest {
@@ -53,7 +53,7 @@ class CoinViewInteractorTest {
 
     private lateinit var subject: CoinViewInteractor
     private val coincore: Coincore = mock()
-    private val tradeDataManager: TradeDataManager = mock()
+    private val tradeDataService: TradeDataService = mock()
     private val assetManager: DynamicAssetsDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val dashboardPrefs: DashboardPrefs = mock()
@@ -131,7 +131,7 @@ class CoinViewInteractorTest {
     fun setUp() {
         subject = CoinViewInteractor(
             coincore = coincore,
-            tradeDataManager = tradeDataManager,
+            tradeDataService = tradeDataService,
             currencyPrefs = currencyPrefs,
             dashboardPrefs = dashboardPrefs,
             identity = identity,
@@ -147,11 +147,11 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(mock())
         }
-        whenever(tradeDataManager.getRecurringBuysForAsset(asset.assetInfo)).thenReturn(Single.just(emptyList()))
+        whenever(tradeDataService.getRecurringBuysForAsset(asset.assetInfo)).thenReturn(Single.just(emptyList()))
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo)).thenReturn(Single.just(true))
         val test = subject.loadRecurringBuys(asset.assetInfo).test()
         test.assertValue(Pair(emptyList(), true))
-        verify(tradeDataManager).getRecurringBuysForAsset(asset.assetInfo)
+        verify(tradeDataService).getRecurringBuysForAsset(asset.assetInfo)
     }
 
     @Test

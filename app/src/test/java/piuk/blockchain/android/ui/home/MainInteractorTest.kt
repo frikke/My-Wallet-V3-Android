@@ -31,7 +31,7 @@ import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.ScanResult
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
+import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
@@ -54,7 +54,7 @@ class MainInteractorTest {
     private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
     private val qrScanResultProcessor: QrScanResultProcessor = mock()
-    private val secureChannelManager: SecureChannelManager = mock()
+    private val secureChannelService: SecureChannelService = mock()
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val paymentsDataManager: PaymentsDataManager = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
@@ -76,7 +76,7 @@ class MainInteractorTest {
             database = database,
             credentialsWiper = credentialsWiper,
             qrScanResultProcessor = qrScanResultProcessor,
-            secureChannelManager = secureChannelManager,
+            secureChannelService = secureChannelService,
             cancelOrderUseCase = cancelOrderUseCase,
             paymentsDataManager = paymentsDataManager,
             onboardingPrefs = onboardingPrefs,

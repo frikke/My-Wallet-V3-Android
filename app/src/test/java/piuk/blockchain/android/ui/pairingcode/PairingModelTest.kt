@@ -13,7 +13,7 @@ import okhttp3.ResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.scan.QrCodeDataManager
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -35,7 +35,7 @@ class PairingModelTest {
         on { tempPassword }.thenReturn("password")
     }
 
-    private val qrCodeDataManager: QrCodeDataManager = mock {
+    private val qrCodeDataService: QrCodeDataService = mock {
         on { generatePairingCode(any(), any(), any(), any()) }.thenReturn(
             Single.just(PAIRING_CODE_URI)
         )
@@ -65,7 +65,7 @@ class PairingModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
-            qrCodeDataManager = qrCodeDataManager,
+            qrCodeDataService = qrCodeDataService,
             payloadDataManager = payloadDataManager,
             authDataManager = authDataManager,
             analytics = mock()
