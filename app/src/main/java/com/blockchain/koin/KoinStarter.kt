@@ -55,6 +55,7 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -123,7 +124,8 @@ object KoinStarter {
                     blockchainCardModule,
                     interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
-                    bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule
+                    bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
+                    referralPresentationModule
                 )
             )
         }

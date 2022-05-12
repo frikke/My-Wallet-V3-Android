@@ -1,5 +1,7 @@
 package piuk.blockchain.android.util
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
@@ -42,4 +44,23 @@ fun Context?.openUrl(url: String) {
 
 fun Context?.openUrl(url: Uri) {
     this?.run { startActivity(Intent(Intent.ACTION_VIEW, url)) }
+}
+
+fun Context.copyToClipboard(label: String, text: String) {
+    (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).apply {
+        ClipData.newPlainText(label, text).also { clipData ->
+            setPrimaryClip(clipData)
+        }
+    }
+}
+
+fun Context.shareText(text: String) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, text)
+        type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    startActivity(shareIntent)
 }
