@@ -22,7 +22,10 @@ class LinkedCardsStore(
             authenticator.getAuthHeader()
                 .flatMap { paymentMethodsService.getCards(it, true) }
         },
-        errorMapper = { PaymentMethodsError.RequestFailed((it as? NabuApiException)?.getErrorDescription()) }
+        errorMapper = {
+            val error = (it as? NabuApiException)?.getErrorDescription().takeIf { !it.isNullOrBlank() } ?: it.message
+            PaymentMethodsError.RequestFailed(error)
+        }
     ),
     dataSerializer = ListSerializer(CardResponse.serializer()),
     mediator = FreshnessMediator(Freshness.ofMinutes(5L))

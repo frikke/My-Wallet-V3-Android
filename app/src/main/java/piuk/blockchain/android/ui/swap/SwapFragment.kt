@@ -245,7 +245,11 @@ class SwapFragment :
                                     NabuApiExceptionFactory.fromResponseBody(it)
                                 } else null,
                                 title = getString(R.string.transfer_wallets_load_error),
-                                source = ClientErrorAnalytics.Companion.Source.NABU,
+                                source = if (it is HttpException) {
+                                    ClientErrorAnalytics.Companion.Source.NABU
+                                } else {
+                                    ClientErrorAnalytics.Companion.Source.CLIENT
+                                },
                                 error = OOPS_ERROR,
                                 action = ACTION_SWAP,
                             )

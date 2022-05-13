@@ -1,5 +1,7 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.metadata.MetadataEntry
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -11,16 +13,15 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import org.junit.Test
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 
 class WalletConnectMetadataRepositoryTest {
 
-    private val metadataManager: MetadataManager = mock()
-    private val subject = WalletConnectMetadataRepository(metadataManager)
+    private val metadataRepository: MetadataRepository = mock()
+    private val subject = WalletConnectMetadataRepository(metadataRepository)
 
     @Test
     fun `load json sessions from metadata should create the corresponding v1 sessions`() {
-        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
+        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
             Maybe.just(
                 sampleMetadataString
             )
@@ -59,7 +60,7 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `load json sessions from metadata with no sessions should not create any v1 sessions`() {
-        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
+        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
             Maybe.empty()
         )
 
@@ -72,7 +73,7 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `load json sessions from metadata with empty response should not create any v1 sessions`() {
-        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(Maybe.just("{}"))
+        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(Maybe.just("{}"))
 
         val test = subject.retrieve().test()
 
@@ -83,7 +84,7 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `load json sessions from metadata with null chainID should set chainID to 1`() {
-        whenever(metadataManager.fetchMetadata(METADATA_WALLET_CONNECT_TYPE)).thenReturn(
+        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
             Maybe.just(
                 "{\n" +
                     "    \"sessions\":\n" +
@@ -140,13 +141,13 @@ class WalletConnectMetadataRepositoryTest {
 
     @Test
     fun `store a new session should append the new one to the existing metadata payload`() {
-        whenever(metadataManager.fetchMetadata(13)).thenReturn(
+        whenever(metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA)).thenReturn(
             Maybe.just(
                 sampleMetadataString
             )
         )
 
-        whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(
+        whenever(metadataRepository.saveRawValue(any(), any())).thenReturn(
             Completable.complete()
         )
 
@@ -168,7 +169,7 @@ class WalletConnectMetadataRepositoryTest {
         ).test()
 
         test.assertComplete()
-        verify(metadataManager).saveToMetadata(
+        verify(metadataRepository).saveRawValue(
             "{\"sessions\":{\"v1\":[{\"url\":\"sessionUrl\",\"dAppInfo\":{\"chainId\":1,\"peerId\":\"P" +
                 "EER_ID\",\"peerMeta\":{\"name\":\"dappName\",\"url\":\"dappUrl\",\"icons\":[\"https://random_icon" +
                 ".org\"],\"description\":\"description\"}},\"walletInfo\":{\"sourcePlatform\":\"Android\",\"clien" +
@@ -180,11 +181,9 @@ class WalletConnectMetadataRepositoryTest {
                 "ew\",\"peerMeta\":{\"name\":\"superb dappName\",\"url\":\"superb dappUrl\",\"icons\":[\"https://r" +
                 "andom_awesome_icon.org\"],\"description\":\"random description\"}},\"walletI" +
                 "nfo\":{\"sourcePlatform\":\"Android\",\"clientId\":\"clientId\"}}]}}",
-            METADATA_WALLET_CONNECT_TYPE
+            MetadataEntry.WALLET_CONNECT_METADATA
         )
     }
-
-    private val METADATA_WALLET_CONNECT_TYPE = 13
 
     private val sampleMetadataString = "{\n" +
         "    \"sessions\":\n" +

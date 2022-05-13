@@ -74,7 +74,7 @@ import piuk.blockchain.android.data.GetAccumulatedInPeriodToIsFirstTimeBuyerMapp
 import piuk.blockchain.android.data.GetNextPaymentDateListToFrequencyDateMapper
 import piuk.blockchain.android.data.Mapper
 import piuk.blockchain.android.data.RecurringBuyResponseToRecurringBuyMapper
-import piuk.blockchain.android.data.TradeDataManagerImpl
+import piuk.blockchain.android.data.TradeDataRepository
 import piuk.blockchain.android.data.biometrics.BiometricsController
 import piuk.blockchain.android.data.biometrics.BiometricsControllerImpl
 import piuk.blockchain.android.data.biometrics.BiometricsDataRepositoryImpl
@@ -87,7 +87,7 @@ import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.EmailVerificationDeepLinkHelper
 import piuk.blockchain.android.deeplink.OpenBankingDeepLinkParser
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailableCryptoAssetsUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
@@ -99,8 +99,9 @@ import piuk.blockchain.android.everypay.service.EveryPayCardService
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
-import piuk.blockchain.android.scan.QrCodeDataManager
 import piuk.blockchain.android.scan.QrScanResultProcessor
+import piuk.blockchain.android.scan.data.QrCodeDataRepository
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
@@ -112,14 +113,12 @@ import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
-import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.PitLinkingImpl
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
 import piuk.blockchain.android.ui.auth.MobileNoticeRemoteConfig
-import piuk.blockchain.android.ui.auth.newlogin.SecureChannelManager
 import piuk.blockchain.android.ui.backup.completed.BackupWalletCompletedPresenter
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingInteractor
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
@@ -266,19 +265,10 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
-                metadataManager = get(),
+                metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get()
-            )
-        }
-
-        scoped {
-            SecureChannelManager(
-                secureChannelPrefs = get(),
-                authPrefs = get(),
-                payloadManager = get(),
-                walletApi = get()
             )
         }
 
@@ -330,7 +320,7 @@ val applicationModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 remoteLogger = get(),
-                qrCodeDataManager = get(),
+                qrCodeDataService = get(),
                 payloadDataManager = get(),
                 authDataManager = get(),
                 analytics = get()
@@ -354,8 +344,7 @@ val applicationModule = module {
             RecoverFundsPresenter(
                 payloadDataManager = get(),
                 prefs = get(),
-                metadataInteractor = get(),
-                metadataDerivation = MetadataDerivation(),
+                metadataService = get(),
                 json = get()
             )
         }
@@ -418,12 +407,6 @@ val applicationModule = module {
         }
 
         factory {
-            SunriverDeepLinkHelper(
-                linkHandler = get()
-            )
-        }
-
-        factory {
             KycDeepLinkHelper(
                 linkHandler = get()
             )
@@ -443,7 +426,6 @@ val applicationModule = module {
             DeepLinkProcessor(
                 linkHandler = get(),
                 kycDeepLinkHelper = get(),
-                sunriverDeepLinkHelper = get(),
                 emailVerifiedLinkHelper = get(),
                 thePitDeepLinkParser = get(),
                 openBankingDeepLinkParser = get(),
@@ -517,13 +499,13 @@ val applicationModule = module {
 
         factory {
             IsFirstTimeBuyerUseCase(
-                tradeDataManager = get()
+                tradeDataService = get()
             )
         }
 
         factory {
             GetEligibilityAndNextPaymentDateUseCase(
-                tradeDataManager = get()
+                tradeDataService = get()
             )
         }
 
@@ -558,19 +540,19 @@ val applicationModule = module {
                 dashboardPrefs = get(),
                 userIdentity = get(),
                 paymentsDataManager = get(),
-                tradeDataManager = get()
+                tradeDataService = get()
             )
         }
 
-        factory {
-            TradeDataManagerImpl(
+        factory<TradeDataService> {
+            TradeDataRepository(
                 tradeService = get(),
                 authenticator = get(),
                 accumulatedInPeriodMapper = GetAccumulatedInPeriodToIsFirstTimeBuyerMapper(),
                 nextPaymentRecurringBuyMapper = GetNextPaymentDateListToFrequencyDateMapper(),
                 recurringBuyMapper = get()
             )
-        }.bind(TradeDataManager::class)
+        }
 
         factory {
             RecurringBuyResponseToRecurringBuyMapper(
@@ -689,7 +671,7 @@ val applicationModule = module {
 
         factory {
             Prerequisites(
-                metadataManager = get(),
+                metadataService = get(),
                 settingsDataManager = get(),
                 coincore = get(),
                 exchangeRates = get(),
@@ -699,7 +681,8 @@ val applicationModule = module {
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
                 flushables = getAll(AppStartUpFlushable::class),
-                walletCredentialsUpdater = get()
+                walletCredentialsUpdater = get(),
+                payloadDataManager = get()
             )
         }
 
@@ -825,8 +808,8 @@ val applicationModule = module {
         )
     }.bind(MobileNoticeRemoteConfig::class)
 
-    factory {
-        QrCodeDataManager()
+    factory<QrCodeDataService> {
+        QrCodeDataRepository
     }
 
     single {

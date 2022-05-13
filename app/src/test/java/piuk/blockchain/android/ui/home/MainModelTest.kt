@@ -11,8 +11,6 @@ import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.valueOf
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.models.responses.nabu.CampaignData
-import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
@@ -34,7 +32,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
@@ -42,7 +39,6 @@ import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
 import piuk.blockchain.android.simplebuy.SimpleBuyState
-import piuk.blockchain.android.sunriver.CampaignLinkState
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
@@ -124,87 +120,6 @@ class MainModelTest {
                 it.viewToLaunch is ViewToLaunch.CheckForAccountWalletLinkErrors &&
                     (it.viewToLaunch as ViewToLaunch.CheckForAccountWalletLinkErrors).walletIdHint == walletId
             }
-    }
-
-    @Test
-    fun checkForPendingLinksSunriver_wrongUri() {
-        val mockIntent: Intent = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.SunriverDeepLink(
-                    CampaignLinkState.WrongUri
-                )
-            )
-        )
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogMessage == R.string.sunriver_invalid_url_message &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogTitle == R.string.sunriver_invalid_url_title
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksSunriver_register_unverifiedUser() {
-        val mockIntent: Intent = mock()
-        val campaignData: CampaignData = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.SunriverDeepLink(
-                    CampaignLinkState.Data(
-                        campaignData
-                    )
-                )
-            )
-        )
-        whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.just(KycState.UnderReview))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchKyc &&
-                (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.Sunriver
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksSunriver_registerError() {
-        val mockIntent: Intent = mock()
-        val campaignData: CampaignData = mock()
-        val exception = IllegalStateException("test")
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.SunriverDeepLink(
-                    CampaignLinkState.Data(
-                        campaignData
-                    )
-                )
-            )
-        )
-        whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.error(exception))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogMessage == R.string.sunriver_campaign_expired &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogTitle == R.string.sunriver_invalid_url_title
-        }
     }
 
     @Test
@@ -320,65 +235,6 @@ class MainModelTest {
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.None
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksKyc_General_validData_unverified() {
-        val mockIntent: Intent = mock()
-        val campaignData: CampaignData = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.KycDeepLink(
-                    link = KycLinkState.General(
-                        campaignData
-                    )
-                )
-            )
-        )
-
-        whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.just(KycState.UnderReview))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchKyc &&
-                (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.Sunriver
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksKyc_General_validData_error() {
-        val mockIntent: Intent = mock()
-        val campaignData: CampaignData = mock()
-        val exception = IllegalStateException("test")
-
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.KycDeepLink(
-                    link = KycLinkState.General(
-                        campaignData
-                    )
-                )
-            )
-        )
-
-        whenever(interactor.registerForCampaign(campaignData)).thenReturn(Single.error(exception))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.DisplayAlertDialog &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogMessage == R.string.sunriver_campaign_expired &&
-                (it.viewToLaunch as ViewToLaunch.DisplayAlertDialog)
-                .dialogTitle == R.string.sunriver_invalid_url_title
         }
     }
 

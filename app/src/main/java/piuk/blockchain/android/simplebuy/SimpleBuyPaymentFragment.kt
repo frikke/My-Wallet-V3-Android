@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -42,6 +43,10 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -227,12 +232,13 @@ class SimpleBuyPaymentFragment :
         }
     }
 
-    private fun logErrorAnalytics(title: String, error: String) {
+    private fun logErrorAnalytics(title: String, error: String, nabuApiException: NabuApiException?) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
-                nabuApiException = null,
+                nabuApiException = nabuApiException,
                 error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
+                source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
+                    ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
             )
@@ -282,7 +288,7 @@ class SimpleBuyPaymentFragment :
                 title = getString(R.string.bank_transfer_payment_insufficient_funds_title),
                 subtitle = addLink(R.string.bank_transfer_payment_insufficient_funds_subtitle),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = INSUFFICIENT_FUNDS
             )
             is ErrorState.PaymentFailedError -> showError(
                 title = getString(R.string.payment_failed_title_with_reason),
@@ -302,7 +308,7 @@ class SimpleBuyPaymentFragment :
                 ),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = INTERNET_CONNECTION_ERROR
             )
             is ErrorState.UnhandledHttpError -> showError(
                 title = getString(
@@ -310,37 +316,38 @@ class SimpleBuyPaymentFragment :
                 ),
                 subtitle = addLink(R.string.sb_checkout_contact_support),
                 resourceIcon = R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = errorState.toString(),
+                nabuApiException = errorState.nabuApiException
             )
             ErrorState.DailyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_daily_limit_title),
                 getString(R.string.sb_checkout_daily_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = OVER_MAXIMUM_SOURCE_LIMIT,
             )
             ErrorState.WeeklyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_weekly_limit_title),
                 getString(R.string.sb_checkout_weekly_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = OVER_MAXIMUM_SOURCE_LIMIT,
             )
             ErrorState.YearlyLimitExceeded -> showError(
                 getString(R.string.sb_checkout_yearly_limit_title),
                 getString(R.string.sb_checkout_yearly_limit_blurb),
                 R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = OVER_MAXIMUM_SOURCE_LIMIT,
             )
             ErrorState.ExistingPendingOrder -> showError(
                 getString(R.string.sb_checkout_pending_order_title),
                 getString(R.string.sb_checkout_pending_order_blurb),
                 R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = PENDING_ORDERS_LIMIT_REACHED
             )
             ErrorState.InsufficientCardFunds -> showError(
                 getString(R.string.title_cardInsufficientFunds),
                 getString(R.string.msg_cardInsufficientFunds),
                 R.drawable.ic_cross_white_bckg,
-                errorState = errorState.toString()
+                errorState = INSUFFICIENT_FUNDS
             )
             ErrorState.CardBankDeclined -> showError(
                 getString(R.string.title_cardBankDecline),
@@ -434,13 +441,13 @@ class SimpleBuyPaymentFragment :
                 getString(R.string.bank_linking_timeout_error_title),
                 getString(R.string.bank_linking_timeout_error_subtitle),
                 R.drawable.ic_cross_white_bckg,
-                errorState = "BankLinkingTimeout"
+                errorState = errorState.toString()
             )
             ErrorState.Card3DsFailed -> showError(
                 getString(R.string.card_3ds),
                 getString(R.string.sb_checkout_contact_support),
                 R.drawable.ic_cross_white_bckg,
-                errorState = "Card3DsFailed"
+                errorState = errorState.toString()
             )
         }
     }
@@ -450,10 +457,12 @@ class SimpleBuyPaymentFragment :
         subtitle: CharSequence,
         resourceIcon: Int = R.drawable.ic_alert_white_bkgd,
         errorState: String,
+        nabuApiException: NabuApiException? = null
     ) {
         logErrorAnalytics(
             title = title,
-            error = errorState
+            error = errorState,
+            nabuApiException = nabuApiException
         )
         with(binding) {
             transactionProgressView.apply {

@@ -22,6 +22,7 @@ internal data class AssetPriceRecord(
     val base: String,
     val quote: String,
     val currentRate: BigDecimal? = null,
+    val marketCap: Double? = null,
     val yesterdayRate: BigDecimal? = null,
     val fetchedAtMillis: Long
 ) {
@@ -154,6 +155,7 @@ internal class AssetPriceStore(
                 base = assetPair.base,
                 quote = assetPair.quote,
                 currentRate = 1.0.toBigDecimal(),
+                marketCap = 0.0,
                 yesterdayRate = 1.0.toBigDecimal(),
                 fetchedAtMillis = System.currentTimeMillis()
             )
@@ -304,7 +306,8 @@ private fun AssetPrice.toAssetPriceRecord(nowMillis: Long) =
         base = this.base,
         quote = this.quote,
         currentRate = if (this.price.isNaN()) null else this.price.toBigDecimal(),
-        fetchedAtMillis = nowMillis
+        fetchedAtMillis = nowMillis,
+        marketCap = marketCap,
     )
 
 private fun AssetPriceRecord.updateYesterdayPrice(price: AssetPrice): AssetPriceRecord =

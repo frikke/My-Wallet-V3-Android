@@ -5,6 +5,7 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -40,7 +41,6 @@ import org.junit.Test
 import org.mockito.Mockito
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class EthDataManagerTest {
@@ -54,7 +54,7 @@ class EthDataManagerTest {
     private val payloadManager: PayloadDataManager = mock()
     private val ethAccountApi: EthAccountApi = mockk()
     private val ethDataStore: EthDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
-    private val metadataManager: MetadataManager = mock()
+    private val metadataRepository: MetadataRepository = mock()
     private val lastTxUpdater: LastTxUpdater = mock()
     private val evmNetworksService: EvmNetworksService = mock {
         on { getSupportedNetworks() }.thenReturn(Single.just(emptyList()))
@@ -65,7 +65,7 @@ class EthDataManagerTest {
         payloadDataManager = payloadManager,
         ethAccountApi = ethAccountApi,
         ethDataStore = ethDataStore,
-        metadataManager = metadataManager,
+        metadataRepository = metadataRepository,
         lastTxUpdater = lastTxUpdater,
         evmNetworksService = evmNetworksService,
         nonCustodialEvmService = nonCustodialEvmService
@@ -310,7 +310,7 @@ class EthDataManagerTest {
         val ethereumWallet: EthereumWallet = mock()
         whenever(ethDataStore.ethWallet).thenReturn(ethereumWallet)
         whenever(ethDataStore.ethWallet!!.toJson()).thenReturn("{}")
-        whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(metadataRepository.saveRawValue(any(), any())).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.updateTransactionNotes(hash, notes).test()
         // Assert
@@ -318,8 +318,8 @@ class EthDataManagerTest {
         testObserver.assertNoErrors()
         verify(ethDataStore, atLeastOnce()).ethWallet
         verifyNoMoreInteractions(ethDataStore)
-        verify(metadataManager).saveToMetadata(any(), any())
-        verifyNoMoreInteractions(metadataManager)
+        verify(metadataRepository).saveRawValue(any(), any())
+        verifyNoMoreInteractions(metadataRepository)
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
 import com.blockchain.logging.data.koin.loggingModule
+import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
@@ -38,7 +39,8 @@ import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
-import piuk.blockchain.android.ui.auth.newlogin.secureChannelModule
+import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
+import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
 import piuk.blockchain.android.ui.customersupport.customerSupportModule
 import piuk.blockchain.android.ui.dashboard.announcements.dashboardAnnouncementsModule
 import piuk.blockchain.android.ui.dashboard.dashboardModule
@@ -55,6 +57,7 @@ import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
 import piuk.blockchain.android.ui.login.loginUiModule
+import piuk.blockchain.android.ui.referral.presentation.referralPresentationModule
 import piuk.blockchain.android.ui.reset.resetAccountModule
 import piuk.blockchain.android.ui.settings.v2.redesignSettingsModule
 import piuk.blockchain.android.ui.start.startupUiModule
@@ -102,10 +105,11 @@ object KoinStarter {
                     loaderModule,
                     nabuModule,
                     nabuUrlModule,
+                    metadataModule,
                     notificationModule,
                     receiveCryptoModule,
                     resetAccountModule,
-                    secureChannelModule,
+                    secureChannelPresentationModule, secureChannelDataModule,
                     serviceModule,
                     startupUiModule,
                     sunriverModule,
@@ -123,7 +127,8 @@ object KoinStarter {
                     blockchainCardModule,
                     interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
-                    bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule
+                    bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
+                    referralPresentationModule
                 )
             )
         }

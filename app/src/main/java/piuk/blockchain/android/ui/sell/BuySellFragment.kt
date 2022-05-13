@@ -123,7 +123,11 @@ class BuySellFragment :
                                     NabuApiExceptionFactory.fromResponseBody(it)
                                 } else null,
                                 error = ClientErrorAnalytics.NABU_ERROR,
-                                source = ClientErrorAnalytics.Companion.Source.NABU,
+                                source = if (it is HttpException) {
+                                    ClientErrorAnalytics.Companion.Source.NABU
+                                } else {
+                                    ClientErrorAnalytics.Companion.Source.CLIENT
+                                },
                                 title = ClientErrorAnalytics.NABU_ERROR,
                                 action = ClientErrorAnalytics.ACTION_SELL,
                             )

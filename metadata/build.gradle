@@ -1,0 +1,30 @@
+plugins {
+    id 'kotlin'
+    id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
+    }
+}
+
+dependencies {
+    implementation project(':common:interface')
+    implementation project(':common:network')
+    implementation project(':wallet')
+    implementation project(':logging:domain')
+    implementation Libraries.rxKotlin
+    implementation Libraries.kotlinJson
+    implementation Libraries.koin
+
+    testImplementation Libraries.junit
+    testImplementation Libraries.kotlinJunit
+    testImplementation Libraries.kluent
+    testImplementation(Libraries.mockitoKotlin) {
+        ['kotlin-stdlib', 'kotlin-reflect'].each { exclude module: it }
+    }
+
+    testImplementation project(':testutils')
+}

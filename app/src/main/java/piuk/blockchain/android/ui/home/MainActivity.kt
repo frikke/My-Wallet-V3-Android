@@ -40,6 +40,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
@@ -52,7 +53,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.io.Serializable
 import java.net.URLDecoder
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -67,7 +67,8 @@ import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.auth.AccountWalletLinkAlertSheet
-import piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet
+import piuk.blockchain.android.ui.auth.newlogin.presentation.AuthNewLoginSheet
+import piuk.blockchain.android.ui.auth.newlogin.presentation.SecureChannelBrowserMessageArg
 import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
@@ -187,11 +188,8 @@ class MainActivity :
             intent.getBooleanExtra(INTENT_FROM_NOTIFICATION, false)
         ) {
             analytics.logEvent(NotificationAppOpened)
-        }
-
-        if (intent.hasExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD)) {
-            val analyticsPayload = intent.getSerializableExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD)
-            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(analyticsPayload))
+            val payload = createCampaignPayload(intent.extras)
+            analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
         if (savedInstanceState == null) {
@@ -220,7 +218,7 @@ class MainActivity :
                 showBottomSheet(
                     AuthNewLoginSheet.newInstance(
                         pubKeyHash = it.getString(AuthNewLoginSheet.PUB_KEY_HASH),
-                        messageInJson = it.getString(AuthNewLoginSheet.MESSAGE),
+                        message = it.getParcelable(AuthNewLoginSheet.MESSAGE),
                         forcePin = it.getBoolean(AuthNewLoginSheet.FORCE_PIN),
                         originIP = it.getString(AuthNewLoginSheet.ORIGIN_IP),
                         originLocation = it.getString(AuthNewLoginSheet.ORIGIN_LOCATION),
@@ -1063,7 +1061,6 @@ class MainActivity :
         private const val SHOW_SWAP = "SHOW_SWAP"
         private const val LAUNCH_AUTH_FLOW = "LAUNCH_AUTH_FLOW"
         private const val INTENT_FROM_NOTIFICATION = "INTENT_FROM_NOTIFICATION"
-        private const val INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD = "INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD"
         private const val PENDING_DESTINATION = "PENDING_DESTINATION"
         const val ACCOUNT_EDIT = 2008
         const val SETTINGS_EDIT = 2009
@@ -1088,7 +1085,7 @@ class MainActivity :
             context: Context,
             launchAuthFlow: Boolean,
             pubKeyHash: String,
-            message: String,
+            message: SecureChannelBrowserMessageArg,
             originIp: String?,
             originLocation: String?,
             originBrowser: String?,
@@ -1111,11 +1108,15 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Serializable?
+            notificationAnalyticsPayload: Map<String, String>? = null
         ): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
-                putExtra(INTENT_FROM_NOTIFICATION_ANALYTICS_PAYLOAD, notificationAnalyticsPayload)
+                notificationAnalyticsPayload?.keys?.forEach { key ->
+                    notificationAnalyticsPayload[key]?.let { value ->
+                        putExtra(key, value)
+                    }
+                }
             }
 
         fun newIntent(context: Context, pendingDestination: Destination): Intent =

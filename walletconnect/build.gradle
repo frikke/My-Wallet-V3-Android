@@ -24,6 +24,7 @@ dependencies {
     implementation project(':coincore')
     implementation project(':core')
     implementation project(':commonarch')
+    implementation project(':metadata')
     implementation project(':componentlib')
     implementation project(':common:interface')
     implementation project(':common-mp:utils')

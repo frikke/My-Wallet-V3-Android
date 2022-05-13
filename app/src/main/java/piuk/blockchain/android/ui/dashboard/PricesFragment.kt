@@ -134,7 +134,7 @@ internal class PricesFragment :
     private fun updateDisplayList(newState: DashboardState) {
         // Get the active assets sorted by balance
         val activeAssets = newState.activeAssets.values.sortedWith(
-            compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
+            compareByDescending<CryptoAssetState> { it.prices24HrWithDelta?.marketCap }
                 .thenBy { it.currency.name }
         ).map { it.toAssetPriceState() }
         // Get all the available assets
@@ -157,6 +157,8 @@ internal class PricesFragment :
                 priceWithDelta = it.prices
             )
         }
+
+        binding.recyclerView.smoothScrollToPosition(0)
     }
 
     override fun onBackPressed(): Boolean = false

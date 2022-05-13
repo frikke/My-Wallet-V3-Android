@@ -3,6 +3,8 @@ package com.blockchain.core.chains.bitcoincash
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.metadata.MetadataEntry
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -24,7 +26,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import org.bitcoinj.core.LegacyAddress
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -35,7 +36,7 @@ class BchDataManager(
     private val bchDataStore: BchDataStore,
     private val bitcoinApi: NonCustodialBitcoinService,
     private val defaultLabels: DefaultLabels,
-    private val metadataManager: MetadataManager,
+    private val metadataRepository: MetadataRepository,
     private val remoteLogger: RemoteLogger
 ) {
 
@@ -71,9 +72,9 @@ class BchDataManager(
             }
             .flatMapCompletable { metadataPair ->
                 val saveToMetadataCompletable = if (metadataPair.needsSave) {
-                    metadataManager.saveToMetadata(
+                    metadataRepository.saveRawValue(
                         bchDataStore.bchMetadata!!.toJson(),
-                        BitcoinCashWallet.METADATA_TYPE_EXTERNAL
+                        MetadataEntry.METADATA_BCH
                     )
                 } else {
                     Completable.complete()
@@ -87,9 +88,9 @@ class BchDataManager(
             }
             .subscribeOn(Schedulers.io())
 
-    fun syncWithServer(): Completable = metadataManager.saveToMetadata(
+    fun syncWithServer(): Completable = metadataRepository.saveRawValue(
         bchDataStore.bchMetadata!!.toJson(),
-        BitcoinCashWallet.METADATA_TYPE_EXTERNAL
+        MetadataEntry.METADATA_BCH
     )
 
     fun updateTransactions() =
@@ -100,7 +101,7 @@ class BchDataManager(
         defaultLabel: String,
         accountTotal: Int
     ): Maybe<GenericMetadataWallet> =
-        metadataManager.fetchMetadata(BitcoinCashWallet.METADATA_TYPE_EXTERNAL)
+        metadataRepository.loadRawValue(MetadataEntry.METADATA_BCH)
             .map { walletJson ->
                 // Fetch wallet
                 val metaData = GenericMetadataWallet.fromJson(walletJson)

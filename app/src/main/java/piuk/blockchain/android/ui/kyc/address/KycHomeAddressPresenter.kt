@@ -31,11 +31,11 @@ import timber.log.Timber
 interface KycNextStepDecision {
 
     sealed class NextStep(val order: Int) : Comparable<NextStep> {
-        data class MissingAdditionalInfo(val root: TreeNode.Root) : NextStep(0)
-        object Tier1Complete : NextStep(1)
-        object SDDComplete : NextStep(2)
-        object Tier2ContinueTier1NeedsMoreInfo : NextStep(3)
-        object Tier2Continue : NextStep(4)
+        object Tier1Complete : NextStep(0)
+        object SDDComplete : NextStep(1)
+        object Tier2ContinueTier1NeedsMoreInfo : NextStep(2)
+        data class MissingAdditionalInfo(val root: TreeNode.Root) : NextStep(3)
+        object Veriff : NextStep(4)
 
         override fun compareTo(other: NextStep): Int = this.order - other.order
     }
@@ -46,7 +46,7 @@ interface KycNextStepDecision {
 class KycHomeAddressPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val kycNextStepDecision: KycNextStepDecision,
+    private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics
 ) : BaseKycPresenter<KycHomeAddressView>(nabuToken) {
@@ -144,10 +144,7 @@ class KycHomeAddressPresenter(
             .zipWith(kycNextStepDecision.nextStep())
             .map { (x, progress) -> x.copy(progressToKycNextStep = progress) }
             .flatMap { state ->
-                if (
-                    campaignType?.shouldCheckForSddVerification() == true &&
-                    state.progressToKycNextStep !is KycNextStepDecision.NextStep.MissingAdditionalInfo
-                ) {
+                if (campaignType?.shouldCheckForSddVerification() == true) {
                     tryToVerifyUserForSdd(state, campaignType)
                 } else Single.just(state)
             }
@@ -164,7 +161,7 @@ class KycHomeAddressPresenter(
                         KycNextStepDecision.NextStep.Tier1Complete -> view.tier1Complete()
                         KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo ->
                             view.continueToTier2MoreInfoNeeded(it.countryCode)
-                        KycNextStepDecision.NextStep.Tier2Continue -> view.continueToVeriffSplash(it.countryCode)
+                        KycNextStepDecision.NextStep.Veriff -> view.continueToVeriffSplash(it.countryCode)
                         KycNextStepDecision.NextStep.SDDComplete -> view.onSddVerified()
                     }.exhaustive
                 },

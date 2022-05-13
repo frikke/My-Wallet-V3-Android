@@ -4,10 +4,8 @@ import com.blockchain.nabu.UserIdentity
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.android.campaign.SunriverCampaignRegistration
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 
 class KycIncompleteAnnouncementTest {
@@ -15,7 +13,6 @@ class KycIncompleteAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
     private val userIdentity: UserIdentity = mock()
-    private val campaignRegistration: SunriverCampaignRegistration = mock()
     private lateinit var subject: KycIncompleteAnnouncement
 
     @Before
@@ -27,8 +24,6 @@ class KycIncompleteAnnouncementTest {
 
         subject = KycIncompleteAnnouncement(
             userIdentity = userIdentity,
-            sunriverCampaignRegistration = campaignRegistration,
-            mainScheduler = Schedulers.trampoline(),
             dismissRecorder = dismissRecorder
         )
     }

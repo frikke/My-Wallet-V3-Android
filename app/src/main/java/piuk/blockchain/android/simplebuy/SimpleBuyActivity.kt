@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
@@ -29,6 +30,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -329,14 +331,19 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     override fun showErrorInBottomSheet(
         title: String,
         description: String,
-        button: String?
+        button: String?,
+        error: String,
+        nabuApiException: NabuApiException?
     ) {
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title,
                     description,
-                    button ?: getString(R.string.common_ok)
+                    button ?: getString(R.string.common_ok),
+                    error,
+                    nabuApiException,
+                    ACTION_BUY
                 )
             )
         )

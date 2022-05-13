@@ -1,6 +1,7 @@
 package com.blockchain.nabu.metadata
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
@@ -19,7 +20,7 @@ class AccountCredentialsMetadata(
 ) {
     fun load(): Maybe<CredentialMetadata> {
         return metadataRepository.load<BlockchainAccountCredentialsMetadata>(
-            BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE,
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         ).switchIfEmpty(
             // Not found - haven't been created yet.
             Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
@@ -28,7 +29,7 @@ class AccountCredentialsMetadata(
                 Maybe.just(blockchainMetadata)
             } else {
                 metadataRepository.load<NabuLegacyCredentialsMetadata>(
-                    NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+                    MetadataEntry.NABU_LEGACY_CREDENTIALS
                 ).flatMap { legacyMetadata ->
                     migrate(legacyMetadata, blockchainMetadata).thenMaybe {
                         Maybe.just(legacyMetadata)
@@ -52,7 +53,7 @@ class AccountCredentialsMetadata(
         val metadata = tokenResponse.mapToBlockchainCredentialsMetadata()
         return metadataRepository.save(
             metadata,
-            BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         ).thenSingle {
             Single.just(metadata)
         }
@@ -62,7 +63,7 @@ class AccountCredentialsMetadata(
         val metadata = tokenResponse.mapToLegacyCredentials()
         return metadataRepository.save(
             metadata,
-            NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+            MetadataEntry.NABU_LEGACY_CREDENTIALS
         ).thenSingle {
             Single.just(metadata)
         }
@@ -79,7 +80,7 @@ class AccountCredentialsMetadata(
                 lifetimeToken = legacyMetadata.lifetimeToken,
                 exchangeUserId = blockchainMetadata.exchangeUserId?.takeIf { it.isNotEmpty() }
             ),
-            BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
     }
 }

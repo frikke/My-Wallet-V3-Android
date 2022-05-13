@@ -32,9 +32,11 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
 
         cache.read(request.key).collect { cachedData ->
-            if (cachedData != null) send(StoreResponse.Data(cachedData.data))
+            val shouldFetch = networkLock.isActive && shouldFetch(request, cachedData)
+            if (cachedData != null) send(StoreResponse.Data(cachedData.data, isStale = shouldFetch))
+
             if (networkLock.isActive) {
-                when (shouldFetch(request, cachedData)) {
+                when (shouldFetch) {
                     true -> networkLock.complete(Unit)
                     false -> networkLock.cancel()
                 }

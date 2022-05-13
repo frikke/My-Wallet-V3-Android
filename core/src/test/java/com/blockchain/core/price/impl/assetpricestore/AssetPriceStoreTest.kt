@@ -154,25 +154,29 @@ class AssetPriceStoreTest {
             base = "BTC",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
-            fetchedAt = 1L
+            fetchedAt = 1L,
+            marketCap = 0.0,
         )
         private val RECORD_ETH_USD = AssetPriceRecord2(
             base = "ETH",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
-            fetchedAt = 1L
+            fetchedAt = 1L,
+            marketCap = 0.0,
         )
         private val RECORD_BTC_EUR = AssetPriceRecord2(
             base = "BTC",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
-            fetchedAt = 2L
+            fetchedAt = 2L,
+            marketCap = 0.0,
         )
         private val RECORD_ETH_EUR = AssetPriceRecord2(
             base = "ETH",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
-            fetchedAt = 2L
+            fetchedAt = 2L,
+            marketCap = 0.0,
         )
         private val RECORDS_LIST = listOf(
             RECORD_ETH_EUR,
@@ -185,19 +189,22 @@ class AssetPriceStoreTest {
                 base = "BTC",
                 quote = "USD",
                 rate = 2.0.toBigDecimal(),
-                fetchedAt = 10L
+                fetchedAt = 10L,
+                marketCap = 0.0,
             ),
             AssetPriceRecord2(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.8.toBigDecimal(),
-                fetchedAt = 20L
+                fetchedAt = 20L,
+                marketCap = 0.0,
             ),
             AssetPriceRecord2(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.6.toBigDecimal(),
-                fetchedAt = 30L
+                fetchedAt = 30L,
+                marketCap = 0.0,
             )
         )
     }

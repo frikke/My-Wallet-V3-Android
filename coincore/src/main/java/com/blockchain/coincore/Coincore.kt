@@ -37,7 +37,8 @@ class Coincore internal constructor(
     private val fiatAsset: Asset,
     private val currencyPrefs: CurrencyPrefs,
     private val remoteLogger: RemoteLogger,
-    private val paymentsDataManager: PaymentsDataManager
+    private val paymentsDataManager: PaymentsDataManager,
+    private val disabledEvmAssets: List<AssetInfo>
 ) {
 
     fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
@@ -229,9 +230,9 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets.toList()
+    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
 
-    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets
+    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets)
 
     fun supportedFiatAssets(): List<FiatCurrency> = assetCatalogue.supportedFiatAssets
 }

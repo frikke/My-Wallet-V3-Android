@@ -228,7 +228,8 @@ internal class ExchangeRatesDataManagerImpl(
                             from = fromAsset,
                             to = fiat,
                             rate = current.rate
-                        )
+                        ),
+                        marketCap = current.marketCap
                     )
                 }
             } else {
@@ -247,7 +248,8 @@ internal class ExchangeRatesDataManagerImpl(
                             from = fromAsset,
                             to = fiat,
                             rate = price.currentRate!!
-                        )
+                        ),
+                        marketCap = price.marketCap
                     )
                 }
             }

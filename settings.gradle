@@ -23,6 +23,6 @@ include ':app',
         ':logging:domain', ':logging:data',
         ':analytics:domain', ':analytics:data',
         ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
-        ':blockchainCard',
+        ':blockchainCard',':metadata',
         ':appMaintenance:data', ':appMaintenance:domain', ':appMaintenance:presentation',
         ':appRating:data', ':appRating:domain', ':appRating:presentaion'

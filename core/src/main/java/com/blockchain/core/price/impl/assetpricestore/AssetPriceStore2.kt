@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.onEach
 
 internal class AssetPriceStore2(
     private val cache: AssetPriceStoreCache,
-    private val supportedTickersStore: SupportedTickersStore
+    private val supportedTickersStore: SupportedTickersStore,
 ) {
 
     private val quoteTickerToCurrentPrices = ConcurrentHashMap<String, List<AssetPriceRecord2>>()
@@ -117,7 +117,8 @@ internal class AssetPriceStore2(
             base = base,
             quote = quote,
             rate = 1.0.toBigDecimal(),
-            fetchedAt = Calendar.getInstance().timeInMillis
+            fetchedAt = Calendar.getInstance().timeInMillis,
+            marketCap = 0.0
         )
     )
 }

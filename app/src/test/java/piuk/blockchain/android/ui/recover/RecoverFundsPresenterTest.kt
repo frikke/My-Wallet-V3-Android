@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.recover
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.metadata.MetadataService
 import com.nhaarman.mockitokotlin2.mock
-import info.blockchain.wallet.metadata.MetadataInteractor
 import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
@@ -23,7 +23,7 @@ class RecoverFundsPresenterTest {
     }
 
     private val payloadDataManager: PayloadDataManager = mock()
-    private val metadataInteractor: MetadataInteractor = mock()
+    private val metadataService: MetadataService = mock()
 
     private val json = Json {
         explicitNulls = false
@@ -34,8 +34,7 @@ class RecoverFundsPresenterTest {
     private var subject: RecoverFundsPresenter = RecoverFundsPresenter(
         payloadDataManager = payloadDataManager,
         prefs = mock(),
-        metadataInteractor = metadataInteractor,
-        metadataDerivation = mock(),
+        metadataService = metadataService,
         json = json
     )
 

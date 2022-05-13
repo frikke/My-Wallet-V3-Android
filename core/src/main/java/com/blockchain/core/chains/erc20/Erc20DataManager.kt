@@ -362,5 +362,4 @@ internal class Erc20DataManagerImpl(
 // TODO this has to scale, need to find a way to get the networks from the remote config
 fun Currency.isErc20() =
     (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true ||
-        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryService.MATIC) == true ||
-        (this as? AssetInfo)?.displayTicker?.equals(AssetDiscoveryService.MATIC) == true
+        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryService.MATIC) == true

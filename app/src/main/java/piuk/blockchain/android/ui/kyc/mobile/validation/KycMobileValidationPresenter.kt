@@ -2,16 +2,19 @@ package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
+import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import timber.log.Timber
 
 class KycMobileValidationPresenter(
     private val nabuUserSync: NabuUserSync,
     private val phoneNumberUpdater: PhoneNumberUpdater,
+    private val kycDataManager: KycDataManager,
     private val analytics: Analytics
 ) : BasePresenter<KycMobileValidationView>() {
 
@@ -22,20 +25,25 @@ class KycMobileValidationPresenter(
     private fun setupRxEvents() {
         compositeDisposable +=
             view.uiStateObservable
-                .flatMapCompletable { (verificationModel, _) ->
+                .flatMapSingle { (verificationModel, _) ->
                     phoneNumberUpdater.verifySms(verificationModel.verificationCode.code)
-                        .flatMapCompletable {
-                            nabuUserSync.syncUser()
-                        }
+                        .flatMapCompletable { nabuUserSync.syncUser() }
+                        .andThen(kycDataManager.getAdditionalInfoFormSingle())
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnSubscribe { view.showProgressDialog() }
-                        .doOnTerminate { view.dismissProgressDialog() }
+                        .doOnTerminate {
+                            view.dismissProgressDialog()
+                        }
                         .doOnError {
                             Timber.e(it)
                             view.displayErrorDialog(R.string.kyc_phone_number_validation_error_incorrect)
                         }
-                        .doOnComplete {
-                            view.continueSignUp()
+                        .doOnSuccess { missingAdditionalInfo ->
+                            if (missingAdditionalInfo.isNotEmpty()) {
+                                view.navigateToAdditionalInfo(missingAdditionalInfo.toMutableNode())
+                            } else {
+                                view.navigateToVeriff()
+                            }
                         }
                 }
                 .retry()

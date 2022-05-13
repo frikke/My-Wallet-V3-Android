@@ -9,12 +9,15 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
+import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyBlockedFragmentBinding
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INELIGIBLE
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 
 class SimpleBuyBlockedFragment : Fragment() {
     private var _binding: SimpleBuyBlockedFragmentBinding? = null
@@ -43,7 +46,8 @@ class SimpleBuyBlockedFragment : Fragment() {
             description.text = data.description
             notEligibleIcon.setImageResource(data.icon)
         }
-        logErrorAnalytics(description = data.description, error = data.title)
+
+        logErrorAnalytics(data.title, data.error)
     }
 
     override fun onDestroyView() {
@@ -51,13 +55,13 @@ class SimpleBuyBlockedFragment : Fragment() {
         _binding = null
     }
 
-    private fun logErrorAnalytics(description: String, error: String) {
+    private fun logErrorAnalytics(title: String, error: String) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
                 error = error,
-                source = ClientErrorAnalytics.Companion.Source.NABU,
-                title = description,
+                source = ClientErrorAnalytics.Companion.Source.CLIENT,
+                title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
             )
         )
@@ -65,20 +69,27 @@ class SimpleBuyBlockedFragment : Fragment() {
 
     companion object {
         private const val BLOCKED_DATA_KEY = "BLOCKED_DATA_KEY"
+
         fun newInstance(access: FeatureAccess.Blocked, resources: Resources): SimpleBuyBlockedFragment {
             val data = when (val reason = access.reason) {
-                BlockedReason.NotEligible -> BlockedBuyData(
-                    title = resources.getString(R.string.sell_is_coming_soon),
-                    description = resources.getString(R.string.sell_is_coming_soon_description),
-                    icon = R.drawable.ic_trade_not_eligible
-                )
-                is BlockedReason.TooManyInFlightTransactions -> BlockedBuyData(
-                    title = resources.getString(R.string.pending_transaction_limit),
-                    description = resources.getString(R.string.pending_buys_description, reason.maxTransactions),
-                    icon = R.drawable.ic_trolley_market
-                )
+                BlockedReason.NotEligible -> {
+                    BlockedBuyData(
+                        title = resources.getString(R.string.sell_is_coming_soon),
+                        description = resources.getString(R.string.sell_is_coming_soon_description),
+                        icon = R.drawable.ic_trade_not_eligible,
+                        error = INELIGIBLE
+                    )
+                }
+                is BlockedReason.TooManyInFlightTransactions -> {
+                    BlockedBuyData(
+                        title = resources.getString(R.string.pending_transaction_limit),
+                        description = resources.getString(R.string.pending_buys_description, reason.maxTransactions),
+                        icon = R.drawable.ic_trolley_market,
+                        error = PENDING_ORDERS_LIMIT_REACHED
+                    )
+                }
                 BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-            }
+            }.exhaustive
 
             return SimpleBuyBlockedFragment().apply {
                 arguments = Bundle().apply {
@@ -93,5 +104,6 @@ class SimpleBuyBlockedFragment : Fragment() {
 private data class BlockedBuyData(
     val title: String,
     val description: String,
-    @DrawableRes val icon: Int
+    @DrawableRes val icon: Int,
+    val error: String,
 ) : Parcelable

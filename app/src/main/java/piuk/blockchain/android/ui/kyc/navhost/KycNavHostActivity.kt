@@ -239,8 +239,7 @@ class KycNavHostActivity :
 private fun CampaignType.toLaunchOrigin(): LaunchOrigin =
     when (this) {
         CampaignType.Swap -> LaunchOrigin.SWAP
-        CampaignType.Blockstack,
-        CampaignType.Sunriver -> LaunchOrigin.AIRDROP
+        CampaignType.Blockstack -> LaunchOrigin.AIRDROP
         CampaignType.Resubmission -> LaunchOrigin.RESUBMISSION
         CampaignType.SimpleBuy -> LaunchOrigin.SIMPLETRADE
         CampaignType.FiatFunds -> LaunchOrigin.FIAT_FUNDS

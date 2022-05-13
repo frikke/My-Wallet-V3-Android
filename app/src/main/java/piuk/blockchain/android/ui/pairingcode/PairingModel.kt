@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import okhttp3.ResponseBody
-import piuk.blockchain.android.scan.QrCodeDataManager
+import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -19,7 +19,7 @@ class PairingModel(
     mainScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val qrCodeDataManager: QrCodeDataManager,
+    private val qrCodeDataService: QrCodeDataService,
     private val analytics: Analytics,
     private val payloadDataManager: PayloadDataManager,
     private val authDataManager: AuthDataManager
@@ -63,7 +63,7 @@ class PairingModel(
     private fun generatePairingCodeObservable(encryptionPhrase: String): Single<String> {
         check(payloadDataManager.tempPassword != null)
         return payloadDataManager.wallet?.let { wallet ->
-            qrCodeDataManager.generatePairingCode(
+            qrCodeDataService.generatePairingCode(
                 wallet.guid,
                 payloadDataManager.tempPassword
                     ?: throw java.lang.IllegalStateException("TempPassword is missing"),

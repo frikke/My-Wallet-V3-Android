@@ -14,8 +14,6 @@ import org.robolectric.annotation.Config
 import piuk.blockchain.android.BlockchainTestApplication
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.kyc.KycLinkState
-import piuk.blockchain.android.sunriver.CampaignLinkState
-import piuk.blockchain.android.sunriver.SunriverDeepLinkHelper
 import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 
 @Config(sdk = [24], application = BlockchainTestApplication::class)
@@ -25,16 +23,6 @@ class DeepLinkProcessorTest {
     @Test
     fun `unknown uri`() {
         givenUriExpect("https://login.blockchain.com/", LinkState.NoUri)
-    }
-
-    @Test
-    fun `sunriver uri`() {
-        givenUriExpect(
-            "https://login.blockchain.com/#/open/referral?campaign=sunriver",
-            LinkState.SunriverDeepLink(
-                CampaignLinkState.Data(CampaignData("sunriver", newUser = false))
-            )
-        )
     }
 
     @Test
@@ -106,7 +94,6 @@ private fun givenUriExpect(uri: String, expected: LinkState) {
         linkHandler = givenPendingUri(uri),
         emailVerifiedLinkHelper = EmailVerificationDeepLinkHelper(),
         kycDeepLinkHelper = KycDeepLinkHelper(mock()),
-        sunriverDeepLinkHelper = SunriverDeepLinkHelper(mock()),
         thePitDeepLinkParser = ThePitDeepLinkParser(),
         openBankingDeepLinkParser = OpenBankingDeepLinkParser(),
         blockchainDeepLinkParser = BlockchainDeepLinkParser()

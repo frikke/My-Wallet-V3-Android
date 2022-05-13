@@ -14,6 +14,7 @@ import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -22,6 +23,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isCustodialOnly
@@ -40,6 +42,7 @@ private const val defaultCustodialAddressValidation = "[a-zA-Z0-9]{15,}"
 
 internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
+    private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
     private val payloadManager: PayloadDataManager,
     private val erc20DataManager: Erc20DataManager,
@@ -77,26 +80,35 @@ internal class DynamicAssetLoader(
         }
 
     override fun initAndPreload(): Completable =
-        assetCatalogue.initialise()
-            .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
-            .flatMap { supportedAssets ->
-                // We need to make sure than any l1 assets - notably ETH - is initialised before
-                // create any l2s. So that things like balance calls will work
-                activeAssetMap.putAll(nonCustodialAssets.associateBy { it.assetInfo })
-                initNonCustodialAssets(nonCustodialAssets)
-                    // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
-                    // and the non-custodial accounts won't show up.
-                    .thenSingle {
-                        doLoadAssets(
-                            supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                                .minus(nonCustodialAssets.map { it.assetInfo }.toSet())
-                        )
-                    }
+        layerTwoFeatureFlag.enabled.flatMapCompletable { isEnabled ->
+            val enabledNonCustodialAssets = if (isEnabled) {
+                nonCustodialAssets
+            } else {
+                nonCustodialAssets.minus { cryptoAsset ->
+                    experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
+                }
             }
-            .map { nonCustodialAssets + it }
-            .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.assetInfo }) }
-            .doOnError { Timber.e("init failed") }
-            .ignoreElement()
+            assetCatalogue.initialise()
+                .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
+                .flatMap { supportedAssets ->
+                    // We need to make sure than any l1 assets - notably ETH - is initialised before
+                    // create any l2s. So that things like balance calls will work
+                    activeAssetMap.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
+                    initNonCustodialAssets(enabledNonCustodialAssets)
+                        // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
+                        // and the non-custodial accounts won't show up.
+                        .thenSingle {
+                            doLoadAssets(
+                                supportedAssets.filterIsInstance<AssetInfo>().toSet()
+                                    .minus(enabledNonCustodialAssets.map { it.assetInfo }.toSet())
+                            )
+                        }
+                }
+                .map { enabledNonCustodialAssets + it }
+                .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.assetInfo }) }
+                .doOnError { Timber.e("init failed") }
+                .ignoreElement()
+        }
 
     private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
         Completable.concat(

@@ -128,8 +128,12 @@ class BuyIntroFragment :
                                     NabuApiExceptionFactory.fromResponseBody(it)
                                 } else null,
                                 error = ClientErrorAnalytics.NABU_ERROR,
-                                source = ClientErrorAnalytics.Companion.Source.NABU,
-                                title = ClientErrorAnalytics.NABU_ERROR,
+                                source = if (it is HttpException) {
+                                    ClientErrorAnalytics.Companion.Source.NABU
+                                } else {
+                                    ClientErrorAnalytics.Companion.Source.CLIENT
+                                },
+                                title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_BUY,
                             )
                         )

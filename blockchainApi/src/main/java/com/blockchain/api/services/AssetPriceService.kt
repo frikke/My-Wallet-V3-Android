@@ -31,7 +31,8 @@ data class AssetPrice(
     val base: String,
     val quote: String,
     val price: Double,
-    val timestampSeconds: Long
+    val timestampSeconds: Long,
+    val marketCap: Double?,
 )
 
 class AssetPriceService internal constructor(
@@ -119,7 +120,8 @@ class AssetPriceService internal constructor(
             base = pair.extractBase(),
             quote = pair.extractQuote(),
             price = Double.NaN,
-            timestampSeconds = System.currentTimeMillis() / 1000
+            timestampSeconds = System.currentTimeMillis() / 1000,
+            marketCap = null,
         )
 }
 
@@ -136,7 +138,8 @@ private fun AssetPriceDto.toAssetPrice(base: String, quote: String): AssetPrice 
         base = base,
         quote = quote,
         price = price ?: Double.NaN,
-        timestampSeconds = timestampSeconds
+        timestampSeconds = timestampSeconds,
+        marketCap = marketCap,
     )
 
 private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
@@ -144,7 +147,8 @@ private fun AssetPriceDto.toAssetPrice(pair: String): AssetPrice =
         base = pair.extractBase(),
         quote = pair.extractQuote(),
         price = price ?: Double.NaN,
-        timestampSeconds = timestampSeconds
+        timestampSeconds = timestampSeconds,
+        marketCap = marketCap,
     )
 
 private fun String.extractBase(): String = substringBeforeLast("-")

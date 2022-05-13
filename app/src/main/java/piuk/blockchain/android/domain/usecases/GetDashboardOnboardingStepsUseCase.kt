@@ -9,13 +9,13 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.domain.repositories.TradeDataManager
+import piuk.blockchain.android.domain.repositories.TradeDataService
 
 class GetDashboardOnboardingStepsUseCase(
     private val dashboardPrefs: DashboardPrefs,
     private val userIdentity: UserIdentity,
     private val paymentsDataManager: PaymentsDataManager,
-    private val tradeDataManager: TradeDataManager
+    private val tradeDataService: TradeDataService
 ) : UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
 
     override fun execute(parameter: Unit): Single<List<CompletableDashboardOnboardingStep>> =
@@ -75,7 +75,7 @@ class GetDashboardOnboardingStepsUseCase(
     }
 
     private fun hasBoughtCrypto(): Single<Boolean> =
-        tradeDataManager.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
+        tradeDataService.isFirstTimeBuyer().map { isFirstTimeBuyer -> !isFirstTimeBuyer }
 }
 
 data class CompletableDashboardOnboardingStep(

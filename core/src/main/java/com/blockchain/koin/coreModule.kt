@@ -40,7 +40,6 @@ import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
-import com.blockchain.metadata.MetadataRepository
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
 import com.blockchain.preferences.AuthPrefs
@@ -61,7 +60,7 @@ import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
-import info.blockchain.wallet.metadata.MetadataDerivation
+import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
 import org.koin.dsl.bind
@@ -74,8 +73,6 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
-import piuk.blockchain.androidcore.data.metadata.MetadataRepositoryAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadService
@@ -210,7 +207,7 @@ val coreModule = module {
                 payloadDataManager = get(),
                 ethAccountApi = get(),
                 ethDataStore = get(),
-                metadataManager = get(),
+                metadataRepository = get(),
                 lastTxUpdater = get(),
                 evmNetworksService = get(),
                 nonCustodialEvmService = get()
@@ -253,7 +250,7 @@ val coreModule = module {
                 bchDataStore = get(),
                 bitcoinApi = get(),
                 defaultLabels = get(),
-                metadataManager = get(),
+                metadataRepository = get(),
                 remoteLogger = get()
             )
         }
@@ -272,7 +269,7 @@ val coreModule = module {
                 payloadManager = get(),
                 remoteLogger = get()
             )
-        }
+        }.bind(WalletPayloadService::class)
 
         factory {
             DataManagerPayloadDecrypt(
@@ -284,22 +281,6 @@ val coreModule = module {
         factory { PromptingSeedAccessAdapter(PayloadDataManagerSeedAccessAdapter(get()), get()) }
             .bind(SeedAccessWithoutPrompt::class)
             .bind(SeedAccess::class)
-
-        scoped {
-            MetadataManager(
-                payloadDataManager = get(),
-                metadataInteractor = get(),
-                metadataDerivation = MetadataDerivation(),
-                remoteLogger = get()
-            )
-        }
-
-        scoped {
-            MetadataRepositoryAdapter(
-                metadataManager = get(),
-                json = get()
-            )
-        }.bind(MetadataRepository::class)
 
         scoped { EthDataStore() }
 

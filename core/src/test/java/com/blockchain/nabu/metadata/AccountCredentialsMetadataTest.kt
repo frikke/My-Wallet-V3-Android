@@ -1,6 +1,7 @@
 package com.blockchain.nabu.metadata
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
@@ -35,7 +36,9 @@ class AccountCredentialsMetadataTest {
             exchangeLifetimeToken = "exchangeLifetimeToken"
         )
 
-        whenever(metadataRepository.load<BlockchainAccountCredentialsMetadata>(14)).thenReturn(
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
             Maybe.just(
                 metadata
             )
@@ -46,7 +49,8 @@ class AccountCredentialsMetadataTest {
             it == metadata
         }
 
-        Mockito.verify(metadataRepository).load<BlockchainAccountCredentialsMetadata>(14)
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
 
         Mockito.verifyNoMoreInteractions(metadataRepository)
     }
@@ -58,11 +62,15 @@ class AccountCredentialsMetadataTest {
             lifetimeToken = "lifetimeToken"
         )
 
-        whenever(metadataRepository.load<BlockchainAccountCredentialsMetadata>(14)).thenReturn(
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
             Maybe.empty()
         )
 
-        whenever(metadataRepository.load<NabuLegacyCredentialsMetadata>(10)).thenReturn(
+        whenever(
+            metadataRepository.load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        ).thenReturn(
             Maybe.just(legacyMetadata)
         )
 
@@ -74,8 +82,9 @@ class AccountCredentialsMetadataTest {
             it == legacyMetadata
         }
 
-        Mockito.verify(metadataRepository).load<BlockchainAccountCredentialsMetadata>(14)
-        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(10)
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
 
         Mockito.verify(
             metadataRepository
@@ -86,7 +95,7 @@ class AccountCredentialsMetadataTest {
                 exchangeLifetimeToken = null,
                 exchangeUserId = null
             ),
-            14
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
         Mockito.verifyNoMoreInteractions(metadataRepository)
     }
@@ -94,11 +103,15 @@ class AccountCredentialsMetadataTest {
     @Test
     fun `when account or legacy metadata haven't been created empty is returned`() {
 
-        whenever(metadataRepository.load<BlockchainAccountCredentialsMetadata>(14)).thenReturn(
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
             Maybe.empty()
         )
 
-        whenever(metadataRepository.load<NabuLegacyCredentialsMetadata>(10)).thenReturn(
+        whenever(
+            metadataRepository.load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        ).thenReturn(
             Maybe.empty()
         )
 
@@ -106,8 +119,9 @@ class AccountCredentialsMetadataTest {
 
         test.assertResult()
 
-        Mockito.verify(metadataRepository).load<BlockchainAccountCredentialsMetadata>(14)
-        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(10)
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
 
         Mockito.verifyNoMoreInteractions(metadataRepository)
     }
@@ -115,7 +129,9 @@ class AccountCredentialsMetadataTest {
     @Test
     fun `when account metadata are invalid but legacy have been created, new metadata should updated correctly`() {
 
-        whenever(metadataRepository.load<BlockchainAccountCredentialsMetadata>(14)).thenReturn(
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
             Maybe.just(
                 BlockchainAccountCredentialsMetadata(
                     userId = null,
@@ -128,7 +144,9 @@ class AccountCredentialsMetadataTest {
 
         whenever(metadataRepository.saveMetadata(any(), any(), any(), any())).thenReturn(Completable.complete())
 
-        whenever(metadataRepository.load<NabuLegacyCredentialsMetadata>(10)).thenReturn(
+        whenever(
+            metadataRepository.load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        ).thenReturn(
             Maybe.just(
                 NabuLegacyCredentialsMetadata(
                     userId = "123",
@@ -146,8 +164,9 @@ class AccountCredentialsMetadataTest {
             )
         }
 
-        Mockito.verify(metadataRepository).load<BlockchainAccountCredentialsMetadata>(14)
-        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(10)
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
         Mockito.verify(metadataRepository).save(
             BlockchainAccountCredentialsMetadata(
                 userId = "123",
@@ -155,7 +174,7 @@ class AccountCredentialsMetadataTest {
                 exchangeUserId = "Lakis",
                 exchangeLifetimeToken = "exchangeLifetimeToken"
             ),
-            14
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
 
         Mockito.verifyNoMoreInteractions(metadataRepository)
@@ -178,7 +197,7 @@ class AccountCredentialsMetadataTest {
         }
 
         Mockito.verify(metadataRepository).save(
-            metadata, 10
+            metadata, MetadataEntry.NABU_LEGACY_CREDENTIALS
         )
     }
 
@@ -202,7 +221,7 @@ class AccountCredentialsMetadataTest {
         }
 
         Mockito.verify(metadataRepository).save(
-            metadata, 14
+            metadata, MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
     }
 }

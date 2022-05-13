@@ -4,8 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.blockchain.analytics.Analytics
-import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAsset
@@ -24,16 +22,13 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountCryptoOverviewBinding
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.EnterAmountCustomisations
 import piuk.blockchain.android.ui.transactionflow.plugin.EnterAmountWidget
-import retrofit2.HttpException
 import timber.log.Timber
 
 class AccountInfoCrypto @JvmOverloads constructor(
@@ -52,8 +47,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
-
-    private val analytics: Analytics by inject()
 
     fun updateAccount(
         account: CryptoAccount,
@@ -100,19 +93,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
                     onError = {
                         assetSubtitle.text = resources.getString(
                             R.string.dashboard_asset_actions_rewards_dsc_failed
-                        )
-                        analytics.logEvent(
-                            ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
-                                title = resources.getString(
-                                    R.string.dashboard_asset_actions_rewards_dsc_failed
-                                ),
-                                source = ClientErrorAnalytics.Companion.Source.NABU,
-                                error = ClientErrorAnalytics.OOPS_ERROR,
-                                action = ClientErrorAnalytics.ACTION_SWAP,
-                            )
                         )
                         Timber.e("AssetActions error loading Interest rate: $it")
                     }

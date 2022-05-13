@@ -6,6 +6,8 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.logging.LastTxUpdater
+import com.blockchain.metadata.MetadataEntry
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
@@ -34,7 +36,6 @@ import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 
@@ -42,7 +43,7 @@ class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
     private val ethAccountApi: EthAccountApi,
     private val ethDataStore: EthDataStore,
-    private val metadataManager: MetadataManager,
+    private val metadataRepository: MetadataRepository,
     private val lastTxUpdater: LastTxUpdater,
     private val evmNetworksService: EvmNetworksService,
     private val nonCustodialEvmService: NonCustodialEvmService
@@ -350,7 +351,7 @@ class EthDataManager(
         assetCatalogue: AssetCatalogue,
         label: String
     ): Single<Pair<EthereumWallet, Boolean>> =
-        metadataManager.fetchMetadata(EthereumWallet.METADATA_TYPE_EXTERNAL).defaultIfEmpty("")
+        metadataRepository.loadRawValue(MetadataEntry.METADATA_ETH).defaultIfEmpty("")
             .map { metadata ->
                 val walletJson = if (metadata != "") metadata else null
 
@@ -381,9 +382,9 @@ class EthDataManager(
             }
 
     fun save(): Completable =
-        metadataManager.saveToMetadata(
+        metadataRepository.saveRawValue(
             ethDataStore.ethWallet!!.toJson(),
-            EthereumWallet.METADATA_TYPE_EXTERNAL
+            MetadataEntry.METADATA_ETH
         )
 
     fun getErc20TokenData(asset: AssetInfo): Erc20TokenData? {

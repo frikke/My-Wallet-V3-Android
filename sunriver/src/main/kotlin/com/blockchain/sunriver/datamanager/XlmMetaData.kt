@@ -15,12 +15,6 @@ internal data class XlmMetaData(
 
     @SerialName("tx_notes")
     val transactionNotes: Map<String, String>?
-) : JsonSerializable {
-
-    companion object {
-
-        const val MetaDataType = 11
-    }
-}
+) : JsonSerializable
 
 internal fun XlmMetaData.default() = accounts!![defaultAccountIndex]

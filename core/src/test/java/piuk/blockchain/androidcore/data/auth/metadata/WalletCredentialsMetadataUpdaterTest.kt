@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.data.auth.metadata
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -40,12 +41,12 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                MetadataEntry.WALLET_CREDENTIALS,
                 WalletCredentialsMetadata::class.serializer(),
                 WalletCredentialsMetadata::class.java
             )
         ).thenReturn(
-            Maybe.empty<WalletCredentialsMetadata>()
+            Maybe.empty()
         )
 
         // This is nasty. I'd like a much better way of testing for chained subscriptions TODO
@@ -58,7 +59,7 @@ class WalletCredentialsMetadataUpdaterTest {
                 WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
                 WalletCredentialsMetadata::class.java,
                 WalletCredentialsMetadata::class.serializer(),
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
+                MetadataEntry.WALLET_CREDENTIALS,
             )
         ).thenReturn(updateResult)
 
@@ -70,7 +71,7 @@ class WalletCredentialsMetadataUpdaterTest {
         verify(payloadDataManager).sharedKey
 
         verify(metadataRepository).loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            MetadataEntry.WALLET_CREDENTIALS,
             WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )
@@ -78,7 +79,7 @@ class WalletCredentialsMetadataUpdaterTest {
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
             WalletCredentialsMetadata::class.serializer(),
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
+            MetadataEntry.WALLET_CREDENTIALS,
         )
 
         assert(subFlag)
@@ -95,7 +96,7 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                MetadataEntry.WALLET_CREDENTIALS,
                 WalletCredentialsMetadata::class.serializer(),
                 WalletCredentialsMetadata::class.java
             )
@@ -116,7 +117,7 @@ class WalletCredentialsMetadataUpdaterTest {
         verify(payloadDataManager).sharedKey
 
         verify(metadataRepository).loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            MetadataEntry.WALLET_CREDENTIALS,
             WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )
@@ -124,7 +125,7 @@ class WalletCredentialsMetadataUpdaterTest {
             WalletCredentialsMetadata(GUID_1, PASSWORD_1, KEY_1),
             WalletCredentialsMetadata::class.java,
             WalletCredentialsMetadata::class.serializer(),
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE
+            MetadataEntry.WALLET_CREDENTIALS,
         )
         verifyNoMoreInteractions(metadataRepository)
         verifyNoMoreInteractions(payloadDataManager)
@@ -138,7 +139,7 @@ class WalletCredentialsMetadataUpdaterTest {
 
         whenever(
             metadataRepository.loadMetadata(
-                WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+                MetadataEntry.WALLET_CREDENTIALS,
                 WalletCredentialsMetadata::class.serializer(),
                 WalletCredentialsMetadata::class.java
             )
@@ -159,7 +160,7 @@ class WalletCredentialsMetadataUpdaterTest {
         verify(payloadDataManager).sharedKey
 
         verify(metadataRepository).loadMetadata(
-            WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
+            MetadataEntry.WALLET_CREDENTIALS,
             WalletCredentialsMetadata::class.serializer(),
             WalletCredentialsMetadata::class.java
         )

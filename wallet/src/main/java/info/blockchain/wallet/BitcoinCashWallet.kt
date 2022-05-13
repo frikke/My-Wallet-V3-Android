@@ -282,7 +282,6 @@ open class BitcoinCashWallet : DeterministicWallet {
         /**
          * Coin metadata store
          */
-        const val METADATA_TYPE_EXTERNAL = 7
 
         @Synchronized
         fun create(

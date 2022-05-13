@@ -122,11 +122,6 @@ class XlmMetaDataSerializationTest {
         "{}".assertJsonRoundTrip()
     }
 
-    @Test
-    fun `Meta data type`() {
-        XlmMetaData.MetaDataType `should be` 11
-    }
-
     private fun String.assertJsonRoundTrip() {
         XlmMetaData::class.fromJson(this, json).assertJsonRoundTrip()
     }
