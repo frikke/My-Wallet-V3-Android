@@ -7,7 +7,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -30,7 +29,7 @@ import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 
-interface ComposeNavigationRouter : NavigationRouter<NavigationEvent> {
+interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRouter<TNavEvent> {
     val navController: NavHostController
 }
 
@@ -40,10 +39,10 @@ interface ComposeNavigationDestination {
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun MviNavHost(
-    navigationRouter: ComposeNavigationRouter,
+fun <TNavEvent : NavigationEvent> MviBottomSheetNavHost(
+    navigationRouter: ComposeNavigationRouter<TNavEvent>,
     startDestination: ComposeNavigationDestination,
-    navEvents: Flow<NavigationEvent>,
+    navEvents: Flow<TNavEvent>,
     modifier: Modifier = Modifier,
     onCollapse: () -> Unit = {},
     route: String? = null,
@@ -82,6 +81,31 @@ fun MviNavHost(
             }
         }
     }
+}
+
+@Composable
+fun <TNavEvent : NavigationEvent> MviFragmentNavHost(
+    navigationRouter: ComposeNavigationRouter<TNavEvent>,
+    startDestination: ComposeNavigationDestination,
+    navEvents: Flow<TNavEvent>,
+    modifier: Modifier = Modifier,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+) {
+
+    LaunchedEffect(key1 = Unit) {
+        navEvents.collectLatest { navigationEvent ->
+            navigationRouter.route(navigationEvent)
+        }
+    }
+
+    NavHost(
+        navigationRouter.navController,
+        remember(route, startDestination.route, builder) {
+            navigationRouter.navController.createGraph(startDestination.route, route, builder)
+        },
+        modifier
+    )
 }
 
 fun NavGraphBuilder.composable(

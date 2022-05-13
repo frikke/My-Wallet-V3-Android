@@ -4,12 +4,15 @@ import androidx.navigation.NavHostController
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
+import com.blockchain.extensions.exhaustive
 
-class BlockchainCardNavigationRouter(override val navController: NavHostController) : ComposeNavigationRouter {
+class BlockchainCardNavigationRouter(override val navController: NavHostController) :
+    ComposeNavigationRouter<BlockchainCardNavigationEvent> {
 
-    override fun route(navigationEvent: NavigationEvent) {
+    override fun route(navigationEvent: BlockchainCardNavigationEvent) {
         var destination: BlockchainCardDestination = BlockchainCardDestination.NoDestination
 
+        @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
             is BlockchainCardNavigationEvent.OrderOrLinkCard -> {
                 destination = BlockchainCardDestination.OrderOrLinkCardDestination
@@ -49,7 +52,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             is BlockchainCardNavigationEvent.ManageCardDetails -> {
                 destination = BlockchainCardDestination.ManageCardDetailsDestination
             }
-        }
+        }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
             navController.navigate(destination.route)
