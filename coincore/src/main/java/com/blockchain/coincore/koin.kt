@@ -16,11 +16,13 @@ import com.blockchain.coincore.loader.AssetLoader
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -153,6 +155,12 @@ val coincoreModule = module {
         }
 
         scoped {
+            val flag: FeatureFlag = get(ethLayerTwoFeatureFlag)
+            val ncAssetList = if (flag.isEnabled) {
+                emptyList<AssetInfo>()
+            } else {
+                experimentalL1EvmAssetList()
+            }
             Coincore(
                 assetCatalogue = get(),
                 payloadManager = get(),
@@ -162,7 +170,8 @@ val coincoreModule = module {
                 defaultLabels = get(),
                 remoteLogger = get(),
                 paymentsDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                disabledEvmAssets = ncAssetList.toList()
             )
         }
 
@@ -172,6 +181,7 @@ val coincoreModule = module {
             // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
                 nonCustodialAssets = ncAssets.toSet(),
+                experimentalL1EvmAssets = experimentalL1EvmAssetList(),
                 assetCatalogue = get(),
                 payloadManager = get(),
                 erc20DataManager = get(),
@@ -276,11 +286,13 @@ val coincoreModule = module {
     }
 }
 
+fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
+    setOf(CryptoCurrency.MATIC)
+
 fun nonCustodialAssetList() =
     setOf(
         CryptoCurrency.BTC,
         CryptoCurrency.BCH,
         CryptoCurrency.ETHER,
-        CryptoCurrency.XLM,
-        CryptoCurrency.MATIC
-    )
+        CryptoCurrency.XLM
+    ).plus(experimentalL1EvmAssetList())
