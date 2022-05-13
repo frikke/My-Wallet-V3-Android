@@ -11,13 +11,11 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel
-import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoNextStepDecision
 import piuk.blockchain.android.ui.kyc.additional_info.StateMachine
 import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
 import piuk.blockchain.android.ui.kyc.address.EligibilityForFreeEthAdapter
+import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressPresenter
-import piuk.blockchain.android.ui.kyc.address.KycNextStepDecision
-import piuk.blockchain.android.ui.kyc.address.KycNextStepDecisionAdapter
 import piuk.blockchain.android.ui.kyc.countryselection.KycCountrySelectionPresenter
 import piuk.blockchain.android.ui.kyc.invalidcountry.KycInvalidCountryPresenter
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsInteractor
@@ -95,6 +93,7 @@ val kycUiModule = module {
             KycMobileValidationPresenter(
                 nabuUserSync = get(),
                 phoneNumberUpdater = get(),
+                kycDataManager = get(),
                 analytics = get()
             )
         }
@@ -158,17 +157,10 @@ val kycUiNabuModule = module {
     scope(payloadScopeQualifier) {
 
         factory {
-            KycNextStepDecisionAdapter(
+            KycHomeAddressNextStepDecision(
                 nabuToken = get(),
                 nabuDataManager = get(),
                 kycDataManager = get()
-            )
-        }.bind(KycNextStepDecision::class)
-
-        factory {
-            KycAdditionalInfoNextStepDecision(
-                nabuToken = get(),
-                nabuDataManager = get()
             )
         }
 
@@ -190,9 +182,7 @@ val kycUiNabuModule = module {
             KycAdditionalInfoModel(
                 kycDataManager = get(),
                 stateMachine = StateMachine(),
-                custodialWalletManager = get(),
-                analytics = get(),
-                kycNextStepDecision = get(KycAdditionalInfoNextStepDecision::class)
+                analytics = get()
             )
         }
     }

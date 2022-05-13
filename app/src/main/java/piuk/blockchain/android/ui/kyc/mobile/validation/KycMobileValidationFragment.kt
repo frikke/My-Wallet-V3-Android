@@ -29,6 +29,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycMobileValidationBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
+import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
@@ -155,12 +156,24 @@ class KycMobileValidationFragment :
         progressDialog = null
     }
 
-    override fun continueSignUp() {
+    override fun navigateToVeriff() {
         requireActivity().hideKeyboard()
         findNavController(this).apply {
             // Remove phone entry and validation pages from back stack as it would be confusing for the user
             popBackStack(R.id.kycPhoneNumberFragment, true)
             navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
+        }
+    }
+
+    override fun navigateToAdditionalInfo(root: TreeNode.Root) {
+        requireActivity().hideKeyboard()
+        findNavController(this).apply {
+            navigate(
+                KycMobileValidationFragmentDirections.actionKycMobileValidationFragmentToKycAdditionalInfoFragment(
+                    root,
+                    countryCode
+                )
+            )
         }
     }
 

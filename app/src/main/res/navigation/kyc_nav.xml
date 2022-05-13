@@ -173,6 +173,12 @@
             <argument
                 android:name="mobileNumber"
                 app:argType="piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel" />
+            <action
+                android:id="@+id/action_kycMobileValidationFragment_to_kycAdditionalInfoFragment"
+                app:destination="@id/kycAdditionalInfoFragment"
+                app:popUpTo="@id/kyc_nav.xml"
+                app:popUpToInclusive="true"
+                />
         </fragment>
     </navigation>
     <navigation
@@ -207,7 +213,7 @@
     <action
         android:id="@+id/action_startVeriff"
         app:destination="@id/veriffSplashFragment"
-        app:popUpTo="@+id/kycTierSplashFragment"
+        app:popUpTo="@id/kyc_nav.xml"
         app:popUpToInclusive="true" />
     <action
         android:id="@+id/action_startEmailVerification"

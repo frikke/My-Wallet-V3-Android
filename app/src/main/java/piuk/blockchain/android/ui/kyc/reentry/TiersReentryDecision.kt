@@ -25,9 +25,9 @@ class TiersReentryDecision(
             tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
             else -> return rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }.map { missingAdditionalInfo ->
                 when {
+                    !hasMobileVerified() -> ReentryPoint.MobileEntry
                     missingAdditionalInfo.isNotEmpty() ->
                         ReentryPoint.AdditionalInfo(missingAdditionalInfo.toMutableNode())
-                    !hasMobileVerified() -> ReentryPoint.MobileEntry
                     else -> ReentryPoint.Veriff
                 }
             }

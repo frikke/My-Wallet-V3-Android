@@ -33,8 +33,8 @@ class KycHomeAddressPresenterTest {
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
-    private val kycNextStepDecision: KycNextStepDecision = mock {
-        on { nextStep() }.thenReturn(Single.just(KycNextStepDecision.NextStep.Tier2Continue))
+    private val kycNextStepDecision: KycHomeAddressNextStepDecision = mock {
+        on { nextStep() }.thenReturn(Single.just(KycNextStepDecision.NextStep.Veriff))
     }
 
     @Suppress("unused")

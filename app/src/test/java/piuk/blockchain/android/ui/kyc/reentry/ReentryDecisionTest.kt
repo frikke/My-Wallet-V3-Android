@@ -174,7 +174,7 @@ class ReentryDecisionTest {
     }
 
     @Test
-    fun `if user is tier 0, has missing additional info then go to additional info entry`() {
+    fun `if user is tier 1, has missing additional info then go to additional info entry`() {
         val nodes = listOf(
             KycAdditionalInfoNode.Selection("s1", "text1", emptyList(), false),
             KycAdditionalInfoNode.Selection("s2", "text2", emptyList(), false),
@@ -187,9 +187,10 @@ class ReentryDecisionTest {
             )
         )
         whereNext(
-            createdNabuUser(tier = 0, next = 2).copy(
+            createdNabuUser(tier = 1, next = 2).copy(
                 email = "abc@def.com",
                 emailVerified = true,
+                mobileVerified = true,
                 address = Address(
                     line1 = "",
                     line2 = "",

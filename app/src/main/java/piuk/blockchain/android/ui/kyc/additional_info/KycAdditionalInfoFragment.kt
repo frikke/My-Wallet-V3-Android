@@ -21,7 +21,6 @@ import org.koin.androidx.viewmodel.scope.getViewModel
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 
@@ -38,15 +37,6 @@ class KycAdditionalInfoFragment() : MVIFragment<KycAdditionalInfoState>() {
     private val navigator: NavigationRouter<Navigation> = object : NavigationRouter<Navigation> {
         override fun route(navigationEvent: Navigation) {
             when (navigationEvent) {
-                Navigation.FinishWithSddComplete -> {
-                    activity?.setResult(KycNavHostActivity.RESULT_KYC_FOR_SDD_COMPLETE)
-                    activity?.finish()
-                }
-                Navigation.FinishWithTier1Complete -> {
-                    activity?.setResult(KycNavHostActivity.RESULT_KYC_FOR_TIER_COMPLETE)
-                    activity?.finish()
-                }
-                Navigation.LaunchKycSplash -> navigate(KycNavXmlDirections.actionStartTier2NeedMoreInfo(countryCode))
                 Navigation.LaunchVeriff -> navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
             }.exhaustive
         }

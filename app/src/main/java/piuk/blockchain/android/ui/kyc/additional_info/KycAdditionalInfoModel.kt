@@ -6,19 +6,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.extensions.exhaustive
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.kyc.UpdateKycAdditionalInfoError
 import com.blockchain.nabu.models.responses.nabu.NodeId
-import com.blockchain.network.PollService
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.doOnSuccess
-import com.blockchain.outcome.flatMap
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.kyc.address.KycNextStepDecision
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 data class KycAdditionalInfoModelState(
     val nodes: List<FlatNode> = emptyList(),
@@ -30,10 +23,7 @@ data class KycAdditionalInfoModelState(
 ) : ModelState
 
 sealed class Navigation : NavigationEvent {
-    object FinishWithSddComplete : Navigation()
-    object FinishWithTier1Complete : Navigation()
     object LaunchVeriff : Navigation()
-    object LaunchKycSplash : Navigation()
 }
 
 @Parcelize
@@ -45,9 +35,7 @@ data class Args(
 class KycAdditionalInfoModel(
     private val kycDataManager: KycDataManager,
     private val stateMachine: StateMachine,
-    private val custodialWalletManager: CustodialWalletManager,
-    private val analytics: Analytics,
-    private val kycNextStepDecision: KycNextStepDecision
+    private val analytics: Analytics
 ) : MviViewModel<
     KycAdditionalInfoIntent,
     KycAdditionalInfoState,
@@ -104,15 +92,7 @@ class KycAdditionalInfoModel(
                 when (val result = kycDataManager.updateAdditionalInfo(nodes)) {
                     is Outcome.Success -> {
                         analytics.logEvent(KycAdditionalInfoSubmitted)
-                        when (val result = verifySddAndGetNextStep()) {
-                            is Outcome.Success -> navigate(result.value.toNavigation())
-                            is Outcome.Failure -> updateState {
-                                it.copy(
-                                    isUploadingNodes = false,
-                                    error = UpdateKycAdditionalInfoError.RequestFailed
-                                )
-                            }
-                        }
+                        navigate(Navigation.LaunchVeriff)
                     }
                     is Outcome.Failure -> updateState {
                         val invalidNodes =
@@ -128,49 +108,5 @@ class KycAdditionalInfoModel(
             }
             KycAdditionalInfoIntent.ErrorHandled -> updateState { it.copy(error = null) }
         }.exhaustive
-    }
-
-    private suspend fun verifySddAndGetNextStep(): Outcome<Exception, KycNextStepDecision.NextStep> =
-        kycNextStepDecision.nextStep().awaitOutcome()
-            .flatMap { checkSddVerificationAndGetNextStep(it) }
-
-    private suspend fun checkSddVerificationAndGetNextStep(
-        nextStep: KycNextStepDecision.NextStep
-    ): Outcome<Exception, KycNextStepDecision.NextStep> {
-        val campaignType = modelState.campaignType
-
-        return custodialWalletManager.isSimplifiedDueDiligenceEligible().awaitOutcome()
-            .doOnSuccess { if (it) analytics.logEventOnce(SDDAnalytics.SDD_ELIGIBLE) }
-            .flatMap {
-                PollService(custodialWalletManager.fetchSimplifiedDueDiligenceUserState()) { sddState ->
-                    sddState.stateFinalised
-                }.start(timerInSec = 1, retries = 10).map { sddState ->
-                    if (sddState.value.isVerified) {
-                        if (shouldNotContinueToNextKycTier(nextStep, campaignType)) {
-                            KycNextStepDecision.NextStep.SDDComplete
-                        } else {
-                            nextStep
-                        }
-                    } else {
-                        nextStep
-                    }
-                }.awaitOutcome()
-            }
-    }
-
-    private fun shouldNotContinueToNextKycTier(
-        nextStep: KycNextStepDecision.NextStep,
-        campaignType: CampaignType
-    ): Boolean {
-        return nextStep < KycNextStepDecision.NextStep.SDDComplete ||
-            campaignType == CampaignType.SimpleBuy
-    }
-
-    private fun KycNextStepDecision.NextStep.toNavigation(): Navigation = when (this) {
-        is KycNextStepDecision.NextStep.MissingAdditionalInfo -> throw UnsupportedOperationException()
-        KycNextStepDecision.NextStep.SDDComplete -> Navigation.FinishWithSddComplete
-        KycNextStepDecision.NextStep.Tier1Complete -> Navigation.FinishWithTier1Complete
-        KycNextStepDecision.NextStep.Tier2Continue -> Navigation.LaunchVeriff
-        KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo -> Navigation.LaunchKycSplash
     }
 }
