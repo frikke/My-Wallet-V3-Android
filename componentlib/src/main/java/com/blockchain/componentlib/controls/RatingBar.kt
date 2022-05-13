@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.button
+package com.blockchain.componentlib.controls
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +25,7 @@ fun RatingBar(
     initialRating: Int,
     onRatingChanged: (rating: Int) -> Unit
 ) {
-    val rating = remember { mutableStateOf(initialRating) }
+    var rating by remember { mutableStateOf(initialRating) }
 
     Row {
         val range: IntRange = 1..count
@@ -32,11 +34,11 @@ fun RatingBar(
             Image(
                 modifier = Modifier
                     .clickable {
-                        rating.value = index
-                        onRatingChanged(rating.value)
+                        rating = index
+                        onRatingChanged(rating)
                     },
                 imageResource = ImageResource.Local(
-                    if (index <= rating.value) imageFilled
+                    if (index <= rating) imageFilled
                     else imageOutline
                 )
             )

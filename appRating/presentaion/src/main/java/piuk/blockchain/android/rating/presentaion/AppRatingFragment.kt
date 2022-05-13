@@ -6,26 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import piuk.blockchain.android.rating.presentaion.composable.AppRatingCompletedScreen
-import piuk.blockchain.android.rating.presentaion.composable.AppRatingStarsScreen
+import com.blockchain.koin.payloadScope
+import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.androidx.viewmodel.scope.getViewModel
+import piuk.blockchain.android.rating.presentaion.composable.AppRatingNavHost
 
 class AppRatingFragment : DialogFragment() {
+
+    private val viewModel: AppRatingViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val navController = rememberNavController()
-
-                NavHost(
-                    navController = navController,
-                    startDestination = "11"
-                ) {
-                    composable("11") { AppRatingStarsScreen({ navController.navigate("22") }, {}) }
-                    composable("22") { AppRatingCompletedScreen() }
-                }
+                AppRatingNavHost(
+                    viewModel = viewModel,
+                    onDismiss = { dismiss() }
+                )
             }
         }
     }

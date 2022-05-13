@@ -38,6 +38,8 @@ import piuk.blockchain.android.campaign.campaignModule
 import piuk.blockchain.android.maintenance.data.appMaintenanceDataModule
 import piuk.blockchain.android.maintenance.domain.appMaintenanceDomainModule
 import piuk.blockchain.android.maintenance.presentation.appMaintenancePresentationModule
+import piuk.blockchain.android.rating.data.appRatingDataModule
+import piuk.blockchain.android.rating.presentaion.appRatingPresentationModule
 import piuk.blockchain.android.ui.activity.activitiesModule
 import piuk.blockchain.android.ui.auth.newlogin.data.secureChannelDataModule
 import piuk.blockchain.android.ui.auth.newlogin.presentation.secureChannelPresentationModule
@@ -128,7 +130,8 @@ object KoinStarter {
                     interestDashboardDataModule, interestDashboardDomainModule, interestDashboardPresentationModule,
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
-                    referralPresentationModule
+                    referralPresentationModule,
+                    appRatingDataModule, appRatingPresentationModule
                 )
             )
         }

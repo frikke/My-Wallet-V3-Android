@@ -35,6 +35,20 @@ interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRoute
 
 interface ComposeNavigationDestination {
     val route: String
+
+    fun routeWithParsedArgs(args: List<Pair<String, Any>>): String {
+        var finalRoute = route
+
+        args.forEach { (key, value) ->
+            key.wrappedArg().let { argKey ->
+                if (finalRoute.contains(argKey)) {
+                    finalRoute = finalRoute.replace(argKey, value.toString())
+                }
+            }
+        }
+
+        return finalRoute
+    }
 }
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
@@ -149,3 +163,5 @@ fun NavGraphBuilder.bottomSheet(
         }
     )
 }
+
+fun String.wrappedArg() = "{$this}"
