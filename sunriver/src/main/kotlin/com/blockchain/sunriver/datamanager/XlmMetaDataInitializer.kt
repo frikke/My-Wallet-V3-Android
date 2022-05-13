@@ -1,7 +1,10 @@
 package com.blockchain.sunriver.datamanager
 
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
+import com.blockchain.metadata.load
+import com.blockchain.metadata.save
 import com.blockchain.rx.maybeCache
 import com.blockchain.sunriver.derivation.deriveXlmAccountKeyPair
 import com.blockchain.wallet.DefaultLabels
@@ -10,7 +13,6 @@ import com.blockchain.wallet.SeedAccess
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 
 @OptIn(InternalSerializationApi::class)
 internal class XlmMetaDataInitializer(
@@ -40,7 +42,7 @@ internal class XlmMetaDataInitializer(
     }
 
     private val load: Maybe<XlmMetaData> = Maybe.defer {
-        repository.loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java)
+        repository.load<XlmMetaData>(MetadataEntry.METADATA_XLM)
             .ignoreBadMetadata()
             .compareForLog()
     }.maybeCache()
@@ -86,11 +88,9 @@ internal class XlmMetaDataInitializer(
 
     private fun Maybe<XlmMetaData>.saveSideEffect(): Maybe<XlmMetaData> =
         flatMap { newData ->
-            repository.saveMetadata(
+            repository.save(
                 newData,
-                XlmMetaData::class.java,
-                XlmMetaData::class.serializer(),
-                XlmMetaData.MetaDataType
+                MetadataEntry.METADATA_XLM
             ).andThen(Maybe.just(newData))
         }
 

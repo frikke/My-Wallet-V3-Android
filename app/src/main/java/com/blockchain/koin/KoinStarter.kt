@@ -21,6 +21,7 @@ import com.blockchain.koin.modules.urls
 import com.blockchain.koin.modules.versionsModule
 import com.blockchain.koin.modules.xlmModule
 import com.blockchain.logging.data.koin.loggingModule
+import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
@@ -104,6 +105,7 @@ object KoinStarter {
                     loaderModule,
                     nabuModule,
                     nabuUrlModule,
+                    metadataModule,
                     notificationModule,
                     receiveCryptoModule,
                     resetAccountModule,

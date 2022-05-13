@@ -11,12 +11,7 @@ data class NabuLegacyCredentialsMetadata(
 
     @SerialName("lifetime_token")
     override val lifetimeToken: String,
-) : CredentialMetadata {
-
-    companion object {
-        const val NABU_LEGACY_CREDENTIALS_METADATA_NODE = 10
-    }
-}
+) : CredentialMetadata
 
 @Serializable
 data class BlockchainAccountCredentialsMetadata(
@@ -34,8 +29,6 @@ data class BlockchainAccountCredentialsMetadata(
 ) : CredentialMetadata {
 
     companion object {
-        const val BLOCKCHAIN_CREDENTIALS_METADATA_NODE = 14
-
         fun invalid(): BlockchainAccountCredentialsMetadata = BlockchainAccountCredentialsMetadata()
     }
 }

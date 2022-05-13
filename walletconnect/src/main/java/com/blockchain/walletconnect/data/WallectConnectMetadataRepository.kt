@@ -1,5 +1,7 @@
 package com.blockchain.walletconnect.data
 
+import com.blockchain.metadata.MetadataEntry
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.walletconnect.domain.ClientMeta
 import com.blockchain.walletconnect.domain.DAppInfo
 import com.blockchain.walletconnect.domain.SessionRepository
@@ -11,10 +13,9 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 
 class WalletConnectMetadataRepository(
-    private val metadataManager: MetadataManager
+    private val metadataRepository: MetadataRepository
 ) : SessionRepository {
 
     override fun contains(session: WalletConnectSession): Single<Boolean> = loadSessions().map {
@@ -27,7 +28,7 @@ class WalletConnectMetadataRepository(
     }
 
     private fun loadSessions(): Single<List<WalletConnectSession>> =
-        metadataManager.fetchMetadata(METADATA_WALLET_CONNECT).map { json ->
+        metadataRepository.loadRawValue(MetadataEntry.WALLET_CONNECT_METADATA).map { json ->
             jsonBuilder.decodeFromString<WalletConnectMetadata>(json)
         }.map { walletConnectMetadata ->
             walletConnectMetadata.sessions?.let { sessions ->
@@ -49,7 +50,7 @@ class WalletConnectMetadataRepository(
         }.switchIfEmpty(Single.just(emptyList()))
 
     private fun updateRemoteSessions(sessions: List<WalletConnectSession>): Completable =
-        metadataManager.saveToMetadata(sessions.toJsonMetadata(), METADATA_WALLET_CONNECT)
+        metadataRepository.saveRawValue(sessions.toJsonMetadata(), MetadataEntry.WALLET_CONNECT_METADATA)
 
     override fun store(session: WalletConnectSession): Completable =
         loadSessions().flatMapCompletable { sessions ->
@@ -71,10 +72,6 @@ class WalletConnectMetadataRepository(
     override fun retrieve(): Single<List<WalletConnectSession>> = loadSessions()
 
     override fun removeAll(): Completable = updateRemoteSessions(emptyList())
-
-    companion object {
-        private const val METADATA_WALLET_CONNECT = 13
-    }
 
     private fun List<WalletConnectSession>.toJsonMetadata(): String {
         val metadataConnectSessions = WalletConnectMetadata(

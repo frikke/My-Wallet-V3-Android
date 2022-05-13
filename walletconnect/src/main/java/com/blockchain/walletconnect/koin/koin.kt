@@ -49,7 +49,7 @@ val walletConnectModule = module {
 
         factory {
             WalletConnectMetadataRepository(
-                metadataManager = get()
+                metadataRepository = get()
             )
         }.bind(SessionRepository::class)
 

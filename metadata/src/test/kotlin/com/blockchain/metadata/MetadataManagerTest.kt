@@ -1,6 +1,6 @@
-package piuk.blockchain.androidcore.data.metadata
+package com.blockchain.metadata
 
-import com.blockchain.android.testutils.rxInit
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -10,6 +10,7 @@ import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
+import info.blockchain.wallet.payload.WalletPayloadService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import java.lang.IllegalStateException
@@ -18,14 +19,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
-import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 
 class MetadataManagerTest {
 
     private lateinit var subject: MetadataManager
-    private val payloadDataManager: PayloadDataManager = mock()
+    private val walletPayloadService: WalletPayloadService = mock()
     private val metadataInteractor: MetadataInteractor = mock()
     private val metadataDerivation: MetadataDerivation = MetadataDerivation()
 
@@ -46,25 +44,26 @@ class MetadataManagerTest {
     @Suppress("unused")
     @get:Rule
     val initSchedulers = rxInit {
-        mainTrampoline()
         ioTrampoline()
     }
 
     @Before
     fun setUp() {
         subject = MetadataManager(
-            payloadDataManager,
+            walletPayloadService,
             metadataInteractor,
             metadataDerivation,
             mock()
         )
-        whenever(payloadDataManager.metadataCredentials).thenReturn(
-            MetadataCredentials(
-                "8cdf0e8e-c7b1-4a6" +
-                    "f-acb7-f1681d3abf97",
-                "sharedKey",
-                "1234"
-            )
+
+        whenever(walletPayloadService.password).thenReturn(
+            "1234"
+        )
+        whenever(walletPayloadService.guid).thenReturn(
+            "8cdf0e8e-c7b1-4a6f-acb7-f1681d3abf97"
+        )
+        whenever(walletPayloadService.sharedKey).thenReturn(
+            "sharedKey"
         )
     }
 
@@ -83,8 +82,8 @@ class MetadataManagerTest {
     fun `attemptMetadataSetup load fails without 2nd pw, correct metadata should created and saved`() {
         // Arrange
         whenever(metadataInteractor.loadRemoteMetadata(any())).thenReturn(Maybe.empty())
-        whenever(payloadDataManager.isDoubleEncrypted).thenReturn(false)
-        whenever(payloadDataManager.masterKey).thenReturn(mockMasterKey)
+        whenever(walletPayloadService.isDoubleEncrypted).thenReturn(false)
+        whenever(walletPayloadService.masterKey).thenReturn(mockMasterKey)
         whenever(metadataInteractor.putMetadata(any(), any())).thenReturn(Completable.complete())
 
         // Act
@@ -92,7 +91,7 @@ class MetadataManagerTest {
         // Assert
         testObserver.assertComplete()
         testObserver.assertNoErrors()
-        Mockito.verify(payloadDataManager).isDoubleEncrypted
+        Mockito.verify(walletPayloadService).isDoubleEncrypted
         Mockito.verify(metadataInteractor)
             .putMetadata(
                 eq(
@@ -109,8 +108,8 @@ class MetadataManagerTest {
     fun `attemptMetadataSetup load fails with 2nd pw`() {
         // Arrange
         whenever(metadataInteractor.loadRemoteMetadata(any())).thenReturn(Maybe.empty())
-        whenever(payloadDataManager.isDoubleEncrypted).thenReturn(true)
-        whenever(payloadDataManager.masterKey).thenReturn(mockMasterKey)
+        whenever(walletPayloadService.isDoubleEncrypted).thenReturn(true)
+        whenever(walletPayloadService.masterKey).thenReturn(mockMasterKey)
         whenever(metadataInteractor.putMetadata(any(), any())).thenReturn(Completable.complete())
         // Act
         val testObserver = subject.attemptMetadataSetup().test()
@@ -119,7 +118,7 @@ class MetadataManagerTest {
         testObserver.assertError {
             it is InvalidCredentialsException
         }
-        Mockito.verify(payloadDataManager).isDoubleEncrypted
+        Mockito.verify(walletPayloadService).isDoubleEncrypted
     }
 
     @Test
@@ -173,3 +172,9 @@ class MetadataManagerTest {
         test.assertError { it is IllegalStateException }
     }
 }
+fun Completable.then(block: () -> Completable): Completable =
+    andThen(Completable.defer { block() })
+
+
+fun <T> Completable.thenMaybe(block: () -> Maybe<T>): Maybe<T> =
+    andThen(Maybe.defer { block() })

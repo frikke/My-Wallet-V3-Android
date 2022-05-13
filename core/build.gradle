@@ -33,6 +33,7 @@ dependencies {
     implementation project(':sunriver')
     implementation project(':common:network')
     implementation project(':common:interface')
+    implementation project(':metadata')
     implementation project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':logging:domain')

@@ -1,6 +1,7 @@
 package com.blockchain.sunriver.datamanager
 
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.serialization.fromJson
 import com.blockchain.wallet.DefaultLabels
@@ -243,11 +244,11 @@ class XlmMetaDataInitializerTest {
     fun `if the save fails, the error bubbles up`() {
         val repository = mock<MetadataRepository> {
             on {
-                saveMetadata<XlmMetaData>(
+                saveMetadata(
                     any(),
                     any(),
                     eq(XlmMetaData::class.serializer()),
-                    eq(XlmMetaData.MetaDataType)
+                    eq(MetadataEntry.METADATA_XLM)
                 )
             }.thenReturn(Completable.error(Exception("Save fail")))
             emptyLoad()
@@ -602,7 +603,7 @@ class XlmMetaDataInitializerTest {
 
         repository.assertSaved(expectedData)
         verify(repository, times(2)).loadMetadata(
-            XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+            metadataType = MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
         )
         verify(repository, times(2)).loadMetadata(
             any(), eq(XlmMetaData::class.serializer()), eq(XlmMetaData::class.java)
@@ -661,11 +662,11 @@ class XlmMetaDataInitializerTest {
         }
 
     private fun MetadataRepository.assertNothingSaved() {
-        verify(this, never()).saveMetadata<XlmMetaData>(any(), any(), eq(XlmMetaData::class.serializer()), any())
+        verify(this, never()).saveMetadata(any(), any(), eq(XlmMetaData::class.serializer()), any())
     }
 
     private fun MetadataRepository.assertLoaded() {
-        verify(this).loadMetadata(XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java)
+        verify(this).loadMetadata(MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java)
     }
 
     private fun assertSingleMetaDataLoad(repository: MetadataRepository) {
@@ -681,14 +682,14 @@ class XlmMetaDataInitializerTest {
             ),
             eq(XlmMetaData::class.java),
             eq(XlmMetaData::class.serializer()),
-            eq(XlmMetaData.MetaDataType)
+            eq(MetadataEntry.METADATA_XLM)
         )
     }
 
     private fun KStubbing<MetadataRepository>.emptyLoad() {
         on {
             loadMetadata(
-                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
             )
         }.thenReturn(Maybe.empty())
     }
@@ -696,7 +697,7 @@ class XlmMetaDataInitializerTest {
     private fun KStubbing<MetadataRepository>.loads(expectedData: XlmMetaData) {
         on {
             loadMetadata(
-                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
             )
         }.thenReturn(
             Maybe.just(
@@ -709,7 +710,7 @@ class XlmMetaDataInitializerTest {
         var count = 1
         on {
             loadMetadata(
-                XlmMetaData.MetaDataType, XlmMetaData::class.serializer(), XlmMetaData::class.java
+                MetadataEntry.METADATA_XLM, XlmMetaData::class.serializer(), XlmMetaData::class.java
             )
         }.thenReturn(
             Maybe.defer {
@@ -724,11 +725,11 @@ class XlmMetaDataInitializerTest {
 
     private fun KStubbing<MetadataRepository>.successfulSave() {
         on {
-            saveMetadata<XlmMetaData>(
+            saveMetadata(
                 any(),
                 any(),
                 eq(XlmMetaData::class.serializer()),
-                eq(XlmMetaData.MetaDataType)
+                eq(MetadataEntry.METADATA_XLM)
             )
         }.thenReturn(Completable.complete())
     }

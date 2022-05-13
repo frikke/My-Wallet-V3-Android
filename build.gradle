@@ -25,6 +25,7 @@ buildscript {
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.sqlDelightPlugin
         classpath Libraries.embraceIOSwazzler
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
     }
 }
 

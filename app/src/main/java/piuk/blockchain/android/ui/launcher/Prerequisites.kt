@@ -3,6 +3,8 @@ package piuk.blockchain.android.ui.launcher
 import com.blockchain.coincore.Coincore
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.metadata.MetadataInitException
+import com.blockchain.metadata.MetadataService
 import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
@@ -14,16 +16,16 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
-import piuk.blockchain.androidcore.data.metadata.MetadataInitException
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class Prerequisites(
-    private val metadataManager: MetadataManager,
+    private val metadataService: MetadataService,
     private val settingsDataManager: SettingsDataManager,
     private val coincore: Coincore,
+    private val payloadDataManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val remoteLogger: RemoteLogger,
     private val simpleBuySync: SimpleBuySyncFactory,
@@ -35,7 +37,7 @@ class Prerequisites(
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =
-        metadataManager.attemptMetadataSetup()
+        metadataService.attemptMetadataSetup()
             .logOnError(METADATA_ERROR_MESSAGE)
             .onErrorResumeNext {
                 if (it is InvalidCredentialsException || it is HDWalletException) {
@@ -81,9 +83,13 @@ class Prerequisites(
             sharedKey
         ).firstOrError()
 
-    fun decryptAndSetupMetadata(secondPassword: String) = metadataManager.decryptAndSetupMetadata(
-        secondPassword
-    )
+    fun decryptAndSetupMetadata(secondPassword: String): Completable {
+        return Completable.fromCallable {
+            payloadDataManager.decryptHDWallet(secondPassword)
+        }.then {
+            metadataService.decryptAndSetupMetadata()
+        }
+    }
 
     fun warmCaches(): Completable =
         exchangeRates.init()

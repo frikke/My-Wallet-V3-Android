@@ -1,7 +1,7 @@
-package piuk.blockchain.androidcore.data.metadata
+package com.blockchain.metadata
 
-import com.blockchain.metadata.MetadataRepository
 import com.blockchain.serialization.JsonSerializable
+import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -16,11 +16,11 @@ internal class MetadataRepositoryAdapter(
 ) : MetadataRepository {
 
     override fun <T : JsonSerializable> loadMetadata(
-        metadataType: Int,
+        metadataType: MetadataEntry,
         adapter: KSerializer<T>,
         clazz: Class<T>
     ): Maybe<T> =
-        metadataManager.fetchMetadata(metadataType)
+        metadataManager.fetchMetadata(metadataType.index)
             .map {
                 json.decodeFromString(adapter, it)
             }
@@ -30,11 +30,22 @@ internal class MetadataRepositoryAdapter(
         data: T,
         clazz: Class<T>,
         adapter: KSerializer<T>,
-        metadataType: Int
+        metadataType: MetadataEntry
     ): Completable =
         metadataManager.saveToMetadata(
             json.encodeToString(adapter, data),
-            metadataType
+            metadataType.index
         )
             .subscribeOn(Schedulers.io())
+
+    override fun saveRawValue(data: String, metadataType: MetadataEntry): Completable =
+        metadataManager.saveToMetadata(
+            data,
+            metadataType.index
+        )
+            .subscribeOn(Schedulers.io())
+
+    override fun loadRawValue(metadataType: MetadataEntry): Maybe<String> = metadataManager.fetchMetadata(
+        metadataType.index
+    ).subscribeOn(Schedulers.io())
 }

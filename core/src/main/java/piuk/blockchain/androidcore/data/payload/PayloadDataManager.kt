@@ -11,6 +11,7 @@ import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import info.blockchain.wallet.payload.PayloadManager
+import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.AccountV3
 import info.blockchain.wallet.payload.data.AccountV4
@@ -28,6 +29,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.lang.IllegalStateException
 import java.math.BigInteger
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
@@ -35,7 +37,6 @@ import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.core.SegwitAddress
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.script.Script
-import piuk.blockchain.androidcore.data.metadata.MetadataCredentials
 import piuk.blockchain.androidcore.utils.RefreshUpdater
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.then
@@ -55,12 +56,10 @@ class PayloadDataManager internal constructor(
     private val privateKeyFactory: PrivateKeyFactory,
     private val payloadManager: PayloadManager,
     private val remoteLogger: RemoteLogger
-) {
+) : WalletPayloadService {
 
-    val metadataCredentials: MetadataCredentials?
-        get() = tempPassword?.let {
-            MetadataCredentials(guid, sharedKey, it)
-        }
+    override val password: String
+        get() = tempPassword ?: throw IllegalStateException("Wallet not initialised exception")
 
     // /////////////////////////////////////////////////////////////////////////
     // CONVENIENCE METHODS AND PROPERTIES
@@ -104,7 +103,7 @@ class PayloadDataManager internal constructor(
         get() = payloadManager.importedAddressesBalance
 
     // if we have no wallet object, then we don't have double encryption
-    val isDoubleEncrypted: Boolean
+    override val isDoubleEncrypted: Boolean
         get() = wallet?.isDoubleEncryption ?: false
 
     val isBackedUp: Boolean
@@ -113,13 +112,13 @@ class PayloadDataManager internal constructor(
     val mnemonic: List<String>
         get() = payloadManager.payload!!.walletBody?.getMnemonic() ?: throw NoSuchElementException()
 
-    val guid: String
+    override val guid: String
         get() = wallet!!.guid
 
-    val sharedKey: String
+    override val sharedKey: String
         get() = wallet!!.sharedKey
 
-    val masterKey: MasterKey
+    override val masterKey: MasterKey
         get() = payloadManager.masterKey()
 
     val isWalletUpgradeRequired: Boolean

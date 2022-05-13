@@ -1,19 +1,19 @@
-package piuk.blockchain.androidcore.data.metadata
+package com.blockchain.metadata
 
 import com.blockchain.logging.RemoteLogger
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
+import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.metadata.Metadata
 import info.blockchain.wallet.metadata.MetadataDerivation
 import info.blockchain.wallet.metadata.MetadataInteractor
 import info.blockchain.wallet.metadata.MetadataNodeFactory
 import info.blockchain.wallet.metadata.data.RemoteMetadataNodes
+import info.blockchain.wallet.payload.WalletPayloadService
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.spongycastle.crypto.InvalidCipherTextException
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.extensions.then
 
 /**
  * Manages metadata nodes/keys derived from a user's wallet credentials.
@@ -29,14 +29,18 @@ import piuk.blockchain.androidcore.utils.extensions.then
  * keys with just a user's credentials and not derive them again.
  *
  */
-class MetadataManager(
-    private val payloadDataManager: PayloadDataManager,
+internal class MetadataManager(
+    private val walletPayloadService: WalletPayloadService,
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
     private val remoteLogger: RemoteLogger
-) {
+) : MetadataService {
     private val credentials: MetadataCredentials
-        get() = payloadDataManager.metadataCredentials ?: throw IllegalStateException("Wallet not initialised")
+        get() = MetadataCredentials(
+            guid = walletPayloadService.guid,
+            sharedKey = walletPayloadService.sharedKey,
+            password = walletPayloadService.password
+        )
 
     private var _metadataNodeFactory: MetadataNodeFactory? = null
 
@@ -52,17 +56,29 @@ class MetadataManager(
             _metadataNodeFactory = it
         }
 
-    fun attemptMetadataSetup(): Completable = Completable.defer { initMetadataNodes() }
+    override fun attemptMetadataSetup(): Completable = Completable.defer { initMetadataNodes() }
 
-    fun decryptAndSetupMetadata(
-        secondPassword: String
-    ): Completable {
-        payloadDataManager.decryptHDWallet(secondPassword)
-        return generateNodes()
-            .then { initMetadataNodes() }
+    override fun metadataForMasterKey(masterKey: MasterKey, type: MetadataEntry): Maybe<String> {
+        val metaDataHDNode = metadataDerivation.deriveMetadataNode(masterKey)
+        return metadataInteractor.loadRemoteMetadata(
+            Metadata.newInstance(
+                metaDataHDNode = metadataDerivation.deserializeMetadataNode(metaDataHDNode),
+                type = type.index,
+                metadataDerivation = metadataDerivation
+            )
+        )
     }
 
-    fun fetchMetadata(metadataType: Int): Maybe<String> =
+    override fun decryptAndSetupMetadata(): Completable {
+        return generateNodes()
+            .andThen {
+                Completable.defer {
+                    initMetadataNodes()
+                }
+            }
+    }
+
+    internal fun fetchMetadata(metadataType: Int): Maybe<String> =
         metadataNodeFactory.metadataNode?.let {
             metadataInteractor.loadRemoteMetadata(
                 Metadata.newInstance(
@@ -81,7 +97,7 @@ class MetadataManager(
         }
     }
 
-    fun saveToMetadata(data: String, metadataType: Int): Completable =
+    internal fun saveToMetadata(data: String, metadataType: Int): Completable =
         metadataNodeFactory.metadataNode?.let {
             metadataInteractor.putMetadata(
                 data,
@@ -97,7 +113,7 @@ class MetadataManager(
     private fun initMetadataNodes(): Completable =
         loadNodes().map { loaded ->
             if (!loaded) {
-                if (payloadDataManager.isDoubleEncrypted) {
+                if (walletPayloadService.isDoubleEncrypted) {
                     throw InvalidCredentialsException(
                         "Unable to derive metadata keys, payload is double encrypted"
                     )
@@ -131,7 +147,7 @@ class MetadataManager(
             .defaultIfEmpty(false)
             .onErrorReturn { false }
 
-    fun reset() {
+    override fun reset() {
         _metadataNodeFactory = null
     }
 
@@ -141,7 +157,7 @@ class MetadataManager(
      * must be called first to avoid a {@link NullPointerException}.
      */
     private fun generateNodes(): Completable {
-        val remoteMetadataNodes = metadataNodeFactory.remoteMetadataHdNodes(payloadDataManager.masterKey)
+        val remoteMetadataNodes = metadataNodeFactory.remoteMetadataHdNodes(walletPayloadService.masterKey)
         return metadataInteractor.putMetadata(
             remoteMetadataNodes.toJson(),
             metadataNodeFactory.secondPwNode
@@ -153,23 +169,5 @@ class MetadataManager(
 }
 
 private class MetadataBadPaddingTracker(metadataType: Int, throwable: Throwable) :
-    Exception("metadataType == $metadataType (${metadataType.metadataType} -- ${throwable.message}", throwable) {
-
-    companion object {
-        private val Int.metadataType: String
-            get() = when (this) {
-                2 -> "whatsNew"
-                3 -> "buySell" // No longer used
-                4 -> "contacts" // No longer used
-                5 -> "ethereum"
-                6 -> "shapeshift" // No longer used
-                7 -> "bch"
-                8 -> "btc"
-                9 -> "lockbox"
-                10 -> "userCredentials"
-                11 -> "bsv" // No longer used
-                12 -> "walletCredentials" // No longer used
-                else -> "unknown"
-            }
-    }
+    Exception("metadataType == $metadataType (${metadataType} -- ${throwable.message}", throwable) {
 }

@@ -37,7 +37,7 @@ val resetAccountModule = module {
                 payloadDataManager = get(),
                 prefs = get(),
                 nabuDataManager = get(),
-                metadataManager = get(),
+                metadataService = get(),
                 metadataRepository = get(),
                 accountMetadataFF = get(metadataMigrationFeatureFlag)
             )

@@ -11,7 +11,6 @@ import info.blockchain.wallet.keys.MasterKey;
 
 public class EthereumWallet {
 
-    public static final int METADATA_TYPE_EXTERNAL = 5;
     private static final int ACCOUNT_INDEX = 0;
 
     private final EthereumWalletDto walletDto;
@@ -24,7 +23,7 @@ public class EthereumWallet {
      * Creates new Ethereum wallet and derives account from provided wallet seed.
      *
      * @param walletMasterKey DeterministicKey of root node
-     * @param label the default label for non custodial assets
+     * @param label           the default label for non custodial assets
      */
     public EthereumWallet(
         MasterKey walletMasterKey,
@@ -59,10 +58,12 @@ public class EthereumWallet {
             // Web can store an empty EthereumWalletData object
             if (wallet.getWalletData() == null || wallet.getWalletData().getAccounts().isEmpty()) {
                 return null;
-            } else {
+            }
+            else {
                 return new EthereumWallet(wallet);
             }
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -90,7 +91,7 @@ public class EthereumWallet {
         return walletDto.getWalletData().getAccounts().get(ACCOUNT_INDEX);
     }
 
-    public void renameAccount(String newLabel){
+    public void renameAccount(String newLabel) {
         EthereumAccount account = getAccount();
         account.setLabel(newLabel);
         ArrayList<EthereumAccount> accounts = new ArrayList<>();

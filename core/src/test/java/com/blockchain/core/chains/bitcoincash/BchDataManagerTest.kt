@@ -4,6 +4,7 @@ package com.blockchain.core.chains.bitcoincash
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.metadata.MetadataRepository
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -33,7 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class BchDataManagerTest {
@@ -50,7 +50,7 @@ class BchDataManagerTest {
     private val remoteLogger: RemoteLogger = mock()
     private val bitcoinApi: NonCustodialBitcoinService = mock()
     private val defaultLabels: DefaultLabels = mock()
-    private val metadataManager: MetadataManager = mock()
+    private val metadataRepository: MetadataRepository = mock()
 
     @Before
     fun setUp() {
@@ -59,13 +59,13 @@ class BchDataManagerTest {
             bchDataStore,
             bitcoinApi,
             defaultLabels,
-            metadataManager,
+            metadataRepository,
             remoteLogger
         )
     }
 
     private fun mockAbsentMetadata() {
-        whenever(metadataManager.fetchMetadata(any())).thenReturn(Maybe.empty())
+        whenever(metadataRepository.loadRawValue(any())).thenReturn(Maybe.empty())
     }
 
     private fun mockSingleMetadata(): String {
@@ -74,7 +74,7 @@ class BchDataManagerTest {
         account.label = "account label"
         metaData.addAccount(account)
 
-        whenever(metadataManager.fetchMetadata(any())).thenReturn(
+        whenever(metadataRepository.loadRawValue(any())).thenReturn(
             Maybe.just(
                 metaData.toJson()
             )
@@ -119,7 +119,7 @@ class BchDataManagerTest {
         mockRestoringSingleBchWallet("xpub")
 
         whenever(bchDataStore.bchMetadata!!.toJson()).thenReturn("{}")
-        whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(metadataRepository.saveRawValue(any(), any())).thenReturn(Completable.complete())
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -153,7 +153,7 @@ class BchDataManagerTest {
         mockRestoringSingleBchWallet("xpub")
 
         whenever(bchDataStore.bchMetadata!!.toJson()).thenReturn("{}")
-        whenever(metadataManager.saveToMetadata(any(), any())).thenReturn(Completable.complete())
+        whenever(metadataRepository.saveRawValue(any(), any())).thenReturn(Completable.complete())
 
         // Act
         val testObserver = subject.initBchWallet("Bitcoin cash account").test()
@@ -473,7 +473,7 @@ class BchDataManagerTest {
             bchDataStore = mock(),
             bitcoinApi = mock(),
             defaultLabels = mock(),
-            metadataManager = mock(),
+            metadataRepository = mock(),
             remoteLogger = mock()
         ).getBalance(xpubs)
             .test()
@@ -492,7 +492,7 @@ class BchDataManagerTest {
             bchDataStore = mock(),
             bitcoinApi = mock(),
             defaultLabels = mock(),
-            metadataManager = mock(),
+            metadataRepository = mock(),
             remoteLogger = mock()
         ).getBalance(xpubs)
             .test()

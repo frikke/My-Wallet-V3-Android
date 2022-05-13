@@ -265,7 +265,7 @@ val applicationModule = module {
                 appUtil = get(),
                 ethDataManager = get(),
                 bchDataManager = get(),
-                metadataManager = get(),
+                metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
                 notificationTokenManager = get()
@@ -344,8 +344,7 @@ val applicationModule = module {
             RecoverFundsPresenter(
                 payloadDataManager = get(),
                 prefs = get(),
-                metadataInteractor = get(),
-                metadataDerivation = MetadataDerivation(),
+                metadataService = get(),
                 json = get()
             )
         }
@@ -672,7 +671,7 @@ val applicationModule = module {
 
         factory {
             Prerequisites(
-                metadataManager = get(),
+                metadataService = get(),
                 settingsDataManager = get(),
                 coincore = get(),
                 exchangeRates = get(),
@@ -682,7 +681,8 @@ val applicationModule = module {
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
                 flushables = getAll(AppStartUpFlushable::class),
-                walletCredentialsUpdater = get()
+                walletCredentialsUpdater = get(),
+                payloadDataManager = get()
             )
         }
 

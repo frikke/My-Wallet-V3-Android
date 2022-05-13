@@ -18,8 +18,4 @@ data class WalletCredentialsMetadata(
 ) : JsonSerializable {
 
     fun isValid() = guid.isValidGuid() && password.isNotEmpty() && sharedKey.isNotEmpty()
-
-    companion object {
-        const val WALLET_CREDENTIALS_METADATA_NODE = 12
-    }
 }

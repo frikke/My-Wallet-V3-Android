@@ -1,9 +1,8 @@
 package piuk.blockchain.android.ui.recover
 
+import com.blockchain.metadata.MetadataEntry
+import com.blockchain.metadata.MetadataService
 import info.blockchain.wallet.bip44.HDWalletFactory
-import info.blockchain.wallet.metadata.Metadata
-import info.blockchain.wallet.metadata.MetadataDerivation
-import info.blockchain.wallet.metadata.MetadataInteractor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -25,8 +24,7 @@ import timber.log.Timber
 class RecoverFundsPresenter(
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val metadataInteractor: MetadataInteractor,
-    private val metadataDerivation: MetadataDerivation,
+    private val metadataService: MetadataService,
     private val json: Json
 ) : BasePresenter<RecoverFundsView>() {
 
@@ -70,14 +68,9 @@ class RecoverFundsPresenter(
         require(recoveryPhrase.isNotEmpty())
 
         val masterKey = payloadDataManager.generateMasterKeyFromSeed(recoveryPhrase)
-        val metadataNode = metadataDerivation.deriveMetadataNode(masterKey)
 
-        return metadataInteractor.loadRemoteMetadata(
-            Metadata.newInstance(
-                metaDataHDNode = metadataDerivation.deserializeMetadataNode(metadataNode),
-                type = WalletCredentialsMetadata.WALLET_CREDENTIALS_METADATA_NODE,
-                metadataDerivation = metadataDerivation
-            )
+        return metadataService.metadataForMasterKey(
+            masterKey, MetadataEntry.WALLET_CREDENTIALS
         )
             .map {
                 json.decodeFromString<WalletCredentialsMetadata>(it)

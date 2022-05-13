@@ -1,11 +1,10 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.save
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
-import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapToBlockchainCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.mapToLegacyCredentials
@@ -16,7 +15,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 import piuk.blockchain.android.ui.base.BasePresenter
 import timber.log.Timber
 
@@ -72,15 +70,13 @@ class KycInvalidCountryPresenter(
                             val nabuMetadata = tokenResponse.mapToBlockchainCredentialsMetadata()
                             metadataRepository.save(
                                 nabuMetadata,
-                                BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+                                MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
                             ).toSingle { jwt to tokenResponse }
                         } else {
                             val nabuMetadata = tokenResponse.mapToLegacyCredentials()
-                            metadataRepository.saveMetadata(
+                            metadataRepository.save(
                                 nabuMetadata,
-                                NabuLegacyCredentialsMetadata::class.java,
-                                NabuLegacyCredentialsMetadata::class.serializer(),
-                                NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+                                MetadataEntry.NABU_LEGACY_CREDENTIALS,
                             ).toSingle { jwt to tokenResponse }
                         }
                     }

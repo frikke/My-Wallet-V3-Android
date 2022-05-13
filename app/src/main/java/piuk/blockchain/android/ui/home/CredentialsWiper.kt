@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.home
 
 import com.blockchain.core.chains.bitcoincash.BchDataManager
+import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -9,7 +10,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
-import piuk.blockchain.androidcore.data.metadata.MetadataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsState
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
@@ -19,7 +19,7 @@ class CredentialsWiper(
     private val appUtil: AppUtil,
     private val notificationTokenManager: NotificationTokenManager,
     private val bchDataManager: BchDataManager,
-    private val metadataManager: MetadataManager,
+    private val metadataService: MetadataService,
     private val nabuDataManager: NabuDataManager,
     private val walletOptionsState: WalletOptionsState
 ) {
@@ -30,7 +30,7 @@ class CredentialsWiper(
                 ethDataManager.clearAccountDetails()
                 bchDataManager.clearAccountDetails()
                 nabuDataManager.clearAccessToken()
-                metadataManager.reset()
+                metadataService.reset()
                 walletOptionsState.wipe()
             }
         }

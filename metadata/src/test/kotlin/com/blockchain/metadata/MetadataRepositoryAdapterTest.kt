@@ -1,12 +1,10 @@
-package piuk.blockchain.androidcore.data.metadata
+package com.blockchain.metadata
 
-import com.blockchain.android.testutils.rxInit
-import com.blockchain.metadata.save
-import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -56,30 +54,30 @@ class MetadataRepositoryAdapterTest {
         val metadataManager = mock<MetadataManager> {
             on { saveToMetadata(any(), any()) }.thenReturn(Completable.complete())
         }
+        val randomEntry = MetadataEntry.values().random()
         MetadataRepositoryAdapter(metadataManager, json)
-            .saveMetadata(
+            .save(
                 ExampleClass("ABC", 123.toBigDecimal()),
-                ExampleClass::class.java,
-                ExampleClass::class.serializer(),
-                100
+                randomEntry
             )
             .test()
             .assertComplete()
 
-        verify(metadataManager).saveToMetadata("""{"field1":"ABC","field2":"123"}""", 100)
+        verify(metadataManager).saveToMetadata("""{"field1":"ABC","field2":"123"}""", randomEntry.index)
     }
 
     @Test
     fun `can load json`() {
+        val randomEntry = MetadataEntry.values().random()
         val metadataManager = mock<MetadataManager> {
-            on { fetchMetadata(199) }.thenReturn(
+            on { fetchMetadata(randomEntry.index) }.thenReturn(
                 Maybe.just(
                     """{"field1":"DEF","field2":"456"}"""
                 )
             )
         }
         MetadataRepositoryAdapter(metadataManager, json)
-            .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
+            .loadMetadata(randomEntry, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertComplete()
             .values() `should be equal to` listOf(ExampleClass("DEF", 456.toBigDecimal()))
@@ -87,11 +85,12 @@ class MetadataRepositoryAdapterTest {
 
     @Test
     fun `can load missing json`() {
+        val randomEntry = MetadataEntry.values().random()
         val metadataManager = mock<MetadataManager> {
-            on { fetchMetadata(199) }.thenReturn(Maybe.empty())
+            on { fetchMetadata(randomEntry.index) }.thenReturn(Maybe.empty())
         }
         MetadataRepositoryAdapter(metadataManager, json)
-            .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
+            .loadMetadata(randomEntry, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertComplete()
             .values() `should be equal to` listOf()
@@ -99,15 +98,16 @@ class MetadataRepositoryAdapterTest {
 
     @Test
     fun `bad json is an error`() {
+        val randomEntry = MetadataEntry.values().random()
         val metadataManager = mock<MetadataManager> {
-            on { fetchMetadata(199) }.thenReturn(
+            on { fetchMetadata(randomEntry.index) }.thenReturn(
                 Maybe.just(
                     """{"field1":"DEF","fie..."""
                 )
             )
         }
         MetadataRepositoryAdapter(metadataManager, json)
-            .loadMetadata(199, ExampleClass::class.serializer(), ExampleClass::class.java)
+            .loadMetadata(randomEntry, ExampleClass::class.serializer(), ExampleClass::class.java)
             .test()
             .assertError(Exception::class.java)
     }
@@ -117,22 +117,29 @@ class MetadataRepositoryAdapterTest {
         val metadataManager: MetadataManager = mock {
             on { saveToMetadata(any(), any()) }.thenReturn(Completable.complete())
         }
-
+        val randomEntry = MetadataEntry.values().random()
         val metadataRepository = MetadataRepositoryAdapter(metadataManager, json)
 
         val test = metadataRepository.save(
-            BlockchainAccountCredentialsMetadata(
+            TestObjectWithNullableProperties(
                 userId = "UserId",
                 lifetimeToken = "lifetimetoken"
             ),
-            10
+            randomEntry
         ).test()
 
         test.assertComplete()
         Mockito.verify(metadataManager)
             .saveToMetadata(
-                "{\"nabu_user_id\":\"UserId\",\"nabu_lifetime_token\":\"lifetimetoken\"}",
-                10
+                "{\"userId\":\"UserId\",\"lifetimeToken\":\"lifetimetoken\"}",
+                randomEntry.index
             )
     }
 }
+
+@Serializable
+data class TestObjectWithNullableProperties(
+    private val userId: String,
+    private val lifetimeToken: String,
+    private val nullableProperty: String? = null
+) : JsonSerializable

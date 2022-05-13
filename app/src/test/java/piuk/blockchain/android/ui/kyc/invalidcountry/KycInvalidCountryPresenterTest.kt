@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
@@ -100,7 +101,7 @@ class KycInvalidCountryPresenterTest {
                 any(),
                 eq(NabuLegacyCredentialsMetadata::class.java),
                 any(),
-                eq(NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE)
+                eq(MetadataEntry.NABU_LEGACY_CREDENTIALS)
             )
         ).thenReturn(Completable.complete())
     }
