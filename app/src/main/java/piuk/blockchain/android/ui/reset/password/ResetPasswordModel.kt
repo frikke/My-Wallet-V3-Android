@@ -92,7 +92,9 @@ class ResetPasswordModel(
     private fun recoverAccount(userId: String, recoveryToken: String, shouldResetKyc: Boolean) =
         interactor.recoverAccount(userId = userId, recoveryToken = recoveryToken)
             .subscribeBy(
-                onComplete = { resetKycOrContinue(shouldResetKyc) },
+                onComplete = {
+                    resetKycOrContinue(shouldResetKyc)
+                },
                 onError = { throwable ->
                     process(
                         when {
