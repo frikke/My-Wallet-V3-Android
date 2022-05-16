@@ -6,22 +6,28 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import piuk.blockchain.android.rating.presentaion.AppRatingNavigationEvent
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestination.Companion.ARG_WITH_FEEDBACK
 
-class AppRatingNavigationRouter(override val navController: NavHostController) :
-    ComposeNavigationRouter<AppRatingNavigationEvent> {
+class AppRatingNavigationRouter(
+    override val navController: NavHostController,
+    val onDismiss: () -> Unit
+) : ComposeNavigationRouter<AppRatingNavigationEvent> {
 
     override fun route(navigationEvent: AppRatingNavigationEvent) {
-        val destination = when (navigationEvent) {
+        when (navigationEvent) {
             AppRatingNavigationEvent.Feedback -> {
-                AppRatingDestination.Feedback.route
+                val route = AppRatingDestination.Feedback.route
+                navController.navigate(route)
             }
 
             is AppRatingNavigationEvent.Completed -> {
-                AppRatingDestination.Completed.routeWithParsedArgs(
+                val route = AppRatingDestination.Completed.routeWithArgs(
                     listOf(NavArgument(ARG_WITH_FEEDBACK, navigationEvent.withFeedback))
                 )
+                navController.navigate(route)
+            }
+
+            AppRatingNavigationEvent.Dismiss -> {
+                onDismiss()
             }
         }
-
-        navController.navigate(destination)
     }
 }

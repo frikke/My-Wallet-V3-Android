@@ -20,15 +20,19 @@ import com.blockchain.componentlib.button.SmallPrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
 import com.blockchain.componentlib.theme.Grey900
+import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.R
 
 @Composable
 fun AppRatingCompleted(
     withFeedback: Boolean,
-    onSubmit: () -> Unit
+    viewModel: AppRatingViewModel
 ) {
-    AppRatingCompletedScreen(withFeedback = withFeedback, onSubmit = onSubmit)
+    AppRatingCompletedScreen(
+        withFeedback = withFeedback,
+        onSubmit = { viewModel.onIntent(AppRatingIntents.RatingCompleted) }
+    )
 }
 
 /**

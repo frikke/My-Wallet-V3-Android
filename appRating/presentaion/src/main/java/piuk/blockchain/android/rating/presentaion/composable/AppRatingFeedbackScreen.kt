@@ -83,7 +83,7 @@ fun AppRatingFeedbackScreen(
 
         SmallPrimaryButton(
             text = stringResource(R.string.common_submit),
-            onClick = { onSubmit("rating") },
+            onClick = { onSubmit(feedback) },
             state = ButtonState.Enabled
         )
     }

@@ -33,7 +33,7 @@ import piuk.blockchain.android.rating.presentaion.R
 fun AppRatingStars(viewModel: AppRatingViewModel) {
     AppRatingStarsScreen(
         onSubmit = { rating -> viewModel.onIntent(AppRatingIntents.StarsSubmitted(rating)) },
-        onCanceled = {}
+        onCanceled = { viewModel.onIntent(AppRatingIntents.RatingCanceled) },
     )
 }
 
@@ -93,7 +93,7 @@ fun AppRatingStarsScreen(
 
         Row {
             SmallMinimalButton(
-                text = stringResource(R.string.common_submit),
+                text = stringResource(R.string.common_cancel),
                 onClick = onCanceled,
                 state = ButtonState.Enabled
             )

@@ -31,7 +31,10 @@ fun AppRatingNavHost(
 
     MviFragmentNavHost(
         navEvents = navEventsFlowLifecycleAware,
-        navigationRouter = AppRatingNavigationRouter(rememberNavController()),
+        navigationRouter = AppRatingNavigationRouter(
+            navController = rememberNavController(),
+            onDismiss = onDismiss
+        ),
         startDestination = AppRatingDestination.Stars,
     ) {
         // Rating Stars
@@ -41,7 +44,7 @@ fun AppRatingNavHost(
         appRatingFeedbackDestination(viewModel)
 
         // Rating Completed
-        appRatingCompletedDestination(onDismiss)
+        appRatingCompletedDestination(viewModel)
     }
 }
 
@@ -57,7 +60,7 @@ private fun NavGraphBuilder.appRatingFeedbackDestination(viewModel: AppRatingVie
     }
 }
 
-private fun NavGraphBuilder.appRatingCompletedDestination(onDismiss: () -> Unit) {
+private fun NavGraphBuilder.appRatingCompletedDestination(viewModel: AppRatingViewModel) {
     composable(
         navigationEvent = AppRatingDestination.Completed,
         arguments = listOf(
@@ -67,7 +70,7 @@ private fun NavGraphBuilder.appRatingCompletedDestination(onDismiss: () -> Unit)
         AppRatingCompleted(
             withFeedback = backStackEntry.arguments?.getBoolean(ARG_WITH_FEEDBACK)
                 ?: error("arg ARG_WITH_FEEDBACK missing"),
-            onSubmit = onDismiss
+            viewModel = viewModel
         )
     }
 }

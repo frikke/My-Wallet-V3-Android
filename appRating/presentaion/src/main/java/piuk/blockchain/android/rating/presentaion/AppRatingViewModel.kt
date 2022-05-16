@@ -30,8 +30,17 @@ class AppRatingViewModel(
             }
 
             is AppRatingIntents.FeedbackSubmitted -> {
-                submitFeedback()
+                submitFeedback(intent.feedback)
             }
+
+            AppRatingIntents.RatingCanceled -> {
+                saveRatingDateAndDismiss()
+            }
+
+            AppRatingIntents.RatingCompleted -> {
+                ratingCompleted()
+            }
+
         }.exhaustive
     }
 
@@ -50,8 +59,18 @@ class AppRatingViewModel(
         }
     }
 
-    private fun submitFeedback() {
+    private fun submitFeedback(feedback: String) {
         // todo(othman): call api here
+        // todo(othman): mark rating completed
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
+    }
+
+    private fun saveRatingDateAndDismiss() {
+        // todo(othman): save rating date - retrigger in 1 month
+        navigate(AppRatingNavigationEvent.Dismiss)
+    }
+
+    private fun ratingCompleted() {
+        navigate(AppRatingNavigationEvent.Dismiss)
     }
 }

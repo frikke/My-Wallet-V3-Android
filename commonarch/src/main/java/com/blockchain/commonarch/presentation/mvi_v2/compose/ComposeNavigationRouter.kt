@@ -36,7 +36,7 @@ interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRoute
 interface ComposeNavigationDestination {
     val route: String
 
-    fun routeWithParsedArgs(args: List<NavArgument>): String {
+    fun routeWithArgs(args: List<NavArgument>): String {
         var finalRoute = route
 
         args.forEach { (key, value) ->
