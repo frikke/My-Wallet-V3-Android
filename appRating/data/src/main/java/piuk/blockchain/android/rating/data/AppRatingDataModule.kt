@@ -16,8 +16,11 @@ val appRatingDataModule = module {
 
         scoped<AppRatingService> {
             AppRatingRepository(
-                appRatingRemoteConfig = get()
+                appRatingRemoteConfig = get(),
+                defaultThreshold = DEFAULT_THRESHOLD
             )
         }
     }
 }
+
+private const val DEFAULT_THRESHOLD = 4
