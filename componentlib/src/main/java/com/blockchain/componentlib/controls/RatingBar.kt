@@ -19,10 +19,10 @@ import com.blockchain.componentlib.basic.ImageResource
 
 @Composable
 fun RatingBar(
-    count: Int,
+    count: Int = 5,
     @DrawableRes imageFilled: Int,
     @DrawableRes imageOutline: Int,
-    initialRating: Int,
+    initialRating: Int = 0,
     onRatingChanged: (rating: Int) -> Unit
 ) {
     var rating by remember { mutableStateOf(initialRating) }

@@ -84,10 +84,8 @@ fun AppRatingStarsScreen(
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
         RatingBar(
-            count = 5,
             imageFilled = R.drawable.ic_favorite_filled,
             imageOutline = R.drawable.ic_favorite_outline,
-            initialRating = 0,
             onRatingChanged = { rating = it }
         )
 
