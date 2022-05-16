@@ -32,4 +32,3 @@ class AppRatingFragment : DialogFragment() {
         fun newInstance() = AppRatingFragment()
     }
 }
-

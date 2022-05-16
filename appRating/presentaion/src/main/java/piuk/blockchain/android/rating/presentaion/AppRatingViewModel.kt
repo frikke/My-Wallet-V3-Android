@@ -40,7 +40,6 @@ class AppRatingViewModel(
             AppRatingIntents.RatingCompleted -> {
                 ratingCompleted()
             }
-
         }.exhaustive
     }
 

@@ -2,6 +2,7 @@ package com.blockchain.componentlib.controls
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -33,7 +34,10 @@ fun RatingBar(
         (1..count).forEach { index ->
             Image(
                 modifier = Modifier
-                    .clickable {
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
                         rating = index
                         onRatingChanged(rating)
                     },
@@ -46,7 +50,6 @@ fun RatingBar(
             if (index < range.last) {
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_margin)))
             }
-
         }
     }
 }
