@@ -161,7 +161,6 @@ internal class Erc20DataManagerImpl(
         }
 
     override fun getErc20History(asset: AssetInfo, evmNetwork: EvmNetwork): Single<Erc20HistoryList> {
-        require(asset.isErc20())
         return historyCallCache.fetch(accountHash, asset, evmNetwork.networkTicker)
     }
 

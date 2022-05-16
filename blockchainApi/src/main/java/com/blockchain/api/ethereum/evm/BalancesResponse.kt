@@ -25,7 +25,7 @@ data class EvmBalanceResponse(
     val contractAddress: String,
     @SerialName("currency")
     val name: String,
-    @SerialName("balance")
+    @SerialName("amount")
     val amount: @Contextual BigInteger
 ) {
     companion object {

@@ -1510,7 +1510,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="swap_erc_20_tooltip">Ce jeton est un ERC-20. Les frais de réseau sont fixés par le réseau Ethereum.</string>
     <string name="checkout_dual_fee_note">Les frais de réseau sont fixés par les réseaux %1$s et %2$s.</string>
     <string name="checkout_one_fee_note">Les frais de réseau sont fixés par le réseau %1$s.</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s est un jeton ERC-20. Les frais de réseau sont fixés par le réseau Ethereum.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s est un jeton ERC-20. Les frais de réseau sont fixés par le réseau %2$s.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s est un jeton ERC-20. Les frais de réseau sont fixés par les réseaux %2$s et %3$s.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s et %2$s sont des jetons ERC-20. Les frais de réseau sont fixés par le réseau Ethereum.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">En savoir plus sur les frais.</annotation></string>

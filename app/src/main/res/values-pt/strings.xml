@@ -1577,7 +1577,7 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="swap_erc_20_tooltip">Este token é um ERC-20. As taxas da rede são definidas pela rede Ethereum.</string>
     <string name="checkout_dual_fee_note">As taxas da rede são definidas pelas redes %1$s e %2$s.</string>
     <string name="checkout_one_fee_note">As taxas da rede são definidas pela rede %1$s.</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s é um token ERC-20. As taxas de rede são definidas pela rede Ethereum.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s é um token ERC-20. As taxas de rede são definidas pela rede %2$s.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s é um token ERC-20. As taxas de rede são definidas pelas redes %2$s e %3$s.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s e %2$s são tokens ERC-20. As taxas de rede são definidas pela rede Ethereum.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Saiba mais sobre taxas.</annotation></string>

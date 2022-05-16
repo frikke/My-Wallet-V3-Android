@@ -92,6 +92,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
                 setupTransferList(newState)
                 setupLabels(newState)
+                showSendNetworkWarning(newState)
                 showDomainCardAlert(newState)
             }
             sourceSlot?.update(newState)
@@ -132,6 +133,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
     private fun hideErrorState() {
         binding.addressEntry.clearErrorState()
         binding.warningMessage.visible()
+    }
+
+    private fun showSendNetworkWarning(state: TransactionState) {
+        binding.sendNetworkWarningDescription.apply {
+            visibleIf { customiser.shouldShowSelectTargetNetworkDescription(state) }
+            text = customiser.selectTargetNetworkDescription(state)
+        }
     }
 
     private fun showDomainCardAlert(state: TransactionState) {

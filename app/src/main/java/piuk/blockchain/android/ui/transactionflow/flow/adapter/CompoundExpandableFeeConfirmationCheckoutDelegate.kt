@@ -101,8 +101,10 @@ private class CompoundExpandableFeeConfirmationCheckoutDelegateItemViewHolder(
 
     private fun getFeeLabel(item: FeeInfo) =
         if (item.asset.isErc20()) {
+            val network = item.l1EvmNetwork?.networkTicker ?: CryptoCurrency.ETHER.displayTicker
             context.getString(
-                R.string.checkout_item_erc20_network_fee, CryptoCurrency.ETHER.displayTicker,
+                R.string.checkout_item_erc20_network_fee,
+                network,
                 item.asset.displayTicker
             )
         } else {

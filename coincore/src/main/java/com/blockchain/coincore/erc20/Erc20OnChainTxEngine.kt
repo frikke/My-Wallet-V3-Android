@@ -83,7 +83,8 @@ class Erc20OnChainTxEngine(
                             FeeInfo(
                                 pendingTx.feeAmount,
                                 pendingTx.feeAmount.toUserFiat(exchangeRates),
-                                sourceAsset
+                                sourceAsset,
+                                (sourceAccount as? Erc20NonCustodialAccount)?.l1Network
                             )
                         } else null,
                         feeLevel = pendingTx.feeSelection.selectedLevel

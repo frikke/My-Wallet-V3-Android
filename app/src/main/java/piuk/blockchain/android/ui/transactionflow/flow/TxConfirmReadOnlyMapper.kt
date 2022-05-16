@@ -379,20 +379,30 @@ class CompoundNetworkFeeFormatter(
     ): SpannableStringBuilder =
         when {
             !item.asset.isErc20() || ignoreErc20LinkedNote -> {
+                val networkName = item.l1EvmNetwork?.networkName ?: item.asset.name
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
-                        R.string.checkout_one_fee_note, item.asset.name
+                        R.string.checkout_one_fee_note,
+                        networkName
                     ),
-                    R.string.checkout_fee_link, NETWORK_FEE_EXPLANATION, context, R.color.blue_600
+                    R.string.checkout_fee_link,
+                    NETWORK_FEE_EXPLANATION,
+                    context,
+                    R.color.blue_600
                 )
             }
             else -> {
+                val networkName = item.l1EvmNetwork?.networkName ?: item.asset.name
                 StringUtils.getResolvedStringWithAppendedMappedLearnMore(
                     context.resources.getString(
                         R.string.checkout_one_erc_20_fee_note,
-                        item.asset.name
+                        item.asset.name,
+                        networkName
                     ),
-                    R.string.checkout_fee_link, NETWORK_ERC20_EXPLANATION, context, R.color.blue_600
+                    R.string.checkout_fee_link,
+                    NETWORK_ERC20_EXPLANATION,
+                    context,
+                    R.color.blue_600
                 )
             }
         }

@@ -13,6 +13,7 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.eth.MultiChainAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
@@ -108,7 +109,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Send -> resources.getString(
                 R.string.send_address_warning,
-                state.sendingAsset.networkTicker,
+                state.sendingAsset.displayTicker,
                 state.sendingAsset.name
             )
             else -> ""
@@ -1119,6 +1120,27 @@ class TransactionFlowCustomiserImpl(
             else -> false
         }
     }
+
+    override fun selectTargetNetworkDescription(state: TransactionState): String {
+        return when (state.action) {
+            AssetAction.Send -> if (state.selectedTarget is MultiChainAccount) {
+                resources.getString(
+                    R.string.send_select_wallet_warning_sheet_desc,
+                    state.sendingAsset.displayTicker,
+                    state.selectedTarget.l1Network.networkName
+                )
+            } else {
+                ""
+            }
+            else -> ""
+        }
+    }
+
+    override fun shouldShowSelectTargetNetworkDescription(state: TransactionState): Boolean =
+        when (state.action) {
+            AssetAction.Send -> state.selectedTarget is MultiChainAccount
+            else -> false
+        }
 
     companion object {
         const val MAX_ACCOUNTS_FOR_SHEET = 3

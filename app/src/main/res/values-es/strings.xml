@@ -1480,7 +1480,7 @@ Tus fondos estarán disponibles para ser retirados una vez que la transferencia 
     <string name="swap_erc_20_tooltip">Este es un token ERC-20. Las tarifas de red las establece la red Ethereum.</string>
     <string name="checkout_dual_fee_note">Las tarifas de red las establecen las redes %1$s y %2$s.</string>
     <string name="checkout_one_fee_note">Las tarifas las establece la red %1$s.</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s es un token ERC-20. Las tarifas de red las establece la red Ethereum.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s es un token ERC-20. Las tarifas de red las establece la red %2$s.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s es un token ERC-20. Las tarifas de red las establecen las redes %2$s y %3$s.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s y %2$s son tokens ERC-20. Las tarifas de red las establece por la red Ethereum.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Consulte más información acerca de las tarifas.</annotation></string>
