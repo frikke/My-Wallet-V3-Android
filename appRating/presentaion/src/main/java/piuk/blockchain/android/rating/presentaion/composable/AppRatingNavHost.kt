@@ -46,21 +46,21 @@ fun AppRatingNavHost(
 }
 
 private fun NavGraphBuilder.appRatingStarsDestination(viewModel: AppRatingViewModel) {
-    composable(AppRatingDestination.Stars) {
+    composable(navigationEvent = AppRatingDestination.Stars) {
         AppRatingStars(viewModel)
     }
 }
 
 private fun NavGraphBuilder.appRatingFeedbackDestination(viewModel: AppRatingViewModel) {
-    composable(AppRatingDestination.Feedback) {
+    composable(navigationEvent = AppRatingDestination.Feedback) {
         AppRatingFeedback(viewModel)
     }
 }
 
 private fun NavGraphBuilder.appRatingCompletedDestination(onDismiss: () -> Unit) {
     composable(
-        AppRatingDestination.Completed,
-        listOf(
+        navigationEvent = AppRatingDestination.Completed,
+        arguments = listOf(
             navArgument(ARG_WITH_FEEDBACK) { type = NavType.BoolType }
         )
     ) { backStackEntry ->

@@ -39,6 +39,7 @@ class AppRatingViewModel(
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
                 val navigationEvent = if (stars > threshold) {
+                    // todo(othman): open native android for rating here
                     AppRatingNavigationEvent.Completed(withFeedback = false)
                 } else {
                     AppRatingNavigationEvent.Feedback
@@ -50,6 +51,7 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback() {
+        // todo(othman): call api here
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 }

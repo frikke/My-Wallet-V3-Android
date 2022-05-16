@@ -36,7 +36,7 @@ interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRoute
 interface ComposeNavigationDestination {
     val route: String
 
-    fun routeWithParsedArgs(args: List<Pair<String, Any>>): String {
+    fun routeWithParsedArgs(args: List<NavArgument>): String {
         var finalRoute = route
 
         args.forEach { (key, value) ->
@@ -163,5 +163,7 @@ fun NavGraphBuilder.bottomSheet(
         }
     )
 }
+
+data class NavArgument(val key: String, val value: Any)
 
 fun String.wrappedArg() = "{$this}"
