@@ -4,6 +4,7 @@ plugins {
 }
 
 apply(from = "../../quality/ktlint.gradle")
+apply(from = "../../quality/detekt.gradle")
 
 kotlin {
     jvm() {

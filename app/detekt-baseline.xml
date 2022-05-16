@@ -1,0 +1,772 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ClassNaming:SettingsAnalytics.kt$SettingsAnalytics$ChangePinClicked_Old : SettingsAnalytics</ID>
+    <ID>ClassNaming:SettingsAnalytics.kt$SettingsAnalytics$PasswordChanged_Old : SettingsAnalytics</ID>
+    <ID>ClassNaming:SettingsAnalytics.kt$SettingsAnalytics$PinChanged_Old : SettingsAnalytics</ID>
+    <ID>ComplexCondition:ConfirmXlmMemoItemDelegate.kt$XlmMemoItemViewHolder.&lt;no name provided>$position == TEXT_INDEX &amp;&amp; item.text.isNullOrBlank() || position == ID_INDEX &amp;&amp; item.id == null</ID>
+    <ID>ComplexMethod:ActivityDetailInfoItemDelegate.kt$InfoItemViewHolder$private fun getHeaderForType(infoType: ActivityDetailsType): String</ID>
+    <ID>ComplexMethod:ActivityDetailInfoItemDelegate.kt$InfoItemViewHolder$private fun getValueForType(infoType: ActivityDetailsType): String</ID>
+    <ID>ComplexMethod:ActivityDetailsModel.kt$ActivityDetailsModel$override fun performAction( previousState: ActivityDetailState, intent: ActivityDetailsIntents ): Disposable?</ID>
+    <ID>ComplexMethod:AnnouncementDelegate.kt$StdAnnouncementDelegate$@SuppressLint("SetTextI18n") override fun onBindViewHolder( items: List&lt;T>, position: Int, holder: RecyclerView.ViewHolder )</ID>
+    <ID>ComplexMethod:BankAuthFragment.kt$BankAuthFragment$private fun setButtonsForErrors( errorState: BankAuthError, partner: BankPartner?, linkBankTransferId: String )</ID>
+    <ID>ComplexMethod:BankAuthFragment.kt$BankAuthFragment$private fun showErrorState( errorState: BankAuthError, partner: BankPartner?, bankId: String )</ID>
+    <ID>ComplexMethod:BlockchainDeepLinkParser.kt$BlockchainDeepLinkParser$fun mapUri(uri: Uri): BlockchainLinkState</ID>
+    <ID>ComplexMethod:CardModel.kt$CardModel$private fun activateCard(intent: CardIntent.ActivateCard)</ID>
+    <ID>ComplexMethod:CardVerificationFragment.kt$CardVerificationFragment$private fun renderErrorState(error: CardError)</ID>
+    <ID>ComplexMethod:CoinViewActivity.kt$CoinViewActivity$private fun renderAssetInfo(state: CoinViewViewState.ShowAssetDetails)</ID>
+    <ID>ComplexMethod:CoinViewActivity.kt$CoinViewActivity$private fun renderUiState(newState: CoinViewState)</ID>
+    <ID>ComplexMethod:CoinViewInteractor.kt$CoinViewInteractor$fun loadQuickActions( totalCryptoBalance: Map&lt;AssetFilter, Money>, accountList: List&lt;BlockchainAccount>, asset: CryptoAsset ): Single&lt;QuickActionData></ID>
+    <ID>ComplexMethod:CoinViewInteractorTest.kt$CoinViewInteractorTest$@Test fun `load account details for tradeable asset should work`()</ID>
+    <ID>ComplexMethod:CoinViewModel.kt$CoinViewModel$override fun performAction(previousState: CoinViewState, intent: CoinViewIntent): Disposable?</ID>
+    <ID>ComplexMethod:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$private fun handleTransactionInputsAndOutputs( inputs: List&lt;Input>, outputs: List&lt;Output>, hash: String?, containsAddress: (address: String) -> Boolean? ): Pair&lt;String?, BigDecimal></ID>
+    <ID>ComplexMethod:CryptoAccountDetailsDelegate.kt$AssetWalletViewHolder$fun bind( item: AssetDetailsItemNew.CryptoDetailsInfo, isFirstItemOfCategory: Boolean )</ID>
+    <ID>ComplexMethod:CryptoActivityDetailsBottomSheet.kt$CryptoActivityDetailsBottomSheet$private fun renderCompletedPendingOrFailed( pending: Boolean, pendingExecution: Boolean, confirmations: Int, totalConfirmations: Int?, transactionType: TransactionSummary.TransactionType?, isFeeTransaction: Boolean, orderState: OrderState )</ID>
+    <ID>ComplexMethod:DashboardModel.kt$DashboardModel$override fun performAction( previousState: DashboardState, intent: DashboardIntent ): Disposable?</ID>
+    <ID>ComplexMethod:EnterAmountFragment.kt$EnterAmountFragment$@SuppressLint("SetTextI18n") override fun render(newState: TransactionState)</ID>
+    <ID>ComplexMethod:FeatureLimitAdapterDelegate.kt$FeatureWithLimitItemViewHolder$fun bind(item: KycLimitsItem.FeatureWithLimitItem)</ID>
+    <ID>ComplexMethod:GlobalEventHandler.kt$GlobalEventHandler$private fun buildNotificationIntentFromDeeplink(destination: Destination): Maybe&lt;Intent></ID>
+    <ID>ComplexMethod:LauncherPresenter.kt$LauncherPresenter$private fun extractDataAndStart()</ID>
+    <ID>ComplexMethod:LoginActivity.kt$LoginActivity$override fun render(newState: LoginState)</ID>
+    <ID>ComplexMethod:LoginModel.kt$LoginModel$override fun performAction(previousState: LoginState, intent: LoginIntents): Disposable?</ID>
+    <ID>ComplexMethod:MainActivity.kt$MainActivity$// TODO this is deprecated, should be replaced with ActivityResult.contract // some consideration needs to be paid to QR scanning and how it deals with the results override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)</ID>
+    <ID>ComplexMethod:MainActivity.kt$MainActivity$override fun render(newState: MainState)</ID>
+    <ID>ComplexMethod:MainModel.kt$MainModel$override fun performAction(previousState: MainState, intent: MainIntent): Disposable?</ID>
+    <ID>ComplexMethod:MainModel.kt$MainModel$private fun handleBlockchainDeepLink(linkState: LinkState.BlockchainLink)</ID>
+    <ID>ComplexMethod:PinActivity.kt$PinActivity$override fun render(newState: PinState)</ID>
+    <ID>ComplexMethod:PinModel.kt$PinModel$override fun performAction( previousState: PinState, intent: PinIntent ): Disposable?</ID>
+    <ID>ComplexMethod:RecurringBuySelectionBottomSheet.kt$RecurringBuySelectionBottomSheet$private fun hideOrFillFrequencySelectorWithDates( eligibleAndNextPaymentRecurringBuys: List&lt;EligibleAndNextPaymentRecurringBuy>, paymentMethodType: PaymentMethodType )</ID>
+    <ID>ComplexMethod:SecurityModel.kt$SecurityModel$override fun performAction( previousState: SecurityState, intent: SecurityIntent ): Disposable?</ID>
+    <ID>ComplexMethod:SettingsFragment.kt$SettingsFragment$private fun addPaymentMethods( paymentMethodInfo: PaymentMethods, totalLinkedPaymentMethods: Int, isUserGold: Boolean )</ID>
+    <ID>ComplexMethod:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>ComplexMethod:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment$private fun showErrorState(errorState: ErrorState)</ID>
+    <ID>ComplexMethod:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>ComplexMethod:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment$private fun showErrorState(errorState: ErrorState)</ID>
+    <ID>ComplexMethod:SimpleBuyModel.kt$SimpleBuyModel$override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable?</ID>
+    <ID>ComplexMethod:SimpleBuyModel.kt$SimpleBuyModel$private fun SimpleBuyInteractor.PaymentMethods.toPaymentMethods( fiatCurrency: FiatCurrency ): List&lt;PaymentMethod></ID>
+    <ID>ComplexMethod:SimpleBuyModel.kt$SimpleBuyModel$private fun processOrderErrors(it: Throwable)</ID>
+    <ID>ComplexMethod:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>ComplexMethod:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment$private fun handleErrorStates(errorState: ErrorState)</ID>
+    <ID>ComplexMethod:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment$private fun renderTitleAndSubtitle(newState: SimpleBuyState)</ID>
+    <ID>ComplexMethod:SimpleBuyPendingKycFragment.kt$SimpleBuyPendingKycFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>ComplexMethod:StateAwareActionsComparator.kt$StateAwareActionsComparator$private fun AssetAction.nonCustodialAccountOrdering()</ID>
+    <ID>ComplexMethod:StateMachineTest.kt$StateMachineTest$@Test fun `setting root should emit new state`()</ID>
+    <ID>ComplexMethod:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl$override fun issueFlashMessage(state: TransactionState, input: CurrencyType?): String</ID>
+    <ID>ComplexMethod:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl$override fun transactionCompleteMessage(state: TransactionState): String</ID>
+    <ID>ComplexMethod:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl$override fun transactionProgressExceptionMessage(state: TransactionState): String</ID>
+    <ID>ComplexMethod:TransactionHelper.kt$TransactionHelper$ fun filterNonChangeBtcAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
+    <ID>ComplexMethod:TransactionHelper.kt$TransactionHelper$fun filterNonChangeBchAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
+    <ID>ComplexMethod:TransactionIntent.kt$private fun ValidationState.mapToTransactionError()</ID>
+    <ID>ComplexMethod:TransactionModel.kt$TransactionModel$override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable?</ID>
+    <ID>ComplexMethod:TransactionProgressFragment.kt$TransactionProgressFragment$private fun logClientErrorToAnalytics(state: TransactionState)</ID>
+    <ID>ComplexMethod:TxConfirmReadOnlyMapper.kt$TxConfirmReadOnlyMapperCheckout$fun map(property: TxConfirmationValue): Map&lt;ConfirmationPropertyKey, Any></ID>
+    <ID>ConstructorParameterNaming:EmailModel.kt$EmailModel$private val _activityIndicator: Lazy&lt;ActivityIndicator?></ID>
+    <ID>ConstructorParameterNaming:PhoneModel.kt$PhoneModel$private val _activityIndicator: Lazy&lt;ActivityIndicator?></ID>
+    <ID>ConstructorParameterNaming:ProfileModel.kt$ProfileModel$private val _activityIndicator: Lazy&lt;ActivityIndicator?></ID>
+    <ID>ConstructorParameterNaming:SMSVerificationModel.kt$SMSVerificationModel$private val _activityIndicator: Lazy&lt;ActivityIndicator?></ID>
+    <ID>ConstructorParameterNaming:SimpleBuyModel.kt$SimpleBuyModel$private val _activityIndicator: Lazy&lt;ActivityIndicator?></ID>
+    <ID>ConstructorParameterNaming:TransactionIntent.kt$TransactionIntent.FatalTransactionError$private val _error: Throwable</ID>
+    <ID>ConstructorParameterNaming:US.kt$US$/** * The ANSI abbreviated name of this state, e.g. "NY", or "WY". */ val ANSIAbbreviation: String</ID>
+    <ID>EmptyDefaultConstructor:KycAdditionalInfoFragment.kt$KycAdditionalInfoFragment$()</ID>
+    <ID>EmptyFunctionBlock:AccountPresenter.kt$AccountPresenter${}</ID>
+    <ID>EmptyFunctionBlock:AccountRecoveryActivity.kt$AccountRecoveryActivity.&lt;no name provided>${}</ID>
+    <ID>EmptyFunctionBlock:AddNewCardFragment.kt$AddNewCardFragment${}</ID>
+    <ID>EmptyFunctionBlock:AirdropCentrePresenter.kt$AirdropCentrePresenter${}</ID>
+    <ID>EmptyFunctionBlock:AirdropStatusSheet.kt$AirdropStatusSheet${}</ID>
+    <ID>EmptyFunctionBlock:Analytics.kt$TxFlowAnalytics${}</ID>
+    <ID>EmptyFunctionBlock:BlockchainApplication.kt$AppVersioningChecks.&lt;no name provided>${}</ID>
+    <ID>EmptyFunctionBlock:BlockchainApplication.kt$BlockchainApplication.&lt;no name provided>${}</ID>
+    <ID>EmptyFunctionBlock:CustomerSupportSheet.kt$CustomerSupportSheet${ }</ID>
+    <ID>EmptyFunctionBlock:CustomerSupportViewModel.kt$CustomerSupportViewModel${ }</ID>
+    <ID>EmptyFunctionBlock:EmptyCardDelegate.kt$EmptyCardDelegate${}</ID>
+    <ID>EmptyFunctionBlock:EnterAmountFragment.kt$EnterAmountFragment${ }</ID>
+    <ID>EmptyFunctionBlock:FeatureLimitAdapterDelegate.kt$FeaturesHeaderItemDelegate${ }</ID>
+    <ID>EmptyFunctionBlock:InterestDashboardFragment.kt$InterestDashboardFragment${ }</ID>
+    <ID>EmptyFunctionBlock:InterestDashboardViewModel.kt$InterestDashboardViewModel${ }</ID>
+    <ID>EmptyFunctionBlock:KoinStarter.kt$NullLogger${}</ID>
+    <ID>EmptyFunctionBlock:KycLimitsActivity.kt$KycLimitsActivity${ }</ID>
+    <ID>EmptyFunctionBlock:KycNavHostPresenter.kt$KycNavHostPresenter${ }</ID>
+    <ID>EmptyFunctionBlock:KycSplashPresenter.kt$KycSplashPresenter${}</ID>
+    <ID>EmptyFunctionBlock:KycTierSplashPresenter.kt$KycTierSplashPresenter${}</ID>
+    <ID>EmptyFunctionBlock:LandingPresenter.kt$LandingPresenter${}</ID>
+    <ID>EmptyFunctionBlock:LauncherPresenter.kt$LauncherPresenter${ }</ID>
+    <ID>EmptyFunctionBlock:NotificationPreferenceDetailsFragment.kt$NotificationPreferenceDetailsFragment${ }</ID>
+    <ID>EmptyFunctionBlock:NotificationPreferenceDetailsFragment.kt$NotificationPreferenceDetailsFragment.&lt;no name provided>${ }</ID>
+    <ID>EmptyFunctionBlock:NotificationPreferencesFragment.kt$NotificationPreferencesFragment${ }</ID>
+    <ID>EmptyFunctionBlock:OpenBankingPermissionFragment.kt$OpenBankingPermissionFragment${}</ID>
+    <ID>EmptyFunctionBlock:PasswordAuthPresenter.kt$PasswordAuthPresenter${}</ID>
+    <ID>EmptyFunctionBlock:PinActivity.kt$PinActivity${}</ID>
+    <ID>EmptyFunctionBlock:PinActivity.kt$PinActivity.&lt;no name provided>${}</ID>
+    <ID>EmptyFunctionBlock:PitPermissionsPresenter.kt$PitPermissionsPresenter${}</ID>
+    <ID>EmptyFunctionBlock:QrScanActivity.kt$QrScanActivity${}</ID>
+    <ID>EmptyFunctionBlock:ReceiveFragment.kt$ReceiveFragment${ }</ID>
+    <ID>EmptyFunctionBlock:RecurringBuyFirstTimeBuyerFragment.kt$RecurringBuyFirstTimeBuyerFragment${}</ID>
+    <ID>EmptyFunctionBlock:ReferralSheet.kt$ReferralSheet${ }</ID>
+    <ID>EmptyFunctionBlock:SelectSourceAccountFragment.kt$SelectSourceAccountFragment${}</ID>
+    <ID>EmptyFunctionBlock:SimpleBuyActivity.kt$SimpleBuyActivity${ }</ID>
+    <ID>EmptyFunctionBlock:SimpleInfoHeaderView.kt$EmptyHeaderView${}</ID>
+    <ID>EmptyFunctionBlock:SwapFragment.kt$SwapFragment${ }</ID>
+    <ID>EmptySecondaryConstructor:CardNumberEditText.kt$CardNumberEditText${ }</ID>
+    <ID>EmptySecondaryConstructor:CardNumberEditText.kt$CardNumberEditText${}</ID>
+    <ID>ImplicitDefaultLocale:DashboardExtensionFn.kt$String.format("%.2f%%", this)</ID>
+    <ID>ImplicitDefaultLocale:InvoiceCountdownTimerDelegate.kt$InvoiceCountdownTimerDelegate.ViewHolder$String.format( "%2d:%02d", TimeUnit.SECONDS.toMinutes(remaining), TimeUnit.SECONDS.toSeconds(remaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(remaining)) )</ID>
+    <ID>LargeClass:ActivityDetailsInteractor.kt$ActivityDetailsInteractor</ID>
+    <ID>LargeClass:BankAuthModelTest.kt$BankAuthModelTest</ID>
+    <ID>LargeClass:CoinViewActivity.kt$CoinViewActivity : MviActivityHostHostHostHostHostHost</ID>
+    <ID>LargeClass:CoinViewModelTest.kt$CoinViewModelTest</ID>
+    <ID>LargeClass:MainActivity.kt$MainActivity : MviActivityHomeNavigatorHostHostHostHostHostSmallSimpleBuyNavigatorHostHostHostHost</ID>
+    <ID>LargeClass:MainModelTest.kt$MainModelTest</ID>
+    <ID>LargeClass:PinActivity.kt$PinActivity : MviActivityHostTextWatcher</ID>
+    <ID>LargeClass:PinModelTest.kt$PinModelTest</ID>
+    <ID>LargeClass:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment : MviFragmentHostSimpleBuyScreenTransactionFlowInfoHostHostHost</ID>
+    <ID>LargeClass:SimpleBuyModel.kt$SimpleBuyModel : MviModel</ID>
+    <ID>LargeClass:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl : TransactionFlowCustomiser</ID>
+    <ID>LongMethod:AccountActionsBottomSheet.kt$AccountActionsBottomSheet$private fun mapAction( stateAwareAction: StateAwareAction, hasWarning: Boolean, account: CryptoAccount ): AssetActionItem</ID>
+    <ID>LongMethod:AccountFragment.kt$AccountFragment$override fun onViewCreated(view: View, savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:AccountInfoCrypto.kt$AccountInfoCrypto$private fun updateAccountDetails( account: CryptoAccount, accountsAreTheSame: Boolean, onAccountClicked: (CryptoAccount) -> Unit, cellDecorator: CellDecorator )</ID>
+    <ID>LongMethod:AccountModel.kt$AccountModel$override fun performAction( previousState: AccountState, intent: AccountIntent ): Disposable?</ID>
+    <ID>LongMethod:ActivityDetailInfoItemDelegate.kt$InfoItemViewHolder$private fun getValueForType(infoType: ActivityDetailsType): String</ID>
+    <ID>LongMethod:ActivityDetailsModel.kt$ActivityDetailsModel$override fun performAction( previousState: ActivityDetailState, intent: ActivityDetailsIntents ): Disposable?</ID>
+    <ID>LongMethod:Analytics.kt$TxFlowAnalytics$// Confirm sheet fun onConfirmationCtaClick(state: TransactionState)</ID>
+    <ID>LongMethod:Analytics.kt$TxFlowAnalytics$// Progress sheet fun onTransactionSuccess(state: TransactionState)</ID>
+    <ID>LongMethod:Analytics.kt$TxFlowAnalytics$fun onEnterAmountCtaClick(state: TransactionState)</ID>
+    <ID>LongMethod:AnnouncementDelegate.kt$StdAnnouncementDelegate$@SuppressLint("SetTextI18n") override fun onBindViewHolder( items: List&lt;T>, position: Int, holder: RecyclerView.ViewHolder )</ID>
+    <ID>LongMethod:BankAuthFragment.kt$BankAuthFragment$private fun setButtonsForErrors( errorState: BankAuthError, partner: BankPartner?, linkBankTransferId: String )</ID>
+    <ID>LongMethod:BankAuthFragment.kt$BankAuthFragment$private fun showErrorState( errorState: BankAuthError, partner: BankPartner?, bankId: String )</ID>
+    <ID>LongMethod:CardModel.kt$CardModel$private fun activateCard(intent: CardIntent.ActivateCard)</ID>
+    <ID>LongMethod:CoinViewActivity.kt$CoinViewActivity$private fun getQuickActionUi( asset: AssetInfo, highestBalanceWallet: BlockchainAccount, action: QuickActionCta ): QuickAction</ID>
+    <ID>LongMethod:CoinViewActivity.kt$CoinViewActivity$private fun renderUiState(newState: CoinViewState)</ID>
+    <ID>LongMethod:CoinViewInteractor.kt$CoinViewInteractor$fun loadQuickActions( totalCryptoBalance: Map&lt;AssetFilter, Money>, accountList: List&lt;BlockchainAccount>, asset: CryptoAsset ): Single&lt;QuickActionData></ID>
+    <ID>LongMethod:CoinViewInteractor.kt$CoinViewInteractor$private fun mapAccounts( nonCustodialAccounts: List&lt;Details.DetailsItem>, exchangeRate: ExchangeRate, custodialAccounts: List&lt;Details.DetailsItem>, interestAccounts: List&lt;Details.DetailsItem>, interestRate: Double = Double.NaN ): List&lt;AssetDisplayInfo></ID>
+    <ID>LongMethod:CryptoAccountDetailsDelegate.kt$AssetWalletViewHolder$fun bind( item: AssetDetailsItemNew.CryptoDetailsInfo, isFirstItemOfCategory: Boolean )</ID>
+    <ID>LongMethod:DashboardActionInteractor.kt$DashboardActionInteractor$private fun handlePaymentMethodsUpdate( fiatTxRequestResult: FiatTransactionRequestResult?, model: DashboardModel, fiatAccount: FiatAccount, action: AssetAction )</ID>
+    <ID>LongMethod:DashboardModel.kt$DashboardModel$override fun performAction( previousState: DashboardState, intent: DashboardIntent ): Disposable?</ID>
+    <ID>LongMethod:DashboardOnboardingActivity.kt$DashboardOnboardingActivity$@Suppress("IMPLICIT_CAST_TO_ANY") private fun handleNavigation(action: DashboardOnboardingNavigationAction)</ID>
+    <ID>LongMethod:EmailModel.kt$EmailModel$override fun performAction( previousState: EmailState, intent: EmailIntent ): Disposable?</ID>
+    <ID>LongMethod:EnterAmountFragment.kt$EnterAmountFragment$@SuppressLint("SetTextI18n") override fun render(newState: TransactionState)</ID>
+    <ID>LongMethod:FiatFundsDetailSheet.kt$FiatFundsDetailSheet$override fun initControls(binding: DialogSheetFiatFundsDetailBinding)</ID>
+    <ID>LongMethod:GlobalEventHandler.kt$GlobalEventHandler$private fun buildNotificationIntentFromDeeplink(destination: Destination): Maybe&lt;Intent></ID>
+    <ID>LongMethod:InterestSummarySheet.kt$InterestSummarySheet$override fun initControls(binding: DialogSheetInterestDetailsBinding)</ID>
+    <ID>LongMethod:InterestSummarySheet.kt$InterestSummarySheet$private fun compositeToView(composite: CompositeInterestDetails)</ID>
+    <ID>LongMethod:KoinStarter.kt$KoinStarter$@Suppress("ConstantConditionIf") @JvmStatic fun start(application: Application)</ID>
+    <ID>LongMethod:KycAdditionalInfoScreen.kt$@Composable fun KycAdditionalInfoScreen( state: KycAdditionalInfoState, onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit, onSelectionClicked: (node: FlatNode.Selection) -> Unit, onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit, onContinueClicked: () -> Unit )</ID>
+    <ID>LongMethod:KycAdditionalInfoScreen.kt$@Composable private fun DropdownRow( modifier: Modifier, node: FlatNode.Dropdown, isInvalid: Boolean, onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit )</ID>
+    <ID>LongMethod:KycUpgradeNowSheet.kt$KycUpgradeNowSheet$override fun initControls(binding: DialogSheetKycUpgradeNowBinding): Unit</ID>
+    <ID>LongMethod:LandingActivity.kt$LandingActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongMethod:LoginAuthModelTest.kt$LoginAuthModelTest$@Test fun `auth fail to get payload`()</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$// TODO this is deprecated, should be replaced with ActivityResult.contract // some consideration needs to be paid to QR scanning and how it deals with the results override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun render(newState: MainState)</ID>
+    <ID>LongMethod:MainModel.kt$MainModel$override fun performAction(previousState: MainState, intent: MainIntent): Disposable?</ID>
+    <ID>LongMethod:NotificationsModel.kt$NotificationsModel$override fun performAction( previousState: NotificationsState, intent: NotificationsIntent ): Disposable?</ID>
+    <ID>LongMethod:PaymentAccountMappers.kt$USDPaymentAccountMapper$override fun map(bankAccountResponse: BankAccountResponse): BankAccount?</ID>
+    <ID>LongMethod:PhoneModel.kt$PhoneModel$override fun performAction( previousState: PhoneState, intent: PhoneIntent ): Disposable?</ID>
+    <ID>LongMethod:PinActivity.kt$PinActivity$override fun render(newState: PinState)</ID>
+    <ID>LongMethod:PinModel.kt$PinModel$override fun performAction( previousState: PinState, intent: PinIntent ): Disposable?</ID>
+    <ID>LongMethod:ReceiveDetailIntentHelper.kt$ReceiveDetailIntentHelper$internal fun getIntentDataList( uri: String, bitmap: Bitmap, asset: AssetInfo ): List&lt;SendPaymentCodeData></ID>
+    <ID>LongMethod:RecurringBuyDetailsSheet.kt$RecurringBuyDetailsSheet$override fun render(newState: RecurringBuyModelState)</ID>
+    <ID>LongMethod:RedesignActionsBottomSheet.kt$RedesignActionsBottomSheet$override fun initControls(binding: BottomSheetRedesignActionsBinding)</ID>
+    <ID>LongMethod:ReferralScreen.kt$ @Composable fun ReferralScreen( rewardTitle: String, rewardSubtitle: String, code: String, confirmCopiedToClipboard: Boolean, criteria: List&lt;String>, onBackPressed: () -> Unit, copyToClipboard: (String) -> Unit, shareCode: (String) -> Unit )</ID>
+    <ID>LongMethod:SecurityFragment.kt$SecurityFragment$private fun initUi()</ID>
+    <ID>LongMethod:SecurityModel.kt$SecurityModel$override fun performAction( previousState: SecurityState, intent: SecurityIntent ): Disposable?</ID>
+    <ID>LongMethod:SettingsFragment.kt$SettingsFragment$private fun addPaymentMethods( paymentMethodInfo: PaymentMethods, totalLinkedPaymentMethods: Int, isUserGold: Boolean )</ID>
+    <ID>LongMethod:SettingsModel.kt$SettingsModel$override fun performAction( previousState: SettingsState, intent: SettingsIntent ): Disposable?</ID>
+    <ID>LongMethod:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>LongMethod:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment$private fun showErrorState(errorState: ErrorState)</ID>
+    <ID>LongMethod:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>LongMethod:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment$private fun showErrorState(errorState: ErrorState)</ID>
+    <ID>LongMethod:SimpleBuyModel.kt$SimpleBuyModel$override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable?</ID>
+    <ID>LongMethod:SimpleBuyModel.kt$SimpleBuyModel$private fun SimpleBuyInteractor.PaymentMethods.toPaymentMethods( fiatCurrency: FiatCurrency ): List&lt;PaymentMethod></ID>
+    <ID>LongMethod:SimpleBuyModel.kt$SimpleBuyModel$private fun onPaymentMethodsUpdated( asset: AssetInfo, fiatCurrency: FiatCurrency, selectedPaymentMethod: SelectedPaymentMethod, availablePaymentMethods: List&lt;PaymentMethod> ): Disposable</ID>
+    <ID>LongMethod:SimpleBuyModel.kt$SimpleBuyModel$private fun processOrderErrors(it: Throwable)</ID>
+    <ID>LongMethod:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment$private fun handleErrorStates(errorState: ErrorState)</ID>
+    <ID>LongMethod:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment$private fun renderTitleAndSubtitle(newState: SimpleBuyState)</ID>
+    <ID>LongMethod:SimpleBuyPendingKycFragment.kt$SimpleBuyPendingKycFragment$override fun render(newState: SimpleBuyState)</ID>
+    <ID>LongMethod:SimpleBuySyncFactoryTest.kt$SimpleBuySyncFactoryTest$@Test fun `there are several remote buys, all in various completed states, no local buy in progress`()</ID>
+    <ID>LongMethod:SimpleBuySyncFactoryTest.kt$SimpleBuySyncFactoryTest$@Test fun `there are several remote buys, some in awaiting funds some in pending state, no local buy in progress`()</ID>
+    <ID>LongMethod:SwapFragment.kt$SwapFragment$private fun loadSwapOrKyc(showLoading: Boolean)</ID>
+    <ID>LongMethod:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl$override fun transactionCompleteMessage(state: TransactionState): String</ID>
+    <ID>LongMethod:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl$override fun transactionProgressExceptionMessage(state: TransactionState): String</ID>
+    <ID>LongMethod:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForBelowMinLimit( type: InfoBottomSheetType, state: TransactionFlowStateInfo, input: CurrencyType ): TransactionFlowBottomSheetInfo?</ID>
+    <ID>LongMethod:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForInsufficientFunds( type: InfoBottomSheetType, state: TransactionFlowStateInfo ): TransactionFlowBottomSheetInfo?</ID>
+    <ID>LongMethod:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForOverMaxLimitWithoutUpgrade( type: InfoBottomSheetType, state: TransactionFlowStateInfo, availableAmount: String, limitPeriodText: String, effectiveLimitAmount: String ): TransactionFlowBottomSheetInfo?</ID>
+    <ID>LongMethod:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForOverMaxPaymentMethodLimit( type: InfoBottomSheetType, state: TransactionFlowStateInfo, input: CurrencyType ): TransactionFlowBottomSheetInfo</ID>
+    <ID>LongMethod:TransactionHelper.kt$TransactionHelper$fun filterNonChangeBchAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
+    <ID>LongMethod:TransactionModel.kt$TransactionModel$override fun performAction(previousState: TransactionState, intent: TransactionIntent): Disposable?</ID>
+    <ID>LongMethod:TransactionProgressFragment.kt$TransactionProgressFragment$private fun logClientErrorToAnalytics(state: TransactionState)</ID>
+    <ID>LongMethod:YapilyPermissionFragmentLegacy.kt$YapilyPermissionFragmentLegacy$override fun onViewCreated(view: View, savedInstanceState: Bundle?)</ID>
+    <ID>LongParameterList:AccountActionsBottomSheet.kt$AccountActionsBottomSheet.Companion$( selectedAccount: BlockchainAccount, balanceFiat: Money, balanceCrypto: Money, interestRate: Double, stateAwareActions: Array&lt;StateAwareAction>, hasWarning: Boolean )</ID>
+    <ID>LongParameterList:AccountList.kt$AccountList$( source: Single&lt;List&lt;BlockchainAccount>>, status: StatusDecorator = { DefaultCellDecorator() }, accountsLocks: Single&lt;List&lt;AccountLocks>> = Single.just(emptyList()), introView: IntroHeaderView? = null, shouldShowSelectionStatus: Boolean = false, assetAction: AssetAction? = null )</ID>
+    <ID>LongParameterList:AccountPrompts.kt$( ctx: Context, @StringRes heading: Int, @StringRes note: Int, @StringRes copyBtn: Int, bitmap: Bitmap, qrString: String )</ID>
+    <ID>LongParameterList:AccountPrompts.kt$( ctx: Context, @StringRes heading: Int, note: String, @StringRes copyBtn: Int, bitmap: Bitmap, qrString: String )</ID>
+    <ID>LongParameterList:AccountPrompts.kt$( ctx: Context, @StringRes title: Int, @StringRes msg: Int, initialText: String = "", @StringRes okBtnText: Int = R.string.save_name, @StringRes cancelText: Int = android.R.string.cancel, okAction: (String) -> Unit )</ID>
+    <ID>LongParameterList:AccountSelectorFragment.kt$AccountSelectorFragment$( statusDecorator: StatusDecorator, onAccountSelected: (BlockchainAccount) -> Unit, onExtraAccountInfoClicked: (AccountLocks) -> Unit = {}, @StringRes title: Int, @StringRes label: Int, @DrawableRes icon: Int )</ID>
+    <ID>LongParameterList:ActivityDetailsInteractor.kt$ActivityDetailsInteractor$( private val currencyPrefs: CurrencyPrefs, private val transactionInputOutputMapper: TransactionInOutMapper, private val assetActivityRepository: AssetActivityRepository, private val custodialWalletManager: CustodialWalletManager, private val paymentsDataManager: PaymentsDataManager, private val stringUtils: StringUtils, private val coincore: Coincore, private val historicRateFetcher: HistoricRateFetcher, private val defaultLabels: DefaultLabels )</ID>
+    <ID>LongParameterList:AnnouncementCard.kt$MiniAnnouncementCard$( override val name: String, val dismissRule: DismissRule, val dismissEntry: DismissRecorder.DismissEntry, @StringRes val titleText: Int = 0, @StringRes val bodyText: Int = 0, @DrawableRes val iconImage: Int = 0, @DrawableRes val background: Int = 0, private val ctaFunction: () -> Unit = { }, val hasCta: Boolean )</ID>
+    <ID>LongParameterList:AnnouncementQueries.kt$AnnouncementQueries$( private val nabuToken: NabuToken, private val settings: SettingsDataManager, private val nabu: NabuDataManager, private val tierService: TierService, private val sbStateFactory: SimpleBuySyncFactory, private val userIdentity: UserIdentity, private val coincore: Coincore, private val remoteConfig: RemoteConfig, private val assetCatalogue: AssetCatalogue )</ID>
+    <ID>LongParameterList:AppUtil.kt$AppUtil$( private val context: Context, private var payloadScopeWiper: PayloadScopeWiper, private val prefs: PersistentPrefs, private val trust: DigitalTrust, private val pinRepository: PinRepository, private val remoteLogger: RemoteLogger, private val isIntercomEnabledFlag: FeatureFlag )</ID>
+    <ID>LongParameterList:AuthNewLoginModel.kt$AuthNewLoginModel$( initialState: AuthNewLoginState, mainScheduler: Scheduler, environmentConfig: EnvironmentConfig, remoteLogger: RemoteLogger, private val secureChannelService: SecureChannelService, private val secureChannelPrefs: SecureChannelPrefs, private val walletApi: WalletApi )</ID>
+    <ID>LongParameterList:AuthNewLoginSheet.kt$AuthNewLoginSheet.Companion$( pubKeyHash: String?, message: SecureChannelBrowserMessageArg?, forcePin: Boolean?, originIP: String?, originLocation: String?, originBrowser: String? )</ID>
+    <ID>LongParameterList:BiometricsController.kt$BiometricsControllerImpl$( private val applicationContext: Context, private val biometricData: WalletBiometricData, private val biometricDataFactory: WalletBiometricDataFactory, biometricDataRepository: BiometricDataRepository, biometricManager: BiometricManager, cryptographyManager: CryptographyManager, remoteLogger: RemoteLogger )</ID>
+    <ID>LongParameterList:CardModel.kt$CardModel$( uiScheduler: Scheduler, currencyPrefs: CurrencyPrefs, private val interactor: SimpleBuyInteractor, private val prefs: SimpleBuyPrefs, private val cardActivator: CardActivator, private val gson: Gson, private val json: Json, private val replaceGsonKtxFF: FeatureFlag, val environmentConfig: EnvironmentConfig, remoteLogger: RemoteLogger )</ID>
+    <ID>LongParameterList:CoinViewInteractor.kt$CoinViewInteractor$( private val coincore: Coincore, private val tradeDataService: TradeDataService, private val currencyPrefs: CurrencyPrefs, private val dashboardPrefs: DashboardPrefs, private val identity: UserIdentity, private val custodialWalletManager: CustodialWalletManager, private val assetActionsComparator: StateAwareActionsComparator, private val assetsManager: DynamicAssetsDataManager, private val watchlistDataManager: WatchlistDataManager, )</ID>
+    <ID>LongParameterList:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$( private val coinsWebSocket: WebSocket&lt;String, String>, private val ethDataManager: EthDataManager, private val erc20DataManager: Erc20DataManager, private val bchDataManager: BchDataManager, private val stringUtils: StringUtils, private val gson: Gson, private val json: Json, private val replaceGsonKtxFF: FeatureFlag, private val rxBus: RxBus, private val prefs: PersistentPrefs, private val appUtil: AppUtil, private val payloadDataManager: PayloadDataManager, private val assetCatalogue: AssetCatalogue, private val crashLogger: RemoteLogger )</ID>
+    <ID>LongParameterList:CopyableTextFormItem.kt$CopyableTextFormItem$( context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, private val title: String = "", private val value: String = "", private val isCopyable: Boolean = false, private val onCopy: (String) -> Unit = {} )</ID>
+    <ID>LongParameterList:CreateWalletPresenter.kt$CreateWalletPresenter$( private val payloadDataManager: PayloadDataManager, private val prefs: PersistentPrefs, private val appUtil: AppUtil, private val specificAnalytics: ProviderSpecificAnalytics, private val analytics: Analytics, private val environmentConfig: EnvironmentConfig, private val formatChecker: FormatChecker, private val eligibilityService: EligibilityService )</ID>
+    <ID>LongParameterList:CredentialsWiper.kt$CredentialsWiper$( private val ethDataManager: EthDataManager, private val appUtil: AppUtil, private val notificationTokenManager: NotificationTokenManager, private val bchDataManager: BchDataManager, private val metadataService: MetadataService, private val nabuDataManager: NabuDataManager, private val walletOptionsState: WalletOptionsState )</ID>
+    <ID>LongParameterList:CryptoActivityDetailsBottomSheet.kt$CryptoActivityDetailsBottomSheet$( pending: Boolean, pendingExecution: Boolean, confirmations: Int, totalConfirmations: Int?, transactionType: TransactionSummary.TransactionType?, isFeeTransaction: Boolean, orderState: OrderState )</ID>
+    <ID>LongParameterList:DashboardActionInteractor.kt$DashboardActionInteractor$( private val coincore: Coincore, private val payloadManager: PayloadDataManager, private val exchangeRates: ExchangeRatesDataManager, private val currencyPrefs: CurrencyPrefs, private val onboardingPrefs: OnboardingPrefs, private val custodialWalletManager: CustodialWalletManager, private val paymentsDataManager: PaymentsDataManager, private val linkedBanksFactory: LinkedBanksFactory, private val simpleBuyPrefs: SimpleBuyPrefs, private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase, private val userIdentity: NabuUserIdentity, private val analytics: Analytics, private val remoteLogger: RemoteLogger )</ID>
+    <ID>LongParameterList:DataWiperImpl.kt$DataWiperImpl$( private val ethDataManager: EthDataManager, private val bchDataManager: BchDataManager, private val walletOptionsState: WalletOptionsState, private val nabuDataManager: NabuDataManager, private val walletConnectServiceAPI: WalletConnectServiceAPI, private val assetActivityRepository: AssetActivityRepository, private val walletPrefs: WalletStatus, private val payloadScopeWiper: PayloadScopeWiper, private val remoteLogger: RemoteLogger )</ID>
+    <ID>LongParameterList:EmptyStateView.kt$EmptyStateView$( @StringRes title: Int = R.string.common_empty_title, @StringRes description: Int = R.string.common_empty_details, @DrawableRes icon: Int = R.drawable.ic_wallet_intro_image, @StringRes ctaText: Int = R.string.common_empty_cta, contactSupportEnabled: Boolean = false, action: () -> Unit )</ID>
+    <ID>LongParameterList:GlobalEventHandler.kt$GlobalEventHandler$( private val application: Application, private val walletConnectServiceAPI: WalletConnectServiceAPI, private val deeplinkFeatureFlag: IntegratedFeatureFlag, private val deeplinkRedirector: DeeplinkRedirector, private val destinationArgs: DestinationArgs, private val notificationManager: NotificationManager, private val analytics: Analytics )</ID>
+    <ID>LongParameterList:InterestDashboardAssetItem.kt$InterestAssetItemViewHolder$( assetResources: AssetResources, item: InterestAssetInfoItem, disposables: CompositeDisposable, interestBalance: InterestBalanceDataManager, custodialWalletManager: CustodialWalletManager, itemClicked: (AssetInfo, Boolean) -> Unit )</ID>
+    <ID>LongParameterList:KycHomeAddressView.kt$KycHomeAddressView$( line1: String?, line2: String?, city: String?, state: String?, postCode: String?, countryName: String )</ID>
+    <ID>LongParameterList:LandingPresenter.kt$LandingPresenter$( private val environmentSettings: EnvironmentConfig, private val prefs: SecurityPrefs, private val onboardingPrefs: OnboardingPrefs, private val rootUtil: RootUtil, private val apiStatus: ApiStatus, private val assetCatalogue: AssetCatalogueImpl, private val exchangeRatesDataManager: ExchangeRatesDataManager )</ID>
+    <ID>LongParameterList:LauncherPresenter.kt$LauncherPresenter$( private val appUtil: AppUtil, private val prefs: PersistentPrefs, private val deepLinkPersistence: DeepLinkPersistence, private val envSettings: EnvironmentConfig, private val authPrefs: AuthPrefs, private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase, private val appMaintenanceFF: FeatureFlag )</ID>
+    <ID>LongParameterList:LoaderInteractor.kt$LoaderInteractor$( private val payloadDataManager: PayloadDataManager, private val prerequisites: Prerequisites, private val prefs: PersistentPrefs, private val deepLinkPersistence: DeepLinkPersistence, private val settingsDataManager: SettingsDataManager, private val notificationTokenManager: NotificationTokenManager, private val currencyPrefs: CurrencyPrefs, private val nabuUserDataManager: NabuUserDataManager, private val walletPrefs: WalletStatus, private val analytics: Analytics, private val assetCatalogue: AssetCatalogue, private val ioScheduler: Scheduler, private val termsAndConditionsFeatureFlag: FeatureFlag )</ID>
+    <ID>LongParameterList:LoaderModel.kt$LoaderModel$( initialState: LoaderState, environmentConfig: EnvironmentConfig, mainScheduler: Scheduler, private val remoteLogger: RemoteLogger, private val appUtil: AppUtil, private val payloadDataManager: PayloadDataManager, private val prefs: PersistentPrefs, private val prerequisites: Prerequisites, private val authPrefs: AuthPrefs, private val interactor: LoaderInteractor )</ID>
+    <ID>LongParameterList:LoginModel.kt$LoginModel$( initialState: LoginState, mainScheduler: Scheduler, environmentConfig: EnvironmentConfig, remoteLogger: RemoteLogger, private val interactor: LoginInteractor, private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase, private val appMaintenanceFF: FeatureFlag, private val analytics: Analytics )</ID>
+    <ID>LongParameterList:MainActivity.kt$MainActivity.Companion$( context: Context, launchAuthFlow: Boolean, pubKeyHash: String, message: SecureChannelBrowserMessageArg, originIp: String?, originLocation: String?, originBrowser: String?, forcePin: Boolean, shouldBeNewTask: Boolean )</ID>
+    <ID>LongParameterList:MainInteractor.kt$MainInteractor$( private val deepLinkProcessor: DeepLinkProcessor, private val deeplinkRedirector: DeeplinkRedirector, private val deepLinkPersistence: DeepLinkPersistence, private val exchangeLinking: PitLinking, private val exchangePrefs: ThePitLinkingPrefs, private val assetCatalogue: AssetCatalogue, private val bankLinkingPrefs: BankLinkingPrefs, private val custodialWalletManager: CustodialWalletManager, private val paymentsDataManager: PaymentsDataManager, private val simpleBuySync: SimpleBuySyncFactory, private val userIdentity: UserIdentity, private val upsellManager: KycUpgradePromptManager, private val database: Database, private val credentialsWiper: CredentialsWiper, private val qrScanResultProcessor: QrScanResultProcessor, private val secureChannelService: SecureChannelService, private val cancelOrderUseCase: CancelOrderUseCase, private val onboardingPrefs: OnboardingPrefs )</ID>
+    <ID>LongParameterList:PairingModel.kt$PairingModel$( initialState: PairingState, mainScheduler: Scheduler, environmentConfig: EnvironmentConfig, remoteLogger: RemoteLogger, private val qrCodeDataService: QrCodeDataService, private val analytics: Analytics, private val payloadDataManager: PayloadDataManager, private val authDataManager: AuthDataManager )</ID>
+    <ID>LongParameterList:PinInteractor.kt$PinInteractor$( private val apiStatus: ApiStatus, private val persistentPrefs: PersistentPrefs, private val authDataManager: AuthDataManager, private val payloadManager: PayloadDataManager, private val pinRepository: PinRepository, private val biometricsController: BiometricsController, private val mobileNoticeRemoteConfig: MobileNoticeRemoteConfig, private val credentialsWiper: CredentialsWiper, private val walletOptionsDataManager: WalletOptionsDataManager, private val authPrefs: AuthPrefs, private val defaultLabels: DefaultLabels, private val walletStatus: WalletStatus, private val isIntercomEnabledFlag: FeatureFlag )</ID>
+    <ID>LongParameterList:PinModel.kt$PinModel$( initialState: PinState, mainScheduler: Scheduler, private val interactor: PinInteractor, private val specificAnalytics: ProviderSpecificAnalytics, environmentConfig: EnvironmentConfig, private val remoteLogger: RemoteLogger, private val analytics: Analytics, private val momentLogger: MomentLogger )</ID>
+    <ID>LongParameterList:Prerequisites.kt$Prerequisites$( private val metadataService: MetadataService, private val settingsDataManager: SettingsDataManager, private val coincore: Coincore, private val payloadDataManager: PayloadDataManager, private val exchangeRates: ExchangeRatesDataManager, private val remoteLogger: RemoteLogger, private val simpleBuySync: SimpleBuySyncFactory, private val walletConnectServiceAPI: WalletConnectServiceAPI, private val flushables: List&lt;AppStartUpFlushable>, private val globalEventHandler: GlobalEventHandler, private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater, private val rxBus: RxBus )</ID>
+    <ID>LongParameterList:ReferralScreen.kt$( rewardTitle: String, rewardSubtitle: String, code: String, confirmCopiedToClipboard: Boolean, criteria: List&lt;String>, onBackPressed: () -> Unit, copyToClipboard: (String) -> Unit, shareCode: (String) -> Unit )</ID>
+    <ID>LongParameterList:ResetPasswordInteractor.kt$ResetPasswordInteractor$( private val authDataManager: AuthDataManager, private val payloadDataManager: PayloadDataManager, private val prefs: PersistentPrefs, private val nabuDataManager: NabuDataManager, private val metadataService: MetadataService, private val metadataRepository: MetadataRepository, private val accountMetadataFF: FeatureFlag )</ID>
+    <ID>LongParameterList:ResetPasswordModel.kt$ResetPasswordModel$( email: String, password: String, userId: String, recoveryToken: String, walletName: String, shouldResetKyc: Boolean )</ID>
+    <ID>LongParameterList:SecurityInteractor.kt$SecurityInteractor$( private val settingsDataManager: SettingsDataManager, private val biometricsController: BiometricsController, private val pinRepository: PinRepository, private val payloadManager: PayloadDataManager, private val securityPrefs: SecurityPrefs, private val authPrefs: AuthPrefs, private val backupPrefs: EncryptedPrefs )</ID>
+    <ID>LongParameterList:SimpleBuyActivity.kt$SimpleBuyActivity.Companion$( context: Context, asset: AssetInfo? = null, launchFromNavigationBar: Boolean = false, launchKycResume: Boolean = false, preselectedPaymentMethodId: String? = null, preselectedAmount: String? = null, launchFromApprovalDeepLink: Boolean = false )</ID>
+    <ID>LongParameterList:SimpleBuyInteractor.kt$SimpleBuyInteractor$( cryptoAsset: AssetInfo, amount: Money, paymentMethodId: String? = null, paymentMethod: PaymentMethodType, isPending: Boolean, recurringBuyFrequency: RecurringBuyFrequency? )</ID>
+    <ID>LongParameterList:SimpleBuyInteractor.kt$SimpleBuyInteractor$( linkingId: String, providerAccountId: String = "", accountId: String, partner: BankPartner, action: BankTransferAction, source: BankAuthSource )</ID>
+    <ID>LongParameterList:SimpleBuyInteractor.kt$SimpleBuyInteractor$( private val tierService: TierService, private val custodialWalletManager: CustodialWalletManager, private val limitsDataManager: LimitsDataManager, private val withdrawLocksRepository: WithdrawLocksRepository, private val analytics: Analytics, private val bankPartnerCallbackProvider: BankPartnerCallbackProvider, private val eligibilityProvider: SimpleBuyEligibilityProvider, private val exchangeRatesDataManager: ExchangeRatesDataManager, private val coincore: Coincore, private val userIdentity: UserIdentity, private val brokerageDataManager: BrokerageDataManager, private val bankLinkingPrefs: BankLinkingPrefs, private val cardProcessors: Map&lt;CardAcquirer, CardProcessor>, private val cancelOrderUseCase: CancelOrderUseCase, private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase, private val paymentsDataManager: PaymentsDataManager )</ID>
+    <ID>LongParameterList:SimpleBuyModel.kt$SimpleBuyModel$( prefs: CurrencyPrefs, private val simpleBuyPrefs: SimpleBuyPrefs, private val ratingPrefs: RatingPrefs, private val onboardingPrefs: OnboardingPrefs, private val buyOrdersCache: BuyOrdersCache, initialState: SimpleBuyState, uiScheduler: Scheduler, private val serializer: SimpleBuyPrefsSerializer, private val cardActivator: CardActivator, private val interactor: SimpleBuyInteractor, private val _activityIndicator: Lazy&lt;ActivityIndicator?>, private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase, private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase, environmentConfig: EnvironmentConfig, remoteLogger: RemoteLogger, private val bankPartnerCallbackProvider: BankPartnerCallbackProvider, private val userIdentity: UserIdentity, private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase )</ID>
+    <ID>LongParameterList:StringUtils.kt$StringUtils.Companion$( staticText: String, @StringRes textToMap: Int, url: String, context: Context, @ColorRes linkColour: Int, onClick: () -> Unit = {} )</ID>
+    <ID>LongParameterList:TransactionHelperTest.kt$TestNonCustodialSummaryItem$( override val exchangeRates: ExchangeRatesDataManager = mock(), override val asset: AssetInfo = CryptoCurrency.BTC, override val transactionType: TransactionSummary.TransactionType = TransactionSummary.TransactionType.RECEIVED, override val timeStampMs: Long = 0, override val value: CryptoValue = CryptoValue.zero(CryptoCurrency.BTC), override val fee: Observable&lt;Money> = Observable.just(CryptoValue.zero(CryptoCurrency.BTC)), override val txId: String = "", override val inputsMap: Map&lt;String, CryptoValue> = emptyMap(), override val outputsMap: Map&lt;String, CryptoValue> = emptyMap(), override val description: String? = null, override val confirmations: Int = 0, override val isFeeTransaction: Boolean = false, override val account: CryptoAccount = mock(), override val supportsDescription: Boolean = true )</ID>
+    <ID>LongParameterList:TransactionsInteractor.kt$TransactionInteractor$( private val coincore: Coincore, private val addressFactory: AddressFactory, private val custodialRepository: CustodialRepository, private val custodialWalletManager: CustodialWalletManager, private val paymentsDataManager: PaymentsDataManager, private val currencyPrefs: CurrencyPrefs, private val identity: UserIdentity, private val accountsSorting: AccountsSorting, private val linkedBanksFactory: LinkedBanksFactory, private val bankLinkingPrefs: BankLinkingPrefs, private val dismissRecorder: DismissRecorder, private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag )</ID>
+    <ID>LongParameterList:VerifyIdentityBenefitsView.kt$VerifyIdentityBenefitsView$( benefits: List&lt;VerifyIdentityItem>, title: String, description: String, icon: Serializable? = null, primaryButton: ButtonOptions, secondaryButton: ButtonOptions, footerText: String = "", showSheetIndicator: Boolean = true, titleGravity: Int = Gravity.START, descriptionGravity: Int = Gravity.START )</ID>
+    <ID>LoopWithTooManyJumpStatements:TransactionHelper.kt$TransactionHelper$for (outputAddress in tx.outputsMap.keys) { val outputValue = tx.outputsMap[outputAddress] ?: CryptoValue.zero(CryptoCurrency.BCH) // Skip dust output if (outputValue.toBigInteger() == Payment.DUST) continue if (bchDataManager.isOwnAddress(outputAddress)) { // If output address belongs to an xpub we own - we have to check if it's change val xpub = bchDataManager.getXpubFromAddress(outputAddress) if (inputXpubList.contains(xpub)) { continue // change back to same xpub } // Receiving to same address multiple times? if (outputMap.containsKey(outputAddress)) { val prevAmount = outputMap[outputAddress]!! + outputValue outputMap[outputAddress] = prevAmount } else { outputMap[outputAddress] = outputValue } } else if ( bchDataManager.getImportedAddressStringList().contains(outputAddress) ) { // If output address belongs to a imported address we own - we have to check if it's // change // If it goes back to same address AND if it's not the total amount sent // (inputs x and y could send to output y in which case y is not receiving change, // but rather the total amount) if (inputMap.containsKey(outputAddress) &amp;&amp; outputValue.toBigInteger().abs().compareTo(tx.value.toBigInteger()) != 0 ) { continue // change back to same input address } // Output more than tx amount - change if (outputValue.toBigInteger().abs() > tx.value.toBigInteger()) { continue } outputMap[outputAddress] = outputValue } else { if (tx.transactionType != TransactionSummary.TransactionType.RECEIVED) { outputMap[outputAddress] = outputValue } } }</ID>
+    <ID>LoopWithTooManyJumpStatements:TransactionHelper.kt$TransactionHelper$for (outputAddress in tx.outputsMap.keys) { val outputValue = tx.outputsMap[outputAddress] ?: CryptoValue.zero(CryptoCurrency.BTC) if (payloadDataManager.isOwnHDAddress(outputAddress)) { // If output address belongs to an xpub we own - we have to check if it's change val xpub = payloadDataManager.getXpubFromAddress(outputAddress) if (inputXpubList.contains(xpub)) { continue // change back to same xpub } // Receiving to same address multiple times? if (outputMap.containsKey(outputAddress)) { val prevAmount = outputMap[outputAddress]!! + outputValue outputMap[outputAddress] = prevAmount } else { outputMap[outputAddress] = outputValue } } else if ( payloadDataManager.wallet!!.importedAddressStringList.contains(outputAddress) ) { // If output address belongs to a imported address we own - we have to check if it's change // If it goes back to same address AND if it's not the total amount sent // (inputs x and y could send to output y in which case y is not receiving change, // but rather the total amount) if (inputMap.containsKey(outputAddress) &amp;&amp; outputValue.toBigInteger().abs().compareTo(tx.value.toBigInteger()) != 0 ) { continue // change back to same input address } // Output more than tx amount - change if (outputValue.toBigInteger().abs() > tx.value.toBigInteger()) { continue } outputMap[outputAddress] = outputValue } else { if (tx.transactionType != TransactionSummary.TransactionType.RECEIVED) { outputMap[outputAddress] = outputValue } } }</ID>
+    <ID>MagicNumber:AccountInfoCrypto.kt$AccountInfoCrypto$.6f</ID>
+    <ID>MagicNumber:AccountInfoCryptoArchived.kt$AccountInfoCryptoArchived$.6f</ID>
+    <ID>MagicNumber:AccountInfoFiat.kt$AccountInfoFiat$.6f</ID>
+    <ID>MagicNumber:AccountList.kt$AccountList$0.5f</ID>
+    <ID>MagicNumber:AccountList.kt$AllWalletsAccountViewHolder$.6f</ID>
+    <ID>MagicNumber:AccountRecoveryModel.kt$AccountRecoveryModel$12</ID>
+    <ID>MagicNumber:AddNewCardFragment.kt$AddNewCardFragment$100</ID>
+    <ID>MagicNumber:AddNewCardFragment.kt$AddNewCardFragment$2000</ID>
+    <ID>MagicNumber:AddNewCardFragment.kt$AddNewCardFragment$4</ID>
+    <ID>MagicNumber:BackupPhraseInfoSheet.kt$BackupPhraseInfoSheet$48</ID>
+    <ID>MagicNumber:BackupVerifyPresenter.kt$BackupVerifyPresenter$1000</ID>
+    <ID>MagicNumber:BackupWalletUtil.kt$BackupWalletUtil$3</ID>
+    <ID>MagicNumber:BalanceCardDelegate.kt$BalanceCardViewHolder$5f</ID>
+    <ID>MagicNumber:BuyIntroFragment.kt$BuyIntroFragment$0.5f</ID>
+    <ID>MagicNumber:CoinViewActivity.kt$CoinViewActivity$100</ID>
+    <ID>MagicNumber:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$50</ID>
+    <ID>MagicNumber:ConfirmXlmMemoItemDelegate.kt$XlmMemoItemViewHolder$0.6f</ID>
+    <ID>MagicNumber:CountryDialog.kt$CountryDialog$300</ID>
+    <ID>MagicNumber:CreateWalletActivity.kt$CreateWalletActivity$10</ID>
+    <ID>MagicNumber:CreateWalletActivity.kt$CreateWalletActivity$100</ID>
+    <ID>MagicNumber:CryptoActivityDetailsBottomSheet.kt$CryptoActivityDetailsBottomSheet$100</ID>
+    <ID>MagicNumber:DashboardOnboardingActivity.kt$DashboardOnboardingActivity$100f</ID>
+    <ID>MagicNumber:DashboardOnboardingActivity.kt$DashboardOnboardingActivity$500</ID>
+    <ID>MagicNumber:DashboardOnboardingCard.kt$DashboardOnboardingCard$100f</ID>
+    <ID>MagicNumber:DismissRecorder.kt$DismissRecorder$1000L</ID>
+    <ID>MagicNumber:DismissRecorder.kt$DismissRecorder$24L</ID>
+    <ID>MagicNumber:DismissRecorder.kt$DismissRecorder$60L</ID>
+    <ID>MagicNumber:ExpandableCurrencyHeader.kt$ExpandableCurrencyHeader$250</ID>
+    <ID>MagicNumber:HeaderDecoration.kt$HeaderDecoration$.5f</ID>
+    <ID>MagicNumber:HeaderDecoration.kt$HeaderDecoration$3</ID>
+    <ID>MagicNumber:HeaderDecoration.kt$HeaderDecoration$55</ID>
+    <ID>MagicNumber:HeaderDecoration.kt$HeaderDecoration.Builder$1.5f</ID>
+    <ID>MagicNumber:KycCountrySelectionFragment.kt$KycCountrySelectionFragment$100</ID>
+    <ID>MagicNumber:KycHomeAddressFragment.kt$KycHomeAddressFragment$300</ID>
+    <ID>MagicNumber:KycHomeAddressPresenter.kt$KycNextStepDecision.NextStep.Tier2Continue$4</ID>
+    <ID>MagicNumber:KycHomeAddressPresenter.kt$KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo$3</ID>
+    <ID>MagicNumber:KycMobileEntryFragment.kt$KycMobileEntryFragment$300</ID>
+    <ID>MagicNumber:KycMobileValidationFragment.kt$KycMobileValidationFragment$300</ID>
+    <ID>MagicNumber:KycProfileFragment.kt$KycProfileFragment$300</ID>
+    <ID>MagicNumber:KycUpgradeNowAnalytics.kt$3</ID>
+    <ID>MagicNumber:KycUpgradeNowAnalytics.kt$4</ID>
+    <ID>MagicNumber:LandingActivity.kt$LandingActivity$500</ID>
+    <ID>MagicNumber:LauncherActivity.kt$LauncherActivity$500</ID>
+    <ID>MagicNumber:LoginAnalytics.kt$LoginAnalytics.Companion$4</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$500L</ID>
+    <ID>MagicNumber:MainInteractor.kt$MainInteractor$3</ID>
+    <ID>MagicNumber:PasswordChangeFragment.kt$PasswordChangeFragment.&lt;no name provided>$200</ID>
+    <ID>MagicNumber:PasswordChangeFragment.kt$PasswordChangeFragment.&lt;no name provided>$51</ID>
+    <ID>MagicNumber:PasswordChangeInteractor.kt$PasswordChangeInteractor$255</ID>
+    <ID>MagicNumber:PasswordChangeInteractor.kt$PasswordChangeInteractor$4</ID>
+    <ID>MagicNumber:PasswordChangeInteractor.kt$PasswordChangeInteractor$50</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$10</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$100</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$25</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$26</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$3</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$50</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$51</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$75</ID>
+    <ID>MagicNumber:PasswordStrengthView.kt$PasswordStrengthView$76</ID>
+    <ID>MagicNumber:PinActivity.kt$PinActivity$24</ID>
+    <ID>MagicNumber:PinActivity.kt$PinActivity$40</ID>
+    <ID>MagicNumber:PitVerifyEmailPresenter.kt$PitVerifyEmailPresenter$5</ID>
+    <ID>MagicNumber:QRCodeEncoder.kt$QRCodeEncoder.Companion$0xFF</ID>
+    <ID>MagicNumber:SearchPickerItemBottomSheet.kt$SearchPickerItemBottomSheet$0.6</ID>
+    <ID>MagicNumber:SingleCurrencyInputView.kt$SingleCurrencyInputView$.6f</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$10</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$3</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$4</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$5</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$6</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$7</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$8</ID>
+    <ID>MagicNumber:StateAwareActionsComparator.kt$StateAwareActionsComparator$9</ID>
+    <ID>MagicNumber:ThrottledClicks.kt$500</ID>
+    <ID>MagicNumber:TransactionsLeftCard.kt$TransactionsLeftCard$100</ID>
+    <ID>MagicNumber:TrendingPairsView.kt$TrendingPairsAdapter.TrendingPairViewHolder$0.6f</ID>
+    <ID>MagicNumber:UiTourAnalytics.kt$UiTourAnalytics$3</ID>
+    <ID>MagicNumber:UiTourAnalytics.kt$UiTourAnalytics$4</ID>
+    <ID>MagicNumber:UiTourAnalytics.kt$UiTourAnalytics$5</ID>
+    <ID>MagicNumber:UiTourAnalytics.kt$UiTourAnalytics$6</ID>
+    <ID>MagicNumber:UiTourView.kt$UiTourView$4</ID>
+    <ID>MagicNumber:ValueMarker.kt$ValueMarker$0.74f</ID>
+    <ID>MagicNumber:YapilyPermissionFragmentLegacy.kt$YapilyPermissionFragmentLegacy$90</ID>
+    <ID>MatchingDeclarationName:AccountsErrorDelegate.kt$AccountErrorDelegate : AdapterDelegate</ID>
+    <ID>MatchingDeclarationName:AuthNewLoginInfoItemDelegate.kt$NewLoginAuthInfoItemDelegate : AdapterDelegate</ID>
+    <ID>MatchingDeclarationName:EditAccountSheet.kt$AccountEditSheet : SlidingModalBottomDialog</ID>
+    <ID>MatchingDeclarationName:ExpandableComplexConfirmationCheckoutDelegate.kt$ExpandableComplexConfirmationCheckout : AdapterDelegate</ID>
+    <ID>MatchingDeclarationName:RecurringInfoItemDelegate.kt$RecurringBuyInfoItemDelegate : AdapterDelegate</ID>
+    <ID>MatchingDeclarationName:TransactionsInteractor.kt$TransactionInteractor</ID>
+    <ID>MatchingDeclarationName:WithdrawAnalyticsEvents.kt$WithdrawAnalytics : AnalyticsEvent</ID>
+    <ID>MaxLineLength:AccountInfoBank.kt$AccountInfoBank$// the reason that binding.bankStatusMin is set to gone, is that bankStatusFee should be aligned left if</ID>
+    <ID>MaxLineLength:AccountInfoBank.kt$AccountInfoBank$// total hack.In order to avoid flickering we need to reserve the space for the extra info in the pills</ID>
+    <ID>MaxLineLength:DashboardIntent.kt$DashboardIntent$// todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't have a dependency on core. Since there are a couple of others that are just passed through, though, this can be for later.</ID>
+    <ID>MaxLineLength:DashboardOnboardingModelTest.kt$DashboardOnboardingModelTest$PaymentMethod.UndefinedBankAccount(currency, PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true)</ID>
+    <ID>MaxLineLength:DashboardOnboardingModelTest.kt$DashboardOnboardingModelTest$PaymentMethod.UndefinedCard(PaymentLimits(0.numberToBigInteger(), 0.numberToBigInteger(), currency), true, null)</ID>
+    <ID>MaxLineLength:DashboardOnboardingModelTest.kt$DashboardOnboardingModelTest$fun</ID>
+    <ID>MaxLineLength:DashboardOnboardingModelTest.kt$DashboardOnboardingModelTest$whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.just(availablePaymentMethodTypes))</ID>
+    <ID>MaxLineLength:EnterTargetAddressFragment.kt$EnterTargetAddressFragment$// TODO update the selected target (address type) instead so the render method knows what to show &amp; hide</ID>
+    <ID>MaxLineLength:ExpandableComplexConfirmationCheckoutDelegate.kt$ExpandableComplexConfirmationCheckoutItemViewHolder$// unique drawables will share a single Drawable.ConstantState object, so we need to call mutate to get an individual config instance</ID>
+    <ID>MaxLineLength:ExpandableSimpleConfirmationCheckout.kt$ExpandableSimpleConfirmationCheckoutItemViewHolder$// unique drawables will share a single Drawable.ConstantState object, so we need to call mutate to get an individual config instance</ID>
+    <ID>MaxLineLength:GetAvailablePaymentMethodsTypesUseCaseTest.kt$GetAvailablePaymentMethodsTypesUseCaseTest$fun</ID>
+    <ID>MaxLineLength:HeaderDecoration.kt$HeaderDecoration.Builder$*</ID>
+    <ID>MaxLineLength:InterestDashboardViewModelTest.kt$InterestDashboardViewModelTest$fun</ID>
+    <ID>MaxLineLength:KycAdditionalInfoScreen.kt$// Because this will scroll in a way that the scrolledToItem will be at the top, and we don't want that because</ID>
+    <ID>MaxLineLength:KycAdditionalInfoScreen.kt$// Checking Selection's will display it's children, if these newly displayed children are offscreen scroll to them</ID>
+    <ID>MaxLineLength:KycAdditionalInfoScreen.kt$// the user would lose context on where he is, because we wouldn't even see the question he clicked in the first place,</ID>
+    <ID>MaxLineLength:KycLimitsModelTest.kt$KycLimitsModelTest$fun</ID>
+    <ID>MaxLineLength:LoginModel.kt$LoginModel$// TODO for AND-5317 here we will look at the returned values from the API instead of receiving a completable</ID>
+    <ID>MaxLineLength:PasswordAuthPresenterTest.kt$PasswordAuthPresenterTest$* AuthDataManager returns a failure when getting encrypted payload, should trigger [ ][ManualPairingActivity.showSnackbar]</ID>
+    <ID>MaxLineLength:PasswordChangeInteractorTest.kt$PasswordChangeInteractorTest$val newPassword = "THIS STRING IS 256 CHARACTERS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"</ID>
+    <ID>MaxLineLength:PinActivity.kt$PinActivity$// BiometricsEnrollmentBottomSheet.newInstance().show(supportFragmentManager, "BIOMETRICS_BOTTOM_SHEET")</ID>
+    <ID>MaxLineLength:PinModelTest.kt$PinModelTest$fun</ID>
+    <ID>MaxLineLength:PortfolioFragment.kt$PortfolioFragment$// Without Handler this fails with FragmentManager is already executing transactions, investigated but came up with nothing</ID>
+    <ID>MaxLineLength:SimpleBuyPrefsSerializerTest.kt$SimpleBuyPrefsSerializerTest$"""{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"}},"orderValue":{"currency":"BTC","amount":"10"},"supportedFiatCurrencies":[{"currencyCode":"EUR"}],"paymentSucceeded":true,"showRating":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""</ID>
+    <ID>MaxLineLength:SimpleBuyPrefsSerializerTest.kt$SimpleBuyPrefsSerializerTest$"""{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":10.00,"symbol":"€"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":20.00,"symbol":"€"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":20.01,"symbol":"€"},"fee":{"currency":{"currencyCode":"EUR"},"amount":20.02,"symbol":"€"},"promo":"NEW_USER"}},"orderValue":{"currency":"BTC","amount":10,"maxDecimalPlaces":8,"userDecimalPlaces":8,"symbol":"BTC"},"supportedFiatCurrencies":[{"currencyCode":"EUR"}],"paymentSucceeded":true,"showRating":true,"withdrawalLockPeriod":1,"recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"eligibleAndNextPaymentRecurringBuy":[],"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""</ID>
+    <ID>MaxLineLength:SimpleBuyPrefsSerializerTest.kt$SimpleBuyPrefsSerializerTest$fun</ID>
+    <ID>MaxLineLength:StateMachineTest.kt$StateMachineTest$fun</ID>
+    <ID>MaxLineLength:TriangleTranslationEdgeTreatment.kt$TriangleTranslationEdgeTreatment$*</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCaseTest.kt:100</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCaseTest.kt:50</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCaseTest.kt:75</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerTest.kt:101</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerTest.kt:103</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerTest.kt:124</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerTest.kt:150</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:144</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:156</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:175</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:206</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:226</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:241</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:248</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:249</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.interest.presentation.InterestDashboardViewModelTest.kt:78</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.kyc.additional_info.StateMachineTest.kt:69</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.kyc.limits.KycLimitsModelTest.kt:94</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.PasswordChangeInteractorTest.kt:113</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.pin.PinModelTest.kt:526</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.pin.PinModelTest.kt:602</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.pin.PinModelTest.kt:950</ID>
+    <ID>MayBeConst:PasswordAuthPresenter.kt$PasswordAuthPresenter.Companion$internal val INITIAL_ERROR = "initial_error"</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.cards.AddNewCardFragment.kt:152</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.cards.views.CardNumberEditText.kt:33</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.cards.views.CardNumberEditText.kt:35</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.data.coinswebsocket.strategy.CoinsWebSocketStrategy.kt:132</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.scan.QrScanHandler.kt:201</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCheckoutFragment.kt:145</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCheckoutFragment.kt:314</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCheckoutFragment.kt:360</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCryptoFragment.kt:174</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCryptoFragment.kt:608</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyCryptoFragment.kt:840</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyInteractor.kt:196</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyModel.kt:558</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyModel.kt:560</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.SimpleBuyPaymentFragment.kt:627</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.paymentmethods.AddCardDelegate.kt:45</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.simplebuy.paymentmethods.AddCardDelegate.kt:47</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.ActivitiesIntents.kt:83</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.adapter.CustodialFiatActivityItemDelegate.kt:86</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.adapter.CustodialFiatActivityItemDelegate.kt:87</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsIntents.kt:67</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:74</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:76</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:78</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.ActivityDetailsInteractor.kt:80</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:109</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:120</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.activity.detail.TransactionHelper.kt:137</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.AccountPresenter.kt:161</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.AccountPresenter.kt:163</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.EditAccountSheet.kt:345</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.addresses.EditAccountSheet.kt:347</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.account.AccountInfoBank.kt:69</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto.kt:215</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.account.CellDecorator.kt:31</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.inputview.FiatCryptoConversionModel.kt:104</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView.kt:141</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.inputview.FiatCryptoInputView.kt:91</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.customviews.inputview.SingleCurrencyInputView.kt:74</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.DashboardExtensionFn.kt:27</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.DashboardExtensionFn.kt:29</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.kt:91</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.kt:93</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement.kt:26</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement.kt:33</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.announcements.rule.SwapAnnouncement.kt:32</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet.kt:111</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet.kt:126</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet.kt:128</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardAssetItem.kt:81</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment.kt:35</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.launcher.Prerequisites.kt:46</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.launcher.loader.LoaderInteractor.kt:151</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment.kt:317</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet.kt:103</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.sell.BuySellFlowNavigator.kt:24</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.sell.BuySellFlowNavigator.kt:52</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.v2.SettingsFragment.kt:366</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.v2.account.AccountInteractor.kt:66</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.settings.v2.account.AccountInteractor.kt:68</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.start.LandingPresenter.kt:126</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.start.ManualPairingActivity.kt:155</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.start.ManualPairingActivity.kt:177</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.swap.SwapAccountSelectSheetFeeDecorator.kt:18</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.thepit.PitPermissionsPresenter.kt:107</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.thepit.PitPermissionsPresenter.kt:109</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.analytics.Analytics.kt:341</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.analytics.Analytics.kt:51</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.analytics.Analytics.kt:54</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.analytics.Analytics.kt:63</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.analytics.Analytics.kt:66</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.engine.TransactionsInteractor.kt:101</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.flow.EnterAmountFragment.kt:437</ID>
+    <ID>MultiLineIfElse:piuk.blockchain.android.ui.transactionflow.plugin.BalanceAndFeeView.kt:107</ID>
+    <ID>NestedBlockDepth:ActivityDetailInfoItemDelegate.kt$InfoItemViewHolder$private fun getValueForType(infoType: ActivityDetailsType): String</ID>
+    <ID>NestedBlockDepth:AirdropCentrePresenter.kt$AirdropCentrePresenter$private fun parseDate(item: AirdropStatus): Date?</ID>
+    <ID>NestedBlockDepth:BlockchainListDividerDecor.kt$BlockchainListDividerDecor$override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State)</ID>
+    <ID>NestedBlockDepth:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$private fun bchReceiveAddresses(): List&lt;String></ID>
+    <ID>NestedBlockDepth:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$private fun btcReceiveAddresses(): List&lt;String></ID>
+    <ID>NestedBlockDepth:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy$private fun handleTransactionInputsAndOutputs( inputs: List&lt;Input>, outputs: List&lt;Output>, hash: String?, containsAddress: (address: String) -> Boolean? ): Pair&lt;String?, BigDecimal></ID>
+    <ID>NestedBlockDepth:ComplexConfirmationCheckoutDelegate.kt$ComplexConfirmationCheckoutItemItemViewHolder$fun bind(item: TxConfirmationValue)</ID>
+    <ID>NestedBlockDepth:ConfirmXlmMemoItemDelegate.kt$XlmMemoItemViewHolder$fun bind( item: TxConfirmationValue.Memo, model: TransactionModel )</ID>
+    <ID>NestedBlockDepth:CryptoAccountDetailsDelegate.kt$AssetWalletViewHolder$fun bind( item: AssetDetailsItemNew.CryptoDetailsInfo, isFirstItemOfCategory: Boolean )</ID>
+    <ID>NestedBlockDepth:EnterAmountFragment.kt$EnterAmountFragment$@SuppressLint("SetTextI18n") override fun render(newState: TransactionState)</ID>
+    <ID>NestedBlockDepth:ExchangeConnectionSheet.kt$ExchangeConnectionSheet$override fun init(content: Content)</ID>
+    <ID>NestedBlockDepth:HeaderDecoration.kt$HeaderDecoration$override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State)</ID>
+    <ID>NestedBlockDepth:PitEmailVerifiedBottomDialog.kt$PitEmailVerifiedBottomDialog$override fun init(content: Content)</ID>
+    <ID>NestedBlockDepth:PitStateBottomDialog.kt$PitStateBottomDialog$override fun init(content: Content)</ID>
+    <ID>NestedBlockDepth:RecurringBuyDetailsSheet.kt$RecurringBuyDetailsSheet$override fun render(newState: RecurringBuyModelState)</ID>
+    <ID>NestedBlockDepth:RecurringBuySelectionBottomSheet.kt$RecurringBuySelectionBottomSheet$private fun hideOrFillFrequencySelectorWithDates( eligibleAndNextPaymentRecurringBuys: List&lt;EligibleAndNextPaymentRecurringBuy>, paymentMethodType: PaymentMethodType )</ID>
+    <ID>NestedBlockDepth:SettingsFragment.kt$SettingsFragment$private fun addPaymentMethods( paymentMethodInfo: PaymentMethods, totalLinkedPaymentMethods: Int, isUserGold: Boolean )</ID>
+    <ID>NestedBlockDepth:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment$private fun configureButtons(state: SimpleBuyState)</ID>
+    <ID>NestedBlockDepth:SimpleConfirmationCheckoutDelegate.kt$SimpleConfirmationCheckoutItemViewHolder$fun bind(item: TxConfirmationValue)</ID>
+    <ID>NestedBlockDepth:SimpleInfoHeaderView.kt$SimpleInfoHeaderView$override fun update(state: TransactionState)</ID>
+    <ID>NestedBlockDepth:SupportCentreActivity.kt$SupportCentreActivity$override fun render(newState: SupportState)</ID>
+    <ID>NestedBlockDepth:SwapInfoHeaderView.kt$SwapInfoHeaderView$override fun update(state: TransactionState)</ID>
+    <ID>NestedBlockDepth:TransactionHelper.kt$TransactionHelper$ fun filterNonChangeBtcAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
+    <ID>NestedBlockDepth:TransactionHelper.kt$TransactionHelper$fun filterNonChangeBchAddresses( tx: NonCustodialActivitySummaryItem ): Pair&lt;Map&lt;String, Money>, Map&lt;String, Money>></ID>
+    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.TriangleTranslationEdgeTreatment.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourCardView.kt:17</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourView.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoAnalytics.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoIntent.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoMappers.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoNextStepDecision.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoScreen.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoState.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.StateMachine.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.StateMachineTest.kt:1</ID>
+    <ID>PackageNaming:KycAdditionalInfoAnalytics.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoFragment.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoIntent.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoMappers.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoModel.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoNextStepDecision.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoScreen.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:KycAdditionalInfoState.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:StateMachine.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageNaming:TriangleTranslationEdgeTreatment.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
+    <ID>PackageNaming:UiTourAnalytics.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
+    <ID>PackageNaming:UiTourCardView.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
+    <ID>PackageNaming:UiTourView.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
+    <ID>ReturnCount:AccountsDiffUtil.kt$AccountsDiffUtil$override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean</ID>
+    <ID>ReturnCount:FcmCallbackService.kt$FcmCallbackService$private fun createSecureChannelIntent(payload: Map&lt;String, String?>, foreground: Boolean): Maybe&lt;Intent></ID>
+    <ID>ReturnCount:PaymentAccountMappers.kt$EURPaymentAccountMapper$override fun map(bankAccountResponse: BankAccountResponse): BankAccount?</ID>
+    <ID>ReturnCount:PaymentAccountMappers.kt$GBPPaymentAccountMapper$override fun map(bankAccountResponse: BankAccountResponse): BankAccount?</ID>
+    <ID>ReturnCount:QrScanActivity.kt$QrScanActivity$override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean</ID>
+    <ID>ReturnCount:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForBelowMinLimit( type: InfoBottomSheetType, state: TransactionFlowStateInfo, input: CurrencyType ): TransactionFlowBottomSheetInfo?</ID>
+    <ID>ReturnCount:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl$private fun infoForInsufficientFunds( type: InfoBottomSheetType, state: TransactionFlowStateInfo ): TransactionFlowBottomSheetInfo?</ID>
+    <ID>ReturnCount:YodleeWebViewFragment.kt$FastLinkInterfaceHandler$@JavascriptInterface fun postMessage(data: String?)</ID>
+    <ID>SerialVersionUIDInSerializableClass:AccountList.kt$AccountLocks : SerializableAccountsListItem</ID>
+    <ID>SerialVersionUIDInSerializableClass:BankAuthState.kt$BankLinkingInfo : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:DashboardState.kt$Locks : DashboardItemSerializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:LinkablePaymentMethodsForAction.kt$LinkablePaymentMethodsForAction : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:LoginAnalytics.kt$LoginAnalytics.Companion$NestedData : Serializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:SimpleBuyState.kt$ErrorState : Serializable</ID>
+    <ID>SpreadOperator:AnnouncementDelegate.kt$StdAnnouncementDelegate$( announcement.bodyText, *announcement.bodyFormatParams )</ID>
+    <ID>SpreadOperator:AnnouncementDelegate.kt$StdAnnouncementDelegate$( announcement.titleText, *announcement.titleFormatParams )</ID>
+    <ID>SpreadOperator:AnnouncementDelegate.kt$StdAnnouncementDelegate$(announcement.ctaText, *announcement.ctaFormatParams)</ID>
+    <ID>SwallowedException:AaveYfiDotAvailableAnnouncement.kt$AaveYfiDotAvailableAnnouncement$e: Resources.NotFoundException</ID>
+    <ID>SwallowedException:AccountRecoveryModel.kt$AccountRecoveryModel$e: MnemonicException</ID>
+    <ID>SwallowedException:AuthNewLoginModel.kt$AuthNewLoginModel$e: Exception</ID>
+    <ID>SwallowedException:BankAuthFragment.kt$BankAuthFragment$e: ActivityNotFoundException</ID>
+    <ID>SwallowedException:CeloEurAnnouncement.kt$CeloEurAnnouncement$e: Resources.NotFoundException</ID>
+    <ID>SwallowedException:DismissRecorder.kt$DismissRecorder$e: ClassCastException</ID>
+    <ID>SwallowedException:FirebaseMobileNoticeRemoteConfig.kt$FirebaseMobileNoticeRemoteConfig$e: Exception</ID>
+    <ID>SwallowedException:ImageViewExtensions.kt$e: Throwable</ID>
+    <ID>SwallowedException:LoginAuthInteractor.kt$LoginAuthInteractor$throwable: Throwable</ID>
+    <ID>SwallowedException:LoginInteractor.kt$LoginInteractor$e: Throwable</ID>
+    <ID>SwallowedException:LoginModel.kt$LoginModel$throwable: Throwable</ID>
+    <ID>SwallowedException:MainModel.kt$MainModel$e: JsonSyntaxException</ID>
+    <ID>SwallowedException:PinActivity.kt$PinActivity$e: ActivityNotFoundException</ID>
+    <ID>SwallowedException:QrScanActivity.kt$QrScanActivity$e: java.lang.IllegalStateException</ID>
+    <ID>SwallowedException:ReceiveDetailSheet.kt$ShareListAdapter.ViewHolder$e: SecurityException</ID>
+    <ID>SwallowedException:RecoverFundsPresenter.kt$RecoverFundsPresenter$e: MnemonicException</ID>
+    <ID>SwallowedException:RootUtil.kt$RootUtil$t: Throwable</ID>
+    <ID>SwallowedException:StateSerialisation.kt$SimpleBuyPrefsSerializerImpl$t: Throwable</ID>
+    <ID>SwallowedException:WalletConnectAnnouncement.kt$WalletConnectAnnouncement$e: Resources.NotFoundException</ID>
+    <ID>SwallowedException:YodleeWebViewFragment.kt$FastLinkInterfaceHandler$ex: JSONException</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:DashboardOnboardingModel.kt$DashboardOnboardingModel$IllegalStateException()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:KycUpradeNowViewPagerAdapter.kt$KycCtaViewPagerAdapter$IllegalStateException()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:MainInteractor.kt$MainInteractor$IllegalStateException()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:StateMachine.kt$StateMachine$IllegalStateException()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:TransactionFlowActivity.kt$TransactionFlowActivity$IllegalStateException()</ID>
+    <ID>TooGenericExceptionCaught:AssetInterestRepository.kt$AssetInterestRepository$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:AuthNewLoginModel.kt$AuthNewLoginModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BackupWalletUtil.kt$BackupWalletUtil$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FirebaseMobileNoticeRemoteConfig.kt$FirebaseMobileNoticeRemoteConfig$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ImageViewExtensions.kt$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LoginAuthActivity.kt$LoginAuthActivity$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:LoginAuthInteractor.kt$LoginAuthInteractor$throwable: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LoginInteractor.kt$LoginInteractor$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LoginInteractor.kt$LoginInteractor$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:LoginModel.kt$LoginModel$throwable: Throwable</ID>
+    <ID>TooGenericExceptionCaught:PasswordAuthPresenter.kt$PasswordAuthPresenter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PayloadHandler.kt$PayloadHandler.Companion$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:PortfolioFragment.kt$PortfolioFragment$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:PricesFragment.kt$PricesFragment$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:QrCodeAnalyzer.kt$QrCodeAnalyzer$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:QrScanActivity.kt$QrScanActivity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:QrScanActivity.kt$QrScanActivity$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:ReceiveDetailIntentHelper.kt$ReceiveDetailIntentHelper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RecoverFundsPresenter.kt$RecoverFundsPresenter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RootUtil.kt$RootUtil$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:StateSerialisation.kt$SimpleBuyPrefsSerializerImpl$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:TransactionFlowActivity.kt$TransactionFlowActivity$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:YodleeWebViewFragment.kt$YodleeWebViewFragment$e: NullPointerException</ID>
+    <ID>TooGenericExceptionThrown:BiometricsPromptFragment.kt$BiometricsPromptFragment$throw RuntimeException("$context must implement OnFragmentInteractionListener")</ID>
+    <ID>TooGenericExceptionThrown:EmailPromptFragment.kt$EmailPromptFragment$throw RuntimeException("$context must implement OnFragmentInteractionListener")</ID>
+    <ID>TooGenericExceptionThrown:PasswordAuthPresenter.kt$PasswordAuthPresenter$throw RuntimeException("Timeout")</ID>
+    <ID>TooGenericExceptionThrown:PitLinkingImplTest.kt$PitLinkingImplTest$throw Throwable("ooooopsie")</ID>
+    <ID>TooGenericExceptionThrown:PitLinkingImplTest.kt$PitLinkingImplTest$throw Throwable()</ID>
+    <ID>TooGenericExceptionThrown:SecureChannelRepository.kt$SecureChannelRepository$throw RuntimeException()</ID>
+    <ID>TooManyFunctions:AccountFragment.kt$AccountFragment : MviFragmentHostSettingsScreen</ID>
+    <ID>TooManyFunctions:AccountPresenter.kt$AccountPresenter : MvpPresenter</ID>
+    <ID>TooManyFunctions:AccountSelectorFragment.kt$AccountSelectorFragment : ViewPagerFragment</ID>
+    <ID>TooManyFunctions:ActivitiesFragment.kt$ActivitiesFragment : HomeScreenMviFragmentSelectionHostHost</ID>
+    <ID>TooManyFunctions:ActivityDetailsInteractor.kt$ActivityDetailsInteractor</ID>
+    <ID>TooManyFunctions:ActivityDetailsModel.kt$ActivityDetailsModel : MviModel</ID>
+    <ID>TooManyFunctions:AddNewCardFragment.kt$AddNewCardFragment : MviFragmentAddCardFlowFragment</ID>
+    <ID>TooManyFunctions:AddressesActivity.kt$AddressesActivity : MvpActivityAccountViewListenerHost</ID>
+    <ID>TooManyFunctions:AirdropCentrePresenter.kt$AirdropCentrePresenter : MvpPresenter</ID>
+    <ID>TooManyFunctions:AirdropStatusSheet.kt$AirdropStatusSheet : SlidingModalBottomDialogAirdropCentreView</ID>
+    <ID>TooManyFunctions:Analytics.kt$TxFlowAnalytics</ID>
+    <ID>TooManyFunctions:AnnouncementQueries.kt$AnnouncementQueries</ID>
+    <ID>TooManyFunctions:Announcements.kt$AnnouncementHost</ID>
+    <ID>TooManyFunctions:AssetActivityRepository.kt$AssetActivityRepository : ExpiringRepository</ID>
+    <ID>TooManyFunctions:BackupWalletVerifyFragment.kt$BackupWalletVerifyFragment : BaseFragmentBackupVerifyView</ID>
+    <ID>TooManyFunctions:BackupWalletWordListFragment.kt$BackupWalletWordListFragment : BaseFragmentBackupWalletWordListView</ID>
+    <ID>TooManyFunctions:BankAuthActivity.kt$BankAuthActivity : BlockchainActivityBankAuthFlowNavigatorHostNavigationRouter</ID>
+    <ID>TooManyFunctions:BankAuthFlowNavigator.kt$BankAuthFlowNavigator</ID>
+    <ID>TooManyFunctions:BankAuthFragment.kt$BankAuthFragment : MviFragment</ID>
+    <ID>TooManyFunctions:BillingAddressFragment.kt$BillingAddressFragment : MviFragmentPickerItemListenerAddCardFlowFragmentHost</ID>
+    <ID>TooManyFunctions:BlockchainApplication.kt$BlockchainApplication : Application</ID>
+    <ID>TooManyFunctions:BuyIntroFragment.kt$BuyIntroFragment : ViewPagerFragmentHostHomeScreenFragmentHost</ID>
+    <ID>TooManyFunctions:BuySellFragment.kt$BuySellFragment : HomeScreenFragmentFragmentSellIntroHostHost</ID>
+    <ID>TooManyFunctions:CardDetailsActivity.kt$CardDetailsActivity : BlockchainActivityAddCardNavigatorCardDetailsPersistence</ID>
+    <ID>TooManyFunctions:CardVerificationFragment.kt$CardVerificationFragment : MviFragmentAddCardFlowFragment</ID>
+    <ID>TooManyFunctions:CoinViewActivity.kt$CoinViewActivity : MviActivityHostHostHostHostHostHost</ID>
+    <ID>TooManyFunctions:CoinViewInteractor.kt$CoinViewInteractor</ID>
+    <ID>TooManyFunctions:CoinsWebSocketStrategy.kt$CoinsWebSocketStrategy : CoinsWebSocketInterface</ID>
+    <ID>TooManyFunctions:CreateWalletActivity.kt$CreateWalletActivity : BaseMvpActivityCreateWalletViewPickerItemListenerHostOnFocusChangeListener</ID>
+    <ID>TooManyFunctions:CryptoActivityDetailsBottomSheet.kt$CryptoActivityDetailsBottomSheet : MviBottomSheet</ID>
+    <ID>TooManyFunctions:CustomerSupportSheet.kt$CustomerSupportSheet : MVIBottomSheetNavigationRouterAnalytics</ID>
+    <ID>TooManyFunctions:DashboardActionInteractor.kt$DashboardActionInteractor</ID>
+    <ID>TooManyFunctions:DashboardOnboardingActivity.kt$DashboardOnboardingActivity : MviActivityHostHost</ID>
+    <ID>TooManyFunctions:EditAccountSheet.kt$AccountEditSheet : SlidingModalBottomDialog</ID>
+    <ID>TooManyFunctions:EditFeesControl.kt$EditFeesControl : ConstraintLayoutKoinComponent</ID>
+    <ID>TooManyFunctions:EnterAmountCustomisations.kt$EnterAmountCustomisations</ID>
+    <ID>TooManyFunctions:EnterAmountFragment.kt$EnterAmountFragment : TransactionFlowFragmentTransactionFlowInfoHostHost</ID>
+    <ID>TooManyFunctions:EnterTargetAddressFragment.kt$EnterTargetAddressFragment : TransactionFlowFragment</ID>
+    <ID>TooManyFunctions:ExpandableCurrencyHeader.kt$ExpandableCurrencyHeader : RelativeLayoutKoinComponent</ID>
+    <ID>TooManyFunctions:FeeSelectionBottomSheet.kt$FeeSelectionBottomSheet : MviBottomSheet</ID>
+    <ID>TooManyFunctions:FiatCryptoInputView.kt$FiatCryptoInputView : ConstraintLayoutKoinComponent</ID>
+    <ID>TooManyFunctions:HomeScreenFragment.kt$HomeNavigator</ID>
+    <ID>TooManyFunctions:InterestDashboardActivity.kt$InterestDashboardActivity : BlockchainActivityHostInterestDashboardHostNavigationRouter</ID>
+    <ID>TooManyFunctions:KycCountrySelectionFragment.kt$KycCountrySelectionFragment : BaseFragmentKycCountrySelectionView</ID>
+    <ID>TooManyFunctions:KycEmailEntryFragment.kt$KycEmailEntryFragment : MviFragmentHostResendOrChangeEmailHost</ID>
+    <ID>TooManyFunctions:KycHomeAddressFragment.kt$KycHomeAddressFragment : BaseMvpFragmentKycHomeAddressView</ID>
+    <ID>TooManyFunctions:KycHomeAddressPresenter.kt$KycHomeAddressPresenter : BaseKycPresenter</ID>
+    <ID>TooManyFunctions:KycHomeAddressView.kt$KycHomeAddressView : View</ID>
+    <ID>TooManyFunctions:KycLimitsFragment.kt$KycLimitsFragment : MviFragmentHost</ID>
+    <ID>TooManyFunctions:KycMobileEntryFragment.kt$KycMobileEntryFragment : BaseFragmentKycMobileEntryView</ID>
+    <ID>TooManyFunctions:KycMobileValidationFragment.kt$KycMobileValidationFragment : BaseMvpFragmentKycMobileValidationView</ID>
+    <ID>TooManyFunctions:KycNavHostActivity.kt$KycNavHostActivity : BaseMvpActivityKycProgressListenerKycNavHostView</ID>
+    <ID>TooManyFunctions:KycProfileFragment.kt$KycProfileFragment : BaseFragmentKycProfileView</ID>
+    <ID>TooManyFunctions:KycSplashFragment.kt$KycSplashFragment : BaseFragmentKycSplashView</ID>
+    <ID>TooManyFunctions:KycStatusActivity.kt$KycStatusActivity : BaseMvpActivityKycStatusView</ID>
+    <ID>TooManyFunctions:LandingActivity.kt$LandingActivity : MvpActivityLandingView</ID>
+    <ID>TooManyFunctions:LoaderActivity.kt$LoaderActivity : MviActivityEmailEntryHostHost</ID>
+    <ID>TooManyFunctions:LoginActivity.kt$LoginActivity : LoginIntentCoordinatorMviActivity</ID>
+    <ID>TooManyFunctions:LoginAuthActivity.kt$LoginAuthActivity : MviActivityHost</ID>
+    <ID>TooManyFunctions:LoginAuthInteractor.kt$LoginAuthInteractor</ID>
+    <ID>TooManyFunctions:LoginAuthModel.kt$LoginAuthModel : MviModel</ID>
+    <ID>TooManyFunctions:LoginInteractor.kt$LoginInteractor</ID>
+    <ID>TooManyFunctions:LoginModel.kt$LoginModel : MviModel</ID>
+    <ID>TooManyFunctions:MainActivity.kt$MainActivity : MviActivityHomeNavigatorHostHostHostHostHostSmallSimpleBuyNavigatorHostHostHostHost</ID>
+    <ID>TooManyFunctions:MainInteractor.kt$MainInteractor</ID>
+    <ID>TooManyFunctions:MainModel.kt$MainModel : MviModel</ID>
+    <ID>TooManyFunctions:MvpFragment.kt$MvpFragment&lt;V : MvpView, P : MvpPresenter&lt;V>> : Fragment</ID>
+    <ID>TooManyFunctions:OnboardingActivity.kt$OnboardingActivity : BaseMvpActivityOnboardingViewOnFragmentInteractionListenerOnFragmentInteractionListener</ID>
+    <ID>TooManyFunctions:PasswordAuthPresenter.kt$PasswordAuthPresenter&lt;T : PasswordAuthView> : MvpPresenter</ID>
+    <ID>TooManyFunctions:PasswordRequiredActivity.kt$PasswordRequiredActivity : MvpActivityPasswordRequiredView</ID>
+    <ID>TooManyFunctions:PinActivity.kt$PinActivity : MviActivityHostTextWatcher</ID>
+    <ID>TooManyFunctions:PinInteractor.kt$PinInteractor</ID>
+    <ID>TooManyFunctions:PitLinkingImpl.kt$PitLinkingImpl : PitLinking</ID>
+    <ID>TooManyFunctions:PitPermissionsActivity.kt$PitPermissionsActivity : PitPermissionsViewBaseMvpActivity</ID>
+    <ID>TooManyFunctions:PortfolioFragment.kt$PortfolioFragment : HomeScreenMviFragmentHostHostHostHostBankLinkingHost</ID>
+    <ID>TooManyFunctions:PortfolioFragment.kt$PortfolioFragment$&lt;no name provided> : AnnouncementHost</ID>
+    <ID>TooManyFunctions:PricesFragment.kt$PricesFragment : HomeScreenMviFragmentHostHostHostHostBankLinkingHost</ID>
+    <ID>TooManyFunctions:ProfileFragment.kt$ProfileFragment : MviFragmentProfileNavigatorScreenFlowFragment</ID>
+    <ID>TooManyFunctions:QrScanActivity.kt$QrScanActivity : BlockchainActivityHost</ID>
+    <ID>TooManyFunctions:ReceiveDetailSheet.kt$ReceiveDetailSheet : MviBottomSheet</ID>
+    <ID>TooManyFunctions:SecondPasswordDialog.kt$SecondPasswordDialog : SecondPasswordHandler</ID>
+    <ID>TooManyFunctions:SecurityFragment.kt$SecurityFragment : MviFragmentHostHostHostHostHostSettingsScreen</ID>
+    <ID>TooManyFunctions:SelectSourceAccountFragment.kt$SelectSourceAccountFragment : TransactionFlowFragmentBankLinkingHost</ID>
+    <ID>TooManyFunctions:SellIntroFragment.kt$SellIntroFragment : ViewPagerFragment</ID>
+    <ID>TooManyFunctions:SettingsActivity.kt$SettingsActivity : BlockchainActivitySettingsNavigatorHost</ID>
+    <ID>TooManyFunctions:SettingsActivity.kt$SettingsNavigator</ID>
+    <ID>TooManyFunctions:SettingsFragment.kt$SettingsFragment : MviFragmentHostHostHostSettingsScreen</ID>
+    <ID>TooManyFunctions:SimpleBuyActivity.kt$SimpleBuyActivity : BlockchainActivitySimpleBuyNavigatorHost</ID>
+    <ID>TooManyFunctions:SimpleBuyCheckoutFragment.kt$SimpleBuyCheckoutFragment : MviFragmentSimpleBuyScreenHostOnGooglePayDataReceivedListener</ID>
+    <ID>TooManyFunctions:SimpleBuyCryptoFragment.kt$SimpleBuyCryptoFragment : MviFragmentHostSimpleBuyScreenTransactionFlowInfoHostHostHost</ID>
+    <ID>TooManyFunctions:SimpleBuyInteractor.kt$SimpleBuyInteractor</ID>
+    <ID>TooManyFunctions:SimpleBuyModel.kt$SimpleBuyModel : MviModel</ID>
+    <ID>TooManyFunctions:SimpleBuyPaymentFragment.kt$SimpleBuyPaymentFragment : MviFragmentSimpleBuyScreenHost</ID>
+    <ID>TooManyFunctions:SimpleBuySyncFactory.kt$SimpleBuySyncFactory</ID>
+    <ID>TooManyFunctions:StateMachine.kt$StateMachine</ID>
+    <ID>TooManyFunctions:SwapFragment.kt$SwapFragment : FragmentHostHostHost</ID>
+    <ID>TooManyFunctions:TargetSelectionCustomisations.kt$TargetSelectionCustomisations</ID>
+    <ID>TooManyFunctions:TransactionFlowActivity.kt$TransactionFlowActivity : MviActivityHostHost</ID>
+    <ID>TooManyFunctions:TransactionFlowCustomiser.kt$TransactionFlowCustomiserImpl : TransactionFlowCustomiser</ID>
+    <ID>TooManyFunctions:TransactionFlowInfoBottomSheetCustomiser.kt$TransactionFlowInfoBottomSheetCustomiserImpl : TransactionFlowInfoBottomSheetCustomiser</ID>
+    <ID>TooManyFunctions:TransactionFlowIntentMapper.kt$TransactionFlowIntentMapper</ID>
+    <ID>TooManyFunctions:TransactionModel.kt$TransactionModel : MviModel</ID>
+    <ID>TooManyFunctions:TransactionProgressView.kt$TransactionProgressView : ConstraintLayoutKoinComponent</ID>
+    <ID>TooManyFunctions:TransactionsInteractor.kt$TransactionInteractor</ID>
+    <ID>TooManyFunctions:UpdateEmailFragment.kt$UpdateEmailFragment : MviFragmentFlowFragment</ID>
+    <ID>TooManyFunctions:UpdatePhoneFragment.kt$UpdatePhoneFragment : MviFragmentHostFlowFragment</ID>
+    <ID>TooManyFunctions:VeriffSplashFragment.kt$VeriffSplashFragment : BaseFragmentVeriffSplashViewFlowFragment</ID>
+    <ID>TooManyFunctions:YodleeWebViewFragment.kt$YodleeWebViewFragment : FragmentFastLinkListenerYodleeWebClientInterface</ID>
+    <ID>TopLevelPropertyNaming:CampaignType.kt$const val blockstackCampaignName = "BLOCKSTACK"</ID>
+    <ID>TopLevelPropertyNaming:CampaignType.kt$const val sunriverCampaignName = "SUNRIVER"</ID>
+    <ID>TopLevelPropertyNaming:NabuCountryResponseListExtensions.kt$private const val asciiOffset = 0x41</ID>
+    <ID>TopLevelPropertyNaming:NabuCountryResponseListExtensions.kt$private const val flagOffset = 0x1F1E6</ID>
+    <ID>TopLevelPropertyNaming:QrScanHandler.kt$private const val bitpayInvoiceUrl = "$BITPAY_LIVE_BASE$PATH_BITPAY_INVOICE/"</ID>
+    <ID>UnnecessaryAbstractClass:AirdropCentreActivity.kt$AirdropViewHolder&lt;out T : ListItem> : ViewHolder</ID>
+    <ID>UnusedPrivateMember:AccountDelegate.kt$AccountDelegate.AccountViewHolder$position: Int</ID>
+    <ID>UnusedPrivateMember:AccountInfoGroup.kt$AccountInfoGroup$private val exchangeRates: ExchangeRatesDataManager by scopedInject()</ID>
+    <ID>UnusedPrivateMember:AccountSelectSheet.kt$AccountSelectSheet$it: Throwable</ID>
+    <ID>UnusedPrivateMember:AccountSelectorFragment.kt$AccountSelectorFragment$t: Throwable</ID>
+    <ID>UnusedPrivateMember:ActivitiesFragment.kt$ActivitiesFragment$private fun sendAnalyticsOnItemClickEvent(type: ActivityType, assetInfo: AssetInfo)</ID>
+    <ID>UnusedPrivateMember:AdapterDelegatesManager.kt$AdapterDelegatesManager$payloads: List&lt;*>?</ID>
+    <ID>UnusedPrivateMember:Analytics.kt$TxFlowAnalytics$state: TransactionState</ID>
+    <ID>UnusedPrivateMember:AnnouncementQueriesTest.kt$AnnouncementQueriesTest$private val sampleLimits = LimitsJson("", 0.toBigDecimal(), 0.toBigDecimal())</ID>
+    <ID>UnusedPrivateMember:AnnouncementQueriesTest.kt$AnnouncementQueriesTest.Companion$private const val BUY_ORDER_ID = "1234567890"</ID>
+    <ID>UnusedPrivateMember:BlockchainApplication.kt$BlockchainApplication$event: MetadataEvent</ID>
+    <ID>UnusedPrivateMember:BuyFlowNavigatorTest.kt$BuyFlowNavigatorTest.Companion$private val btcExchangeRate = ExchangeRate(from = GBP, to = CryptoCurrency.BTC, rate = null)</ID>
+    <ID>UnusedPrivateMember:CardPaymentDelegate.kt$CardPaymentDelegate.CardPaymentViewHolder$private fun Date.formatted(): String</ID>
+    <ID>UnusedPrivateMember:CoinViewAnalytics.kt$CoinViewAnalytics.Companion$private const val TIER = "tier"</ID>
+    <ID>UnusedPrivateMember:ConfirmXlmMemoItemDelegate.kt$XlmMemoItemViewHolder$// only save if same values after countdown but different from original private fun EditText.haveContentsChanged(currentText: String? = "", previousText: String? = ""): Boolean</ID>
+    <ID>UnusedPrivateMember:CreateWalletActivity.kt$CreateWalletActivity$private fun createStateItemFromIsoCode(isoCode: String): StatePickerItem</ID>
+    <ID>UnusedPrivateMember:CustomerSupportSheet.kt$CustomerSupportSheet$@Preview @Composable private fun SheetContentPreview()</ID>
+    <ID>UnusedPrivateMember:EnterAmountFragment.kt$EnterAmountFragment.Companion$private const val BOTTOM_SHEET = "BOTTOM_SHEET"</ID>
+    <ID>UnusedPrivateMember:EveryPayCardService.kt$EveryPayCardService$i</ID>
+    <ID>UnusedPrivateMember:FeatureFlagsHandlingActivity.kt$FeatureFlagsHandlingActivity$val parent = nestedParent</ID>
+    <ID>UnusedPrivateMember:FeeSelectionBottomSheet.kt$FeeSelectionBottomSheet$feeSelection: String</ID>
+    <ID>UnusedPrivateMember:FiatCryptoInputView.kt$FiatCryptoInputView$maxIntegerDigitsForAmount: Int</ID>
+    <ID>UnusedPrivateMember:FiatCryptoInputView.kt$FiatCryptoInputView$private fun showExchangeAmount()</ID>
+    <ID>UnusedPrivateMember:FiatCryptoInputView.kt$FiatCryptoInputView$private val inputKeyboardAmount: InputAmountKeyboard by inject()</ID>
+    <ID>UnusedPrivateMember:InterestAnalytics.kt$InterestAnalytics.Companion$private const val INTEREST_RATE = "interest_rate"</ID>
+    <ID>UnusedPrivateMember:InterestDashboardAssetItem.kt$@Preview @Composable private fun PreviewAssetInterestItem()</ID>
+    <ID>UnusedPrivateMember:InterestDashboardAssetItem.kt$@Preview @Composable private fun PreviewAssetInterestItemError()</ID>
+    <ID>UnusedPrivateMember:InterestDashboardError.kt$@Preview @Composable private fun PreviewInterestDashboardError()</ID>
+    <ID>UnusedPrivateMember:KycAdditionalInfoScreen.kt$@Preview @Composable private fun ScreenPreview()</ID>
+    <ID>UnusedPrivateMember:KycAdditionalInfoScreen.kt$isInvalid: Boolean</ID>
+    <ID>UnusedPrivateMember:KycHomeAddressFragment.kt$KycHomeAddressFragment$kycStep: KycStep</ID>
+    <ID>UnusedPrivateMember:KycMobileEntryFragment.kt$KycMobileEntryFragment$kycStep: KycStep</ID>
+    <ID>UnusedPrivateMember:KycMobileValidationFragment.kt$KycMobileValidationFragment$kycStep: KycStep</ID>
+    <ID>UnusedPrivateMember:KycNavHostPresenter.kt$KycNavHostPresenter$private val tierUpdater: TierUpdater</ID>
+    <ID>UnusedPrivateMember:KycProfileFragment.kt$KycProfileFragment$kycStep: KycStep</ID>
+    <ID>UnusedPrivateMember:KycProfilePresenter.kt$KycProfilePresenter$campaignType: CampaignType? = null</ID>
+    <ID>UnusedPrivateMember:KycProfilePresenter.kt$private fun &lt;T> Maybe&lt;T>.toOptional(): Single&lt;Optional&lt;T>></ID>
+    <ID>UnusedPrivateMember:KycStatusPresenterTest.kt$KycStatusPresenterTest$val kycState = KycState.Pending</ID>
+    <ID>UnusedPrivateMember:LoginInteractor.kt$LoginInteractor.Companion$private const val EMPTY_BODY = "{}"</ID>
+    <ID>UnusedPrivateMember:MainModel.kt$MainModel$campaignData: CampaignData</ID>
+    <ID>UnusedPrivateMember:NotificationPreferenceDetailsScreen.kt$@Preview @Composable private fun ErrorLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferenceDetailsScreen.kt$@Preview @Composable private fun PreferencesListPreview()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferenceDetailsScreen.kt$@Preview @Composable private fun PreviewLoading()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferencesScreen.kt$@Preview @Composable private fun ErrorLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferencesScreen.kt$@Preview @Composable private fun PreviewLoading()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferencesScreen.kt$@Preview @Composable private fun PreviewPreferenceList()</ID>
+    <ID>UnusedPrivateMember:NotificationPreferencesScreen.kt$val preference = ContactPreference("", "", "", "", emptyList())</ID>
+    <ID>UnusedPrivateMember:OpenBankingPermissionScreen.kt$@Preview(showBackground = true) @Composable private fun PreviewOpenBankingPermissionScreen()</ID>
+    <ID>UnusedPrivateMember:ParentActivityDelegate.kt$ParentActivityDelegate$@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY) private fun destroy()</ID>
+    <ID>UnusedPrivateMember:ParentActivityDelegate.kt$ParentActivityDelegate$@Suppress("UNCHECKED_CAST") @OnLifecycleEvent(Lifecycle.Event.ON_CREATE) private fun create()</ID>
+    <ID>UnusedPrivateMember:PinInteractor.kt$PinInteractor$isFromPinCreation: Boolean</ID>
+    <ID>UnusedPrivateMember:Prerequisites.kt$Prerequisites.Companion$private const val WALLET_CONNECT = "wallet_connect"</ID>
+    <ID>UnusedPrivateMember:ReceiveFragment.kt$ReceiveFragment$private val upsellManager: KycUpgradePromptManager by scopedInject()</ID>
+    <ID>UnusedPrivateMember:RecurringBuyModel.kt$RecurringBuyViewState.ShowRecurringBuy$rb: RecurringBuy</ID>
+    <ID>UnusedPrivateMember:ResetPasswordFragment.kt$ResetPasswordFragment$i</ID>
+    <ID>UnusedPrivateMember:ResourceDefaultLabels.kt$ResourceDefaultLabels$private val assetResources: AssetResources</ID>
+    <ID>UnusedPrivateMember:SelectSourceAccountFragment.kt$SelectSourceAccountFragment$it: Throwable</ID>
+    <ID>UnusedPrivateMember:SelectTargetAccountFragment.kt$SelectTargetAccountFragment$isEmpty: Boolean</ID>
+    <ID>UnusedPrivateMember:SelectTargetAccountFragment.kt$SelectTargetAccountFragment$it: Throwable</ID>
+    <ID>UnusedPrivateMember:SellIntroFragment.kt$SellIntroFragment.Companion$private const val TX_FLOW_REQUEST = 123</ID>
+    <ID>UnusedPrivateMember:SettingsFragment.kt$SettingsFragment$userTier: Tier</ID>
+    <ID>UnusedPrivateMember:SimpleBuySyncFactoryTest.kt$SimpleBuySyncFactoryTest$private fun validateFinalStateLightweight(expected: SimpleBuyState?)</ID>
+    <ID>UnusedPrivateMember:SingleCurrencyInputView.kt$SingleCurrencyInputView$maxIntegerDigitsForAmount: Int</ID>
+    <ID>UnusedPrivateMember:SocketRequest.kt$SocketRequest$private val command: Command</ID>
+    <ID>UnusedPrivateMember:ViewPagerFragment.kt$ViewPagerFragment$private val appUtil: AppUtil by inject()</ID>
+    <ID>UtilityClassWithPublicConstructor:BiometricPromptUtil.kt$BiometricPromptUtil</ID>
+    <ID>UtilityClassWithPublicConstructor:PayloadHandler.kt$PayloadHandler</ID>
+    <ID>UtilityClassWithPublicConstructor:StringLocalizationUtil.kt$StringLocalizationUtil</ID>
+    <ID>VariableNaming:DismissRecorder.kt$DismissRecorder$@Suppress("PrivatePropertyName") private val DISMISS_INTERVAL_PERIODIC: Long get() = clock.now() + interval</ID>
+    <ID>VariableNaming:TransactionProgressFragment.kt$TransactionProgressFragment$private val MAX_STACKTRACE_CHARS = 400</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -21,6 +21,7 @@ object Versions {
 
     const val googleServicesPlugin = "4.3.3"
     const val ktlint = "0.43.0"
+    const val detekt = "1.20.0"
     const val kotlinJvmTarget = "1.8"
     const val javaCompatibilityVersion = 1.8
 
@@ -168,6 +169,8 @@ object Libraries {
     const val rxjava3Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${Versions.coroutines}"
     const val googleServicesPlugin = "com.google.gms:google-services:${Versions.googleServicesPlugin}"
     const val ktlint = "com.pinterest:ktlint:${Versions.ktlint}"
+    const val detekt = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Versions.detekt}"
+    const val detektFormat = "io.gitlab.arturbosch.detekt:detekt-formatting:${Versions.detekt}"
 
     // Support Libraries
     const val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"

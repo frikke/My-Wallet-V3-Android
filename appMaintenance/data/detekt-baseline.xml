@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>SwallowedException:AppMaintenanceRepository.kt$AppMaintenanceRepository$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:AppMaintenanceRepository.kt$AppMaintenanceRepository$e: Throwable</ID>
+    <ID>TooGenericExceptionThrown:AppMaintenanceRemoteConfig.kt$AppMaintenanceRemoteConfig$throw Exception("remote config json not found")</ID>
+  </CurrentIssues>
+</SmellBaseline>

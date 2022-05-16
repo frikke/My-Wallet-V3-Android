@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:FormatsUtil.kt$FormatsUtil$Character.isUpperCase(addr[i]) &amp;&amp; charInt &lt;= 7 || Character.isLowerCase(addr[i]) &amp;&amp; charInt > 7</ID>
+    <ID>ComplexMethod:TransactionMapper.kt$internal fun Transaction.toTransactionSummary( ownAddresses: MutableList&lt;String>, startingBlockHeight: Int, latestBlock: Int ): TransactionSummary?</ID>
+    <ID>ConstructorParameterNaming:Settings.kt$Settings$@SerialName("sms_number") private val _smsNumber: String? = null</ID>
+    <ID>EmptyCatchBlock:ECDHUtilTest.kt$ECDHUtilTest${ }</ID>
+    <ID>FunctionParameterNaming:HDWalletsContainer.kt$HDWalletsContainer$_nbWords: Int</ID>
+    <ID>FunctionParameterNaming:HDWalletsContainer.kt$HDWalletsContainer$_passphrase: String</ID>
+    <ID>FunctionParameterNaming:WalletBody.kt$WalletBody.Companion$_currentGap: Int</ID>
+    <ID>FunctionParameterNaming:WalletBody.kt$WalletBody.Companion$_walletSize: Int</ID>
+    <ID>FunctionParameterNaming:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$@Field("old_checksum") old_checksum: String?</ID>
+    <ID>LongMethod:MultiAddressFactoryTest.kt$MultiAddressFactoryTest$@Test fun getMultiAddress_MoreCases()</ID>
+    <ID>LongMethod:MultiAddressFactoryTest.kt$MultiAddressFactoryTest$@Test fun getMultiAddress_MoreCases2()</ID>
+    <ID>LongMethod:TransactionMapper.kt$internal fun Transaction.toTransactionSummary( ownAddresses: MutableList&lt;String>, startingBlockHeight: Int, latestBlock: Int ): TransactionSummary?</ID>
+    <ID>LongMethod:WalletBody.kt$WalletBody.Companion$private fun recoverFromMnemonic( mnemonic: String, passphrase: String, defaultAccountName: String, _walletSize: Int, bitcoinApi: NonCustodialBitcoinService ): WalletBody</ID>
+    <ID>LongParameterList:Coins.kt$Coins$( utxoList: List&lt;Utxo>, targetOutputType: OutputType, changeOutputType: OutputType, paymentAmount: BigInteger, feePerKb: BigInteger, addReplayProtection: Boolean )</ID>
+    <ID>LongParameterList:EthTransaction.kt$EthTransaction$( @SerialName("blockNumber") val blockNumber: Long? = 0L, @SerialName("timestamp") val timestamp: Long = 0L, @SerialName("hash") val hash: String = "", @SerialName("nonce") val nonce: String = "", @SerialName("blockHash") val blockHash: String? = "", @SerialName("transactionIndex") val transactionIndex: Int = 0, @SerialName("from") val from: String = "", @SerialName("to") val to: String = "", @SerialName("value") val value: BigInteger = 0.toBigInteger(), @SerialName("gasPrice") val gasPrice: BigInteger = 0.toBigInteger(), @SerialName("gasUsed") val gasUsed: BigInteger = 0.toBigInteger(), @SerialName("state") val state: String = "" )</ID>
+    <ID>LongParameterList:Payment.kt$Payment$( @NonNull unspentCoins: List&lt;Utxo>, @NonNull targetOutputType: OutputType, @NonNull changeOutputType: OutputType, @NonNull paymentAmount: BigInteger, @NonNull feePerKb: BigInteger, addReplayProtection: Boolean )</ID>
+    <ID>LongParameterList:TransactionSummary.kt$TransactionSummary$( val transactionType: TransactionType, // Total actually sent, including fee val total: BigInteger, // Total fee used val fee: BigInteger, val hash: String, val time: Long, val confirmations: Int, // Address - Amount map val inputsMap: Map&lt;String, BigInteger>, val outputsMap: Map&lt;String, BigInteger>, // Address - xpub map (Fastest way to convert address to xpub) val inputsXpubMap: Map&lt;String, String>, val outputsXpubMap: Map&lt;String, String>, val isDoubleSpend: Boolean = false, // Sent to server but not confirmed val isPending: Boolean = false )</ID>
+    <ID>LongParameterList:WalletApi.kt$WalletApi$( guid: String?, sharedKey: String?, activeAddressList: List&lt;String>?, encryptedPayload: String, newChecksum: String?, email: String?, device: String? )</ID>
+    <ID>LongParameterList:WalletApi.kt$WalletApi$( guid: String?, sharedKey: String?, activeAddressList: List&lt;String>?, encryptedPayload: String, newChecksum: String?, oldChecksum: String?, device: String? )</ID>
+    <ID>LongParameterList:WalletApi.kt$WalletApi$( method: String, guid: String, sharedKey: String, payload: String, context: String?, forceJson: Boolean? )</ID>
+    <ID>LongParameterList:WalletBaseDto.kt$WalletBaseDto$( // payload could be string in V1 // V2 and up is WalletWrapper @SerialName("payload") var payload: String? = null, // V3 @SerialName("guid") var guid: String? = null, @SerialName("extra_seed") var extraSeed: String? = null, @SerialName("payload_checksum") var payloadChecksum: String? = null, @SerialName("war_checksum") var warChecksum: String? = null, @SerialName("language") var language: String? = null, @SerialName("storage_token") var storageToken: String? = null, @SerialName("sync_pubkeys") var syncPubkeys: Boolean = false )</ID>
+    <ID>LongParameterList:WalletBody.kt$WalletBody.Companion$( _walletSize: Int, trySize: Int, _currentGap: Int, bitcoinApi: NonCustodialBitcoinService, bip44Wallet: HDWallet?, purpose: Int )</ID>
+    <ID>LongParameterList:WalletDto.kt$WalletDto$( @SerialName("guid") var guid: String? = null, @SerialName("sharedKey") var sharedKey: String? = null, @SerialName("double_encryption") val isDoubleEncryption: Boolean = false, @SerialName("dpasswordhash") val dpasswordhash: String? = null, @SerialName("metadataHDNode") val metadataHDNode: String? = null, @SerialName("tx_notes") var txNotes: MutableMap&lt;String, String>? = null, @SerialName("tx_tags") val txTags: Map&lt;String, List&lt;Int>>? = null, @SerialName("tag_names") val tagNames: List&lt;Map&lt;Int, String>>? = null, @SerialName("options") var options: Options? = null, @SerialName("address_book") var addressBook: List&lt;AddressBook>? = null, @SerialName("wallet_options") val walletOptions: Options? = null, @SerialName("hd_wallets") var walletBodies: List&lt;WalletBody>? = null, @SerialName("keys") var imported: MutableList&lt;ImportedAddress>? = null )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @Field("method") method: String, @Field("guid") guid: String, @Field("sharedKey") sharedKey: String, @Field("payload") payload: String, @Field("length") length: Int, @Field("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @Field("method") method: String, @Field("guid") guid: String, @Field("sharedKey") sharedKey: String, @Field("payload") payload: String, @Field("length") length: Int, @Field("format") format: String, @Field("context") context: String?, @Field("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @Field("method") method: String, @Field("guid") guid: String, @Field("sharedKey") sharedKey: String, @Field("payload") payload: String, @Field("length") length: Int, @Field("format") format: String, @Field("context") context: String?, @Field("api_code") apiCode: String, @Field("forceJson") forceJson: Boolean? = false )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @Field("method") method: String, @Field("guid") guid: String?, @Field("sharedKey") sharedKey: String?, @Field("payload") payload: String, @Field("length") length: Int, @Field("checksum") checksum: String, @Field("active") active: String?, @Field("email") email: String?, @Field("device") device: String?, @Field("old_checksum") old_checksum: String?, @Field("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @Header("Authorization") sessionId: String, @Field("method") method: String, @Field("api_code") apiCode: String, @Field("email") email: String, @Field("captcha") captcha: String, @Field("siteKey") siteKey: String )</ID>
+    <ID>LongParameterList:WalletExplorerEndpoints.kt$WalletExplorerEndpoints$( @HeaderMap headers: Map&lt;String, String>?, @Field("method") method: String, @Field("guid") guid: String?, @Field("payload") twoFactorCode: String, @Field("length") length: Int, @Field("format") format: String, @Field("api_code") apiCode: String )</ID>
+    <ID>MagicNumber:Coins.kt$Coins$1000L</ID>
+    <ID>MagicNumber:ECDHUtil.kt$ECDHUtil$32</ID>
+    <ID>MagicNumber:EthereumAccount.kt$EthereumAccount$32</ID>
+    <ID>MagicNumber:EthereumAccount.kt$EthereumAccount$64</ID>
+    <ID>MagicNumber:FeeOptions.kt$FeeOptions.Companion$16</ID>
+    <ID>MagicNumber:FeeOptions.kt$FeeOptions.Companion$23</ID>
+    <ID>MagicNumber:FormatsUtil.kt$FormatsUtil$39</ID>
+    <ID>MagicNumber:FormatsUtil.kt$FormatsUtil$7</ID>
+    <ID>MagicNumber:MetadataDerivation.kt$MetadataDerivation$0x7FFFFFFF</ID>
+    <ID>MagicNumber:MetadataInteractor.kt$MetadataInteractor$404</ID>
+    <ID>MagicNumber:MetadataUtil.kt$MetadataUtil$0x7FFFFFFF</ID>
+    <ID>MaxLineLength:CacheTest.kt$CacheTest$"xpub6F2ehb9khoF6MW8WzyT8WdVhvW3RnZxXYdHDvt43LabqGKdpqt39QFgpRCMAcktZckGZJBUrVVP4uwYbrb98MdR8KujG4tu1B4sRHA9QVwE"</ID>
+    <ID>MaxLineLength:CacheTest.kt$CacheTest$"xpub6F2ehb9khoF6PZZxKS7vD8T2yDeDWuSR5RNH43b2wK5gY2ayWVApQezEzsFz7EpH2Jf6d6GYJzTrbfReT948CyxVgkhkkvmDBGkcY41MMnv"</ID>
+    <ID>MaxLineLength:GenericMetadataWallet.kt$GenericMetadataWallet$*</ID>
+    <ID>MaximumLineLength:info.blockchain.wallet.payload.data.CacheTest.kt:18</ID>
+    <ID>MaximumLineLength:info.blockchain.wallet.payload.data.CacheTest.kt:22</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.BitcoinCashWallet.kt:253</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.ethereum.EthAccountApi.kt:64</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.metadata.MetadataInteractor.kt:36</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.metadata.MetadataInteractor.kt:87</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.payload.data.WalletBody.kt:125</ID>
+    <ID>MultiLineIfElse:info.blockchain.wallet.util.MetadataUtil.kt:30</ID>
+    <ID>NestedBlockDepth:TransactionMapper.kt$internal fun Transaction.toTransactionSummary( ownAddresses: MutableList&lt;String>, startingBlockHeight: Int, latestBlock: Int ): TransactionSummary?</ID>
+    <ID>PackageName:info.blockchain.wallet.test_data.TestVectorAccount.kt:1</ID>
+    <ID>PackageName:info.blockchain.wallet.test_data.TestVectorAddress.kt:1</ID>
+    <ID>PackageName:info.blockchain.wallet.test_data.TestVectorBip39.kt:1</ID>
+    <ID>PackageName:info.blockchain.wallet.test_data.TestVectorBip39List.kt:1</ID>
+    <ID>PackageName:info.blockchain.wallet.test_data.TestVectorCoin.kt:1</ID>
+    <ID>SwallowedException:ECDHUtilTest.kt$ECDHUtilTest$e: AEADBadTagException</ID>
+    <ID>SwallowedException:FormatsUtil.kt$FormatsUtil$e: AddressFormatException</ID>
+    <ID>SwallowedException:FormatsUtil.kt$FormatsUtil$e: Exception</ID>
+    <ID>SwallowedException:FormatsUtil.kt$FormatsUtil$ex1: JSONException</ID>
+    <ID>SwallowedException:FormatsUtil.kt$FormatsUtil$ex: JSONException</ID>
+    <ID>SwallowedException:ImportedAddress.kt$ImportedAddress$e: Exception</ID>
+    <ID>SwallowedException:WalletBody.kt$WalletBody$e: Exception</ID>
+    <ID>SwallowedException:WalletWrapper.kt$WalletWrapper$e: JSONException</ID>
+    <ID>TooGenericExceptionCaught:FormatsUtil.kt$FormatsUtil$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ImportedAddress.kt$ImportedAddress$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WalletBody.kt$WalletBody$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WalletWrapper.kt$WalletWrapper$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:BalanceCall.kt$BalanceCall$throw Exception("No balances returned")</ID>
+    <ID>TooGenericExceptionThrown:CryptoBalanceMap.kt$CryptoBalanceMap$throw Exception("No info for this address. updateAllBalances should be called first.")</ID>
+    <ID>TooGenericExceptionThrown:MetadataUtil.kt$MetadataUtil$throw RuntimeException(e)</ID>
+    <ID>TooGenericExceptionThrown:MockedResponseTest.kt$MockedResponseTest$throw RuntimeException(e)</ID>
+    <ID>TooGenericExceptionThrown:TestVectorBip39.kt$TestVectorBip39$throw Exception( "Coin uri scheme " + uriScheme + " and path " + coinPath + " not found. Add test vectors for this coin to it to test_EN_BIP39.json" )</ID>
+    <ID>TooGenericExceptionThrown:WalletBody.kt$WalletBody.Companion$throw Exception("${exe.code()} ${exe.errorBody()}")</ID>
+    <ID>TooGenericExceptionThrown:WalletTest.kt$WalletTest$throw RuntimeException(e)</ID>
+    <ID>TooManyFunctions:BitcoinCashWallet.kt$BitcoinCashWallet : DeterministicWallet</ID>
+    <ID>TooManyFunctions:EthAddressResponse.kt$EthAddressResponse</ID>
+    <ID>TooManyFunctions:FormatsUtil.kt$FormatsUtil$FormatsUtil</ID>
+    <ID>TooManyFunctions:MultiAddressFactory.kt$MultiAddressFactory</ID>
+    <ID>TooManyFunctions:Payment.kt$Payment</ID>
+    <ID>TooManyFunctions:TransactionMapper.kt$info.blockchain.wallet.multiaddress.TransactionMapper.kt</ID>
+    <ID>TooManyFunctions:WalletApi.kt$WalletApi</ID>
+    <ID>TooManyFunctions:WalletBody.kt$WalletBody</ID>
+    <ID>TooManyFunctions:WalletExplorerEndpoints.kt$WalletExplorerEndpoints</ID>
+    <ID>UnnecessaryAbstractClass:MockedResponseTest.kt$MockedResponseTest</ID>
+    <ID>UnusedPrivateMember:AccountTest.kt$AccountTest$val key = HDKeyDerivation.createMasterPrivateKey(seed.toByteArray())</ID>
+    <ID>UnusedPrivateMember:AccountV4.kt$AccountV4$index: Int</ID>
+    <ID>UnusedPrivateMember:ECDHUtilTest.kt$ECDHUtilTest$val key2 = SigningKeyImpl(ECKey())</ID>
+    <ID>UnusedPrivateMember:EthereumAccount.kt$EthereumAccount$@SerialName("archived") private val archived: Boolean = false</ID>
+    <ID>UnusedPrivateMember:EthereumAccount.kt$EthereumAccount.Companion$private const val DERIVATION_PATH = "m/44'/60'/0'/0"</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("auto_email_backup") private val autoEmailBackup: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("btc_currency") private val btcCurrency: String = ""</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("dial_code") private val dialCode: String = ""</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("invited") private val invited: HashMap&lt;String, Boolean> = HashMap()</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("ip_lock_on") private val ipLockOn: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("is_api_access_enabled") private val isApiAccessEnabled: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("language") private val language: String = ""</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("logging_level") private val loggingLevel: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("my_ip") private val myIp: String = ""</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("never_save_auth_type") private val neverSaveAuthType: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("notifications_confirmations") private val notificationsConfirmations: Int = 0</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("password_hint1") private val passwordHint1: String = ""</ID>
+    <ID>UnusedPrivateMember:Settings.kt$Settings$@SerialName("state") private val state: String = ""</ID>
+    <ID>UnusedPrivateMember:WalletApiTest.kt$WalletApiTest$val withKotlinX: Boolean = true</ID>
+    <ID>UnusedPrivateMember:WalletBody.kt$WalletBody.Companion$i</ID>
+    <ID>UnusedPrivateMember:WalletOptions.kt$WalletOptions$@SerialName("bcash") private val bitcoinCashFees = HashMap&lt;String, Int>()</ID>
+    <ID>VariableNaming:WalletBody.kt$WalletBody$@Transient private val HD = HDWalletsContainer()</ID>
+  </CurrentIssues>
+</SmellBaseline>

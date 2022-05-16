@@ -8,6 +8,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.squareup.sqldelight'
 apply from: rootProject.file('quality/ktlint.gradle')
+apply from: rootProject.file('quality/detekt.gradle')
 apply from: rootProject.file('gradle/local/embrace.gradle')
 
 
