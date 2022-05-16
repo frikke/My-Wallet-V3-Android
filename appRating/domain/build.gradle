@@ -1,24 +1,18 @@
-plugins {
+apply plugin: 'java-library'
+apply from: rootProject.file('gradle/local/common-feature.gradle')
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
 }
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
 
-android {
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {}
-    }
-
-    lintOptions {
-        warningsAsErrors true
-        abortOnError true
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = Versions.kotlinJvmTarget
     }
 }
 
 dependencies {
-    implementation project(':core')
     implementation project(':common:interface')
 
     // koin
