@@ -31,4 +31,6 @@ interface TargetSelectionCustomisations {
     fun sendToDomainCardTitle(state: TransactionState): String
     fun sendToDomainCardDescription(state: TransactionState): String
     fun shouldShowSendToDomainBanner(state: TransactionState): Boolean
+    fun selectTargetNetworkDescription(state: TransactionState): String
+    fun shouldShowSelectTargetNetworkDescription(state: TransactionState): Boolean
 }

@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import com.blockchain.core.chains.EvmNetwork
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -7,7 +8,8 @@ import info.blockchain.balance.Money
 data class FeeInfo(
     val feeAmount: Money,
     val fiatAmount: Money,
-    val asset: Currency
+    val asset: Currency,
+    val l1EvmNetwork: EvmNetwork? = null
 )
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {

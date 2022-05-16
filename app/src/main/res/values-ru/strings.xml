@@ -1532,7 +1532,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="swap_erc_20_tooltip">Этот токен - ERC-20. Плата за сеть устанавливается сетью Ethereum.</string>
     <string name="checkout_dual_fee_note">Сетевые комиссии устанавливаются сетями %1$s и %2$s.</string>
     <string name="checkout_one_fee_note">Сетевые комиссии устанавливаются сетью %1$s</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s - это токен ERC-20. Сетевые комиссии устанавливаются сетью Ethereum.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s - это токен ERC-20. Сетевые комиссии устанавливаются сетью %2$s.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s - это токен ERC-20. Сетевые комиссии устанавливаются сетями %2$s и %3$s.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s и %2$s - это токены ERC-20. Сетевые комиссии устанавливаются сетью Ethereum.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Подробнее о комиссиях.</annotation></string>

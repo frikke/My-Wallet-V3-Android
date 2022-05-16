@@ -1439,7 +1439,7 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="swap_erc_20_tooltip">Este token es un ERC-20. Las comisiones de la red son establecidas por la red Ethereum.</string>
     <string name="checkout_dual_fee_note">Las comisiones de la red son establecidas por las redes %1$s y %2$s.</string>
     <string name="checkout_one_fee_note">La red de %1$s establece las comisiones de la red.</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s es un token ERC-20. Las comisiones de red son establecidas por la red Ethereum.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s es un token ERC-20. Las comisiones de red son establecidas por la red %2$s.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s es un token ERC-20. Las comisiones de red son establecidas por las redes %2$s y %3$s.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s y %2$s son tokens ERC-20. Las comisiones de red son establecidas por la red Ethereum.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Obtén más información sobre las comisiones.</annotation></string>

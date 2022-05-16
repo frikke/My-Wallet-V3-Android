@@ -145,7 +145,6 @@ import piuk.blockchain.android.ui.pairingcode.PairingState
 import piuk.blockchain.android.ui.recover.AccountRecoveryInteractor
 import piuk.blockchain.android.ui.recover.AccountRecoveryModel
 import piuk.blockchain.android.ui.recover.AccountRecoveryState
-import piuk.blockchain.android.ui.recover.RecoverFundsPresenter
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
@@ -337,15 +336,6 @@ val applicationModule = module {
                 formatChecker = get(),
                 specificAnalytics = get(),
                 eligibilityService = get()
-            )
-        }
-
-        factory {
-            RecoverFundsPresenter(
-                payloadDataManager = get(),
-                prefs = get(),
-                metadataService = get(),
-                json = get()
             )
         }
 

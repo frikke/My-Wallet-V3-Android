@@ -23,7 +23,7 @@ import piuk.blockchain.android.ui.customviews.getTwoFactorDialog
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_COUNTDOWN
 import piuk.blockchain.android.ui.login.auth.LoginAuthState.Companion.TWO_FA_STEP
-import piuk.blockchain.android.ui.recover.RecoverFundsActivity
+import piuk.blockchain.android.ui.recover.AccountRecoveryActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 
 class PasswordRequiredActivity :
@@ -198,5 +198,5 @@ class PasswordRequiredActivity :
         super.onDestroy()
     }
 
-    private fun launchRecoveryFlow() = RecoverFundsActivity.start(this)
+    private fun launchRecoveryFlow() = startActivity(Intent(this, AccountRecoveryActivity::class.java))
 }

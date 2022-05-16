@@ -6,7 +6,6 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
-import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
@@ -84,13 +83,14 @@ class L1EvmOnChainTxEngine(
                             FeeInfo(
                                 pendingTx.feeAmount,
                                 pendingTx.feeAmount.toUserFiat(exchangeRates),
-                                sourceAsset
+                                sourceAsset,
+                                (sourceAccount as? L1EvmNonCustodialAccount)?.l1Network
                             )
                         } else null,
-                        feeLevel = pendingTx.feeSelection.selectedLevel
+                        feeLevel = pendingTx.feeSelection.selectedLevel,
+                        ignoreErc20LinkedNote = true
                     ),
-                    buildConfirmationTotal(pendingTx),
-                    TxConfirmationValue.Description().takeIf { erc20DataManager.supportsErc20TxNote(sourceAssetInfo) }
+                    buildConfirmationTotal(pendingTx)
                 )
             )
         )
@@ -251,19 +251,11 @@ class L1EvmOnChainTxEngine(
             .flatMap {
                 erc20DataManager.pushErc20Transaction(it, evmNetworkTicker)
             }
-            .flatMap { hash ->
-                pendingTx.getOption<TxConfirmationValue.Description>(
-                    TxConfirmation.DESCRIPTION
-                )?.let { notes ->
-                    erc20DataManager.putErc20TxNote(sourceAssetInfo, hash, notes.text)
-                }?.toSingle {
-                    hash
-                } ?: Single.just(hash)
-            }.onErrorResumeNext {
+            .onErrorResumeNext {
                 Timber.e(it)
                 Single.error(TransactionError.ExecutionFailed)
-            }.map {
-                TxResult.HashedTxResult(it, pendingTx.amount)
+            }.map { hash ->
+                TxResult.HashedTxResult(hash, pendingTx.amount)
             }
 
     private fun createTransaction(pendingTx: PendingTx): Single<RawTransaction> {

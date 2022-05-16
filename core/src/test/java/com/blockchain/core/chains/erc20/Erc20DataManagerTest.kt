@@ -150,11 +150,6 @@ class Erc20DataManagerTest {
         verifyNoMoreInteractions(historyCallCache)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `getErc20History fails for non-erc20 assets`() {
-        subject.getErc20History(CryptoCurrency.ETHER, EthDataManager.ethChain)
-    }
-
     @Test
     fun `getErc20History delegates to history cache`() {
         val mockEvent: Erc20HistoryEvent = mock()
@@ -172,11 +167,6 @@ class Erc20DataManagerTest {
 
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun `createErc20Transaction fails in called for a non-erc20 token`() {
-        subject.getErc20History(CryptoCurrency.ETHER, EthDataManager.ethChain)
     }
 
     @Test

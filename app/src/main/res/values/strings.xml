@@ -63,6 +63,7 @@
     <string name="common_copy">Copy</string>
     <string name="common_copied">Copied</string>
     <string name="common_share">Share</string>
+    <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
 
 
@@ -1760,6 +1761,8 @@
     <string name="send_enter_unexpected_error">An unexpected error has occurred. Please try again.</string>
     <string name="send_enter_insufficient_gas">You do not have enough ETH to process this transaction.</string>
     <string name="send_select_a_wallet_title">or Select a Wallet</string>
+    <string name="send_select_a_wallet_warning">Only send %1$s to wallets on the (%2$s) network.\n<annotation link="send_network_options">Learn more</annotation></string>
+    <string name="send_select_wallet_warning_sheet_desc">%1$s (%2$s) is a token that might be available on multiple networks. Make sure you know the network of the wallet address you’re sending to before sending.</string>
     <string name="send_transfer_accounts_title">Transfer between your accounts</string>
     <string name="send_domain_alert_title">Send to a Crypto Domain</string>
     <string name="send_domain_alert_description">You can now send crypto to domains like  satoshi.blockchain, satoshi.eth, and y.at/💎👐</string>
@@ -2236,7 +2239,7 @@
     <string name="swap_erc_20_tooltip">This token is an ERC-20. The network fees are set by the Ethereum Network.</string>
     <string name="checkout_dual_fee_note">Network fees are set by the %1$s and %2$s networks.</string>
     <string name="checkout_one_fee_note">Network fees are set by the %1$s network.</string>
-    <string name="checkout_one_erc_20_fee_note">%1$s is an ERC-20 token. Network fees are set by the Ethereum network.</string>
+    <string name="checkout_one_erc_20_fee_note">%1$s is an ERC-20 token. Network fees are set by the %2$s network.</string>
     <string name="checkout_one_erc_20_one_not_fee_note">%1$s is an ERC-20 token. Network fees are set by the %2$s and %3$s networks.</string>
     <string name="checkout_both_erc_20_fee_note">%1$s and %2$s are ERC-20 tokens. Network fees are set by the Ethereum network.</string>
     <string name="checkout_fee_link"><annotation link="learn_more_link">Learn more about fees.</annotation></string>
@@ -2418,7 +2421,7 @@
     <string name="search_results">%s Results</string>
     <string name="receive_details_address_label">Wallet Address</string>
     <string name="receive_network_alert_title">%1$s on %2$s Network</string>
-    <string name="receive_network_alert_subtitle">Please receive %1$s on %2$s Network to this address only. We cannot recover lost funds.</string>
+    <string name="receive_network_alert_subtitle">Please send %1$s on %2$s Network to this address only. We cannot recover lost funds.</string>
 
     <!-- Account Unification -->
     <string name="unification_sheet_title">Upgrade Account</string>

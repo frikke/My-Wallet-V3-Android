@@ -22,7 +22,8 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
     override val exchangeRates: ExchangeRatesDataManager,
     lastBlockNumber: BigInteger,
     override val account: CryptoAccount,
-    override val supportsDescription: Boolean
+    override val supportsDescription: Boolean,
+    timeStampMultiplier: Int
 ) : NonCustodialActivitySummaryItem() {
 
     override val transactionType: TransactionSummary.TransactionType by unsafeLazy {
@@ -34,7 +35,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
         }
     }
 
-    override val timeStampMs: Long = event.timestamp * 1000
+    override val timeStampMs: Long = event.timestamp * timeStampMultiplier
 
     override val value: CryptoValue = event.value
 
