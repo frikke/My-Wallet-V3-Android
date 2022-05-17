@@ -35,8 +35,8 @@ fun BottomSheet(
     imageResource: ImageResource,
     title: String,
     subtitle: String = "",
-    topButton: BottomSheetButton? = null,
-    bottomButton: BottomSheetButton? = null,
+    topButton: CustomButton? = null,
+    bottomButton: CustomButton? = null,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
@@ -94,19 +94,19 @@ fun BottomSheet(
         )
 
         topButton?.let {
-            it.toBottomSheetButtonComposable().invoke(this)
+            it.toCustomButtonComposable().invoke(this)
             Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         }
 
         bottomButton?.let {
-            it.toBottomSheetButtonComposable().invoke(this)
+            it.toCustomButtonComposable().invoke(this)
             Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         }
     }
 }
 
 @Composable
-private fun BottomSheetButton.toBottomSheetButtonComposable(): @Composable (ColumnScope.() -> Unit) {
+fun CustomButton.toCustomButtonComposable(): @Composable (ColumnScope.() -> Unit) {
     val modifier = Modifier
         .fillMaxWidth()
         .padding(
@@ -140,7 +140,7 @@ private fun BottomSheetButton.toBottomSheetButtonComposable(): @Composable (Colu
     }
 }
 
-data class BottomSheetButton(
+data class CustomButton(
     val type: ButtonType,
     val onClick: () -> Unit,
     val text: String
@@ -177,7 +177,7 @@ fun OnlyPrimaryTopButtonBottomSheet() {
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 subtitle = " NoButtonBottomSheetSubtitle",
-                topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
+                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
                 bottomButton = null
             )
         }
@@ -193,7 +193,7 @@ fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
                 onCloseClick = {},
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
+                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
                 bottomButton = null
             )
         }
@@ -210,8 +210,8 @@ fun TopAndBottomButtonsSheet() {
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 subtitle = "NoButtonBottomSheetSubtitle",
-                topButton = BottomSheetButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
-                bottomButton = BottomSheetButton(type = ButtonType.DESTRUCTIVE_MINIMAL, onClick = {}, text = "Cancel")
+                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
+                bottomButton = CustomButton(type = ButtonType.DESTRUCTIVE_MINIMAL, onClick = {}, text = "Cancel")
             )
         }
     }

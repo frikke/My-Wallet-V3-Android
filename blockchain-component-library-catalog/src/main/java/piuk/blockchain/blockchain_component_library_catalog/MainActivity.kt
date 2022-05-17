@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.airbnb.android.showkase.models.Showkase
-import com.blockchain.componentlib.basic.SimpleTextView
 import com.google.android.material.button.MaterialButton
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ActionTableRowActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.AlertButtonActivity
@@ -24,6 +23,7 @@ import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_vie
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeBuyButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeSellButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExchangeSplitButtonsActivity
+import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.ExpandablesActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.MinimalButtonActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.NavigationActivity
 import piuk.blockchain.blockchain_component_library_catalog.abstract_compose_view.PagerActivity
@@ -61,6 +61,9 @@ class MainActivity : ComponentActivity() {
         }
         findViewById<MaterialButton>(R.id.texts).setOnClickListener {
             startActivity(Intent(this@MainActivity, SimpleTextViewActivity::class.java))
+        }
+        findViewById<MaterialButton>(R.id.expandables).setOnClickListener {
+            startActivity(Intent(this@MainActivity, ExpandablesActivity::class.java))
         }
         findViewById<MaterialButton>(R.id.images).setOnClickListener {
             startActivity(Intent(this@MainActivity, SimpleImageViewActivity::class.java))
