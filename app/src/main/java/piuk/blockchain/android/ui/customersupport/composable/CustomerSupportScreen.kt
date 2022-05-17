@@ -82,10 +82,7 @@ fun CustomerSupportScreen(
         Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
         Text(
-            text = stringResource(
-                id = R.string.app_version,
-                " ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-            ),
+            text = stringResource(id = R.string.app_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
             style = AppTheme.typography.caption1,
             textAlign = TextAlign.Center,
             color = Grey700,

@@ -75,7 +75,7 @@
     </string>
     <string name="unexpected_error">Unexpected error, please try again later.</string>
 
-    <string name="app_version">App Version: %1$s</string>
+    <string name="app_version">App Version: %1$s (%2$s)</string>
 
     <string name="dialog_continue">Continue</string>
     <string name="search">Search</string>
