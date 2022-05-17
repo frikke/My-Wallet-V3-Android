@@ -7,8 +7,8 @@ import androidx.compose.ui.platform.ComposeView
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -44,7 +44,7 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
                         shouldShowHeaderDivider = false,
                         onCloseClick = { dismiss() },
                         imageResource = ImageResource.Local(R.drawable.ic_phone),
-                        topButton = BottomSheetButton(
+                        topButton = CustomButton(
                             text = primaryCtaText,
                             onClick = {
                                 host.primaryButtonClicked()
@@ -53,7 +53,7 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
                             type = ButtonType.PRIMARY
                         ),
                         bottomButton = secondaryCtaText?.let {
-                            BottomSheetButton(
+                            CustomButton(
                                 text = it,
                                 onClick = {
                                     host.secondButtonClicked()

@@ -15,8 +15,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.R
@@ -62,12 +62,12 @@ class CustomerSupportSheet :
             title = stringResource(id = R.string.customer_support_title),
             subtitle = stringResource(id = R.string.customer_support_description),
             imageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_blockchain),
-            topButton = BottomSheetButton(
+            topButton = CustomButton(
                 text = stringResource(id = R.string.customer_support_contact_us),
                 onClick = ::contactUsClicked,
                 type = ButtonType.MINIMAL
             ),
-            bottomButton = BottomSheetButton(
+            bottomButton = CustomButton(
                 text = stringResource(id = R.string.customer_support_faq),
                 onClick = ::faqClicked,
                 type = ButtonType.MINIMAL

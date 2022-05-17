@@ -14,7 +14,7 @@ object Versions {
 
     // Build tools and languages
     const val androidPlugin = "7.1.3"
-    const val kotlin = "1.5.31"
+    const val kotlin = "1.6.10"
 
     // Coroutines
     const val coroutines = "1.5.2"
@@ -99,12 +99,11 @@ object Versions {
     const val countryPicker = "2.0.4"
 
     // Compose
-    const val compose = "1.0.4"
+    const val compose = "1.1.1"
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
     const val constraintLayoutCompose = "1.0.0-beta02"
-    const val composeRx = "1.1.0"
-    const val composeKotlinCompile = "1.5.3"
+    const val composeRx = "1.1.1"
     const val composeNavigation = "2.4.1"
 
     // Accompanist
@@ -289,9 +288,11 @@ object Libraries {
     const val constraintLayoutCompose =
         "androidx.constraintlayout:constraintlayout-compose:${Versions.constraintLayoutCompose}"
     const val composeRx = "androidx.compose.runtime:runtime-rxjava3:${Versions.composeRx}"
+
     // Accompanist
     const val accompanistSystemUi = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemUi}"
-    const val accompanistNavigationMaterial = "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
+    const val accompanistNavigationMaterial =
+        "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
 
     // Third Party SDKs

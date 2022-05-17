@@ -9,8 +9,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion Versions.composeKotlinCompile
+        kotlinCompilerExtensionVersion Versions.compose
     }
 
     buildTypes {

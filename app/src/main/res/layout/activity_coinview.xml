@@ -203,15 +203,14 @@
                         android:layout_marginEnd="@dimen/standard_margin"
                         android:visibility="gone" />
 
-                    <com.blockchain.componentlib.basic.SimpleTextView
+                    <androidx.compose.ui.platform.ComposeView
                         android:id="@+id/asset_about_blurb"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/standard_margin"
                         android:layout_marginTop="@dimen/tiny_margin"
                         android:layout_marginEnd="@dimen/standard_margin"
-                        android:paddingBottom="@dimen/tiny_margin"
-                        android:visibility="gone" />
+                        android:paddingBottom="@dimen/tiny_margin" />
 
                     <com.blockchain.componentlib.button.SmallMinimalButtonView
                         android:id="@+id/asset_website"

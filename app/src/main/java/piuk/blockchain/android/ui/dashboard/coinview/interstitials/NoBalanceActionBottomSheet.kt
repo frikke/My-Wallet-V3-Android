@@ -10,8 +10,8 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -59,7 +59,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
                         onCloseClick = {
                             dismiss()
                         },
-                        topButton = BottomSheetButton(
+                        topButton = CustomButton(
                             text = details.primaryButtonText,
                             onClick = {
                                 details.primaryButtonOnClick()
@@ -67,7 +67,7 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
                             },
                             type = ButtonType.PRIMARY
                         ),
-                        bottomButton = BottomSheetButton(
+                        bottomButton = CustomButton(
                             text = details.secondaryButtonText,
                             onClick = {
                                 details.secondaryButtonOnClick()
