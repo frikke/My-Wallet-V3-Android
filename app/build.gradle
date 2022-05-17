@@ -114,6 +114,7 @@ android {
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
             buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['prodPitDoLink']}\""
+            buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
             buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
@@ -165,6 +166,7 @@ android {
             buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
+            buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
             buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
             buildConfigField "String", "COMMIT_HASH", "\"\""
             buildConfigField "String", "SIFT_ACCOUNT_ID", "\"${buildProperties.secrets['prodSiftAccount']}\""
@@ -221,6 +223,7 @@ android {
             buildConfigField "String", "RECAPTCHA_SITE_KEY", "\"${buildProperties.secrets['captchaStagingSiteKey']}\""
             buildConfigField "String", "LOGIN_HOST_LINK", "\"${buildProperties.secrets['stagingLoginLink']}\""
             buildConfigField "String", "DEEPLINK_HOST", "\"${buildProperties.secrets['stagingDynamicLink']}\""
+            buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessStaging']}\""
             buildConfigField "String", "ZENDESK_API_KEY", "\"${buildProperties.secrets['zendeskAccountKey']}\""
             buildConfigField "String", "ZENDESK_CHAT_KEY", "\"${buildProperties.secrets['zendeskChatChannelKey']}\""
             buildConfigField "String", "WEB_WALLET_URL", "\"${buildProperties.secrets['stagingLoginPortal']}\""
