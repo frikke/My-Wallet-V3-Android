@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:DeeplinkProcessorV2Test.kt$DeeplinkProcessorV2Test${ }</ID>
+    <ID>MaxLineLength:DeeplinkProcessorV2Test.kt$DeeplinkProcessorV2Test$(deeplinkResult.destination as Destination.AssetSendDestination).accountAddress == "2bIRbcq3xIgHSUgBaWenCCU0jh6KI2F2cf"</ID>
+    <ID>MaximumLineLength:com.blockchain.deeplinking.processor.DeeplinkProcessorV2Test.kt:65</ID>
+    <ID>MultiLineIfElse:com.blockchain.deeplinking.processor.DeeplinkProcessorV2.kt:29</ID>
+    <ID>TooGenericExceptionThrown:DeeplinkRedirector.kt$DeeplinkRedirector$throw Exception("Unable to process deeplink URL")</ID>
+    <ID>TooGenericExceptionThrown:DeeplinkRedirector.kt$DeeplinkRedirector$throw Exception(it)</ID>
+    <ID>UnusedPrivateMember:DeeplinkProcessorV2.kt$DeeplinkProcessorV2$private fun getFilter(deeplinkUri: Uri): String?</ID>
+  </CurrentIssues>
+</SmellBaseline>

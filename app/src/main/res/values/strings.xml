@@ -2825,6 +2825,8 @@
     <string name="coinview_no_balance_sheet_subtitle">You need %1$s in your %2$s to %3$s.</string>
     <string name="coinview_added_watchlist">Added to Watchlist</string>
     <string name="coinview_removed_watchlist">Removed from Watchlist</string>
+    <string name="coinview_expandable_button">Read More</string>
+    <string name="coinview_collapsable_button">Read Less</string>
 
     <!--  Terms and Conditions  -->
     <string name="terms_and_conditions_toolbar">Review Our New Terms</string>

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:MVIBottomSheet.kt$&lt;no name provided>${ }</ID>
+    <ID>EmptyFunctionBlock:MviComposeFragment.kt$MviComposeFragment${}</ID>
+    <ID>EmptyFunctionBlock:SlidingModalBottomDialog.kt$SlidingModalBottomDialog.&lt;no name provided>${}</ID>
+    <ID>LongParameterList:ComposeNavigationRouter.kt$( navigationRouter: ComposeNavigationRouter, startDestination: ComposeNavigationDestination, navEvents: Flow&lt;NavigationEvent>, modifier: Modifier = Modifier, onCollapse: () -> Unit = {}, route: String? = null, builder: NavGraphBuilder.() -> Unit )</ID>
+    <ID>PackageName:com.blockchain.commonarch.presentation.mvi_v2.MVI.kt:1</ID>
+    <ID>PackageName:com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet.kt:1</ID>
+    <ID>PackageName:com.blockchain.commonarch.presentation.mvi_v2.MVIFragment.kt:1</ID>
+    <ID>PackageName:com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter.kt:1</ID>
+    <ID>PackageNaming:ComposeNavigationRouter.kt$package com.blockchain.commonarch.presentation.mvi_v2.compose</ID>
+    <ID>PackageNaming:MVI.kt$package com.blockchain.commonarch.presentation.mvi_v2</ID>
+    <ID>PackageNaming:MVIBottomSheet.kt$package com.blockchain.commonarch.presentation.mvi_v2</ID>
+    <ID>PackageNaming:MVIFragment.kt$package com.blockchain.commonarch.presentation.mvi_v2</ID>
+    <ID>TooManyFunctions:BlockchainActivity.kt$BlockchainActivity : ToolBarActivity</ID>
+    <ID>TooManyFunctions:MviComposeFragment.kt$MviComposeFragment&lt;M : MviModel&lt;S, I>, I : MviIntent&lt;S>, S : MviState> : Fragment</ID>
+    <ID>TooManyFunctions:MviFragment.kt$MviFragment&lt;M : MviModel&lt;S, I>, I : MviIntent&lt;S>, S : MviState, E : ViewBinding> : Fragment</ID>
+    <ID>UnusedPrivateMember:MviBase.kt$MviModel$private val environmentConfig: EnvironmentConfig</ID>
+    <ID>UnusedPrivateMember:MviBase.kt$MviModel$private val remoteLogger: RemoteLogger</ID>
+    <ID>UnusedPrivateMember:MviComposeFragment.kt$MviComposeFragment$newState: S</ID>
+  </CurrentIssues>
+</SmellBaseline>

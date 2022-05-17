@@ -3,16 +3,13 @@ apply from: 'scripts/tests/module_tests.gradle'
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext {
-        kotlin_version = Versions.kotlin
-        compose_version = '1.0.4'
-    }
     repositories {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://www.jetbrains.com/intellij-repository/releases' }
         maven { url 'https://cache-redirector.jetbrains.com/intellij-dependencies' }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         // NOTE: Do not place your application dependencies here; they belong
@@ -25,7 +22,9 @@ buildscript {
         classpath Libraries.firebaseCrashlyticsPlugin
         classpath Libraries.sqlDelightPlugin
         classpath Libraries.embraceIOSwazzler
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
+        classpath Libraries.kotlin
+        classpath Libraries.detekt
+        classpath Libraries.kotlinGradlePlugin
     }
 }
 

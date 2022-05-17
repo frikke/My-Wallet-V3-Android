@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:CryptoCurrency.kt$CryptoCurrency$( override val displayTicker: String, override val networkTicker: String, override val name: String, override val categories: Set&lt;AssetCategory>, override val precisionDp: Int, override val startDate: Long? = null, // token price start times in epoch-seconds. null if charting not supported override val requiredConfirmations: Int, override val l1chainTicker: String? = null, override val l2identifier: String? = null, override val colour: String, override val logo: String = "", override val txExplorerUrlBase: String? = null )</ID>
+    <ID>MagicNumber:Money.kt$4</ID>
+    <ID>MatchingDeclarationName:CryptoCurrencyFormatter.kt$FormatPrecision</ID>
+    <ID>MultiLineIfElse:info.blockchain.balance.CryptoCurrencyFormatter.kt:60</ID>
+    <ID>MultiLineIfElse:info.blockchain.balance.CryptoCurrencyFormatter.kt:62</ID>
+    <ID>MultiLineIfElse:info.blockchain.balance.Money.kt:152</ID>
+    <ID>SerialVersionUIDInSerializableClass:FiatCurrency.kt$FiatCurrency : CurrencySerializable</ID>
+    <ID>SerialVersionUIDInSerializableClass:Money.kt$Money : Serializable</ID>
+    <ID>SwallowedException:FiatCurrency.kt$FiatCurrency.Companion$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FiatCurrency.kt$FiatCurrency.Companion$e: Exception</ID>
+    <ID>TooManyFunctions:CryptoValue.kt$CryptoValue : Money</ID>
+    <ID>TooManyFunctions:FiatValue.kt$FiatValue : Money</ID>
+    <ID>TooManyFunctions:Money.kt$Money : Serializable</ID>
+    <ID>TooManyFunctions:UnknownValue.kt$UnknownValue : Money</ID>
+  </CurrentIssues>
+</SmellBaseline>

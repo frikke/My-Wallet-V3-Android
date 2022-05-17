@@ -1,5 +1,6 @@
 apply plugin: 'kotlin'
 apply from: rootProject.file("quality/ktlint.gradle")
+apply from: rootProject.file("quality/detekt.gradle")
 
 sourceCompatibility = Versions.javaCompatibilityVersion
 targetCompatibility = Versions.javaCompatibilityVersion

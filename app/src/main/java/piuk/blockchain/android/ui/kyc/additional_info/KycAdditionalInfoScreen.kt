@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.kyc.additional_info
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -334,7 +333,6 @@ private fun MultipleSelectionRow(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun OpenEndedRow(
     modifier: Modifier,

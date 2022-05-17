@@ -15,3 +15,12 @@ task installGitHooks(
     from 'githooks/'
     into '.git/hooks'
 }
+
+task installDetektGitHook(
+        type: Copy,
+        group: 'Setup',
+        description: 'Install local git hook for detekt'
+) {
+    from 'githooks/commit-detekt'
+    into '.git/hooks'
+}

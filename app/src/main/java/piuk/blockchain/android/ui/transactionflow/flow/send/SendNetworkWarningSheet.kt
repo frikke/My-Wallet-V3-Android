@@ -12,8 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
@@ -83,7 +83,7 @@ class SendNetworkWarningSheet : BottomSheetDialogFragment() {
                 info.network
             ),
             imageResource = ImageResource.None,
-            topButton = BottomSheetButton(
+            topButton = CustomButton(
                 type = ButtonType.PRIMARY,
                 onClick = { dismiss() },
                 text = stringResource(id = R.string.common_ok),

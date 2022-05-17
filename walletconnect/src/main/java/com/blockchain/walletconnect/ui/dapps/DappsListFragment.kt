@@ -39,9 +39,9 @@ import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetHostLayout
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.scopedInject
@@ -204,12 +204,12 @@ private fun ConfirmaActionBottomSheet(
         title = stringResource(R.string.are_you_sure),
         subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
         imageResource = ImageResource.Local(R.drawable.ic_warning),
-        topButton = BottomSheetButton(
+        topButton = CustomButton(
             text = stringResource(R.string.common_disconnect),
             onClick = onConfirmationClick,
             type = ButtonType.DESTRUCTIVE_MINIMAL
         ),
-        bottomButton = BottomSheetButton(
+        bottomButton = CustomButton(
             text = stringResource(R.string.common_cancel),
             onClick = closeSheet,
             type = ButtonType.MINIMAL
@@ -228,7 +228,7 @@ private fun DisconnectBottomSheet(
         title = session.dAppInfo.peerMeta.name,
         subtitle = session.dAppInfo.peerMeta.description,
         imageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
-        topButton = BottomSheetButton(
+        topButton = CustomButton(
             text = stringResource(R.string.common_disconnect),
             onClick = onDisconnectClick,
             type = ButtonType.DESTRUCTIVE_MINIMAL

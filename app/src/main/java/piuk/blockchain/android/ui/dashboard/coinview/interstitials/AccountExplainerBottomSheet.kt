@@ -15,8 +15,8 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.ButtonType
+import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -65,7 +65,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                         onCloseClick = {
                             dismiss()
                         },
-                        topButton = BottomSheetButton(
+                        topButton = CustomButton(
                             text = account.buttonText,
                             onClick = {
                                 host.navigateToActionSheet(accountActions)

@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:BottomSheetHostLayout.kt$currentValue == ModalBottomSheetValue.Expanded &amp;&amp; targetValue == ModalBottomSheetValue.Hidden &amp;&amp; collapseFraction &lt; 1.0 &amp;&amp; collapseFraction > 0.9F</ID>
+    <ID>ComplexMethod:Checkbox.kt$@Composable fun Checkbox( state: CheckboxState, onCheckChanged: ((Boolean) -> Unit)? = null, modifier: Modifier = Modifier, enabled: Boolean = true, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>ComplexMethod:Chip.kt$@Composable fun Chip( text: String, onClick: (ChipState) -> Unit, initialChipState: ChipState = ChipState.Enabled )</ID>
+    <ID>ComplexMethod:ComposeViewStyles.kt$ComposeTypographies$@Composable fun toComposeTypography()</ID>
+    <ID>ComplexMethod:DoubleMinimalButtons.kt$@Composable fun DoubleMinimalButtons( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>ComplexMethod:DoublePrimaryButtons.kt$@Composable fun DoublePrimaryButtons( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>ComplexMethod:Image.kt$@Composable fun Image( imageResource: ImageResource, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Fit, coilImageBuilderScope: (ImageRequest.Builder.() -> Unit)? = null, )</ID>
+    <ID>ComplexMethod:OutlinedButton.kt$@Composable fun OutlinedButton( text: String, onClick: () -> Unit, modifier: Modifier = Modifier, buttonContent: @Composable ( state: ButtonState, text: String, textColor: Color, textAlpha: Float, loadingIconResId: Int, icon: ImageResource, ) -> Unit, pressedButtonLightColor: Color = Blue000, pressedButtonDarkColor: Color = Dark800, pressedBorderLightColor: Color = Blue600, pressedBorderDarkColor: Color = Blue400, disabledTextLightAlpha: Float = 0.7f, disabledTextDarkAlpha: Float = 1f, disabledTextLightColor: Color = Blue600, disabledTextDarkColor: Color = Grey600, disabledBorderLightColor: Color = Grey000, disabledBorderDarkColor: Color = Grey700, defaultBorderLightColor: Color = Grey100, defaultBorderDarkColor: Color = Dark300, defaultTextColor: Color? = null, @DrawableRes defaultLoadingIconResId: Int? = null, pressedBackgroundTimeShown: Long = 250L, shape: Shape = AppTheme.shapes.small, state: ButtonState = ButtonState.Enabled, isDarkTheme: Boolean = isSystemInDarkTheme(), icon: ImageResource = ImageResource.None, contentPadding: PaddingValues = ButtonDefaults.ContentPadding, )</ID>
+    <ID>ComplexMethod:Radio.kt$@Composable fun Radio( state: RadioButtonState, onSelectedChanged: ((Boolean) -> Unit)? = null, modifier: Modifier = Modifier, enabled: Boolean = true, isDarkMode: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>ComplexMethod:TextInput.kt$@Composable fun TextInput( value: String, onValueChange: (String) -> Unit, readOnly: Boolean = false, state: TextInputState = TextInputState.Default(""), label: String? = null, placeholder: String? = null, leadingIcon: ImageResource = ImageResource.None, trailingIcon: ImageResource = ImageResource.None, visualTransformation: VisualTransformation = VisualTransformation.None, keyboardOptions: KeyboardOptions = KeyboardOptions.Default, keyboardActions: KeyboardActions = KeyboardActions(), singleLine: Boolean = false, maxLines: Int = Int.MAX_VALUE, onFocusChanged: (FocusState) -> Unit = {}, onTrailingIconClicked: () -> Unit = {} )</ID>
+    <ID>FunctionParameterNaming:BottomNavigationBar.kt$BottomNavigationItem: @Composable () -> Unit</ID>
+    <ID>LongMethod:AnnouncementCard.kt$@Composable fun AnnouncementCard( title: String, subtitle: String, iconResource: ImageResource = ImageResource.None, onClose: () -> Unit = {}, isDarkTheme: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongMethod:BalanceTableRow.kt$@Composable fun BalanceTableRow( titleStart: AnnotatedString, titleEnd: AnnotatedString? = null, bodyStart: AnnotatedString, bodyEnd: AnnotatedString? = null, startImageResource: ImageResource, isInlineTags: Boolean = false, tags: List&lt;TagViewState>, onClick: () -> Unit )</ID>
+    <ID>LongMethod:BottomNavigationBar.kt$@Composable fun BottomNavigationBar( navigationItems: List&lt;NavigationItem> = listOf( NavigationItem.Home, NavigationItem.Prices, NavigationItem.BuyAndSell, NavigationItem.Activity ), onNavigationItemClick: (NavigationItem) -> Unit = {}, onMiddleButtonClick: () -> Unit = {}, selectedNavigationItem: NavigationItem? = null, bottomNavigationState: BottomNavigationState = BottomNavigationState.Add, isPulseAnimationEnabled: Boolean = false )</ID>
+    <ID>LongMethod:CardAlert.kt$@Composable fun CardAlert( title: String, subtitle: String, alertType: AlertType = AlertType.Default, isBordered: Boolean = true, isDarkTheme: Boolean = isSystemInDarkTheme(), isDismissable: Boolean = true, onClose: () -> Unit = {} )</ID>
+    <ID>LongMethod:Checkbox.kt$@Composable fun Checkbox( state: CheckboxState, onCheckChanged: ((Boolean) -> Unit)? = null, modifier: Modifier = Modifier, enabled: Boolean = true, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongMethod:Chip.kt$@Composable fun Chip( text: String, onClick: (ChipState) -> Unit, initialChipState: ChipState = ChipState.Enabled )</ID>
+    <ID>LongMethod:CtaAnnouncementCard.kt$@Composable fun CtaAnnouncementCard( header: String, subheader: AnnotatedString, title: String, body: String, iconResource: ImageResource = ImageResource.None, borderColor: Color? = null, callToActionButton: CardButton, onClose: () -> Unit = {}, isDarkTheme: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongMethod:DefaultCard.kt$@Composable fun DefaultCard( title: String, subtitle: String, iconResource: ImageResource = ImageResource.None, callToActionButton: CardButton? = null, onClose: () -> Unit = {}, isDarkTheme: Boolean = isSystemInDarkTheme(), isDismissable: Boolean = true, )</ID>
+    <ID>LongMethod:DefaultTableRow.kt$@Composable fun DefaultTableRow( primaryText: String, onClick: () -> Unit, secondaryText: String? = null, paragraphText: String? = null, tags: List&lt;TagViewState>? = null, endTag: TagViewState? = null, startImageResource: ImageResource = ImageResource.None, endImageResource: ImageResource = ImageResource.Local( id = R.drawable.ic_chevron_end, contentDescription = null ), )</ID>
+    <ID>LongMethod:DialogueCard.kt$@Composable fun DialogueCard( @DrawableRes icon: Int = ResourcesCompat.ID_NULL, title: String? = null, body: String, firstButton: DialogueButton, secondButton: DialogueButton? = null )</ID>
+    <ID>LongMethod:DoubleDateRow.kt$@Composable fun DoubleDateRow( topDateRowData: DateRowData, bottomDateRowData: DateRowData, isDarkMode: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongMethod:DoubleMinimalButtons.kt$@Composable fun DoubleMinimalButtons( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongMethod:DoublePrimaryButtons.kt$@Composable fun DoublePrimaryButtons( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongMethod:Image.kt$@Composable fun Image( imageResource: ImageResource, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Fit, coilImageBuilderScope: (ImageRequest.Builder.() -> Unit)? = null, )</ID>
+    <ID>LongMethod:LoadingChart.kt$@Composable fun LoadingChart( historicalRates: List&lt;SparkLineHistoricalRate>, loadingText: String, )</ID>
+    <ID>LongMethod:NavigationBar.kt$@Composable fun NavigationBar( title: String, startNavigationBarButton: NavigationBarButton.Icon? = null, endNavigationBarButtons: List&lt;NavigationBarButton> = emptyList() )</ID>
+    <ID>LongMethod:OutlinedButton.kt$@Composable fun OutlinedButton( text: String, onClick: () -> Unit, modifier: Modifier = Modifier, buttonContent: @Composable ( state: ButtonState, text: String, textColor: Color, textAlpha: Float, loadingIconResId: Int, icon: ImageResource, ) -> Unit, pressedButtonLightColor: Color = Blue000, pressedButtonDarkColor: Color = Dark800, pressedBorderLightColor: Color = Blue600, pressedBorderDarkColor: Color = Blue400, disabledTextLightAlpha: Float = 0.7f, disabledTextDarkAlpha: Float = 1f, disabledTextLightColor: Color = Blue600, disabledTextDarkColor: Color = Grey600, disabledBorderLightColor: Color = Grey000, disabledBorderDarkColor: Color = Grey700, defaultBorderLightColor: Color = Grey100, defaultBorderDarkColor: Color = Dark300, defaultTextColor: Color? = null, @DrawableRes defaultLoadingIconResId: Int? = null, pressedBackgroundTimeShown: Long = 250L, shape: Shape = AppTheme.shapes.small, state: ButtonState = ButtonState.Enabled, isDarkTheme: Boolean = isSystemInDarkTheme(), icon: ImageResource = ImageResource.None, contentPadding: PaddingValues = ButtonDefaults.ContentPadding, )</ID>
+    <ID>LongMethod:PercentageChange.kt$@Composable fun PercentageChange( modifier: Modifier = Modifier, priceChange: String, percentChange: Double, state: PercentageChangeState = PercentageChangeState.Neutral, interval: String, isDarkMode: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongMethod:PulseLoading.kt$@Composable fun PulseLoading( modifier: Modifier = Modifier, durationMillis: Int = 2_000, maxPulseSize: Float = 104f, minPulseSize: Float = 32f )</ID>
+    <ID>LongMethod:Radio.kt$@Composable fun Radio( state: RadioButtonState, onSelectedChanged: ((Boolean) -> Unit)? = null, modifier: Modifier = Modifier, enabled: Boolean = true, isDarkMode: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongMethod:SheetHeaderBackAndAction.kt$@Composable fun SheetHeaderBackAndAction( title: String, onBackPress: () -> Unit, actionType: SheetHeaderActionType, onActionPress: () -> Unit, modifier: Modifier = Modifier, backPressContentDescription: String? = null, )</ID>
+    <ID>LongMethod:SnackbarAlert.kt$@Composable fun SnackbarAlert( message: String, actionLabel: String = "", onActionClicked: () -> Unit = {}, type: SnackbarType = SnackbarType.Info )</ID>
+    <ID>LongMethod:TextInput.kt$@Composable fun TextInput( value: String, onValueChange: (String) -> Unit, readOnly: Boolean = false, state: TextInputState = TextInputState.Default(""), label: String? = null, placeholder: String? = null, leadingIcon: ImageResource = ImageResource.None, trailingIcon: ImageResource = ImageResource.None, visualTransformation: VisualTransformation = VisualTransformation.None, keyboardOptions: KeyboardOptions = KeyboardOptions.Default, keyboardActions: KeyboardActions = KeyboardActions(), singleLine: Boolean = false, maxLines: Int = Int.MAX_VALUE, onFocusChanged: (FocusState) -> Unit = {}, onTrailingIconClicked: () -> Unit = {} )</ID>
+    <ID>LongParameterList:ActionStackedIconTableRow.kt$( primaryText: String, onClick: () -> Unit, topImageResource: ImageResource, bottomImageResource: ImageResource, secondaryText: String? = null, endImageResource: ImageResource = ImageResource.Local( id = R.drawable.ic_chevron_end, contentDescription = null ), )</ID>
+    <ID>LongParameterList:BalanceSectionHeader.kt$( labelText: String, primaryText: String, secondaryText: String, iconResource: ImageResource = ImageResource.Local(R.drawable.ic_star, null), onIconClick: () -> Unit = {}, shouldShowIcon: Boolean = true, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:BalanceTableRow.kt$( titleStart: AnnotatedString, titleEnd: AnnotatedString? = null, bodyStart: AnnotatedString, bodyEnd: AnnotatedString? = null, startImageResource: ImageResource, isInlineTags: Boolean = false, tags: List&lt;TagViewState>, onClick: () -> Unit )</ID>
+    <ID>LongParameterList:BalanceTableRowLarge.kt$( title: String, historicalRates: List&lt;SparkLineHistoricalRate>, primaryBylineStart: AnnotatedString, primaryBylineEnd: AnnotatedString, secondaryBylineStart: AnnotatedString, secondaryBylineEnd: AnnotatedString, startImageResource: ImageResource, onClick: (() -> Unit)? = null, )</ID>
+    <ID>LongParameterList:BalancedStackedIconTableRow.kt$( titleStart: AnnotatedString, titleEnd: AnnotatedString? = null, bodyStart: AnnotatedString, bodyEnd: AnnotatedString? = null, onClick: () -> Unit, topImageResource: ImageResource, bottomImageResource: ImageResource, )</ID>
+    <ID>LongParameterList:BlockchainSnackbar.kt$BlockchainSnackbar.Companion$( view: View, @StringRes message: Int, @Duration duration: Int = Snackbar.LENGTH_LONG, type: SnackbarType = SnackbarType.Info, actionLabel: String? = null, onClick: () -> Unit = {} )</ID>
+    <ID>LongParameterList:BlockchainSnackbar.kt$BlockchainSnackbar.Companion$( view: View, message: String, @Duration duration: Int = Snackbar.LENGTH_LONG, type: SnackbarType = SnackbarType.Info, actionLabel: String? = null, onClick: () -> Unit = {} )</ID>
+    <ID>LongParameterList:BottomNavigationBar.kt$( navigationItems: List&lt;NavigationItem> = listOf( NavigationItem.Home, NavigationItem.Prices, NavigationItem.BuyAndSell, NavigationItem.Activity ), onNavigationItemClick: (NavigationItem) -> Unit = {}, onMiddleButtonClick: () -> Unit = {}, selectedNavigationItem: NavigationItem? = null, bottomNavigationState: BottomNavigationState = BottomNavigationState.Add, isPulseAnimationEnabled: Boolean = false )</ID>
+    <ID>LongParameterList:BottomSheet.kt$( onCloseClick: () -> Unit, imageResource: ImageResource, title: String, subtitle: String = "", topButton: BottomSheetButton? = null, bottomButton: BottomSheetButton? = null, isDarkTheme: Boolean = isSystemInDarkTheme(), shouldShowHeaderDivider: Boolean = true )</ID>
+    <ID>LongParameterList:BottomSheetHostLayout.kt$( content: @Composable () -> Unit, stateFlow: ModalBottomSheetValue, onBackAction: () -> Unit, modalBottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(stateFlow), sheetContent: @Composable ColumnScope.() -> Unit, onCollapse: () -> Unit, )</ID>
+    <ID>LongParameterList:Button.kt$( text: String, onClick: () -> Unit, state: ButtonState, buttonContent: @Composable RowScope.( state: ButtonState, text: String, textColor: Color, textAlpha: Float, icon: ImageResource ) -> Unit, modifier: Modifier = Modifier, shape: Shape = AppTheme.shapes.small, defaultTextColor: Color = Color.Unspecified, defaultBackgroundLightColor: Color = Color.Unspecified, defaultBackgroundDarkColor: Color = Color.Unspecified, disabledTextLightAlpha: Float = 0.7f, disabledTextDarkAlpha: Float = 0.4f, disabledBackgroundLightColor: Color = Color.Unspecified, disabledBackgroundDarkColor: Color = Color.Unspecified, pressedBackgroundColor: Color = Color.Unspecified, pressedBackgroundTimeShown: Long = 250L, isDarkTheme: Boolean = isSystemInDarkTheme(), icon: ImageResource = ImageResource.None, contentPadding: PaddingValues = ButtonDefaults.ContentPadding, )</ID>
+    <ID>LongParameterList:ButtonContent.kt$( state: ButtonState, text: String, textColor: Color, contentAlpha: Float, modifier: Modifier = Modifier, @DrawableRes loadingIconResId: Int = R.drawable.ic_loading, icon: ImageResource = ImageResource.None )</ID>
+    <ID>LongParameterList:ButtonContentSmall.kt$( state: ButtonState, text: String, textColor: Color, textAlpha: Float, modifier: Modifier = Modifier, @DrawableRes loadingIconResId: Int = R.drawable.ic_loading )</ID>
+    <ID>LongParameterList:CardAlert.kt$( title: String, subtitle: String, alertType: AlertType = AlertType.Default, isBordered: Boolean = true, isDarkTheme: Boolean = isSystemInDarkTheme(), isDismissable: Boolean = true, onClose: () -> Unit = {} )</ID>
+    <ID>LongParameterList:CtaAnnouncementCard.kt$( header: String, subheader: AnnotatedString, title: String, body: String, iconResource: ImageResource = ImageResource.None, borderColor: Color? = null, callToActionButton: CardButton, onClose: () -> Unit = {}, isDarkTheme: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongParameterList:DefaultCard.kt$( title: String, subtitle: String, iconResource: ImageResource = ImageResource.None, callToActionButton: CardButton? = null, onClose: () -> Unit = {}, isDarkTheme: Boolean = isSystemInDarkTheme(), isDismissable: Boolean = true, )</ID>
+    <ID>LongParameterList:DefaultTableRow.kt$( primaryText: String, onClick: () -> Unit, secondaryText: String? = null, paragraphText: String? = null, tags: List&lt;TagViewState>? = null, endTag: TagViewState? = null, startImageResource: ImageResource = ImageResource.None, endImageResource: ImageResource = ImageResource.Local( id = R.drawable.ic_chevron_end, contentDescription = null ), )</ID>
+    <ID>LongParameterList:DestructivePrimaryButton.kt$( text: String, onClick: () -> Unit, state: ButtonState = ButtonState.Enabled, modifier: Modifier = Modifier, defaultBackgroundColor: Color? = null, icon: ImageResource = ImageResource.None )</ID>
+    <ID>LongParameterList:DoubleMinimalButtons.kt$( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongParameterList:DoublePrimaryButtons.kt$( startButtonText: String, onStartButtonClick: () -> Unit, endButtonText: String, onEndButtonClick: () -> Unit, modifier: Modifier = Modifier, pressedBackgroundTimeShown: Long = 250L, startButtonState: ButtonState = ButtonState.Enabled, endButtonState: ButtonState = ButtonState.Enabled, startButtonIcon: ImageResource = ImageResource.None, endButtonIcon: ImageResource = ImageResource.None, isDarkTheme: Boolean = isSystemInDarkTheme(), )</ID>
+    <ID>LongParameterList:ExchangeSplitButtons.kt$( exchangeBuyButtonText: String, exchangeBuyButtonOnClick: () -> Unit, exchangeSellButtonText: String, exchangeSellButtonOnClick: () -> Unit, modifier: Modifier = Modifier, exchangeBuyButtonState: ButtonState = ButtonState.Enabled, exchangeSellButtonState: ButtonState = ButtonState.Enabled, )</ID>
+    <ID>LongParameterList:ImageResource.kt$ImageResource.LocalWithBackground$( @DrawableRes val id: Int, @ColorRes val iconTintColour: Int, @ColorRes val backgroundColour: Int, val alpha: Float = 0.15F, override val contentDescription: String? = null, override val shape: Shape? = null, override val size: Dp? = null, )</ID>
+    <ID>LongParameterList:ImageResource.kt$ImageResource.LocalWithBackgroundAndExternalResources$( @DrawableRes val id: Int, val iconTintColour: String, val backgroundColour: String, val alpha: Float = 0.15F, override val contentDescription: String? = null, override val shape: Shape? = null, override val size: Dp? = null, )</ID>
+    <ID>LongParameterList:OutlinedButton.kt$( text: String, onClick: () -> Unit, modifier: Modifier = Modifier, buttonContent: @Composable ( state: ButtonState, text: String, textColor: Color, textAlpha: Float, loadingIconResId: Int, icon: ImageResource, ) -> Unit, pressedButtonLightColor: Color = Blue000, pressedButtonDarkColor: Color = Dark800, pressedBorderLightColor: Color = Blue600, pressedBorderDarkColor: Color = Blue400, disabledTextLightAlpha: Float = 0.7f, disabledTextDarkAlpha: Float = 1f, disabledTextLightColor: Color = Blue600, disabledTextDarkColor: Color = Grey600, disabledBorderLightColor: Color = Grey000, disabledBorderDarkColor: Color = Grey700, defaultBorderLightColor: Color = Grey100, defaultBorderDarkColor: Color = Dark300, defaultTextColor: Color? = null, @DrawableRes defaultLoadingIconResId: Int? = null, pressedBackgroundTimeShown: Long = 250L, shape: Shape = AppTheme.shapes.small, state: ButtonState = ButtonState.Enabled, isDarkTheme: Boolean = isSystemInDarkTheme(), icon: ImageResource = ImageResource.None, contentPadding: PaddingValues = ButtonDefaults.ContentPadding, )</ID>
+    <ID>LongParameterList:PercentageChange.kt$( modifier: Modifier = Modifier, priceChange: String, percentChange: Double, state: PercentageChangeState = PercentageChangeState.Neutral, interval: String, isDarkMode: Boolean = isSystemInDarkTheme() )</ID>
+    <ID>LongParameterList:PrimaryButton.kt$( text: String, onClick: () -> Unit, state: ButtonState = ButtonState.Enabled, modifier: Modifier = Modifier, defaultBackgroundColor: Color? = null, icon: ImageResource = ImageResource.None )</ID>
+    <ID>LongParameterList:SemanticColors.kt$SemanticColors$( title: Color = this.title, body: Color = this.body, overlay: Color = this.overlay, muted: Color = this.muted, dark: Color = this.dark, medium: Color = this.medium, light: Color = this.light, background: Color = this.background, primary: Color = this.primary, success: Color = this.success, warning: Color = this.warning, error: Color = this.error, isLight: Boolean = this.isLight )</ID>
+    <ID>LongParameterList:SemanticColors.kt$SemanticColors$( title: Color, body: Color, overlay: Color, muted: Color, dark: Color, medium: Color, light: Color, background: Color, primary: Color, success: Color, warning: Color, error: Color, isLight: Boolean )</ID>
+    <ID>LongParameterList:SheetHeader.kt$( modifier: Modifier = Modifier, title: String? = null, byline: String? = null, startImageResource: ImageResource = ImageResource.None, onClosePress: () -> Unit, closePressContentDescription: String? = null, shouldShowDivider: Boolean = true, )</ID>
+    <ID>LongParameterList:SheetHeaderBackAndAction.kt$( title: String, onBackPress: () -> Unit, actionType: SheetHeaderActionType, onActionPress: () -> Unit, modifier: Modifier = Modifier, backPressContentDescription: String? = null, )</ID>
+    <ID>LongParameterList:SheetHeaderBackAndClose.kt$( title: String, onBackPress: () -> Unit, onClosePress: () -> Unit, modifier: Modifier = Modifier, byline: String? = null, backPressContentDescription: String? = null, closePressContentDescription: String? = null, )</ID>
+    <ID>LongParameterList:SplitButtons.kt$( primaryButtonText: String, primaryButtonOnClick: () -> Unit, secondaryButtonText: String, secondaryButtonOnClick: () -> Unit, modifier: Modifier = Modifier, primaryButtonState: ButtonState = ButtonState.Enabled, secondaryButtonState: ButtonState = ButtonState.Enabled, primaryButtonIcon: ImageResource = ImageResource.None, secondaryButtonIcon: ImageResource = ImageResource.None, primaryButtonAlignment: Alignment = Alignment.START )</ID>
+    <ID>LongParameterList:TertiaryButton.kt$( text: String, onClick: () -> Unit, state: ButtonState = ButtonState.Enabled, modifier: Modifier = Modifier, defaultBackgroundColor: Color? = null, icon: ImageResource = ImageResource.None )</ID>
+    <ID>LongParameterList:TextInput.kt$( value: String, onValueChange: (String) -> Unit, readOnly: Boolean = false, state: TextInputState = TextInputState.Default(""), label: String? = null, placeholder: String? = null, leadingIcon: ImageResource = ImageResource.None, trailingIcon: ImageResource = ImageResource.None, visualTransformation: VisualTransformation = VisualTransformation.None, keyboardOptions: KeyboardOptions = KeyboardOptions.Default, keyboardActions: KeyboardActions = KeyboardActions(), singleLine: Boolean = false, maxLines: Int = Int.MAX_VALUE, onFocusChanged: (FocusState) -> Unit = {}, onTrailingIconClicked: () -> Unit = {} )</ID>
+    <ID>LongParameterList:ToastAlert.kt$( text: String, // TODO(antonis-bc): AND-5826 Remove any DrawableRes from component library @DrawableRes startIconDrawableRes: Int = ResourcesCompat.ID_NULL, startIcon: ImageResource = ImageResource.None, backgroundColor: Color, iconColor: Color, onClick: () -> Unit = {}, textColor: Color )</ID>
+    <ID>LongParameterList:ToggleTableRow.kt$( onCheckedChange: (isChecked: Boolean) -> Unit, primaryText: String, secondaryText: String = "", isChecked: Boolean = false, enabled: Boolean = true, toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary, )</ID>
+    <ID>MagicNumber:AnnouncementCard.kt$0.05f</ID>
+    <ID>MagicNumber:AppShapes.kt$AppShapes$100</ID>
+    <ID>MagicNumber:Balance.kt$14f</ID>
+    <ID>MagicNumber:BalanceTableRowLarge.kt$10</ID>
+    <ID>MagicNumber:BottomNavigationBar.kt$0.6f</ID>
+    <ID>MagicNumber:BottomNavigationBar.kt$2</ID>
+    <ID>MagicNumber:BottomSheetHostLayout.kt$0.9F</ID>
+    <ID>MagicNumber:CarouselIndicatorView.kt$CarouselIndicatorAdapter$0.4f</ID>
+    <ID>MagicNumber:CtaAnnouncementCard.kt$0xFFFF007A</ID>
+    <ID>MagicNumber:DateRow.kt$180f</ID>
+    <ID>MagicNumber:DefaultTableRow.kt$5</ID>
+    <ID>MagicNumber:DoubleDateRow.kt$180f</ID>
+    <ID>MagicNumber:DoublePrimaryButtons.kt$0.4f</ID>
+    <ID>MagicNumber:LoadingTableRow.kt$3f</ID>
+    <ID>MagicNumber:PulseLoading.kt$0.4f</ID>
+    <ID>MagicNumber:PulseLoading.kt$400</ID>
+    <ID>MagicNumber:PulseLoading.kt$800</ID>
+    <ID>MatchingDeclarationName:CardAlert.kt$AlertType</ID>
+    <ID>MatchingDeclarationName:DialogueCard.kt$DialogueButton</ID>
+    <ID>MatchingDeclarationName:NavigationBar.kt$NavigationBarButton</ID>
+    <ID>MatchingDeclarationName:TextInput.kt$TextInputState</ID>
+    <ID>MaxLineLength:BaseAbstractComposeView.kt$BaseAbstractComposeView$*</ID>
+    <ID>MayBeConst:AppTypography.kt$private val monoFontFeatures = "tnum, lnum, zero, ss01"</ID>
+    <ID>MultiLineIfElse:com.blockchain.componentlib.sheets.BottomSheet.kt:90</ID>
+    <ID>MultiLineIfElse:com.blockchain.componentlib.sheets.BottomSheet.kt:92</ID>
+    <ID>PrintStackTrace:ViewExtensions.kt$e</ID>
+    <ID>TooGenericExceptionCaught:ViewExtensions.kt$e: Exception</ID>
+    <ID>TooManyFunctions:DefaultTableRow.kt$com.blockchain.componentlib.tablerow.DefaultTableRow.kt</ID>
+    <ID>TooManyFunctions:ViewExtensions.kt$com.blockchain.componentlib.viewextensions.ViewExtensions.kt</ID>
+    <ID>UnusedPrivateMember:AlertButton.kt$@Preview(name = "Default", group = "Alert Button") @Composable private fun AlertButtonPreview()</ID>
+    <ID>UnusedPrivateMember:AlertButton.kt$@Preview(name = "Loading", group = "Alert Button") @Preview @Composable private fun AlertButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:AlertButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun AlertButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:AlertButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun AlertButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:BalanceSectionHeader.kt$@Preview @Composable private fun BalanceSectionHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:BalanceTableRowLarge.kt$@Preview @Composable private fun BalanceTableRowLargePreview()</ID>
+    <ID>UnusedPrivateMember:BottomNavigationBar.kt$bottomNavigationState: BottomNavigationState = BottomNavigationState.Add</ID>
+    <ID>UnusedPrivateMember:Checkbox.kt$@Preview(name = "Checked not enabled", group = "Checkbox") @Composable private fun CheckboxPreview_IsChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:Checkbox.kt$@Preview(name = "Checked", group = "Checkbox") @Composable private fun CheckboxPreview_IsChecked()</ID>
+    <ID>UnusedPrivateMember:Checkbox.kt$@Preview(name = "Not checked not enabled", group = "Checkbox") @Composable private fun CheckboxPreview_NotChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:Checkbox.kt$@Preview(name = "Not checked", group = "Checkbox") @Composable private fun CheckboxPreview_NotChecked()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(name = "Default", group = "Destructive Minimal button") @Composable private fun DestructiveMinimalButton_Basic()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(name = "Disabled", group = "Destructive Minimal button") @Composable private fun DestructiveMinimalButton_Disabled()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(name = "Loading", group = "Destructive Minimal button") @Composable private fun DestructiveMinimalButton_Loading()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructiveMinimalButton_DarkBasic()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructiveMinimalButton_DarkDisabled()</ID>
+    <ID>UnusedPrivateMember:DestructiveMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructiveMinimalButton_DarkLoading()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(name = "Default", group = "Destructive button") @Composable private fun DestructivePrimaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(name = "Disabled", group = "Destructive Primary button") @Composable private fun DestructivePrimaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(name = "Loading", group = "Destructive Primary button") @Composable private fun DestructivePrimaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructivePrimaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructivePrimaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:DestructivePrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun DestructivePrimaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:DoublePrimaryButtons.kt$@Preview(name = "Default", group = "Double primary buttons", device = Devices.PIXEL, fontScale = 2.7f) @Composable private fun DoublePrimary_Buttons()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview("Default", group = "Exchange buy button") @Composable private fun ExchangeBuyButtonPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview("Disabled", group = "Exchange buy button") @Preview @Composable private fun ExchangeBuyButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview("Loading", group = "Exchange buy button") @Composable private fun ExchangeBuyButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeBuyButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeBuyButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeBuyButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeBuyButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(name = "Default", group = "Exchange Sell Button") @Composable private fun ExchangeSellButtonPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(name = "Disabled", group = "Exchange Sell Button") @Composable private fun ExchangeSellButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(name = "Loading", group = "Exchange Sell Button") @Composable private fun ExchangeSellButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeSellButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeSellButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeSellButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun ExchangeSellButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ExchangeSplitButtons.kt$@Preview(name = "default", group = "Split button") @Composable private fun ExchangeSplitButtonPreview()</ID>
+    <ID>UnusedPrivateMember:LargeSectionHeader.kt$@Preview @Composable private fun LargeSectionHeaderFilterPreview()</ID>
+    <ID>UnusedPrivateMember:LargeSectionHeader.kt$@Preview @Composable private fun LargeSectionHeaderIconPreview()</ID>
+    <ID>UnusedPrivateMember:LargeSectionHeader.kt$@Preview @Composable private fun LargeSectionHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:LoadingChart.kt$@Preview @Composable private fun LineLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(name = "Default", group = "Minimal button") @Composable private fun MinimalButton_Basic()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(name = "Disabled", group = "Minimal button") @Composable private fun MinimalButton_Disabled()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(name = "Loading", group = "Minimal button") @Composable private fun MinimalButton_Loading()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun MinimalButton_DarkBasic()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun MinimalButton_DarkDisabled()</ID>
+    <ID>UnusedPrivateMember:MinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun MinimalButton_DarkLoading()</ID>
+    <ID>UnusedPrivateMember:OutlinedButton.kt$@Preview @Composable private fun OutlineButtonPreview()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(name = "Button with image", group = "Primary button") @Composable private fun PrimaryButtonWithImagePreview()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(name = "Default", group = "Primary button") @Composable private fun PrimaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(name = "Disabled", group = "Primary button") @Composable private fun PrimaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(name = "Loading", group = "Primary button") @Composable private fun PrimaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:PrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:PrimarySwitch.kt$@Preview(name = "Checked not enabled", group = "Primary Switch") @Composable private fun PrimarySwitchPreview_IsChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:PrimarySwitch.kt$@Preview(name = "Checked", group = "Primary Switch") @Composable private fun PrimarySwitchPreview_IsChecked()</ID>
+    <ID>UnusedPrivateMember:PrimarySwitch.kt$@Preview(name = "Not checked not enabled", group = "Primary Switch") @Composable private fun PrimarySwitchPreview_NotChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:PrimarySwitch.kt$@Preview(name = "Not checked", group = "Primary Switch") @Composable private fun PrimarySwitchPreview_NotChecked()</ID>
+    <ID>UnusedPrivateMember:Radio.kt$@Preview(name = "Checked not enabled", group = "Radio") @Composable private fun RadioPreview_IsChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:Radio.kt$@Preview(name = "Checked", group = "Radio") @Composable private fun RadioPreview_IsChecked()</ID>
+    <ID>UnusedPrivateMember:Radio.kt$@Preview(name = "Error", group = "Radio") @Composable private fun RadioPreview_Error()</ID>
+    <ID>UnusedPrivateMember:Radio.kt$@Preview(name = "Not checked not enabled", group = "Radio") @Composable private fun RadioPreview_NotChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:Radio.kt$@Preview(name = "Not checked", group = "Radio") @Composable private fun RadioPreview_NotChecked()</ID>
+    <ID>UnusedPrivateMember:Search.kt$@Preview @Composable private fun SearchPreview()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(name = "Default", group = "Secondary button") @Composable private fun SecondaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(name = "Disabled", group = "Secondary button") @Composable private fun SecondaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(name = "Loading", group = "Secondary button") @Composable private fun SecondaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(name = "With Icon", group = "Secondary button") @Composable private fun SecondaryButtonWithIconPreview()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SecondaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SecondaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SecondaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SheetHeader.kt$@Preview @Composable private fun SheetHeaderBylinePreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeader.kt$@Preview @Composable private fun SheetHeaderBylineWithStartIconPreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeader.kt$@Preview @Composable private fun SheetHeaderNoTitle()</ID>
+    <ID>UnusedPrivateMember:SheetHeader.kt$@Preview @Composable private fun SheetHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeader.kt$@Preview @Composable private fun SheetHeaderWithStartIconPreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeaderBackAndAction.kt$@Preview @Composable private fun SheetHeaderBackAndCancelPreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeaderBackAndAction.kt$@Preview @Composable private fun SheetHeaderBackAndNextPreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeaderBackAndClose.kt$@Preview @Composable private fun SheetHeaderBackAndCloseBylinePreview()</ID>
+    <ID>UnusedPrivateMember:SheetHeaderBackAndClose.kt$@Preview @Composable private fun SheetHeaderBackAndClosePreview()</ID>
+    <ID>UnusedPrivateMember:SheetNub.kt$@Preview @Composable private fun SheetNubPreview()</ID>
+    <ID>UnusedPrivateMember:Slider.kt$@Preview @Composable private fun SliderPreview()</ID>
+    <ID>UnusedPrivateMember:Slider.kt$@Preview @Composable private fun SliderPreviewDisabled()</ID>
+    <ID>UnusedPrivateMember:Slider.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun SliderPreviewDark()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(name = "Default", group = "Small minimal button") @Composable private fun SmallMinimalButton_Basic()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(name = "Disabled", group = "Small minimal button") @Composable private fun SmallMinimalButton_Disabled()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(name = "Loading", group = "Small minimal button") @Composable private fun SmallMinimalButton_Loading()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SmallMinimalButton_DarkBasic()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SmallMinimalButton_DarkDisabled()</ID>
+    <ID>UnusedPrivateMember:SmallMinimalButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SmallMinimalButton_DarkLoading()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(name = "Default", group = "Small primary button") @Composable private fun SmallPrimaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(name = "Disabled", group = "Small primary button") @Composable private fun SmallPrimaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(name = "Loading", group = "Small primary button") @Composable private fun SmallPrimaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallPrimaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SmallPrimaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(name = "Default", group = "Small secondary button") @Composable private fun SmallSecondaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(name = "Disabled", group = "Small secondary button") @Composable private fun SmallSecondaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(name = "Loading", group = "Small secondary button") @Composable private fun SmallSecondaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun PrimaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallSecondaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SmallSecondaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:SmallSectionHeader.kt$@Preview @Composable private fun SmallSectionHeaderPreview()</ID>
+    <ID>UnusedPrivateMember:SmallSectionHeader.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun SmallSectionHeaderDarkPreview()</ID>
+    <ID>UnusedPrivateMember:SparkLine.kt$@Preview @Composable private fun SparkLinePreview()</ID>
+    <ID>UnusedPrivateMember:SplashScreen.kt$SplashScreen$private val binding = SplashScreenBinding.inflate(LayoutInflater.from(context), this)</ID>
+    <ID>UnusedPrivateMember:SplitButtons.kt$@Preview @Composable private fun SplitButtonPreview()</ID>
+    <ID>UnusedPrivateMember:SuccessSwitch.kt$@Preview(name = "Checked not enabled", group = "Success Switch") @Composable private fun SuccessSwitchPreview_IsChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:SuccessSwitch.kt$@Preview(name = "Checked", group = "Success Switch") @Composable private fun SuccessSwitchPreview_IsChecked()</ID>
+    <ID>UnusedPrivateMember:SuccessSwitch.kt$@Preview(name = "Not checked not enabled", group = "Success Switch") @Composable private fun SuccessSwitchPreview_NotChecked_NotEnabled()</ID>
+    <ID>UnusedPrivateMember:SuccessSwitch.kt$@Preview(name = "Not checked", group = "Success Switch") @Composable private fun SuccessSwitchPreview_NotChecked()</ID>
+    <ID>UnusedPrivateMember:TabLayoutLarge.kt$@Preview @Composable private fun TabLayoutLargePreview_Default()</ID>
+    <ID>UnusedPrivateMember:TabLayoutLarge.kt$@Preview @Composable private fun TabLayoutLargePreview_withShadow()</ID>
+    <ID>UnusedPrivateMember:TabLayoutLarge.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun TabLayoutLargeDarkPreview_withShadow()</ID>
+    <ID>UnusedPrivateMember:TabLayoutLive.kt$@Preview @Composable private fun TabLayoutLivePreview()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(name = "Button with image", group = "Primary button") @Composable private fun TertiaryButtonWithImagePreview()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(name = "Default", group = "Primary button") @Composable private fun TertiaryButtonPreview()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(name = "Disabled", group = "Primary button") @Composable private fun TertiaryButtonDisabledPreview()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(name = "Loading", group = "Primary button") @Composable private fun TertiaryButtonLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun TertiaryButtonDisabledPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun TertiaryButtonLoadingPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:TertiaryButton.kt$@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun TertiaryButtonPreview_Dark()</ID>
+    <ID>UnusedPrivateMember:ToastAlert.kt$@DrawableRes startIconDrawableRes: Int = ResourcesCompat.ID_NULL</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_Checked()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_Checked_Dark()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_NotChecked()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_NotChecked_Dark()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_SingleLine_Checked()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_SingleLine_NotChecked()</ID>
+    <ID>UnusedPrivateMember:ToggleTableRow.kt$@Preview @Composable private fun ToggleTableRow_SingleLine_NotChecked_Dark()</ID>
+  </CurrentIssues>
+</SmellBaseline>

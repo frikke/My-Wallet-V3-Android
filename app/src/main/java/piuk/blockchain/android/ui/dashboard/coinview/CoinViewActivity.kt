@@ -6,9 +6,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
@@ -28,9 +32,11 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -153,13 +159,6 @@ class CoinViewActivity :
                 textColor = ComposeColors.Title
                 style = ComposeTypographies.Body2
             }
-
-            assetAboutBlurb.apply {
-                textColor = ComposeColors.Title
-                style = ComposeTypographies.Paragraph1
-            }
-
-            assetWebsite.text = getString(R.string.coinview_asset_info_cta)
 
             initNoAssetError()
             initAssetChart()
@@ -469,44 +468,47 @@ class CoinViewActivity :
                 visible()
             }
 
-            when {
-                state.details.description.isNotEmpty() && state.details.website.isNotEmpty() -> {
-                    assetAboutBlurb.apply {
-                        text = state.details.description
-                        visible()
-                    }
-                    assetWebsite.apply {
-                        onClick = {
-                            goToAssetWebsite(state.details.website)
-                        }
-                        visible()
-                    }
-                }
-                state.details.description.isEmpty() && state.details.website.isNotEmpty() -> {
-                    assetAboutBlurb.apply {
-                        text = getString(R.string.coinview_no_asset_description)
-                        visible()
-                    }
-                    assetWebsite.apply {
-                        onClick = {
-                            goToAssetWebsite(state.details.website)
-                        }
-                        visible()
-                    }
-                }
-                state.details.description.isNotEmpty() && state.details.website.isEmpty() -> {
-                    assetAboutBlurb.apply {
-                        text = state.details.description
-                        visible()
-                    }
-                    assetWebsite.gone()
-                }
-                else -> {
-                    assetInformationSwitcher.gone()
-                }
+            with(state.details) {
+                setWebsiteLink(website)
+                setExpandableDescription(description)
             }
 
             assetInformationSwitcher.displayedChild = INFO_VIEW
+        }
+    }
+
+    private fun setWebsiteLink(website: String) {
+        binding.assetWebsite.apply {
+            if (website.isNotEmpty()) {
+                text = getString(R.string.coinview_asset_info_cta)
+                onClick = { goToAssetWebsite(website) }
+                visible()
+            } else {
+                gone()
+            }
+        }
+    }
+
+    private fun setExpandableDescription(description: String) {
+        binding.assetAboutBlurb.setContent {
+            if (description.isEmpty()) {
+                SimpleText(
+                    text = getString(R.string.coinview_no_asset_description),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+            } else {
+                ExpandableItem(
+                    text = description,
+                    numLinesVisible = VISIBLE_LINES_DESCRIPTION,
+                    textButtonToExpand = getString(R.string.coinview_expandable_button),
+                    textButtonToCollapse = getString(R.string.coinview_collapsable_button)
+                )
+            }
         }
     }
 
@@ -1070,6 +1072,7 @@ class CoinViewActivity :
         private const val PATTERN_DAY_MONTH_YEAR = "d MMM YYYY"
         private const val SUPPORT_SUBJECT_NO_ASSET = "UNKNOWN ASSET"
         const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
+        private const val VISIBLE_LINES_DESCRIPTION = 6
 
         fun newIntent(context: Context, asset: AssetInfo): Intent =
             Intent(context, CoinViewActivity::class.java).apply {

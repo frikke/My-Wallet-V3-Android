@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:EmbraceRemoteLogger.kt$EmbraceRemoteLogger${ }</ID>
+    <ID>EmptyFunctionBlock:FirebaseRemoteLogger.kt$FirebaseRemoteLogger${}</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexMethod:AssetDiscoveryService.kt$AssetDiscoveryService$private fun DynamicCurrency.toDynamicAsset(): DynamicAsset?</ID>
+    <ID>LongMethod:AssetPriceServiceTest.kt$AssetPriceServiceTest$@Test fun `getHistoricPriceSince() correctly returns a list of prices`()</ID>
+    <ID>LongMethod:NonCustodialBitcoinServiceTest.kt$NonCustodialBitcoinServiceTest$@Test fun testGetMultiAddress_BTC()</ID>
+    <ID>LongParameterList:AnalyticsService.kt$AnalyticsService$( events: List&lt;NabuAnalyticsEvent>, id: String, analyticsContext: AnalyticsContext, platform: String, device: String, authorization: String? )</ID>
+    <ID>LongParameterList:BitcoinApi.kt$BitcoinApi$( @Path("coin") coin: String, @Field("active") activeLegacy: String, @Field("activeBech32") activeBech32: String, @Field("n") limit: Int?, @Field("offset") offset: Int?, @Field("filter") filter: Int?, @Field("onlyShow") onlyShow: String?, @Field("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:BitcoinApi.kt$BitcoinApi$( @Path("coin") coin: String, @Query("active") activeLegacy: String, @Query("activeBech32") activeBech32: String, @Query("confirmations") confirmations: Int?, @Query("limit") limit: Int?, @Query("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:BrokerageService.kt$BrokerageService$( authHeader: String, pair: String, inputValue: String, profile: String, paymentMethod: String, paymentMethodId: String? )</ID>
+    <ID>LongParameterList:Erc20TransferDto.kt$Erc20TransferDto$( @SerialName("logIndex") val logIndex: String, // TODO: What this? @SerialName("tokenHash") val contractAddress: String, @SerialName("from") val fromAddress: String, @SerialName("to") val toAddress: String, @SerialName("value") val value: BigInteger, @SerialName("decimals") val precisionDp: Int, @SerialName("blockHash") val blockHash: String, @SerialName("transactionHash") val txHash: String, @SerialName("blockNumber") val blockNumber: BigInteger, @SerialName("idxFrom") val idxFrom: String, // TODO: What this? @SerialName("idxTo") val idxTo: String, // TODO: What this? @SerialName("accountIdxFrom") val accountIdxFrom: String, // TODO: What this? @SerialName("accountIdxTo") val accountIdxTo: String, // TODO: What this? @SerialName("timestamp") val timestamp: Long )</ID>
+    <ID>LongParameterList:NabuErrorResponse.kt$NabuApiException$( message: String, private val httpErrorCode: Int, private val errorType: String?, private val errorCode: Int?, private val errorDescription: String?, private val path: String?, private val id: String?, )</ID>
+    <ID>LongParameterList:NonCustodialBitcoinService.kt$NonCustodialBitcoinService$( coin: String, addressListLegacy: List&lt;String>, addressListBech32: List&lt;String>, onlyShow: String?, filter: BalanceFilter, limit: Int, offset: Int )</ID>
+    <ID>LongParameterList:TxLimitsApi.kt$TxLimitsApi$( @Header("authorization") authorization: String, @Query("currency") outputCurrency: String, @Query("inputCurrency") sourceCurrency: String, @Query("outputCurrency") targetCurrency: String, @Query("fromAccount") sourceAccountType: String, @Query("toAccount") targetAccountType: String )</ID>
+    <ID>LongParameterList:TxLimitsService.kt$TxLimitsService$( authHeader: String, outputCurrency: String, sourceCurrency: String, targetCurrency: String, sourceAccountType: String, targetAccountType: String )</ID>
+    <ID>LongParameterList:WalletApi.kt$WalletApi$( @Field("guid") guid: String, @Field("method") method: String = METHOD_TRIGGER_EMAIL, @Field("sharedKey") sharedKey: String, @Field("currency") currency: String, @Field("amount") amount: String, @Field("format") format: String = "json", @Field("api_code") apiCode: String )</ID>
+    <ID>LongParameterList:WalletSettingsDto.kt$WalletSettingsDto$( @SerialName("btc_currency") val btcCurrency: String = "", @SerialName("notifications_type") val notificationsType: List&lt;Int> = emptyList(), @SerialName("language") val language: String = "", @SerialName("notifications_on") val notificationsOn: Int = 0, @SerialName("ip_lock_on") val ipLockOn: Int = 0, @SerialName("dial_code") val dialCode: String = "", @SerialName("block_tor_ips") val blockTorIps: Int = 0, @SerialName("currency") val currency: String = "", @SerialName("notifications_confirmations") val notificationsConfirmations: Int = 0, @SerialName("auto_email_backup") val autoEmailBackup: Int = 0, @SerialName("never_save_auth_type") val neverSaveAuthType: Int = 0, @SerialName("email") val email: String = "", @SerialName("sms_number") val smsNumber: String? = null, @SerialName("sms_dial_code") val smsDialCode: String? = null, @SerialName("sms_verified") val smsVerified: Int = 0, @SerialName("is_api_access_enabled") val isApiAccessEnabled: Int = 0, @SerialName("auth_type") val authType: Int = 0, @SerialName("my_ip") val myIp: String = "", @SerialName("email_verified") val emailVerified: Int = 0, @SerialName("password_hint1") val passwordHint1: String = "", @SerialName("country_code") val countryCode: String = "", @SerialName("state") private val state: String = "", @SerialName("logging_level") private val loggingLevel: Int = 0, @SerialName("guid") val guid: String = "", @SerialName("invited") val invited: Map&lt;String, Boolean> = emptyMap() )</ID>
+    <ID>MagicNumber:AssetPriceService.kt$AssetPriceService$1000</ID>
+    <ID>MatchingDeclarationName:Balance.kt$BalanceDto</ID>
+    <ID>MayBeConst:QuoteRequestBody.kt$FeeDetailsResponse.Companion$val NEW_USER_WAIVER = "NEW_USER_WAIVER"</ID>
+    <ID>MayBeConst:QuoteRequestBody.kt$SettlementDetails.Companion$val INSTANT = "INSTANT"</ID>
+    <ID>MayBeConst:QuoteRequestBody.kt$SettlementDetails.Companion$val REGULAR = "REGULAR"</ID>
+    <ID>MayBeConst:QuoteRequestBody.kt$SettlementDetails.Companion$val UNAVAILABLE = "UNAVAILABLE"</ID>
+    <ID>NestedBlockDepth:AssetPriceDeserializer.kt$AssetPriceDeserializer$override fun deserialize(decoder: Decoder): AssetPriceDto</ID>
+    <ID>ReturnCount:OutcomeCallAdapterFactory.kt$OutcomeCallAdapterFactory$override fun get( callType: Type, annotations: Array&lt;Annotation>, retrofit: Retrofit ): CallAdapter&lt;*, *>?</ID>
+    <ID>SwallowedException:AssetDiscoveryService.kt$AssetDiscoveryService$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:NabuErrorResponse.kt$NabuApiExceptionFactory$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:NabuErrorResponse.kt$NabuApiExceptionFactory$ex: Exception</ID>
+    <ID>TooManyFunctions:PaymentMethodsApi.kt$PaymentMethodsApi</ID>
+    <ID>TooManyFunctions:PaymentMethodsService.kt$PaymentMethodsService</ID>
+    <ID>UnnecessaryAbstractClass:AssetDiscoveryDto.kt$AssetType</ID>
+    <ID>UnusedPrivateMember:AddressSummary.kt$AddressSummary$@SerialName("gap_limit") private val gapLimit: Long = 0</ID>
+    <ID>UnusedPrivateMember:AssetDiscoveryDto.kt$FiatAsset$private val unused: String? = null</ID>
+    <ID>UnusedPrivateMember:AssetDiscoveryDto.kt$UnsupportedAsset$private val unused: String? = null</ID>
+    <ID>UnusedPrivateMember:BankTransferResponse.kt$CreateLinkBankRequestBody$@SerialName("currency") private val currency: String</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$AddNewCardBodyRequest$@SerialName("address") private val address: AddressRequest</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$AddNewCardBodyRequest$@SerialName("currency") private val currency: String</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$AddNewCardBodyRequest$@SerialName("paymentMethodTokens") private val paymentMethodTokens: Map&lt;String, String>?</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$EveryPayAttrs$@SerialName("customerUrl") private val customerUrl: String</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("callback") private val callback: String? = null</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("cvv") private val cvv: String? = null</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("disable3DS") private val disable3DS: Boolean? = null</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("everypay") private val everypay: EveryPayAttrs? = null</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("googlePayPayload") private val googlePayPayload: String? = null</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("isMitPayment") private val isMitPayment: Boolean? = false</ID>
+    <ID>UnusedPrivateMember:CardResponse.kt$SimpleBuyConfirmationAttributes$@SerialName("redirectURL") private val redirectURL: String?</ID>
+    <ID>UnusedPrivateMember:UnspentOutputDto.kt$UnspentOutputDto$@SerialName("tx_age") private val txAge: Long = 0</ID>
+    <ID>UnusedPrivateMember:WalletSettingsDto.kt$WalletSettingsDto$@SerialName("logging_level") private val loggingLevel: Int = 0</ID>
+    <ID>UnusedPrivateMember:WalletSettingsDto.kt$WalletSettingsDto$@SerialName("state") private val state: String = ""</ID>
+  </CurrentIssues>
+</SmellBaseline>
