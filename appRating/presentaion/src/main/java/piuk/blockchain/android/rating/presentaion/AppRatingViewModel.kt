@@ -83,7 +83,7 @@ class AppRatingViewModel(
 
     private fun saveRatingDateAndDismiss() {
         // todo(othman): save rating date - retrigger in 1 month
-        updateState { it.copy(dismiss = true) }
+        ratingCompleted()
     }
 
     private fun ratingCompleted() {
