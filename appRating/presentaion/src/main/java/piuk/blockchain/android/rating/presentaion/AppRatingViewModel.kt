@@ -21,7 +21,8 @@ class AppRatingViewModel(
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
         AppRatingViewState(
-            dismiss = dismiss
+            dismiss = dismiss,
+            promptInAppReview = promptInAppReview
         )
     }
 
@@ -52,13 +53,11 @@ class AppRatingViewModel(
     private fun submitStars(stars: Int) {
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
-                val navigationEvent = if (stars > threshold) {
-                    AppRatingNavigationEvent.RequestInAppReview
+                if (stars > threshold) {
+                    updateState { it.copy(promptInAppReview = true) }
                 } else {
-                    AppRatingNavigationEvent.Feedback
+                    navigate(AppRatingNavigationEvent.Feedback)
                 }
-
-                navigate(navigationEvent)
             }
         }
     }
@@ -70,6 +69,7 @@ class AppRatingViewModel(
     }
 
     private fun inAppReviewCompleted() {
+        updateState { it.copy(promptInAppReview = false) }
         // todo(othman): call api here
         // todo(othman): mark rating completed
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))

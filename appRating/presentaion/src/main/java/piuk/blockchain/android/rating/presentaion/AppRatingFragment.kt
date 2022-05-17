@@ -32,10 +32,7 @@ class AppRatingFragment : DialogFragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                AppRatingNavHost(
-                    viewModel = viewModel,
-                    triggerInAppReview = ::triggerInAppReview
-                )
+                AppRatingNavHost(viewModel)
             }
         }
     }
@@ -45,9 +42,14 @@ class AppRatingFragment : DialogFragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.viewState.collect { viewState ->
                     with(viewState) {
-                        if (dismiss) {
-                            dismiss()
-                            return@collect
+                        when {
+                            dismiss -> {
+                                dismiss()
+                            }
+
+                            promptInAppReview -> {
+                                triggerInAppReview()
+                            }
                         }
                     }
                 }
