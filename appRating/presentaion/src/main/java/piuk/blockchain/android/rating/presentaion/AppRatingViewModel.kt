@@ -33,6 +33,10 @@ class AppRatingViewModel(
                 submitFeedback(intent.feedback)
             }
 
+            AppRatingIntents.InAppReviewCompleted -> {
+                inAppReviewCompleted()
+            }
+
             AppRatingIntents.RatingCanceled -> {
                 saveRatingDateAndDismiss()
             }
@@ -47,8 +51,7 @@ class AppRatingViewModel(
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
                 val navigationEvent = if (stars > threshold) {
-                    // todo(othman): open native android for rating here
-                    AppRatingNavigationEvent.Completed(withFeedback = false)
+                    AppRatingNavigationEvent.RequestInAppReview
                 } else {
                     AppRatingNavigationEvent.Feedback
                 }
@@ -62,6 +65,12 @@ class AppRatingViewModel(
         // todo(othman): call api here
         // todo(othman): mark rating completed
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
+    }
+
+    private fun inAppReviewCompleted() {
+        // todo(othman): call api here
+        // todo(othman): mark rating completed
+        navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
 
     private fun saveRatingDateAndDismiss() {

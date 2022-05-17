@@ -10,6 +10,7 @@ import com.blockchain.koin.payloadScope
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingNavHost
+import piuk.blockchain.android.rating.presentaion.inappreview.InAppReviewSettings
 
 class AppRatingFragment : DialogFragment() {
 
@@ -17,14 +18,25 @@ class AppRatingFragment : DialogFragment() {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
+    private val inAppReviewSettings: InAppReviewSettings by payloadScope.inject()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        inAppReviewSettings.init(requireContext())
+
         return ComposeView(requireContext()).apply {
             setContent {
                 AppRatingNavHost(
                     viewModel = viewModel,
-                    onDismiss = { dismiss() }
+                    triggerInAppReview = ::triggerInAppReview,
+                    onDismiss = ::dismiss
                 )
             }
+        }
+    }
+
+    private fun triggerInAppReview() {
+        inAppReviewSettings.triggerAppReview(requireActivity()) {
+            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted)
         }
     }
 

@@ -18,6 +18,7 @@ import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestinatio
 @Composable
 fun AppRatingNavHost(
     viewModel: AppRatingViewModel,
+    triggerInAppReview: () -> Unit,
     onDismiss: () -> Unit
 ) {
 
@@ -33,6 +34,7 @@ fun AppRatingNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = AppRatingNavigationRouter(
             navController = rememberNavController(),
+            triggerInAppReview = triggerInAppReview,
             onDismiss = onDismiss
         ),
         startDestination = AppRatingDestination.Stars,

@@ -8,11 +8,16 @@ import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestinatio
 
 class AppRatingNavigationRouter(
     override val navController: NavHostController,
+    val triggerInAppReview: () -> Unit,
     val onDismiss: () -> Unit
 ) : ComposeNavigationRouter<AppRatingNavigationEvent> {
 
     override fun route(navigationEvent: AppRatingNavigationEvent) {
         when (navigationEvent) {
+            AppRatingNavigationEvent.RequestInAppReview -> {
+                triggerInAppReview()
+            }
+
             AppRatingNavigationEvent.Feedback -> {
                 val route = AppRatingDestination.Feedback.route
                 navController.navigate(route)
