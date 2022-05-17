@@ -95,13 +95,6 @@ class DashboardActionInteractor(
             coincore.availableCryptoAssets()
         }.subscribeBy(
             onSuccess = { assets ->
-                // Load the balances for the active assets for sorting based on balance
-                model.process(
-                    DashboardIntent.UpdateAllAssetsAndBalances(
-                        assetList = coincore.activeCryptoAssets().map { it.assetInfo },
-                        fiatAssetList = emptyList()
-                    )
-                )
                 model.process(DashboardIntent.AssetListUpdate(assets))
             },
             onError = {
