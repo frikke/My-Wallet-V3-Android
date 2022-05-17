@@ -24,4 +24,5 @@ include ':app',
         ':analytics:domain', ':analytics:data',
         ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
         ':blockchainCard',':metadata',
-        ':appMaintenance:data', ':appMaintenance:domain', ':appMaintenance:presentation'
+        ':appMaintenance:data', ':appMaintenance:domain', ':appMaintenance:presentation',
+        ':appRating:data', ':appRating:domain', ':appRating:presentaion'

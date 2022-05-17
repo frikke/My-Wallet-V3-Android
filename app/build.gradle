@@ -366,6 +366,10 @@ dependencies {
     implementation project(':appMaintenance:domain')
     implementation project(':appMaintenance:presentation')
 
+    implementation project(':appRating:data')
+    implementation project(':appRating:domain')
+    implementation project(':appRating:presentaion')
+
     implementation Libraries.multidex
     coreLibraryDesugaring Libraries.desugaring
 
@@ -474,6 +478,8 @@ dependencies {
     implementation Libraries.composeCoil
     implementation Libraries.composeCoilSvg
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.accompanistNavigationMaterial
+
 
     // Stripe
     implementation(Libraries.stripe) {

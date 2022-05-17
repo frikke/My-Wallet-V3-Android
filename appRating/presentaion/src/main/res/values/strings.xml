@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_rating_title"/>
+    <string name="app_rating_description"/>
+    <string name="app_rating_completed_no_feedback_title"/>
+    <string name="app_rating_completed_feedback_title"/>
+    <string name="app_rating_completed_feedback_description"/>
+    <string name="app_rating_feedback_title"/>
+    <string name="app_rating_feedback_description"/>
+    <string name="app_rating_feedback_hint"/>
+    <string name="common_submit"/>
+    <string name="common_cancel"/>
+</resources>
