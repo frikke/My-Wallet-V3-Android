@@ -38,28 +38,36 @@ class ResetPasswordInteractor(
     }
 
     fun recoverAccount(userId: String, recoveryToken: String): Completable =
-        accountMetadataFF.enabled.flatMapCompletable {
-            nabuDataManager.recoverLegacyAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
-                metadataManager.attemptMetadataSetup()
-                    .then {
-                        metadataRepository.save(
-                            nabuMetadata,
-                            NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
-                        )
-                    }
-            }.then {
-                if (it) {
-                    nabuDataManager.recoverBlockchainAccount(userId, recoveryToken).flatMapCompletable { nabuMetadata ->
-                        metadataManager.attemptMetadataSetup()
-                            .then {
+        accountMetadataFF.enabled.flatMapCompletable { enabled ->
+            if (enabled) {
+                nabuDataManager.recoverBlockchainAccount(userId, recoveryToken)
+            } else {
+                nabuDataManager.recoverLegacyAccount(userId, recoveryToken)
+            }.flatMapCompletable { metadata ->
+                metadataManager.attemptMetadataSetup().then {
+                    when {
+                        metadata is NabuLegacyCredentialsMetadata && metadata.isValid() -> {
+                            metadataRepository.save(
+                                metadata,
+                                NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
+                            )
+                        }
+                        metadata is BlockchainAccountCredentialsMetadata && metadata.isValid() -> {
+                            metadataRepository.save(
+                                metadata,
+                                BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+                            ).then {
                                 metadataRepository.save(
-                                    nabuMetadata,
-                                    BlockchainAccountCredentialsMetadata.BLOCKCHAIN_CREDENTIALS_METADATA_NODE
+                                    NabuLegacyCredentialsMetadata(
+                                        metadata.userId!!,
+                                        metadata.lifetimeToken!!
+                                    ),
+                                    NabuLegacyCredentialsMetadata.NABU_LEGACY_CREDENTIALS_METADATA_NODE
                                 )
                             }
+                        }
+                        else -> Completable.complete()
                     }
-                } else {
-                    Completable.complete()
                 }
             }
         }
