@@ -28,8 +28,6 @@ class AppRatingFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         collectViewState()
 
-        inAppReviewSettings.init(requireContext())
-
         return ComposeView(requireContext()).apply {
             setContent {
                 AppRatingNavHost(viewModel)
@@ -58,8 +56,8 @@ class AppRatingFragment : DialogFragment() {
     }
 
     private fun triggerInAppReview() {
-        inAppReviewSettings.triggerAppReview(requireActivity()) {
-            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted)
+        inAppReviewSettings.triggerAppReview(requireActivity()) { successful ->
+            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(successful))
         }
     }
 

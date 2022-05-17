@@ -36,8 +36,8 @@ class AppRatingViewModel(
                 submitFeedback(intent.feedback)
             }
 
-            AppRatingIntents.InAppReviewCompleted -> {
-                inAppReviewCompleted()
+            is AppRatingIntents.InAppReviewCompleted -> {
+                inAppReviewCompleted(intent.successful)
             }
 
             AppRatingIntents.RatingCanceled -> {
@@ -55,6 +55,7 @@ class AppRatingViewModel(
             appRatingService.getThreshold().let { threshold ->
                 if (stars > threshold) {
                     updateState { it.copy(promptInAppReview = true) }
+                    // todo(othman): call api here
                 } else {
                     navigate(AppRatingNavigationEvent.Feedback)
                 }
@@ -68,10 +69,15 @@ class AppRatingViewModel(
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 
-    private fun inAppReviewCompleted() {
+    private fun inAppReviewCompleted(successful: Boolean) {
         updateState { it.copy(promptInAppReview = false) }
-        // todo(othman): call api here
-        // todo(othman): mark rating completed
+
+        if (successful) {
+            // todo(othman): mark rating completed
+        } else {
+            // todo(othman): save rating date - retrigger in 1 month
+        }
+
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
 
