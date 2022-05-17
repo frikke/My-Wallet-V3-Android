@@ -14,13 +14,15 @@ class AppRatingViewModel(
     AppRatingModelState,
     AppRatingNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    initialState = AppRatingModelState
+    initialState = AppRatingModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: AppRatingModelState): AppRatingViewState {
-        return AppRatingViewState
+    override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
+        AppRatingViewState(
+            dismiss = dismiss
+        )
     }
 
     override suspend fun handleIntent(modelState: AppRatingModelState, intent: AppRatingIntents) {
@@ -75,10 +77,10 @@ class AppRatingViewModel(
 
     private fun saveRatingDateAndDismiss() {
         // todo(othman): save rating date - retrigger in 1 month
-        navigate(AppRatingNavigationEvent.Dismiss)
+        updateState { it.copy(dismiss = true) }
     }
 
     private fun ratingCompleted() {
-        navigate(AppRatingNavigationEvent.Dismiss)
+        updateState { it.copy(dismiss = true) }
     }
 }

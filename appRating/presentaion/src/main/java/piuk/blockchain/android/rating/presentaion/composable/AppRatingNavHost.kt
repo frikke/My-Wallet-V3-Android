@@ -18,8 +18,7 @@ import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestinatio
 @Composable
 fun AppRatingNavHost(
     viewModel: AppRatingViewModel,
-    triggerInAppReview: () -> Unit,
-    onDismiss: () -> Unit
+    triggerInAppReview: () -> Unit
 ) {
 
     viewModel.viewCreated(ModelConfigArgs.NoArgs)
@@ -34,8 +33,7 @@ fun AppRatingNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = AppRatingNavigationRouter(
             navController = rememberNavController(),
-            triggerInAppReview = triggerInAppReview,
-            onDismiss = onDismiss
+            triggerInAppReview = triggerInAppReview
         ),
         startDestination = AppRatingDestination.Stars,
     ) {
@@ -70,9 +68,9 @@ private fun NavGraphBuilder.appRatingCompletedDestination(viewModel: AppRatingVi
         )
     ) { backStackEntry ->
         AppRatingCompleted(
+            viewModel = viewModel,
             withFeedback = backStackEntry.arguments?.getBoolean(ARG_WITH_FEEDBACK)
-                ?: error("arg ARG_WITH_FEEDBACK missing"),
-            viewModel = viewModel
+                ?: error("arg ARG_WITH_FEEDBACK missing")
         )
     }
 }

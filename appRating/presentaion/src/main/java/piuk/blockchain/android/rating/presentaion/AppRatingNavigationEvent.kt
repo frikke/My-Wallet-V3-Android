@@ -6,5 +6,4 @@ sealed interface AppRatingNavigationEvent : NavigationEvent {
     object RequestInAppReview : AppRatingNavigationEvent
     object Feedback : AppRatingNavigationEvent
     data class Completed(val withFeedback: Boolean) : AppRatingNavigationEvent
-    object Dismiss : AppRatingNavigationEvent
 }
