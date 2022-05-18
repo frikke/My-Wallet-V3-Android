@@ -108,7 +108,7 @@ class AppRatingViewModel(
 
     private suspend fun postRatingData() {
         appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback)).let { successful ->
-            if (successful) {
+            if (successful && forceRetrigger.not()) {
                 // todo(othman): mark rating completed
             } else {
                 // todo(othman): save rating date - retrigger in 1 month
