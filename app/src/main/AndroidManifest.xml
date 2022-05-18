@@ -91,10 +91,13 @@
             android:name=".ui.linkbank.yodlee.YodleeEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.Splash">
-            <intent-filter android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:priority="100">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="${DYNAMIC_LINK_HOST}"
                     android:path="/fastlink"
