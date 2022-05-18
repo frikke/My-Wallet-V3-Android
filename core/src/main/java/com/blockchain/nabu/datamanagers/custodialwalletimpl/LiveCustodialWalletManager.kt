@@ -945,7 +945,7 @@ private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue):
         ),
         attributes = attributes?.toPaymentAttributes(),
         type = type(),
-        paymentError = paymentError,
+        paymentError = paymentError?.toApprovalError() ?: ApprovalErrorStatus.None,
         depositPaymentId = depositPaymentId.orEmpty(),
         approvalErrorStatus = attributes?.error?.toApprovalError() ?: ApprovalErrorStatus.None,
         failureReason = failureReason,
@@ -989,12 +989,30 @@ fun PaymentStateResponse?.toCardPaymentState() =
 
 private fun String.toApprovalError(): ApprovalErrorStatus =
     when (this) {
+        // Card create errors
+        BuySellOrderResponse.CARD_CREATE_DUPLICATE -> ApprovalErrorStatus.CardDuplicate
+        BuySellOrderResponse.CARD_CREATE_FAILED -> ApprovalErrorStatus.CardCreateFailed
+        BuySellOrderResponse.CARD_CREATE_ABANDONED -> ApprovalErrorStatus.CardCreateAbandoned
+        BuySellOrderResponse.CARD_CREATE_EXPIRED -> ApprovalErrorStatus.CardCreateExpired
+        BuySellOrderResponse.CARD_CREATE_BANK_DECLINED -> ApprovalErrorStatus.CardCreateBankDeclined
+        BuySellOrderResponse.CARD_CREATE_DEBIT_ONLY -> ApprovalErrorStatus.CardCreateDebitOnly
+        BuySellOrderResponse.CARD_CREATE_NO_TOKEN -> ApprovalErrorStatus.CardCreateNoToken
+        // Card payment errors
+        BuySellOrderResponse.CARD_PAYMENT_NOT_SUPPORTED -> ApprovalErrorStatus.CardPaymentNotSupported
+        BuySellOrderResponse.CARD_PAYMENT_FAILED -> ApprovalErrorStatus.CardPaymentFailed
+        BuySellOrderResponse.CARD_PAYMENT_ABANDONED -> ApprovalErrorStatus.CardCreateAbandoned // map will change
+        BuySellOrderResponse.CARD_PAYMENT_EXPIRED -> ApprovalErrorStatus.CardCreateExpired // map will change
+        BuySellOrderResponse.CARD_PAYMENT_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.InsufficientFunds
+        BuySellOrderResponse.CARD_PAYMENT_DEBIT_ONLY -> ApprovalErrorStatus.CardPaymentDebitOnly
+        BuySellOrderResponse.CARD_PAYMENT_BLOCKCHAIN_DECLINED -> ApprovalErrorStatus.CardBlockchainDecline
+        BuySellOrderResponse.CARD_PAYMENT_ACQUIRER_DECLINED -> ApprovalErrorStatus.CardAcquirerDecline
+        // Bank transfer payment errors
         BuySellOrderResponse.APPROVAL_ERROR_INVALID,
         BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID -> ApprovalErrorStatus.Invalid
         BuySellOrderResponse.APPROVAL_ERROR_FAILED -> ApprovalErrorStatus.Failed
         BuySellOrderResponse.APPROVAL_ERROR_DECLINED -> ApprovalErrorStatus.Declined
-        APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.Rejected
-        APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.Expired
+        BuySellOrderResponse.APPROVAL_ERROR_REJECTED -> ApprovalErrorStatus.Rejected
+        BuySellOrderResponse.APPROVAL_ERROR_EXPIRED -> ApprovalErrorStatus.Expired
         BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED -> ApprovalErrorStatus.LimitedExceeded
         BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL -> ApprovalErrorStatus.FailedInternal
         BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> ApprovalErrorStatus.InsufficientFunds

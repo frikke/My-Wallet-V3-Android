@@ -403,13 +403,7 @@ class SimpleBuyModel(
                 process(SimpleBuyIntent.PaymentPending)
             }
             buySellOrder.state.hasFailed() -> {
-                process(
-                    SimpleBuyIntent.ErrorIntent(
-                        error = ErrorState.PaymentFailedError(
-                            buySellOrder.paymentError ?: buySellOrder.failureReason.orEmpty()
-                        )
-                    )
-                )
+                handleErrorState(buySellOrder.paymentError)
             }
             else -> {
                 when (val cardAttributes = buySellOrder.attributes?.cardAttributes ?: CardAttributes.Empty) {
@@ -421,7 +415,7 @@ class SimpleBuyModel(
                     }
                     is CardAttributes.Empty -> {
                         // Usual path for any non-card payment
-                        handleApprovalErrorState(buySellOrder.approvalErrorStatus)
+                        handleErrorState(buySellOrder.approvalErrorStatus)
                     }
                 }
             }
@@ -571,7 +565,7 @@ class SimpleBuyModel(
             }
         }
 
-    private fun handleApprovalErrorState(approvalErrorStatus: ApprovalErrorStatus) {
+    private fun handleErrorState(approvalErrorStatus: ApprovalErrorStatus) {
         when (approvalErrorStatus) {
             ApprovalErrorStatus.Invalid -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApproveBankInvalid)
@@ -599,6 +593,45 @@ class SimpleBuyModel(
             )
             ApprovalErrorStatus.InsufficientFunds -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankInsufficientFunds)
+            )
+            ApprovalErrorStatus.CardAcquirerDecline -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardAcquirerDeclined)
+            )
+            ApprovalErrorStatus.CardBlockchainDecline -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardBlockchainDeclined)
+            )
+            ApprovalErrorStatus.CardCreateAbandoned -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateAbandoned)
+            )
+            ApprovalErrorStatus.CardCreateBankDeclined -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateBankDeclined)
+            )
+            ApprovalErrorStatus.CardCreateDebitOnly -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateDebitOnly)
+            )
+            ApprovalErrorStatus.CardCreateExpired -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateExpired)
+            )
+            ApprovalErrorStatus.CardCreateFailed -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateFailed)
+            )
+            ApprovalErrorStatus.CardCreateNoToken -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardNoToken)
+            )
+            ApprovalErrorStatus.CardDuplicate -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardDuplicated)
+            )
+            ApprovalErrorStatus.CardPaymentDebitOnly -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDebitOnly)
+            )
+            ApprovalErrorStatus.CardPaymentFailed -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentFailed)
+            )
+            ApprovalErrorStatus.CardPaymentNotSupported -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentNotSupported)
+            )
+            ApprovalErrorStatus.InsufficientCardFunds -> process(
+                SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
             )
             is ApprovalErrorStatus.Undefined -> process(
                 SimpleBuyIntent.ErrorIntent(ErrorState.ApprovedBankUndefinedError(approvalErrorStatus.error))
