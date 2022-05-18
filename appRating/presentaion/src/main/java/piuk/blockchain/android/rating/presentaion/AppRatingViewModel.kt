@@ -77,7 +77,8 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback(feedback: String) {
-        this.feedback = feedback
+        if (feedback.isBlank().not()) this.feedback = feedback
+
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 
