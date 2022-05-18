@@ -340,7 +340,7 @@ data class BuySellOrder(
     val depositPaymentId: String,
     val approvalErrorStatus: ApprovalErrorStatus = ApprovalErrorStatus.None,
     val failureReason: String? = null,
-    val paymentError: String? = null,
+    val paymentError: ApprovalErrorStatus = ApprovalErrorStatus.None,
     val recurringBuyId: String? = null
 )
 
@@ -369,6 +369,23 @@ enum class RecurringBuyFailureReason {
 }
 
 sealed class ApprovalErrorStatus {
+    // Card create errors
+    object CardDuplicate : ApprovalErrorStatus()
+    object CardCreateFailed : ApprovalErrorStatus()
+    object CardCreateAbandoned : ApprovalErrorStatus()
+    object CardCreateExpired : ApprovalErrorStatus()
+    object CardCreateBankDeclined : ApprovalErrorStatus()
+    object CardCreateDebitOnly : ApprovalErrorStatus()
+    object CardCreateNoToken : ApprovalErrorStatus()
+
+    // Card payment errors
+    object CardPaymentNotSupported : ApprovalErrorStatus()
+    object CardPaymentFailed : ApprovalErrorStatus()
+    object InsufficientCardFunds : ApprovalErrorStatus()
+    object CardPaymentDebitOnly : ApprovalErrorStatus()
+    object CardBlockchainDecline : ApprovalErrorStatus()
+    object CardAcquirerDecline : ApprovalErrorStatus()
+
     object Invalid : ApprovalErrorStatus()
     object Failed : ApprovalErrorStatus()
     object Declined : ApprovalErrorStatus()
