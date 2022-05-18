@@ -44,9 +44,7 @@ class NotificationPreferencesViewModel(
     ModelConfigArgs.NoArgs
     >(NotificationPreferencesModelState.Loading) {
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
-        onIntent(NotificationPreferencesIntent.Fetch)
-    }
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) { }
 
     override fun reduce(state: NotificationPreferencesModelState): NotificationPreferencesViewState {
         return when (state) {

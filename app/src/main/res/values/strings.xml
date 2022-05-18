@@ -2588,7 +2588,7 @@
     <string name="settings_notification_error">Notification settings failed to load</string>
     <string name="settings_notification_error_details">There was a problem fetching your notifications settings. Please reload or try again later.</string>
     <string name="settings_notification_error_back">Go Back</string>
-
+    <string name="settings_notification_required">%s (required)</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>

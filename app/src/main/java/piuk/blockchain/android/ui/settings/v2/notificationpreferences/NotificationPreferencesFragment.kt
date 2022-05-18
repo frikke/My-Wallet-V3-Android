@@ -69,6 +69,11 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.onIntent(NotificationPreferencesIntent.Fetch)
+    }
+
     override fun onStateUpdated(state: NotificationPreferencesViewState) { }
 
     companion object {

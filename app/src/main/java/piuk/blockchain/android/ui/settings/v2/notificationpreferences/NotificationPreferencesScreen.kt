@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.api.services.ContactPreference
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -82,7 +81,6 @@ private fun PreviewLoading() {
 @Preview
 @Composable
 private fun PreviewPreferenceList() {
-    val preference = ContactPreference("", "", "", "", emptyList())
     val categories = listOf(
         NotificationCategory("Wallet Activity", "Push, Email, SMS & In-App"),
         NotificationCategory("Security Alerts", "Push, Email, SMS & In-App"),
