@@ -18,7 +18,7 @@ internal class AppRatingApiKeysRemoteConfig(
     suspend fun getApiKeys(): Outcome<Throwable, AppRatingApiKeys> {
         return remoteConfig.getRawJson(API_KEYS_KEY).await().let { apiKeysJson ->
             if (apiKeysJson.isEmpty()) Outcome.Failure(Throwable("remote config json not found"))
-            else json.decodeFromString(apiKeysJson)
+            else Outcome.Success(json.decodeFromString(apiKeysJson))
         }
     }
 }

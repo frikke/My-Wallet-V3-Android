@@ -21,13 +21,19 @@ class AppRatingViewModel(
     private var stars: Int = 0
     private var feedback: String? = null
 
+    /**
+     * [inAppReviewCompleted] could return an error because showing in-app could've failed
+     */
+    private var forceRetrigger: Boolean = false
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
         AppRatingViewState(
             dismiss = dismiss,
-            promptInAppReview = promptInAppReview
+            promptInAppReview = promptInAppReview,
+            isLoading = isLoading
         )
     }
 
@@ -56,7 +62,6 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
-        // save stars
         this.stars = stars
 
         // get threshold to navigate to the right screen
@@ -64,7 +69,6 @@ class AppRatingViewModel(
             appRatingService.getThreshold().let { threshold ->
                 if (stars > threshold) {
                     updateState { it.copy(promptInAppReview = true) }
-                    // todo(othman): call api here
                 } else {
                     navigate(AppRatingNavigationEvent.Feedback)
                 }
@@ -73,44 +77,41 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback(feedback: String) {
-        // save feedback
         this.feedback = feedback
-
-        // todo(othman): call api here
-        // todo(othman): mark rating completed
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 
     private fun inAppReviewCompleted(successful: Boolean) {
+        // remove prompt
         updateState { it.copy(promptInAppReview = false) }
 
-        if (successful) {
-            // todo(othman): mark rating completed
-        } else {
-            // todo(othman): save rating date - retrigger in 1 month
-        }
+        // will be used in postRatingData response
+        forceRetrigger = successful.not()
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
 
     private fun saveRatingDateAndDismiss() {
         // todo(othman): save rating date - retrigger in 1 month
-        ratingCompleted()
+        updateState { it.copy(dismiss = true) }
     }
 
     private fun ratingCompleted() {
-        //        updateState { it.copy(dismiss = true) }
-
         viewModelScope.launch {
-            appRatingService.postRatingData(
-                AppRating(
-                    rating = stars,
-                    feedback = feedback
-                )
-            ).let { successful ->
-                if(successful == null){
+            updateState { it.copy(isLoading = true) }
 
-                }
+            postRatingData()
+
+            updateState { it.copy(dismiss = true) }
+        }
+    }
+
+    private suspend fun postRatingData() {
+        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback)).let { successful ->
+            if (successful) {
+                // todo(othman): mark rating completed
+            } else {
+                // todo(othman): save rating date - retrigger in 1 month
             }
         }
     }

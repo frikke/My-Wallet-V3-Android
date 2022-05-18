@@ -10,4 +10,5 @@
     <string name="app_rating_feedback_hint"/>
     <string name="common_submit"/>
     <string name="common_cancel"/>
+    <string name="done"/>
 </resources>
