@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.koin.payloadScope
+import com.blockchain.koin.scopedInject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ViewModelOwner
@@ -23,7 +24,7 @@ class AppRatingFragment : DialogFragment() {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
-    private val inAppReviewSettings: InAppReviewSettings by payloadScope.inject()
+    private val inAppReviewSettings: InAppReviewSettings by scopedInject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         collectViewState()

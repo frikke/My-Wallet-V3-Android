@@ -5,6 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class AppRatingViewModel(
@@ -16,6 +17,10 @@ class AppRatingViewModel(
     ModelConfigArgs.NoArgs>(
     initialState = AppRatingModelState()
 ) {
+
+    private var stars: Int = 0
+    private var feedback: String? = null
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
@@ -51,6 +56,10 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
+        // save stars
+        this.stars = stars
+
+        // get threshold to navigate to the right screen
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
                 if (stars > threshold) {
@@ -64,6 +73,9 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback(feedback: String) {
+        // save feedback
+        this.feedback = feedback
+
         // todo(othman): call api here
         // todo(othman): mark rating completed
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
@@ -87,6 +99,19 @@ class AppRatingViewModel(
     }
 
     private fun ratingCompleted() {
-        updateState { it.copy(dismiss = true) }
+        //        updateState { it.copy(dismiss = true) }
+
+        viewModelScope.launch {
+            appRatingService.postRatingData(
+                AppRating(
+                    rating = stars,
+                    feedback = feedback
+                )
+            ).let { successful ->
+                if(successful == null){
+
+                }
+            }
+        }
     }
 }
