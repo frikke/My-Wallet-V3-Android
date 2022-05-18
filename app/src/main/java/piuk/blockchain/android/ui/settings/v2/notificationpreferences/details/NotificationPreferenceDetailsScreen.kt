@@ -10,17 +10,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.divider.HorizontalDivider
-import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.component.PreferenceLoadingError
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.component.PreferenceLoadingProgress
+import piuk.blockchain.android.ui.settings.v2.notificationpreferences.component.PreferenceToggleRow
 
 @Composable
 fun NotificationPreferenceDetailsScreen(
@@ -97,10 +98,10 @@ private fun PreferencesListPreview() {
             "Sent when a particular asset increases or decreases in price",
             //
             listOf(
-                ContactMethod("EMAIL", "Emails", true, true),
-                ContactMethod("PUSH", "Push notifications", true, false),
-                ContactMethod("IN_APP", "In-app messages", false, false),
-                ContactMethod("IN_APP", "In-app messages", false, true),
+                ContactMethod("Emails", "EMAIL", true, true),
+                ContactMethod("Push notifications", "PUSH", true, false),
+                ContactMethod("In-app messages", "IN_APP", false, false),
+                ContactMethod("In-app messages", "IN_APP", false, true),
             )
         )
     ) { _, _ -> }
@@ -113,10 +114,15 @@ fun PreferencesList(
 ) {
     Column {
         methods.forEach { method ->
-            ToggleTableRow(
-                primaryText = method.title,
+            val text = if (method.required) {
+                stringResource(id = R.string.settings_notification_required, method.title)
+            } else {
+                method.title
+            }
+            PreferenceToggleRow(
+                primaryText = text,
                 isChecked = method.isMethodEnabled,
-                enabled = method.isButtonEnabled,
+                enabled = !method.required,
                 onCheckedChange = { onCheckedChanged(methods, method) }
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())

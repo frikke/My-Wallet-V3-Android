@@ -36,7 +36,7 @@ sealed class NotificationPreferenceDetailsViewState(val title: String, val descr
 data class ContactMethod(
     val title: String,
     val method: String,
-    val isButtonEnabled: Boolean,
+    val required: Boolean,
     val isMethodEnabled: Boolean
 )
 
@@ -109,6 +109,6 @@ class NotificationPreferencesDetailsViewModel(
 private fun NotificationContactMethod.mapToContactMethod() = ContactMethod(
     title = title,
     method = method,
-    isButtonEnabled = !required,
+    required = required,
     isMethodEnabled = enabled
 )
