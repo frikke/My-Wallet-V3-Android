@@ -4,6 +4,7 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.outcome.Outcome
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -13,7 +14,6 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteCo
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppRatingServiceTest {

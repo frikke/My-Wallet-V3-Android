@@ -64,7 +64,6 @@ val appRatingDataModule = module {
                 appRatingApi = get()
             )
         }
-
     }
 }
 
