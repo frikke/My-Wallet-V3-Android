@@ -221,7 +221,7 @@ class SimpleBuyCheckoutFragment :
                         allowedAuthMethods = allowedAuthMethods,
                         allowedCardNetworks = allowedCardNetworks,
                         gatewayTokenizationParameters = tokenizationMap,
-                        totalPrice = newState.amount.toStringWithoutSymbol(),
+                        totalPrice = newState.amount.toNetworkString(),
                         countryCode = newState.googlePayMerchantBankCountryCode.orEmpty(),
                         currencyCode = newState.fiatCurrency.networkTicker,
                         allowPrepaidCards = newState.googlePayAllowPrepaidCards ?: true,
