@@ -7,8 +7,7 @@ import piuk.blockchain.android.rating.presentaion.AppRatingNavigationEvent
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestination.Companion.ARG_WITH_FEEDBACK
 
 class AppRatingNavigationRouter(
-    override val navController: NavHostController,
-    val onDismiss: () -> Unit
+    override val navController: NavHostController
 ) : ComposeNavigationRouter<AppRatingNavigationEvent> {
 
     override fun route(navigationEvent: AppRatingNavigationEvent) {
@@ -23,10 +22,6 @@ class AppRatingNavigationRouter(
                     listOf(NavArgument(ARG_WITH_FEEDBACK, navigationEvent.withFeedback))
                 )
                 navController.navigate(route)
-            }
-
-            AppRatingNavigationEvent.Dismiss -> {
-                onDismiss()
             }
         }
     }

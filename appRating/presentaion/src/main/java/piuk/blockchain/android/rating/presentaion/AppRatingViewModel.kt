@@ -14,13 +14,16 @@ class AppRatingViewModel(
     AppRatingModelState,
     AppRatingNavigationEvent,
     ModelConfigArgs.NoArgs>(
-    initialState = AppRatingModelState
+    initialState = AppRatingModelState()
 ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
-    override fun reduce(state: AppRatingModelState): AppRatingViewState {
-        return AppRatingViewState
+    override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
+        AppRatingViewState(
+            dismiss = dismiss,
+            promptInAppReview = promptInAppReview
+        )
     }
 
     override suspend fun handleIntent(modelState: AppRatingModelState, intent: AppRatingIntents) {
@@ -31,6 +34,10 @@ class AppRatingViewModel(
 
             is AppRatingIntents.FeedbackSubmitted -> {
                 submitFeedback(intent.feedback)
+            }
+
+            is AppRatingIntents.InAppReviewCompleted -> {
+                inAppReviewCompleted(intent.successful)
             }
 
             AppRatingIntents.RatingCanceled -> {
@@ -46,14 +53,12 @@ class AppRatingViewModel(
     private fun submitStars(stars: Int) {
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
-                val navigationEvent = if (stars > threshold) {
-                    // todo(othman): open native android for rating here
-                    AppRatingNavigationEvent.Completed(withFeedback = false)
+                if (stars > threshold) {
+                    updateState { it.copy(promptInAppReview = true) }
+                    // todo(othman): call api here
                 } else {
-                    AppRatingNavigationEvent.Feedback
+                    navigate(AppRatingNavigationEvent.Feedback)
                 }
-
-                navigate(navigationEvent)
             }
         }
     }
@@ -64,12 +69,24 @@ class AppRatingViewModel(
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 
+    private fun inAppReviewCompleted(successful: Boolean) {
+        updateState { it.copy(promptInAppReview = false) }
+
+        if (successful) {
+            // todo(othman): mark rating completed
+        } else {
+            // todo(othman): save rating date - retrigger in 1 month
+        }
+
+        navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
+    }
+
     private fun saveRatingDateAndDismiss() {
         // todo(othman): save rating date - retrigger in 1 month
-        navigate(AppRatingNavigationEvent.Dismiss)
+        ratingCompleted()
     }
 
     private fun ratingCompleted() {
-        navigate(AppRatingNavigationEvent.Dismiss)
+        updateState { it.copy(dismiss = true) }
     }
 }

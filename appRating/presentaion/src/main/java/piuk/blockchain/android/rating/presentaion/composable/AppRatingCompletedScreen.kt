@@ -26,8 +26,8 @@ import piuk.blockchain.android.rating.presentaion.R
 
 @Composable
 fun AppRatingCompleted(
-    withFeedback: Boolean,
-    viewModel: AppRatingViewModel
+    viewModel: AppRatingViewModel,
+    withFeedback: Boolean
 ) {
     AppRatingCompletedScreen(
         withFeedback = withFeedback,

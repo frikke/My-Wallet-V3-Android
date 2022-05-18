@@ -49,6 +49,9 @@ dependencies {
     implementation Libraries.composeNavigation
     implementation Libraries.accompanistNavigationMaterial
 
+    // review
+    implementation Libraries.googlePlayCore
+
     // test
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.kotlinCoroutinesTest

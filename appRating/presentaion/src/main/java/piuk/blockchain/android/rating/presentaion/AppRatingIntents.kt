@@ -5,6 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 sealed interface AppRatingIntents : Intent<AppRatingModelState> {
     data class StarsSubmitted(val stars: Int) : AppRatingIntents
     data class FeedbackSubmitted(val feedback: String) : AppRatingIntents
+    data class InAppReviewCompleted(val successful: Boolean) : AppRatingIntents
     object RatingCanceled : AppRatingIntents
     object RatingCompleted : AppRatingIntents
 }
