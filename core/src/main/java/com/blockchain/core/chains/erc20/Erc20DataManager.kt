@@ -25,6 +25,7 @@ import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
+import timber.log.Timber
 
 interface Erc20DataManager {
     val accountHash: String
@@ -166,7 +167,16 @@ internal class Erc20DataManagerImpl(
 
     override fun supportsErc20TxNote(asset: AssetInfo): Boolean {
         require(asset.isErc20())
-        return ethDataManager.getErc20TokenData(asset) != null
+        return try {
+            // TODO (dtverdota): this try catch is here because there's no token data on the
+            // Ethereum blockchain for L2 Erc20 coins like USDC.MATIC. Even though we check null here,
+            // there's a crash further down on erc20Tokens in the EthereumWallet when the user only got
+            // coins on an L2 chain. Deal with it as part of the L2 + ETH -> EVM refactoring.
+            ethDataManager.getErc20TokenData(asset) != null
+        } catch (ex: Exception) {
+            Timber.e(ex)
+            return false
+        }
     }
 
     override fun getErc20TxNote(asset: AssetInfo, txHash: String): String? {

@@ -33,8 +33,9 @@ class TransactionInOutMapper(
             item.asset == CryptoCurrency.BTC -> handleBtcToAndFrom(item)
             item.asset == CryptoCurrency.BCH -> handleBchToAndFrom(item)
             item.asset == CryptoCurrency.XLM -> handleXlmToAndFrom(item)
-            item.asset == CryptoCurrency.ETHER ||
-                item.asset.isErc20() -> handleEthAndErc20ToAndFrom(item)
+            item.asset == CryptoCurrency.MATIC ||
+                item.asset == CryptoCurrency.ETHER ||
+                item.asset.isErc20() -> handleEvmAndErc20ToAndFrom(item)
             else -> throw IllegalArgumentException("${item.asset} is not currently supported")
         }
 
@@ -64,7 +65,7 @@ class TransactionInOutMapper(
                 )
             }
 
-    private fun handleEthAndErc20ToAndFrom(
+    private fun handleEvmAndErc20ToAndFrom(
         activitySummaryItem: NonCustodialActivitySummaryItem
     ): Single<TransactionInOutDetails> {
 
