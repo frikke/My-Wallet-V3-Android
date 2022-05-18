@@ -10,6 +10,7 @@ import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.module
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.api.AppRatingApiConfig
+import piuk.blockchain.android.rating.data.api.AppRatingApiService
 import piuk.blockchain.android.rating.data.api.AppRatingEndpoints
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
@@ -36,8 +37,8 @@ val appRatingDataModule = module {
                 .build()
         }
 
-        factory {
-            AppRatingApi(
+        factory<AppRatingApi> {
+            AppRatingApiService(
                 appRatingEndpoints = get<Retrofit>(checkMarketApiRetrofit).create(AppRatingEndpoints::class.java)
             )
         }

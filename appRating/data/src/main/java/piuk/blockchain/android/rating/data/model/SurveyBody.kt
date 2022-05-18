@@ -4,6 +4,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import piuk.blockchain.android.rating.domain.model.AppRating
 
+/**
+ * Useful links:
+ *
+ * * https://api.checkmarket.com/docs/api/v3/action/POST-3-surveys-surveyId-respondents_includeSuccessResponses
+ *
+ * * OS value: https://api.checkmarket.com/docs/api/v3/action/GET-3-lookup-os
+ * * status id values: https://api.checkmarket.com/docs/api/v3/action/GET-3-lookup-respondentstatus
+ *
+ */
 @Serializable
 internal data class SurveyBody private constructor(
     @SerialName("LanguageCode") val languageCode: String = LANGUAGE_CODE,
@@ -13,6 +22,9 @@ internal data class SurveyBody private constructor(
     @SerialName("QuestionResponses") val questionResponses: List<SurveyQuestionResponses>
 ) {
     companion object {
+        /**
+         * We're not using the webpage for the survey so language doesn't matter
+         */
         private const val LANGUAGE_CODE = "en"
 
         /**

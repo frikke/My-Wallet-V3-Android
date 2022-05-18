@@ -6,13 +6,17 @@ import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.model.SurveyBody
 import piuk.blockchain.android.rating.domain.model.AppRating
 
-internal class AppRatingApi(
+internal interface AppRatingApi {
+    suspend fun postRatingData(apiKeys: AppRatingApiKeys, appRating: AppRating): Outcome<ApiError, Boolean>
+}
+
+internal class AppRatingApiService(
     private val appRatingEndpoints: AppRatingEndpoints,
-) {
+) : AppRatingApi {
     /**
      * Post rating data to checkmaster
      */
-    suspend fun postRatingData(
+    override suspend fun postRatingData(
         apiKeys: AppRatingApiKeys,
         appRating: AppRating
     ): Outcome<ApiError, Boolean> {
