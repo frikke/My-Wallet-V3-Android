@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -29,8 +30,11 @@ fun AppRatingCompleted(
     viewModel: AppRatingViewModel,
     withFeedback: Boolean
 ) {
+    val viewState = viewModel.viewState.collectAsState().value
+
     AppRatingCompletedScreen(
         withFeedback = withFeedback,
+        isLoading = viewState.isLoading,
         onSubmit = { viewModel.onIntent(AppRatingIntents.RatingCompleted) }
     )
 }
@@ -41,6 +45,7 @@ fun AppRatingCompleted(
 @Composable
 fun AppRatingCompletedScreen(
     withFeedback: Boolean,
+    isLoading: Boolean,
     onSubmit: () -> Unit
 ) {
     Column(
@@ -85,9 +90,9 @@ fun AppRatingCompletedScreen(
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
         SmallPrimaryButton(
-            text = stringResource(R.string.common_submit),
+            text = stringResource(R.string.done),
             onClick = onSubmit,
-            state = ButtonState.Enabled
+            state = if (isLoading) ButtonState.Loading else ButtonState.Enabled
         )
     }
 }
@@ -95,11 +100,23 @@ fun AppRatingCompletedScreen(
 @Preview(name = "Completed Screen With Feedback", showBackground = true)
 @Composable
 fun PreviewAppRatingCompletedScreenWithFeedback() {
-    AppRatingCompletedScreen(withFeedback = true) {}
+    AppRatingCompletedScreen(withFeedback = true, isLoading = false) {}
+}
+
+@Preview(name = "Completed Screen With Feedback Loading", showBackground = true)
+@Composable
+fun PreviewAppRatingCompletedScreenWithFeedbackLoading() {
+    AppRatingCompletedScreen(withFeedback = true, isLoading = true) {}
 }
 
 @Preview(name = "Completed Screen Without Feedback", showBackground = true)
 @Composable
 fun PreviewAppRatingCompletedScreenWithoutFeedback() {
-    AppRatingCompletedScreen(withFeedback = false) {}
+    AppRatingCompletedScreen(withFeedback = false, isLoading = false) {}
+}
+
+@Preview(name = "Completed Screen Without Feedback Loading", showBackground = true)
+@Composable
+fun PreviewAppRatingCompletedScreenWithoutFeedbackLoading() {
+    AppRatingCompletedScreen(withFeedback = false, isLoading = true) {}
 }

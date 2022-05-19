@@ -24,6 +24,7 @@ dependencies {
     implementation project(':appRating:domain')
     implementation project(':core')
     implementation project(':common:interface')
+    implementation project(':blockchainApi')
 
     // Logging
     implementation Libraries.timber
@@ -36,6 +37,10 @@ dependencies {
 
     // koin
     implementation Libraries.koin
+
+    // network
+    implementation(Libraries.retrofit) { exclude module: 'okhttp' }
+    implementation(Libraries.retrofitKotlinJsonConverter)
 
     // test
     testImplementation Libraries.junit

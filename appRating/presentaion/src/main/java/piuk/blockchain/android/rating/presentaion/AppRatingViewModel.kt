@@ -5,6 +5,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import kotlinx.coroutines.launch
+import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class AppRatingViewModel(
@@ -16,13 +17,23 @@ class AppRatingViewModel(
     ModelConfigArgs.NoArgs>(
     initialState = AppRatingModelState()
 ) {
+
+    private var stars: Int = 0
+    private var feedback: String? = null
+
+    /**
+     * [inAppReviewCompleted] could return an error because showing in-app could've failed
+     */
+    private var forceRetrigger: Boolean = false
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
     }
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
         AppRatingViewState(
             dismiss = dismiss,
-            promptInAppReview = promptInAppReview
+            promptInAppReview = promptInAppReview,
+            isLoading = isLoading
         )
     }
 
@@ -51,11 +62,13 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
+        this.stars = stars
+
+        // get threshold to navigate to the right screen
         viewModelScope.launch {
             appRatingService.getThreshold().let { threshold ->
                 if (stars > threshold) {
                     updateState { it.copy(promptInAppReview = true) }
-                    // todo(othman): call api here
                 } else {
                     navigate(AppRatingNavigationEvent.Feedback)
                 }
@@ -64,29 +77,43 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback(feedback: String) {
-        // todo(othman): call api here
-        // todo(othman): mark rating completed
+        if (feedback.isBlank().not()) this.feedback = feedback
+
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
 
     private fun inAppReviewCompleted(successful: Boolean) {
+        // remove prompt
         updateState { it.copy(promptInAppReview = false) }
 
-        if (successful) {
-            // todo(othman): mark rating completed
-        } else {
-            // todo(othman): save rating date - retrigger in 1 month
-        }
+        // will be used in postRatingData response
+        forceRetrigger = successful.not()
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
 
     private fun saveRatingDateAndDismiss() {
         // todo(othman): save rating date - retrigger in 1 month
-        ratingCompleted()
+        updateState { it.copy(dismiss = true) }
     }
 
     private fun ratingCompleted() {
-        updateState { it.copy(dismiss = true) }
+        viewModelScope.launch {
+            updateState { it.copy(isLoading = true) }
+
+            postRatingData()
+
+            updateState { it.copy(dismiss = true) }
+        }
+    }
+
+    private suspend fun postRatingData() {
+        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback)).let { successful ->
+            if (successful && forceRetrigger.not()) {
+                // todo(othman): mark rating completed
+            } else {
+                // todo(othman): save rating date - retrigger in 1 month
+            }
+        }
     }
 }
