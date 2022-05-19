@@ -7,6 +7,7 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.extensions.filterIf
 import com.blockchain.outcome.fold
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -36,12 +37,18 @@ internal class Erc20HistoryCallCache(
                     .fold(
                         onFailure = { throw it.throwable },
                         onSuccess = { response ->
-                            response.history.map { l2TransactionResponse ->
-                                l2TransactionResponse.toHistoryEvent(
-                                    asset,
-                                    getFeeFromEvmNetwork(l2TransactionResponse, parentChain)
-                                )
-                            }
+                            // We need to filter the response when we don't provide an l2identifier
+                            // (like for L1 aka "native") as the backend returns all transactions for that address.
+                            response.history.filterIf(
+                                condition = asset.l2identifier == null,
+                                predicate = ::isL1EvmTransaction
+                            )
+                                .map { l2TransactionResponse ->
+                                    l2TransactionResponse.toHistoryEvent(
+                                        asset,
+                                        getFeeFromEvmNetwork(l2TransactionResponse, parentChain)
+                                    )
+                                }
                         }
                     )
             }
@@ -81,6 +88,11 @@ internal class Erc20HistoryCallCache(
                 } ?: throw IllegalAccessException("Unsupported L2 Network")
             } ?: throw IllegalAccessException("Unsupported L2 Network")
         }
+
+    private fun isL1EvmTransaction(evmTransactionResponse: EvmTransactionResponse) =
+        evmTransactionResponse.movements.find { txMovement ->
+            txMovement.contractAddress == NonCustodialEvmService.NATIVE_IDENTIFIER
+        } != null
 
     fun flush(asset: AssetInfo) {
         // Do nothing

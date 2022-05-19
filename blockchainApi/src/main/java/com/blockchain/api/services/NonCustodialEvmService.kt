@@ -34,4 +34,8 @@ class NonCustodialEvmService(
             apiCode = apiCode
         )
     )
+
+    companion object {
+        const val NATIVE_IDENTIFIER = "native"
+    }
 }

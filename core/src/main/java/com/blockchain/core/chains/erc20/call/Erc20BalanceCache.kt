@@ -1,6 +1,5 @@
 package com.blockchain.core.chains.erc20.call
 
-import com.blockchain.api.ethereum.evm.EvmBalanceResponse
 import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
@@ -68,7 +67,7 @@ internal class Erc20BalanceCallCache(
                         }?.balances?.mapNotNull { balance ->
                             // For the native token of the L2 network the backend returns "native" in the contract
                             // address field. Use the currency name (ticker) for lookup.
-                            val asset = if (balance.contractAddress == EvmBalanceResponse.NATIVE_IDENTIFIER) {
+                            val asset = if (balance.contractAddress == NonCustodialEvmService.NATIVE_IDENTIFIER) {
                                 assetCatalogue.assetInfoFromNetworkTicker(balance.name)
                             } else {
                                 assetCatalogue.assetFromL1ChainByContractAddress(
