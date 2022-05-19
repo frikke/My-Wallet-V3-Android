@@ -72,7 +72,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="true" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -95,6 +95,7 @@
                 android:autoVerify="true"
                 android:priority="100">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -173,6 +174,9 @@
             android:name=".ui.createwallet.CreateWalletActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="com.blockchain.presentation.BackupPhraseActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.addresses.AddressesActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />

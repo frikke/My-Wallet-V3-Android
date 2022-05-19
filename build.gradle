@@ -25,6 +25,7 @@ buildscript {
         classpath Libraries.kotlin
         classpath Libraries.detekt
         classpath Libraries.kotlinGradlePlugin
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30'
     }
 }
 

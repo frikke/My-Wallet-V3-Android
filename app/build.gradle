@@ -110,8 +110,6 @@ android {
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
-            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['prodEthWebsocket']}\""
-            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['prodBchWebsocket']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
@@ -159,8 +157,6 @@ android {
             buildConfigField "String", "EXPLORER_URL", "\"${buildProperties.secrets['prodExplorer']}\""
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['prodApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['prodEverypayHost']}\""
-            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['prodEthWebsocket']}\""
-            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['prodBchWebsocket']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
@@ -210,8 +206,6 @@ android {
             buildConfigField "String", "API_URL", "\"${buildProperties.secrets['stagingApiServer']}\""
             buildConfigField "String", "EVERYPAY_HOST_URL", "\"${buildProperties.secrets['stagingEverypayHost']}\""
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['stagingApiStatus']}\""
-            buildConfigField "String", "ETHEREUM_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingEthWebsocket']}\""
-            buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingBchWebsocket']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['stagingHorizonUrl']}\""
             buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['stagingExchangeLaunch']}\""
@@ -359,6 +353,8 @@ dependencies {
     implementation project(':appMaintenance:data')
     implementation project(':appMaintenance:domain')
     implementation project(':appMaintenance:presentation')
+
+    implementation project(':defiwalletbackup:presentation')
 
     implementation project(':appRating:data')
     implementation project(':appRating:domain')

@@ -2902,4 +2902,10 @@
     <string name="app_rating_feedback_title">Tell us more.</string>
     <string name="app_rating_feedback_description">Let us know how we can improve the app.</string>
     <string name="app_rating_feedback_hint">Tell us more</string>
+    <!-- Back up phrase-->
+    <string name="lets_backup_your_wallet">Let’s Back Up Your Wallet</string>
+    <string name="back_up_splash_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
+    <string name="backup_phrase_checkbox_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>
+    <string name="back_up_now">Back Up Now</string>
+    <string name="secure_defi_wallets">Secure Your DeFi Wallets</string>
 </resources>

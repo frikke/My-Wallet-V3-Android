@@ -18,10 +18,10 @@ import com.blockchain.componentlib.theme.Grey900
 
 @Composable
 fun PrimaryButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
     state: ButtonState = ButtonState.Enabled,
-    modifier: Modifier = Modifier,
     defaultBackgroundColor: Color? = null,
     icon: ImageResource = ImageResource.None
 ) {

@@ -21,6 +21,7 @@ val notificationPreferencesFeatureFlag = StringQualifier("ff_notification_prefer
 val ethLayerTwoFeatureFlag = StringQualifier("ff_eth_layer_two")
 val orderRewardsFeatureFlag = StringQualifier("ff_order_rewards")
 val appMaintenanceFeatureFlag = StringQualifier("ff_app_maintenance")
+val backupPhraseFeatureFlag = StringQualifier("ff_backup_phrase")
 val removeSafeconnectFeatureFlag = StringQualifier("ff_remove_safeconnect_screen")
 val referralsFeatureFlag = StringQualifier("ff_referrals")
 val nabu = StringQualifier("nabu")
