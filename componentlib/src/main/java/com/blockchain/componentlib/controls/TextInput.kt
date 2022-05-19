@@ -40,6 +40,7 @@ sealed class TextInputState(val message: String? = null) {
 
 @Composable
 fun TextInput(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
@@ -53,6 +54,7 @@ fun TextInput(
     keyboardActions: KeyboardActions = KeyboardActions(),
     singleLine: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
+    maxLength: Int = Int.MAX_VALUE,
     onFocusChanged: (FocusState) -> Unit = {},
     onTrailingIconClicked: () -> Unit = {}
 ) {
@@ -110,8 +112,8 @@ fun TextInput(
     Column {
         TextField(
             value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
+            onValueChange = { onValueChange(it.take(maxLength)) },
+            modifier = modifier
                 .fillMaxWidth(1f)
                 .onFocusChanged { focusState ->
                     onFocusChanged.invoke(focusState)
