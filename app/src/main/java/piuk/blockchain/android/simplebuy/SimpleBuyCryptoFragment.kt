@@ -38,6 +38,8 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.math.BigDecimal
 import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -998,7 +1000,9 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
         RecurringBuyFrequency.BI_WEEKLY, RecurringBuyFrequency.WEEKLY -> {
             context.getString(
                 R.string.recurring_buy_frequency_subtitle,
-                dateTime.dayOfWeek.toString().capitalizeFirstChar()
+                dateTime.dayOfWeek
+                    .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                    .toString().capitalizeFirstChar()
             )
         }
         RecurringBuyFrequency.MONTHLY -> {

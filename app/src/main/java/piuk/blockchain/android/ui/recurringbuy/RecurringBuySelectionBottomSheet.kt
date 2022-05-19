@@ -15,6 +15,8 @@ import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import info.blockchain.balance.FiatValue
 import java.time.ZonedDateTime
+import java.time.format.TextStyle
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetRecurringBuyBinding
 import piuk.blockchain.android.simplebuy.BuyFrequencySelected
@@ -137,7 +139,9 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
                                 visible()
                                 text = getString(
                                     R.string.recurring_buy_frequency_subtitle,
-                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek
+                                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        .toString().capitalizeFirstChar()
                                 )
                             }
                         }
@@ -148,7 +152,9 @@ class RecurringBuySelectionBottomSheet : MviBottomSheet<SimpleBuyModel, SimpleBu
                                 visible()
                                 text = getString(
                                     R.string.recurring_buy_frequency_subtitle_biweekly,
-                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek.toString().capitalizeFirstChar()
+                                    ZonedDateTime.parse(it.nextPaymentDate).dayOfWeek
+                                        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+                                        .toString().capitalizeFirstChar()
                                 )
                             }
                         }
