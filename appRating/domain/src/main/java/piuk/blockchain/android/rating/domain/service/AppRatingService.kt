@@ -5,4 +5,7 @@ import piuk.blockchain.android.rating.domain.model.AppRating
 interface AppRatingService {
     suspend fun getThreshold(): Int
     suspend fun postRatingData(appRating: AppRating): Boolean
+    fun shouldShowRating(): Boolean
+    fun markRatingCompleted()
+    fun saveRatingDateForLater()
 }

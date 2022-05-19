@@ -3,6 +3,7 @@ package piuk.blockchain.android.rating.presentaion.composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -17,6 +18,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallPrimaryButton
 import com.blockchain.componentlib.controls.TextInput
@@ -26,6 +28,8 @@ import com.blockchain.componentlib.theme.Grey900
 import piuk.blockchain.android.rating.presentaion.AppRatingIntents
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.R
+
+private const val MAX_FEEDBACK_LENGTH = 1800
 
 @Composable
 fun AppRatingFeedback(viewModel: AppRatingViewModel) {
@@ -74,9 +78,11 @@ fun AppRatingFeedbackScreen(
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
         TextInput(
+            modifier = Modifier.height(160.dp),
             value = feedback,
             onValueChange = { feedback = it },
-            label = stringResource(R.string.app_rating_feedback_hint)
+            label = stringResource(R.string.app_rating_feedback_hint),
+            maxLength = MAX_FEEDBACK_LENGTH
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))

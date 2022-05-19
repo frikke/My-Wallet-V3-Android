@@ -61,7 +61,8 @@ val appRatingDataModule = module {
                 appRatingRemoteConfig = get(),
                 appRatingApiKeysRemoteConfig = get(),
                 defaultThreshold = DEFAULT_THRESHOLD,
-                appRatingApi = get()
+                appRatingApi = get(),
+                appRatingPrefs = get()
             )
         }
     }

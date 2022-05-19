@@ -18,7 +18,8 @@ val appRatingPresentationModule = module {
 
         viewModel {
             AppRatingViewModel(
-                appRatingService = get()
+                appRatingService = get(),
+                authPrefs = get()
             )
         }
     }

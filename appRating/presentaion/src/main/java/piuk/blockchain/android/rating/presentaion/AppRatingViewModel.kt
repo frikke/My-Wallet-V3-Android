@@ -4,12 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
+import com.blockchain.preferences.AuthPrefs
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class AppRatingViewModel(
-    val appRatingService: AppRatingService
+    val appRatingService: AppRatingService,
+    val authPrefs: AuthPrefs
 ) : MviViewModel<AppRatingIntents,
     AppRatingViewState,
     AppRatingModelState,
@@ -19,7 +21,7 @@ class AppRatingViewModel(
 ) {
 
     private var stars: Int = 0
-    private var feedback: String? = null
+    private var feedback = StringBuilder("from: ${authPrefs.walletGuid}")
 
     /**
      * [inAppReviewCompleted] could return an error because showing in-app could've failed
@@ -77,7 +79,15 @@ class AppRatingViewModel(
     }
 
     private fun submitFeedback(feedback: String) {
-        if (feedback.isBlank().not()) this.feedback = feedback
+        if (feedback.isBlank().not()) {
+            this.feedback.insert(
+                0,
+                // to separate feedback from wallet id
+                // apparently new lines don't register as such,
+                // even when doing it on web, the result is in one line
+                "$feedback ------ "
+            )
+        }
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
     }
@@ -93,7 +103,7 @@ class AppRatingViewModel(
     }
 
     private fun saveRatingDateAndDismiss() {
-        // todo(othman): save rating date - retrigger in 1 month
+        appRatingService.saveRatingDateForLater()
         updateState { it.copy(dismiss = true) }
     }
 
@@ -108,11 +118,11 @@ class AppRatingViewModel(
     }
 
     private suspend fun postRatingData() {
-        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback)).let { successful ->
+        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback.toString())).let { successful ->
             if (successful && forceRetrigger.not()) {
-                // todo(othman): mark rating completed
+                appRatingService.markRatingCompleted()
             } else {
-                // todo(othman): save rating date - retrigger in 1 month
+                appRatingService.saveRatingDateForLater()
             }
         }
     }

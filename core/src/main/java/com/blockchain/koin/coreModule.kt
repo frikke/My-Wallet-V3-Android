@@ -42,6 +42,7 @@ import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -435,6 +436,7 @@ val coreModule = module {
         .bind(SecureChannelPrefs::class)
         .bind(FeatureFlagOverridePrefs::class)
         .bind(OnboardingPrefs::class)
+        .bind(AppRatingPrefs::class)
 
     factory {
         PaymentService(
