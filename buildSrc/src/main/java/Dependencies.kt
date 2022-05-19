@@ -108,7 +108,7 @@ object Versions {
     const val composeNavigation = "2.4.1"
 
     // Accompanist
-    const val systemUi = "0.23.1"
+    const val systemUi = "0.24.3-alpha"
     const val navigationMaterial = "0.23.1"
 
     // zxing 3.4.0 crashes with:

@@ -607,7 +607,7 @@ class LiveCustodialWalletManager(
 
     override fun getExchangeSendAddressFor(asset: AssetInfo): Maybe<String> =
         authenticator.authenticateMaybe { sessionToken ->
-            nabuService.fetchPitSendToAddressForCrypto(sessionToken, asset.networkTicker)
+            nabuService.fetchExchangeSendToAddressForCrypto(sessionToken, asset.networkTicker)
                 .flatMapMaybe { response ->
                     if (response.state == State.ACTIVE) {
                         Maybe.just(response.address)

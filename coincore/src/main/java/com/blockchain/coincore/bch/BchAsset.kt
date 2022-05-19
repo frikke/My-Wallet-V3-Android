@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -32,7 +33,6 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import thepit.PitLinking
 import timber.log.Timber
 
 private const val BCH_URL_PREFIX = "bitcoincash:"
@@ -48,7 +48,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
-    pitLinking: PitLinking,
+    exchangeLinking: ExchangeLinking,
     remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     private val beNotifyUpdate: BackendNotificationUpdater,
@@ -62,7 +62,7 @@ private const val BCH_URL_PREFIX = "bitcoincash:"
     custodialManager,
     interestBalances,
     tradingBalances,
-    pitLinking,
+    exchangeLinking,
     remoteLogger,
     identity,
     addressResolver

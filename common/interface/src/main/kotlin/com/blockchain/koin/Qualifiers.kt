@@ -4,7 +4,6 @@ import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
 val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
-val redesignPart2CoinViewFeatureFlag = StringQualifier("ff_redesign_part_2coinview")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val cachingStoreFeatureFlag = StringQualifier("ff_caching_store")

@@ -26,7 +26,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
@@ -196,7 +195,6 @@ class MainModel(
                         }
                     }
                 )
-            is MainIntent.LaunchExchange -> handleExchangeLaunchingFromLinkingState()
             is MainIntent.ApproveWCSession -> walletConnectServiceAPI.acceptConnection(intent.session).emptySubscribe()
             is MainIntent.RejectWCSession -> walletConnectServiceAPI.denyConnection(intent.session).emptySubscribe()
             MainIntent.ResetViewState,
@@ -217,10 +215,10 @@ class MainModel(
 
     private fun dispatchDeepLink(linkState: LinkState) {
         when (linkState) {
-            is LinkState.EmailVerifiedDeepLink -> handleEmailVerifiedForExchangeLinking(linkState)
+            is LinkState.EmailVerifiedDeepLink -> {
+                // no-op - keeping the event for email verification
+            }
             is LinkState.KycDeepLink -> handleKycDeepLink(linkState)
-            is LinkState.ThePitDeepLink ->
-                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange(linkState.linkId)))
             is LinkState.OpenBankingLink -> handleOpenBankingDeepLink(linkState)
             is LinkState.BlockchainLink -> handleBlockchainDeepLink(linkState)
             else -> {
@@ -285,31 +283,6 @@ class MainModel(
                 )
         }
     }
-
-    private fun handleEmailVerifiedForExchangeLinking(linkState: LinkState.EmailVerifiedDeepLink) {
-        if (linkState.link === EmailVerifiedLinkState.FromPitLinking) {
-            compositeDisposable += handleExchangeLaunchingFromLinkingState()
-        }
-    }
-
-    private fun handleExchangeLaunchingFromLinkingState() =
-        interactor.getExchangeLinkingState()
-            .subscribeBy(
-                onSuccess = { isLinked ->
-                    if (isLinked) {
-                        process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchExchange()))
-                    } else {
-                        process(
-                            MainIntent.UpdateViewToLaunch(
-                                ViewToLaunch.LaunchExchange(interactor.getExchangeToWalletLinkId())
-                            )
-                        )
-                    }
-                },
-                onError = {
-                    Timber.e(it)
-                }
-            )
 
     private fun handleKycDeepLink(linkState: LinkState.KycDeepLink) {
         when (linkState.link) {

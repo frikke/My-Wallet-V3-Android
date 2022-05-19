@@ -16,7 +16,6 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
-import com.blockchain.koin.redesignPart2CoinViewFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
@@ -29,15 +28,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(redesignPart2CoinViewFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_redesign_pt2_coinview",
-                "Wallet Redesign Coinview"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(googlePayFeatureFlag) {
         IntegratedFeatureFlag(

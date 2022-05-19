@@ -647,8 +647,6 @@ class PortfolioFragment :
             navigator().launchSwap()
         }
 
-        override fun startPitLinking() = navigator().launchThePitLinking()
-
         override fun startFundsBackup() = navigator().launchBackupFunds()
 
         override fun startSetup2Fa() = navigator().launchSetup2Fa()

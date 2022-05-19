@@ -20,6 +20,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -36,7 +37,6 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import thepit.PitLinking
 
 /*internal*/class BtcAsset internal constructor(
     payloadManager: PayloadDataManager,
@@ -49,7 +49,7 @@ import thepit.PitLinking
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
-    pitLinking: PitLinking,
+    exchangeLinking: ExchangeLinking,
     remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
@@ -63,7 +63,7 @@ import thepit.PitLinking
     custodialManager,
     interestBalances,
     tradingBalances,
-    pitLinking,
+    exchangeLinking,
     remoteLogger,
     identity,
     addressResolver

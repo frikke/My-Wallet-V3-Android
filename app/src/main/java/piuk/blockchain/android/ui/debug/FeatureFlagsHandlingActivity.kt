@@ -74,7 +74,6 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             showReferral.setOnClickListener { showReferral() }
             clearSimpleBuyState.setOnClickListener { clearSimpleBuyState() }
-            btnStoreLinkId.setOnClickListener { prefs.pitToWalletLinkId = "11111111-2222-3333-4444-55556666677" }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
             firebaseToken.text = prefs.firebaseToken

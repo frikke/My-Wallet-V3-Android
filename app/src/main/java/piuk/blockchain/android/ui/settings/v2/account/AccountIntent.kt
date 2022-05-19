@@ -9,15 +9,7 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadExchangeInformation : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
     object LoadFiatList : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState
-    }
-
-    object LoadExchange : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
@@ -46,12 +38,6 @@ sealed class AccountIntent : MviIntent<AccountState> {
     class UpdateAccountInformation(private val accountInformation: AccountInformation) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
             accountInformation = accountInformation
-        )
-    }
-
-    class UpdateExchangeInformation(private val exchangeLinkingState: ExchangeLinkingState) : AccountIntent() {
-        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
-            exchangeLinkingState = exchangeLinkingState
         )
     }
 

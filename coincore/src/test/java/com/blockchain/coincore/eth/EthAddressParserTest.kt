@@ -14,6 +14,7 @@ import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -22,7 +23,6 @@ import org.junit.Test
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import thepit.PitLinking
 
 @Suppress("LocalVariableName", "SimplifyBooleanWithConstants")
 class EthAddressParserTest : CoincoreTestBase() {
@@ -36,7 +36,7 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val walletPrefs: WalletStatus = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
-    private val pitLinking: PitLinking = mock()
+    private val exchangeLinking: ExchangeLinking = mock()
     private val remoteLogger: RemoteLogger = mock()
     private val identity: UserIdentity = mock()
     private val formatUtils: FormatUtilities = mock()
@@ -58,7 +58,7 @@ class EthAddressParserTest : CoincoreTestBase() {
         walletPrefs = walletPrefs,
         notificationUpdater = notificationUpdater,
         labels = labels,
-        pitLinking = pitLinking,
+        exchangeLinking = exchangeLinking,
         remoteLogger = remoteLogger,
         identity = identity,
         formatUtils = formatUtils,

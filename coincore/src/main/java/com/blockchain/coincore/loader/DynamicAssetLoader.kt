@@ -22,6 +22,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -34,7 +35,6 @@ import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
-import thepit.PitLinking
 import timber.log.Timber
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
@@ -54,7 +54,7 @@ internal class DynamicAssetLoader(
     private val interestBalances: InterestBalanceDataManager,
     private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
-    private val pitLinking: PitLinking,
+    private val exchangeLinking: ExchangeLinking,
     private val remoteLogger: RemoteLogger,
     private val identity: UserIdentity,
     private val formatUtils: FormatUtilities,
@@ -201,7 +201,7 @@ internal class DynamicAssetLoader(
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             labels = labels,
-            pitLinking = pitLinking,
+            exchangeLinking = exchangeLinking,
             remoteLogger = remoteLogger,
             identity = identity,
             addressValidation = defaultCustodialAddressValidation,
@@ -225,7 +225,7 @@ internal class DynamicAssetLoader(
             interestBalances = interestBalances,
             remoteLogger = remoteLogger,
             labels = labels,
-            pitLinking = pitLinking,
+            exchangeLinking = exchangeLinking,
             walletPreferences = walletPreferences,
             identity = identity,
             availableCustodialActions = assetActions,

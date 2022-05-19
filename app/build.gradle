@@ -115,9 +115,8 @@ android {
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['prodPitDoLink']}\""
+            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
-            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "VERSION_NAME_SUFFIX", "\"" + versionNameSuffix + "\""
@@ -165,8 +164,7 @@ android {
             buildConfigField "String", "STATUS_API_URL", "\"${buildProperties.secrets['prodApiStatus']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['prodNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['prodHorizonUrl']}\""
-            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['prodPitDoLink']}\""
-            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['prodPitLaunch']}\""
+            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['prodExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['prodCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_prod"'
             buildConfigField "String", "BROKERAGE_SUCCESS", "\"${buildProperties.secrets['brokerageSuccessProduction']}\""
@@ -216,8 +214,7 @@ android {
             buildConfigField "String", "BITCOIN_CASH_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingBchWebsocket']}\""
             buildConfigField "String", "NABU_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingNabuWebsocket']}\""
             buildConfigField "String", "HORIZON_URL", "\"${buildProperties.secrets['stagingHorizonUrl']}\""
-            buildConfigField "String", "PIT_LINKING_URL", "\"${buildProperties.secrets['stagingPitDoLink']}\""
-            buildConfigField "String", "PIT_LAUNCHING_URL", "\"${buildProperties.secrets['stagingPitLaunch']}\""
+            buildConfigField "String", "EXCHANGE_LAUNCH_URL", "\"${buildProperties.secrets['stagingExchangeLaunch']}\""
             buildConfigField "String", "COINS_WEBSOCKET_URL", "\"${buildProperties.secrets['stagingCoinsWebsocket']}\""
             buildConfigField "String", "ENVIRONMENT", '"env_staging"'
             buildConfigField "String", "COMMIT_HASH", "\"${getGitCommitHash()}\""

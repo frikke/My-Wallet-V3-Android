@@ -30,7 +30,6 @@ val mainModule = module {
                 deeplinkRedirector = get(),
                 deepLinkPersistence = get(),
                 exchangeLinking = get(),
-                exchangePrefs = get(),
                 assetCatalogue = get(),
                 bankLinkingPrefs = get(),
                 custodialWalletManager = get(),

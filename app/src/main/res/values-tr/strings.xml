@@ -2175,7 +2175,7 @@ Bugün Kripto Satın Alın.</string>
     <string name="account_wallet_id_title">Cüzdan Kimliği</string>
     <string name="account_wallet_id_subtitle">Uyarı: Herkese Açık Olarak Paylaşmayın</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
-    <string name="account_exchange_not_connected">Exchange Hesabınıza bağlanın</string>
+    <string name="account_exchange_launch">Exchange Hesabınıza bağlanın</string>
     <string name="account_airdrops_title">Airdrop\'lar</string>
     <string name="account_wallet_id_copy_error">Wallet Kimliğiniz kopyalanırken bir hata oluştu, lütfen tekrar deneyin.</string>
     <string name="account_exchange_connect_title">Exchange\'e Bağlan</string>

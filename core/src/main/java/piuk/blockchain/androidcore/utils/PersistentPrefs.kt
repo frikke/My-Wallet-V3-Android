@@ -12,7 +12,6 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.preferences.ThePitLinkingPrefs
 import com.blockchain.preferences.WalletStatus
 
 interface PersistentPrefs :
@@ -21,7 +20,6 @@ interface PersistentPrefs :
     DashboardPrefs,
     SecurityPrefs,
     SecureChannelPrefs,
-    ThePitLinkingPrefs,
     SimpleBuyPrefs,
     RatingPrefs,
     WalletStatus,

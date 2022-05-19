@@ -16,6 +16,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.keys.SigningKey
@@ -32,7 +33,6 @@ import org.junit.Test
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payments.SendDataManager
-import thepit.PitLinking
 
 class BtcAssetTest {
 
@@ -53,7 +53,7 @@ class BtcAssetTest {
     private val interestBalances: InterestBalanceDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
-    private val pitLinking: PitLinking = mock()
+    private val exchangeLinking: ExchangeLinking = mock()
     private val remoteLogger: RemoteLogger = mock()
     private val walletPreferences: WalletStatus = mock()
     private val identity: NabuUserIdentity = mock()
@@ -70,7 +70,7 @@ class BtcAssetTest {
         exchangeRates = exchangeRates,
         currencyPrefs = currencyPrefs,
         labels = labels,
-        pitLinking = pitLinking,
+        exchangeLinking = exchangeLinking,
         remoteLogger = remoteLogger,
         notificationUpdater = notificationUpdater,
         walletPreferences = walletPreferences,

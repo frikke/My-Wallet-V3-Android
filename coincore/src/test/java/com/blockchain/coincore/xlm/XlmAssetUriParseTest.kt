@@ -12,11 +12,11 @@ import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
+import exchange.ExchangeLinking
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import thepit.PitLinking
 
 class XlmAssetUriParseTest {
 
@@ -37,7 +37,7 @@ class XlmAssetUriParseTest {
     private val interestBalances: InterestBalanceDataManager = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val labels: DefaultLabels = mock()
-    private val pitLinking: PitLinking = mock()
+    private val exchangeLinking: ExchangeLinking = mock()
     private val remoteLogger: RemoteLogger = mock()
     private val walletPreferences: WalletStatus = mock()
 
@@ -52,7 +52,7 @@ class XlmAssetUriParseTest {
         exchangeRates = exchangeRates,
         currencyPrefs = currencyPrefs,
         labels = labels,
-        pitLinking = pitLinking,
+        exchangeLinking = exchangeLinking,
         remoteLogger = remoteLogger,
         walletPreferences = walletPreferences,
         identity = mock(),

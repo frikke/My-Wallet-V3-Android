@@ -34,7 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
-import piuk.blockchain.android.deeplink.EmailVerifiedLinkState
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.deeplink.OpenBankingLinkType
 import piuk.blockchain.android.kyc.KycLinkState
@@ -123,54 +122,6 @@ class MainModelTest {
     }
 
     @Test
-    fun checkForPendingLinksEmailVerification_linked() {
-        val mockIntent: Intent = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.EmailVerifiedDeepLink(
-                    link = EmailVerifiedLinkState.FromPitLinking
-                )
-            )
-        )
-        whenever(interactor.getExchangeLinkingState()).thenReturn(Single.just(true))
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == null
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksEmailVerification_notLinked() {
-        val mockIntent: Intent = mock()
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.EmailVerifiedDeepLink(
-                    link = EmailVerifiedLinkState.FromPitLinking
-                )
-            )
-        )
-        whenever(interactor.getExchangeLinkingState()).thenReturn(Single.just(false))
-        val linkingId = "1234"
-        whenever(interactor.getExchangeToWalletLinkId()).thenReturn(linkingId)
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkingId
-        }
-    }
-
-    @Test
     fun checkForPendingLinksKyc_Resubmit() {
         val mockIntent: Intent = mock()
         whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
@@ -235,27 +186,6 @@ class MainModelTest {
         }.assertValueAt(1) {
             it.viewToLaunch is ViewToLaunch.LaunchKyc &&
                 (it.viewToLaunch as ViewToLaunch.LaunchKyc).campaignType == CampaignType.None
-        }
-    }
-
-    @Test
-    fun checkForPendingLinksExchange() {
-        val mockIntent: Intent = mock()
-        val linkId = "1234"
-        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
-            Single.just(
-                LinkState.ThePitDeepLink(linkId)
-            )
-        )
-
-        val testState = model.state.test()
-        model.process(MainIntent.CheckForPendingLinks(mockIntent))
-
-        testState.assertValueAt(0) {
-            it == MainState()
-        }.assertValueAt(1) {
-            it.viewToLaunch is ViewToLaunch.LaunchExchange &&
-                (it.viewToLaunch as ViewToLaunch.LaunchExchange).linkId == linkId
         }
     }
 

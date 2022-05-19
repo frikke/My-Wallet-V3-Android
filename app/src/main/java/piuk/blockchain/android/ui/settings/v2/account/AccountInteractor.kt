@@ -9,19 +9,19 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
 import com.blockchain.preferences.CurrencyPrefs
+import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import thepit.PitLinking
 
 class AccountInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
-    private val exchangeLinkingState: PitLinking
+    private val exchangeLinkingState: ExchangeLinking
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =

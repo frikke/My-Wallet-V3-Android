@@ -54,7 +54,6 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.preferences.ThePitLinkingPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
@@ -425,7 +424,6 @@ val coreModule = module {
         .bind(NotificationPrefs::class)
         .bind(DashboardPrefs::class)
         .bind(SecurityPrefs::class)
-        .bind(ThePitLinkingPrefs::class)
         .bind(RemoteConfigPrefs::class)
         .bind(SimpleBuyPrefs::class)
         .bind(RatingPrefs::class)

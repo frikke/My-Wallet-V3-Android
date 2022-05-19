@@ -53,6 +53,7 @@ import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
+import exchange.ExchangeLinking
 import info.blockchain.serializers.AssetInfoKSerializer
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -96,6 +97,7 @@ import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateU
 import piuk.blockchain.android.domain.usecases.GetReceiveAccountsForAssetUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.everypay.service.EveryPayCardService
+import piuk.blockchain.android.exchange.ExchangeLinkingImpl
 import piuk.blockchain.android.identity.SiftDigitalTrust
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.scan.QRCodeEncoder
@@ -113,8 +115,6 @@ import piuk.blockchain.android.simplebuy.SimpleBuyPrefsSerializerImpl
 import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.USDPaymentAccountMapper
-import piuk.blockchain.android.thepit.PitLinkingImpl
-import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 import piuk.blockchain.android.ui.addresses.AccountPresenter
 import piuk.blockchain.android.ui.airdrops.AirdropCentrePresenter
 import piuk.blockchain.android.ui.auth.FirebaseMobileNoticeRemoteConfig
@@ -149,8 +149,6 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.resources.AssetResourcesImpl
 import piuk.blockchain.android.ui.sell.BuySellFlowNavigator
 import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
-import piuk.blockchain.android.ui.thepit.PitPermissionsPresenter
-import piuk.blockchain.android.ui.thepit.PitVerifyEmailPresenter
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
@@ -167,7 +165,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
-import thepit.PitLinking
 
 val applicationModule = module {
 
@@ -403,10 +400,6 @@ val applicationModule = module {
         }
 
         factory {
-            ThePitDeepLinkParser()
-        }
-
-        factory {
             BlockchainDeepLinkParser()
         }
 
@@ -417,7 +410,6 @@ val applicationModule = module {
                 linkHandler = get(),
                 kycDeepLinkHelper = get(),
                 emailVerifiedLinkHelper = get(),
-                thePitDeepLinkParser = get(),
                 openBankingDeepLinkParser = get(),
                 blockchainDeepLinkParser = get()
             )
@@ -616,33 +608,11 @@ val applicationModule = module {
         }
 
         scoped {
-            PitLinkingImpl(
+            ExchangeLinkingImpl(
                 nabu = get(),
-                nabuToken = get(),
-                payloadDataManager = get(),
-                ethDataManager = get(),
-                bchDataManager = get(),
-                xlmDataManager = get()
+                nabuToken = get()
             )
-        }.bind(PitLinking::class)
-
-        factory {
-            PitPermissionsPresenter(
-                nabu = get(),
-                nabuToken = get(),
-                pitLinking = get(),
-                analytics = get(),
-                prefs = get()
-            )
-        }
-
-        factory {
-            PitVerifyEmailPresenter(
-                nabuToken = get(),
-                nabu = get(),
-                emailSyncUpdater = get()
-            )
-        }
+        }.bind(ExchangeLinking::class)
 
         factory {
             BackupWalletCompletedPresenter(

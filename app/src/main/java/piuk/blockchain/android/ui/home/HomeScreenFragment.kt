@@ -27,8 +27,6 @@ interface HomeNavigator {
     )
 
     fun launchKyc(campaignType: CampaignType)
-    fun launchThePitLinking(linkId: String = "")
-    fun launchThePit()
     fun launchBackupFunds(fragment: Fragment? = null, requestCode: Int = 0)
     fun launchSetup2Fa()
     fun launchVerifyEmail()

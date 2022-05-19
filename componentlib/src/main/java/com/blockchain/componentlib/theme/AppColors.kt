@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 val Blue700 = Color(0XFF1656B9)
 val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)
+val Blue200 = Color(0XFFBBDBFC)
 val Blue000 = Color(0XFFECF5FE)
 
 val Green900 = Color(0XFF003319)

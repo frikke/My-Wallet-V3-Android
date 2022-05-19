@@ -2038,7 +2038,7 @@ Compra criptomonedas hoy.</string>
     <string name="account_wallet_id_title">ID de Wallet</string>
     <string name="account_wallet_id_subtitle">Advertencia: no compartir públicamente</string>
     <string name="account_exchange_title">Exchange de Blockchain.com</string>
-    <string name="account_exchange_not_connected">Conectar con tu cuenta de Exchange</string>
+    <string name="account_exchange_launch">Conectar con tu cuenta de Exchange</string>
     <string name="account_airdrops_title">Airdrops</string>
     <string name="account_wallet_id_copy_error">Se produjo un error al copiar tu ID de Wallet. Intenta otra vez.</string>
     <string name="account_exchange_connect_title">Conectar con Exchange</string>

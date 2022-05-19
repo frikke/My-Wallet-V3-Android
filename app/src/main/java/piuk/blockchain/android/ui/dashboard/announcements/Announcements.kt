@@ -24,7 +24,6 @@ interface AnnouncementHost {
     // Actions
     fun startKyc(campaignType: CampaignType)
 
-    fun startPitLinking()
     fun startFundsBackup()
     fun startSetup2Fa()
     fun startVerifyEmail()

@@ -19,7 +19,6 @@ import piuk.blockchain.android.ui.settings.v2.account.AccountIntent
 import piuk.blockchain.android.ui.settings.v2.account.AccountInteractor
 import piuk.blockchain.android.ui.settings.v2.account.AccountModel
 import piuk.blockchain.android.ui.settings.v2.account.AccountState
-import piuk.blockchain.android.ui.settings.v2.account.ExchangeLinkingState
 import piuk.blockchain.android.ui.settings.v2.account.ViewToLaunch
 
 class AccountModelTest {
@@ -84,74 +83,6 @@ class AccountModelTest {
             }.assertValueAt(1) {
                 it == defaultState.copy(
                     errorState = AccountError.ACCOUNT_INFO_FAIL
-                )
-            }
-    }
-
-    @Test
-    fun loadExchangeInfo_success() {
-        val exchangeStateMock: ExchangeLinkingState = mock()
-        whenever(interactor.getExchangeState()).thenReturn(Single.just(exchangeStateMock))
-
-        val testState = model.state.test()
-        model.process(AccountIntent.LoadExchangeInformation)
-
-        testState
-            .assertValueAt(0) {
-                it == defaultState
-            }.assertValueAt(1) {
-                it == defaultState.copy(
-                    exchangeLinkingState = exchangeStateMock
-                )
-            }
-    }
-
-    @Test
-    fun loadExchangeInfo_error() {
-        whenever(interactor.getExchangeState()).thenReturn(Single.error(Exception()))
-
-        val testState = model.state.test()
-        model.process(AccountIntent.LoadExchangeInformation)
-
-        testState
-            .assertValueAt(0) {
-                it == defaultState
-            }.assertValueAt(1) {
-                it == defaultState.copy(
-                    errorState = AccountError.EXCHANGE_INFO_FAIL
-                )
-            }
-    }
-
-    @Test
-    fun loadExchangeState_success() {
-        val exchangeStateMock: ExchangeLinkingState = mock()
-        whenever(interactor.getExchangeState()).thenReturn(Single.just(exchangeStateMock))
-
-        val testState = model.state.test()
-        model.process(AccountIntent.LoadExchange)
-
-        testState
-            .assertValueAt(0) {
-                it == defaultState
-            }.assertValueAt(1) {
-                it.viewToLaunch is ViewToLaunch.ExchangeLink
-            }
-    }
-
-    @Test
-    fun loadExchangeState_error() {
-        whenever(interactor.getExchangeState()).thenReturn(Single.error(Exception()))
-
-        val testState = model.state.test()
-        model.process(AccountIntent.LoadExchange)
-
-        testState
-            .assertValueAt(0) {
-                it == defaultState
-            }.assertValueAt(1) {
-                it == defaultState.copy(
-                    errorState = AccountError.EXCHANGE_LOAD_FAIL
                 )
             }
     }

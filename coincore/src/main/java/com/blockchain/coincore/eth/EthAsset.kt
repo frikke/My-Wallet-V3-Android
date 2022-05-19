@@ -21,6 +21,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -32,7 +33,6 @@ import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import thepit.PitLinking
 
 internal class EthAsset(
     payloadManager: PayloadDataManager,
@@ -47,7 +47,7 @@ internal class EthAsset(
     private val walletPrefs: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
     labels: DefaultLabels,
-    pitLinking: PitLinking,
+    exchangeLinking: ExchangeLinking,
     remoteLogger: RemoteLogger,
     identity: UserIdentity,
     private val formatUtils: FormatUtilities,
@@ -61,7 +61,7 @@ internal class EthAsset(
     custodialManager,
     interestBalances,
     tradingBalances,
-    pitLinking,
+    exchangeLinking,
     remoteLogger,
     identity,
     addressResolver

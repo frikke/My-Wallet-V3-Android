@@ -42,8 +42,6 @@ enum class AnalyticsEvents(
     Support("support"),
     WebLogin("web_login"),
     SwapErrorDialog("swap_error_dialog"),
-    SwapErrorDialogCtaClicked("swap_error_dialog_cta_clicked"),
-    SwapErrorDialogDismissClicked("swap_error_dialog_dismiss_clicked"),
     WalletCreation("wallet_creation"),
     WalletManualLogin("wallet_manual_login"),
     PITDEEPLINK("pit_deeplink"),

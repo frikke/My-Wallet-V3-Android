@@ -32,8 +32,6 @@ import piuk.blockchain.android.ui.customviews.ErrorBottomDialog
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
 import piuk.blockchain.android.ui.settings.v2.SettingsScreen
-import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
-import piuk.blockchain.android.urllinks.URL_THE_PIT_LAUNCH_SUPPORT
 import piuk.blockchain.android.util.launchUrlInBrowser
 
 class AccountFragment :
@@ -112,8 +110,22 @@ class AccountFragment :
 
             settingsExchange.apply {
                 primaryText = getString(R.string.account_exchange_title)
+                secondaryText = getString(R.string.account_exchange_launch)
+                tags = listOf(TagViewState(getString(R.string.common_launch), TagType.InfoAlt()))
                 onClick = {
-                    model.process(AccountIntent.LoadExchange)
+                    showBottomSheet(
+                        ExchangeConnectionSheet.newInstance(
+                            ErrorBottomDialog.Content(
+                                title = getString(R.string.account_exchange_connected_title),
+                                ctaButtonText = R.string.account_exchange_connected_cta,
+                                icon = R.drawable.ic_exchange_logo
+                            ),
+                            tags = emptyList(),
+                            primaryCtaClick = {
+                                requireActivity().launchUrlInBrowser(BuildConfig.EXCHANGE_LAUNCH_URL)
+                            },
+                        )
+                    )
                 }
             }
 
@@ -152,7 +164,6 @@ class AccountFragment :
     override fun onResume() {
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
-        model.process(AccountIntent.LoadExchangeInformation)
 
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
@@ -168,24 +179,9 @@ class AccountFragment :
             renderViewToLaunch(newState)
         }
 
-        renderExchangeInformation(newState.exchangeLinkingState)
         renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
     }
-
-    private fun renderExchangeInformation(exchangeLinkingState: ExchangeLinkingState) =
-        when (exchangeLinkingState) {
-            ExchangeLinkingState.UNKNOWN,
-            ExchangeLinkingState.NOT_LINKED -> {
-                binding.settingsExchange.secondaryText = getString(R.string.account_exchange_not_connected)
-            }
-            ExchangeLinkingState.LINKED -> {
-                with(binding.settingsExchange) {
-                    secondaryText = null
-                    tags = listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success()))
-                }
-            }
-        }
 
     private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
         with(binding.settingsDebitCard) {
@@ -222,12 +218,6 @@ class AccountFragment :
             AccountError.ACCOUNT_FIAT_UPDATE_FAIL -> {
                 showErrorSnackbar(R.string.account_fiat_update_error)
             }
-            AccountError.EXCHANGE_INFO_FAIL -> {
-                showErrorSnackbar(R.string.account_exchange_info_error)
-            }
-            AccountError.EXCHANGE_LOAD_FAIL -> {
-                showErrorSnackbar(R.string.account_load_exchange_error)
-            }
             AccountError.BLOCKCHAIN_CARD_LOAD_FAIL -> {
                 showErrorSnackbar(R.string.account_load_bc_card_error)
             }
@@ -262,47 +252,6 @@ class AccountFragment :
                         currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.DISPLAY_CURRENCY
                     )
                 )
-            }
-            is ViewToLaunch.ExchangeLink -> {
-                when (view.exchangeLinkingState) {
-                    ExchangeLinkingState.UNKNOWN,
-                    ExchangeLinkingState.NOT_LINKED -> {
-                        showBottomSheet(
-                            ExchangeConnectionSheet.newInstance(
-                                ErrorBottomDialog.Content(
-                                    title = getString(R.string.account_exchange_connect_title),
-                                    description = getString(R.string.account_exchange_connect_subtitle),
-                                    ctaButtonText = R.string.common_connect,
-                                    icon = R.drawable.ic_exchange_logo
-                                ),
-                                tags = emptyList(),
-                                primaryCtaClick = {
-                                    navigator().goToExchange()
-                                }
-                            )
-                        )
-                    }
-                    ExchangeLinkingState.LINKED -> {
-                        showBottomSheet(
-                            ExchangeConnectionSheet.newInstance(
-                                ErrorBottomDialog.Content(
-                                    title = getString(R.string.account_exchange_connected_title),
-                                    ctaButtonText = R.string.account_exchange_connected_cta,
-                                    dismissText = R.string.contact_support,
-                                    icon = R.drawable.ic_exchange_logo
-                                ),
-                                listOf(TagViewState(getString(R.string.account_exchange_connected), TagType.Success())),
-                                // TODO this will be changed to support the Exchange app?
-                                primaryCtaClick = {
-                                    requireActivity().launchUrlInBrowser(BuildConfig.PIT_LAUNCHING_URL)
-                                },
-                                secondaryCtaClick = {
-                                    requireActivity().launchUrlInBrowser(URL_THE_PIT_LAUNCH_SUPPORT)
-                                }
-                            )
-                        )
-                    }
-                }
             }
             ViewToLaunch.None -> {
                 // do nothing

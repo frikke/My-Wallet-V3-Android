@@ -1,19 +1,17 @@
-package thepit
+package exchange
 
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
-interface PitLinking {
+interface ExchangeLinking {
 
-    val state: Observable<PitLinkingState>
-
-    fun sendWalletAddressToThePit()
+    val state: Observable<ExchangeLinkingState>
 
     // Helper method, for all the MVP clients:
-    fun isPitLinked(): Single<Boolean>
+    fun isExchangeLinked(): Single<Boolean>
 }
 
-data class PitLinkingState(
+data class ExchangeLinkingState(
     val isLinked: Boolean = false,
     val emailVerified: Boolean = false,
     val email: String? = null

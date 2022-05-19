@@ -2112,7 +2112,7 @@ Achetez de la Crypto aujourd\'hui.</string>
     <string name="account_wallet_id_title">Identifiant Wallet</string>
     <string name="account_wallet_id_subtitle">Avertissement : Ne partagez pas publiquement</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
-    <string name="account_exchange_not_connected">Connectez-vous à votre compte Exchange</string>
+    <string name="account_exchange_launch">Connectez-vous à votre compte Exchange</string>
     <string name="account_airdrops_title">Airdrops</string>
     <string name="account_wallet_id_copy_error">Une erreur s\'est produite lors de la copie de votre identifiant Wallet, veuillez réessayer.</string>
     <string name="account_exchange_connect_title">Se connecter à Exchange</string>

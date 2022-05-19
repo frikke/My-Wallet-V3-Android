@@ -18,7 +18,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.ThePitLinkingPrefs
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
@@ -42,15 +42,13 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import thepit.PitLinking
 import timber.log.Timber
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
     private val deeplinkRedirector: DeeplinkRedirector,
     private val deepLinkPersistence: DeepLinkPersistence,
-    private val exchangeLinking: PitLinking,
-    private val exchangePrefs: ThePitLinkingPrefs,
+    private val exchangeLinking: ExchangeLinking,
     private val assetCatalogue: AssetCatalogue,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
@@ -80,9 +78,7 @@ class MainInteractor internal constructor(
         userIdentity.checkForUserWalletLinkErrors()
 
     fun getExchangeLinkingState(): Single<Boolean> =
-        exchangeLinking.isPitLinked()
-
-    fun getExchangeToWalletLinkId(): String = exchangePrefs.pitToWalletLinkId
+        exchangeLinking.isExchangeLinked()
 
     fun getAssetFromTicker(ticker: String?): AssetInfo? =
         ticker?.let {

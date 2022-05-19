@@ -15,13 +15,13 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import thepit.PitLinking
 
 internal class DynamicOnlyTradingAsset(
     override val assetInfo: AssetInfo,
@@ -32,7 +32,7 @@ internal class DynamicOnlyTradingAsset(
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
-    pitLinking: PitLinking,
+    exchangeLinking: ExchangeLinking,
     remoteLogger: RemoteLogger,
     identity: UserIdentity,
     private val addressValidation: String? = null,
@@ -46,7 +46,7 @@ internal class DynamicOnlyTradingAsset(
     custodialManager,
     interestBalances,
     tradingBalances,
-    pitLinking,
+    exchangeLinking,
     remoteLogger,
     identity,
     addressResolver

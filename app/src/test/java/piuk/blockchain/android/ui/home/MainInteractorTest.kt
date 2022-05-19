@@ -9,13 +9,13 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.ThePitLinkingPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import exchange.ExchangeLinking
 import exchangerate.HistoricRateQueries
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -35,7 +35,6 @@ import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelServ
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import thepit.PitLinking
 
 class MainInteractorTest {
 
@@ -43,8 +42,7 @@ class MainInteractorTest {
     private val deepLinkProcessor: DeepLinkProcessor = mock()
     private val deeplinkRedirector: DeeplinkRedirector = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
-    private val exchangeLinking: PitLinking = mock()
-    private val exchangePrefs: ThePitLinkingPrefs = mock()
+    private val exchangeLinking: ExchangeLinking = mock()
     private val assetCatalogue: AssetCatalogue = mock()
     private val bankLinkingPrefs: BankLinkingPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -66,7 +64,6 @@ class MainInteractorTest {
             deeplinkRedirector = deeplinkRedirector,
             deepLinkPersistence = deepLinkPersistence,
             exchangeLinking = exchangeLinking,
-            exchangePrefs = exchangePrefs,
             assetCatalogue = assetCatalogue,
             bankLinkingPrefs = bankLinkingPrefs,
             custodialWalletManager = custodialWalletManager,
@@ -113,16 +110,7 @@ class MainInteractorTest {
     @Test
     fun getExchangeLinkingState() {
         interactor.getExchangeLinkingState()
-        verify(exchangeLinking).isPitLinked()
-    }
-
-    @Test
-    fun getExchangeWalletLinkId() {
-        val id = "1245"
-        whenever(exchangePrefs.pitToWalletLinkId).thenReturn(id)
-        val resultId = interactor.getExchangeToWalletLinkId()
-        verify(exchangePrefs).pitToWalletLinkId
-        Assert.assertEquals(id, resultId)
+        verify(exchangeLinking).isExchangeLinked()
     }
 
     @Test

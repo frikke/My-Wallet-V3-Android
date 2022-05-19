@@ -19,14 +19,12 @@ import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressRequest
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressResponse
-import com.blockchain.nabu.models.responses.nabu.SendWithdrawalAddressesRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.nabu.TierUpdateJson
 import com.blockchain.nabu.models.responses.nabu.TiersResponse
 import com.blockchain.nabu.models.responses.nabu.VeriffToken
-import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
@@ -196,28 +194,11 @@ internal interface Nabu {
         @Header("authorization") authorization: String
     ): Completable
 
-    @PUT(NABU_CONNECT_WALLET_TO_PIT)
-    fun connectWalletWithMercury(
-        @Header("authorization") authorization: String
-    ): Single<WalletMercuryLink>
-
-    @PUT(NABU_CONNECT_PIT_TO_WALLET)
-    fun connectMercuryWithWallet(
+    @PUT(NABU_FETCH_EXCHANGE_ADDRESS_FOR_WALLET)
+    fun fetchExchangeSendAddress(
         @Header("authorization") authorization: String,
-        @Body linkId: WalletMercuryLink
-    ): Completable
-
-    @POST(NABU_SEND_WALLET_ADDRESSES_TO_PIT)
-    fun sharePitReceiveAddresses(
-        @Header("authorization") authorization: String,
-        @Body addresses: SendWithdrawalAddressesRequest
-    ): Completable
-
-    @PUT(NABU_FETCH_PIT_ADDRESS_FOR_WALLET)
-    fun fetchPitSendAddress(
-        @Header("authorization") authorization: String,
-        @Body currency: SendToMercuryAddressRequest
-    ): Single<SendToMercuryAddressResponse>
+        @Body currency: SendToExchangeAddressRequest
+    ): Single<SendToExchangeAddressResponse>
 
     @GET(SDD_ELIGIBLE)
     fun isSDDEligible(): Single<SDDEligibilityResponse>

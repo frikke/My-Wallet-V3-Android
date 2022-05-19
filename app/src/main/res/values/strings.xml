@@ -63,9 +63,11 @@
     <string name="common_copy">Copy</string>
     <string name="common_copied">Copied</string>
     <string name="common_share">Share</string>
+    <string name="common_launch">Launch</string>
+    <string name="common_maybe_later">Maybe Later</string>
+    <string name="common_i_understand">I Understand</string>
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
-
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -88,8 +90,6 @@
 
     <!-- nav menu -->
     <string name="please_wait">Please wait</string>
-    <string name="item_the_exchange">Exchange</string>
-    <string name="item_airdrops">Airdrops</string>
     <string name="item_debug_menu" translatable="false">Debug Menu</string>
 
     <!-- toolbar -->
@@ -490,7 +490,6 @@
     <string name="security">Security</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
-    <string name="setting_the_exchange">Exchange</string>
     <string name="setting_limits_title">Trading Accounts</string>
     <string name="setting_limits_description">Limits &amp; Features</string>
     <string name="settings_pair_wallet">Pair my wallet</string>
@@ -840,49 +839,6 @@
     <string name="minimum_with_value">%1$s Minimum</string>
     <string name="maximum_with_value">%1$s Maximum</string>
     <string name="max_with_value">%1$s Max</string>
-
-    <!-- The Pit linking -->
-    <string name="the_exchange_slogan_kyc_promo">There’s a new way to trade. Link your Wallet for instant access.</string>
-
-    <string name="the_exchange_thunder_kyc_promo">Trade\nLightning Fast</string>
-    <string name="the_exchange_built_kyc_promo">Built by\nBlockchain.com</string>
-
-    <string name="the_exchange_dollar_kyc_promo">Access More\nCryptos</string>
-    <string name="the_exchange_bill_kyc_promo">Deposit &amp; Withdraw\nEuros/Dollars</string>
-    <string name="the_exchange_permission_app_can">Our Exchange will be able to:</string>
-    <string name="the_exchange_permission_app_cant">Will Not:</string>
-    <string name="the_exchange_permission_1">Sync addresses with your Wallet so you can securely sweep crypto between accounts</string>
-    <string name="the_exchange_permission_2">Share your Full Access or Limited Access status for unlimited trading</string>
-    <string name="the_exchange_permission_4">Access the crypto in your wallet, access your keys, or view your password.</string>
-    <string name="the_exchange_connect_now">Connect Now</string>
-
-    <string name="the_exchange_title">Exchange</string>
-
-    <string name="the_exchange_setting_connect">Connect</string>
-    <string name="the_exchange_setting_connected">Connected</string>
-    <string name="launch_the_exchange">Launch the Exchange</string>
-    <string name="the_exchange_contact_support">Contact Support</string>
-    <string name="the_exchange_loading_dialog_title">Taking You To the Exchange</string>
-    <string name="the_exchange_loading_dialog_description">A new window should open within 10 seconds.</string>
-    <string name="the_exchange_verify_email_title">Verify Your Email</string>
-    <string name="the_exchange_verify_email_description">We just sent you a verification email. Your email address needs to be verified before you can connect to the Exchange.</string>
-    <string name="the_exchange_open_email_app">Open Email App</string>
-    <string name="the_exchange_did_not_get_email">Didn’t get the email?</string>
-    <string name="the_exchange_send_again">Send again</string>
-    <string name="mail_resent_succeed">Email sent. Check your inbox to continue.</string>
-    <string name="mail_resent_failed">Something went wrong. Please tap Send Again.</string>
-    <string name="the_exchange_email_verified_description">You’re all set to connect your Blockchain Wallet to the Exchange.</string>
-    <string name="the_exchange_email_verified_title">Email Verified.</string>
-    <string name="the_exchange_connection_error_title">Connection Error</string>
-    <string name="the_exchange_connection_error_description">We could not connect your Wallet to the Exchange. Please go back to the Exchange and try again.</string>
-    <string name="the_exchange_connection_success_title">Success!</string>
-    <string name="the_exchange_connection_success_description">You have connected your Blockchain Wallet to the Exchange. Go back and finish signing up!</string>
-
-    <!-- intro tour -->
-    <string name="tour_card_title">Welcome to Blockchain!</string>
-    <string name="tour_card_body">Here are a few tips to get your wallet up and running. We’ll also help you make sure everything is secure.</string>
-    <string name="tour_card_cta">Take A Tour</string>
-    <string name="tour_card_dismiss">Maybe Later</string>
 
     <!-- New asset announcement -->
     <string name="new_asset_card_title">%1$s (%2$s) is Now Trading</string>
@@ -2599,20 +2555,16 @@
     <string name="account_currency_title">Local Currency</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
     <string name="account_wallet_connect">WalletConnect</string>
-    <string name="account_exchange_not_connected">Connect to your Exchange Account</string>
-    <string name="account_exchange_connected">Connected</string>
+    <string name="account_exchange_launch">Launch the Blockchain Exchange</string>
     <string name="account_airdrops_title">Airdrops</string>
     <string name="account_addresses_title">Addresses</string>
     <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
     <string name="account_exchange_connect_title">Connect to Exchange</string>
-    <string name="account_exchange_connect_subtitle">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
-    <string name="account_exchange_connected_title">Blockchain Exchange</string>
+    <string name="account_exchange_connected_title">Access the Blockchain.com Exchange</string>
     <string name="account_exchange_connected_cta">Launch the Exchange</string>
     <string name="account_load_info_error">There was an error loading your details, please try again</string>
     <string name="account_load_fiat_error">There was an error loading currency details, please try again</string>
     <string name="account_fiat_update_error">There was an error updating your currency details, please try again</string>
-    <string name="account_exchange_info_error">There was an error loading Exchange information, please try again</string>
-    <string name="account_load_exchange_error">There was an error loading the Exchange, please try again</string>
     <string name="account_load_bc_card_error">There was an error loading the Blockchain Debit Card, please try again</string>
     <string name="account_not_eligible">Not Eligible</string>
     <string name="order_card">Order Card</string>
@@ -2883,10 +2835,6 @@
     <string name="explainer_non_custodial_description">Your Private Key Wallet means your funds are owned and controlled by you and you alone. Blockchain.com cannot see or manage your balances in this wallet.</string>
     <string name="explainer_rewards_title">Rewards Account</string>
     <string name="explainer_rewards_description">Your Rewards Account allows you to earn rewards on your crypto; up to %s%% APY.</string>
-    <string name="explainer_exchange_title">Exchange Account</string>
-    <string name="explainer_exchange_description">Connect your Exchange and Wallet accounts to view your balances and transfer funds.</string>
-    <string name="explainer_button">I Understand</string>
-    <string name="explainer_exchange_button">Connect</string>
 
     <!-- Bottom sheet actions -->
     <string name="actions_sheet_percentage_rewards">%s%% APR</string>

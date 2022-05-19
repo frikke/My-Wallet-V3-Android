@@ -100,8 +100,6 @@ import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
 import piuk.blockchain.android.ui.scan.ScanAndConnectBottomSheet
 import piuk.blockchain.android.ui.sell.BuySellFragment
 import piuk.blockchain.android.ui.settings.v2.SettingsActivity
-import piuk.blockchain.android.ui.thepit.ExchangeConnectionSheet
-import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.InterestAnalytics
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
@@ -252,8 +250,6 @@ class MainActivity :
         when (action) {
             SettingsActivity.Companion.SettingsAction.Addresses ->
                 startActivityForResult(AddressesActivity.newIntent(this), ACCOUNT_EDIT)
-            SettingsActivity.Companion.SettingsAction.Exchange ->
-                model.process(MainIntent.LaunchExchange)
             SettingsActivity.Companion.SettingsAction.Airdrops ->
                 startActivity(AirdropCentreActivity.newIntent(this))
             SettingsActivity.Companion.SettingsAction.WebLogin ->
@@ -478,16 +474,10 @@ class MainActivity :
         ).show()
 
     override fun render(newState: MainState) {
-
         when (val view = newState.viewToLaunch) {
             is ViewToLaunch.DisplayAlertDialog -> displayDialog(view.dialogTitle, view.dialogMessage)
             is ViewToLaunch.LaunchAssetAction -> launchAssetAction(view.action, view.account)
             is ViewToLaunch.LaunchBuySell -> launchBuySell(view.type, view.asset)
-            is ViewToLaunch.LaunchExchange -> {
-                view.linkId?.let {
-                    launchThePitLinking(it)
-                } ?: kotlin.run { launchThePit() }
-            }
             is ViewToLaunch.LaunchInterestDashboard -> launchInterestDashboard(view.origin)
             is ViewToLaunch.LaunchKyc -> KycNavHostActivity.startForResult(
                 this, view.campaignType, KYC_STARTED
@@ -908,14 +898,6 @@ class MainActivity :
 
     override fun launchKyc(campaignType: CampaignType) {
         KycNavHostActivity.startForResult(this, campaignType, KYC_STARTED)
-    }
-
-    override fun launchThePitLinking(linkId: String) {
-        PitPermissionsActivity.start(this, linkId)
-    }
-
-    override fun launchThePit() {
-        ExchangeConnectionSheet.launch(this)
     }
 
     override fun launchBackupFunds(fragment: Fragment?, requestCode: Int) {

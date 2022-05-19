@@ -37,7 +37,6 @@ sealed class ViewToLaunch {
     class LaunchAssetAction(val action: AssetAction, val account: BlockchainAccount?) : ViewToLaunch()
     class LaunchSimpleBuy(val asset: AssetInfo) : ViewToLaunch()
     class LaunchKyc(val campaignType: CampaignType) : ViewToLaunch()
-    class LaunchExchange(val linkId: String? = null) : ViewToLaunch()
     class DisplayAlertDialog(@StringRes val dialogTitle: Int, @StringRes val dialogMessage: Int) : ViewToLaunch()
     object ShowOpenBankingError : ViewToLaunch()
     class LaunchOpenBankingLinking(val bankLinkingInfo: BankLinkingInfo) : ViewToLaunch()

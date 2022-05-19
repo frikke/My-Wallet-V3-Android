@@ -14,8 +14,6 @@ import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.Scope
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressResponse
-import com.blockchain.nabu.models.responses.nabu.SendWithdrawalAddressesRequest
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -24,7 +22,6 @@ import com.blockchain.nabu.service.RetailWalletTokenService
 import com.blockchain.nabu.stores.NabuSessionTokenStore
 import com.blockchain.utils.Optional
 import com.blockchain.veriff.VeriffApplicantAndToken
-import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.MaybeSource
@@ -125,23 +122,6 @@ interface NabuDataManager {
     fun recoverBlockchainAccount(userId: String, recoveryToken: String): Single<BlockchainAccountCredentialsMetadata>
 
     fun resetUserKyc(): Completable
-
-    fun linkWalletWithMercury(offlineTokenResponse: NabuOfflineTokenResponse): Single<String>
-
-    fun linkMercuryWithWallet(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        linkId: String
-    ): Completable
-
-    fun shareWalletAddressesWithThePit(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        addressMap: Map<String, String> // Crypto symbol -> address
-    ): Completable
-
-    fun fetchCryptoAddressFromThePit(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        asset: AssetInfo
-    ): Single<SendToMercuryAddressResponse>
 }
 
 internal class NabuDataManagerImpl(
@@ -436,37 +416,6 @@ internal class NabuDataManagerImpl(
             }
         }
     }
-
-    override fun linkWalletWithMercury(offlineTokenResponse: NabuOfflineTokenResponse): Single<String> =
-        authenticate(offlineTokenResponse) {
-            nabuService.linkWalletWithMercury(it)
-        }
-
-    override fun linkMercuryWithWallet(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        linkId: String
-    ): Completable =
-        authenticate(offlineTokenResponse) {
-            nabuService.linkMercuryWithWallet(it, linkId)
-                .toSingleDefault(Any())
-        }.ignoreElement()
-
-    override fun shareWalletAddressesWithThePit(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        addressMap: Map<String, String> // Crypto symbol -> address
-    ): Completable =
-        authenticate(offlineTokenResponse) {
-            nabuService.sendWalletAddressesToThePit(it, SendWithdrawalAddressesRequest(addressMap))
-                .toSingleDefault(Any())
-        }.ignoreElement()
-
-    override fun fetchCryptoAddressFromThePit(
-        offlineTokenResponse: NabuOfflineTokenResponse,
-        asset: AssetInfo
-    ): Single<SendToMercuryAddressResponse> =
-        authenticate(offlineTokenResponse) {
-            nabuService.fetchPitSendToAddressForCrypto(it, asset.networkTicker)
-        }
 
     private fun <T> refreshOrReturnError(
         throwable: Throwable,

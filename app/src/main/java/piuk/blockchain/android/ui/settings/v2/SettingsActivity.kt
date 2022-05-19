@@ -41,7 +41,6 @@ import piuk.blockchain.android.ui.settings.v2.profile.ProfileActivity
 import piuk.blockchain.android.ui.settings.v2.security.SecurityFragment
 import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeFragment
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.ui.thepit.PitPermissionsActivity
 import timber.log.Timber
 
 class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragment.Host {
@@ -176,10 +175,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         startActivity(AddressesActivity.newIntent(this))
     }
 
-    override fun goToExchange() {
-        PitPermissionsActivity.start(this, "")
-    }
-
     override fun goToKycLimits() {
         startActivity(KycLimitsActivity.newIntent(this))
     }
@@ -214,7 +209,6 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
 
         enum class SettingsAction {
             Addresses,
-            Exchange,
             Airdrops,
             WebLogin,
             Logout
@@ -239,7 +233,6 @@ interface SettingsNavigator {
     fun goToAirdrops()
     fun goToAddresses()
     fun goToWalletConnect()
-    fun goToExchange()
     fun goToKycLimits()
     fun goToPasswordChange()
     fun goToPinChange()

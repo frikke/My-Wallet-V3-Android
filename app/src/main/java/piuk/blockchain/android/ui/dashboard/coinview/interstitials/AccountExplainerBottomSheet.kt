@@ -99,7 +99,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     title = getString(R.string.explainer_custodial_title),
                     description = getString(R.string.explainer_custodial_description),
                     icon = R.drawable.ic_custodial_explainer,
-                    buttonText = getString(R.string.explainer_button)
+                    buttonText = getString(R.string.common_i_understand)
                 )
             }
             is NonCustodialAccount -> {
@@ -107,7 +107,7 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     title = getString(R.string.explainer_non_custodial_title),
                     description = getString(R.string.explainer_non_custodial_description),
                     icon = R.drawable.ic_non_custodial_explainer,
-                    buttonText = getString(R.string.explainer_button)
+                    buttonText = getString(R.string.common_i_understand)
                 )
             }
             is InterestAccount -> {
@@ -115,17 +115,10 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
                     title = getString(R.string.explainer_rewards_title),
                     description = getString(R.string.explainer_rewards_description, interestRate.toString()),
                     icon = R.drawable.ic_rewards_explainer,
-                    buttonText = getString(R.string.explainer_button)
+                    buttonText = getString(R.string.common_i_understand)
                 )
             }
             else -> AccountExplainerDetails()
-            // TODO uncomment when exchange account is supported
-            // AccountExplainerDetails(
-            //     title = getString(R.string.explainer_exchange_title),
-            //     description = getString(R.string.explainer_exchange_description),
-            //     icon = R.drawable.ic_exchange_logo,
-            //     buttonText = getString(R.string.explainer_exchange_button)
-            // )
         }
 
     private fun explainerViewedToAnalytics(selectedAccount: CryptoAccount, networkTicker: String) {

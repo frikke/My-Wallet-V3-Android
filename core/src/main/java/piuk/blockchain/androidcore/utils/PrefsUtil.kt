@@ -148,15 +148,6 @@ class PrefsUtil(
     override val noCurrencySet: Boolean
         get() = getValue(KEY_SELECTED_FIAT, "").isEmpty()
 
-    // From ThePitLinkingPrefs
-    override var pitToWalletLinkId: String
-        get() = getValue(KEY_PIT_LINKING_LINK_ID, "")
-        set(v) = setValue(KEY_PIT_LINKING_LINK_ID, v)
-
-    override fun clearPitToWalletLinkId() {
-        removeValue(KEY_PIT_LINKING_LINK_ID)
-    }
-
     override fun simpleBuyState(): String? {
         return getValue(KEY_SIMPLE_BUY_STATE, "").takeIf { it != "" }
     }
@@ -615,7 +606,6 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_LOGGED_IN = "logged_in"
 
-        private const val KEY_PIT_LINKING_LINK_ID = "pit_wallet_link_id"
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_ADD_CARD_INFO = "key_add_card_info"

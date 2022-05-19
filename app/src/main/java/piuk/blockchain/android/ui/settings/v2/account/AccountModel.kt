@@ -37,27 +37,6 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_INFO_FAIL))
                     }
                 )
-            is AccountIntent.LoadExchangeInformation -> interactor.getExchangeState()
-                .subscribeBy(
-                    onSuccess = {
-                        process(AccountIntent.UpdateExchangeInformation(it))
-                    },
-                    onError = {
-                        process(AccountIntent.UpdateErrorState(AccountError.EXCHANGE_INFO_FAIL))
-                    }
-                )
-            is AccountIntent.LoadExchange -> {
-                interactor.getExchangeState()
-                    .subscribeBy(
-                        onSuccess = {
-                            process(AccountIntent.UpdateViewToLaunch(ViewToLaunch.ExchangeLink(it)))
-                        },
-                        onError = {
-                            process(AccountIntent.UpdateErrorState(AccountError.EXCHANGE_LOAD_FAIL))
-                        }
-                    )
-            }
-
             is AccountIntent.LoadBCDebitCardInformation -> {
                 rxSingle {
                     interactor.getDebitCardState()
@@ -108,7 +87,6 @@ class AccountModel(
             is AccountIntent.ResetViewState,
             is AccountIntent.UpdateViewToLaunch,
             is AccountIntent.UpdateAccountInformation,
-            is AccountIntent.UpdateExchangeInformation,
             is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive
 }

@@ -18,11 +18,9 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.Scope
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressRequest
-import com.blockchain.nabu.models.responses.nabu.SendToMercuryAddressResponse
-import com.blockchain.nabu.models.responses.nabu.SendWithdrawalAddressesRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
+import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
-import com.blockchain.nabu.models.responses.nabu.WalletMercuryLink
 import com.blockchain.nabu.models.responses.sdd.SDDEligibilityResponse
 import com.blockchain.nabu.models.responses.sdd.SDDStatusResponse
 import com.blockchain.nabu.models.responses.simplebuy.BankAccountResponse
@@ -224,35 +222,12 @@ class NabuService internal constructor(
         sessionToken.authHeader
     ).wrapErrorMessage()
 
-    internal fun linkWalletWithMercury(
-        sessionToken: NabuSessionTokenResponse
-    ): Single<String> = nabu.connectWalletWithMercury(
-        sessionToken.authHeader
-    ).map { it.linkId }
-        .wrapErrorMessage()
-
-    internal fun linkMercuryWithWallet(
-        sessionToken: NabuSessionTokenResponse,
-        linkId: String
-    ): Completable = nabu.connectMercuryWithWallet(
-        sessionToken.authHeader,
-        WalletMercuryLink(linkId)
-    ).wrapErrorMessage()
-
-    internal fun sendWalletAddressesToThePit(
-        sessionToken: NabuSessionTokenResponse,
-        request: SendWithdrawalAddressesRequest
-    ): Completable = nabu.sharePitReceiveAddresses(
-        sessionToken.authHeader,
-        request
-    ).wrapErrorMessage()
-
-    internal fun fetchPitSendToAddressForCrypto(
+    internal fun fetchExchangeSendToAddressForCrypto(
         sessionToken: NabuSessionTokenResponse,
         cryptoSymbol: String
-    ): Single<SendToMercuryAddressResponse> = nabu.fetchPitSendAddress(
+    ): Single<SendToExchangeAddressResponse> = nabu.fetchExchangeSendAddress(
         sessionToken.authHeader,
-        SendToMercuryAddressRequest(cryptoSymbol)
+        SendToExchangeAddressRequest(cryptoSymbol)
     ).wrapErrorMessage()
 
     internal fun isSDDEligible(): Single<SDDEligibilityResponse> =

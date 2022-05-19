@@ -25,6 +25,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -33,7 +34,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import thepit.PitLinking
 import timber.log.Timber
 
 interface AccountRefreshTrigger {
@@ -48,7 +48,7 @@ interface AccountRefreshTrigger {
     protected val custodialManager: CustodialWalletManager,
     private val interestBalance: InterestBalanceDataManager,
     protected val tradingBalances: TradingBalanceDataManager,
-    private val pitLinking: PitLinking,
+    private val exchangeLinking: ExchangeLinking,
     protected val remoteLogger: RemoteLogger,
     protected val identity: UserIdentity,
     protected val addressResolver: AddressResolver
@@ -173,7 +173,7 @@ interface AccountRefreshTrigger {
     }
 
     private fun getPitLinkingTargets(): Maybe<SingleAccountList> =
-        pitLinking.isPitLinked().filter { it }
+        exchangeLinking.isExchangeLinked().filter { it }
             .flatMap { custodialManager.getExchangeSendAddressFor(assetInfo) }
             .map { address ->
                 listOf(

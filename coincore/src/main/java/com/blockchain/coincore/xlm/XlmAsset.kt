@@ -21,6 +21,7 @@ import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.sunriver.fromStellarUri
 import com.blockchain.sunriver.isValidXlmQr
 import com.blockchain.wallet.DefaultLabels
+import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -32,7 +33,6 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import thepit.PitLinking
 
 internal class XlmAsset(
     payloadManager: PayloadDataManager,
@@ -45,7 +45,7 @@ internal class XlmAsset(
     exchangeRates: ExchangeRatesDataManager,
     currencyPrefs: CurrencyPrefs,
     labels: DefaultLabels,
-    pitLinking: PitLinking,
+    exchangeLinking: ExchangeLinking,
     remoteLogger: RemoteLogger,
     private val walletPreferences: WalletStatus,
     identity: UserIdentity,
@@ -58,7 +58,7 @@ internal class XlmAsset(
     custodialManager,
     interestBalances,
     tradingBalances,
-    pitLinking,
+    exchangeLinking,
     remoteLogger,
     identity,
     addressResolver

@@ -7,13 +7,11 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.kyc.KycDeepLinkHelper
 import piuk.blockchain.android.kyc.KycLinkState
-import piuk.blockchain.android.thepit.ThePitDeepLinkParser
 
 internal class DeepLinkProcessor(
     private val linkHandler: PendingLink,
     private val emailVerifiedLinkHelper: EmailVerificationDeepLinkHelper,
     private val kycDeepLinkHelper: KycDeepLinkHelper,
-    private val thePitDeepLinkParser: ThePitDeepLinkParser,
     private val openBankingDeepLinkParser: OpenBankingDeepLinkParser,
     private val blockchainDeepLinkParser: BlockchainDeepLinkParser
 ) {
@@ -35,10 +33,7 @@ internal class DeepLinkProcessor(
             if (kyc != KycLinkState.NoUri) {
                 return@fromCallable LinkState.KycDeepLink(kyc)
             }
-            val linkId = thePitDeepLinkParser.mapUri(uri)
-            if (linkId != null) {
-                return@fromCallable LinkState.ThePitDeepLink(linkId)
-            }
+
             val openBankingDeepLink = openBankingDeepLinkParser.mapUri(uri)
             if (openBankingDeepLink != null && openBankingDeepLink.type != OpenBankingLinkType.UNKNOWN) {
                 return@fromCallable openBankingDeepLink
@@ -57,7 +52,6 @@ sealed class LinkState {
     data class BlockchainLink(val link: BlockchainLinkState) : LinkState()
     data class EmailVerifiedDeepLink(val link: EmailVerifiedLinkState) : LinkState()
     data class KycDeepLink(val link: KycLinkState) : LinkState()
-    data class ThePitDeepLink(val linkId: String) : LinkState()
     data class OpenBankingLink(val type: OpenBankingLinkType, val consentToken: String?) : LinkState()
 
     object NoUri : LinkState()
