@@ -27,8 +27,4 @@ data class EvmBalanceResponse(
     val name: String,
     @SerialName("amount")
     val amount: @Contextual BigInteger
-) {
-    companion object {
-        const val NATIVE_IDENTIFIER = "native"
-    }
-}
+)
