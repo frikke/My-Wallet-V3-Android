@@ -1,6 +1,4 @@
-plugins {
-}
-apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
 
 android {
     buildTypes {
@@ -15,14 +13,6 @@ android {
         warningsAsErrors true
         abortOnError true
     }
-
-    buildFeatures {
-        compose true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion Versions.compose
-    }
 }
 
 dependencies {
@@ -32,27 +22,8 @@ dependencies {
     implementation project(':componentlib')
     implementation project(':common:interface')
 
-    // android
-    implementation Libraries.design
-
-    // coroutines
-    implementation Libraries.androidCoroutines
-    implementation Libraries.lifecycleViewModelExtensions
-
     // play
     implementation Libraries.googlePlayCore
-
-    // koin
-    implementation Libraries.koinAndroid
-
-    // Compose
-    implementation Libraries.composeUi
-    implementation Libraries.composeMaterial
-    implementation Libraries.composePreview
-    implementation Libraries.composeActivity
-    implementation Libraries.composeCoil
-    implementation Libraries.composeCoilSvg
-    implementation Libraries.constraintLayoutCompose
 
     // test
     testImplementation Libraries.kotlinTest

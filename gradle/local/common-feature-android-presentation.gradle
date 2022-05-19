@@ -1,0 +1,39 @@
+apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+
+android {
+    buildFeatures {
+        compose true
+        viewBinding true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.compose
+    }
+}
+
+dependencies {
+    // android
+    implementation Libraries.appCompat
+    implementation Libraries.androidXAnnotations
+    implementation Libraries.design
+
+    // coroutines
+    implementation Libraries.androidCoroutines
+    implementation Libraries.lifecycleViewModelExtensions
+
+    // koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
+
+    // Compose
+    implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeRx
+    implementation Libraries.composeActivity
+    implementation Libraries.composeCoil
+    implementation Libraries.composeCoilSvg
+    implementation Libraries.constraintLayoutCompose
+    implementation Libraries.composeNavigation
+    implementation Libraries.accompanistNavigationMaterial
+}
