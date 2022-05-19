@@ -798,6 +798,9 @@ class SimpleBuyCryptoFragment :
                     "Error $errorState should not presented here"
                 )
             }
+            ErrorState.BuyPaymentMethodsUnavailable -> {
+                navigator().goToBlockedBuyScreen()
+            }
         }.exhaustive
     }
 

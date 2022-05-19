@@ -239,6 +239,7 @@ sealed class ErrorState : Serializable {
 
     data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
+    object BuyPaymentMethodsUnavailable : ErrorState()
 }
 
 data class SimpleBuyOrder(

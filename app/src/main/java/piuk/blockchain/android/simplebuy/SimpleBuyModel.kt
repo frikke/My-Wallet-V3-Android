@@ -235,6 +235,9 @@ class SimpleBuyModel(
                         selectedPaymentMethod,
                         intent.paymentOptions.availablePaymentMethods
                     )
+                } ?: run {
+                    process(SimpleBuyIntent.ErrorIntent(ErrorState.BuyPaymentMethodsUnavailable))
+                    null
                 }
             }
             is SimpleBuyIntent.MakePayment ->

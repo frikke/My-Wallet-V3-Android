@@ -16,6 +16,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
@@ -252,6 +253,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
 
     private fun blockBuy(accessState: FeatureAccess.Blocked) {
         supportFragmentManager.beginTransaction()
+            .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
                 SimpleBuyBlockedFragment.newInstance(accessState, resources),
@@ -347,6 +349,10 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
                 )
             )
         )
+    }
+
+    override fun goToBlockedBuyScreen() {
+        blockBuy(FeatureAccess.Blocked(BlockedReason.NotEligible))
     }
 
     companion object {

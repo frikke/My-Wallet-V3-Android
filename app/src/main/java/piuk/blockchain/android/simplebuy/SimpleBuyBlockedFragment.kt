@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import com.blockchain.analytics.Analytics
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -46,6 +47,8 @@ class SimpleBuyBlockedFragment : Fragment() {
             description.text = data.description
             notEligibleIcon.setImageResource(data.icon)
         }
+
+        (activity as BlockchainActivity).updateToolbar(getString(R.string.empty), emptyList(), null)
 
         logErrorAnalytics(data.title, data.error)
     }

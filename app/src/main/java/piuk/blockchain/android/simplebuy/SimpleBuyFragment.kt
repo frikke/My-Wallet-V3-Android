@@ -31,6 +31,7 @@ interface SimpleBuyNavigator :
     fun goToPaymentScreen(addToBackStack: Boolean = true, isPaymentAuthorised: Boolean = false)
     fun goToSetupFirstRecurringBuy(addToBackStack: Boolean = true)
     fun goToFirstRecurringBuyCreated(addToBackStack: Boolean = true)
+    fun goToBlockedBuyScreen()
 }
 
 interface SmallSimpleBuyNavigator {
