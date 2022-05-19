@@ -14,7 +14,7 @@ internal class AppRatingApiService(
     private val appRatingEndpoints: AppRatingEndpoints,
 ) : AppRatingApi {
     /**
-     * Post rating data to checkmaster
+     * Post rating data to checkmarket
      */
     override suspend fun postRatingData(
         apiKeys: AppRatingApiKeys,

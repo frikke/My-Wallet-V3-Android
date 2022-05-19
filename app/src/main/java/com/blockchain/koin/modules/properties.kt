@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import piuk.blockchain.android.BuildConfig
+import piuk.blockchain.android.rating.data.CHECKMARKET_URL
 
 val appProperties = mapOf(
     "app-version" to BuildConfig.VERSION_NAME,
@@ -18,4 +19,5 @@ val urls = mapOf(
     "blockchain-api" to BuildConfig.API_URL,
     "nabu-api" to "${BuildConfig.API_URL}nabu-gateway/",
     "wallet-helper-url" to BuildConfig.WALLET_HELPER_URL,
+    CHECKMARKET_URL to BuildConfig.CHECKMARKET_URL,
 )

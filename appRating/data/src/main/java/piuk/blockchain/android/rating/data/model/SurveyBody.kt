@@ -51,30 +51,26 @@ internal data class SurveyBody private constructor(
          */
         fun build(appRating: AppRating): SurveyBody {
             return SurveyBody(
-                questionResponses = mutableListOf<SurveyQuestionResponses>().apply {
-                    add(
-                        // Static rating question id = 1
-                        SurveyQuestionResponses(
-                            questionId = 1,
-                            responses = listOf(SurveyResponse(responseId = appRating.rating))
-                        )
-                    )
+                questionResponses = listOfNotNull(
+                    // Static rating question id = 1
+                    SurveyQuestionResponses(
+                        questionId = 1,
+                        responses = listOf(SurveyResponse(responseId = appRating.rating))
+                    ),
 
                     appRating.feedback?.let { feedback ->
-                        add(
-                            // Static feedback question id = 2
-                            SurveyQuestionResponses(
-                                questionId = 2,
-                                responses = listOf(
-                                    SurveyResponse(
-                                        responseId = 1,
-                                        value = feedback
-                                    )
+                        // Static feedback question id = 2
+                        SurveyQuestionResponses(
+                            questionId = 2,
+                            responses = listOf(
+                                SurveyResponse(
+                                    responseId = 1,
+                                    value = feedback
                                 )
                             )
                         )
                     }
-                }
+                )
             )
         }
     }

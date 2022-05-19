@@ -9,7 +9,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.module
 import piuk.blockchain.android.rating.data.api.AppRatingApi
-import piuk.blockchain.android.rating.data.api.AppRatingApiConfig
 import piuk.blockchain.android.rating.data.api.AppRatingApiService
 import piuk.blockchain.android.rating.data.api.AppRatingEndpoints
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
@@ -18,7 +17,8 @@ import piuk.blockchain.android.rating.data.repository.AppRatingRepository
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import retrofit2.Retrofit
 
-val checkMarketApiRetrofit = StringQualifier("kotlinx-api")
+internal val checkMarketApiRetrofit = StringQualifier("kotlinx-api")
+const val CHECKMARKET_URL = "checkmarket-url"
 
 @OptIn(ExperimentalSerializationApi::class)
 val appRatingDataModule = module {
@@ -30,7 +30,7 @@ val appRatingDataModule = module {
             }
 
             Retrofit.Builder()
-                .baseUrl(AppRatingApiConfig.URL)
+                .baseUrl(getProperty(CHECKMARKET_URL))
                 .client(get())
                 .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
