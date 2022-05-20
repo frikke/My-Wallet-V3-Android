@@ -1,22 +1,33 @@
 package piuk.blockchain.android.rating.data.repository
 
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.service.TierService
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.AppRatingPrefs
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
+import com.blockchain.preferences.CurrencyPrefs
+import kotlinx.coroutines.rx3.await
+import piuk.blockchain.android.rating.data.BuildConfig
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
     private val appRatingApiKeysRemoteConfig: AppRatingApiKeysRemoteConfig,
     private val defaultThreshold: Int,
     private val appRatingApi: AppRatingApi,
-    private val appRatingPrefs: AppRatingPrefs
+    private val appRatingPrefs: AppRatingPrefs,
+
+    // prerequisites verification
+    private val tierService: TierService,
+    private val currencyPrefs: CurrencyPrefs,
+    private val paymentsDataManager: PaymentsDataManager
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
@@ -48,12 +59,41 @@ internal class AppRatingRepository(
         } ?: false
     }
 
-    override fun shouldShowRating(): Boolean {
-        if (appRatingPrefs.completed) return false
+    override suspend fun shouldShowRating(): Boolean {
+        return when {
+            // have not rated before
+            appRatingPrefs.completed -> false
 
-        val currentTimeMillis = Calendar.getInstance().timeInMillis
-        val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
-        return difference > TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS)
+            // must be GOLD
+            isKycGold().not() -> false
+
+            // must have no withdrawal locks
+            hasWithdrawalLocks() -> false
+
+            // last try was more than a month ago
+            else -> {
+                val minDuration = if (BuildConfig.DEBUG)
+                    TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS) // 30 seconds for debug
+                else
+                    TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS) // 31 days for release
+
+                val currentTimeMillis = Calendar.getInstance().timeInMillis
+                val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
+                return difference > minDuration
+            }
+        }
+    }
+
+    private suspend fun isKycGold(): Boolean {
+        tierService.tiers().await().let { kycTiers ->
+            return kycTiers.isApprovedFor(KycTierLevel.GOLD)
+        }
+    }
+
+    private suspend fun hasWithdrawalLocks(): Boolean {
+        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
+            return fundsLocks.onHoldTotalAmount.isPositive
+        }
     }
 
     override fun markRatingCompleted() {

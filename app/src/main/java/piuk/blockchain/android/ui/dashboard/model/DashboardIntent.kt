@@ -22,6 +22,21 @@ import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 // todo Ideally we want to map this at the coincore layer to some new object, so that the dashboard doesn't have a dependency on core. Since there are a couple of others that are just passed through, though, this can be for later.
 sealed class DashboardIntent : MviIntent<DashboardState> {
+    object VerifyAppRating : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
+    object ShowAppRating : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState =
+            if (oldState.showedAppRating) {
+                oldState
+            } else {
+                oldState.copy(
+                    dashboardNavigationAction = DashboardNavigationAction.AppRating,
+                    showedAppRating = true
+                )
+            }
+    }
 
     object GetActiveAssets : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {

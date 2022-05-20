@@ -178,7 +178,8 @@ data class DashboardState(
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
-    val canPotentiallyTransactWithBanks: Boolean = true
+    val canPotentiallyTransactWithBanks: Boolean = true,
+    val showedAppRating: Boolean = false
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

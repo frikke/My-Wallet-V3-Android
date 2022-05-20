@@ -582,7 +582,7 @@ class PrefsUtil(
         set(value) = setValue(APP_RATING_COMPLETED, value)
 
     override var promptDateMillis: Long
-        get() = getValue(APP_RATING_PROMPT_DATE, Long.MIN_VALUE)
+        get() = getValue(APP_RATING_PROMPT_DATE, 0L)
         set(value) = setValue(APP_RATING_PROMPT_DATE, value)
 
     /**
