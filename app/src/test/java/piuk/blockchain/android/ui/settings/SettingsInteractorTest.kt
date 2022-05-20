@@ -1,7 +1,9 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.Database
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.referral.ReferralService
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -13,6 +15,7 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import exchangerate.HistoricRateQueries
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
@@ -28,6 +31,8 @@ class SettingsInteractorTest {
     private val paymentsDataManager: PaymentsDataManager = mock()
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
+    private val referralService: ReferralService = mock()
+    private val referralFeatureFlag: IntegratedFeatureFlag = mock()
 
     @Before
     fun setup() {
@@ -37,14 +42,16 @@ class SettingsInteractorTest {
             credentialsWiper = credentialsWiper,
             paymentsDataManager = paymentsDataManager,
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
-            currencyPrefs = currencyPrefs
+            currencyPrefs = currencyPrefs,
+            referralService = referralService,
+            referralFeatureFlag = referralFeatureFlag
         )
+        whenever(referralFeatureFlag.enabled).thenReturn(Single.just(false))
     }
 
     @Test
-    fun `Load eligibility and basic information`() {
+    fun `Load eligibility and basic information`() = runBlocking {
         val userInformation = mock<BasicProfileInfo>()
-
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
         whenever(userIdentity.getBasicProfileInformation()).thenReturn(Single.just(userInformation))
         val observer = interactor.getSupportEligibilityAndBasicInfo().test()

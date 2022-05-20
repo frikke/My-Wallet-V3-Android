@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.Partner
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
@@ -69,7 +70,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo()).thenReturn(
-            Single.just(UserDetails(Tier.SILVER, userInformation))
+            Single.just(UserDetails(Tier.SILVER, userInformation, ReferralInfo.NotAvailable))
         )
 
         val testState = model.state.test()
@@ -92,7 +93,7 @@ class SettingsModelTest {
         whenever(userInformation.email).thenReturn("paco@gmail.com")
 
         whenever(interactor.getSupportEligibilityAndBasicInfo())
-            .thenReturn(Single.just(UserDetails(Tier.GOLD, userInformation)))
+            .thenReturn(Single.just(UserDetails(Tier.GOLD, userInformation, ReferralInfo.NotAvailable)))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadHeaderInformation)

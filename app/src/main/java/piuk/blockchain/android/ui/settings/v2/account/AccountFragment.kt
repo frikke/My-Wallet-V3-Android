@@ -17,6 +17,8 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
+import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -181,6 +183,7 @@ class AccountFragment :
 
         renderDebitCardInformation(newState.blockchainCardOrderState)
         renderErrorState(newState.errorState)
+        renderReferral(newState.referralInfo)
     }
 
     private fun renderDebitCardInformation(blockchainCardOrderState: BlockchainCardOrderState) =
@@ -206,6 +209,21 @@ class AccountFragment :
                 }
             }
         }
+
+    private fun renderReferral(referralInfo: ReferralInfo) {
+        with(binding) {
+            settingsReferAFriend.visibleIf { referralInfo is ReferralInfo.Data }
+            settingsReferAFriendDiv.visibleIf { referralInfo is ReferralInfo.Data }
+        }
+
+        if (referralInfo is ReferralInfo.Data) {
+            with(binding.settingsReferAFriend) {
+                primaryText = getString(R.string.account_refer_a_friend)
+                onClick = { navigator().goToReferralCode(referralInfo) }
+            }
+            binding.settingsReferAFriendDiv.visibility = View.VISIBLE
+        }
+    }
 
     private fun renderErrorState(error: AccountError) =
         when (error) {

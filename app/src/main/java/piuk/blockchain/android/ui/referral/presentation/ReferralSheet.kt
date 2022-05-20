@@ -13,12 +13,11 @@ import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.androidx.viewmodel.scope.getViewModel
 import org.koin.java.KoinJavaComponent.get
-import piuk.blockchain.android.ui.referral.domain.model.ReferralData
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
 import piuk.blockchain.android.util.shareText
@@ -88,7 +87,7 @@ class ReferralSheet :
     }
 
     companion object {
-        fun newInstance(referralData: ReferralData) = ReferralSheet().withArgs(
+        fun newInstance(referralData: ReferralInfo.Data) = ReferralSheet().withArgs(
             key = ReferralArgs.ARGS_KEY,
             args = referralData.mapArgs()
         )

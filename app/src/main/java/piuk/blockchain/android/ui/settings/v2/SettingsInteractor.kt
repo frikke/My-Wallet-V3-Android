@@ -1,10 +1,13 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.payments.LinkedPaymentMethod
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.referral.ReferralService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -16,6 +19,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -26,20 +30,35 @@ class SettingsInteractor internal constructor(
     private val credentialsWiper: CredentialsWiper,
     private val paymentsDataManager: PaymentsDataManager,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val referralService: ReferralService,
+    private val referralFeatureFlag: IntegratedFeatureFlag
 ) {
     private val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
-
     fun getUserFiat() = userSelectedFiat
 
-    fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> =
-        Singles.zip(
+    fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {
+        return Singles.zip(
             userIdentity.getHighestApprovedKycTier(),
-            userIdentity.getBasicProfileInformation()
-        ).map { (tier, basicInfo) ->
-            UserDetails(userTier = tier, userInfo = basicInfo)
+            userIdentity.getBasicProfileInformation(),
+            getReferralDataSingleIfEnabled()
+        ).map { (tier, basicInfo, referral) ->
+            UserDetails(userTier = tier, userInfo = basicInfo, referralInfo = referral)
         }
+    }
+
+    private fun getReferralDataSingleIfEnabled(): Single<ReferralInfo> {
+        return referralFeatureFlag.enabled
+            .flatMap {
+                if (it) {
+                    rxSingle { referralService.fetchReferralData() }
+                } else {
+                    Single.just(ReferralInfo.NotAvailable as ReferralInfo)
+                }
+            }
+            .onErrorResumeWith { ReferralInfo.NotAvailable }
+    }
 
     fun unpairWallet(): Completable = Completable.fromAction {
         credentialsWiper.wipe()

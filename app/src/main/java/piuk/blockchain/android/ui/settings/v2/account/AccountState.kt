@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.v2.account
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.referral.model.ReferralInfo
 import info.blockchain.balance.FiatCurrency
 
 data class AccountState(
@@ -10,7 +11,8 @@ data class AccountState(
     val accountInformation: AccountInformation? = null,
     val errorState: AccountError = AccountError.NONE,
     val exchangeLinkingState: ExchangeLinkingState = ExchangeLinkingState.UNKNOWN,
-    val blockchainCardOrderState: BlockchainCardOrderState = BlockchainCardOrderState.NotEligible
+    val blockchainCardOrderState: BlockchainCardOrderState = BlockchainCardOrderState.NotEligible,
+    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable
 ) : MviState
 
 sealed class ViewToLaunch {

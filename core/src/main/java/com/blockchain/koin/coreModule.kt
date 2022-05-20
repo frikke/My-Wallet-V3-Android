@@ -33,11 +33,13 @@ import com.blockchain.core.payments.PaymentsDataManagerImpl
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cards.CardsCache
+import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.referral.ReferralService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.payload.PayloadDecrypt
@@ -382,6 +384,14 @@ val coreModule = module {
                 assetCatalogue = get()
             )
         }.bind(WatchlistDataManager::class)
+
+        factory {
+            ReferralRepository(
+                authenticator = get(),
+                referralApi = get(),
+                currencyPrefs = get(),
+            )
+        }.bind(ReferralService::class)
     }
 
     single {

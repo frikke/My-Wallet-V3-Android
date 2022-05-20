@@ -16,6 +16,7 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.core.payments.LinkedPaymentMethod
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.scopedInject
@@ -32,6 +33,7 @@ import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.debug.FeatureFlagsHandlingActivity
 import piuk.blockchain.android.ui.kyc.limits.KycLimitsActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.settings.v2.account.AccountFragment
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesFragment
@@ -191,6 +193,12 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
         replaceCurrentFragment(BlockchainCardFragment.newInstance(blockchainCard))
     }
 
+    override fun goToReferralCode(referral: ReferralInfo.Data) {
+        showBottomSheet(
+            ReferralSheet.newInstance(referral)
+        )
+    }
+
     private fun replaceCurrentFragment(newFragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
@@ -239,6 +247,7 @@ interface SettingsNavigator {
     fun goToOrderBlockchainCard(cardProduct: BlockchainCardProduct)
     fun goToManageBlockchainCard(blockchainCard: BlockchainCard)
     fun goToNotificationPreferencesDetails(preference: ContactPreference)
+    fun goToReferralCode(referral: ReferralInfo.Data)
 }
 
 interface SettingsScreen : FlowFragment {

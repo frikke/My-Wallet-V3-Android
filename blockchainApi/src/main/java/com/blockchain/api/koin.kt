@@ -20,6 +20,7 @@ import com.blockchain.api.kyc.KycApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
+import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryService
@@ -37,6 +38,7 @@ import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.ProductEligibilityApiService
+import com.blockchain.api.services.ReferralApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
 import com.blockchain.api.services.WalletSettingsService
@@ -295,6 +297,13 @@ val blockchainApiModule = module {
                 get() = getProperty("wallet-helper-url")
         }
     }.bind(WalletHelperUrl::class)
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(ReferralApi::class.java)
+        ReferralApiService(
+            api = api,
+        )
+    }
 }
 
 fun Scope.getBaseUrl(propName: String): String = getProperty(propName)

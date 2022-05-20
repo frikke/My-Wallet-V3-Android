@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.PaymentMethod
@@ -14,7 +15,8 @@ data class SettingsState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val paymentMethodInfo: PaymentMethods? = null,
     val tier: Tier = Tier.BRONZE,
-    val error: SettingsError = SettingsError.NONE
+    val error: SettingsError = SettingsError.NONE,
+    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable
 ) : MviState
 
 sealed class ViewToLaunch {
@@ -39,5 +41,6 @@ data class PaymentMethods(
 
 data class UserDetails(
     val userTier: Tier,
-    val userInfo: BasicProfileInfo
+    val userInfo: BasicProfileInfo,
+    val referralInfo: ReferralInfo
 )

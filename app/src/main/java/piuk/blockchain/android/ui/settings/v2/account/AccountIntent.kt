@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.settings.v2.account
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.domain.referral.model.ReferralInfo
 import info.blockchain.balance.FiatCurrency
 
 sealed class AccountIntent : MviIntent<AccountState> {
@@ -14,6 +15,10 @@ sealed class AccountIntent : MviIntent<AccountState> {
     }
 
     object LoadBCDebitCardInformation : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    object LoadReferralData : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
@@ -49,6 +54,12 @@ sealed class AccountIntent : MviIntent<AccountState> {
         AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
             blockchainCardOrderState = blockchainCardOrderState
+        )
+    }
+
+    class UpdateReferralInfo(private val referralInfo: ReferralInfo) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
+            referralInfo = referralInfo
         )
     }
 }

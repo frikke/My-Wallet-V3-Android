@@ -91,5 +91,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <com.blockchain.componentlib.tablerow.DefaultTableRowView
+            android:id="@+id/settings_refer_a_friend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <com.blockchain.componentlib.divider.HorizontalDividerView
+            android:id="@+id/settings_refer_a_friend_div"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

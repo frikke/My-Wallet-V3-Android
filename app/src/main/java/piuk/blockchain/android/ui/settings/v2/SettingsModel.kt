@@ -35,7 +35,8 @@ class SettingsModel(
                             process(
                                 SettingsIntent.UpdateContactSupportEligibility(
                                     tier = userDetails.userTier,
-                                    userInformation = userDetails.userInfo
+                                    userInformation = userDetails.userInfo,
+                                    referralInfo = userDetails.referralInfo
                                 )
                             )
                         }, onError = {

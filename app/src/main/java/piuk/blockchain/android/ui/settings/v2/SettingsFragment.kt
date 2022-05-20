@@ -33,6 +33,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
@@ -119,7 +120,7 @@ class SettingsFragment :
     }
 
     override fun render(newState: SettingsState) {
-        setupMenuItems(newState.basicProfileInfo, newState.tier)
+        setupMenuItems(newState.basicProfileInfo)
         host.updateTier(newState.tier)
         newState.basicProfileInfo?.let { userInfo ->
             setInfoHeader(userInfo, newState.tier)
@@ -165,6 +166,16 @@ class SettingsFragment :
                         gravity = Gravity.CENTER
                     }
                 )
+            }
+        }
+
+        with(binding.referralBtn) {
+            visibleIf { newState.referralInfo is ReferralInfo.Data }
+            if (newState.referralInfo is ReferralInfo.Data) {
+                text = newState.referralInfo.rewardTitle
+                onClick = {
+                    navigator().goToReferralCode(newState.referralInfo)
+                }
             }
         }
 
@@ -385,7 +396,7 @@ class SettingsFragment :
         )
     }
 
-    private fun setupMenuItems(basicProfileInfo: BasicProfileInfo?, userTier: Tier) {
+    private fun setupMenuItems(basicProfileInfo: BasicProfileInfo?) {
         with(binding) {
             seeProfile.apply {
                 text = context.getString(R.string.settings_see_profile)

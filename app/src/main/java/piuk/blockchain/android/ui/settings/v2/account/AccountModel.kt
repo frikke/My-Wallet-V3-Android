@@ -53,6 +53,12 @@ class AccountModel(
                     }
                 )
             }
+            is AccountIntent.LoadReferralData -> {
+                rxSingle { interactor.getReferralData() }
+                    .subscribeBy(
+                        onSuccess = { process(AccountIntent.UpdateReferralInfo(it)) },
+                    )
+            }
             is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
                 .subscribeBy(
                     onSuccess = { list ->
@@ -87,6 +93,7 @@ class AccountModel(
             is AccountIntent.ResetViewState,
             is AccountIntent.UpdateViewToLaunch,
             is AccountIntent.UpdateAccountInformation,
+            is AccountIntent.UpdateReferralInfo,
             is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive
 }

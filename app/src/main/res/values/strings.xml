@@ -2558,6 +2558,7 @@
     <string name="account_exchange_launch">Launch the Blockchain Exchange</string>
     <string name="account_airdrops_title">Airdrops</string>
     <string name="account_addresses_title">Addresses</string>
+    <string name="account_refer_a_friend">Refer a friend</string>
     <string name="account_wallet_id_copy_error">There was an error copying your Wallet ID, please try again.</string>
     <string name="account_exchange_connect_title">Connect to Exchange</string>
     <string name="account_exchange_connected_title">Access the Blockchain.com Exchange</string>

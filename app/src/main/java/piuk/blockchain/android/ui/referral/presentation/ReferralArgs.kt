@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.referral.presentation
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import kotlinx.parcelize.Parcelize
-import piuk.blockchain.android.ui.referral.domain.model.ReferralData
 
 @Parcelize
 data class ReferralArgs(
@@ -17,11 +17,9 @@ data class ReferralArgs(
     }
 }
 
-fun ReferralData.mapArgs(): ReferralArgs = this.run {
-    ReferralArgs(
-        code = code,
-        criteria = criteria,
-        rewardSubtitle = rewardSubtitle,
-        rewardTitle = rewardTitle
-    )
-}
+fun ReferralInfo.Data.mapArgs() = ReferralArgs(
+    code = code,
+    criteria = criteria,
+    rewardSubtitle = rewardSubtitle,
+    rewardTitle = rewardTitle
+)
