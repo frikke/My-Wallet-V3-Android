@@ -2,16 +2,19 @@ package info.blockchain.wallet.payload.data
 
 import info.blockchain.wallet.bip44.HDAccount
 import java.lang.IllegalStateException
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AccountV4(
+data class AccountV4 @OptIn(ExperimentalSerializationApi::class) constructor(
     @SerialName("label")
     override var label: String = "",
 
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     @SerialName("default_derivation")
-    var defaultType: String = Derivation.SEGWIT_BECH32_TYPE,
+    var defaultType: String = "",
 
     @SerialName("archived")
     override var isArchived: Boolean = false,

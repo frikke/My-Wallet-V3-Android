@@ -16,6 +16,8 @@ import info.blockchain.wallet.stx.STXAccount
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.LinkedList
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -40,8 +42,10 @@ class WalletBody {
     @SerialName("mnemonic_verified")
     var mnemonicVerified = false
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     @SerialName("default_account_idx")
-    var defaultAccountIdx = 0
+    var defaultAccountIdx = -1
 
     @Transient
     var wrapperVersion = 0
@@ -163,10 +167,10 @@ class WalletBody {
         val derivations: List<Derivation> = getDerivations(legacyAccount!!, segWit!!)
 
         accounts!![index] = AccountV4(
-            account.label,
-            Derivation.SEGWIT_BECH32_TYPE,
-            account.isArchived,
-            derivations.toMutableList()
+            label = account.label,
+            defaultType = Derivation.SEGWIT_BECH32_TYPE,
+            isArchived = account.isArchived,
+            derivations = derivations.toMutableList()
         )
     }
 
@@ -333,6 +337,10 @@ class WalletBody {
 
     fun getSTXAccount(): STXAccount? {
         return HD.getStxAccount()
+    }
+
+    fun updateDefaultIndex() {
+        defaultAccountIdx = 0
     }
 
     companion object {
