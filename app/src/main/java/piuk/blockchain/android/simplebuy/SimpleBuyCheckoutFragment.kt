@@ -519,7 +519,10 @@ class SimpleBuyCheckoutFragment :
                 )
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
-                    title = getString(R.string.common_http_error_with_message),
+                    title = getString(
+                        R.string.common_http_error_with_message,
+                        errorState.nabuApiException.getErrorDescription()
+                    ),
                     description = errorState.nabuApiException.getErrorDescription()
                 )
             ErrorState.InternetConnectionError ->
