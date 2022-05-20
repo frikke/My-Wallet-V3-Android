@@ -119,10 +119,12 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         analyticsPair: Pair<String, String>,
         action: String,
         nabuApiException: NabuApiException?,
+        errorDescription: String?
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
+                errorDescription = errorDescription,
                 error = analyticsPair.second,
                 source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
@@ -273,7 +275,12 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         }
 
         // Making it uppercase to match "BUY" in ClientErrorAnalytics
-        sendAnalyticsEvent(pair, state.action.name.uppercase(Locale.getDefault()), nabuApiException)
+        sendAnalyticsEvent(
+            analyticsPair = pair,
+            action = state.action.name.uppercase(Locale.getDefault()),
+            nabuApiException = nabuApiException,
+            errorDescription = error.message
+        )
     }
 
     private fun getActionStringResource(action: AssetAction): String =

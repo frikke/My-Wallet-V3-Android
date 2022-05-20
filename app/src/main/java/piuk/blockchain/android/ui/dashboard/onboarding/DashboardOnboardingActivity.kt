@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -31,11 +32,13 @@ import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import retrofit2.HttpException
 
 class DashboardOnboardingActivity :
     MviActivity<
@@ -111,7 +114,21 @@ class DashboardOnboardingActivity :
             DashboardOnboardingError.None -> {
             }
             is DashboardOnboardingError.Error -> {
-                showBottomSheet(ErrorSlidingBottomDialog.newInstance(this))
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = getString(R.string.ops),
+                            description = getString(R.string.something_went_wrong_try_again),
+                            buttonText = getString(R.string.common_ok),
+                            error = error.throwable.message,
+                            nabuApiException = (error.throwable as? HttpException)?.let {
+                                NabuApiExceptionFactory.fromResponseBody(error.throwable)
+                            },
+                            errorDescription = error.throwable.message,
+                            action = "DASHBOARD"
+                        )
+                    )
+                )
             }
         }.exhaustive
         model.process(DashboardOnboardingIntent.ClearError)

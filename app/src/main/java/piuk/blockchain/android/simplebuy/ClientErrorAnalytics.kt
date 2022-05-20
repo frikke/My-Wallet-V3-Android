@@ -13,6 +13,7 @@ sealed class ClientErrorAnalytics(
 
     class ClientLogError(
         val nabuApiException: NabuApiException?,
+        val errorDescription: String? = null,
         val error: String,
         val source: Source,
         val title: String,
@@ -26,7 +27,7 @@ sealed class ClientErrorAnalytics(
             "action" to action,
             "network_endpoint" to nabuApiException?.getPath(),
             "network_error_code" to nabuApiException?.getErrorCode()?.code.toString(),
-            "network_error_description" to nabuApiException?.getErrorDescription(),
+            "network_error_description" to (nabuApiException?.message ?: errorDescription.orEmpty()),
             "network_error_id" to nabuApiException?.getId(),
             "network_error_type" to nabuApiException?.getErrorType()?.type,
         ).withoutNullValues()
@@ -40,6 +41,7 @@ sealed class ClientErrorAnalytics(
         const val ACTION_BUY = "BUY"
         const val ACTION_SELL = "SELL"
         const val ACTION_SWAP = "SWAP"
+        const val ACTION_UNKNOWN = "UNKNOWN"
 
         const val OOPS_ERROR = "OOPS_ERROR"
         const val UNKNOWN_ERROR = "UNKNOWN_ERROR"

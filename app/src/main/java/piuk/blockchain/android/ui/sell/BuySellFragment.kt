@@ -119,16 +119,19 @@ class BuySellFragment :
                         renderErrorState()
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
+                                nabuApiException = (it as? HttpException)?.let {
                                     NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
-                                error = ClientErrorAnalytics.NABU_ERROR,
+                                },
+                                errorDescription = it.message,
+                                error = if (it is HttpException) {
+                                    ClientErrorAnalytics.NABU_ERROR
+                                } else ClientErrorAnalytics.UNKNOWN_ERROR,
                                 source = if (it is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
-                                title = ClientErrorAnalytics.NABU_ERROR,
+                                title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_SELL,
                             )
                         )

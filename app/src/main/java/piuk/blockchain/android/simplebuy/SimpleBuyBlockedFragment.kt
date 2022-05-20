@@ -50,7 +50,7 @@ class SimpleBuyBlockedFragment : Fragment() {
 
         (activity as BlockchainActivity).updateToolbar(getString(R.string.empty), emptyList(), null)
 
-        logErrorAnalytics(data.title, data.error)
+        logErrorAnalytics(data.title, data.error, data.description)
     }
 
     override fun onDestroyView() {
@@ -58,10 +58,11 @@ class SimpleBuyBlockedFragment : Fragment() {
         _binding = null
     }
 
-    private fun logErrorAnalytics(title: String, error: String) {
+    private fun logErrorAnalytics(title: String, error: String, description: String) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
+                errorDescription = description,
                 error = error,
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,

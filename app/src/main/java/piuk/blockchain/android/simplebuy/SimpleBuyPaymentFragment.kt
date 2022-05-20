@@ -237,7 +237,7 @@ class SimpleBuyPaymentFragment :
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
                 error = error,
-                source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
+                source = nabuApiException?.getErrorCode()?.let { ClientErrorAnalytics.Companion.Source.NABU }
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,

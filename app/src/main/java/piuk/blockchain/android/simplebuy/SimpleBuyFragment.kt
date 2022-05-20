@@ -45,6 +45,7 @@ interface ErrorBuyNavigator {
         description: String,
         button: String? = null,
         error: String,
+        errorDescription: String? = null,
         nabuApiException: NabuApiException? = null
     )
 }

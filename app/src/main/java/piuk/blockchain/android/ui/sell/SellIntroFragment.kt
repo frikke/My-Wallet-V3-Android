@@ -127,10 +127,13 @@ class SellIntroFragment : ViewPagerFragment() {
                 renderSellError()
                 analytics.logEvent(
                     ClientErrorAnalytics.ClientLogError(
-                        nabuApiException = if (it is HttpException) {
+                        nabuApiException = (it as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(it)
-                        } else null,
-                        error = ClientErrorAnalytics.OOPS_ERROR,
+                        },
+                        errorDescription = it.message,
+                        error = if (it is HttpException) {
+                            ClientErrorAnalytics.NABU_ERROR
+                        } else ClientErrorAnalytics.UNKNOWN_ERROR,
                         source = if (it is HttpException) {
                             ClientErrorAnalytics.Companion.Source.NABU
                         } else {
@@ -277,10 +280,13 @@ class SellIntroFragment : ViewPagerFragment() {
                     renderSellError()
                     analytics.logEvent(
                         ClientErrorAnalytics.ClientLogError(
-                            nabuApiException = if (it is HttpException) {
+                            nabuApiException = (it as? HttpException)?.let {
                                 NabuApiExceptionFactory.fromResponseBody(it)
-                            } else null,
-                            error = NABU_ERROR,
+                            },
+                            errorDescription = it.message,
+                            error = if (it is HttpException) {
+                                ClientErrorAnalytics.NABU_ERROR
+                            } else ClientErrorAnalytics.UNKNOWN_ERROR,
                             source = if (it is HttpException) {
                                 ClientErrorAnalytics.Companion.Source.NABU
                             } else {

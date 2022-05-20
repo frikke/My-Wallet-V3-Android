@@ -335,17 +335,19 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         description: String,
         button: String?,
         error: String,
+        errorDescription: String?,
         nabuApiException: NabuApiException?
     ) {
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
-                    title,
-                    description,
-                    button ?: getString(R.string.common_ok),
-                    error,
-                    nabuApiException,
-                    ACTION_BUY
+                    title = title,
+                    description = description,
+                    buttonText = button ?: getString(R.string.common_ok),
+                    error = error,
+                    nabuApiException = nabuApiException,
+                    errorDescription = description,
+                    action = ACTION_BUY
                 )
             )
         )

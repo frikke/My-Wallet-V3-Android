@@ -124,9 +124,10 @@ class BuyIntroFragment :
                         renderErrorState()
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
+                                nabuApiException = (it as? HttpException)?.let {
                                     NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
+                                },
+                                errorDescription = it.message,
                                 error = ClientErrorAnalytics.NABU_ERROR,
                                 source = if (it is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU

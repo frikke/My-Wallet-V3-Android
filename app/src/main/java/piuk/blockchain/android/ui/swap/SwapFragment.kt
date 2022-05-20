@@ -241,16 +241,19 @@ class SwapFragment :
                         showErrorUi()
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
+                                nabuApiException = (it as? HttpException)?.let {
                                     NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
+                                },
+                                errorDescription = it.message,
                                 title = getString(R.string.transfer_wallets_load_error),
                                 source = if (it is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
-                                error = OOPS_ERROR,
+                                error = if (it is HttpException) {
+                                    ClientErrorAnalytics.NABU_ERROR
+                                } else ClientErrorAnalytics.OOPS_ERROR,
                                 action = ACTION_SWAP,
                             )
                         )

@@ -788,6 +788,7 @@ class SimpleBuyCryptoFragment :
                 analytics.logEvent(
                     ClientErrorAnalytics.ClientLogError(
                         nabuApiException = null,
+                        errorDescription = "IllegalStateException",
                         error = errorState.toString(),
                         source = ClientErrorAnalytics.Companion.Source.CLIENT,
                         title = "IllegalStateException",

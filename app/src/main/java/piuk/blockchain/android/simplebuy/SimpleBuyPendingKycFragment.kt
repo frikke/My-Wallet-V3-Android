@@ -120,8 +120,7 @@ class SimpleBuyPendingKycFragment :
                 continueToWallet.visible()
                 // Case when user is trying to link a payment method, after successful kyc
                 logErrorAnalytics(
-                    title = getString(R.string.please_try_linking_your_bank_again),
-                    error = "LinkedBankNotSupported"
+                    title = getString(R.string.please_try_linking_your_bank_again)
                 )
             } else if (newState.isLoading) {
                 kycIcon.setImageResource(R.drawable.ic_bank_details_big)
@@ -133,11 +132,11 @@ class SimpleBuyPendingKycFragment :
         }
     }
 
-    private fun logErrorAnalytics(title: String, error: String) {
+    private fun logErrorAnalytics(title: String) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = null,
-                error = error,
+                error = "LinkedBankNotSupported",
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,

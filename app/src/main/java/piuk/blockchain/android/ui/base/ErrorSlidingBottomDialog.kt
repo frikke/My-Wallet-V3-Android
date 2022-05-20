@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.base
 
-import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -9,9 +8,9 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import java.lang.IllegalStateException
 import kotlinx.parcelize.Parcelize
-import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_UNKNOWN
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDialogBinding>() {
@@ -36,7 +35,8 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             title = errorDialogData.title,
             error = errorDialogData.error.orEmpty(),
             nabuApiException = errorDialogData.nabuApiException,
-            action = errorDialogData.action
+            action = errorDialogData.action,
+            description = errorDialogData.description
         )
     }
 
@@ -44,13 +44,15 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         title: String,
         error: String,
         nabuApiException: NabuApiException?,
+        description: String,
         action: String?
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
+                errorDescription = description,
                 error = error,
-                source = nabuApiException?.let { ClientErrorAnalytics.Companion.Source.NABU }
+                source = nabuApiException?.getErrorCode()?.let { ClientErrorAnalytics.Companion.Source.NABU }
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = action,
@@ -64,21 +66,6 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             ErrorSlidingBottomDialog().apply {
                 arguments = Bundle().apply { putParcelable(ERROR_DIALOG_DATA_KEY, errorDialogData) }
             }
-
-        @Deprecated("Don't use this method. Always, have specific errors ")
-        fun newInstance(context: Context): ErrorSlidingBottomDialog =
-            ErrorSlidingBottomDialog().apply {
-                arguments = Bundle().apply {
-                    putParcelable(
-                        ERROR_DIALOG_DATA_KEY,
-                        ErrorDialogData(
-                            context.getString(R.string.ops),
-                            context.getString(R.string.something_went_wrong_try_again),
-                            context.getString(R.string.common_ok),
-                        )
-                    )
-                }
-            }
     }
 }
 
@@ -89,5 +76,6 @@ data class ErrorDialogData(
     val buttonText: String,
     val error: String? = null,
     val nabuApiException: NabuApiException? = null,
-    val action: String? = null
+    val errorDescription: String? = null,
+    val action: String? = ACTION_UNKNOWN
 ) : Parcelable

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
@@ -14,11 +15,14 @@ import com.blockchain.core.limits.Feature
 import com.blockchain.core.limits.FeatureLimit
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
+import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding
 import piuk.blockchain.android.ui.adapters.Diffable
+import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
+import retrofit2.HttpException
 
 class KycLimitsFragment :
     MviFragment<KycLimitsModel, KycLimitsIntent, KycLimitsState, FragmentKycLimitsBinding>(),
@@ -92,7 +96,23 @@ class KycLimitsFragment :
     private fun handleErrorState(errorState: KycLimitsError) = when (errorState) {
         is KycLimitsError.FullscreenError -> {
         }
-        is KycLimitsError.SheetError -> showBottomSheet(ErrorSlidingBottomDialog.newInstance(requireContext()))
+        is KycLimitsError.SheetError -> {
+            showBottomSheet(
+                ErrorSlidingBottomDialog.newInstance(
+                    ErrorDialogData(
+                        title = getString(R.string.ops),
+                        description = getString(R.string.something_went_wrong_try_again),
+                        buttonText = getString(R.string.common_ok),
+                        error = errorState.toString(),
+                        nabuApiException = (errorState.exception as? HttpException)?.let {
+                            NabuApiExceptionFactory.fromResponseBody(errorState.exception)
+                        },
+                        errorDescription = errorState.exception.message,
+                        action = "KYC_LIMITS"
+                    )
+                )
+            )
+        }
         KycLimitsError.None -> {
         }
     }
