@@ -3,15 +3,19 @@ package piuk.blockchain.android.ui.dashboard.coinview.interstitials
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.ButtonType
-import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -59,22 +63,36 @@ class NoBalanceActionBottomSheet : BottomSheetDialogFragment() {
                         onCloseClick = {
                             dismiss()
                         },
-                        topButton = CustomButton(
-                            text = details.primaryButtonText,
-                            onClick = {
-                                details.primaryButtonOnClick()
-                                super.dismiss()
-                            },
-                            type = ButtonType.PRIMARY
-                        ),
-                        bottomButton = CustomButton(
-                            text = details.secondaryButtonText,
-                            onClick = {
-                                details.secondaryButtonOnClick()
-                                super.dismiss()
-                            },
-                            type = ButtonType.MINIMAL
-                        ),
+                        topButton = {
+                            PrimaryButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = dimensionResource(R.dimen.standard_margin),
+                                        end = dimensionResource(R.dimen.standard_margin)
+                                    ),
+                                text = details.primaryButtonText,
+                                onClick = {
+                                    details.primaryButtonOnClick()
+                                    super.dismiss()
+                                }
+                            )
+                        },
+                        bottomButton = {
+                            MinimalButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = dimensionResource(R.dimen.standard_margin),
+                                        end = dimensionResource(R.dimen.standard_margin)
+                                    ),
+                                text = details.secondaryButtonText,
+                                onClick = {
+                                    details.secondaryButtonOnClick()
+                                    super.dismiss()
+                                }
+                            )
+                        },
                         shouldShowHeaderDivider = false
                     )
                 }
