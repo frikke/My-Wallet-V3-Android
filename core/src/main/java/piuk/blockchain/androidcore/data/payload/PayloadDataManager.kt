@@ -212,11 +212,39 @@ class PayloadDataManager internal constructor(
             .then {
                 logWalletStats(hasRecoveredDerivations = false)
                 recoverMissingDerivations()
+            }.then {
+                checkForDefaultMissingDerivationOrDefaultAccountIndex()
             }
             .doOnComplete {
                 logWalletStats(hasRecoveredDerivations = true)
             }
             .applySchedulers()
+
+    /**
+     * In this method we check that the payload accounts are not missing the default_derivation field and the WalletBody
+     * is not missing the defaultAccountIdx. If any of them are missing then we update them and we resync the payload.
+     * The original issue was created when a bug introduced by kotlinx serialisation made those fields not to get
+     * encode on the payload and iOS was failing due to them missing from the payload.
+     */
+    private fun checkForDefaultMissingDerivationOrDefaultAccountIndex(): Completable {
+        val accountsMissingDefaultType = payloadManager.payload?.walletBody?.accounts?.filter { account ->
+            account is AccountV4 && account.defaultType.isEmpty()
+        } ?: emptyList()
+
+        val missingDefaultIndex = payloadManager.payload?.walletBody?.defaultAccountIdx == -1
+
+        val updateRequired = missingDefaultIndex || accountsMissingDefaultType.isNotEmpty()
+        return when {
+            !updateRequired || isDoubleEncrypted -> Completable.complete()
+            else -> {
+                accountsMissingDefaultType.forEach { account ->
+                    payloadManager.payload?.walletBody?.generateDerivationsForAccount(account)
+                }
+                payloadManager.payload?.walletBody?.updateDefaultIndex()
+                syncPayloadWithServer()
+            }
+        }
+    }
 
     /**
      * Initializes and decrypts a user's payload given valid QR code scan data.
