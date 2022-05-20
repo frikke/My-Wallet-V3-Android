@@ -23,7 +23,7 @@ internal class FiatCryptoConversionModel(
     private val internalRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
     private val outputRate: BehaviorSubject<ExchangeRate> = BehaviorSubject.create()
 
-    private var shouldUseCustomInternal = false
+    private var wasInternalRateOverridden = false
 
     val exchangeAmount: Observable<ConvertedAmounts> = Observable.combineLatest(
         internalRate.filter { it.price.toBigInteger() != 0.toBigInteger() },
@@ -51,6 +51,10 @@ internal class FiatCryptoConversionModel(
     }
 
     fun configUpdated(configuration: FiatCryptoViewConfiguration) {
+        internalRate.onNext(
+            ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency)
+        )
+        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency, configuration.outputCurrency))
         Single.zip(
             getInternalExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency),
             getOutputExchangeRate(configuration.inputCurrency, configuration.outputCurrency)
@@ -89,8 +93,8 @@ internal class FiatCryptoConversionModel(
         }
     }
 
-    fun updateInternalExchangeRate(exchangeRate: ExchangeRate) {
-        shouldUseCustomInternal = true
+    fun overrideInternalExchangeRate(exchangeRate: ExchangeRate) {
+        wasInternalRateOverridden = true
         internalRate.onNext(exchangeRate)
     }
 
@@ -98,13 +102,12 @@ internal class FiatCryptoConversionModel(
         input: Currency,
         output: Currency
     ): Single<ExchangeRate> {
-        return if (shouldUseCustomInternal) {
+        return if (wasInternalRateOverridden) {
             val customRate = internalRate.value
             if (customRate.from == input && customRate.to == output)
                 Single.just(customRate)
             else Single.just(customRate.inverse())
         } else {
-            internalRate.onNext(ExchangeRate.zeroRateExchangeRate(input))
             getExchangeRate(input, output)
         }
     }
@@ -113,7 +116,6 @@ internal class FiatCryptoConversionModel(
         input: Currency,
         output: Currency
     ): Single<ExchangeRate> {
-        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(input))
         return getExchangeRate(input, output)
     }
 
