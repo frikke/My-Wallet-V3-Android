@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -45,7 +48,7 @@ fun AppRatingStarsScreen(
     onSubmit: (rating: Int) -> Unit,
     onCanceled: () -> Unit
 ) {
-    var rating = remember { 0 }
+    var rating by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier
@@ -103,7 +106,7 @@ fun AppRatingStarsScreen(
             SmallPrimaryButton(
                 text = stringResource(R.string.common_submit),
                 onClick = { onSubmit(rating) },
-                state = ButtonState.Enabled
+                state = if (rating > 0) ButtonState.Enabled else ButtonState.Disabled
             )
         }
     }
