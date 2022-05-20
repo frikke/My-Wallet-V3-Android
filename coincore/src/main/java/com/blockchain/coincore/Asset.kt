@@ -1,5 +1,6 @@
 package com.blockchain.coincore
 
+import android.os.Parcelable
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
@@ -8,7 +9,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.Serializable
+import kotlinx.parcelize.Parcelize
 
 enum class AssetFilter {
     All,
@@ -68,11 +69,11 @@ enum class AssetAction(
     Sign(ActionOrigin.FROM_SOURCE)
 }
 
-@Serializable
+@Parcelize
 data class StateAwareAction(
     val state: ActionState,
     val action: AssetAction
-)
+) : java.io.Serializable, Parcelable
 
 enum class ActionState {
     Available,
