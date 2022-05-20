@@ -8,6 +8,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import kotlinx.serialization.Serializable
 
 enum class AssetFilter {
     All,
@@ -67,6 +68,7 @@ enum class AssetAction(
     Sign(ActionOrigin.FROM_SOURCE)
 }
 
+@Serializable
 data class StateAwareAction(
     val state: ActionState,
     val action: AssetAction
