@@ -577,6 +577,14 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
+    override var completed: Boolean
+        get() = getValue(APP_RATING_COMPLETED, false)
+        set(value) = setValue(APP_RATING_COMPLETED, value)
+
+    override var promptDateMillis: Long
+        get() = getValue(APP_RATING_PROMPT_DATE, Long.MIN_VALUE)
+        set(value) = setValue(APP_RATING_PROMPT_DATE, value)
+
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -685,8 +693,9 @@ class PrefsUtil(
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
 
-        // AppUpdate (app maintenance)
-        private const val KEY_SKIPPED_VERSION_CODE = "KEY_SKIPPED_VERSION_CODE"
+        // App Rating
+        private const val APP_RATING_COMPLETED = "APP_RATING_COMPLETED"
+        private const val APP_RATING_PROMPT_DATE = "APP_RATING_PROMPT_DATE"
     }
 }
 

@@ -1,6 +1,9 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.outcome.fold
+import com.blockchain.preferences.AppRatingPrefs
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
@@ -12,7 +15,8 @@ internal class AppRatingRepository(
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
     private val appRatingApiKeysRemoteConfig: AppRatingApiKeysRemoteConfig,
     private val defaultThreshold: Int,
-    private val appRatingApi: AppRatingApi
+    private val appRatingApi: AppRatingApi,
+    private val appRatingPrefs: AppRatingPrefs
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
@@ -42,5 +46,22 @@ internal class AppRatingRepository(
                 onFailure = { false }
             )
         } ?: false
+    }
+
+    override fun shouldShowRating(): Boolean {
+        if (appRatingPrefs.completed) return false
+
+        val currentTimeMillis = Calendar.getInstance().timeInMillis
+        val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
+        return difference > TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS)
+    }
+
+    override fun markRatingCompleted() {
+        appRatingPrefs.promptDateMillis = Calendar.getInstance().timeInMillis
+        appRatingPrefs.completed = true
+    }
+
+    override fun saveRatingDateForLater() {
+        appRatingPrefs.promptDateMillis = Calendar.getInstance().timeInMillis
     }
 }
