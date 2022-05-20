@@ -13,6 +13,7 @@ import com.blockchain.nabu.datamanagers.PaymentLimits
 import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
@@ -52,7 +53,13 @@ class SettingsInteractor internal constructor(
         return referralFeatureFlag.enabled
             .flatMap {
                 if (it) {
-                    rxSingle { referralService.fetchReferralData() }
+                    rxSingle {
+                        referralService.fetchReferralData()
+                            .fold(
+                                onSuccess = { it },
+                                onFailure = { ReferralInfo.NotAvailable }
+                            )
+                    }
                 } else {
                     Single.just(ReferralInfo.NotAvailable as ReferralInfo)
                 }

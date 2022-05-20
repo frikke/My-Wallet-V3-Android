@@ -12,6 +12,11 @@ class ReferralApiService(private val api: ReferralApi) {
         currency = currency,
         platform = WALLET
     )
+
+    suspend fun validateReferralCode(
+        authorization: String,
+        referralCode: String
+    ) = api.validateReferralCode(authorization, referralCode)
 }
 
 private const val WALLET = "wallet"

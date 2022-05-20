@@ -5,6 +5,7 @@ import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.outcome.Outcome
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ReferralApi {
@@ -15,4 +16,10 @@ interface ReferralApi {
         @Query("platform") platform: String,
         @Query("currency") currency: String
     ): Outcome<ApiError, ReferralResponse>
+
+    @GET("referral/{code}")
+    suspend fun validateReferralCode(
+        @Header("authorization") authorization: String,
+        @Path("code") code: String
+    ): Outcome<ApiError, Unit>
 }

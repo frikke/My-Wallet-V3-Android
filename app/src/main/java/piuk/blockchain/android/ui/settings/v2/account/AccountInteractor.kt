@@ -9,6 +9,7 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
 import com.blockchain.preferences.CurrencyPrefs
@@ -76,7 +77,10 @@ class AccountInteractor internal constructor(
             }
 
     suspend fun getReferralData() = if (referralFeatureFlag.isEnabled()) {
-        referralService.fetchReferralData()
+        referralService.fetchReferralData().fold(
+            onSuccess = { it },
+            onFailure = { ReferralInfo.NotAvailable }
+        )
     } else {
         ReferralInfo.NotAvailable
     }

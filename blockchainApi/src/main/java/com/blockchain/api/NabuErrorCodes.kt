@@ -22,7 +22,8 @@ enum class NabuErrorStatusCodes(val code: Int) {
     Unknown(-1),
     InternalServerError(500),
     BadRequest(400),
-    Forbidden(403);
+    Forbidden(403),
+    NotFound(404);
 
     companion object {
 

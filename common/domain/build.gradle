@@ -15,4 +15,5 @@ dependencies {
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson
     implementation Libraries.rxJava
+    implementation project(path: ':common:interface')
 }
