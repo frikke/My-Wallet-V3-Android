@@ -6,6 +6,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -13,8 +14,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
-import piuk.blockchain.android.ui.home.models.MainIntent
-import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import timber.log.Timber
 
 class DashboardModel(
@@ -23,7 +22,8 @@ class DashboardModel(
     private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val appRatingService: AppRatingService
+    private val appRatingService: AppRatingService,
+    private val appRatingFF: FeatureFlag
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -37,8 +37,12 @@ class DashboardModel(
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
             DashboardIntent.VerifyAppRating -> {
-                rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
-                    if (showRating) process(DashboardIntent.ShowAppRating)
+                appRatingFF.enabled.subscribe { enabled ->
+                    if (enabled) {
+                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                            if (showRating) process(DashboardIntent.ShowAppRating)
+                        }
+                    }
                 }
             }
             DashboardIntent.ShowAppRating -> null
