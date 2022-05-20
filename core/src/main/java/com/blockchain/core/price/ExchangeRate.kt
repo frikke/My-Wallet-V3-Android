@@ -41,17 +41,21 @@ class ExchangeRate(
         )
     }
 
+    override fun toString(): String {
+        return "ExchangeRate(from=$from, to=$to, rate=$rate)"
+    }
+
     companion object {
         private fun validateCurrency(expected: Currency, got: Currency) {
             if (expected != got)
                 throw ValueTypeMismatchException("exchange", expected.networkTicker, got.networkTicker)
         }
 
-        fun zeroRateExchangeRate(currency: Currency): ExchangeRate =
+        fun zeroRateExchangeRate(from: Currency, to: Currency = from): ExchangeRate =
             ExchangeRate(
                 rate = BigDecimal.ZERO,
-                from = currency,
-                to = currency
+                from = from,
+                to = to
             )
 
         fun identityExchangeRate(currency: Currency): ExchangeRate =

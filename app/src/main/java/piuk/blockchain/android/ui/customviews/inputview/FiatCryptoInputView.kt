@@ -71,7 +71,7 @@ class FiatCryptoInputView(
     var customInternalExchangeRate: ExchangeRate = ExchangeRate.identityExchangeRate(currencyPrefs.selectedFiatCurrency)
         set(value) {
             field = value
-            conversionModel.updateInternalExchangeRate(
+            conversionModel.overrideInternalExchangeRate(
                 value.normaliseForInputAndExchange(configuration.inputCurrency, configuration.exchangeCurrency)
             )
             convertAmount()
