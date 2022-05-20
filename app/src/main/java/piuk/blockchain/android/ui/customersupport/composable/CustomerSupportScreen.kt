@@ -20,10 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.sheets.ButtonType
-import com.blockchain.componentlib.sheets.CustomButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.sheets.SheetHeader
-import com.blockchain.componentlib.sheets.toCustomButtonComposable
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey700
@@ -96,19 +94,29 @@ fun CustomerSupportScreen(
 
         Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-        CustomButton(
+        MinimalButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(R.dimen.standard_margin),
+                    end = dimensionResource(R.dimen.standard_margin)
+                ),
             text = stringResource(id = R.string.customer_support_contact_us),
-            onClick = contactUsClicked,
-            type = ButtonType.MINIMAL
-        ).toCustomButtonComposable().invoke(this)
+            onClick = contactUsClicked
+        )
 
         Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-        CustomButton(
+        MinimalButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(R.dimen.standard_margin),
+                    end = dimensionResource(R.dimen.standard_margin)
+                ),
             text = stringResource(id = R.string.customer_support_faq),
-            onClick = faqClicked,
-            type = ButtonType.MINIMAL
-        ).toCustomButtonComposable().invoke(this)
+            onClick = faqClicked
+        )
 
         Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
 

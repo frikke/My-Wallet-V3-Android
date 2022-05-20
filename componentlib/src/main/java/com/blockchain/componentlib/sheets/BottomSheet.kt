@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,8 +21,6 @@ import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.DestructiveMinimalButton
-import com.blockchain.componentlib.button.DestructivePrimaryButton
-import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -35,8 +32,8 @@ fun BottomSheet(
     imageResource: ImageResource,
     title: String,
     subtitle: String = "",
-    topButton: CustomButton? = null,
-    bottomButton: CustomButton? = null,
+    topButton: (@Composable () -> Unit)? = null,
+    bottomButton: (@Composable () -> Unit)? = null,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     shouldShowHeaderDivider: Boolean = true
 ) {
@@ -94,60 +91,15 @@ fun BottomSheet(
         )
 
         topButton?.let {
-            it.toCustomButtonComposable().invoke(this)
+            topButton()
             Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         }
 
         bottomButton?.let {
-            it.toCustomButtonComposable().invoke(this)
+            bottomButton()
             Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
         }
     }
-}
-
-@Composable
-fun CustomButton.toCustomButtonComposable(): @Composable (ColumnScope.() -> Unit) {
-    val modifier = Modifier
-        .fillMaxWidth()
-        .padding(
-            start = dimensionResource(R.dimen.standard_margin),
-            end = dimensionResource(R.dimen.standard_margin)
-        )
-    return {
-        when (type) {
-            ButtonType.PRIMARY -> PrimaryButton(
-                text = text,
-                onClick = onClick,
-                modifier = modifier
-            )
-            ButtonType.MINIMAL -> MinimalButton(
-                text = text,
-                onClick = onClick,
-                modifier = modifier
-            )
-            ButtonType.DESTRUCTIVE_MINIMAL -> DestructiveMinimalButton(
-                text = text,
-                onClick = onClick,
-                modifier = modifier
-            )
-            ButtonType.DESTRUCTIVE_PRIMARY ->
-                DestructivePrimaryButton(
-                    text = text,
-                    onClick = onClick,
-                    modifier = modifier
-                )
-        }
-    }
-}
-
-data class CustomButton(
-    val type: ButtonType,
-    val onClick: () -> Unit,
-    val text: String
-)
-
-enum class ButtonType {
-    PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
@@ -177,7 +129,17 @@ fun OnlyPrimaryTopButtonBottomSheet() {
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 subtitle = " NoButtonBottomSheetSubtitle",
-                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
+                topButton = {
+                    PrimaryButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = dimensionResource(R.dimen.standard_margin),
+                                end = dimensionResource(R.dimen.standard_margin)
+                            ),
+                        onClick = {}, text = "OK"
+                    )
+                },
                 bottomButton = null
             )
         }
@@ -193,7 +155,17 @@ fun OnlyPrimaryTopButtonBottomSheetWithNoSubtitle() {
                 onCloseClick = {},
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
-                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
+                topButton = {
+                    PrimaryButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = dimensionResource(R.dimen.standard_margin),
+                                end = dimensionResource(R.dimen.standard_margin)
+                            ),
+                        onClick = {}, text = "OK"
+                    )
+                },
                 bottomButton = null
             )
         }
@@ -210,8 +182,28 @@ fun TopAndBottomButtonsSheet() {
                 title = "NoButtonBottomSheet",
                 imageResource = ImageResource.Local(R.drawable.ic_blockchain),
                 subtitle = "NoButtonBottomSheetSubtitle",
-                topButton = CustomButton(type = ButtonType.PRIMARY, onClick = {}, text = "OK"),
-                bottomButton = CustomButton(type = ButtonType.DESTRUCTIVE_MINIMAL, onClick = {}, text = "Cancel")
+                topButton = {
+                    PrimaryButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = dimensionResource(R.dimen.standard_margin),
+                                end = dimensionResource(R.dimen.standard_margin)
+                            ),
+                        onClick = {}, text = "OK"
+                    )
+                },
+                bottomButton = {
+                    DestructiveMinimalButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = dimensionResource(R.dimen.standard_margin),
+                                end = dimensionResource(R.dimen.standard_margin)
+                            ),
+                        onClick = {}, text = "Cancel"
+                    )
+                }
             )
         }
     }

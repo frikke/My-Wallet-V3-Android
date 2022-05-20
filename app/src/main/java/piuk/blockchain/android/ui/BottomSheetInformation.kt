@@ -3,12 +3,16 @@ package piuk.blockchain.android.ui
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
+import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.sheets.BottomSheet
-import com.blockchain.componentlib.sheets.ButtonType
-import com.blockchain.componentlib.sheets.CustomButton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -44,24 +48,38 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
                         shouldShowHeaderDivider = false,
                         onCloseClick = { dismiss() },
                         imageResource = ImageResource.Local(R.drawable.ic_phone),
-                        topButton = CustomButton(
-                            text = primaryCtaText,
-                            onClick = {
-                                host.primaryButtonClicked()
-                                super.dismiss()
-                            },
-                            type = ButtonType.PRIMARY
-                        ),
-                        bottomButton = secondaryCtaText?.let {
-                            CustomButton(
-                                text = it,
+                        topButton = {
+                            PrimaryButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = dimensionResource(R.dimen.standard_margin),
+                                        end = dimensionResource(R.dimen.standard_margin)
+                                    ),
+                                text = primaryCtaText,
                                 onClick = {
-                                    host.secondButtonClicked()
+                                    host.primaryButtonClicked()
                                     super.dismiss()
-                                },
-                                type = ButtonType.MINIMAL
+                                }
                             )
                         },
+                        bottomButton = {
+                            secondaryCtaText?.let {
+                                MinimalButton(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            start = dimensionResource(R.dimen.standard_margin),
+                                            end = dimensionResource(R.dimen.standard_margin)
+                                        ),
+                                    text = it,
+                                    onClick = {
+                                        host.secondButtonClicked()
+                                        super.dismiss()
+                                    }
+                                )
+                            }
+                        }
                     )
                 }
             }
