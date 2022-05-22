@@ -24,7 +24,6 @@ import com.blockchain.componentlib.viewextensions.configureWithPinnedView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -343,7 +342,7 @@ class PortfolioFragment :
     }
 
     private fun showAppRating() {
-        AppRatingFragment().show(childFragmentManager, null)
+        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
     }
 
     fun launchNewUserDashboardOnboarding() {

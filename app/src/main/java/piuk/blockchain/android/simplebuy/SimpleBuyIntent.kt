@@ -25,6 +25,12 @@ import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
+    object AppRatingShown : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(showAppRating = false)
+
+        override fun isValidFor(oldState: SimpleBuyState) = true
+    }
 
     override fun isValidFor(oldState: SimpleBuyState): Boolean {
         return oldState.buyErrorState == null
@@ -381,7 +387,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     class OrderConfirmed(
         private val buyOrder: BuySellOrder,
-        private val showInAppRating: Boolean = false
+        private val showAppRating: Boolean
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
@@ -389,18 +395,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
                 orderValue = buyOrder.orderValue as CryptoValue,
-                showRating = showInAppRating,
+                showAppRating = showAppRating,
                 recurringBuyState = if (buyOrder.recurringBuyId.isNullOrBlank()) {
                     RecurringBuyState.UNINITIALISED
                 } else {
                     RecurringBuyState.ACTIVE
                 }
             )
-    }
-
-    object AppRatingShown : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(showRating = false)
     }
 
     class UpdateSelectedPaymentCard(

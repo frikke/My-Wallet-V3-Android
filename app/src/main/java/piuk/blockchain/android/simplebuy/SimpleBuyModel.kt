@@ -39,7 +39,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -58,6 +57,8 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
+import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
+import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
@@ -67,7 +68,6 @@ import retrofit2.HttpException
 class SimpleBuyModel(
     prefs: CurrencyPrefs,
     private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val ratingPrefs: RatingPrefs,
     private val onboardingPrefs: OnboardingPrefs,
     private val buyOrdersCache: BuyOrdersCache,
     initialState: SimpleBuyState,
@@ -82,7 +82,8 @@ class SimpleBuyModel(
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity,
-    private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase
+    private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
+    private val appRatingService: AppRatingService
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -98,6 +99,8 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
+            is SimpleBuyIntent.AppRatingShown -> null
+
             is SimpleBuyIntent.UpdatedBuyLimits -> validateAmount(
                 balance = previousState.availableBalance,
                 amount = previousState.amount,
@@ -328,10 +331,6 @@ class SimpleBuyModel(
                         processOrderErrors(it)
                     }
                 )
-            }
-            is SimpleBuyIntent.AppRatingShown -> {
-                ratingPrefs.hasSeenRatingDialog = true
-                null
             }
 
             is SimpleBuyIntent.RecurringBuySelectedFirstTimeFlow ->
@@ -860,20 +859,31 @@ class SimpleBuyModel(
         googlePayPayload: String? = null,
         googlePayBeneficiaryId: String? = null
     ): Disposable {
+
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
             .trackProgress(activityIndicator)
             .doOnTerminate { buyOrdersCache.invalidate() }
             .subscribeBy(
                 onSuccess = { buySellOrder ->
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
+
                     if (orderCreatedSuccessfully) {
                         updatePersistingCountersForCompletedOrders()
                     }
-                    process(
-                        SimpleBuyIntent.OrderConfirmed(
-                            buySellOrder, shouldShowAppRating(orderCreatedSuccessfully)
+
+                    if (orderCreatedSuccessfully &&
+                        simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
+                    ) {
+                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                            process(
+                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
+                            )
+                        }
+                    } else {
+                        process(
+                            SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
                         )
-                    )
+                    }
                 },
                 onError = {
                     processOrderErrors(it)
@@ -951,14 +961,10 @@ class SimpleBuyModel(
     }
 
     private fun updatePersistingCountersForCompletedOrders() {
-        ratingPrefs.preRatingActionCompletedTimes = ratingPrefs.preRatingActionCompletedTimes + 1
         simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
+        simpleBuyPrefs.buysCompletedCount += 1
         onboardingPrefs.isLandingCtaDismissed = true
     }
-
-    private fun shouldShowAppRating(orderCreatedSuccessFully: Boolean): Boolean =
-        ratingPrefs.preRatingActionCompletedTimes >= COMPLETED_ORDERS_BEFORE_SHOWING_APP_RATING &&
-            !ratingPrefs.hasSeenRatingDialog && orderCreatedSuccessFully
 
     private fun pollForOrderStatus() {
         process(SimpleBuyIntent.CheckOrderStatus)
@@ -1141,10 +1147,6 @@ class SimpleBuyModel(
         val availablePaymentMethods = (availableForBuyLinkedMethods + canBeLinkedMethods)
 
         return availablePaymentMethods.sortedBy { paymentMethod -> paymentMethod.order }.toList()
-    }
-
-    companion object {
-        const val COMPLETED_ORDERS_BEFORE_SHOWING_APP_RATING = 1
     }
 }
 

@@ -19,6 +19,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
+import java.util.Calendar
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -29,9 +32,6 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteCo
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
-import java.math.BigDecimal
-import java.util.Calendar
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppRatingServiceTest {

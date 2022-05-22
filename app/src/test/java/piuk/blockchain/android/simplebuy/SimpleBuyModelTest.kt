@@ -21,7 +21,6 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.network.PollResult
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
@@ -79,11 +78,6 @@ class SimpleBuyModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
 
-    private val ratingPrefs: RatingPrefs = mock {
-        on { hasSeenRatingDialog }.thenReturn(true)
-        on { preRatingActionCompletedTimes }.thenReturn(0)
-    }
-
     private val serializer: SimpleBuyPrefsSerializer = mock()
 
     private val model = SimpleBuyModel(
@@ -93,7 +87,6 @@ class SimpleBuyModelTest {
         uiScheduler = Schedulers.io(),
         interactor = interactor,
         cardActivator = cardActivator,
-        ratingPrefs = ratingPrefs,
         onboardingPrefs = mock(),
         environmentConfig = environmentConfig,
         remoteLogger = mock(),
@@ -106,7 +99,10 @@ class SimpleBuyModelTest {
         userIdentity = mock {
             on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
         },
-        getSafeConnectTosLinkUseCase = mock()
+        getSafeConnectTosLinkUseCase = mock(),
+        appRatingService = mock {
+            onBlocking { shouldShowRating() }.thenReturn(false)
+        }
     )
 
     @Test

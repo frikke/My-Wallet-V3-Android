@@ -27,6 +27,8 @@ class AppRatingFragment : DialogFragment() {
     private val inAppReviewSettings: InAppReviewSettings by scopedInject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        isCancelable = BuildConfig.DEBUG
+
         collectViewState()
 
         lifecycleScope.launch { inAppReviewSettings.init(requireContext()) }
@@ -68,5 +70,6 @@ class AppRatingFragment : DialogFragment() {
 
     companion object {
         fun newInstance() = AppRatingFragment()
+        val TAG = AppRatingFragment::class.simpleName
     }
 }

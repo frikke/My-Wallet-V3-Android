@@ -22,13 +22,10 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
-import com.blockchain.preferences.RatingPrefs
 import com.blockchain.utils.secondsToDays
 import com.checkout.android_sdk.PaymentForm
 import com.checkout.android_sdk.Utils.Environment
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.stripe.android.PaymentAuthConfig
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
@@ -42,6 +39,7 @@ import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
+import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
@@ -65,18 +63,12 @@ class SimpleBuyPaymentFragment :
     override val model: SimpleBuyModel by scopedInject()
     private val stripeFactory: StripeFactory by inject()
     private val environmentConfig: EnvironmentConfig by inject()
-    private val ratingPrefs: RatingPrefs by scopedInject()
-    private var reviewInfo: ReviewInfo? = null
     private var isFirstLoad = false
     private lateinit var previousSelectedPaymentMethodId: String
     private lateinit var previousSelectedCryptoAsset: AssetInfo
 
     private val isPaymentAuthorised: Boolean by lazy {
         arguments?.getBoolean(IS_PAYMENT_AUTHORISED, false) ?: false
-    }
-
-    private val reviewManager by lazy {
-        ReviewManagerFactory.create(activity)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,15 +83,6 @@ class SimpleBuyPaymentFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.updateToolbarTitle(getString(R.string.common_payment))
 
-        // we need to make the request as soon as possible and cache the result
-        if (!ratingPrefs.hasSeenRatingDialog) {
-            reviewManager.requestReviewFlow()
-                .addOnCompleteListener { request ->
-                    if (request.isSuccessful) {
-                        reviewInfo = request.result
-                    }
-                }
-        }
         binding.checkoutCardForm.initCheckoutPaymentForm()
     }
 
@@ -166,8 +149,8 @@ class SimpleBuyPaymentFragment :
             }
         }
 
-        if (newState.showRating) {
-            tryToShowInAppRating()
+        if (newState.showAppRating) {
+            showAppRating()
         }
     }
 
@@ -504,13 +487,9 @@ class SimpleBuyPaymentFragment :
         )
     }
 
-    private fun tryToShowInAppRating() {
-        reviewInfo?.let {
-            val flow = reviewManager.launchReviewFlow(activity, it)
-            flow.addOnCompleteListener {
-                model.process(SimpleBuyIntent.AppRatingShown)
-            }
-        }
+    private fun showAppRating() {
+        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
+        model.process(SimpleBuyIntent.AppRatingShown)
     }
 
     private fun renderTitleAndSubtitle(newState: SimpleBuyState) {
