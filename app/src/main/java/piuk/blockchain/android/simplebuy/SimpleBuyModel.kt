@@ -57,7 +57,6 @@ import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -99,7 +98,19 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
-            is SimpleBuyIntent.AppRatingShown -> null
+            SimpleBuyIntent.VerifyAppRating -> {
+                Single.zip(
+                    rxSingle { appRatingService.shouldShowRating() },
+                    Single.just(previousState.paymentSucceeded),
+                    Single.just(previousState.orderValue != null)
+                ) { shouldShowRating, paymentSucceeded, validOrderValue ->
+                    shouldShowRating && paymentSucceeded && validOrderValue
+                }.subscribe { showRating ->
+                    if (showRating) process(SimpleBuyIntent.ShowAppRating)
+                }
+            }
+
+            SimpleBuyIntent.AppRatingShown -> null
 
             is SimpleBuyIntent.UpdatedBuyLimits -> validateAmount(
                 balance = previousState.availableBalance,
@@ -871,19 +882,9 @@ class SimpleBuyModel(
                         updatePersistingCountersForCompletedOrders()
                     }
 
-                    if (orderCreatedSuccessfully &&
-                        simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
-                    ) {
-                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
-                            process(
-                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
-                            )
-                        }
-                    } else {
-                        process(
-                            SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
-                        )
-                    }
+                    process(
+                        SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder)
+                    )
                 },
                 onError = {
                     processOrderErrors(it)

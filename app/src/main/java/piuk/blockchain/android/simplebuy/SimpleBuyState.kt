@@ -55,7 +55,6 @@ data class SimpleBuyState constructor(
     val orderValue: CryptoValue? = null,
     val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
-    val showAppRating: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,
     val recurringBuyState: RecurringBuyState = RecurringBuyState.UNINITIALISED,
@@ -85,7 +84,8 @@ data class SimpleBuyState constructor(
     @Transient @kotlinx.serialization.Transient override val transactionsLimit: TransactionsLimit? = null,
     // we use this flag to avoid navigating back and forth, reset after navigating
     @Transient @kotlinx.serialization.Transient val confirmationActionRequested: Boolean = false,
-    @Transient @kotlinx.serialization.Transient val newPaymentMethodToBeAdded: PaymentMethod? = null
+    @Transient @kotlinx.serialization.Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
+    @Transient @kotlinx.serialization.Transient val showAppRating: Boolean = false,
 ) : MviState, TransactionFlowStateInfo {
 
     @delegate:Transient

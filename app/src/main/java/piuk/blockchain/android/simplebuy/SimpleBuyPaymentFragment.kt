@@ -84,6 +84,8 @@ class SimpleBuyPaymentFragment :
         activity.updateToolbarTitle(getString(R.string.common_payment))
 
         binding.checkoutCardForm.initCheckoutPaymentForm()
+
+        model.process(SimpleBuyIntent.VerifyAppRating)
     }
 
     override fun render(newState: SimpleBuyState) {

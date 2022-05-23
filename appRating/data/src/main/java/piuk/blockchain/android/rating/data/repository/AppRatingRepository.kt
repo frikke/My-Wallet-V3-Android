@@ -9,6 +9,8 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
@@ -16,8 +18,6 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteCo
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
