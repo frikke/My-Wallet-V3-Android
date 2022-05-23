@@ -36,6 +36,7 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.presentation.screens.SplashScreen
 
 class BackupPhraseActivity : BlockchainActivity() {
 
@@ -62,6 +63,9 @@ fun BackupPhraseNavHost(startDestination: String = BackPhraseDestination.SplashS
         startDestination = startDestination
     ) {
         composable(navigationEvent = BackPhraseDestination.SplashScreen) {
+           SplashScreen()
+        }
+        composable(navigationEvent = BackPhraseDestination.DefaultPhraseScreen) {
             SplashScreen()
         }
     }
@@ -69,78 +73,6 @@ fun BackupPhraseNavHost(startDestination: String = BackPhraseDestination.SplashS
 
 sealed class BackPhraseDestination(override val route: String) : ComposeNavigationDestination {
     object SplashScreen : BackPhraseDestination("Splash")
+    object DefaultPhraseScreen : BackPhraseDestination("DefaultPhrase")
 }
 
-@Preview
-@Composable
-fun SplashScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(.5f, true),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                contentScale = ContentScale.None,
-                imageResource = ImageResource.Local(R.drawable.ic_padlock)
-            )
-            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
-            Text(
-                text = stringResource(R.string.lets_backup_your_wallet),
-                modifier = Modifier.padding(
-                    start = dimensionResource(R.dimen.small_margin),
-                    end = dimensionResource(R.dimen.small_margin)
-                ),
-                textAlign = TextAlign.Center,
-                style = AppTheme.typography.title3,
-                color = AppTheme.colors.title
-            )
-            Text(
-                text = stringResource(R.string.back_up_splash_description),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(
-                    start = dimensionResource(R.dimen.standard_margin),
-                    end = dimensionResource(R.dimen.standard_margin)
-                ),
-                style = AppTheme.typography.paragraph1,
-                color = AppTheme.colors.medium
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f, true)
-                .padding(end = dimensionResource(id = R.dimen.standard_margin)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            val isChecked = remember { mutableStateOf(CheckboxState.Unchecked) }
-            Row {
-                Checkbox(
-                    state = isChecked.value,
-                    onCheckChanged = { checked ->
-                        isChecked.value = if (checked) CheckboxState.Checked else
-                            CheckboxState.Unchecked
-                    }
-                )
-                Text(
-                    text = stringResource(id = R.string.backup_phrase_checkbox_warning),
-                    style = AppTheme.typography.paragraph1
-                )
-            }
-            PrimaryButton(
-                text = stringResource(id = R.string.back_up_now),
-                state = if (isChecked.value == CheckboxState.Checked) ButtonState.Enabled else
-                    ButtonState.Disabled,
-                onClick = {}
-            )
-        }
-    }
-}
