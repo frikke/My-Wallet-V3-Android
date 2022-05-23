@@ -15,7 +15,6 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
-import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -476,8 +475,7 @@ val applicationModule = module {
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 getSafeConnectTosLinkUseCase = payloadScope.get(),
-                appRatingService = get(),
-                appRatingFF = get(appRatingFeatureFlag)
+                appRatingService = get()
             )
         }
 

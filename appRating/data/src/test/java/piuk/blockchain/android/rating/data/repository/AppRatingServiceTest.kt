@@ -3,6 +3,7 @@ package piuk.blockchain.android.rating.data.repository
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
@@ -40,6 +41,7 @@ class AppRatingServiceTest {
     private val defaultThreshold = 3
     private val appRatingApi = mockk<AppRatingApi>()
     private val appRatingPrefs = mockk<AppRatingPrefs>()
+    private val appRatingFF = mockk<FeatureFlag>()
     private val tierService = mockk<TierService>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val paymentsDataManager = mockk<PaymentsDataManager>()
@@ -50,6 +52,7 @@ class AppRatingServiceTest {
         defaultThreshold = defaultThreshold,
         appRatingApi = appRatingApi,
         appRatingPrefs = appRatingPrefs,
+        appRatingFF = appRatingFF,
         tierService = tierService,
         currencyPrefs = currencyPrefs,
         paymentsDataManager = paymentsDataManager
@@ -64,6 +67,8 @@ class AppRatingServiceTest {
 
     @Before
     fun setUp() {
+        every { appRatingFF.enabled } returns Single.just(true)
+
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 
         every { kycTiersGold.isApprovedFor(KycTierLevel.GOLD) } returns true

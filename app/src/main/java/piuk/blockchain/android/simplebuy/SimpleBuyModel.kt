@@ -18,7 +18,6 @@ import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -84,8 +83,7 @@ class SimpleBuyModel(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity,
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
-    private val appRatingService: AppRatingService,
-    private val appRatingFF: FeatureFlag
+    private val appRatingService: AppRatingService
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -873,21 +871,18 @@ class SimpleBuyModel(
                         updatePersistingCountersForCompletedOrders()
                     }
 
-                    appRatingFF.enabled.subscribe { enabled ->
-                        if (enabled &&
-                            orderCreatedSuccessfully &&
-                            simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
-                        ) {
-                            rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
-                                process(
-                                    SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
-                                )
-                            }
-                        } else {
+                    if (orderCreatedSuccessfully &&
+                        simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
+                    ) {
+                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
                             process(
-                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
+                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
                             )
                         }
+                    } else {
+                        process(
+                            SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
+                        )
                     }
                 },
                 onError = {

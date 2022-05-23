@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard
 
-import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
@@ -32,8 +31,7 @@ val dashboardModule = module {
                 interactor = get(),
                 environmentConfig = get(),
                 remoteLogger = get(),
-                appRatingService = get(),
-                appRatingFF = get(appRatingFeatureFlag)
+                appRatingService = get()
             )
         }
 

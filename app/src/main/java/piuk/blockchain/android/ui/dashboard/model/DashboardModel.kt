@@ -6,7 +6,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
@@ -22,8 +21,7 @@ class DashboardModel(
     private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val appRatingService: AppRatingService,
-    private val appRatingFF: FeatureFlag
+    private val appRatingService: AppRatingService
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -37,12 +35,8 @@ class DashboardModel(
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
             DashboardIntent.VerifyAppRating -> {
-                appRatingFF.enabled.subscribe { enabled ->
-                    if (enabled) {
-                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
-                            if (showRating) process(DashboardIntent.ShowAppRating)
-                        }
-                    }
+                rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                    if (showRating) process(DashboardIntent.ShowAppRating)
                 }
             }
             DashboardIntent.ShowAppRating -> null
