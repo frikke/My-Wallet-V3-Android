@@ -23,6 +23,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -40,6 +41,9 @@ import com.blockchain.presentation.screens.SplashScreen
 
 class BackupPhraseActivity : BlockchainActivity() {
 
+    private val defaultBackupPhraseViewModel: DefaultPhraseViewModel by lazy {
+        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
+    }
     override val alwaysDisableScreenshots: Boolean
         get() = true
 
@@ -56,23 +60,26 @@ class BackupPhraseActivity : BlockchainActivity() {
 }
 
 @Composable
-fun BackupPhraseNavHost(startDestination: String = BackPhraseDestination.SplashScreen.route) {
+fun BackupPhraseNavHost(
+    startDestination: String = BackPhraseDestination.SplashScreen.route,
+    defaultBackupPhraseViewModel: DefaultPhraseViewModel
+) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(navigationEvent = BackPhraseDestination.SplashScreen) {
-           SplashScreen()
+        composable(navigationEvent = BackPhraseDestination.Splash) {
+            SplashScreen(navController)
         }
-        composable(navigationEvent = BackPhraseDestination.DefaultPhraseScreen) {
-            SplashScreen()
+        composable(navigationEvent = BackPhraseDestination.DefaultPhrase) {
+            DefaultPhraseScreen(defaultBackupPhraseViewModel, navController)
         }
     }
 }
 
-sealed class BackPhraseDestination(override val route: String) : ComposeNavigationDestination {
-    object SplashScreen : BackPhraseDestination("Splash")
-    object DefaultPhraseScreen : BackPhraseDestination("DefaultPhrase")
+sealed class BackPhraseDestination(abstract val route: String) : ComposeNavigationDestination {
+    object Splash : BackPhraseDestination()
+    object DefaultPhrase : BackPhraseDestination("DefaultPhrase")
 }
 

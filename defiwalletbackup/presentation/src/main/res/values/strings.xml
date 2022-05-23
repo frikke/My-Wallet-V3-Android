@@ -5,4 +5,5 @@
     <string name="backup_phrase_checkbox_warning"></string>
     <string name="back_up_now"></string>
     <string name="secure_defi_wallets"></string>
+    <string name="your_recovery_phrase">Your Recovery Phrase</string>
 </resources>

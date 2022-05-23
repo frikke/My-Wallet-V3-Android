@@ -19,6 +19,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.blockchain.commonarch.presentation.mvi_v2.compose.NavArgument
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -29,9 +31,8 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 
-@Preview
 @Composable
-fun SplashScreen() {
+fun SplashScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,7 +98,9 @@ fun SplashScreen() {
                 text = stringResource(id = R.string.back_up_now),
                 state = if (isChecked.value == CheckboxState.Checked) ButtonState.Enabled else
                     ButtonState.Disabled,
-                onClick = {}
+                onClick = {
+                    navController.navigate("BackPhraseDestination")
+                }
             )
         }
     }
