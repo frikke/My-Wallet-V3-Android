@@ -28,9 +28,8 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object VerifyAppRating : SimpleBuyIntent()
 
     object ShowAppRating : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState.copy(
-            showAppRating = true
-        )
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(showAppRating = true)
 
         override fun isValidFor(oldState: SimpleBuyState) = true
     }
