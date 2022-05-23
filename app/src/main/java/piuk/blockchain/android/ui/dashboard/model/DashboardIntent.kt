@@ -28,14 +28,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     object ShowAppRating : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
-            if (oldState.showedAppRating) {
-                oldState
-            } else {
-                oldState.copy(
-                    dashboardNavigationAction = DashboardNavigationAction.AppRating,
-                    showedAppRating = true
-                )
-            }
+            oldState.copy(
+                dashboardNavigationAction = DashboardNavigationAction.AppRating,
+                showedAppRating = true
+            )
+
+        override fun isValidFor(oldState: DashboardState): Boolean = oldState.showedAppRating.not()
     }
 
     object GetActiveAssets : DashboardIntent() {
