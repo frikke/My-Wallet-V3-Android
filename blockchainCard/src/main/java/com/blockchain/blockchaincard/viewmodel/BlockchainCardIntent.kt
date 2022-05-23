@@ -15,4 +15,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     // ManageCard
     object ManageCardDetails : BlockchainCardIntent()
     object LoadCardWidget : BlockchainCardIntent()
+    object ChoosePaymentMethod : BlockchainCardIntent()
 }

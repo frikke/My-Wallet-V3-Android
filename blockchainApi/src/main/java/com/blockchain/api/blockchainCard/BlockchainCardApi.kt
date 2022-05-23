@@ -1,6 +1,9 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.blockchainCard.data.CardAccount
+import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
+import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
 import com.blockchain.api.blockchainCard.data.CardsResponse
@@ -11,6 +14,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 internal interface BlockchainCardApi {
@@ -42,4 +46,23 @@ internal interface BlockchainCardApi {
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
     ): Outcome<ApiError, CardWidgetTokenResponse>
+
+    @GET("card-issuing/cards/{cardId}/eligible-accounts")
+    suspend fun getEligibleAccounts(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, List<CardAccount>>
+
+    @GET("/card-issuing/cards/{cardId}/account")
+    suspend fun getCardLinkedAccounts(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, List<CardAccount>>
+
+    @PUT("/card-issuing/cards/{cardId}/account")
+    suspend fun linkCardAccount(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+        @Body cardAccountLinkRequest: CardAccountLinkRequest
+    ): Outcome<ApiError, CardAccountLinkResponse>
 }

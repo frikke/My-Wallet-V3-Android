@@ -26,4 +26,13 @@ dependencies {
     implementation Libraries.retrofitKotlinJsonConverter
     implementation Libraries.okHttp
     implementation Libraries.kotlinJson
+    implementation Libraries.composeMaterial
+    implementation Libraries.composePreview
+    implementation Libraries.composeActivity
+    implementation Libraries.composeNavigation
+    implementation Libraries.composeRx
+    implementation Libraries.design
+    implementation Libraries.appCompat
+    implementation Libraries.androidXAnnotations
+    implementation Libraries.accompanistNavigationMaterial
 }
