@@ -841,12 +841,12 @@ class CoinViewActivity :
         totalFiatBalance: Money,
         isInWatchList: Boolean,
     ) {
-        totalCryptoBalance[AssetFilter.All]?.let {
+        totalCryptoBalance[AssetFilter.All]?.let { cryptoBalance ->
             with(binding) {
                 assetBalance.apply {
                     labelText = getString(R.string.coinview_balance_label, assetTicker)
                     primaryText = totalFiatBalance.toStringWithSymbol()
-                    secondaryText = it.toStringWithSymbol()
+                    secondaryText = cryptoBalance.toStringWithSymbol()
                     updateIcon(isInWatchList)
                 }
                 assetBalancesSwitcher.displayedChild = BALANCES_VIEW
