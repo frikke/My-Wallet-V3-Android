@@ -22,16 +22,15 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':common:interface')
-    implementation project(':testutils')
 
     // review
     implementation Libraries.googlePlayCore
 
     // test
+    testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.coreTesting
     testImplementation Libraries.mockk
     testImplementation Libraries.turbine
-
 }
