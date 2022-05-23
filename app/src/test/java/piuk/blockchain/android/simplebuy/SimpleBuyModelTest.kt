@@ -26,6 +26,7 @@ import com.blockchain.testutils.EUR
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -102,7 +103,8 @@ class SimpleBuyModelTest {
         getSafeConnectTosLinkUseCase = mock(),
         appRatingService = mock {
             onBlocking { shouldShowRating() }.thenReturn(false)
-        }
+        },
+        appRatingFF = mock { on { enabled } doReturn Single.just(false) }
     )
 
     @Test
