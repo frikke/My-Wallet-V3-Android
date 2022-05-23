@@ -3,21 +3,21 @@ package piuk.blockchain.android.rating.data.repository
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.models.responses.nabu.KycTierLevel
-import com.blockchain.nabu.service.TierService
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.await
-import piuk.blockchain.android.rating.data.BuildConfig
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteConfig
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
@@ -29,7 +29,7 @@ internal class AppRatingRepository(
     private val appRatingFF: FeatureFlag,
 
     // prerequisites verification
-    private val tierService: TierService,
+    private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
     private val paymentsDataManager: PaymentsDataManager,
     private val environmentConfig: EnvironmentConfig
@@ -92,13 +92,9 @@ internal class AppRatingRepository(
         }
     }
 
-    private suspend fun isFFEnabled() = appRatingFF.enabled.await()
+    private suspend fun isFFEnabled(): Boolean = appRatingFF.enabled.await()
 
-    private suspend fun isKycGold(): Boolean {
-        tierService.tiers().await().let { kycTiers ->
-            return kycTiers.isApprovedFor(KycTierLevel.GOLD)
-        }
-    }
+    private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
         paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->

@@ -67,7 +67,7 @@ val appRatingDataModule = module {
 
                 appRatingFF = get(appRatingFeatureFlag),
 
-                tierService = get(),
+                userIdentity = get(),
                 currencyPrefs = get(),
                 paymentsDataManager = get(),
                 environmentConfig = get()
