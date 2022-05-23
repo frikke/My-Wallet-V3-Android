@@ -3,6 +3,7 @@ package piuk.blockchain.android.rating.data.repository
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
@@ -45,6 +46,7 @@ class AppRatingServiceTest {
     private val tierService = mockk<TierService>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val paymentsDataManager = mockk<PaymentsDataManager>()
+    private val environmentConfig = mockk<EnvironmentConfig>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
         appRatingRemoteConfig = appRatingRemoteConfig,
@@ -55,7 +57,8 @@ class AppRatingServiceTest {
         appRatingFF = appRatingFF,
         tierService = tierService,
         currencyPrefs = currencyPrefs,
-        paymentsDataManager = paymentsDataManager
+        paymentsDataManager = paymentsDataManager,
+        environmentConfig = environmentConfig
     )
 
     private val appRating = AppRating(rating = 3, feedback = "feedback")
@@ -68,6 +71,8 @@ class AppRatingServiceTest {
     @Before
     fun setUp() {
         every { appRatingFF.enabled } returns Single.just(true)
+
+        every { environmentConfig.isRunningInDebugMode() } returns true
 
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 

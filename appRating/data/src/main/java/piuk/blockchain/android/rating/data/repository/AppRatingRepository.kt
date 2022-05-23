@@ -1,6 +1,7 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.service.TierService
@@ -30,7 +31,8 @@ internal class AppRatingRepository(
     // prerequisites verification
     private val tierService: TierService,
     private val currencyPrefs: CurrencyPrefs,
-    private val paymentsDataManager: PaymentsDataManager
+    private val paymentsDataManager: PaymentsDataManager,
+    private val environmentConfig: EnvironmentConfig
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
@@ -78,7 +80,7 @@ internal class AppRatingRepository(
 
             // last try was more than a month ago
             else -> {
-                val minDuration = if (BuildConfig.DEBUG)
+                val minDuration = if (environmentConfig.isRunningInDebugMode())
                     TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS) // 30 seconds for debug
                 else
                     TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS) // 31 days for release
