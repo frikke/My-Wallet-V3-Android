@@ -20,23 +20,23 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import java.math.BigInteger
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import java.math.BigInteger
 
 sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object ShowAppRating : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(showAppRating = true)
 
-        override fun isValidFor(oldState: SimpleBuyState) = true
+        override fun isValidFor(oldState: SimpleBuyState) = oldState.showAppRating.not()
     }
 
     object AppRatingShown : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(showAppRating = false)
 
-        override fun isValidFor(oldState: SimpleBuyState) = true
+        override fun isValidFor(oldState: SimpleBuyState) = oldState.showAppRating
     }
 
     override fun isValidFor(oldState: SimpleBuyState): Boolean {

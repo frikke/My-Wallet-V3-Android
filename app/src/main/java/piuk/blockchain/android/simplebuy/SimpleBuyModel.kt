@@ -391,13 +391,12 @@ class SimpleBuyModel(
             }
 
             SimpleBuyIntent.CheckForOrderCompletedSideEvents -> {
-                Single.zip(
-                    rxSingle { appRatingService.shouldShowRating() },
-                    Single.just(simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS)
-                ) { shouldShowRating, countReached ->
-                    shouldShowRating && countReached
-                }.subscribe { showRating ->
-                    if (showRating) process(SimpleBuyIntent.ShowAppRating)
+                if (simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS) {
+                    rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                        if (showRating) process(SimpleBuyIntent.ShowAppRating)
+                    }
+                } else {
+                    null
                 }
             }
 
