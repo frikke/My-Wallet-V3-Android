@@ -9,6 +9,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.android.material.snackbar.Snackbar
@@ -33,6 +34,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val appRatingPrefs: AppRatingPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -61,6 +63,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
                 adapter = featuresAdapter
             }
             val parent = nestedParent
+            resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
             btnResetAnnounce.setOnClickListener { onResetAnnounce() }
@@ -104,6 +107,11 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private fun clearSimpleBuyState() {
         simpleBuyPrefs.clearBuyState()
         showSnackbar("Local SB State cleared")
+    }
+
+    private fun resetAppRating() {
+        appRatingPrefs.completed = false
+        appRatingPrefs.promptDateMillis = 0L
     }
 
     private fun onRndDeviceId() {

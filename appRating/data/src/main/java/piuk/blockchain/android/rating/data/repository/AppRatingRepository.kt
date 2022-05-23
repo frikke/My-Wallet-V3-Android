@@ -82,10 +82,7 @@ internal class AppRatingRepository(
 
                 // last try was more than a month ago
                 else -> {
-                    val minDuration = if (environmentConfig.isRunningInDebugMode())
-                        TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS) // 30 seconds for debug
-                    else
-                        TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS) // 31 days for release
+                    val minDuration = TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS)
 
                     val currentTimeMillis = Calendar.getInstance().timeInMillis
                     val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
