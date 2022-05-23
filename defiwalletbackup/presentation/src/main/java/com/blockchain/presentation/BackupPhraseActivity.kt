@@ -4,46 +4,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.control.Checkbox
-import com.blockchain.componentlib.control.CheckboxState
-import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.screens.DefaultPhraseScreen
 import com.blockchain.presentation.screens.SplashScreen
+import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.androidx.viewmodel.scope.viewModel
+import org.koin.core.scope.Scope
 
 class BackupPhraseActivity : BlockchainActivity() {
 
-    private val defaultBackupPhraseViewModel: DefaultPhraseViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
     override val alwaysDisableScreenshots: Boolean
         get() = true
 
@@ -61,8 +39,7 @@ class BackupPhraseActivity : BlockchainActivity() {
 
 @Composable
 fun BackupPhraseNavHost(
-    startDestination: String = BackPhraseDestination.SplashScreen.route,
-    defaultBackupPhraseViewModel: DefaultPhraseViewModel
+    startDestination: String = BackPhraseDestination.Splash.route
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -73,13 +50,29 @@ fun BackupPhraseNavHost(
             SplashScreen(navController)
         }
         composable(navigationEvent = BackPhraseDestination.DefaultPhrase) {
-            DefaultPhraseScreen(defaultBackupPhraseViewModel, navController)
+            DefaultPhraseScreen(getViewModel(scope = payloadScope), navController)
         }
     }
 }
 
-sealed class BackPhraseDestination(abstract val route: String) : ComposeNavigationDestination {
-    object Splash : BackPhraseDestination()
+@Composable
+inline fun <reified T : ViewModel> getViewModel(
+    scope: Scope
+): Lazy<T> {
+    val owner = getComposeViewModelOwner()
+    return scope.viewModel(owner = { owner })
+}
+
+@Composable
+fun getComposeViewModelOwner(): ViewModelOwner {
+    return ViewModelOwner.from(
+        LocalViewModelStoreOwner.current!!,
+        LocalSavedStateRegistryOwner.current
+    )
+}
+
+sealed class BackPhraseDestination(override val route: String) : ComposeNavigationDestination {
+    object Splash : BackPhraseDestination("Splash")
     object DefaultPhrase : BackPhraseDestination("DefaultPhrase")
 }
 

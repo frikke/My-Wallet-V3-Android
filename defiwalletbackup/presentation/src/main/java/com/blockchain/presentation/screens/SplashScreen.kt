@@ -29,6 +29,7 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.R
 
 @Composable
@@ -99,7 +100,8 @@ fun SplashScreen(navController: NavController) {
                 state = if (isChecked.value == CheckboxState.Checked) ButtonState.Enabled else
                     ButtonState.Disabled,
                 onClick = {
-                    navController.navigate("BackPhraseDestination")
+                    val route = BackPhraseDestination.DefaultPhrase.route
+                    navController.navigate(route)
                 }
             )
         }

@@ -24,9 +24,10 @@ import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 
 @Composable
 fun DefaultPhraseScreen(
-    viewModel: DefaultPhraseViewModel,
+    viewModel: Lazy<DefaultPhraseViewModel>,
     navController: NavController
 ) {
+    val vm: DefaultPhraseViewModel = viewModel.value
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,8 +36,8 @@ fun DefaultPhraseScreen(
         NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
 
         val lifecycleOwner = LocalLifecycleOwner.current
-        val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-            viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+        val stateFlowLifecycleAware = remember(vm.viewState, lifecycleOwner) {
+            vm.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
         }
         val state by stateFlowLifecycleAware.collectAsState(null)
 
