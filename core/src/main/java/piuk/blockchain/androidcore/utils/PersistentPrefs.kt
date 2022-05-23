@@ -8,7 +8,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.RatingPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -22,7 +21,6 @@ interface PersistentPrefs :
     SecurityPrefs,
     SecureChannelPrefs,
     SimpleBuyPrefs,
-    RatingPrefs,
     WalletStatus,
     EncryptedPrefs,
     AuthPrefs,

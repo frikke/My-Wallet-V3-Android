@@ -43,6 +43,7 @@ import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
+import piuk.blockchain.android.rating.presentaion.AppRatingFragment
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
@@ -197,10 +198,17 @@ class PortfolioFragment :
         }
     }
 
+    private fun isDashboardLoading(state: DashboardState): Boolean {
+        val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isLoading }
+        val dashboardLoading = state.isLoadingAssets
+        return dashboardLoading || atLeastOneAssetIsLoading
+    }
+
     @UiThread
     private fun doRender(newState: DashboardState) {
         binding.swipe.isRefreshing = false
         updateDisplayList(newState)
+        verifyAppRating(newState)
 
         if (this.state?.dashboardNavigationAction != newState.dashboardNavigationAction) {
             newState.dashboardNavigationAction?.let { dashboardNavigationAction ->
@@ -248,10 +256,6 @@ class PortfolioFragment :
             )
             val fiatAssets = newState.fiatAssets.fiatAccounts
 
-            val dashboardLoading = newState.isLoadingAssets
-            val atLeastOneAssetIsLoading = cryptoAssets.any { it.isLoading }
-            val isLoading = dashboardLoading || atLeastOneAssetIsLoading
-
             val atLeastOneCryptoAssetHasBalancePositive =
                 cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
 
@@ -260,11 +264,21 @@ class PortfolioFragment :
 
             val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
 
-            manageLoadingState(isLoading, showPortfolio, newState.canPotentiallyTransactWithBanks)
+            manageLoadingState(isDashboardLoading(newState), showPortfolio, newState.canPotentiallyTransactWithBanks)
             clear()
             addAll(newMap.values + cryptoAssets)
         }
         theAdapter.notifyDataSetChanged()
+    }
+
+    /**
+     * Once the dashboard is fully loaded, and there is money on account
+     * -> verify app rating
+     */
+    private fun verifyAppRating(state: DashboardState) {
+        if (isDashboardLoading(state).not() && state.fiatBalance?.isPositive == true) {
+            model.process(DashboardIntent.VerifyAppRating)
+        }
     }
 
     private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean, showDepositButton: Boolean) {
@@ -295,6 +309,9 @@ class PortfolioFragment :
 
     private fun handleStateNavigation(navigationAction: DashboardNavigationAction) {
         when (navigationAction) {
+            DashboardNavigationAction.AppRating -> {
+                showAppRating()
+            }
             is DashboardNavigationAction.BottomSheet -> {
                 handleBottomSheet(navigationAction)
                 model.process(DashboardIntent.ResetNavigation)
@@ -322,6 +339,10 @@ class PortfolioFragment :
                 model.process(DashboardIntent.ResetNavigation)
             }
         }
+    }
+
+    private fun showAppRating() {
+        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
     }
 
     fun launchNewUserDashboardOnboarding() {

@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
+import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
@@ -179,6 +180,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_app_maintenance",
                 "App Maintenance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(appRatingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_app_rating",
+                "App Rating"
             )
         )
     }.bind(FeatureFlag::class)

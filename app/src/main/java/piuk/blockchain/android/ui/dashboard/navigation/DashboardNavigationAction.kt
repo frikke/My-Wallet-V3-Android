@@ -13,6 +13,7 @@ import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForActio
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 sealed class DashboardNavigationAction {
+    object AppRating : DashboardNavigationAction()
     object StxAirdropComplete : DashboardNavigationAction(), BottomSheet
     data class BackUpBeforeSend(val backupSheetDetails: BackupDetails) : DashboardNavigationAction(), BottomSheet
     object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet

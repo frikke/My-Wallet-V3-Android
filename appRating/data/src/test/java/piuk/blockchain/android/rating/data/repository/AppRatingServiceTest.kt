@@ -1,18 +1,34 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.models.responses.nabu.KycTierLevel
+import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.AppRatingPrefs
+import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.Money
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import io.reactivex.rxjava3.core.Single
+import java.math.BigDecimal
 import java.util.Calendar
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
@@ -28,17 +44,47 @@ class AppRatingServiceTest {
     private val defaultThreshold = 3
     private val appRatingApi = mockk<AppRatingApi>()
     private val appRatingPrefs = mockk<AppRatingPrefs>()
+    private val appRatingFF = mockk<FeatureFlag>()
+    private val userIdentity = mockk<UserIdentity>()
+    private val currencyPrefs = mockk<CurrencyPrefs>()
+    private val paymentsDataManager = mockk<PaymentsDataManager>()
+    private val environmentConfig = mockk<EnvironmentConfig>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
         appRatingRemoteConfig = appRatingRemoteConfig,
         appRatingApiKeysRemoteConfig = appRatingApiKeysRemoteConfig,
         defaultThreshold = defaultThreshold,
         appRatingApi = appRatingApi,
-        appRatingPrefs = appRatingPrefs
+        appRatingPrefs = appRatingPrefs,
+        appRatingFF = appRatingFF,
+        userIdentity = userIdentity,
+        currencyPrefs = currencyPrefs,
+        paymentsDataManager = paymentsDataManager,
+        environmentConfig = environmentConfig
     )
 
     private val appRating = AppRating(rating = 3, feedback = "feedback")
     private val apiKeys = AppRatingApiKeys(surveyId = "surveyId", masterKey = "masterKey", key = "key")
+    private val kycTiersGold = mockk<KycTiers>()
+    private val kycTiersNotGold = mockk<KycTiers>()
+    private val fundsLocksOnHold = mockk<FundsLocks>()
+    private val fundsLocksNotOnHold = mockk<FundsLocks>()
+    private val fetureTierGold = Feature.TierLevel(Tier.GOLD)
+
+    @Before
+    fun setUp() {
+        every { appRatingFF.enabled } returns Single.just(true)
+
+        every { environmentConfig.isRunningInDebugMode() } returns true
+
+        every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
+
+        every { kycTiersGold.isApprovedFor(KycTierLevel.GOLD) } returns true
+        every { kycTiersNotGold.isApprovedFor(KycTierLevel.GOLD) } returns false
+
+        every { fundsLocksOnHold.onHoldTotalAmount } returns Money.fromMajor(CryptoCurrency.BTC, BigDecimal.TEN)
+        every { fundsLocksNotOnHold.onHoldTotalAmount } returns Money.fromMajor(CryptoCurrency.BTC, BigDecimal.ZERO)
+    }
 
     @Test
     fun `GIVEN successful threshold, WHEN getThreshold is called, THEN threshold should be returned`() = runTest {
@@ -95,17 +141,20 @@ class AppRatingServiceTest {
     }
 
     @Test
-    fun `GIVEN rating not complete, promptDate is more than 1 month, WHEN shouldShowRating is called, THEN true should be returned`() {
-        every { appRatingPrefs.completed } returns false
-        every { appRatingPrefs.promptDateMillis } returns 0L
+    fun `GIVEN rating not complete, kyc GOLD, no withdrawal locks, promptDate is more than 1 month, WHEN shouldShowRating is called, THEN true should be returned`() =
+        runTest {
+            every { appRatingPrefs.completed } returns false
+            every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
+            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { appRatingPrefs.promptDateMillis } returns 0L
 
-        val result = appRatingService.shouldShowRating()
+            val result = appRatingService.shouldShowRating()
 
-        assertEquals(true, result)
-    }
+            assertEquals(true, result)
+        }
 
     @Test
-    fun `GIVEN rating complete, WHEN shouldShowRating is called, THEN false should be returned`() {
+    fun `GIVEN rating complete, WHEN shouldShowRating is called, THEN false should be returned`() = runTest {
         every { appRatingPrefs.completed } returns true
 
         val result = appRatingService.shouldShowRating()
@@ -114,15 +163,42 @@ class AppRatingServiceTest {
     }
 
     @Test
-    fun `GIVEN rating not complete, promptDate is less than 1 month, WHEN shouldShowRating is called, THEN false should be returned`() {
-        every { appRatingPrefs.completed } returns false
-        every { appRatingPrefs.promptDateMillis } returns
-            Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -2) }.timeInMillis
+    fun `GIVEN rating not complete, kyc not GOLD, WHEN shouldShowRating is called, THEN false should be returned`() =
+        runTest {
+            every { appRatingPrefs.completed } returns false
+            every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(false)
 
-        val result = appRatingService.shouldShowRating()
+            val result = appRatingService.shouldShowRating()
 
-        assertEquals(false, result)
-    }
+            assertEquals(false, result)
+        }
+
+    @Test
+    fun `GIVEN rating not complete, kyc GOLD, withdrawal locks WHEN shouldShowRating is called, THEN false should be returned`() =
+        runTest {
+            every { appRatingPrefs.completed } returns false
+            every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
+            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksOnHold)
+
+            val result = appRatingService.shouldShowRating()
+
+            assertEquals(false, result)
+        }
+
+    @Test
+    fun `GIVEN rating not complete, kyc GOLD, no withdrawal locks, promptDate is less than 1 month, WHEN shouldShowRating is called, THEN false should be returned`() =
+        runTest {
+            every { appRatingPrefs.completed } returns false
+            every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
+            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            // simulate prompt was show 20 seconds ago = less than a month
+            every { appRatingPrefs.promptDateMillis } returns
+                Calendar.getInstance().apply { add(Calendar.SECOND, -20) }.timeInMillis
+
+            val result = appRatingService.shouldShowRating()
+
+            assertEquals(false, result)
+        }
 
     @Test
     fun `WHEN markRatingCompleted is called, THEN completed should be true`() {
