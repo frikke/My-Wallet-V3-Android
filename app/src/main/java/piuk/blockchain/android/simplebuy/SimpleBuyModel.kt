@@ -18,6 +18,7 @@ import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.BankState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -83,7 +84,8 @@ class SimpleBuyModel(
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val userIdentity: UserIdentity,
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
-    private val appRatingService: AppRatingService
+    private val appRatingService: AppRatingService,
+    private val appRatingFF: FeatureFlag
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -153,20 +155,20 @@ class SimpleBuyModel(
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
                 ).thenSingle {
-                processCreateOrder(
-                    previousState.selectedCryptoAsset,
-                    previousState.selectedPaymentMethod,
-                    previousState.order,
-                    previousState.recurringBuyFrequency
+                    processCreateOrder(
+                        previousState.selectedCryptoAsset,
+                        previousState.selectedPaymentMethod,
+                        previousState.order,
+                        previousState.recurringBuyFrequency
+                    )
+                }.subscribeBy(
+                    onSuccess = {
+                        process(it)
+                    },
+                    onError = {
+                        processOrderErrors(it)
+                    }
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
 
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
@@ -871,18 +873,21 @@ class SimpleBuyModel(
                         updatePersistingCountersForCompletedOrders()
                     }
 
-                    if (orderCreatedSuccessfully &&
-                        simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
-                    ) {
-                        rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                    appRatingFF.enabled.subscribe { enabled ->
+                        if (enabled &&
+                            orderCreatedSuccessfully &&
+                            simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
+                        ) {
+                            rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                                process(
+                                    SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
+                                )
+                            }
+                        } else {
                             process(
-                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = showRating)
+                                SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
                             )
                         }
-                    } else {
-                        process(
-                            SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder, showAppRating = false)
-                        )
                     }
                 },
                 onError = {
