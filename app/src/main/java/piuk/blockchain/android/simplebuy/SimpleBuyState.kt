@@ -86,6 +86,7 @@ data class SimpleBuyState constructor(
     @Transient @kotlinx.serialization.Transient val confirmationActionRequested: Boolean = false,
     @Transient @kotlinx.serialization.Transient val newPaymentMethodToBeAdded: PaymentMethod? = null,
     @Transient @kotlinx.serialization.Transient val showAppRating: Boolean = false,
+    @Transient @kotlinx.serialization.Transient val sideEventsChecked: Boolean = false,
 ) : MviState, TransactionFlowStateInfo {
 
     @delegate:Transient

@@ -31,7 +31,6 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -54,6 +53,7 @@ import piuk.blockchain.android.ui.recurringbuy.subtitleForLockedFunds
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowCustomiserImpl.Companion.getEstimatedTransactionCompletionTime
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
+import java.util.Locale
 
 class SimpleBuyPaymentFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimpleBuyPaymentBinding>(),
@@ -84,8 +84,6 @@ class SimpleBuyPaymentFragment :
         activity.updateToolbarTitle(getString(R.string.common_payment))
 
         binding.checkoutCardForm.initCheckoutPaymentForm()
-
-        model.process(SimpleBuyIntent.VerifyAppRating)
     }
 
     override fun render(newState: SimpleBuyState) {
@@ -97,6 +95,10 @@ class SimpleBuyPaymentFragment :
 
         newState.selectedCryptoAsset.let {
             binding.transactionProgressView.setAssetIcon(it)
+        }
+
+        if (newState.paymentSucceeded) {
+            model.process(SimpleBuyIntent.CheckForOrderCompletedSideEvents)
         }
 
         if (newState.buyErrorState != null) {
