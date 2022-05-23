@@ -9,16 +9,16 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.rating.presentaion.AppRatingViewModel
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingDestination.Companion.ARG_WITH_FEEDBACK
 
 @Composable
-fun AppRatingNavHost(viewModel: AppRatingViewModel) {
+fun AppRatingNavHost(viewModel: AppRatingViewModel, appRatingTriggerSource: AppRatingTriggerSource) {
 
-    viewModel.viewCreated(ModelConfigArgs.NoArgs)
+    viewModel.viewCreated(appRatingTriggerSource)
 
     val lifecycleOwner = LocalLifecycleOwner.current
 

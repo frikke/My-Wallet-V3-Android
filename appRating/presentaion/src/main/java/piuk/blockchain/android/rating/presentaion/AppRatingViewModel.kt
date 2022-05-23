@@ -1,7 +1,6 @@
 package piuk.blockchain.android.rating.presentaion
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.AuthPrefs
@@ -16,19 +15,25 @@ class AppRatingViewModel(
     AppRatingViewState,
     AppRatingModelState,
     AppRatingNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    AppRatingTriggerSource>(
     initialState = AppRatingModelState()
 ) {
+    companion object {
+        private const val SEPARATOR = ", ------ "
+        private const val SCREEN = "Screen: "
+        private const val WALLET_ID = "Wallet id: "
+    }
 
     private var stars: Int = 0
-    private var feedback = StringBuilder("from: ${authPrefs.walletGuid}")
+    private var feedback = StringBuilder("$WALLET_ID${authPrefs.walletGuid}")
 
     /**
      * [inAppReviewCompleted] could return an error because showing in-app could've failed
      */
     private var forceRetrigger: Boolean = false
 
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+    override fun viewCreated(args: AppRatingTriggerSource) {
+        feedback.append("$SEPARATOR$SCREEN${args.value}")
     }
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
@@ -85,7 +90,7 @@ class AppRatingViewModel(
                 // to separate feedback from wallet id
                 // apparently new lines don't register as such,
                 // even when doing it on web, the result is in one line
-                "$feedback ------ "
+                "$feedback$SEPARATOR"
             )
         }
 

@@ -1,20 +1,16 @@
 package piuk.blockchain.android.maintenance.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LifecycleRegistry
 import app.cash.turbine.test
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlin.test.assertEquals
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -30,12 +26,14 @@ class AppMaintenanceViewModelTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var coroutineTestRule = CoroutineTestRule()
+
     private val getAppMaintenanceConfigUseCase = mockk<GetAppMaintenanceConfigUseCase>()
     private val isDownloadInProgressUseCase = mockk<IsDownloadInProgressUseCase>()
 
     private lateinit var viewModel: AppMaintenanceViewModel
-
-    private val lifecycle = LifecycleRegistry(mockk())
 
     /**
      * !! important to have viewModel init AFTER setting dispatcher
@@ -44,13 +42,7 @@ class AppMaintenanceViewModelTest {
      */
     @Before
     fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
         viewModel = AppMaintenanceViewModel(getAppMaintenanceConfigUseCase, isDownloadInProgressUseCase)
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test

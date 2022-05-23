@@ -21,6 +21,7 @@ dependencies {
     implementation project(':core')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':testutils')
 
     // play
     implementation Libraries.googlePlayCore

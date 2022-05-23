@@ -40,6 +40,7 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
@@ -492,7 +493,9 @@ class SimpleBuyPaymentFragment :
     }
 
     private fun showAppRating() {
-        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
+        AppRatingFragment.newInstance(AppRatingTriggerSource.BUY)
+            .show(childFragmentManager, AppRatingFragment.TAG)
+
         model.process(SimpleBuyIntent.AppRatingShown)
     }
 
