@@ -14,7 +14,7 @@ data class AppRatingModelState(
     /**
      * [AppRatingViewModel.inAppReviewCompleted] could return an error because showing in-app could've failed
      */
-    var forceRetrigger: Boolean = false
+    val forceRetrigger: Boolean = false
 ) : ModelState {
     companion object {
         private const val SEPARATOR = ", ------ "
