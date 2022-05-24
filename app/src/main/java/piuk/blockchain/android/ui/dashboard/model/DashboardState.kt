@@ -147,7 +147,9 @@ data class CryptoAssetState(
     }
 
     val isLoading: Boolean by unsafeLazy {
-        accountBalance == null || prices24HrWithDelta == null
+        if (hasBalanceError)
+            false
+        else accountBalance == null || prices24HrWithDelta == null
     }
 
     fun reset(): CryptoAssetState = CryptoAssetState(currency)
