@@ -729,7 +729,8 @@ val applicationModule = module {
 
         scoped {
             PlacesClientProvider(
-                context = get()
+                context = get(),
+                apiKey = BuildConfig.PLACES_API_KEY,
             )
         }
 
