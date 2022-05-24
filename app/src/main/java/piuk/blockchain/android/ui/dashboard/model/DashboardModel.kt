@@ -5,10 +5,13 @@ import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import timber.log.Timber
 
@@ -17,7 +20,8 @@ class DashboardModel(
     mainScheduler: Scheduler,
     private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
+    private val appRatingService: AppRatingService
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -30,6 +34,12 @@ class DashboardModel(
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
+            DashboardIntent.VerifyAppRating -> {
+                rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
+                    if (showRating) process(DashboardIntent.ShowAppRating)
+                }
+            }
+            DashboardIntent.ShowAppRating -> null
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
             is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
@@ -88,7 +98,7 @@ class DashboardModel(
             is DashboardIntent.SetDepositVisibility,
             DashboardIntent.ResetDashboardAssets,
             is DashboardIntent.UpdateNavigationAction -> null
-        }
+        }.exhaustive
     }
 
     private fun processBankTransferFlow(intent: DashboardIntent.LaunchBankTransferFlow) =

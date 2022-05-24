@@ -5,11 +5,18 @@ import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAccount
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.fiat.FiatCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
@@ -21,8 +28,9 @@ import java.math.BigDecimal
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 internal class BlockchainCardRepositoryImpl(
-    val blockchainCardService: BlockchainCardService,
-    private val authenticator: Authenticator
+    private val blockchainCardService: BlockchainCardService,
+    private val authenticator: Authenticator,
+    private val coincore: Coincore
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -31,7 +39,9 @@ internal class BlockchainCardRepositoryImpl(
             .flatMap { tokenResponse ->
                 blockchainCardService.getProducts(
                     tokenResponse
-                ).mapLeft { BlockchainCardError.GetProductsRequestFailed }.map { response ->
+                ).mapLeft {
+                    BlockchainCardError.GetProductsRequestFailed
+                }.map { response ->
                     response.map {
                         it.toDomainModel()
                     }
@@ -110,6 +120,65 @@ internal class BlockchainCardRepositoryImpl(
                     BlockchainCardError.GetCardWidgetRequestFailed
                 }
             }
+
+    override suspend fun getEligibleTradingAccounts(
+        cardId: String
+    ): Outcome<BlockchainCardError, List<TradingAccount>> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getEligibleAccounts(
+                    authHeader = tokenResponse,
+                    cardId = cardId
+                ).mapLeft {
+                    BlockchainCardError.GetEligibleCardAccountsRequestFailed
+                }.flatMap { eligibleAccountsList ->
+                    val eligibleCurrencies = eligibleAccountsList.map { cardAccount ->
+                        cardAccount.balance.symbol
+                    }
+
+                    coincore.allWallets().awaitOutcome().mapLeft {
+                        BlockchainCardError.GetEligibleCardAccountsRequestFailed
+                    }.map { accountGroup ->
+                        accountGroup.accounts.filterIsInstance<TradingAccount>().filter { tradingAccount ->
+                            eligibleCurrencies.any {
+                                when (tradingAccount) {
+                                    is FiatCustodialAccount ->
+                                        tradingAccount.currency.networkTicker == it
+                                    is CustodialTradingAccount ->
+                                        tradingAccount.currency.networkTicker == it
+                                    else ->
+                                        throw IllegalStateException(
+                                            "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
+                                        )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+    override suspend fun getCardLinkedAccounts(
+        authHeader: String,
+        cardId: String
+    ): Outcome<BlockchainCardError, List<BlockchainCardAccount>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun linkCardAccount(
+        authHeader: String,
+        cardId: String,
+        accountCurrency: String
+    ): Outcome<BlockchainCardError, BlockchainCardAccount> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun loadAccountBalance(
+        tradingAccount: BlockchainAccount
+    ): Outcome<BlockchainCardError, AccountBalance> =
+        tradingAccount.balance.firstOrError().awaitOutcome().mapLeft {
+            BlockchainCardError.GetAccountBalanceFailed
+        }
 
     //
     // Domain Model Conversion

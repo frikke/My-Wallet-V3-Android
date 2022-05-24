@@ -1,6 +1,7 @@
 package com.blockchain.blockchaincard.domain.models
 
 import android.os.Parcelable
+import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import kotlinx.parcelize.Parcelize
 
@@ -12,6 +13,8 @@ sealed class BlockchainCardError {
     object GetProductsRequestFailed : BlockchainCardError()
     object GetCardWidgetTokenRequestFailed : BlockchainCardError()
     object GetCardWidgetRequestFailed : BlockchainCardError()
+    object GetEligibleCardAccountsRequestFailed : BlockchainCardError()
+    object GetAccountBalanceFailed : BlockchainCardError()
 }
 
 @Parcelize
@@ -31,6 +34,11 @@ data class BlockchainCard(
     val brand: BlockchainCardBrand,
     val status: BlockchainCardStatus,
     val createdAt: String
+) : Parcelable
+
+@Parcelize
+data class BlockchainCardAccount(
+    val balance: CryptoValue
 ) : Parcelable
 
 enum class BlockchainCardBrand {

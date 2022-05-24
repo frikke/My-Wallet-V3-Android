@@ -147,7 +147,9 @@ data class CryptoAssetState(
     }
 
     val isLoading: Boolean by unsafeLazy {
-        accountBalance == null || prices24HrWithDelta == null
+        if (hasBalanceError)
+            false
+        else accountBalance == null || prices24HrWithDelta == null
     }
 
     fun reset(): CryptoAssetState = CryptoAssetState(currency)
@@ -178,7 +180,8 @@ data class DashboardState(
     val isLoadingAssets: Boolean = true,
     val locks: Locks = Locks(),
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
-    val canPotentiallyTransactWithBanks: Boolean = true
+    val canPotentiallyTransactWithBanks: Boolean = true,
+    val showedAppRating: Boolean = false
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

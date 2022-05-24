@@ -230,13 +230,11 @@ class PrefsUtil(
             setValue(KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY, value)
         }
 
-    override var hasSeenRatingDialog: Boolean
-        get() = getValue(HAS_SEEN_RATING, false)
-        set(value) = setValue(HAS_SEEN_RATING, value)
-
-    override var preRatingActionCompletedTimes: Int
-        get() = getValue(PRE_RATING_ACTION_COMPLETED_TIMES, 0)
-        set(value) = setValue(PRE_RATING_ACTION_COMPLETED_TIMES, value)
+    override var buysCompletedCount: Int
+        get() = getValue(KEY_BUYS_COMPLETED_COUNT, if (hasCompletedAtLeastOneBuy) 1 else 0)
+        set(value) {
+            setValue(KEY_BUYS_COMPLETED_COUNT, value)
+        }
 
     // Wallet Status
     override var lastBackupTime: Long
@@ -582,7 +580,7 @@ class PrefsUtil(
         set(value) = setValue(APP_RATING_COMPLETED, value)
 
     override var promptDateMillis: Long
-        get() = getValue(APP_RATING_PROMPT_DATE, Long.MIN_VALUE)
+        get() = getValue(APP_RATING_PROMPT_DATE, 0L)
         set(value) = setValue(APP_RATING_PROMPT_DATE, value)
 
     /**
@@ -620,6 +618,7 @@ class PrefsUtil(
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
+        private const val KEY_BUYS_COMPLETED_COUNT = "KEY_BUYS_COMPLETED_COUNT"
 
         private const val KEY_SUPPORTED_CARDS_STATE = "key_supported_cards"
         private const val KEY_BANK_LINKING = "KEY_BANK_LINKING"
@@ -666,10 +665,6 @@ class PrefsUtil(
         private const val KEY_CLOUD_BACKUP_ENABLED = "backup_enabled"
         private const val KEY_SECURE_CHANNEL_IDENTITY_KEY = "secure_channel_identity"
         private const val KEY_SECURE_CHANNEL_BROWSER_MAPPINGS = "secure_channel_browsers"
-
-        // Rating
-        private const val HAS_SEEN_RATING = "has_seen_rating"
-        private const val PRE_RATING_ACTION_COMPLETED_TIMES = "pre_rating_action_completed_times"
 
         // Onboarding
         private const val KEY_IS_LANDING_CTA_DISMISSED = "KEY_IS_LANDING_PAGE_DISMISSED"

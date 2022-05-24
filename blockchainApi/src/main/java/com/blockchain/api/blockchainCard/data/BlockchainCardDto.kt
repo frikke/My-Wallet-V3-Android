@@ -37,3 +37,28 @@ class CardCreationRequestBody(
 class CardWidgetTokenResponse(
     val token: String
 )
+
+@Serializable
+class CardAccount(
+    val balance: Price
+)
+
+@Serializable
+class EligibleAccountsResponse(
+    val accounts: List<CardAccount>
+)
+
+@Serializable
+class LinkedAccountsResponse(
+    val accounts: List<CardAccount>
+)
+
+@Serializable
+class CardAccountLinkRequest(
+    val accountCurrency: String
+)
+
+@Serializable
+class CardAccountLinkResponse(
+    val accountCurrency: String
+)

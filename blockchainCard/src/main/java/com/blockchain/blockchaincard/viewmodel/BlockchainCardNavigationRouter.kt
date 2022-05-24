@@ -52,6 +52,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             is BlockchainCardNavigationEvent.ManageCardDetails -> {
                 destination = BlockchainCardDestination.ManageCardDetailsDestination
             }
+
+            is BlockchainCardNavigationEvent.ChoosePaymentMethod -> {
+                destination = BlockchainCardDestination.ChoosePaymentMethodDestination
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -84,6 +88,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Manage Card
     object ManageCardDetails : BlockchainCardNavigationEvent()
+
+    object ChoosePaymentMethod : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -105,4 +111,6 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
 
     object ManageCardDetailsDestination : BlockchainCardDestination(route = "manage_card_details")
+
+    object ChoosePaymentMethodDestination : BlockchainCardDestination(route = "choose_payment_method")
 }

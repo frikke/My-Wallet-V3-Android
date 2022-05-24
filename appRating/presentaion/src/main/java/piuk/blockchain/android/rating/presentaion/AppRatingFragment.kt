@@ -9,10 +9,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingNavHost
@@ -26,7 +28,11 @@ class AppRatingFragment : DialogFragment() {
 
     private val inAppReviewSettings: InAppReviewSettings by scopedInject()
 
+    private val environmentConfig: EnvironmentConfig by inject()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        isCancelable = environmentConfig.isRunningInDebugMode()
+
         collectViewState()
 
         lifecycleScope.launch { inAppReviewSettings.init(requireContext()) }
@@ -68,5 +74,6 @@ class AppRatingFragment : DialogFragment() {
 
     companion object {
         fun newInstance() = AppRatingFragment()
+        val TAG = AppRatingFragment::class.simpleName
     }
 }

@@ -8,10 +8,10 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-const val RESPONDENT_HEADER_MASTER_KEY = "X-Master-Key"
-const val RESPONDENT_HEADER_KEY = "X-Key"
-const val RESPONDENT_VAR_SURVEY_ID = "survey_id"
-const val RESPONDENT = "3/surveys/{$RESPONDENT_VAR_SURVEY_ID}/respondents"
+private const val RESPONDENT_HEADER_MASTER_KEY = "X-Master-Key"
+private const val RESPONDENT_HEADER_KEY = "X-Key"
+private const val RESPONDENT_VAR_SURVEY_ID = "survey_id"
+private const val RESPONDENT = "3/surveys/{$RESPONDENT_VAR_SURVEY_ID}/respondents"
 
 internal interface AppRatingEndpoints {
     @POST(RESPONDENT)

@@ -5,11 +5,15 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +21,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,11 +29,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.fiat.FiatCustodialAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -38,13 +48,22 @@ import com.blockchain.componentlib.button.DestructiveMinimalButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
+import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
+import timber.log.Timber
 
 @Composable
-fun ManageCard(card: BlockchainCard?, cardWidgetUrl: String?, onManageCardDetails: () -> Unit) {
+fun ManageCard(
+    card: BlockchainCard?,
+    cardWidgetUrl: String?,
+    onManageCardDetails: () -> Unit,
+    onChoosePaymentMethod: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -100,13 +119,13 @@ fun ManageCard(card: BlockchainCard?, cardWidgetUrl: String?, onManageCardDetail
                     text = stringResource(R.string.manage),
                     onClick = onManageCardDetails,
                     icon = ImageResource.Local(R.drawable.ic_nav_settings),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).padding(end = AppTheme.dimensions.paddingSmall)
                 )
                 MinimalButton(
                     text = stringResource(R.string.top_up),
                     onClick = { /*TODO*/ },
                     icon = ImageResource.Local(R.drawable.ic_bottom_nav_plus),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).padding(start = AppTheme.dimensions.paddingSmall)
                 )
             }
         }
@@ -116,7 +135,7 @@ fun ManageCard(card: BlockchainCard?, cardWidgetUrl: String?, onManageCardDetail
         DefaultTableRow(
             primaryText = stringResource(R.string.choose_payment_method),
             secondaryText = stringResource(R.string.fund_your_card_purchases),
-            onClick = {},
+            onClick = onChoosePaymentMethod,
             startImageResource = ImageResource.Local(
                 id = R.drawable.ic_question,
                 contentDescription = null
@@ -149,7 +168,7 @@ fun ManageCard(card: BlockchainCard?, cardWidgetUrl: String?, onManageCardDetail
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard(null, "") {}
+    ManageCard(null, "", {}, {})
 }
 
 @Composable
@@ -278,4 +297,132 @@ private fun CardDetailsBottomSheetElement(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
     CardDetailsBottomSheetElement()
+}
+
+@Composable
+fun AccountPicker(
+    eligibleTradingAccounts: MutableMap<TradingAccount, AccountBalance?>,
+    onAccountSelected: (TradingAccount) -> Unit
+) {
+    val backgroundColor = if (!isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Dark800
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(backgroundColor)
+    ) {
+        SheetHeader(onClosePress = { /*TODO*/ }, title = stringResource(R.string.spend_from))
+        AccountsContent(eligibleTradingAccounts, onAccountSelected)
+    }
+}
+
+@Composable
+fun AccountsContent(
+    eligibleTradingAccounts: MutableMap<TradingAccount, AccountBalance?>?,
+    onAccountSelected: (TradingAccount) -> Unit
+) {
+    if (eligibleTradingAccounts?.keys?.isNotEmpty() == true)
+        LazyColumn {
+            itemsIndexed(
+                items = eligibleTradingAccounts.keys.toList(),
+                itemContent = { index, tradingAccount ->
+                    val accountBalance = eligibleTradingAccounts[tradingAccount]
+                    AccountItem(
+                        tradingAccount = tradingAccount,
+                        accountBalance = accountBalance
+                    ) {
+                        onAccountSelected
+                    }
+
+                    if (index < eligibleTradingAccounts.keys.toList().lastIndex)
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                }
+            )
+        } else {
+        SimpleText(
+            text = "No accounts eligible for linking",
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Composable
+fun AccountItem(tradingAccount: TradingAccount, accountBalance: AccountBalance?, onClick: () -> Unit) {
+    when (tradingAccount) {
+        is FiatCustodialAccount -> {
+            FiatAccountItem(
+                currencyName = tradingAccount.currency.name,
+                currencyTicker = tradingAccount.currency.networkTicker,
+                currentBalance = accountBalance?.totalFiat?.toStringWithSymbol() ?: "",
+                currencyLogo = tradingAccount.currency.logo,
+                onClick = onClick
+            )
+
+            Timber.d("1")
+        }
+        is CustodialTradingAccount -> {
+            tradingAccount.currency.logo
+            CryptoAccountItem(
+                currencyName = tradingAccount.currency.name,
+                currencyTicker = tradingAccount.currency.networkTicker,
+                currentBalance = accountBalance?.total?.toStringWithSymbol() ?: "",
+                currentBalanceInFiat = accountBalance?.totalFiat?.toStringWithSymbol() ?: "",
+                currencyLogo = tradingAccount.currency.logo,
+                onClick = onClick
+            )
+
+            Timber.d("2")
+        }
+    }
+}
+
+@Composable
+fun CryptoAccountItem(
+    currencyName: String,
+    currencyTicker: String,
+    currentBalance: String,
+    currentBalanceInFiat: String,
+    currencyLogo: String,
+    onClick: () -> Unit
+) {
+    BalanceTableRow(
+        titleStart = buildAnnotatedString { append(currencyName) },
+        bodyStart = buildAnnotatedString { append(currencyTicker) },
+        titleEnd = buildAnnotatedString { append(currentBalance) },
+        bodyEnd = buildAnnotatedString { append(currentBalanceInFiat) },
+        startImageResource = ImageResource.Remote(
+            url = currencyLogo,
+            contentDescription = null,
+        ),
+        tags = emptyList(),
+        onClick = onClick
+    )
+}
+
+@Composable
+fun FiatAccountItem(
+    currencyName: String,
+    currencyTicker: String,
+    currentBalance: String,
+    currencyLogo: String,
+    onClick: () -> Unit
+) {
+    BalanceTableRow(
+        titleStart = buildAnnotatedString { append(currencyName) },
+        bodyStart = buildAnnotatedString { append(currencyTicker) },
+        titleEnd = buildAnnotatedString { append(currentBalance) },
+        startImageResource = ImageResource.Remote(
+            url = currencyLogo,
+            contentDescription = null,
+        ),
+        tags = emptyList(),
+        onClick = onClick
+    )
 }

@@ -3,6 +3,7 @@ package com.blockchain.koin.modules
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
+import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.cachingStoreFeatureFlag
@@ -24,6 +25,7 @@ import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
+import io.reactivex.rxjava3.core.Single
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
@@ -140,10 +142,17 @@ val featureFlagsModule = module {
 
     single(newAssetPriceStoreFeatureFlag) {
         IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_new_asset_price_store",
-                "New AssetPriceStore with Store Cache"
-            )
+//            remoteFlag = get<RemoteConfig>().featureFlag(
+//                "android_ff_new_asset_price_store",
+//                "New AssetPriceStore with Store Cache"
+//            )
+            // TODO(aromano): Reenable the flag once FiatCryptoInputView and FiatCryptoConversionModel concurrency issues are solved
+            remoteFlag = object : FeatureFlag {
+                override val key: String = "android_ff_new_asset_price_store"
+                override val readableName: String = "New AssetPriceStore with Store Cache"
+                override val enabled: Single<Boolean> = Single.just(false)
+                override val isEnabled: Boolean = false
+            }
         )
     }.bind(FeatureFlag::class)
 
@@ -179,6 +188,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_app_maintenance",
                 "App Maintenance"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(appRatingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_app_rating",
+                "App Rating"
             )
         )
     }.bind(FeatureFlag::class)

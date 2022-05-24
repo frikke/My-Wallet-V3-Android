@@ -3,6 +3,9 @@ package com.blockchain.api.services
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
+import com.blockchain.api.blockchainCard.data.CardAccount
+import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
+import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
 import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
 import com.blockchain.api.blockchainCard.data.CardsResponse
@@ -56,4 +59,32 @@ class BlockchainCardService internal constructor(
         widgetToken: String,
         last4Digits: String
     ): String = "${walletHelperUrl.url}wallet-helper/marqeta-card/#/$widgetToken/$last4Digits"
+
+    suspend fun getEligibleAccounts(
+        authHeader: String,
+        cardId: String
+    ): Outcome<ApiError, List<CardAccount>> = api.getEligibleAccounts(
+        authorization = authHeader,
+        cardId = cardId
+    )
+
+    suspend fun getCardLinkedAccounts(
+        authHeader: String,
+        cardId: String
+    ): Outcome<ApiError, List<CardAccount>> = api.getCardLinkedAccounts(
+        authorization = authHeader,
+        cardId = cardId
+    )
+
+    suspend fun linkCardAccount(
+        authHeader: String,
+        cardId: String,
+        accountCurrency: String
+    ): Outcome<ApiError, CardAccountLinkResponse> = api.linkCardAccount(
+        authorization = authHeader,
+        cardId = cardId,
+        cardAccountLinkRequest = CardAccountLinkRequest(
+            accountCurrency = accountCurrency
+        )
+    )
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
@@ -112,12 +113,23 @@ fun BlockchainCardNavHost(
                 cardWidgetUrl = state?.cardWidgetUrl,
                 onManageCardDetails = {
                     viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
+                },
+                onChoosePaymentMethod = {
+                    viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
                 }
             )
         }
 
         bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
             ManageCardDetails(onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
+        }
+
+        bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {
+            state?.let {
+                AccountPicker(it.eligibleTradingAccounts) {
+                    // TODO (labreu): Add card linking request (next PR)
+                }
+            }
         }
     }
 }

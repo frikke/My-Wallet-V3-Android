@@ -461,7 +461,6 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
-                ratingPrefs = get(),
                 onboardingPrefs = get(),
                 prefs = get(),
                 buyOrdersCache = get(),
@@ -475,7 +474,8 @@ val applicationModule = module {
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
-                getSafeConnectTosLinkUseCase = payloadScope.get()
+                getSafeConnectTosLinkUseCase = payloadScope.get(),
+                appRatingService = get()
             )
         }
 
@@ -729,7 +729,8 @@ val applicationModule = module {
 
         scoped {
             PlacesClientProvider(
-                context = get()
+                context = get(),
+                apiKey = BuildConfig.PLACES_API_KEY,
             )
         }
 

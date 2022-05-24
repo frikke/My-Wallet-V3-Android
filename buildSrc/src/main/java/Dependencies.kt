@@ -46,7 +46,7 @@ object Versions {
     // Support Libraries
     const val googleServices = "17.1.0"
     const val googleServicesAuth = "19.0.0"
-    const val googleServicesPlaces = "2.5.0"
+    const val googleServicesPlaces = "2.6.0"
     const val googleServicesReCaptcha = "16.0.0"
     const val googleServicesWallet = "19.0.1"
     const val googlePlayCore = "1.8.2"
@@ -105,6 +105,7 @@ object Versions {
     const val composeActivity = "1.3.1"
     const val constraintLayoutCompose = "1.0.0-beta02"
     const val composeRx = "1.1.1"
+    const val composeKotlinCompile = "1.5.3"
     const val composeNavigation = "2.4.1"
 
     // Accompanist
