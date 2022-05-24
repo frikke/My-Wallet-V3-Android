@@ -26,7 +26,7 @@ final buildProperties = new BuildProperties(file('secrets.properties'), file('se
 android {
     signingConfigs {
         debug {
-            storeFile file('blockchainDebugKey.keystore')
+            storeFile file(buildProperties.secrets['stagingDebugKeyStore'])
             storePassword buildProperties.secrets['keyPassword'].toString()
             keyPassword buildProperties.secrets['keyPassword'].toString()
             keyAlias buildProperties.secrets['debugKeyAlias'].toString()
