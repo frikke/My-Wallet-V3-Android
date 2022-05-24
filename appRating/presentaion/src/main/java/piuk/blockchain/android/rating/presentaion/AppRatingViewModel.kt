@@ -24,16 +24,12 @@ class AppRatingViewModel(
         private const val WALLET_ID = "Wallet id: "
     }
 
-    private var stars: Int = 0
-    private var feedback = StringBuilder("$WALLET_ID${authPrefs.walletGuid}")
-
-    /**
-     * [inAppReviewCompleted] could return an error because showing in-app could've failed
-     */
-    private var forceRetrigger: Boolean = false
-
     override fun viewCreated(args: AppRatingTriggerSource) {
-        feedback.append("$SEPARATOR$SCREEN${args.value}")
+        updateState {
+            it.copy(
+                feedback = it.feedback.append("$WALLET_ID${authPrefs.walletGuid}$SEPARATOR$SCREEN${args.value}")
+            )
+        }
     }
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
@@ -69,7 +65,7 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
-        this.stars = stars
+        updateState { it.copy(stars = stars) }
 
         // get threshold to navigate to the right screen
         viewModelScope.launch {
@@ -85,13 +81,17 @@ class AppRatingViewModel(
 
     private fun submitFeedback(feedback: String) {
         if (feedback.isBlank().not()) {
-            this.feedback.insert(
-                0,
-                // to separate feedback from wallet id
-                // apparently new lines don't register as such,
-                // even when doing it on web, the result is in one line
-                "$feedback$SEPARATOR"
-            )
+            updateState {
+                it.copy(
+                    feedback = it.feedback.insert(
+                        0,
+                        // to separate feedback from wallet id
+                        // apparently new lines don't register as such,
+                        // even when doing it on web, the result is in one line
+                        "$feedback$SEPARATOR"
+                    )
+                )
+            }
         }
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
@@ -99,10 +99,8 @@ class AppRatingViewModel(
 
     private fun inAppReviewCompleted(successful: Boolean) {
         // remove prompt
-        updateState { it.copy(promptInAppReview = false) }
-
-        // will be used in postRatingData response
-        forceRetrigger = successful.not()
+        // forceRetrigger will be used in postRatingData response
+        updateState { it.copy(promptInAppReview = false, forceRetrigger = successful.not()) }
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
@@ -123,8 +121,13 @@ class AppRatingViewModel(
     }
 
     private suspend fun postRatingData() {
-        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback.toString())).let { successful ->
-            if (successful && forceRetrigger.not()) {
+        appRatingService.postRatingData(
+            appRating = AppRating(
+                rating = modelState.stars,
+                feedback = modelState.feedback.toString()
+            )
+        ).let { successful ->
+            if (successful && modelState.forceRetrigger.not()) {
                 appRatingService.markRatingCompleted()
             } else {
                 appRatingService.saveRatingDateForLater()

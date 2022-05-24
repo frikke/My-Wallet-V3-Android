@@ -110,8 +110,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     }
 
     private fun resetAppRating() {
-        appRatingPrefs.completed = false
-        appRatingPrefs.promptDateMillis = 0L
+        appRatingPrefs.resetAppRatingData()
     }
 
     private fun onRndDeviceId() {
