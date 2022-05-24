@@ -18,16 +18,12 @@ class AppRatingViewModel(
     AppRatingTriggerSource>(
     initialState = AppRatingModelState()
 ) {
-    companion object {
-        private const val SEPARATOR = ", ------ "
-        private const val SCREEN = "Screen: "
-        private const val WALLET_ID = "Wallet id: "
-    }
 
     override fun viewCreated(args: AppRatingTriggerSource) {
         updateState {
             it.copy(
-                feedback = it.feedback.append("$WALLET_ID${authPrefs.walletGuid}$SEPARATOR$SCREEN${args.value}")
+                walletId = authPrefs.walletGuid,
+                screenName = args.value
             )
         }
     }
@@ -82,15 +78,7 @@ class AppRatingViewModel(
     private fun submitFeedback(feedback: String) {
         if (feedback.isBlank().not()) {
             updateState {
-                it.copy(
-                    feedback = it.feedback.insert(
-                        0,
-                        // to separate feedback from wallet id
-                        // apparently new lines don't register as such,
-                        // even when doing it on web, the result is in one line
-                        "$feedback$SEPARATOR"
-                    )
-                )
+                it.copy(feedback = feedback)
             }
         }
 
@@ -124,7 +112,7 @@ class AppRatingViewModel(
         appRatingService.postRatingData(
             appRating = AppRating(
                 rating = modelState.stars,
-                feedback = modelState.feedback.toString()
+                feedback = modelState.feedbackFormatted()
             )
         ).let { successful ->
             if (successful && modelState.forceRetrigger.not()) {
