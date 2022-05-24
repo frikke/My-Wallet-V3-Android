@@ -624,7 +624,7 @@ class DashboardActionInteractor(
             HistoricalRate(rate = 1.0, timestamp = System.currentTimeMillis() / 1000)
         )
 
-        private const val RETRY_INTERVAL_MS = 3000L
-        private const val RETRY_COUNT = 3L
+        private const val RETRY_INTERVAL_MS = 1000L
+        private const val RETRY_COUNT = 2L
     }
 }
