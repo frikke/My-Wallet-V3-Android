@@ -2954,4 +2954,7 @@
     <string name="no_fee">No Fee</string>
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_action_menu">Action Menu</string>
 </resources>
