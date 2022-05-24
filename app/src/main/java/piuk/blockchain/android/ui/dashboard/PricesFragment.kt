@@ -158,8 +158,6 @@ internal class PricesFragment :
                 priceWithDelta = it.prices
             )
         }
-
-        binding.recyclerView.smoothScrollToPosition(0)
     }
 
     override fun onBackPressed(): Boolean = false
