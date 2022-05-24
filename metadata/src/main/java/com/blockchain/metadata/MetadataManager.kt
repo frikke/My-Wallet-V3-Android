@@ -101,7 +101,8 @@ internal class MetadataManager(
         metadataNodeFactory.metadataNode?.let {
             metadataInteractor.putMetadata(
                 data,
-                Metadata.newInstance(metaDataHDNode = it, type = metadataType, metadataDerivation = metadataDerivation)
+                Metadata.newInstance(metaDataHDNode = it, type = metadataType, metadataDerivation = metadataDerivation),
+                metadataType
             )
         } ?: Completable.error(IllegalStateException("Metadata node is null"))
 
@@ -160,7 +161,8 @@ internal class MetadataManager(
         val remoteMetadataNodes = metadataNodeFactory.remoteMetadataHdNodes(walletPayloadService.masterKey)
         return metadataInteractor.putMetadata(
             remoteMetadataNodes.toJson(),
-            metadataNodeFactory.secondPwNode
+            metadataNodeFactory.secondPwNode,
+            -1
         )
             .doOnComplete {
                 metadataNodeFactory.initNodes(remoteMetadataNodes)

@@ -25,12 +25,14 @@ class AccountCredentialsMetadata(
             // Not found - haven't been created yet.
             Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
         ).flatMap { blockchainMetadata ->
+            println("LALALA UNIFIED $blockchainMetadata")
             if (blockchainMetadata.isValid()) {
                 Maybe.just(blockchainMetadata)
             } else {
                 metadataRepository.load<NabuLegacyCredentialsMetadata>(
                     MetadataEntry.NABU_LEGACY_CREDENTIALS
                 ).flatMap { legacyMetadata ->
+                    println("LALALA Legacy $legacyMetadata")
                     migrate(legacyMetadata, blockchainMetadata).thenMaybe {
                         Maybe.just(legacyMetadata)
                     }
@@ -69,18 +71,29 @@ class AccountCredentialsMetadata(
         }
     }
 
+    private var metadataMigrationCompletable: Completable? = null
+
     private fun migrate(
         legacyMetadata: NabuLegacyCredentialsMetadata,
         blockchainMetadata: BlockchainAccountCredentialsMetadata
     ): Completable {
-        return metadataRepository.save(
-            BlockchainAccountCredentialsMetadata(
-                userId = legacyMetadata.userId,
-                exchangeLifetimeToken = blockchainMetadata.exchangeLifetimeToken?.takeIf { it.isNotEmpty() },
-                lifetimeToken = legacyMetadata.lifetimeToken,
-                exchangeUserId = blockchainMetadata.exchangeUserId?.takeIf { it.isNotEmpty() }
-            ),
-            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-        )
+        return if (metadataMigrationCompletable == null) {
+            metadataMigrationCompletable = metadataRepository.save(
+                BlockchainAccountCredentialsMetadata(
+                    userId = legacyMetadata.userId,
+                    exchangeLifetimeToken = blockchainMetadata.exchangeLifetimeToken?.takeIf { it.isNotEmpty() },
+                    lifetimeToken = legacyMetadata.lifetimeToken,
+                    exchangeUserId = blockchainMetadata.exchangeUserId?.takeIf { it.isNotEmpty() }
+                ),
+                MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+            ).doFinally {
+                metadataMigrationCompletable = null
+            }.cache()
+            metadataMigrationCompletable!!
+        } else{
+            println("LALALA We avoided")
+            metadataMigrationCompletable!!
+        }
+
     }
 }
