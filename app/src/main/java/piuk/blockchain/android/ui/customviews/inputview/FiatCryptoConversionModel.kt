@@ -51,10 +51,6 @@ internal class FiatCryptoConversionModel(
     }
 
     fun configUpdated(configuration: FiatCryptoViewConfiguration) {
-        internalRate.onNext(
-            ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency)
-        )
-        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(configuration.inputCurrency, configuration.outputCurrency))
         Single.zip(
             getInternalExchangeRate(configuration.inputCurrency, configuration.exchangeCurrency),
             getOutputExchangeRate(configuration.inputCurrency, configuration.outputCurrency)
@@ -108,6 +104,7 @@ internal class FiatCryptoConversionModel(
                 Single.just(customRate)
             else Single.just(customRate.inverse())
         } else {
+            internalRate.onNext(ExchangeRate.zeroRateExchangeRate(input, output))
             getExchangeRate(input, output)
         }
     }
@@ -116,6 +113,7 @@ internal class FiatCryptoConversionModel(
         input: Currency,
         output: Currency
     ): Single<ExchangeRate> {
+        outputRate.onNext(ExchangeRate.zeroRateExchangeRate(input, output))
         return getExchangeRate(input, output)
     }
 
