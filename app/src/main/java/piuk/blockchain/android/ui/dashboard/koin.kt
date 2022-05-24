@@ -43,7 +43,7 @@ val dashboardModule = module {
                 currencyPrefs = get(),
                 onboardingPrefs = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
                 analytics = get(),
@@ -86,7 +86,7 @@ val dashboardModule = module {
             DashboardOnboardingInteractor(
                 getDashboardOnboardingUseCase = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get()
             )
         }
@@ -127,7 +127,8 @@ val dashboardModule = module {
         factory {
             RecurringBuyInteractor(
                 tradeDataService = get(),
-                paymentsDataManager = get()
+                bankService = get(),
+                cardService = get()
             )
         }
     }

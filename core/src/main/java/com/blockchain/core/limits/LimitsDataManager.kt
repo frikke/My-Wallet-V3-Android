@@ -7,6 +7,7 @@ import com.blockchain.api.txlimits.data.Limit
 import com.blockchain.api.txlimits.data.LimitPeriod
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.Tier
 import info.blockchain.balance.AssetCatalogue
@@ -16,13 +17,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import java.math.RoundingMode
-
-interface LegacyLimits {
-    val min: Money
-    val max: Money?
-    val currency: String
-        get() = min.currencyCode
-}
 
 interface LimitsDataManager {
 

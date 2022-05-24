@@ -3,7 +3,8 @@ package piuk.blockchain.android.simplebuy.paymentmethods
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -37,7 +38,7 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
                 (paymentMethodItem.paymentMethod as? PaymentMethod.Card)?.let {
-                    paymentMethodIcon.setImageResource(it.cardType.icon())
+                    paymentMethodIcon.setImageResource(it.cardType.toCardType().icon())
                     paymentMethodLimit.text =
                         context.getString(
                             R.string.payment_method_limit,

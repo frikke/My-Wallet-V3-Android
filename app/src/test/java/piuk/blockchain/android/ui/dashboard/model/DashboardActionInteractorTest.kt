@@ -5,14 +5,14 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
@@ -31,7 +31,7 @@ class DashboardActionInteractorTest {
     private lateinit var actionInteractor: DashboardActionInteractor
     private val linkedBanksFactory: LinkedBanksFactory = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val userIdentity: NabuUserIdentity = mock()
     private val model: DashboardModel = mock()
@@ -61,7 +61,7 @@ class DashboardActionInteractorTest {
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
             exchangeRates = mock(),
-            paymentsDataManager = paymentsDataManager
+            bankService = bankService
         )
     }
 
@@ -112,7 +112,7 @@ class DashboardActionInteractorTest {
                 emptyList()
             )
         )
-        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
+        whenever(bankService.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")
@@ -204,7 +204,7 @@ class DashboardActionInteractorTest {
             )
         )
 
-        whenever(paymentsDataManager.linkBank(USD)).thenReturn(
+        whenever(bankService.linkBank(USD)).thenReturn(
             Single.just(
                 LinkBankTransfer(
                     "123", BankPartner.YODLEE, YodleeAttributes("", "", "")

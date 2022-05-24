@@ -4,8 +4,8 @@ import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
@@ -37,12 +37,12 @@ class Coincore internal constructor(
     private val fiatAsset: Asset,
     private val currencyPrefs: CurrencyPrefs,
     private val remoteLogger: RemoteLogger,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val disabledEvmAssets: List<AssetInfo>
 ) {
 
     fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        paymentsDataManager.getWithdrawalLocks(localCurrency)
+        bankService.getWithdrawalLocks(localCurrency)
 
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]

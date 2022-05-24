@@ -20,9 +20,9 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.swap.OUTGOING_FEE
 import com.blockchain.coincore.impl.txEngine.swap.RECEIVE_AMOUNT
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import java.math.BigDecimal

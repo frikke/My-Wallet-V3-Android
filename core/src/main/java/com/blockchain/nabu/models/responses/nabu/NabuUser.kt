@@ -1,6 +1,6 @@
 package com.blockchain.nabu.models.responses.nabu
 
-import com.blockchain.nabu.datamanagers.BillingAddress
+import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.PrimitiveSerializer
 import kotlin.math.max

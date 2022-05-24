@@ -9,10 +9,10 @@ import android.view.WindowManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.braintreepayments.cardform.utils.CardType
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -33,7 +33,7 @@ class AddNewCardFragment :
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
     private val compositeDisposable = CompositeDisposable()
-    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+    private val cardService: CardService by scopedInject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
@@ -114,7 +114,7 @@ class AddNewCardFragment :
                 }
             }
 
-            compositeDisposable += paymentsDataManager.getLinkedCards(
+            compositeDisposable += cardService.getLinkedCards(
                 CardStatus.PENDING,
                 CardStatus.ACTIVE
             ).subscribeBy(onSuccess = {
@@ -147,7 +147,7 @@ class AddNewCardFragment :
                         year = expiryDate.year.toInt().asCalendarYear()
                     ) &&
                     cardNumber.text?.toString()?.takeLast(4) == it.endDigits &&
-                    cardNumber.cardType == it.cardType
+                    cardNumber.cardType.name == it.cardType
                 )
                     return true
             }

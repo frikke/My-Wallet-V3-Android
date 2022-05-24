@@ -1,19 +1,21 @@
 package com.blockchain.coincore.fiat
 
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankState
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 
 class LinkedBanksFactory(
     val custodialWalletManager: CustodialWalletManager,
-    val paymentsDataManager: PaymentsDataManager
+    val bankService: BankService,
+    val paymentMethodService: PaymentMethodService
 ) {
 
     fun getAllLinkedBanks(): Single<List<LinkedBankAccount>> =
-        paymentsDataManager.getLinkedBanks().map { banks ->
+        bankService.getLinkedBanks().map { banks ->
             banks.filter {
                 it.state == BankState.ACTIVE
             }.map {
@@ -30,7 +32,7 @@ class LinkedBanksFactory(
         }
 
     fun getNonWireTransferBanks(): Single<List<LinkedBankAccount>> =
-        paymentsDataManager.getLinkedBanks().map { banks ->
+        bankService.getLinkedBanks().map { banks ->
             banks.filter { it.state == BankState.ACTIVE && it.type == PaymentMethodType.BANK_TRANSFER }
                 .map { bank ->
                     LinkedBankAccount(
@@ -46,7 +48,7 @@ class LinkedBanksFactory(
         }
 
     fun eligibleBankPaymentMethods(fiat: FiatCurrency): Single<Set<PaymentMethodType>> =
-        paymentsDataManager.getEligiblePaymentMethodTypes(fiat).map { methods ->
+        paymentMethodService.getEligiblePaymentMethodTypes(fiat).map { methods ->
             methods.filter {
                 it.type == PaymentMethodType.BANK_TRANSFER ||
                     it.type == PaymentMethodType.BANK_ACCOUNT

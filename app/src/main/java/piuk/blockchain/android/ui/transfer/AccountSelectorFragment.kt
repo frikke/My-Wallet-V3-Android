@@ -14,7 +14,7 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.snackbar.Snackbar
@@ -35,7 +35,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
 
     private val coincore: Coincore by scopedInject()
     private val accountsSorting: AccountsSorting by scopedInject()
-    private val paymentsDataManager: PaymentsDataManager by scopedInject()
+    private val bankService: BankService by scopedInject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private lateinit var introHeaderView: IntroHeaderView
 
@@ -101,7 +101,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     }
 
     private fun showWithdrawalLocks(): Single<List<AccountLocks>> =
-        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<BlockchainAccount>> =

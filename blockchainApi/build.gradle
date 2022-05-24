@@ -12,6 +12,7 @@ compileKotlin {
     }
 }
 dependencies {
+    implementation project(':common:domain')
     implementation project(':common:interface')
     implementation project(':common:network')
 

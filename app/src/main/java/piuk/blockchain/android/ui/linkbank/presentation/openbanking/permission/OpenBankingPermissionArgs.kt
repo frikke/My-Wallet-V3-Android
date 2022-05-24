@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission
 
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 

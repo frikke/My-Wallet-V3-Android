@@ -1,8 +1,8 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -47,7 +47,7 @@ class AppRatingServiceTest {
     private val appRatingFF = mockk<FeatureFlag>()
     private val userIdentity = mockk<UserIdentity>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
-    private val paymentsDataManager = mockk<PaymentsDataManager>()
+    private val bankService = mockk<BankService>()
     private val environmentConfig = mockk<EnvironmentConfig>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
@@ -59,7 +59,7 @@ class AppRatingServiceTest {
         appRatingFF = appRatingFF,
         userIdentity = userIdentity,
         currencyPrefs = currencyPrefs,
-        paymentsDataManager = paymentsDataManager,
+        bankService = bankService,
         environmentConfig = environmentConfig
     )
 
@@ -145,7 +145,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
             every { appRatingPrefs.promptDateMillis } returns 0L
 
             val result = appRatingService.shouldShowRating()
@@ -178,7 +178,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksOnHold)
 
             val result = appRatingService.shouldShowRating()
 
@@ -190,7 +190,7 @@ class AppRatingServiceTest {
         runTest {
             every { appRatingPrefs.completed } returns false
             every { userIdentity.isVerifiedFor(fetureTierGold) } returns Single.just(true)
-            every { paymentsDataManager.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
+            every { bankService.getWithdrawalLocks(any()) } returns Single.just(fundsLocksNotOnHold)
             // simulate prompt was show 20 seconds ago = less than a month
             every { appRatingPrefs.promptDateMillis } returns
                 Calendar.getInstance().apply { add(Calendar.SECOND, -20) }.timeInMillis

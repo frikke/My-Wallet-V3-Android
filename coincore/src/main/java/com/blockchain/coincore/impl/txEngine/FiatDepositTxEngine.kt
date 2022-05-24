@@ -18,17 +18,17 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankPartner
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.network.PollService
 import com.blockchain.utils.secondsToDays
@@ -46,7 +46,7 @@ private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 class FiatDepositTxEngine(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
@@ -190,7 +190,7 @@ class FiatDepositTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
-            paymentsDataManager.startBankTransfer(
+            bankService.startBankTransfer(
                 it.address, pendingTx.amount, pendingTx.amount.currencyCode,
                 if (isOpenBankingCurrency()) {
                     bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
@@ -203,10 +203,10 @@ class FiatDepositTxEngine(
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         if (isOpenBankingCurrency()) {
             val paymentId = (txResult as TxResult.HashedTxResult).txId
-            PollService(paymentsDataManager.getBankTransferCharge(paymentId)) {
+            PollService(bankService.getBankTransferCharge(paymentId)) {
                 it.authorisationUrl != null
             }.start().map { it.value }.flatMap { bankTransferDetails ->
-                paymentsDataManager.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
+                bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
                     bankTransferDetails.authorisationUrl?.let {
                         BankPaymentApproval(
                             paymentId,

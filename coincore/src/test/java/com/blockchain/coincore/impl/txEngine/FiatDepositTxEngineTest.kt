@@ -14,13 +14,13 @@ import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -39,7 +39,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     private lateinit var subject: FiatDepositTxEngine
     private val walletManager: CustodialWalletManager = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val limits = PaymentLimits(
@@ -74,7 +74,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
             limitsDataManager = limitsDataManager,
-            paymentsDataManager = paymentsDataManager
+            bankService = bankService
         )
     }
 
@@ -449,7 +449,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         val txId = "12234"
         whenever(
-            paymentsDataManager.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+            bankService.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
         ).thenReturn(
             Single.just(txId)
         )
@@ -463,7 +463,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                     it.txId == txId
             }
 
-        verify(paymentsDataManager).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+        verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
     }
 
     @Test
@@ -500,7 +500,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
         val exception = IllegalStateException("")
         whenever(
-            paymentsDataManager.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+            bankService.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
         ).thenReturn(
             Single.error(exception)
         )
@@ -512,7 +512,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
                 it == exception
             }
 
-        verify(paymentsDataManager).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+        verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
     }
 
     private fun verifyFeeLevels(feeSelection: FeeSelection) =

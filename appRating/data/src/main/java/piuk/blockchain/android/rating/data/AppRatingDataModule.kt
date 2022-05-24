@@ -69,7 +69,7 @@ val appRatingDataModule = module {
 
                 userIdentity = get(),
                 currencyPrefs = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 environmentConfig = get()
             )
         }

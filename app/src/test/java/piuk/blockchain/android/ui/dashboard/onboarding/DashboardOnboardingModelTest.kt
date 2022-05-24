@@ -1,14 +1,14 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkBankAttributes
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.EUR
 import com.blockchain.testutils.GBP

@@ -28,8 +28,7 @@ import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.PaymentsDataManagerImpl
+import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.payments.cards.CardsCache
@@ -39,6 +38,9 @@ import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
@@ -362,7 +364,7 @@ val coreModule = module {
         }
 
         scoped {
-            PaymentsDataManagerImpl(
+            PaymentsRepository(
                 paymentsService = get(),
                 paymentMethodsService = get(),
                 tradingBalanceDataManager = get(),
@@ -375,7 +377,10 @@ val coreModule = module {
                 cardsCache = get(),
                 cachingStoreFeatureFlag = get(cachingStoreFeatureFlag)
             )
-        }.bind(PaymentsDataManager::class)
+        }
+            .bind(BankService::class)
+            .bind(CardService::class)
+            .bind(PaymentMethodService::class)
 
         scoped {
             WatchlistDataManagerImpl(

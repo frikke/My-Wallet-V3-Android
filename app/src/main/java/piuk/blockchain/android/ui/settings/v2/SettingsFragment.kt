@@ -33,13 +33,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -334,7 +335,7 @@ class SettingsFragment :
                     titleStart = buildAnnotatedString { append(card.uiLabel()) }
                     titleEnd = buildAnnotatedString { append(card.dottedEndDigits()) }
                     startImageResource = ImageResource.Local(
-                        (card as? PaymentMethod.Card)?.cardType?.icon()
+                        (card as? PaymentMethod.Card)?.cardType?.toCardType()?.icon()
                             ?: R.drawable.ic_payment_card,
                         null
                     )

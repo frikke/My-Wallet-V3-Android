@@ -2,17 +2,17 @@ package piuk.blockchain.android.cards.partners
 
 import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.CardProvider
-import com.blockchain.core.payments.model.EveryPayCredentials
-import com.blockchain.core.payments.model.PartnerCredentials
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.CardProvider
+import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
+import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.payments.core.CardAcquirer
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.cards.CardData
 import piuk.blockchain.android.everypay.service.EveryPayCardService
 
 class CardProviderActivator(
-    private val paymentsDataManager: PaymentsDataManager,
+    private val cardService: CardService,
     private val submitEveryPayCardService: EveryPayCardService
 ) : CardActivator {
 
@@ -20,13 +20,10 @@ class CardProviderActivator(
         cardData: CardData,
         cardId: String
     ): Single<CompleteCardActivation> {
-        return paymentsDataManager.activateCard(
+        return cardService.activateCard(
             cardId = cardId,
-            attributes = SimpleBuyConfirmationAttributes(
-                everypay = EveryPayAttrs(redirectUrl),
-                redirectURL = redirectUrl,
-                cvv = cardData.cvv
-            )
+            redirectUrl = redirectUrl,
+            cvv = cardData.cvv
         ).flatMap { credentials ->
             when (credentials) {
                 is PartnerCredentials.EverypayPartner -> getEveryPayActivationDetails(credentials.everyPay, cardData)

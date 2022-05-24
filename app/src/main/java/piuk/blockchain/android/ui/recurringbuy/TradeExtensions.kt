@@ -6,7 +6,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import androidx.core.content.ContextCompat
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_SUPPORT_BALANCE_LOCKED
 import piuk.blockchain.android.util.StringUtils

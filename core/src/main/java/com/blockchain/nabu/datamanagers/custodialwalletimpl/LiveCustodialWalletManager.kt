@@ -6,9 +6,12 @@ import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
-import com.blockchain.core.payments.model.CryptoWithdrawalFeeAndLimit
-import com.blockchain.core.payments.model.FiatWithdrawalFeeAndLimit
-import com.blockchain.core.payments.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
+import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.ApprovalErrorStatus
 import com.blockchain.nabu.datamanagers.BankAccount
@@ -28,8 +31,6 @@ import com.blockchain.nabu.datamanagers.InterestActivityItem
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
@@ -862,15 +863,6 @@ private fun String.toTransactionType(): TransactionType? =
         else -> null
     }
 
-enum class PaymentMethodType {
-    BANK_TRANSFER,
-    BANK_ACCOUNT,
-    PAYMENT_CARD,
-    GOOGLE_PAY,
-    FUNDS,
-    UNKNOWN
-}
-
 private fun String.toLocalState(): OrderState =
     when (this) {
         BuySellOrderResponse.PENDING_DEPOSIT -> OrderState.AWAITING_FUNDS
@@ -883,15 +875,6 @@ private fun String.toLocalState(): OrderState =
         BuySellOrderResponse.CANCELED -> OrderState.CANCELED
         else -> OrderState.UNKNOWN
     }
-
-enum class CardStatus {
-    PENDING,
-    ACTIVE,
-    BLOCKED,
-    CREATED,
-    UNKNOWN,
-    EXPIRED
-}
 
 private fun BuySellOrderResponse.type() =
     when {

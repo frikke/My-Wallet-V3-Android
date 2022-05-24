@@ -2,13 +2,13 @@ package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.banking.BankTransferAction
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.LinkedBankErrorState
-import com.blockchain.core.payments.model.LinkedBankState
-import com.blockchain.core.payments.model.YapilyAttributes
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
+import com.blockchain.domain.paymentmethods.model.LinkedBankState
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.GBP
 import com.nhaarman.mockitokotlin2.any

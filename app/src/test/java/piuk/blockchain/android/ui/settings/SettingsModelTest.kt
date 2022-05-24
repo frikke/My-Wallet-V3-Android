@@ -1,17 +1,17 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -152,7 +152,7 @@ class SettingsModelTest {
                     "",
                     Partner.CARDPROVIDER,
                     Date(),
-                    CardType.AMEX,
+                    CardType.AMEX.name,
                     CardStatus.ACTIVE,
                     MobilePaymentType.GOOGLE_PAY,
                     true

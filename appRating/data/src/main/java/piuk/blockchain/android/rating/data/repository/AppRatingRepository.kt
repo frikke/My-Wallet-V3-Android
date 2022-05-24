@@ -1,6 +1,6 @@
 package piuk.blockchain.android.rating.data.repository
 
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -31,7 +31,7 @@ internal class AppRatingRepository(
     // prerequisites verification
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val environmentConfig: EnvironmentConfig
 ) : AppRatingService {
 
@@ -97,7 +97,7 @@ internal class AppRatingRepository(
     private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
-        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
             return fundsLocks.onHoldTotalAmount.isPositive
         }
     }

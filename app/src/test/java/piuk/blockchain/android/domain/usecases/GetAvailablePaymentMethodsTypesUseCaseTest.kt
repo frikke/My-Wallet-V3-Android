@@ -1,17 +1,18 @@
 package piuk.blockchain.android.domain.usecases
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentMethodTypeWithEligibility
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -34,7 +35,8 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     }
 
     private val userIdentity: UserIdentity = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val paymentMethodService: PaymentMethodService = mock()
+    private val cardService: CardService = mock()
 
     private lateinit var subject: GetAvailablePaymentMethodsTypesUseCase
 
@@ -42,14 +44,15 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     fun setUp() {
         subject = GetAvailablePaymentMethodsTypesUseCase(
             userIdentity,
-            paymentsDataManager
+            paymentMethodService,
+            cardService
         )
     }
 
     @Test
     fun `given gold tier should just return available payments method types and have BLOCKED link access for non eligible`() {
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.GOLD))
-        whenever(paymentsDataManager.getAvailablePaymentMethodsTypes(any(), any(), any()))
+        whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
 
         val test = subject.invoke(REQUEST).test()
@@ -67,14 +70,14 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         )
         test.assertValue(expected)
 
-        verify(paymentsDataManager)
+        verify(paymentMethodService)
             .getAvailablePaymentMethodsTypes(REQUEST.currency, REQUEST.fetchSddLimits, REQUEST.onlyEligible)
     }
 
     @Test
     fun `given bronze tier should just return available payment method types and have NEEDS_UPGRADE for non eligible`() {
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.BRONZE))
-        whenever(paymentsDataManager.getAvailablePaymentMethodsTypes(any(), any(), any()))
+        whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
 
         val test = subject.invoke(REQUEST).test()
@@ -92,7 +95,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         )
         test.assertValue(expected)
 
-        verify(paymentsDataManager)
+        verify(paymentMethodService)
             .getAvailablePaymentMethodsTypes(REQUEST.currency, REQUEST.fetchSddLimits, REQUEST.onlyEligible)
     }
 
@@ -100,9 +103,9 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
     fun `given silver tier with sdd and card type eligible should fetch cards and block linkaccess if user has active cards`() {
         whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(Tier.SILVER))
-        whenever(paymentsDataManager.getAvailablePaymentMethodsTypes(any(), any(), any()))
+        whenever(paymentMethodService.getAvailablePaymentMethodsTypes(any(), any(), any()))
             .thenReturn(Single.just(AVAILABLE))
-        whenever(paymentsDataManager.getLinkedCards(CardStatus.ACTIVE)).thenReturn(Single.just(listOf(CARD)))
+        whenever(cardService.getLinkedCards(CardStatus.ACTIVE)).thenReturn(Single.just(listOf(CARD)))
 
         val test = subject.invoke(REQUEST).test()
 
@@ -119,10 +122,10 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
         )
         test.assertValue(expected)
 
-        verify(paymentsDataManager)
+        verify(paymentMethodService)
             .getAvailablePaymentMethodsTypes(REQUEST.currency, REQUEST.fetchSddLimits, REQUEST.onlyEligible)
         verify(userIdentity).isVerifiedFor(Feature.SimplifiedDueDiligence)
-        verify(paymentsDataManager).getLinkedCards(CardStatus.ACTIVE)
+        verify(cardService).getLinkedCards(CardStatus.ACTIVE)
     }
 
     companion object {
@@ -152,7 +155,7 @@ class GetAvailablePaymentMethodsTypesUseCaseTest {
                 endDigits = "",
                 partner = Partner.CARDPROVIDER,
                 expireDate = Date(),
-                cardType = CardType.AMEX,
+                cardType = CardType.AMEX.name,
                 status = CardStatus.ACTIVE,
                 cardFundSources = CARD_FUND_SOURCES,
                 mobilePaymentType = MobilePaymentType.GOOGLE_PAY,

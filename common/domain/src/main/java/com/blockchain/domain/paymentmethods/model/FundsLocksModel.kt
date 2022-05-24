@@ -1,4 +1,4 @@
-package com.blockchain.core.payments.model
+package com.blockchain.domain.paymentmethods.model
 
 import info.blockchain.balance.Money
 import java.io.Serializable

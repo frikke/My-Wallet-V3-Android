@@ -1,30 +1,15 @@
 package com.blockchain.core.payments
 
-import android.annotation.SuppressLint
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
-import com.blockchain.api.paymentmethods.models.BankInfoResponse
-import com.blockchain.api.paymentmethods.models.BankMediaResponse
-import com.blockchain.api.paymentmethods.models.BankMediaResponse.Companion.ICON
-import com.blockchain.api.paymentmethods.models.BankTransferChargeAttributes
-import com.blockchain.api.paymentmethods.models.BankTransferChargeResponse
-import com.blockchain.api.paymentmethods.models.BankTransferPaymentAttributes
-import com.blockchain.api.paymentmethods.models.BankTransferPaymentBody
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
-import com.blockchain.api.paymentmethods.models.CreateLinkBankResponse
+import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
-import com.blockchain.api.paymentmethods.models.GooglePayResponse
 import com.blockchain.api.paymentmethods.models.Limits
-import com.blockchain.api.paymentmethods.models.LinkedBankTransferResponse
-import com.blockchain.api.paymentmethods.models.OpenBankingTokenBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
-import com.blockchain.api.paymentmethods.models.ProviderAccountAttrs
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.api.paymentmethods.models.UpdateProviderAccountBody
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
@@ -32,30 +17,50 @@ import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cards.CardsCache
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.BankState
-import com.blockchain.core.payments.model.BankTransferDetails
-import com.blockchain.core.payments.model.BankTransferStatus
-import com.blockchain.core.payments.model.CardProvider
-import com.blockchain.core.payments.model.CardToBeActivated
-import com.blockchain.core.payments.model.EveryPayCredentials
-import com.blockchain.core.payments.model.FundsLock
-import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.LinkedBankErrorState
-import com.blockchain.core.payments.model.LinkedBankState
-import com.blockchain.core.payments.model.Partner
-import com.blockchain.core.payments.model.PartnerCredentials
-import com.blockchain.core.payments.model.PaymentMethodDetailsError
-import com.blockchain.core.payments.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardProvider
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
+import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
+import com.blockchain.domain.paymentmethods.model.FundsLock
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.GooglePayInfo
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
+import com.blockchain.domain.paymentmethods.model.LinkedBankState
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PartnerCredentials
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
+import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.response.BankInfoResponse
+import com.blockchain.domain.paymentmethods.model.response.BankMediaResponse
+import com.blockchain.domain.paymentmethods.model.response.BankMediaResponse.Companion.ICON
+import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeAttributes
+import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeResponse
+import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentAttributes
+import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentBody
+import com.blockchain.domain.paymentmethods.model.response.CreateLinkBankResponse
+import com.blockchain.domain.paymentmethods.model.response.LinkedBankTransferResponse
+import com.blockchain.domain.paymentmethods.model.response.OpenBankingTokenBody
+import com.blockchain.domain.paymentmethods.model.response.ProviderAccountAttrs
+import com.blockchain.domain.paymentmethods.model.response.UpdateProviderAccountBody
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
-import com.blockchain.nabu.datamanagers.BillingAddress
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.mapLeft
@@ -76,88 +81,15 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import java.io.Serializable
 import java.math.BigInteger
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
-interface PaymentsDataManager {
-    suspend fun getPaymentMethodDetailsForId(
-        paymentId: String
-    ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails>
-
-    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks>
-
-    fun getAvailablePaymentMethodsTypes(
-        fiatCurrency: FiatCurrency,
-        fetchSddLimits: Boolean,
-        onlyEligible: Boolean
-    ): Single<List<PaymentMethodTypeWithEligibility>>
-
-    fun getEligiblePaymentMethodTypes(
-        fiatCurrency: FiatCurrency
-    ): Single<List<EligiblePaymentMethodType>>
-
-    fun getLinkedPaymentMethods(
-        currency: FiatCurrency
-    ): Single<List<LinkedPaymentMethod>>
-
-    fun getLinkedCards(
-        request: StoreRequest,
-        vararg states: CardStatus
-    ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>>
-
-    fun getLinkedCards(vararg states: CardStatus): Single<List<LinkedPaymentMethod.Card>>
-
-    fun getLinkedBank(id: String): Single<LinkedBank>
-
-    fun addNewCard(
-        fiatCurrency: FiatCurrency,
-        billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>? = null
-    ): Single<CardToBeActivated>
-
-    fun deleteCard(cardId: String): Completable
-
-    fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>>
-
-    fun removeBank(bank: LinkedPaymentMethod.Bank): Completable
-
-    fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer>
-
-    fun updateSelectedBankAccount(
-        linkingId: String,
-        providerAccountId: String,
-        accountId: String,
-        attributes: ProviderAccountAttrs
-    ): Completable
-
-    fun startBankTransfer(
-        id: String,
-        amount: Money,
-        currency: String,
-        callback: String? = null
-    ): Single<String>
-
-    fun updateOpenBankingConsent(url: String, token: String): Completable
-
-    fun getBankTransferCharge(paymentId: String): Single<BankTransferDetails>
-
-    fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean>
-
-    fun activateCard(cardId: String, attributes: SimpleBuyConfirmationAttributes): Single<PartnerCredentials>
-
-    fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
-
-    fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayResponse>
-}
-
-class PaymentsDataManagerImpl(
+class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsService: PaymentMethodsService,
     private val linkedCardsStore: LinkedCardsStore,
@@ -169,7 +101,7 @@ class PaymentsDataManagerImpl(
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val googlePayFeatureFlag: FeatureFlag,
-) : PaymentsDataManager {
+) : BankService, CardService, PaymentMethodService {
 
     private val googlePayEnabled: Single<Boolean> by lazy {
         googlePayFeatureFlag.enabled.cache()
@@ -373,12 +305,17 @@ class PaymentsDataManagerImpl(
             cardsCache.invalidate()
         }
 
-    override fun activateCard(
-        cardId: String,
-        attributes: SimpleBuyConfirmationAttributes
-    ): Single<PartnerCredentials> =
+    override fun activateCard(cardId: String, redirectUrl: String, cvv: String): Single<PartnerCredentials> =
         authenticator.getAuthHeader().flatMap { authToken ->
-            paymentMethodsService.activateCard(authToken, cardId, attributes)
+            paymentMethodsService.activateCard(
+                authToken,
+                cardId,
+                SimpleBuyConfirmationAttributes(
+                    everypay = EveryPayAttrs(redirectUrl),
+                    redirectURL = redirectUrl,
+                    cvv = cvv
+                )
+            )
         }.map { response ->
             // Either everypay or cardProvider will be provided by ActivateCardResponse, never both
             when {
@@ -408,9 +345,18 @@ class PaymentsDataManagerImpl(
             )
         }
 
-    override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayResponse> =
+    override fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo> =
         authenticator.getAuthHeader().flatMap { authToken ->
-            paymentMethodsService.getGooglePayInfo(authToken, currency)
+            paymentMethodsService.getGooglePayInfo(authToken, currency).map {
+                GooglePayInfo(
+                    beneficiaryID = it.beneficiaryID,
+                    merchantBankCountryCode = it.merchantBankCountryCode,
+                    googlePayParameters = it.googlePayParameters,
+                    publishableApiKey = it.publishableApiKey,
+                    allowPrepaidCards = it.allowPrepaidCards,
+                    allowCreditCards = it.allowCreditCards
+                )
+            }
         }
 
     override fun deleteCard(cardId: String): Completable =
@@ -547,7 +493,7 @@ class PaymentsDataManagerImpl(
                     )
                 }.time
             } ?: Date(),
-            cardType = card?.type?.toCardType() ?: CardType.UNKNOWN,
+            cardType = (card?.type?.toCardType() ?: CardType.UNKNOWN).name,
             status = state.toCardStatus(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
@@ -652,12 +598,6 @@ class PaymentsDataManagerImpl(
         max.toBigInteger(),
         currency
     )
-
-    private fun String.toCardType(): CardType = try {
-        CardType.valueOf(this)
-    } catch (ex: Exception) {
-        CardType.UNKNOWN
-    }
 
     private fun String.toBankState(): BankState =
         when (this) {
@@ -784,59 +724,8 @@ class PaymentsDataManagerImpl(
     }
 }
 
-sealed class LinkedPaymentMethod(
-    val type: PaymentMethodType,
-    open val currency: FiatCurrency
-) {
-    data class Card(
-        val cardId: String,
-        val label: String,
-        val endDigits: String,
-        val partner: Partner,
-        val expireDate: Date,
-        val cardType: CardType,
-        val status: CardStatus,
-        val cardFundSources: List<String>? = null,
-        val mobilePaymentType: MobilePaymentType? = null,
-        override val currency: FiatCurrency
-    ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
-
-    data class Funds(
-        val balance: Money,
-        override val currency: FiatCurrency
-    ) : LinkedPaymentMethod(PaymentMethodType.FUNDS, currency)
-
-    data class Bank(
-        val id: String,
-        val name: String,
-        val accountEnding: String,
-        val accountType: String,
-        val iconUrl: String,
-        val isBankTransferAccount: Boolean,
-        val state: BankState,
-        override val currency: FiatCurrency
-    ) : LinkedPaymentMethod(
-        if (isBankTransferAccount) PaymentMethodType.BANK_TRANSFER
-        else PaymentMethodType.BANK_ACCOUNT,
-        currency
-    ),
-        Serializable {
-        @SuppressLint("DefaultLocale") // Yes, lint is broken
-        fun toHumanReadableAccount(): String {
-            return accountType.toLowerCase(Locale.getDefault()).capitalize(Locale.getDefault())
-        }
-    }
+fun String.toCardType(): CardType = try {
+    CardType.valueOf(this)
+} catch (ex: Exception) {
+    CardType.UNKNOWN
 }
-
-data class PaymentMethodTypeWithEligibility(
-    val eligible: Boolean,
-    val currency: FiatCurrency,
-    val type: PaymentMethodType,
-    val limits: PaymentLimits,
-    val cardFundSources: List<String>? = null
-)
-
-data class EligiblePaymentMethodType(
-    val type: PaymentMethodType,
-    val currency: FiatCurrency
-)

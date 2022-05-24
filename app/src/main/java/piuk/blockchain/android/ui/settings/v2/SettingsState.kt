@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 

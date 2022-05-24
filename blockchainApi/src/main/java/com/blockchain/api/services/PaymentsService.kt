@@ -8,6 +8,8 @@ import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.B
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.BANK_TRANSFER
 import com.blockchain.api.payments.data.PaymentMethodDetailsResponse.Companion.PAYMENT_CARD
 import com.blockchain.api.payments.data.WithdrawalLocksResponse
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import io.reactivex.rxjava3.core.Single
@@ -59,12 +61,6 @@ private fun PaymentMethodDetailsResponse.toPaymentDetails(): PaymentMethodDetail
     }
 }
 
-data class PaymentMethodDetails(
-    val label: String? = null,
-    val endDigits: String? = null,
-    val mobilePaymentType: MobilePaymentType? = null
-)
-
 private fun WithdrawalLocksResponse.toWithdrawalLocks() =
     CollateralLocks(
         currency = this.totalLocked.currency,
@@ -89,12 +85,6 @@ data class CollateralLock(
     val value: String,
     val date: String
 )
-
-enum class MobilePaymentType {
-    GOOGLE_PAY,
-    APPLE_PAY,
-    UNKNOWN
-}
 
 fun String.toMobilePaymentType(): MobilePaymentType =
     when (this) {

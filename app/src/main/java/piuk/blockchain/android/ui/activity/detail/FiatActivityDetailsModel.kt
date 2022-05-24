@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.activity.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.outcome.fold
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +23,7 @@ data class FiatActivityDetailsViewState(
 
 class FiatActivityDetailsModel(
     private val assetActivityRepository: AssetActivityRepository,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val paymentMethodService: PaymentMethodService,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -46,7 +46,7 @@ class FiatActivityDetailsModel(
     fun loadPaymentDetails(activityItem: FiatActivitySummaryItem) {
         viewModelScope.launch {
             withContext(dispatcher) {
-                paymentsDataManager.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
+                paymentMethodService.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
                     .fold(
                         onSuccess = { paymentMethodDetails ->
                             internalState.value = internalState.value.copy(

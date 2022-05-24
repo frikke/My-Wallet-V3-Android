@@ -21,15 +21,16 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.datamanagers.repositories.swap.CustodialRepository
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -60,7 +61,8 @@ class TransactionInteractor(
     private val addressFactory: AddressFactory,
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
     private val identity: UserIdentity,
     private val accountsSorting: AccountsSorting,
@@ -226,7 +228,7 @@ class TransactionInteractor(
     }
 
     fun linkABank(selectedFiat: FiatCurrency): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(selectedFiat)
+        bankService.linkBank(selectedFiat)
 
     fun updateFiatDepositState(bankPaymentData: BankPaymentApproval) {
         bankLinkingPrefs.setBankLinkingState(
@@ -259,7 +261,7 @@ class TransactionInteractor(
     }
 
     fun updateFiatDepositOptions(fiatCurrency: FiatCurrency): Single<TransactionIntent> {
-        return paymentsDataManager.getEligiblePaymentMethodTypes(fiatCurrency).map { available ->
+        return paymentMethodService.getEligiblePaymentMethodTypes(fiatCurrency).map { available ->
             val availableBankPaymentMethodTypes = available.filter {
                 it.type == PaymentMethodType.BANK_TRANSFER ||
                     it.type == PaymentMethodType.BANK_ACCOUNT

@@ -22,7 +22,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.logging.RemoteLogger
 import com.google.gson.Gson
 import java.net.URLEncoder
