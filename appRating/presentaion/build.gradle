@@ -1,4 +1,5 @@
 apply from: rootProject.file('gradle/local/common-feature-android-presentation.gradle')
+apply plugin: 'kotlin-parcelize'
 
 android {
     buildTypes {
@@ -26,10 +27,10 @@ dependencies {
     implementation Libraries.googlePlayCore
 
     // test
+    testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.coreTesting
     testImplementation Libraries.mockk
     testImplementation Libraries.turbine
-
 }

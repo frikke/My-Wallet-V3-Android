@@ -1,7 +1,6 @@
 package piuk.blockchain.android.rating.presentaion
 
 import androidx.lifecycle.viewModelScope
-import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.AuthPrefs
@@ -16,19 +15,17 @@ class AppRatingViewModel(
     AppRatingViewState,
     AppRatingModelState,
     AppRatingNavigationEvent,
-    ModelConfigArgs.NoArgs>(
+    AppRatingTriggerSource>(
     initialState = AppRatingModelState()
 ) {
 
-    private var stars: Int = 0
-    private var feedback = StringBuilder("from: ${authPrefs.walletGuid}")
-
-    /**
-     * [inAppReviewCompleted] could return an error because showing in-app could've failed
-     */
-    private var forceRetrigger: Boolean = false
-
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+    override fun viewCreated(args: AppRatingTriggerSource) {
+        updateState {
+            it.copy(
+                walletId = authPrefs.walletGuid,
+                screenName = args.value
+            )
+        }
     }
 
     override fun reduce(state: AppRatingModelState): AppRatingViewState = state.run {
@@ -64,7 +61,7 @@ class AppRatingViewModel(
     }
 
     private fun submitStars(stars: Int) {
-        this.stars = stars
+        updateState { it.copy(stars = stars) }
 
         // get threshold to navigate to the right screen
         viewModelScope.launch {
@@ -80,13 +77,9 @@ class AppRatingViewModel(
 
     private fun submitFeedback(feedback: String) {
         if (feedback.isBlank().not()) {
-            this.feedback.insert(
-                0,
-                // to separate feedback from wallet id
-                // apparently new lines don't register as such,
-                // even when doing it on web, the result is in one line
-                "$feedback ------ "
-            )
+            updateState {
+                it.copy(feedback = feedback)
+            }
         }
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
@@ -94,10 +87,8 @@ class AppRatingViewModel(
 
     private fun inAppReviewCompleted(successful: Boolean) {
         // remove prompt
-        updateState { it.copy(promptInAppReview = false) }
-
-        // will be used in postRatingData response
-        forceRetrigger = successful.not()
+        // forceRetrigger will be used in postRatingData response
+        updateState { it.copy(promptInAppReview = false, forceRetrigger = successful.not()) }
 
         navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
     }
@@ -118,8 +109,13 @@ class AppRatingViewModel(
     }
 
     private suspend fun postRatingData() {
-        appRatingService.postRatingData(AppRating(rating = stars, feedback = feedback.toString())).let { successful ->
-            if (successful && forceRetrigger.not()) {
+        appRatingService.postRatingData(
+            appRating = AppRating(
+                rating = modelState.stars,
+                feedback = modelState.feedbackFormatted()
+            )
+        ).let { successful ->
+            if (successful && modelState.forceRetrigger.not()) {
                 appRatingService.markRatingCompleted()
             } else {
                 appRatingService.saveRatingDateForLater()

@@ -44,6 +44,7 @@ import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingSte
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
@@ -342,7 +343,8 @@ class PortfolioFragment :
     }
 
     private fun showAppRating() {
-        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
+        AppRatingFragment.newInstance(AppRatingTriggerSource.DASHBOARD)
+            .show(childFragmentManager, AppRatingFragment.TAG)
     }
 
     fun launchNewUserDashboardOnboarding() {

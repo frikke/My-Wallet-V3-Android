@@ -583,6 +583,10 @@ class PrefsUtil(
         get() = getValue(APP_RATING_PROMPT_DATE, 0L)
         set(value) = setValue(APP_RATING_PROMPT_DATE, value)
 
+    override fun resetAppRatingData() {
+        completed = false
+        promptDateMillis = 0L
+    }
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */

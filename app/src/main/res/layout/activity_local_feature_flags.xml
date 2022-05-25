@@ -23,6 +23,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+        <Button
+            android:id="@+id/reset_app_rating"
+            style="@style/CtaButton.Blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="Reset App Rating" />
+
         <TextView
             android:id="@+id/device_currency"
             android:layout_width="match_parent"
