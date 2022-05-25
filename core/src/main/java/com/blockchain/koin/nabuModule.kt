@@ -67,7 +67,7 @@ val nabuModule = module {
             )
         }
 
-        factory {
+        scoped {
             MetadataRepositoryNabuTokenAdapter(
                 createNabuToken = get(),
                 accountCredentialsMetadata = get()
