@@ -770,6 +770,12 @@ class SimpleBuyCryptoFragment :
                     description = getString(R.string.something_went_wrong_try_again),
                     error = INTERNET_CONNECTION_ERROR,
                 )
+            is ErrorState.ServerSideUxError ->
+                navigator().showErrorInBottomSheet(
+                    title = errorState.serverSideUxErrorInfo.title,
+                    description = errorState.serverSideUxErrorInfo.description,
+                    error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR
+                )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
             ErrorState.ApprovedBankDeclined,

@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
+import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -916,7 +917,7 @@ class TransactionFlowCustomiserImpl(
             else -> null
         }
 
-    override fun transactionProgressExceptionMessage(state: TransactionState): String {
+    override fun transactionProgressExceptionTitle(state: TransactionState): String {
         require(state.executionStatus is TxExecutionStatus.Error)
         require(state.executionStatus.exception is TransactionError)
         val error = state.executionStatus.exception
@@ -981,14 +982,64 @@ class TransactionFlowCustomiserImpl(
             is TransactionError.InternetConnectionError -> resources.getString(
                 R.string.executing_connection_error
             )
-            is TransactionError.HttpError -> resources.getString(
-                R.string.common_http_error_with_new_line_message,
-                error.nabuApiException.getErrorDescription()
-            )
+            is TransactionError.HttpError -> handleNabuApiException(error.nabuApiException)
             TransactionError.InvalidDomainAddress -> resources.getString(
                 R.string.invalid_domain_address
             )
             TransactionError.TransactionDenied -> resources.getString(R.string.transaction_denied)
+        }
+    }
+
+    private fun handleNabuApiException(exception: NabuApiException) =
+        exception.getServerSideErrorInfo()?.let {
+            it.title
+        } ?: run {
+            resources.getString(
+                R.string.common_http_error_with_message,
+                exception.getErrorDescription()
+            )
+        }
+
+    override fun transactionProgressExceptionDescription(state: TransactionState): String {
+        require(state.executionStatus is TxExecutionStatus.Error)
+        require(state.executionStatus.exception is TransactionError)
+        val error = state.executionStatus.exception
+
+        return if (error is TransactionError.HttpError) {
+            error.nabuApiException.getServerSideErrorInfo()?.description ?: resources.getString(
+                R.string.send_progress_error_subtitle
+            )
+        } else {
+            resources.getString(R.string.send_progress_error_subtitle)
+        }
+    }
+
+    override fun transactionProgressExceptionIcon(state: TransactionState): ErrorStateIcon {
+        require(state.executionStatus is TxExecutionStatus.Error)
+        require(state.executionStatus.exception is TransactionError)
+        val error = state.executionStatus.exception
+
+        return if (error is TransactionError.HttpError) {
+            error.nabuApiException.getServerSideErrorInfo()?.let { nabuError ->
+                when {
+                    // we have been provided both icon and status
+                    nabuError.iconUrl.isNotEmpty() && nabuError.statusUrl.isNotEmpty() -> {
+                        ErrorStateIcon.RemoteIconWithStatus(nabuError.iconUrl, nabuError.statusUrl)
+                    }
+                    // we only have one icon
+                    nabuError.iconUrl.isNotEmpty() && nabuError.statusUrl.isEmpty() -> {
+                        ErrorStateIcon.RemoteIcon(nabuError.iconUrl)
+                    }
+                    // no icons provided
+                    else -> ErrorStateIcon.Local(R.drawable.ic_alert_white_bkgd)
+                }
+            } ?: run {
+                // no server side error present
+                ErrorStateIcon.Local(R.drawable.ic_alert_white_bkgd)
+            }
+        } else {
+            // not an HTTP exception error
+            ErrorStateIcon.Local(R.drawable.ic_alert_white_bkgd)
         }
     }
 

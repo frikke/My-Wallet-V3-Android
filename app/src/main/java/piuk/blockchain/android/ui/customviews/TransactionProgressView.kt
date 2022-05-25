@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.customviews
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
@@ -8,6 +9,10 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import coil.ImageLoader
+import coil.decode.SvgDecoder
+import coil.request.Disposable
+import coil.request.ImageRequest
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import info.blockchain.balance.Currency
@@ -102,11 +107,166 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxError(
         title: String,
         subtitle: CharSequence,
-        resourceIcon: Int = R.drawable.ic_alert_white_bkgd
+        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd
     ) {
         with(binding) {
-            txStateIndicator.setImageResource(resourceIcon)
+            txStateIndicator.setImageResource(statusIcon)
             txStateIndicator.visible()
+            progress.gone()
+        }
+        setText(title, subtitle)
+    }
+
+    fun showServerSideError(
+        iconUrl: String,
+        statusIconUrl: String = "", // not all server side errors will have a status icon
+        title: String,
+        description: String,
+        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd
+    ) {
+        when {
+            // we have been provided both icon and status
+            iconUrl.isNotEmpty() && statusIconUrl.isNotEmpty() -> {
+                loadRemoteErrorAndStatusIcons(
+                    iconUrl,
+                    statusIconUrl,
+                    title,
+                    description,
+                    defaultErrorStatusIcon
+                )
+            }
+            // we only have one icon
+            iconUrl.isNotEmpty() && statusIconUrl.isEmpty() -> {
+                loadRemoteErrorIcon(
+                    iconUrl,
+                    title,
+                    description,
+                    defaultErrorStatusIcon
+                )
+            }
+            // no icons provided
+            else -> showTxError(
+                title = title,
+                subtitle = description,
+                statusIcon = defaultErrorStatusIcon
+            )
+        }
+    }
+
+    private fun loadRemoteErrorAndStatusIcons(
+        iconUrl: String,
+        statusIconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int
+    ): Disposable {
+        val imageLoader = getSvgImageLoader()
+        val iconRequest = getErrorIconRequest(
+            iconUrl = iconUrl,
+            title = title,
+            description = description,
+            defaultStatusIcon = defaultStatusIcon
+        )
+
+        val statusIconRequest = ImageRequest.Builder(context)
+            .data(statusIconUrl)
+            .size(
+                resources.getDimension(R.dimen.standard_margin).toInt(),
+                resources.getDimension(R.dimen.standard_margin).toInt()
+            )
+            .target(
+                onSuccess = { drawable ->
+                    updateStatusIcon(
+                        title = title,
+                        subtitle = description,
+                        statusIcon = drawable
+                    )
+                },
+                onError = {
+                    showTxError(
+                        title = title,
+                        subtitle = description,
+                        statusIcon = defaultStatusIcon
+                    )
+                }
+            )
+            .build()
+
+        imageLoader.enqueue(iconRequest)
+        return imageLoader.enqueue(statusIconRequest)
+    }
+
+    private fun loadRemoteErrorIcon(
+        iconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int
+    ): Disposable {
+        val imageLoader = getSvgImageLoader()
+        val request = getErrorIconRequest(
+            iconUrl = iconUrl,
+            title = title,
+            description = description,
+            defaultStatusIcon = defaultStatusIcon
+        )
+        return imageLoader.enqueue(request)
+    }
+
+    private fun getErrorIconRequest(
+        iconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int
+    ) = ImageRequest.Builder(context)
+        .data(iconUrl)
+        .size(
+            resources.getDimension(R.dimen.asset_icon_size_large).toInt(),
+            resources.getDimension(R.dimen.asset_icon_size_large).toInt()
+        )
+        .target(
+            onSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+            },
+            onError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            }
+        )
+        .build()
+
+    private fun getSvgImageLoader(): ImageLoader =
+        ImageLoader.Builder(context)
+            .componentRegistry { add(SvgDecoder(context)) }
+            .build()
+
+    private fun updateStatusIcon(
+        title: String,
+        subtitle: CharSequence,
+        statusIcon: Drawable
+    ) {
+        with(binding) {
+            txStateIndicator.setImageDrawable(statusIcon)
+            txStateIndicator.visible()
+            progress.gone()
+        }
+        setText(title, subtitle)
+    }
+
+    private fun updateErrorIcon(
+        title: String,
+        subtitle: CharSequence,
+        icon: Drawable
+    ) {
+        with(binding) {
+            txIcon.setImageDrawable(icon)
+            txStateIndicator.gone()
             progress.gone()
         }
         setText(title, subtitle)

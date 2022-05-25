@@ -72,5 +72,6 @@ sealed class ClientErrorAnalytics(
         const val INVALID_FIAT_CURRENCY = "INVALID_FIAT_CURRENCY"
         const val INVALID_CRYPTO_CURRENCY = "INVALID_CRYPTO_CURRENCY"
         const val TRADING_DISABLED = "TRADING_DISABLED"
+        const val SERVER_SIDE_HANDLED_ERROR = "SERVER_SIDE_HANDLED_ERROR"
     }
 }

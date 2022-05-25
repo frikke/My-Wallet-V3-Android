@@ -47,6 +47,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_SIDE_HANDLED_ERROR
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
@@ -586,6 +587,12 @@ class SimpleBuyCheckoutFragment :
                     title = getString(R.string.payment_failed_title_with_reason),
                     description = getString(R.string.something_went_wrong_try_again),
                     error = errorState.toString()
+                )
+            is ErrorState.ServerSideUxError ->
+                navigator().showErrorInBottomSheet(
+                    title = errorState.serverSideUxErrorInfo.title,
+                    description = errorState.serverSideUxErrorInfo.description,
+                    error = SERVER_SIDE_HANDLED_ERROR
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,

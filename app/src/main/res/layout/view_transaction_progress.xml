@@ -27,19 +27,20 @@
         app:layout_constraintCircleRadius="47dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/tx_state_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintCircle="@+id/tx_icon"
         app:layout_constraintCircleAngle="45"
         app:layout_constraintCircleRadius="44dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/ic_locked_funds_pending" />
+        tools:src="@drawable/ic_alert_white_bkgd" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/tx_guideline"

@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerSideUxErrorInfo
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
@@ -235,12 +236,11 @@ sealed class ErrorState : Serializable {
     object ProviderIsNotSupported : ErrorState()
     object Card3DsFailed : ErrorState()
     object UnknownCardProvider : ErrorState()
-
     data class PaymentFailedError(val error: String) : ErrorState()
-
     data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
     object BuyPaymentMethodsUnavailable : ErrorState()
+    class ServerSideUxError(val serverSideUxErrorInfo: ServerSideUxErrorInfo) : ErrorState()
 }
 
 data class SimpleBuyOrder(
