@@ -8,6 +8,8 @@ import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
+import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
+import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
@@ -60,7 +62,9 @@ internal class DynamicAssetLoader(
     private val formatUtils: FormatUtilities,
     private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
-    private val layerTwoFeatureFlag: FeatureFlag
+    private val layerTwoFeatureFlag: FeatureFlag,
+    private val stxForAllFeatureFlag: FeatureFlag,
+    private val stxForAirdropFeatureFlag: FeatureFlag
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -73,6 +77,7 @@ internal class DynamicAssetLoader(
         when {
             assetInfo.isErc20() -> loadErc20Asset(assetInfo)
             (assetInfo as? AssetInfo)?.isCustodialOnly == true -> loadCustodialOnlyAsset(assetInfo)
+            (assetInfo as? AssetInfo)?.isNonCustodial == true -> loadSelfCustodialAsset(assetInfo)
             else -> throw IllegalStateException("Unknown asset type enabled: ${assetInfo.networkTicker}")
         }.also {
             check(!assetMap.containsKey(assetInfo)) { "Asset already loaded" }
@@ -210,6 +215,47 @@ internal class DynamicAssetLoader(
         )
     }
 
+    private fun loadSelfCustodialAsset(assetInfo: AssetInfo): CryptoAsset {
+        // TODO(dtverdota): Remove Stx-specific code once it is enabled for all users
+        return if (assetInfo.networkTicker == "STX") {
+            StxAsset(
+                assetInfo = assetInfo,
+                payloadManager = payloadManager,
+                custodialManager = custodialManager,
+                tradingBalances = tradingBalances,
+                interestBalances = interestBalances,
+                exchangeRates = exchangeRates,
+                currencyPrefs = currencyPrefs,
+                labels = labels,
+                exchangeLinking = exchangeLinking,
+                remoteLogger = remoteLogger,
+                identity = identity,
+                addressValidation = defaultCustodialAddressValidation,
+                availableActions = selfCustodyAssetActions,
+                addressResolver = identityAddressResolver,
+                stxForAllFeatureFlag = stxForAllFeatureFlag,
+                stxForAirdropFeatureFlag = stxForAirdropFeatureFlag
+            )
+        } else {
+            DynamicSelfCustodyAsset(
+                assetInfo = assetInfo,
+                payloadManager = payloadManager,
+                custodialManager = custodialManager,
+                tradingBalances = tradingBalances,
+                interestBalances = interestBalances,
+                exchangeRates = exchangeRates,
+                currencyPrefs = currencyPrefs,
+                labels = labels,
+                exchangeLinking = exchangeLinking,
+                remoteLogger = remoteLogger,
+                identity = identity,
+                addressValidation = defaultCustodialAddressValidation,
+                availableActions = selfCustodyAssetActions,
+                addressResolver = identityAddressResolver
+            )
+        }
+    }
+
     private fun loadErc20Asset(assetInfo: Currency): CryptoAsset {
         require(assetInfo is AssetInfo)
         require(assetInfo.isErc20())
@@ -252,6 +298,13 @@ internal class DynamicAssetLoader(
                 AssetAction.Receive,
                 AssetAction.ViewActivity,
                 AssetAction.InterestDeposit
+            )
+
+        private val selfCustodyAssetActions =
+            setOf(
+                AssetAction.Send,
+                AssetAction.Receive,
+                AssetAction.ViewActivity
             )
     }
 }

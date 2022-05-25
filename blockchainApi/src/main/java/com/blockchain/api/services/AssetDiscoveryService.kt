@@ -20,7 +20,8 @@ enum class DynamicAssetProducts {
     ServicePrice, // Service price has prices for it
     HWS, // HotWalletService supports it
     CustodialWalletBalance, // Can have a custodial/simplebuy balance of this currency
-    InterestBalance // Can have an interest balance
+    InterestBalance, // Can have an interest balance
+    DynamicSelfCustody
 }
 
 data class DynamicAsset(
@@ -98,7 +99,10 @@ class AssetDiscoveryService internal constructor(
                 displayTicker = displaySymbol,
                 isFiat = coinType is FiatAsset,
                 precision = precision,
-                products = makeProductSet(products),
+                products = if (networkSymbol == "STX") {
+                    // TODO(dtverdota): Remove once added on BE
+                    makeProductSet(products).plus(DynamicAssetProducts.DynamicSelfCustody)
+                } else { makeProductSet(products) },
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {

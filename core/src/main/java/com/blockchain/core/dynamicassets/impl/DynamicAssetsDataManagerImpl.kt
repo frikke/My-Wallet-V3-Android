@@ -86,6 +86,7 @@ private fun mapCategories(products: Set<DynamicAssetProducts>): Set<AssetCategor
             DynamicAssetProducts.PrivateKey -> AssetCategory.NON_CUSTODIAL
             DynamicAssetProducts.CustodialWalletBalance -> AssetCategory.CUSTODIAL
             DynamicAssetProducts.InterestBalance -> AssetCategory.CUSTODIAL
+            DynamicAssetProducts.DynamicSelfCustody -> AssetCategory.NON_CUSTODIAL
             else -> null
         }
     }.toSet()
@@ -101,7 +102,8 @@ private fun DynamicAsset.mapColour(): String =
 private val requiredProducts = setOf(
     DynamicAssetProducts.PrivateKey,
     DynamicAssetProducts.CustodialWalletBalance,
-    DynamicAssetProducts.InterestBalance
+    DynamicAssetProducts.InterestBalance,
+    DynamicAssetProducts.DynamicSelfCustody
 )
 
 private val colourLookup = mapOf(

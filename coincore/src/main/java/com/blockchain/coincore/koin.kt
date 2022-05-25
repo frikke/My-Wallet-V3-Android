@@ -21,6 +21,8 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stxForAirdropUsersFeatureFlag
+import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -199,7 +201,9 @@ val coincoreModule = module {
                 formatUtils = get(),
                 identityAddressResolver = get(),
                 ethHotWalletAddressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                stxForAllFeatureFlag = get(stxForAllFeatureFlag),
+                stxForAirdropFeatureFlag = get(stxForAirdropUsersFeatureFlag)
             )
         }.bind(AssetLoader::class)
 

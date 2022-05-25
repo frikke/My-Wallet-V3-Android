@@ -22,6 +22,8 @@ import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.stxForAirdropUsersFeatureFlag
+import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
@@ -224,6 +226,24 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_referrals",
                 "Referrals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stxForAllFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_stx_all_users",
+                "Enable Stacks"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(stxForAirdropUsersFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_stx_airdrop_users",
+                "Enable STX For Airdrop Users"
             )
         )
     }.bind(FeatureFlag::class)
