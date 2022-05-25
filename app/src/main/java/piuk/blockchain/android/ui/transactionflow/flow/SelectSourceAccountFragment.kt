@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.SingleAccount
@@ -21,6 +23,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -120,18 +124,52 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
 
     private fun handleBankLinking(newState: TransactionState) {
         binding.progress.gone()
+        when (newState.linkBankState) {
+            is BankLinkingState.Success -> handleBankLinkSuccess(newState.linkBankState, newState)
+            is BankLinkingState.Error -> handleBankLinkError(newState.linkBankState)
+            else -> displayErrorMessage()
+        }
+    }
 
-        if (newState.linkBankState is BankLinkingState.Success) {
-            startActivityForResult(
-                BankAuthActivity.newInstance(
-                    newState.linkBankState.bankTransferInfo,
-                    customiser.getLinkingSourceForAction(newState),
-                    requireActivity()
-                ),
-                BankAuthActivity.LINK_BANK_REQUEST_CODE
-            )
-        } else {
-            displayErrorMessage()
+    private fun handleBankLinkSuccess(linkBankState: BankLinkingState.Success, newState: TransactionState) {
+        startActivityForResult(
+            BankAuthActivity.newInstance(
+                linkBankState.bankTransferInfo,
+                customiser.getLinkingSourceForAction(newState),
+                requireActivity()
+            ),
+            BankAuthActivity.LINK_BANK_REQUEST_CODE
+        )
+    }
+
+    private fun handleBankLinkError(linkBankState: BankLinkingState.Error) {
+        val error = linkBankState.e
+        when ((error as? NabuApiException)?.getErrorCode()) {
+            NabuErrorCodes.MaxPaymentBankAccounts ->
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_accounts_title),
+                            getString(R.string.bank_linking_max_accounts_subtitle),
+                            getString(R.string.common_ok),
+                            (error as? NabuApiException)?.getErrorDescription(),
+                            error as? NabuApiException
+                        )
+                    )
+                )
+            NabuErrorCodes.MaxPaymentBankAccountLinkAttempts ->
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_attempts_title),
+                            getString(R.string.bank_linking_max_attempts_subtitle),
+                            getString(R.string.common_ok),
+                            (error as? NabuApiException)?.getErrorDescription(),
+                            error as? NabuApiException
+                        )
+                    )
+                )
+            else -> displayErrorMessage()
         }
     }
 

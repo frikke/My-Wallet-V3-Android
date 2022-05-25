@@ -2,17 +2,18 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankState
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
@@ -29,7 +30,8 @@ class SettingsInteractor internal constructor(
     private val userIdentity: UserIdentity,
     private val database: Database,
     private val credentialsWiper: CredentialsWiper,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val cardService: CardService,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val currencyPrefs: CurrencyPrefs,
     private val referralService: ReferralService,
@@ -98,7 +100,7 @@ class SettingsInteractor internal constructor(
     }
 
     fun getBankLinkingInfo(): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(userSelectedFiat)
+        bankService.linkBank(userSelectedFiat)
 
     fun getAvailablePaymentMethodsTypes(): Single<List<AvailablePaymentMethodType>> =
         getAvailablePaymentMethodsTypes(userSelectedFiat)
@@ -120,7 +122,7 @@ class SettingsInteractor internal constructor(
         }
 
     private fun getLinkedCards(limits: PaymentLimits): Single<List<PaymentMethod.Card>> =
-        paymentsDataManager.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
+        cardService.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { cards ->
             cards.map { it.toPaymentCard(limits) }
         }
 
@@ -128,7 +130,7 @@ class SettingsInteractor internal constructor(
         fiatCurrency: FiatCurrency,
         available: List<AvailablePaymentMethodType>
     ): Single<List<BankItem>> =
-        paymentsDataManager.getLinkedBanks()
+        bankService.getLinkedBanks()
             .map { banks ->
                 val linkedBanks = banks.filter { it.state == BankState.ACTIVE }
                 val availableBankPaymentMethodTypes = available.filter {

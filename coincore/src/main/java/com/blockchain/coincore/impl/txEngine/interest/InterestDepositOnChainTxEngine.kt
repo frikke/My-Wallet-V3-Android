@@ -22,11 +22,11 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val interestBalances: InterestBalanceDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
 ) : InterestBaseEngine(walletManager) {
 

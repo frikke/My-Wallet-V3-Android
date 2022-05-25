@@ -14,4 +14,6 @@
     <string name="common_cancel"></string>
     <string name="common_confirm"></string>
     <string name="common_ok"></string>
+
+    <string name="accessibility_action_menu"></string>
 </resources>

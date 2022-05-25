@@ -1,6 +1,6 @@
 package piuk.blockchain.android.rating.data.repository
 
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -18,6 +18,7 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingApiKeysRemoteCo
 import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
+import timber.log.Timber
 
 internal class AppRatingRepository(
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
@@ -31,7 +32,7 @@ internal class AppRatingRepository(
     // prerequisites verification
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val environmentConfig: EnvironmentConfig
 ) : AppRatingService {
 
@@ -65,30 +66,32 @@ internal class AppRatingRepository(
     }
 
     override suspend fun shouldShowRating(): Boolean {
-        return when {
-            // FF enabled
-            isFFEnabled().not() -> false
+        return try {
+            when {
+                // FF enabled
+                isFFEnabled().not() -> false
 
-            // have not rated before
-            appRatingPrefs.completed -> false
+                // have not rated before
+                appRatingPrefs.completed -> false
 
-            // must be GOLD
-            isKycGold().not() -> false
+                // must be GOLD
+                isKycGold().not() -> false
 
-            // must have no withdrawal locks
-            hasWithdrawalLocks() -> false
+                // must have no withdrawal locks
+                hasWithdrawalLocks() -> false
 
-            // last try was more than a month ago
-            else -> {
-                val minDuration = if (environmentConfig.isRunningInDebugMode())
-                    TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS) // 30 seconds for debug
-                else
-                    TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS) // 31 days for release
+                // last try was more than a month ago
+                else -> {
+                    val minDuration = TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS)
 
-                val currentTimeMillis = Calendar.getInstance().timeInMillis
-                val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
-                return difference > minDuration
+                    val currentTimeMillis = Calendar.getInstance().timeInMillis
+                    val difference = currentTimeMillis - appRatingPrefs.promptDateMillis
+                    difference > minDuration
+                }
             }
+        } catch (e: Throwable) {
+            Timber.e(e)
+            false
         }
     }
 
@@ -97,7 +100,7 @@ internal class AppRatingRepository(
     private suspend fun isKycGold(): Boolean = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD)).await()
 
     private suspend fun hasWithdrawalLocks(): Boolean {
-        paymentsDataManager.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
+        bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).await().let { fundsLocks ->
             return fundsLocks.onHoldTotalAmount.isPositive
         }
     }

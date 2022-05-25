@@ -20,11 +20,11 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.YapilyAttributes
-import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.YapilyAttributes
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import info.blockchain.balance.FiatCurrency

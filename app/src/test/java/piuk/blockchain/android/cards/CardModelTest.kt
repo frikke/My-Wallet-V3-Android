@@ -3,13 +3,13 @@ package piuk.blockchain.android.cards
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
-import com.blockchain.core.payments.model.CardToBeActivated
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.nabu.datamanagers.BillingAddress
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.braintreepayments.cardform.utils.CardType
@@ -257,7 +257,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD,
+            cardType = CardType.HIPERCARD.name,
             status = CardStatus.ACTIVE,
             isEligible = true
         )
@@ -291,7 +291,7 @@ class CardModelTest {
             endDigits = "1234",
             partner = Partner.CARDPROVIDER,
             expireDate = Date(),
-            cardType = CardType.HIPERCARD,
+            cardType = CardType.HIPERCARD.name,
             status = CardStatus.BLOCKED,
             isEligible = true
         )

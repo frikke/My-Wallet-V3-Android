@@ -16,11 +16,11 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class TradingToTradingSwapTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
     quotesEngine: TransferQuotesEngine,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity
 ) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager) {
 

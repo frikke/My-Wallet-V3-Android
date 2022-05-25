@@ -3,10 +3,10 @@ package piuk.blockchain.android.ui.activity.detail.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.time.ZoneId

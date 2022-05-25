@@ -1,17 +1,19 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.Partner
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -152,7 +154,7 @@ class SettingsModelTest {
                     "",
                     Partner.CARDPROVIDER,
                     Date(),
-                    CardType.AMEX,
+                    CardType.AMEX.name,
                     CardStatus.ACTIVE,
                     MobilePaymentType.GOOGLE_PAY,
                     true
@@ -206,7 +208,7 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.PAYMENT_METHODS_LOAD_FAIL
+                    error = SettingsError.PaymentMethodsLoadFail
                 )
             }
     }
@@ -239,7 +241,43 @@ class SettingsModelTest {
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it.error == SettingsError.BANK_LINK_START_FAIL
+                it.error == SettingsError.BankLinkStartFail
+            }
+    }
+
+    @Test
+    fun `bankTransferSelected fails when max number of attempts is reached`() {
+        val error: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccountLinkAttempts)
+        }
+        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
+
+        val testState = model.state.test()
+        model.process(SettingsIntent.AddBankTransferSelected)
+
+        testState
+            .assertValueAt(0) {
+                it == SettingsState()
+            }.assertValueAt(1) {
+                it.error == SettingsError.BankLinkMaxAttemptsReached(error)
+            }
+    }
+
+    @Test
+    fun `bankTransferSelected fails when max number of bank accounts is reached`() {
+        val error: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccounts)
+        }
+        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
+
+        val testState = model.state.test()
+        model.process(SettingsIntent.AddBankTransferSelected)
+
+        testState
+            .assertValueAt(0) {
+                it == SettingsState()
+            }.assertValueAt(1) {
+                it.error == SettingsError.BankLinkMaxAccountsReached(error)
             }
     }
 
@@ -289,7 +327,7 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.UNPAIR_FAILED
+                    error = SettingsError.UnpairFailed
                 )
             }
     }

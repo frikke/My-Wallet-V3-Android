@@ -7,18 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerSideUxErrorInfo
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.payments.stripe.StripeFactory
@@ -40,6 +41,7 @@ import piuk.blockchain.android.cards.CardAuthoriseWebViewActivity
 import piuk.blockchain.android.cards.CardVerificationFragment
 import piuk.blockchain.android.databinding.FragmentSimpleBuyPaymentBinding
 import piuk.blockchain.android.rating.presentaion.AppRatingFragment
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INSUFFICIENT_FUNDS
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET_CONNECTION_ERROR
@@ -47,6 +49,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAX
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.sheets.UnlockHigherLimitsBottomSheet
 import piuk.blockchain.android.support.SupportCentreActivity
+import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -219,7 +222,12 @@ class SimpleBuyPaymentFragment :
         }
     }
 
-    private fun logErrorAnalytics(title: String, error: String, nabuApiException: NabuApiException?) {
+    private fun logErrorAnalytics(
+        title: String,
+        error: String,
+        nabuApiException: NabuApiException? = null,
+        errorDescription: String
+    ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
@@ -414,6 +422,20 @@ class SimpleBuyPaymentFragment :
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
+            is ErrorState.BankLinkMaxAccountsReached -> showError(
+                getString(R.string.bank_linking_max_accounts_title),
+                getString(R.string.bank_linking_max_accounts_subtitle),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString(),
+                nabuApiException = errorState.error
+            )
+            is ErrorState.BankLinkMaxAttemptsReached -> showError(
+                getString(R.string.bank_linking_max_attempts_title),
+                getString(R.string.bank_linking_max_attempts_subtitle),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString(),
+                nabuApiException = errorState.error
+            )
             ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
                 " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
             )
@@ -436,6 +458,31 @@ class SimpleBuyPaymentFragment :
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
+            is ErrorState.ServerSideUxError -> showServerSideError(
+                errorState.serverSideUxErrorInfo
+            )
+            ErrorState.BuyPaymentMethodsUnavailable -> {
+                // no-op this is not handled here
+            }
+        }
+    }
+
+    private fun showServerSideError(
+        serverSideUxErrorInfo: ServerSideUxErrorInfo,
+    ) {
+        logErrorAnalytics(
+            title = serverSideUxErrorInfo.title,
+            error = "ServerSideUxError",
+            errorDescription = serverSideUxErrorInfo.description
+        )
+        with(binding.transactionProgressView) {
+            setupErrorButtons()
+            showServerSideError(
+                serverSideUxErrorInfo.iconUrl,
+                serverSideUxErrorInfo.statusUrl,
+                serverSideUxErrorInfo.title,
+                serverSideUxErrorInfo.description
+            )
         }
     }
 
@@ -449,25 +496,30 @@ class SimpleBuyPaymentFragment :
         logErrorAnalytics(
             title = title,
             error = errorState,
-            nabuApiException = nabuApiException
+            nabuApiException = nabuApiException,
+            errorDescription = subtitle.toString()
         )
         with(binding) {
             transactionProgressView.apply {
-                onCtaClick(text = getString(R.string.common_try_again)) {
-                    navigator().popFragmentsInStackUntilFind(
-                        fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
-                        popInclusive = true
-                    )
-                }
-                onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
-                    navigator().exitSimpleBuyFlow()
-                }
+                setupErrorButtons()
                 showTxError(
                     title = title,
                     subtitle = subtitle,
-                    resourceIcon = resourceIcon
+                    statusIcon = resourceIcon
                 )
             }
+        }
+    }
+
+    private fun TransactionProgressView.setupErrorButtons() {
+        onCtaClick(text = getString(R.string.common_try_again)) {
+            navigator().popFragmentsInStackUntilFind(
+                fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                popInclusive = true
+            )
+        }
+        onSecondaryCtaClicked(getString(R.string.bank_transfer_transfer_go_back)) {
+            navigator().exitSimpleBuyFlow()
         }
     }
 
@@ -492,7 +544,9 @@ class SimpleBuyPaymentFragment :
     }
 
     private fun showAppRating() {
-        AppRatingFragment.newInstance().show(childFragmentManager, AppRatingFragment.TAG)
+        AppRatingFragment.newInstance(AppRatingTriggerSource.BUY)
+            .show(childFragmentManager, AppRatingFragment.TAG)
+
         model.process(SimpleBuyIntent.AppRatingShown)
     }
 

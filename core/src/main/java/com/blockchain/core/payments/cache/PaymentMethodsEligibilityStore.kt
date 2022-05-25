@@ -3,7 +3,7 @@ package com.blockchain.core.payments.cache
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
-import com.blockchain.core.payments.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.KeyedStore

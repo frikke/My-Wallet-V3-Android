@@ -1,4 +1,4 @@
-package com.blockchain.core.payments.model
+package com.blockchain.domain.paymentmethods.model
 
 data class CardToBeActivated(val partner: Partner, val cardId: String)
 

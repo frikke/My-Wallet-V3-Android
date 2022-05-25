@@ -16,14 +16,15 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
+import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.CardFundSource
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.PaymentMethod.UndefinedCard.CardFundSource
-import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.capitalizeFirstChar
@@ -626,7 +627,7 @@ class SimpleBuyCryptoFragment :
     private fun renderCardPayment(selectedPaymentMethod: PaymentMethod.Card) {
         with(binding) {
             paymentMethodBankInfo.gone()
-            paymentMethodIcon.setImageResource(selectedPaymentMethod.cardType.icon())
+            paymentMethodIcon.setImageResource(selectedPaymentMethod.cardType.toCardType().icon())
             paymentMethodTitle.text = selectedPaymentMethod.detailedLabel()
             paymentMethodLimit.text =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
@@ -754,6 +755,20 @@ class SimpleBuyCryptoFragment :
                     description = getString(R.string.msg_cardCreateNoToken),
                     error = errorState.toString()
                 )
+            is ErrorState.BankLinkMaxAccountsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_accounts_title),
+                    description = getString(R.string.bank_linking_max_accounts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
+            is ErrorState.BankLinkMaxAttemptsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_attempts_title),
+                    description = getString(R.string.bank_linking_max_attempts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(
@@ -768,6 +783,12 @@ class SimpleBuyCryptoFragment :
                     title = getString(R.string.executing_connection_error),
                     description = getString(R.string.something_went_wrong_try_again),
                     error = INTERNET_CONNECTION_ERROR,
+                )
+            is ErrorState.ServerSideUxError ->
+                navigator().showErrorInBottomSheet(
+                    title = errorState.serverSideUxErrorInfo.title,
+                    description = errorState.serverSideUxErrorInfo.description,
+                    error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,

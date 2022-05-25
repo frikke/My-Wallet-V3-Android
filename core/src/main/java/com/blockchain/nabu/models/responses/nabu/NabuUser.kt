@@ -1,6 +1,6 @@
 package com.blockchain.nabu.models.responses.nabu
 
-import com.blockchain.nabu.datamanagers.BillingAddress
+import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.PrimitiveSerializer
 import kotlin.math.max
@@ -83,10 +83,14 @@ data class NabuUser(
             tiers?.current != 2
 
     val isStxAirdropRegistered: Boolean
-        get() = tags?.get("BLOCKSTACK") != null
+        get() = tags?.get(STX_AIRDROP_TAG) != null
 
     val exchangeEnabled: Boolean
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
+
+    companion object {
+        const val STX_AIRDROP_TAG = "BLOCKSTACK"
+    }
 }
 
 @Serializable

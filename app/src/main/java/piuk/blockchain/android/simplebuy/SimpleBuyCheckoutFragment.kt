@@ -21,11 +21,11 @@ import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -47,6 +47,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.INTERNET
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
+import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_SIDE_HANDLED_ERROR
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
@@ -586,6 +587,26 @@ class SimpleBuyCheckoutFragment :
                     title = getString(R.string.payment_failed_title_with_reason),
                     description = getString(R.string.something_went_wrong_try_again),
                     error = errorState.toString()
+                )
+            is ErrorState.BankLinkMaxAccountsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_accounts_title),
+                    description = getString(R.string.bank_linking_max_accounts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
+            is ErrorState.BankLinkMaxAttemptsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_attempts_title),
+                    description = getString(R.string.bank_linking_max_attempts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
+            is ErrorState.ServerSideUxError ->
+                navigator().showErrorInBottomSheet(
+                    title = errorState.serverSideUxErrorInfo.title,
+                    description = errorState.serverSideUxErrorInfo.description,
+                    error = SERVER_SIDE_HANDLED_ERROR
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,

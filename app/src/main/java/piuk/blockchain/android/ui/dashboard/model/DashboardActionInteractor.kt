@@ -11,16 +11,16 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.chains.erc20.isErc20
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
@@ -61,7 +61,7 @@ class DashboardActionInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val onboardingPrefs: OnboardingPrefs,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
@@ -313,7 +313,7 @@ class DashboardActionInteractor(
         userIdentity.getHighestApprovedKycTier()
             .flatMap {
                 if (it == Tier.GOLD) {
-                    paymentsDataManager.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
+                    bankService.canTransactWithBankMethods(currencyPrefs.selectedFiatCurrency)
                 } else Single.just(true)
             }
 
@@ -530,7 +530,7 @@ class DashboardActionInteractor(
         }
 
     fun linkBankTransfer(currency: FiatCurrency): Single<LinkBankTransfer> =
-        paymentsDataManager.linkBank(currency)
+        bankService.linkBank(currency)
 
     fun getBankWithdrawalFlow(
         model: DashboardModel,

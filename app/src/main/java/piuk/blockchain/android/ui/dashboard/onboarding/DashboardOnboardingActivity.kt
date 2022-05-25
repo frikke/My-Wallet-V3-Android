@@ -18,9 +18,9 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.mvi.MviActivity
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R

@@ -109,6 +109,6 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
 
     object ResetErrorState : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState =
-            oldState.copy(error = SettingsError.NONE)
+            oldState.copy(error = SettingsError.None)
     }
 }

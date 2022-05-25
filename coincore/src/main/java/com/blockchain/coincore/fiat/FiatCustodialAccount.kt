@@ -15,15 +15,14 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType
 import com.blockchain.nabu.datamanagers.repositories.interest.IneligibilityReason
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.total
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -35,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val isDefault: Boolean = false,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
     private val exchangesRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
@@ -79,7 +78,7 @@ import java.util.concurrent.atomic.AtomicBoolean
         }
 
     override val actions: Single<AvailableActions> =
-        paymentsDataManager.canTransactWithBankMethods(currency)
+        bankService.canTransactWithBankMethods(currency)
             .zipWith(balance.firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {

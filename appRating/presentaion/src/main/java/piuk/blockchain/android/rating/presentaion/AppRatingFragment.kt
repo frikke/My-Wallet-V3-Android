@@ -26,6 +26,12 @@ class AppRatingFragment : DialogFragment() {
         payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
     }
 
+    private val appRatingTriggerSource: AppRatingTriggerSource by lazy {
+        arguments?.getParcelable<AppRatingTriggerSource>(AppRatingTriggerSource.ARGS_KEY) ?: error(
+            "missing AppRatingTriggerSource"
+        )
+    }
+
     private val inAppReviewSettings: InAppReviewSettings by scopedInject()
 
     private val environmentConfig: EnvironmentConfig by inject()
@@ -39,7 +45,7 @@ class AppRatingFragment : DialogFragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                AppRatingNavHost(viewModel)
+                AppRatingNavHost(viewModel, appRatingTriggerSource)
             }
         }
     }
@@ -73,7 +79,12 @@ class AppRatingFragment : DialogFragment() {
     }
 
     companion object {
-        fun newInstance() = AppRatingFragment()
+        fun newInstance(appRatingTriggerSource: AppRatingTriggerSource) = AppRatingFragment().apply {
+            arguments = Bundle().apply {
+                putParcelable(AppRatingTriggerSource.ARGS_KEY, appRatingTriggerSource)
+            }
+        }
+
         val TAG = AppRatingFragment::class.simpleName
     }
 }

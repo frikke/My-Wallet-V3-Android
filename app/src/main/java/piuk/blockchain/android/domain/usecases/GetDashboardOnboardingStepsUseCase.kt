@@ -1,11 +1,12 @@
 package piuk.blockchain.android.domain.usecases
 
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankState
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.usecases.UseCase
 import io.reactivex.rxjava3.core.Single
@@ -14,7 +15,8 @@ import piuk.blockchain.android.domain.repositories.TradeDataService
 class GetDashboardOnboardingStepsUseCase(
     private val dashboardPrefs: DashboardPrefs,
     private val userIdentity: UserIdentity,
-    private val paymentsDataManager: PaymentsDataManager,
+    private val bankService: BankService,
+    private val cardService: CardService,
     private val tradeDataService: TradeDataService
 ) : UseCase<Unit, Single<List<CompletableDashboardOnboardingStep>>>() {
 
@@ -66,10 +68,10 @@ class GetDashboardOnboardingStepsUseCase(
     private fun isGoldPending(): Single<Boolean> = userIdentity.isKycPending(Tier.GOLD)
 
     private fun hasLinkedPaymentMethod(): Single<Boolean> = Single.zip(
-        paymentsDataManager.getLinkedBanks().map { banks ->
+        bankService.getLinkedBanks().map { banks ->
             banks.any { it.state == BankState.ACTIVE }
         },
-        paymentsDataManager.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { it.isNotEmpty() }
+        cardService.getLinkedCards(CardStatus.ACTIVE, CardStatus.EXPIRED).map { it.isNotEmpty() }
     ) { hasLinkedBank, hasLinkedCard ->
         hasLinkedBank || hasLinkedCard
     }

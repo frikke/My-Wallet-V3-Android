@@ -20,8 +20,8 @@ import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.coincore.xlm.STATE_MEMO
-import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -52,9 +52,9 @@ private val PendingTx.memo: String?
 
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val isNoteSupported: Boolean,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity,
     private val limitsDataManager: LimitsDataManager

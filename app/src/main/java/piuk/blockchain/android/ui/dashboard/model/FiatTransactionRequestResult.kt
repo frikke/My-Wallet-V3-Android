@@ -4,7 +4,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 
 sealed class FiatTransactionRequestResult {
     class LaunchBankLink(

@@ -1,16 +1,16 @@
 package piuk.blockchain.android.ui.activity.detail
 
-import com.blockchain.api.services.MobilePaymentType
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.InterestState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetInfo

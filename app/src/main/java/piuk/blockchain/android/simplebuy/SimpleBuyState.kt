@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerSideUxErrorInfo
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
@@ -9,14 +10,14 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.core.payments.model.Partner
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.Partner
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
@@ -204,6 +205,8 @@ enum class FlowScreen {
 sealed class ErrorState : Serializable {
     object BankLinkingTimeout : ErrorState()
     object LinkedBankNotSupported : ErrorState()
+    data class BankLinkMaxAccountsReached(val error: NabuApiException) : ErrorState()
+    data class BankLinkMaxAttemptsReached(val error: NabuApiException) : ErrorState()
     object ApproveBankInvalid : ErrorState()
     object ApprovedBankFailed : ErrorState()
     object ApprovedBankDeclined : ErrorState()
@@ -235,12 +238,11 @@ sealed class ErrorState : Serializable {
     object ProviderIsNotSupported : ErrorState()
     object Card3DsFailed : ErrorState()
     object UnknownCardProvider : ErrorState()
-
     data class PaymentFailedError(val error: String) : ErrorState()
-
     data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
     object BuyPaymentMethodsUnavailable : ErrorState()
+    class ServerSideUxError(val serverSideUxErrorInfo: ServerSideUxErrorInfo) : ErrorState()
 }
 
 data class SimpleBuyOrder(

@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep

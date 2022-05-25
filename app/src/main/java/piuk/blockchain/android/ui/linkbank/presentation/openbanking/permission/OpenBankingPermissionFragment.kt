@@ -12,7 +12,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
-import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.koin.payloadScope
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.getViewModel

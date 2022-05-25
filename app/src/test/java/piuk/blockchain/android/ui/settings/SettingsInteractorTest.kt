@@ -2,7 +2,8 @@ package piuk.blockchain.android.ui.settings
 
 import com.blockchain.core.Database
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
@@ -28,7 +29,8 @@ class SettingsInteractorTest {
     private val userIdentity: UserIdentity = mock()
     private val database: Database = mock()
     private val credentialsWiper: CredentialsWiper = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
+    private val cardService: CardService = mock()
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val referralService: ReferralService = mock()
@@ -40,7 +42,8 @@ class SettingsInteractorTest {
             userIdentity = userIdentity,
             database = database,
             credentialsWiper = credentialsWiper,
-            paymentsDataManager = paymentsDataManager,
+            bankService = bankService,
+            cardService = cardService,
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs,
             referralService = referralService,

@@ -3,7 +3,7 @@ package piuk.blockchain.android.simplebuy.paymentmethods
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import piuk.blockchain.android.databinding.FundsPaymentMethodLayoutBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.resources.AssetResources

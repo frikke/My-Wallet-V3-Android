@@ -12,8 +12,14 @@ compileKotlin {
     }
 }
 dependencies {
+    implementation project(':common:interface')
+    implementation project(':balance')
+    implementation project(':store:core')
+
     implementation Libraries.kotlin
     implementation Libraries.kotlinJson
+    implementation Libraries.kotlinCoroutines
+    implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxJava
     implementation project(path: ':common:interface')
 }

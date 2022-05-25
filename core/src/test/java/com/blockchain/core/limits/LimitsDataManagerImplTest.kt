@@ -15,6 +15,7 @@ import com.blockchain.api.txlimits.data.PeriodicLimit
 import com.blockchain.api.txlimits.data.SuggestedUpgrade
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.Tier

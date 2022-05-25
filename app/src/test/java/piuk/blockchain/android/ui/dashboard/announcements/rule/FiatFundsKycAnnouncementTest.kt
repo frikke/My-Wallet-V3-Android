@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.PaymentsDataManager
-import com.blockchain.core.payments.model.BankState
+import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.testutils.USD
@@ -18,7 +18,7 @@ class FiatFundsKycAnnouncementTest {
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
     private val userIdentity: UserIdentity = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
 
     private lateinit var subject: FiatFundsKycAnnouncement
 
@@ -31,7 +31,7 @@ class FiatFundsKycAnnouncementTest {
             FiatFundsKycAnnouncement(
                 dismissRecorder = dismissRecorder,
                 userIdentity = userIdentity,
-                paymentsDataManager = paymentsDataManager
+                bankService = bankService
             )
     }
 
@@ -52,7 +52,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(true))
 
-        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))
+        whenever(bankService.getLinkedBanks()).thenReturn(Single.just(emptyList()))
 
         subject.shouldShow()
             .test()
@@ -67,7 +67,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(true))
 
-        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(
+        whenever(bankService.getLinkedBanks()).thenReturn(
             Single.just(
                 listOf(
                     LinkedPaymentMethod.Bank("", "", "", "", "", false, BankState.ACTIVE, USD)
@@ -88,7 +88,7 @@ class FiatFundsKycAnnouncementTest {
         whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
             .thenReturn(Single.just(false))
 
-        whenever(paymentsDataManager.getLinkedBanks()).thenReturn(Single.just(emptyList()))
+        whenever(bankService.getLinkedBanks()).thenReturn(Single.just(emptyList()))
 
         subject.shouldShow()
             .test()

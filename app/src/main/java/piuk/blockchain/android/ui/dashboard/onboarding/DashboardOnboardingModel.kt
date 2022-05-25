@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Scheduler

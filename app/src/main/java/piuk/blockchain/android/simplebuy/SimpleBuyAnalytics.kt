@@ -3,9 +3,9 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money

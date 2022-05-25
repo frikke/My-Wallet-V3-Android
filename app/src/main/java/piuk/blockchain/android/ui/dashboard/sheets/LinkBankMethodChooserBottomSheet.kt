@@ -12,7 +12,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding

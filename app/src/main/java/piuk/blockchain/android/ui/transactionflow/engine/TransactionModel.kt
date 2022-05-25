@@ -24,11 +24,11 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.Feature

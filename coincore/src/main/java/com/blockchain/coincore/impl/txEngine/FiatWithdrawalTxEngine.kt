@@ -13,8 +13,8 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -25,7 +25,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class FiatWithdrawalTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity

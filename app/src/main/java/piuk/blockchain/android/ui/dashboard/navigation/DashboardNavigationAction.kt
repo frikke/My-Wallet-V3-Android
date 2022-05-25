@@ -6,7 +6,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction

@@ -12,10 +12,10 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.makeExternalAssetAddress
-import com.blockchain.core.limits.LegacyLimits
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity

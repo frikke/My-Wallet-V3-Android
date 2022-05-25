@@ -41,6 +41,7 @@ import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.ErrorStateIcon
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 import timber.log.Timber
 
@@ -103,10 +104,32 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 analyticsHooks.onTransactionFailure(
                     newState, collectStackTraceString(newState.executionStatus.exception)
                 )
-                binding.txProgressView.showTxError(
-                    customiser.transactionProgressExceptionMessage(newState),
-                    getString(R.string.send_progress_error_subtitle)
-                )
+                customiser.transactionProgressExceptionIcon(newState).run {
+                    with(binding.txProgressView) {
+                        when (val iconResource = this@run) {
+                            is ErrorStateIcon.Local ->
+                                showTxError(
+                                    customiser.transactionProgressExceptionTitle(newState),
+                                    customiser.transactionProgressExceptionDescription(newState),
+                                    iconResource.resourceId
+                                )
+                            is ErrorStateIcon.RemoteIcon ->
+                                showServerSideError(
+                                    iconUrl = iconResource.iconUrl,
+                                    title = customiser.transactionProgressExceptionTitle(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                )
+                            is ErrorStateIcon.RemoteIconWithStatus ->
+                                showServerSideError(
+                                    iconUrl = iconResource.iconUrl,
+                                    statusIconUrl = iconResource.statusIconUrl,
+                                    title = customiser.transactionProgressExceptionTitle(newState),
+                                    description = customiser.transactionProgressExceptionDescription(newState),
+                                )
+                        }
+                    }
+                }
+
                 logClientErrorToAnalytics(newState)
             }
             else -> {

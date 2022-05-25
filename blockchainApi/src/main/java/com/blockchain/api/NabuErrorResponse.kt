@@ -6,6 +6,7 @@ import com.blockchain.serializers.IsoDateSerializer
 import java.io.IOException
 import java.net.SocketTimeoutException
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -27,10 +28,46 @@ private data class NabuErrorResponse(
     /**
      * Human-readable error description.
      */
-    val description: String = ""
+    val description: String = "",
+
+    /**
+     * Server side localised error copy to display
+     */
+    val ux: NabuUxErrorResponse?
 )
 
-class NabuApiException internal constructor(
+@Serializable
+private data class NabuUxErrorResponse(
+    @SerialName("title")
+    val title: String,
+    @SerialName("message")
+    val message: String,
+    @SerialName("icon")
+    val icon: IconData?
+)
+
+@Serializable
+private data class IconData(
+    @SerialName("url")
+    val url: String,
+    @SerialName("status")
+    val status: StatusData?
+)
+
+@Serializable
+private data class StatusData(
+    @SerialName("url")
+    val url: String
+)
+
+data class ServerSideUxErrorInfo(
+    val title: String,
+    val description: String,
+    val iconUrl: String,
+    val statusUrl: String
+)
+
+class NabuApiException constructor(
     message: String,
     private val httpErrorCode: Int,
     private val errorType: String?,
@@ -38,6 +75,7 @@ class NabuApiException internal constructor(
     private val errorDescription: String?,
     private val path: String?,
     private val id: String?,
+    private val serverSideUxError: ServerSideUxErrorInfo?
 ) : Throwable(message) {
 
     private constructor(message: String, code: Int) : this(
@@ -48,6 +86,7 @@ class NabuApiException internal constructor(
         errorDescription = null,
         path = null,
         id = null,
+        serverSideUxError = null
     )
 
     fun getPath(): String = path.orEmpty()
@@ -73,6 +112,8 @@ class NabuApiException internal constructor(
 
     // TODO: Replace prefix checking with a proper error code -> needs backend changes
     fun isUserWalletLinkError(): Boolean = getErrorDescription().startsWith(USER_WALLET_LINK_ERROR_PREFIX)
+
+    fun getServerSideErrorInfo(): ServerSideUxErrorInfo? = serverSideUxError
 
     companion object {
         const val USER_WALLET_LINK_ERROR_PREFIX = "User linked to another wallet"
@@ -111,6 +152,14 @@ object NabuApiExceptionFactory {
                 val errorDescription = it.description
                 val errorCode = it.code
                 val path = exception.response()?.raw()?.request?.url?.pathSegments?.joinToString(" , ")
+                val serverSideUxError = it.ux?.let { nabuUxResponse ->
+                    ServerSideUxErrorInfo(
+                        title = nabuUxResponse.title,
+                        description = nabuUxResponse.message,
+                        iconUrl = nabuUxResponse.icon?.url.orEmpty(),
+                        statusUrl = nabuUxResponse.icon?.status?.url.orEmpty()
+                    )
+                }
 
                 NabuApiException(
                     "$httpErrorCode: $errorType - $errorDescription - $errorCode - $path",
@@ -119,7 +168,8 @@ object NabuApiExceptionFactory {
                     errorCode,
                     errorDescription,
                     path,
-                    id
+                    id,
+                    serverSideUxError
                 )
             }
         } ?: NabuApiException.fromErrorMessageAndCode(exception.message(), exception.code())

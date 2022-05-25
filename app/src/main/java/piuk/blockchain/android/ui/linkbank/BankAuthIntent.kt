@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.core.payments.model.LinkBankTransfer
-import com.blockchain.core.payments.model.LinkedBank
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 
 sealed class BankAuthIntent : MviIntent<BankAuthState> {

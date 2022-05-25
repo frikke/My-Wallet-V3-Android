@@ -33,13 +33,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,6 +54,8 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -179,7 +182,7 @@ class SettingsFragment :
             }
         }
 
-        if (newState.error != SettingsError.NONE) {
+        if (newState.error != SettingsError.None) {
             renderError(newState.error)
         }
     }
@@ -216,24 +219,50 @@ class SettingsFragment :
 
     private fun renderError(errorState: SettingsError) {
         when (errorState) {
-            SettingsError.PAYMENT_METHODS_LOAD_FAIL -> {
+            SettingsError.PaymentMethodsLoadFail -> {
                 // TODO error state here? maybe show retry - check with design
             }
-            SettingsError.BANK_LINK_START_FAIL -> {
+            SettingsError.BankLinkStartFail -> {
                 BlockchainSnackbar.make(
                     binding.root,
                     getString(R.string.failed_to_link_bank),
                     type = SnackbarType.Error
                 ).show()
             }
-            SettingsError.UNPAIR_FAILED -> {
+            is SettingsError.BankLinkMaxAccountsReached -> {
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_accounts_title),
+                            getString(R.string.bank_linking_max_accounts_subtitle),
+                            getString(R.string.common_ok),
+                            errorState.toString(),
+                            errorState.error
+                        )
+                    )
+                )
+            }
+            is SettingsError.BankLinkMaxAttemptsReached -> {
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_attempts_title),
+                            getString(R.string.bank_linking_max_attempts_subtitle),
+                            getString(R.string.common_ok),
+                            errorState.toString(),
+                            errorState.error
+                        )
+                    )
+                )
+            }
+            SettingsError.UnpairFailed -> {
                 BlockchainSnackbar.make(
                     binding.root,
                     getString(R.string.settings_logout_error),
                     type = SnackbarType.Error
                 ).show()
             }
-            SettingsError.NONE -> {
+            SettingsError.None -> {
                 // do nothing
             }
         }
@@ -334,7 +363,7 @@ class SettingsFragment :
                     titleStart = buildAnnotatedString { append(card.uiLabel()) }
                     titleEnd = buildAnnotatedString { append(card.dottedEndDigits()) }
                     startImageResource = ImageResource.Local(
-                        (card as? PaymentMethod.Card)?.cardType?.icon()
+                        (card as? PaymentMethod.Card)?.cardType?.toCardType()?.icon()
                             ?: R.drawable.ic_payment_card,
                         null
                     )

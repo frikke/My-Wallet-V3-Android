@@ -7,11 +7,11 @@ import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessingFailure
 import com.blockchain.payments.core.PaymentToken
+import com.stripe.android.createPaymentMethod
 import com.stripe.android.core.exception.APIConnectionException
 import com.stripe.android.core.exception.APIException
 import com.stripe.android.core.exception.AuthenticationException
 import com.stripe.android.core.exception.InvalidRequestException
-import com.stripe.android.createPaymentMethod
 import com.stripe.android.model.Address
 import com.stripe.android.model.CardParams
 import com.stripe.android.model.PaymentMethodCreateParams

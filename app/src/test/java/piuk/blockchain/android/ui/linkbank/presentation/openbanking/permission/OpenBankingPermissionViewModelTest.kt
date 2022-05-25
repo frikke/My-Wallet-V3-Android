@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission
 
 import app.cash.turbine.test
-import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -27,7 +27,7 @@ import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.core.payments.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import java.net.URL
 import piuk.blockchain.android.R
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY

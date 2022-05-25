@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.BillingAddress
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

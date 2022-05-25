@@ -29,10 +29,10 @@ typealias StoreId = String
  *     freshness = Freshness.ofMinutes(5L)
  * )
  *
- * class SettingsMviModel(val paymentsDataManager: PaymentsDataManager) : MviViewModel {
+ * class SettingsMviModel(val cardService: CardService) : MviViewModel {
  *     override fun viewCreated() {
  *         viewModelScope.launch {
- *             paymentsDataManager.getLinkedCards(StoreRequest.Cached(forceRefresh = false))
+ *             cardService.getLinkedCards(StoreRequest.Cached(forceRefresh = false))
  *                 .collect { storeResponse ->
  *                     updateState { prevState ->
  *                         prevState.copy(
@@ -50,7 +50,7 @@ typealias StoreId = String
  *             updateState { prevState ->
  *                 prevState.copy(isLoadingCards = true)
  *             }
- *             val result = paymentsDataManager.getLinkedCards(StoreRequest.Fresh).firstOutcome()
+ *             val result = cardService.getLinkedCards(StoreRequest.Fresh).firstOutcome()
  *             // No need to handle StoreResponse.Data as the stream opened in viewCreated will be called with the updated StoreResponse.Data
  *             updateState { prevState ->
  *                 prevState.copy(

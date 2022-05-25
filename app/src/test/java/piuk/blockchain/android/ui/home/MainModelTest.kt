@@ -6,8 +6,8 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
-import com.blockchain.core.payments.model.BankTransferDetails
-import com.blockchain.core.payments.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.valueOf
 import com.blockchain.nabu.datamanagers.OrderState

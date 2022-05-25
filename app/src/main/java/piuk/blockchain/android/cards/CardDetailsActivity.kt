@@ -9,7 +9,7 @@ import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.nabu.datamanagers.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.preferences.SimpleBuyPrefs
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R

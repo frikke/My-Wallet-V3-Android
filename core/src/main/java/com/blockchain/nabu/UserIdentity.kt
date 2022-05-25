@@ -23,6 +23,7 @@ interface UserIdentity {
     fun getUserState(): Maybe<String>
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
     fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>>
+    fun hasReceivedStxAirdrop(): Single<Boolean>
 }
 
 sealed class Feature {

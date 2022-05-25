@@ -22,12 +22,12 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class OnChainSwapTxEngine(
     quotesEngine: TransferQuotesEngine,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
     quotesEngine, userIdentity, walletManager, limitsDataManager

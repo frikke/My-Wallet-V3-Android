@@ -3,7 +3,7 @@ package piuk.blockchain.android.data
 import com.blockchain.api.trade.data.AccumulatedInPeriod
 import com.blockchain.api.trade.data.NextPaymentRecurringBuy
 import com.blockchain.api.trade.data.RecurringBuyResponse
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.toPaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuy

@@ -30,8 +30,8 @@ import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
-import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -56,7 +56,7 @@ class TxProcessorFactoryTest {
     private val limitsDataManager: LimitsDataManager = mock()
     private val userIdentity: UserIdentity = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
-    private val paymentsDataManager: PaymentsDataManager = mock()
+    private val bankService: BankService = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -75,7 +75,7 @@ class TxProcessorFactoryTest {
             analytics = analytics,
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
-            paymentsDataManager = paymentsDataManager,
+            bankService = bankService,
             ethDataManager = mock(),
             fees = mock()
         )

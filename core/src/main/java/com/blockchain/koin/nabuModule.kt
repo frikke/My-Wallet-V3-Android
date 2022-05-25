@@ -133,7 +133,9 @@ val nabuModule = module {
                 simpleBuyEligibilityProvider = get(),
                 interestEligibilityProvider = get(),
                 nabuDataProvider = get(),
-                eligibilityService = get()
+                eligibilityService = get(),
+                nabuToken = get(),
+                nabu = get()
             )
         }.bind(UserIdentity::class)
 

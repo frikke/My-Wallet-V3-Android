@@ -36,6 +36,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -129,7 +130,8 @@ fun BottomNavigationBar(
                                             }
                                         )
                                     }
-                                    .scale(scaling),
+                                    .scale(scaling)
+                                    .semantics(mergeDescendants = true) {},
                                 contentAlignment = Alignment.Center
                             ) {
                                 Crossfade(targetState = isPressed) { state ->
@@ -149,7 +151,7 @@ fun BottomNavigationBar(
                                         .size(22.dp)
                                         .align(Alignment.Center),
                                     painter = painterResource(R.drawable.ic_bottom_nav_plus),
-                                    contentDescription = "BottomNavigation_FAB_Cta",
+                                    contentDescription = stringResource(R.string.accessibility_action_menu),
                                     colorFilter = ColorFilter.tint(backgroundColor)
                                 )
                             }
@@ -161,7 +163,7 @@ fun BottomNavigationBar(
                                 icon = {
                                     Icon(
                                         painter = painterResource(id = item.icon),
-                                        contentDescription = stringResource(item.title)
+                                        contentDescription = null
                                     )
                                 },
                                 label = {

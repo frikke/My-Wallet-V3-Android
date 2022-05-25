@@ -3,6 +3,8 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.api.isInternetConnectionError
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
@@ -13,9 +15,13 @@ import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.limits.TxLimits
-import com.blockchain.core.payments.LinkedPaymentMethod
-import com.blockchain.core.payments.model.BankPartner
-import com.blockchain.core.payments.model.BankState
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankState
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
@@ -28,11 +34,7 @@ import com.blockchain.nabu.datamanagers.BuySellOrder
 import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.RecurringBuyOrder
-import com.blockchain.nabu.datamanagers.UndefinedPaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
@@ -176,7 +178,16 @@ class SimpleBuyModel(
                 .trackProgress(activityIndicator)
                 .subscribeBy(
                     onSuccess = { process(it) },
-                    onError = { process(SimpleBuyIntent.ErrorIntent(ErrorState.LinkedBankNotSupported)) }
+                    onError = {
+                        when ((it as? NabuApiException)?.getErrorCode()) {
+                            MaxPaymentBankAccounts ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.BankLinkMaxAccountsReached(it)))
+                            MaxPaymentBankAccountLinkAttempts ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.BankLinkMaxAttemptsReached(it)))
+                            else ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.LinkedBankNotSupported))
+                        }
+                    }
                 )
             is SimpleBuyIntent.TryToLinkABankTransfer -> {
                 interactor.eligiblePaymentMethodsTypes(previousState.fiatCurrency).map {
@@ -891,66 +902,75 @@ class SimpleBuyModel(
 
     private fun processOrderErrors(it: Throwable) {
         if (it is NabuApiException) {
-            when (it.getErrorCode()) {
-                NabuErrorCodes.DailyLimitExceeded -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.DailyLimitExceeded)
-                )
-                NabuErrorCodes.WeeklyLimitExceeded -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.WeeklyLimitExceeded)
-                )
-                NabuErrorCodes.AnnualLimitExceeded -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.YearlyLimitExceeded)
-                )
-                NabuErrorCodes.PendingOrdersLimitReached -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.ExistingPendingOrder)
-                )
-                NabuErrorCodes.InsufficientCardFunds -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
-                )
-                NabuErrorCodes.CardBankDeclined -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardBankDeclined)
-                )
-                NabuErrorCodes.CardDuplicate -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardDuplicated)
-                )
-                NabuErrorCodes.CardBlockchainDecline -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardBlockchainDeclined)
-                )
-                NabuErrorCodes.CardAcquirerDecline -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardAcquirerDeclined)
-                )
-                NabuErrorCodes.CardPaymentNotSupported -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentNotSupported)
-                )
-                NabuErrorCodes.CardCreateFailed -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateFailed)
-                )
-                NabuErrorCodes.CardPaymentFailed -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentFailed)
-                )
-                NabuErrorCodes.CardCreateAbandoned -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateAbandoned)
-                )
-                NabuErrorCodes.CardCreateExpired -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateExpired)
-                )
-                NabuErrorCodes.CardCreateBankDeclined -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateBankDeclined)
-                )
-                NabuErrorCodes.CardCreateDebitOnly -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateDebitOnly)
-                )
-                NabuErrorCodes.CardPaymentDebitOnly -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDebitOnly)
-                )
-                NabuErrorCodes.CardCreateNoToken -> process(
-                    SimpleBuyIntent.ErrorIntent(ErrorState.CardNoToken)
-                )
-                else -> process(SimpleBuyIntent.ErrorIntent(ErrorState.UnhandledHttpError(it)))
+            it.getServerSideErrorInfo()?.let { serverError ->
+                process(SimpleBuyIntent.ErrorIntent(ErrorState.ServerSideUxError(serverError)))
+            } ?: run {
+                when (it.getErrorCode()) {
+                    NabuErrorCodes.DailyLimitExceeded -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.DailyLimitExceeded)
+                    )
+                    NabuErrorCodes.WeeklyLimitExceeded -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.WeeklyLimitExceeded)
+                    )
+                    NabuErrorCodes.AnnualLimitExceeded -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.YearlyLimitExceeded)
+                    )
+                    NabuErrorCodes.PendingOrdersLimitReached -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.ExistingPendingOrder)
+                    )
+                    NabuErrorCodes.InsufficientCardFunds -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.InsufficientCardFunds)
+                    )
+                    NabuErrorCodes.CardBankDeclined -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardBankDeclined)
+                    )
+                    NabuErrorCodes.CardDuplicate -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardDuplicated)
+                    )
+                    NabuErrorCodes.CardBlockchainDecline -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardBlockchainDeclined)
+                    )
+                    NabuErrorCodes.CardAcquirerDecline -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardAcquirerDeclined)
+                    )
+                    NabuErrorCodes.CardPaymentNotSupported -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentNotSupported)
+                    )
+                    NabuErrorCodes.CardCreateFailed -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateFailed)
+                    )
+                    NabuErrorCodes.CardPaymentFailed -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentFailed)
+                    )
+                    NabuErrorCodes.CardCreateAbandoned -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateAbandoned)
+                    )
+                    NabuErrorCodes.CardCreateExpired -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateExpired)
+                    )
+                    NabuErrorCodes.CardCreateBankDeclined -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateBankDeclined)
+                    )
+                    NabuErrorCodes.CardCreateDebitOnly -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardCreateDebitOnly)
+                    )
+                    NabuErrorCodes.CardPaymentDebitOnly -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardPaymentDebitOnly)
+                    )
+                    NabuErrorCodes.CardCreateNoToken -> process(
+                        SimpleBuyIntent.ErrorIntent(ErrorState.CardNoToken)
+                    )
+                    else -> process(SimpleBuyIntent.ErrorIntent(ErrorState.UnhandledHttpError(it)))
+                }
             }
         } else {
             val error = when {
-                it is HttpException -> ErrorState.UnhandledHttpError(NabuApiExceptionFactory.fromResponseBody(it))
+                it is HttpException -> {
+                    val error = NabuApiExceptionFactory.fromResponseBody(it)
+                    error.getServerSideErrorInfo()?.let { serverError ->
+                        ErrorState.ServerSideUxError(serverError)
+                    } ?: ErrorState.UnhandledHttpError(error)
+                }
                 it.isInternetConnectionError() -> ErrorState.InternetConnectionError
                 else -> throw it
             }

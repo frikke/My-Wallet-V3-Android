@@ -1,6 +1,5 @@
 package com.blockchain.coincore.xlm
 
-import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.FeeInfo
@@ -34,7 +33,6 @@ import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.extensions.then
 
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 const val STATE_MEMO = "XLM_MEMO"
 
 private val PendingTx.memo: TxConfirmationValue.Memo

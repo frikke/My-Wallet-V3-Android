@@ -452,7 +452,9 @@ val applicationModule = module {
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
-                paymentsDataManager = get()
+                bankService = get(),
+                cardService = get(),
+                paymentMethodService = get()
             )
         }
 
@@ -506,7 +508,8 @@ val applicationModule = module {
         factory {
             GetAvailablePaymentMethodsTypesUseCase(
                 userIdentity = get(),
-                paymentsDataManager = get()
+                paymentMethodService = get(),
+                cardService = get()
             )
         }
 
@@ -521,7 +524,8 @@ val applicationModule = module {
             GetDashboardOnboardingStepsUseCase(
                 dashboardPrefs = get(),
                 userIdentity = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
+                cardService = get(),
                 tradeDataService = get()
             )
         }
@@ -596,7 +600,8 @@ val applicationModule = module {
         scoped {
             SimpleBuySyncFactory(
                 custodialWallet = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
+                cardService = get(),
                 serializer = get()
             )
         }
@@ -742,7 +747,7 @@ val applicationModule = module {
 
         factory {
             CardProviderActivator(
-                paymentsDataManager = get(),
+                cardService = get(),
                 submitEveryPayCardService = get()
             )
         }.bind(CardActivator::class)

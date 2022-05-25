@@ -6,10 +6,10 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
-import com.blockchain.core.payments.model.FundsLocks
-import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency

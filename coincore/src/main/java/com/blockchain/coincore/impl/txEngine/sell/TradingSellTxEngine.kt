@@ -18,11 +18,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
 
 class TradingSellTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
     quotesEngine: TransferQuotesEngine,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity
 ) : SellTxEngineBase(walletManager, limitsDataManager, userIdentity, quotesEngine) {
 

@@ -5,6 +5,9 @@ import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -14,10 +17,7 @@ import com.blockchain.nabu.datamanagers.CardAttributes
 import com.blockchain.nabu.datamanagers.CardPaymentState
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentAttributes
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.network.PollResult
 import com.blockchain.preferences.CurrencyPrefs

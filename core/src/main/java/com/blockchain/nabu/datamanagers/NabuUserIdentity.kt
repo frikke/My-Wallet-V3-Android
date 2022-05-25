@@ -8,6 +8,7 @@ import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
@@ -26,7 +27,9 @@ class NabuUserIdentity(
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
     private val nabuUserDataManager: NabuUserDataManager,
     private val nabuDataProvider: NabuDataUserProvider,
-    private val eligibilityService: EligibilityService
+    private val eligibilityService: EligibilityService,
+    private val nabuToken: NabuToken,
+    private val nabu: NabuDataManager
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -211,6 +214,12 @@ class NabuUserIdentity(
 
     override fun checkForUserWalletLinkErrors(): Completable =
         nabuDataProvider.getUser().flatMapCompletable { Completable.complete() }
+
+    override fun hasReceivedStxAirdrop(): Single<Boolean> =
+        nabuToken.fetchNabuToken()
+            .flatMap { token -> nabu.getUser(token) }
+            .map { it.isStxAirdropRegistered }
+            .onErrorReturn { false }
 
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {

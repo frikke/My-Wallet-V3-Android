@@ -1,12 +1,13 @@
 package piuk.blockchain.android.domain.usecases
 
-import com.blockchain.core.payments.PaymentsDataManager
+import com.blockchain.domain.paymentmethods.CardService
+import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.CardStatus
+import com.blockchain.domain.paymentmethods.model.PaymentLimits
+import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.CardStatus
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.usecases.UseCase
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
@@ -14,7 +15,8 @@ import io.reactivex.rxjava3.kotlin.zipWith
 
 class GetAvailablePaymentMethodsTypesUseCase(
     private val userIdentity: UserIdentity,
-    private val paymentsDataManager: PaymentsDataManager
+    private val paymentMethodService: PaymentMethodService,
+    private val cardService: CardService
 ) : UseCase<GetAvailablePaymentMethodsTypesUseCase.Request, Single<List<AvailablePaymentMethodType>>>() {
 
     data class Request(
@@ -24,7 +26,7 @@ class GetAvailablePaymentMethodsTypesUseCase(
     )
 
     override fun execute(parameter: Request): Single<List<AvailablePaymentMethodType>> =
-        paymentsDataManager.getAvailablePaymentMethodsTypes(
+        paymentMethodService.getAvailablePaymentMethodsTypes(
             fiatCurrency = parameter.currency,
             fetchSddLimits = parameter.fetchSddLimits,
             onlyEligible = parameter.onlyEligible
@@ -48,7 +50,7 @@ class GetAvailablePaymentMethodsTypesUseCase(
                 userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
                     .flatMap { isSDD ->
                         if (isSDD) {
-                            paymentsDataManager.getLinkedCards(CardStatus.ACTIVE).map { cards ->
+                            cardService.getLinkedCards(CardStatus.ACTIVE).map { cards ->
                                 availableTypes.map {
                                     AvailablePaymentMethodType(
                                         canBeUsedForPayment = it.eligible,

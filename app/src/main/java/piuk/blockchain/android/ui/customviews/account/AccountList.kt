@@ -18,7 +18,7 @@ import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
-import com.blockchain.core.payments.model.FundsLocks
+import com.blockchain.domain.paymentmethods.model.FundsLocks
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable

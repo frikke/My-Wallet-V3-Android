@@ -1,11 +1,7 @@
-package com.blockchain.core.payments.model
+package com.blockchain.domain.paymentmethods.model
 
-import com.blockchain.api.paymentmethods.models.LinkBankAttrsResponse
-import com.blockchain.api.paymentmethods.models.YapilyMediaResponse
-import com.blockchain.core.limits.LegacyLimits
-import com.blockchain.nabu.datamanagers.PaymentLimits
-import com.blockchain.nabu.datamanagers.PaymentMethod
-import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.response.LinkBankAttrsResponse
+import com.blockchain.domain.paymentmethods.model.response.YapilyMediaResponse
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
@@ -171,11 +167,4 @@ enum class BankTransferStatus {
     PENDING,
     ERROR,
     COMPLETE
-}
-
-enum class BankState {
-    PENDING,
-    BLOCKED,
-    ACTIVE,
-    UNKNOWN
 }

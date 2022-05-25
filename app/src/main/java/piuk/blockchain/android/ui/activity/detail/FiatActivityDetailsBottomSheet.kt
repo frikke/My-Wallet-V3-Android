@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.blockchain.api.services.MobilePaymentType
-import com.blockchain.api.services.PaymentMethodDetails
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
+import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransactionType

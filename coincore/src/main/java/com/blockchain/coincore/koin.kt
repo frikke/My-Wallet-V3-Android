@@ -21,6 +21,8 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.stxForAirdropUsersFeatureFlag
+import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -149,7 +151,7 @@ val coincoreModule = module {
                 tradingBalanceDataManager = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 currencyPrefs = get()
             )
         }
@@ -169,7 +171,7 @@ val coincoreModule = module {
                 txProcessorFactory = get(),
                 defaultLabels = get(),
                 remoteLogger = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 currencyPrefs = get(),
                 disabledEvmAssets = ncAssetList.toList()
             )
@@ -199,7 +201,9 @@ val coincoreModule = module {
                 formatUtils = get(),
                 identityAddressResolver = get(),
                 ethHotWalletAddressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                stxForAllFeatureFlag = get(stxForAllFeatureFlag),
+                stxForAirdropFeatureFlag = get(stxForAirdropUsersFeatureFlag)
             )
         }.bind(AssetLoader::class)
 
@@ -226,7 +230,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 walletManager = get(),
-                paymentsDataManager = get(),
+                bankService = get(),
                 ethMessageSigner = get(),
                 limitsDataManager = get(),
                 walletPrefs = get(),
@@ -261,7 +265,8 @@ val coincoreModule = module {
         factory {
             LinkedBanksFactory(
                 custodialWalletManager = get(),
-                paymentsDataManager = get()
+                bankService = get(),
+                paymentMethodService = get()
             )
         }
 

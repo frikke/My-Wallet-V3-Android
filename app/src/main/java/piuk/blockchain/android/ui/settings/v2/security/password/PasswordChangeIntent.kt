@@ -13,7 +13,7 @@ sealed class PasswordChangeIntent : MviIntent<PasswordChangeState> {
     }
 
     class UpdateErrorState(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val errorState: PasswordChangeError
     ) : PasswordChangeIntent() {
         override fun reduce(oldState: PasswordChangeState): PasswordChangeState =
@@ -21,7 +21,7 @@ sealed class PasswordChangeIntent : MviIntent<PasswordChangeState> {
     }
 
     class UpdateViewState(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val viewState: PasswordViewState
     ) : PasswordChangeIntent() {
         override fun reduce(oldState: PasswordChangeState): PasswordChangeState =

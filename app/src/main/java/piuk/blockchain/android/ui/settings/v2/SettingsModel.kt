@@ -1,5 +1,8 @@
 package piuk.blockchain.android.ui.settings.v2
 
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.exhaustive
@@ -50,7 +53,7 @@ class SettingsModel(
                         onSuccess = { paymentMethodInfo ->
                             process(SettingsIntent.UpdatePaymentMethodsInfo(paymentMethodInfo = paymentMethodInfo))
                         }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
+                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                     }
                     )
             is SettingsIntent.AddBankTransferSelected -> interactor.getBankLinkingInfo()
@@ -58,7 +61,14 @@ class SettingsModel(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
                     }, onError = {
-                    process(SettingsIntent.UpdateErrorState(SettingsError.BANK_LINK_START_FAIL))
+                    when ((it as? NabuApiException)?.getErrorCode()) {
+                        MaxPaymentBankAccounts ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAccountsReached(it)))
+                        MaxPaymentBankAccountLinkAttempts ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkMaxAttemptsReached(it)))
+                        else ->
+                            process(SettingsIntent.UpdateErrorState(SettingsError.BankLinkStartFail))
+                    }
                 }
                 )
             is SettingsIntent.AddBankAccountSelected -> {
@@ -72,7 +82,7 @@ class SettingsModel(
                     },
                     onError = {
                         Timber.e("Unpair wallet failed $it")
-                        process(SettingsIntent.UpdateErrorState(SettingsError.UNPAIR_FAILED))
+                        process(SettingsIntent.UpdateErrorState(SettingsError.UnpairFailed))
                     }
                 )
             is SettingsIntent.OnCardRemoved ->
@@ -81,7 +91,7 @@ class SettingsModel(
                         onSuccess = { available ->
                             process(SettingsIntent.UpdateAvailablePaymentMethods(available))
                         }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PAYMENT_METHODS_LOAD_FAIL))
+                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                     }
                     )
             is SettingsIntent.UserLoggedOut,
