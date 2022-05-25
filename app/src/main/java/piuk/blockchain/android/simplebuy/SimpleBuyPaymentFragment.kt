@@ -422,6 +422,20 @@ class SimpleBuyPaymentFragment :
                 R.drawable.ic_cross_white_bckg,
                 errorState = errorState.toString()
             )
+            is ErrorState.BankLinkMaxAccountsReached -> showError(
+                getString(R.string.bank_linking_max_accounts_title),
+                getString(R.string.bank_linking_max_accounts_subtitle),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString(),
+                nabuApiException = errorState.error
+            )
+            is ErrorState.BankLinkMaxAttemptsReached -> showError(
+                getString(R.string.bank_linking_max_attempts_title),
+                getString(R.string.bank_linking_max_attempts_subtitle),
+                R.drawable.ic_cross_white_bckg,
+                errorState = errorState.toString(),
+                nabuApiException = errorState.error
+            )
             ErrorState.LinkedBankNotSupported -> throw IllegalStateException(
                 " ErrorState LinkedBankNotSupported should not get handled in Payments screen"
             )

@@ -588,6 +588,20 @@ class SimpleBuyCheckoutFragment :
                     description = getString(R.string.something_went_wrong_try_again),
                     error = errorState.toString()
                 )
+            is ErrorState.BankLinkMaxAccountsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_accounts_title),
+                    description = getString(R.string.bank_linking_max_accounts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
+            is ErrorState.BankLinkMaxAttemptsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_attempts_title),
+                    description = getString(R.string.bank_linking_max_attempts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
             is ErrorState.ServerSideUxError ->
                 navigator().showErrorInBottomSheet(
                     title = errorState.serverSideUxErrorInfo.title,

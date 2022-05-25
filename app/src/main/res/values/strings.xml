@@ -2134,6 +2134,10 @@
     <string name="bank_linking_failure_subtitle">Please try again. If this keeps happening, please contact support.</string>
     <string name="bank_linking_declined_title">Account Access Denied</string>
     <string name="bank_linking_declined_subtitle">Looks like there was an issue with approving the payment, please try again. If this keeps happening, please contact support.</string>
+    <string name="bank_linking_max_attempts_title">Attempt Limit Reached</string>
+    <string name="bank_linking_max_attempts_subtitle">You’ve reached the limit for the number of attempts to link your bank. Limits are reset daily, please try again tomorrow.</string>
+    <string name="bank_linking_max_accounts_title">Bank Limit Reached</string>
+    <string name="bank_linking_max_accounts_subtitle">You’ve reached the limit for the number of banks you can link to your account. Please delete a linked bank in order to add a new one.</string>
 
     <!-- Error transfer payments copies -->
     <string name="bank_transfer_payment_invalid_title">Invalid Account</string>

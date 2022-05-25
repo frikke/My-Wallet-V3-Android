@@ -755,6 +755,20 @@ class SimpleBuyCryptoFragment :
                     description = getString(R.string.msg_cardCreateNoToken),
                     error = errorState.toString()
                 )
+            is ErrorState.BankLinkMaxAccountsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_accounts_title),
+                    description = getString(R.string.bank_linking_max_accounts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
+            is ErrorState.BankLinkMaxAttemptsReached ->
+                navigator().showErrorInBottomSheet(
+                    title = getString(R.string.bank_linking_max_attempts_title),
+                    description = getString(R.string.bank_linking_max_attempts_subtitle),
+                    error = errorState.toString(),
+                    nabuApiException = errorState.error
+                )
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(

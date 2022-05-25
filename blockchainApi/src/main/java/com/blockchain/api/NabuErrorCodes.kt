@@ -121,6 +121,8 @@ enum class NabuErrorCodes(val code: Int) {
     InvalidCryptoAddress(93),
     InvalidCryptoCurrency(94),
     InsufficientBalance(131),
+    MaxPaymentBankAccounts(143),
+    MaxPaymentBankAccountLinkAttempts(146),
     InvalidFiatCurrency(149),
     OrderDirectionDisabled(151),
     WithdrawLocked(152),

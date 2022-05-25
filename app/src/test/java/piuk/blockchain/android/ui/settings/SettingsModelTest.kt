@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuErrorCodes
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
@@ -206,7 +208,7 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.PAYMENT_METHODS_LOAD_FAIL
+                    error = SettingsError.PaymentMethodsLoadFail
                 )
             }
     }
@@ -239,7 +241,43 @@ class SettingsModelTest {
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
-                it.error == SettingsError.BANK_LINK_START_FAIL
+                it.error == SettingsError.BankLinkStartFail
+            }
+    }
+
+    @Test
+    fun `bankTransferSelected fails when max number of attempts is reached`() {
+        val error: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccountLinkAttempts)
+        }
+        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
+
+        val testState = model.state.test()
+        model.process(SettingsIntent.AddBankTransferSelected)
+
+        testState
+            .assertValueAt(0) {
+                it == SettingsState()
+            }.assertValueAt(1) {
+                it.error == SettingsError.BankLinkMaxAttemptsReached(error)
+            }
+    }
+
+    @Test
+    fun `bankTransferSelected fails when max number of bank accounts is reached`() {
+        val error: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccounts)
+        }
+        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
+
+        val testState = model.state.test()
+        model.process(SettingsIntent.AddBankTransferSelected)
+
+        testState
+            .assertValueAt(0) {
+                it == SettingsState()
+            }.assertValueAt(1) {
+                it.error == SettingsError.BankLinkMaxAccountsReached(error)
             }
     }
 
@@ -289,7 +327,7 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    error = SettingsError.UNPAIR_FAILED
+                    error = SettingsError.UnpairFailed
                 )
             }
     }

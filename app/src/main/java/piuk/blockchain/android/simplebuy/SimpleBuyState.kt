@@ -205,6 +205,8 @@ enum class FlowScreen {
 sealed class ErrorState : Serializable {
     object BankLinkingTimeout : ErrorState()
     object LinkedBankNotSupported : ErrorState()
+    data class BankLinkMaxAccountsReached(val error: NabuApiException) : ErrorState()
+    data class BankLinkMaxAttemptsReached(val error: NabuApiException) : ErrorState()
     object ApproveBankInvalid : ErrorState()
     object ApprovedBankFailed : ErrorState()
     object ApprovedBankDeclined : ErrorState()

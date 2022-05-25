@@ -403,7 +403,7 @@ class PaymentsRepository(
                     partner.attributes(attributes)
                 )
             )
-        }
+        }.wrapErrorMessage()
     }
 
     override fun startBankTransfer(

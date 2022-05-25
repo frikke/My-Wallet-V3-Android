@@ -54,6 +54,8 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -180,7 +182,7 @@ class SettingsFragment :
             }
         }
 
-        if (newState.error != SettingsError.NONE) {
+        if (newState.error != SettingsError.None) {
             renderError(newState.error)
         }
     }
@@ -217,24 +219,50 @@ class SettingsFragment :
 
     private fun renderError(errorState: SettingsError) {
         when (errorState) {
-            SettingsError.PAYMENT_METHODS_LOAD_FAIL -> {
+            SettingsError.PaymentMethodsLoadFail -> {
                 // TODO error state here? maybe show retry - check with design
             }
-            SettingsError.BANK_LINK_START_FAIL -> {
+            SettingsError.BankLinkStartFail -> {
                 BlockchainSnackbar.make(
                     binding.root,
                     getString(R.string.failed_to_link_bank),
                     type = SnackbarType.Error
                 ).show()
             }
-            SettingsError.UNPAIR_FAILED -> {
+            is SettingsError.BankLinkMaxAccountsReached -> {
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_accounts_title),
+                            getString(R.string.bank_linking_max_accounts_subtitle),
+                            getString(R.string.common_ok),
+                            errorState.toString(),
+                            errorState.error
+                        )
+                    )
+                )
+            }
+            is SettingsError.BankLinkMaxAttemptsReached -> {
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            getString(R.string.bank_linking_max_attempts_title),
+                            getString(R.string.bank_linking_max_attempts_subtitle),
+                            getString(R.string.common_ok),
+                            errorState.toString(),
+                            errorState.error
+                        )
+                    )
+                )
+            }
+            SettingsError.UnpairFailed -> {
                 BlockchainSnackbar.make(
                     binding.root,
                     getString(R.string.settings_logout_error),
                     type = SnackbarType.Error
                 ).show()
             }
-            SettingsError.NONE -> {
+            SettingsError.None -> {
                 // do nothing
             }
         }

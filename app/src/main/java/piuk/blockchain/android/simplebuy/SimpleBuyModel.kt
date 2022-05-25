@@ -3,6 +3,8 @@ package piuk.blockchain.android.simplebuy
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccountLinkAttempts
+import com.blockchain.api.NabuErrorCodes.MaxPaymentBankAccounts
 import com.blockchain.api.isInternetConnectionError
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
@@ -176,7 +178,16 @@ class SimpleBuyModel(
                 .trackProgress(activityIndicator)
                 .subscribeBy(
                     onSuccess = { process(it) },
-                    onError = { process(SimpleBuyIntent.ErrorIntent(ErrorState.LinkedBankNotSupported)) }
+                    onError = {
+                        when ((it as? NabuApiException)?.getErrorCode()) {
+                            MaxPaymentBankAccounts ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.BankLinkMaxAccountsReached(it)))
+                            MaxPaymentBankAccountLinkAttempts ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.BankLinkMaxAttemptsReached(it)))
+                            else ->
+                                process(SimpleBuyIntent.ErrorIntent(ErrorState.LinkedBankNotSupported))
+                        }
+                    }
                 )
             is SimpleBuyIntent.TryToLinkABankTransfer -> {
                 interactor.eligiblePaymentMethodsTypes(previousState.fiatCurrency).map {
