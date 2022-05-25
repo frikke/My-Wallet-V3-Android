@@ -301,13 +301,13 @@ abstract class TxEngine : KoinComponent {
 }
 
 class TransactionProcessor(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val sourceAccount: BlockchainAccount,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val txTarget: TransactionTarget,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val exchangeRates: ExchangeRatesDataManager,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: TxEngine
 ) : TxEngine.RefreshTrigger {
 

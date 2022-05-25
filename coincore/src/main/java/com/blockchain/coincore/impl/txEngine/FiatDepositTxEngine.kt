@@ -44,10 +44,10 @@ const val WITHDRAW_LOCKS = "locks"
 private const val PAYMENT_METHOD_LIMITS = "PAYMENT_METHOD_LIMITS"
 
 class FiatDepositTxEngine(
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     private val bankService: BankService,
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,

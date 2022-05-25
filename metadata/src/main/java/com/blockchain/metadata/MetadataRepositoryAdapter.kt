@@ -1,15 +1,12 @@
 package com.blockchain.metadata
 
 import com.blockchain.serialization.JsonSerializable
-import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
-@OptIn(InternalSerializationApi::class)
 internal class MetadataRepositoryAdapter(
     private val metadataManager: MetadataManager,
     private val json: Json

@@ -13,7 +13,7 @@ object Versions {
     const val buildTools = "30.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "7.1.3"
+    const val androidPlugin = "7.2.0"
     const val kotlin = "1.6.10"
 
     // Coroutines
@@ -128,14 +128,14 @@ object Versions {
     const val zendeskChatVersion = "3.3.4"
     const val zendeskMessagingVersion = "5.2.3"
     const val checkoutComVersion = "3.0.1"
-    const val stripeVersion = "18.2.0"
+    const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
 
     // Logging
     const val timber = "4.7.1"
     const val slf4j = "1.7.20"
     const val firebaseCrashlyticsPlugin = "2.8.1"
-    const val embraceIO = "4.15.0"
+    const val embraceIO = "5.0.4"
 
     // Debugging
     const val stetho = "1.5.1"

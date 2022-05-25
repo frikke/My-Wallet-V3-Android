@@ -231,9 +231,9 @@ sealed class LoginIntents : MviIntent<LoginState> {
     }
 
     class UserAuthenticationRequired(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val action: String?,
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val uri: Uri
     ) : LoginIntents() {
         override fun reduce(oldState: LoginState): LoginState =

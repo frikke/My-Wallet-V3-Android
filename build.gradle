@@ -40,6 +40,9 @@ allprojects {
     configurations.all {
         resolutionStrategy.force Libraries.findbugs
         resolutionStrategy.force Libraries.kotlinReflect
+        resolutionStrategy {
+            force("org.objenesis:objenesis:3.2")
+        }
     }
 }
 
