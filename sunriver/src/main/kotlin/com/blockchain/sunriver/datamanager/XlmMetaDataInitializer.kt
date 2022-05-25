@@ -12,7 +12,9 @@ import com.blockchain.wallet.Seed
 import com.blockchain.wallet.SeedAccess
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
+import kotlinx.serialization.InternalSerializationApi
 
+@OptIn(InternalSerializationApi::class)
 internal class XlmMetaDataInitializer(
     private val defaultLabels: DefaultLabels,
     private val repository: MetadataRepository,
