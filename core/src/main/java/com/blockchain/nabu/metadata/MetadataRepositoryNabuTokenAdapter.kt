@@ -8,9 +8,7 @@ import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.rx.maybeCache
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.InternalSerializationApi
 
-@OptIn(InternalSerializationApi::class)
 class MetadataRepositoryNabuTokenAdapter(
     private val accountCredentialsMetadata: AccountCredentialsMetadata,
     private val createNabuToken: CreateNabuToken,
