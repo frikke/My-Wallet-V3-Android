@@ -144,8 +144,18 @@ interface AccountRefreshTrigger {
             }
         }
 
-    final override fun defaultAccount(): Single<SingleAccount> =
-        accounts.map { it.first { a -> a.isDefault } }
+    final override fun defaultAccount(): Single<SingleAccount> {
+        return accounts.map {
+            // todo(othman): remove when it.first { a -> a.isDefault } crash is fixed
+            remoteLogger.logEvent("defaultAccount, accounts: ${it.size}, hasDefault: ${it.any { it.isDefault }}")
+            it.forEach {
+                remoteLogger.logEvent("defaultAccount, account: ${it.label}")
+            }
+            //
+
+            it.first { a -> a.isDefault }
+        }
+    }
 
     private fun getNonCustodialAccountList(): Single<SingleAccountList> =
         accountGroup(filter = AssetFilter.NonCustodial)
