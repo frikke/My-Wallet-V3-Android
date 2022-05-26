@@ -133,7 +133,7 @@ interface CustodialWalletManager {
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String>
+    fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable

@@ -189,7 +189,8 @@ data class BuySellOrderResponse(
 data class TransferRequest(
     val address: String,
     val currency: String,
-    val amount: String
+    val amount: String,
+    val fee: String
 )
 
 @Serializable

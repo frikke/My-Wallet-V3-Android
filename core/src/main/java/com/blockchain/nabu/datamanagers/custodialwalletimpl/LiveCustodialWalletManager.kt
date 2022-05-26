@@ -408,14 +408,15 @@ class LiveCustodialWalletManager(
             nabuService.deleteBuyOrder(it, orderId)
         }
 
-    override fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String> =
+    override fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String> =
         authenticator.authenticate {
             nabuService.transferFunds(
                 it,
                 TransferRequest(
                     address = walletAddress,
                     currency = amount.currency.networkTicker,
-                    amount = amount.toBigInteger().toString()
+                    amount = amount.toBigInteger().toString(),
+                    fee = fee.toBigInteger().toString()
                 )
             )
         }
