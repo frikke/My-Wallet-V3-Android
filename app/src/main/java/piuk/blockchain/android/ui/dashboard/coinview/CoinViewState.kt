@@ -16,7 +16,7 @@ import info.blockchain.balance.Money
 data class CoinViewState(
     val asset: CryptoAsset? = null,
     val selectedFiat: FiatCurrency? = null,
-    val selectedCryptoAccount: AssetDetailsItemNew.CryptoDetailsInfo? = null,
+    val selectedCryptoAccount: AssetDetailsItem.CryptoDetailsInfo? = null,
     val viewState: CoinViewViewState = CoinViewViewState.None,
     val assetDisplay: List<AssetDisplayInfo> = emptyList(),
     val error: CoinViewError = CoinViewError.None,
@@ -108,7 +108,7 @@ data class AssetDisplayInfo(
     val interestRate: Double = Double.NaN
 )
 
-sealed class AssetDetailsItemNew {
+sealed class AssetDetailsItem {
     data class CryptoDetailsInfo(
         val assetFilter: AssetFilter,
         val account: BlockchainAccount,
@@ -116,17 +116,17 @@ sealed class AssetDetailsItemNew {
         val fiatBalance: Money,
         val actions: Set<StateAwareAction>,
         val interestRate: Double = Double.NaN
-    ) : AssetDetailsItemNew()
+    ) : AssetDetailsItem()
 
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy
-    ) : AssetDetailsItemNew()
+    ) : AssetDetailsItem()
 
-    object RecurringBuyBanner : AssetDetailsItemNew()
+    object RecurringBuyBanner : AssetDetailsItem()
 
-    object RecurringBuyError : AssetDetailsItemNew()
+    object RecurringBuyError : AssetDetailsItem()
 
-    object AccountError : AssetDetailsItemNew()
+    object AccountError : AssetDetailsItem()
 }
 
 internal sealed class Details {

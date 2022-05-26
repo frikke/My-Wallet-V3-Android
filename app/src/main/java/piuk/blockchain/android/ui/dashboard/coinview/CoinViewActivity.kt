@@ -104,7 +104,7 @@ class CoinViewActivity :
 
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
-    private val listItems = mutableListOf<AssetDetailsItemNew>()
+    private val listItems = mutableListOf<AssetDetailsItem>()
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
@@ -332,9 +332,11 @@ class CoinViewActivity :
         when (newState.error) {
             CoinViewError.UnknownAsset -> binding.noAssetError.visible()
             CoinViewError.WalletLoadError -> {
-                listItems.add(AssetDetailsItemNew.AccountError)
-                updateList()
-                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.AccountError)) {
+                    listItems.add(AssetDetailsItem.AccountError)
+                    updateList()
+                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_wallet_load_error), type = SnackbarType.Error
                 ).show()
@@ -346,9 +348,11 @@ class CoinViewActivity :
                 ).show()
             }
             CoinViewError.RecurringBuysLoadError -> {
-                listItems.add(AssetDetailsItemNew.RecurringBuyError)
-                updateList()
-                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.AccountError)) {
+                    listItems.add(AssetDetailsItem.AccountError)
+                    updateList()
+                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_recurring_buy_load_error), type = SnackbarType.Warning
                 ).show()
@@ -821,18 +825,18 @@ class CoinViewActivity :
         when {
             recurringBuys.isNotEmpty() -> {
                 listItems.removeIf { details ->
-                    details is AssetDetailsItemNew.RecurringBuyInfo
+                    details is AssetDetailsItem.RecurringBuyInfo
                 }
                 val recurringBuysItems = recurringBuys.map {
-                    AssetDetailsItemNew.RecurringBuyInfo(it)
+                    AssetDetailsItem.RecurringBuyInfo(it)
                 }
                 listItems.addAll(recurringBuysItems)
             }
             shouldShowUpsell -> {
                 listItems.removeIf { details ->
-                    details is AssetDetailsItemNew.RecurringBuyBanner
+                    details is AssetDetailsItem.RecurringBuyBanner
                 }
-                listItems.add(AssetDetailsItemNew.RecurringBuyBanner)
+                listItems.add(AssetDetailsItem.RecurringBuyBanner)
             }
         }
         updateList()
@@ -908,11 +912,11 @@ class CoinViewActivity :
     private fun renderAccountsDetails(
         assetDetails: List<AssetDisplayInfo>
     ) {
-        val itemList = mutableListOf<AssetDetailsItemNew>()
+        val itemList = mutableListOf<AssetDetailsItem>()
 
         assetDetails.map {
             itemList.add(
-                AssetDetailsItemNew.CryptoDetailsInfo(
+                AssetDetailsItem.CryptoDetailsInfo(
                     assetFilter = it.filter,
                     account = it.account,
                     balance = it.amount,
@@ -924,14 +928,14 @@ class CoinViewActivity :
         }
 
         listItems.removeIf { details ->
-            details is AssetDetailsItemNew.CryptoDetailsInfo
+            details is AssetDetailsItem.CryptoDetailsInfo
         }
         listItems.addAll(0, itemList)
         updateList()
     }
 
     private fun onAccountSelected(
-        accountDetails: AssetDetailsItemNew.CryptoDetailsInfo
+        accountDetails: AssetDetailsItem.CryptoDetailsInfo
     ) {
         if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
             analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))

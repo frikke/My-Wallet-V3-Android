@@ -811,7 +811,7 @@ class CoinViewModelTest {
     @Test
     fun `when CheckScreenToOpen returns ShowAccountActionSheet then state is updated`() {
         val selectedAccount = mock<BlockchainAccount>()
-        val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
+        val assetDetailsItem: AssetDetailsItem.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
         val actions = setOf<StateAwareAction>().toTypedArray()
@@ -819,12 +819,12 @@ class CoinViewModelTest {
             .thenReturn(Single.just(CoinViewViewState.ShowAccountActionSheet(actions)))
 
         val testState = subject.state.test()
-        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
+        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItem))
 
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it.selectedCryptoAccount == assetDetailsItemNew
+            it.selectedCryptoAccount == assetDetailsItem
         }.assertValueAt(2) {
             it.viewState is CoinViewViewState.ShowAccountActionSheet &&
                 (it.viewState as CoinViewViewState.ShowAccountActionSheet).actions.contentEquals(actions)
@@ -866,7 +866,7 @@ class CoinViewModelTest {
     @Test
     fun `when CheckScreenToOpen returns ShowAccountExplainerSheet then state is updated`() {
         val selectedAccount = mock<BlockchainAccount>()
-        val assetDetailsItemNew: AssetDetailsItemNew.CryptoDetailsInfo = mock {
+        val assetDetailsItem: AssetDetailsItem.CryptoDetailsInfo = mock {
             on { account }.thenReturn(selectedAccount)
         }
         val actions = setOf<StateAwareAction>().toTypedArray()
@@ -874,12 +874,12 @@ class CoinViewModelTest {
             .thenReturn(Single.just(CoinViewViewState.ShowAccountExplainerSheet(actions)))
 
         val testState = subject.state.test()
-        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItemNew))
+        subject.process(CoinViewIntent.CheckScreenToOpen(assetDetailsItem))
 
         testState.assertValueAt(0) {
             it == defaultState
         }.assertValueAt(1) {
-            it.selectedCryptoAccount == assetDetailsItemNew
+            it.selectedCryptoAccount == assetDetailsItem
         }.assertValueAt(2) {
             it.viewState is CoinViewViewState.ShowAccountExplainerSheet &&
                 (it.viewState as CoinViewViewState.ShowAccountExplainerSheet).actions.contentEquals(actions)
