@@ -16,7 +16,6 @@ import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
-import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -93,8 +92,6 @@ class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsService: PaymentMethodsService,
     private val linkedCardsStore: LinkedCardsStore,
-    private val cardsCache: CardsCache,
-    private val cachingStoreFeatureFlag: FeatureFlag,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
@@ -255,23 +252,13 @@ class PaymentsRepository(
     override fun getLinkedCards(
         vararg states: CardStatus
     ): Single<List<LinkedPaymentMethod.Card>> =
-        cachingStoreFeatureFlag.enabled.onErrorReturnItem(false).flatMap { enabled ->
-            if (enabled) {
-                rxSingleOutcome {
-                    getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
-                        .mapLeft {
-                            when (it) {
-                                is PaymentMethodsError.RequestFailed -> Exception(it.message)
-                            }
-                        }
+        rxSingleOutcome {
+            getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
+                .mapLeft {
+                    when (it) {
+                        is PaymentMethodsError.RequestFailed -> Exception(it.message)
+                    }
                 }
-            } else {
-                cardsCache.cards().map { cardsResponse ->
-                    cardsResponse
-                        .filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
-                        .map { it.toPaymentMethod() }
-                }
-            }
         }
 
     override fun getLinkedBank(id: String): Single<LinkedBank> =
@@ -302,7 +289,6 @@ class PaymentsRepository(
             CardToBeActivated(cardId = it.id, partner = it.partner.toPartner())
         }.doOnSuccess {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
 
     override fun activateCard(cardId: String, redirectUrl: String, cvv: String): Single<PartnerCredentials> =
@@ -329,7 +315,6 @@ class PaymentsRepository(
             }
         }.doOnSuccess {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }.wrapErrorMessage()
 
     override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
@@ -364,7 +349,6 @@ class PaymentsRepository(
             paymentMethodsService.deleteCard(authToken, cardId)
         }.doOnComplete {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
 
     override fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>> {

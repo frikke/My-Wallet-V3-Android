@@ -6,7 +6,6 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.cachingStoreFeatureFlag
 import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
@@ -129,15 +128,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_notification_preferences_rework",
                 "Notification Preferences Rework"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(cachingStoreFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_caching_store",
-                "Caching Store"
             )
         )
     }.bind(FeatureFlag::class)

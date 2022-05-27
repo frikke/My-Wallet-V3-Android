@@ -31,7 +31,6 @@ import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
-import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
@@ -178,13 +177,6 @@ val coreModule = module {
         scoped {
             TransactionsCache(
                 nabuService = get(),
-                authenticator = get()
-            )
-        }
-
-        scoped {
-            CardsCache(
-                paymentMethodsService = get(),
                 authenticator = get()
             )
         }
@@ -373,9 +365,7 @@ val coreModule = module {
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 googlePayManager = get(),
                 assetCatalogue = get(),
-                linkedCardsStore = get(),
-                cardsCache = get(),
-                cachingStoreFeatureFlag = get(cachingStoreFeatureFlag)
+                linkedCardsStore = get()
             )
         }
             .bind(BankService::class)

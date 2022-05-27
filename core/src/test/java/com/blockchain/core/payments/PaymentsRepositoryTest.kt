@@ -17,7 +17,6 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
-import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
@@ -111,7 +110,6 @@ class PaymentsRepositoryTest {
     private val paymentsService: PaymentsService = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
-    private val cardsCache: CardsCache = mockk(relaxed = true)
     private val tradingBalanceDataManager: TradingBalanceDataManager = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
@@ -119,9 +117,6 @@ class PaymentsRepositoryTest {
         coEvery { getAuthHeader() } returns Single.just(AUTH)
     }
     private val googlePayManager: GooglePayManager = mockk()
-    private val cachingStoreFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
-        every { enabled } returns Single.just(true)
-    }
     private val googlePayFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
         every { enabled } returns Single.just(true)
     }
@@ -134,8 +129,6 @@ class PaymentsRepositoryTest {
             paymentsService,
             paymentMethodsService,
             linkedCardsStore,
-            cardsCache,
-            cachingStoreFeatureFlag,
             tradingBalanceDataManager,
             assetCatalogue,
             simpleBuyPrefs,
@@ -431,7 +424,6 @@ class PaymentsRepositoryTest {
             .assertComplete()
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -453,7 +445,6 @@ class PaymentsRepositoryTest {
             )
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -480,7 +471,6 @@ class PaymentsRepositoryTest {
             }
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -498,7 +488,6 @@ class PaymentsRepositoryTest {
             .assertValue(PartnerCredentials.Unknown)
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -535,7 +524,6 @@ class PaymentsRepositoryTest {
             .assertComplete()
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
