@@ -70,7 +70,7 @@ enum class ComposeTypographies {
             Caption1 -> AppTheme.typography.caption1
             Caption2 -> AppTheme.typography.caption2
             Overline -> AppTheme.typography.overline
-            Micro -> AppTheme.typography.micro
+            Micro -> AppTheme.typography.micro1
         }
 }
 

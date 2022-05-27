@@ -14,7 +14,9 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.screens.DefaultPhrase
 import com.blockchain.presentation.screens.DefaultPhraseScreen
+import com.blockchain.presentation.screens.Splash
 import com.blockchain.presentation.screens.SplashScreen
 import org.koin.androidx.viewmodel.ViewModelOwner
 import org.koin.androidx.viewmodel.scope.viewModel
@@ -47,10 +49,10 @@ fun BackupPhraseNavHost(
         startDestination = startDestination
     ) {
         composable(navigationEvent = BackPhraseDestination.Splash) {
-            SplashScreen(navController)
+            Splash(navController)
         }
         composable(navigationEvent = BackPhraseDestination.DefaultPhrase) {
-            DefaultPhraseScreen(getViewModel(scope = payloadScope), navController)
+            DefaultPhrase(getViewModel(scope = payloadScope), navController)
         }
     }
 }

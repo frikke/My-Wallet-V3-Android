@@ -25,6 +25,7 @@ val Red000 = Color(0XFFFFECEB)
 val Orange600 = Color(0XFFD46A00)
 val Orange400 = Color(0XFFFFA133)
 val Orange100 = Color(0XFFFFECD6)
+val Orange000 = Color(0XFFFFF6EB)
 
 val Grey900 = Color(0XFF121D33)
 val Grey800 = Color(0XFF353F52)
@@ -50,6 +51,9 @@ val Dark000 = Color(0XFFD2D4D6)
 
 val TierGold = Color(0XFFF5B73D)
 val TierSilver = Color(0XFFC2C9D6)
+
+val SwitchBg = Color(0XFFE9E9EA)
+val SwitchThumbStroke = Color(0XFFC9C9C9)
 
 val Overlay800 = Dark800.copy(0.8f)
 val Overlay600 = Dark600.copy(0.64f)

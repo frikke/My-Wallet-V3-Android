@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
@@ -23,23 +24,29 @@ import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 
 @Composable
-fun DefaultPhraseScreen(
+fun DefaultPhrase(
     viewModel: Lazy<DefaultPhraseViewModel>,
     navController: NavController
 ) {
     val vm: DefaultPhraseViewModel = viewModel.value
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(vm.viewState, lifecycleOwner) {
+        vm.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val state by stateFlowLifecycleAware.collectAsState(null)
+
+    DefaultPhraseScreen()
+}
+
+@Composable
+fun DefaultPhraseScreen() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
-
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val stateFlowLifecycleAware = remember(vm.viewState, lifecycleOwner) {
-            vm.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-        }
-        val state by stateFlowLifecycleAware.collectAsState(null)
 
         SimpleText(
             text = stringResource(id = R.string.your_recovery_phrase),
@@ -48,4 +55,10 @@ fun DefaultPhraseScreen(
             gravity = ComposeGravities.Centre
         )
     }
+}
+
+@Preview(name = "Default Phrase", showBackground = true)
+@Composable
+fun PreviewDefaultPhraseScreen() {
+    DefaultPhraseScreen()
 }

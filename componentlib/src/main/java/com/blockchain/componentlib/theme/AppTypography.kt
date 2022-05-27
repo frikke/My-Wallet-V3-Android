@@ -94,11 +94,16 @@ data class AppTypography(
         letterSpacing = 0.1.sp,
         lineHeight = 18.sp
     ),
-    val micro: TextStyle = TextStyle(
+    val micro1: TextStyle = TextStyle(
         fontFamily = interSemiBold,
         fontSize = 10.sp,
         fontFeatureSettings = "ss01, zero",
         letterSpacing = 0.1.sp,
+        lineHeight = 15.sp
+    ),
+    val micro2: TextStyle = TextStyle(
+        fontFamily = interMedium,
+        fontSize = 10.sp,
         lineHeight = 15.sp
     ),
 )
