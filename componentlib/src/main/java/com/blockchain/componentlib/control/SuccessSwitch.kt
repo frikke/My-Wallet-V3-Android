@@ -44,8 +44,7 @@ fun SuccessSwitch(
             disabledUncheckedTrackColor = uncheckedTrackColor,
         ),
         enabled = enabled,
-        modifier = modifier
-            .padding(dimensionResource(R.dimen.very_small_margin)),
+        modifier = modifier,
     )
 }
 

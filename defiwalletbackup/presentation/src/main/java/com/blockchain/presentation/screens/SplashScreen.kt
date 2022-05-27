@@ -19,12 +19,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.control.Switch
+import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
@@ -113,7 +114,8 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
         var isChecked by remember { mutableStateOf(false) }
 
         Row {
-            Switch(isChecked) { isChecked = it }
+            PrimarySwitch(
+                isChecked = isChecked, onCheckChanged = { isChecked = it })
 
             Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
@@ -133,6 +135,10 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
         )
     }
 }
+
+// ///////////////
+// PREVIEWS
+// ///////////////
 
 @Preview(name = "Splash", showBackground = true)
 @Composable

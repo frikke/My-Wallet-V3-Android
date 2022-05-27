@@ -6,7 +6,9 @@
 <!--    <string name="backup_phrase_checkbox_warning"></string>-->
 <!--    <string name="back_up_now"></string>-->
 <!--    <string name="secure_defi_wallets"></string>-->
-    <string name="your_recovery_phrase">Your Recovery Phrase</string>
+
+<!--    <string name="recovery_phrase_title"/>-->
+<!--    <string name="recovery_phrase_description"/>-->
 
     <string name="lets_backup_your_wallet">Let’s Back Up Your Wallet</string>
     <string name="back_up_splash_status_negative">Not Backed Up</string>
@@ -14,5 +16,8 @@
     <string name="backup_phrase_checkbox_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>
     <string name="back_up_now">Back Up Now</string>
     <string name="secure_defi_wallets">Secure Your DeFi Wallets</string>
+
+    <string name="recovery_phrase_title">Your Recovery Phrase</string>
+    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
 
 </resources>

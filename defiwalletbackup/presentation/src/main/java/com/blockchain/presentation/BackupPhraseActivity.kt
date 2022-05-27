@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.koin.payloadScope
@@ -39,6 +40,8 @@ fun BackupPhraseNavHost(
 ) {
     val navController = rememberNavController()
     val viewModel: DefaultPhraseViewModel = getViewModel(scope = payloadScope)
+
+    viewModel.viewCreated(ModelConfigArgs.NoArgs)
 
     NavHost(
         navController = navController,

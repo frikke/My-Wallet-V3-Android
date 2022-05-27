@@ -2914,6 +2914,8 @@
     <string name="back_up_now">Back Up Now</string>
     <string name="secure_defi_wallets">Secure Your DeFi Wallets</string>
 
+    <string name="recovery_phrase_title">Your Recovery Phrase</string>
+    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
     <!-- Blockchain Card -->
     <string name="order_card_intro_primary">Your Gateway To The Blockchain Debit Card</string>
     <string name="order_card_intro_secundary">A card that lets you spend and earn in crypto right from your Blockchain account.</string>

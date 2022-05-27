@@ -68,6 +68,8 @@ fun PreferenceToggleRow(
         )
 
         PrimarySwitch(
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.very_small_margin)),
             isChecked = isChecked,
             onCheckChanged = onCheckedChange,
             enabled = enabled,
