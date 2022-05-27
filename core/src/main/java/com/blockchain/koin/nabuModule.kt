@@ -220,9 +220,10 @@ val nabuModule = module {
                 authenticator = get(),
                 endpoint = get()
             )
+        }.apply {
+            bind(TierService::class)
+            bind(TierUpdater::class)
         }
-            .bind(TierService::class)
-            .bind(TierUpdater::class)
 
         factory {
             CreateNabuTokenAdapter(get())

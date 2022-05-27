@@ -15,16 +15,17 @@ import com.blockchain.koin.scopedInject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
 import piuk.blockchain.android.rating.presentaion.composable.AppRatingNavHost
 import piuk.blockchain.android.rating.presentaion.inappreview.InAppReviewSettings
 
-class AppRatingFragment : DialogFragment() {
+class AppRatingFragment : DialogFragment(), AndroidScopeComponent {
 
-    private val viewModel: AppRatingViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val viewModel: AppRatingViewModel by viewModel()
 
     private val appRatingTriggerSource: AppRatingTriggerSource by lazy {
         arguments?.getParcelable<AppRatingTriggerSource>(AppRatingTriggerSource.ARGS_KEY) ?: error(

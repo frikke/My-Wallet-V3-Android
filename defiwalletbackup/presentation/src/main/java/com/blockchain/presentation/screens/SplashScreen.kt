@@ -24,7 +24,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.Switch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
@@ -114,7 +113,7 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
         var isChecked by remember { mutableStateOf(false) }
 
         Row {
-            Switch(isChecked) { isChecked = it}
+            Switch(isChecked) { isChecked = it }
 
             Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 

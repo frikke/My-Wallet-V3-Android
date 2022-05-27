@@ -15,8 +15,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.koin.payloadScope
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
@@ -25,15 +26,16 @@ import piuk.blockchain.android.util.shareText
 class ReferralSheet :
     MVIBottomSheet<ReferralViewState>(),
     NavigationRouter<ReferralNavigationEvent>,
-    Analytics by get(Analytics::class.java) {
+    Analytics by get(Analytics::class.java),
+    AndroidScopeComponent {
 
     private val args: ReferralArgs by lazy {
         arguments?.getParcelable<ReferralArgs>(ReferralArgs.ARGS_KEY) ?: error("missing ReferralArgs")
     }
 
-    private val viewModel: ReferralViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val viewModel: ReferralViewModel by viewModel()
 
     override fun onStateUpdated(state: ReferralViewState) {
     }

@@ -25,6 +25,7 @@ import com.blockchain.metadata.metadataModule
 import com.blockchain.network.modules.apiModule
 import com.blockchain.network.modules.okHttpModule
 import com.blockchain.notifications.koin.notificationModule
+import com.blockchain.presentation.koin.backupPhrasePresentationModule
 import com.blockchain.store_caches_persistedjsonsqldelight.storeCachesPersistedJsonSqlDelightModule
 import com.blockchain.walletconnect.koin.walletConnectModule
 import org.koin.android.ext.koin.androidContext
@@ -131,7 +132,8 @@ object KoinStarter {
                     appMaintenanceDataModule, appMaintenanceDomainModule, appMaintenancePresentationModule,
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,
-                    appRatingDataModule, appRatingPresentationModule
+                    appRatingDataModule, appRatingPresentationModule,
+                    backupPhrasePresentationModule
                 )
             )
         }

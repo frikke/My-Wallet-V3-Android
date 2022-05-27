@@ -90,10 +90,9 @@ class AccountCredentialsMetadata(
                 metadataMigrationCompletable = null
             }.cache()
             metadataMigrationCompletable!!
-        } else{
+        } else {
             println("LALALA We avoided")
             metadataMigrationCompletable!!
         }
-
     }
 }

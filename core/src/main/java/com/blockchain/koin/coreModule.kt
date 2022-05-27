@@ -51,7 +51,6 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
-import com.blockchain.preferences.FeatureFlagOverridePrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -109,7 +108,10 @@ val coreModule = module {
 
     single { RxBus() }
 
-    single { SSLPinningSubject() }.bind(SSLPinningObservable::class).bind(SSLPinningEmitter::class)
+    single { SSLPinningSubject() }.apply {
+        bind(SSLPinningObservable::class)
+        bind(SSLPinningEmitter::class)
+    }
 
     factory {
         WalletAuthService(
@@ -281,9 +283,10 @@ val coreModule = module {
             )
         }.bind(PayloadDecrypt::class)
 
-        factory { PromptingSeedAccessAdapter(PayloadDataManagerSeedAccessAdapter(get()), get()) }
-            .bind(SeedAccessWithoutPrompt::class)
-            .bind(SeedAccess::class)
+        factory { PromptingSeedAccessAdapter(PayloadDataManagerSeedAccessAdapter(get()), get()) }.apply {
+            bind(SeedAccessWithoutPrompt::class)
+            bind(SeedAccess::class)
+        }
 
         scoped { EthDataStore() }
 
@@ -312,8 +315,10 @@ val coreModule = module {
                 settingsDataManager = get(),
                 explorerUrl = getProperty("explorer-api")
             )
-        }.bind(XlmTransactionTimeoutFetcher::class)
-            .bind(XlmHorizonUrlFetcher::class)
+        }.apply {
+            bind(XlmTransactionTimeoutFetcher::class)
+            bind(XlmHorizonUrlFetcher::class)
+        }
 
         scoped { FeeDataManager(get()) }
 
@@ -377,10 +382,11 @@ val coreModule = module {
                 cardsCache = get(),
                 cachingStoreFeatureFlag = get(cachingStoreFeatureFlag)
             )
+        }.apply {
+            bind(BankService::class)
+            bind(CardService::class)
+            bind(PaymentMethodService::class)
         }
-            .bind(BankService::class)
-            .bind(CardService::class)
-            .bind(PaymentMethodService::class)
 
         scoped {
             WatchlistDataManagerImpl(
@@ -434,22 +440,23 @@ val coreModule = module {
             assetCatalogue = get(),
             environmentConfig = get()
         )
-    }.bind(PersistentPrefs::class)
-        .bind(CurrencyPrefs::class)
-        .bind(NotificationPrefs::class)
-        .bind(DashboardPrefs::class)
-        .bind(SecurityPrefs::class)
-        .bind(RemoteConfigPrefs::class)
-        .bind(SimpleBuyPrefs::class)
-        .bind(WalletStatus::class)
-        .bind(EncryptedPrefs::class)
-        .bind(AuthPrefs::class)
-        .bind(AppInfoPrefs::class)
-        .bind(BankLinkingPrefs::class)
-        .bind(SecureChannelPrefs::class)
-        .bind(FeatureFlagOverridePrefs::class)
-        .bind(OnboardingPrefs::class)
-        .bind(AppRatingPrefs::class)
+    }.apply {
+        bind(PersistentPrefs::class)
+        bind(CurrencyPrefs::class)
+        bind(NotificationPrefs::class)
+        bind(DashboardPrefs::class)
+        bind(SecurityPrefs::class)
+        bind(RemoteConfigPrefs::class)
+        bind(SimpleBuyPrefs::class)
+        bind(WalletStatus::class)
+        bind(EncryptedPrefs::class)
+        bind(AuthPrefs::class)
+        bind(AppInfoPrefs::class)
+        bind(BankLinkingPrefs::class)
+        bind(SecureChannelPrefs::class)
+        bind(OnboardingPrefs::class)
+        bind(AppRatingPrefs::class)
+    }
 
     factory {
         PaymentService(

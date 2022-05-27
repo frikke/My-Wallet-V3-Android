@@ -25,14 +25,13 @@ import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 
 @Composable
 fun DefaultPhrase(
-    viewModel: Lazy<DefaultPhraseViewModel>,
+    viewModel: DefaultPhraseViewModel,
     navController: NavController
 ) {
-    val vm: DefaultPhraseViewModel = viewModel.value
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val stateFlowLifecycleAware = remember(vm.viewState, lifecycleOwner) {
-        vm.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
     val state by stateFlowLifecycleAware.collectAsState(null)
 

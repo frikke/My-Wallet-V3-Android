@@ -40,6 +40,7 @@ dependencies {
 
     // koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Compose
     implementation Libraries.composeUi

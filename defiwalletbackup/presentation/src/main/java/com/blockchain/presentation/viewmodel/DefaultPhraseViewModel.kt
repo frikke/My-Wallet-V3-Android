@@ -15,7 +15,9 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseViewModel.DefaultPhrase
     ModelConfigArgs.NoArgs>(
     initialState = DefaultPhraseModelState()
 ) {
-    override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
+    override fun viewCreated(args: ModelConfigArgs.NoArgs) {
+        onIntent(DefaultPhraseIntent.LoadDefaultPhrase)
+    }
 
     override fun reduce(state: DefaultPhraseModelState): DefaultPhraseViewState {
         return with(state) {
