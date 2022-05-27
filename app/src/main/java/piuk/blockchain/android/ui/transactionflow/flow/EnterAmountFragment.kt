@@ -14,12 +14,12 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.FundsLocks
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -520,7 +520,7 @@ class EnterAmountFragment :
     override fun onSheetClosed() {
     }
 
-    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+    override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         super<TransactionFlowInfoHost>.onSheetClosed(sheet)
         if (sheet is TransactionFlowInfoBottomSheet) {
             analyticsHooks.onInfoBottomSheetDismissed(sheet.info, state)

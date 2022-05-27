@@ -21,9 +21,9 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
+import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -209,8 +209,12 @@ abstract class CryptoNonCustodialAccount(
         get() = Single.zip(
             custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
             identity.isEligibleFor(Feature.Interest(currency)),
-            identity.userAccessForFeature(Feature.Swap)
-        ) { fiatAccounts, isEligibleForInterest, swapEligibility ->
+            identity.userAccessForFeature(Feature.Swap),
+            identity.userAccessForFeature(Feature.Sell),
+            identity.userAccessForFeature(Feature.DepositInterest),
+            identity.userAccessForFeature(Feature.DepositCrypto)
+        ) { fiatAccounts, isEligibleForInterest, swapEligibility,
+            sellEligibility, depositCryptoEligibility, depositInterestEligibility ->
 
             val isActiveFunded = !isArchived && isFunded
 
@@ -225,10 +229,11 @@ abstract class CryptoNonCustodialAccount(
                 isActiveFunded && swapEligibility is FeatureAccess.Granted
             }
             val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
-                isActiveFunded && fiatAccounts.isNotEmpty()
+                isActiveFunded && fiatAccounts.isNotEmpty() && sellEligibility is FeatureAccess.Granted
             }
             val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
-                isActiveFunded && isEligibleForInterest
+                isActiveFunded && isEligibleForInterest && depositCryptoEligibility is FeatureAccess.Granted &&
+                    depositInterestEligibility is FeatureAccess.Granted
             }
 
             setOfNotNull(
@@ -241,8 +246,12 @@ abstract class CryptoNonCustodialAccount(
             custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
             identity.isEligibleFor(Feature.Interest(currency)),
             identity.userAccessForFeature(Feature.Swap),
+            identity.userAccessForFeature(Feature.Sell),
+            identity.userAccessForFeature(Feature.DepositInterest),
+            identity.userAccessForFeature(Feature.DepositCrypto),
             custodialWalletManager.isAssetSupportedForSwap(currency)
-        ) { fiatAccounts, isEligibleForInterest, swapEligibility, isAssetAvailableForSwap ->
+        ) { fiatAccounts, isEligibleForInterest, swapEligibility, sellEligibility,
+            depositCryptoEligibility, depositInterestEligibility, isAssetAvailableForSwap ->
 
             val isActiveFunded = !isArchived && isFunded
 
@@ -270,13 +279,7 @@ abstract class CryptoNonCustodialAccount(
                 when {
                     !baseActions.contains(AssetAction.Swap) -> ActionState.Unavailable
                     !isAssetAvailableForSwap -> ActionState.Unavailable
-                    swapEligibility is FeatureAccess.Blocked -> {
-                        if (swapEligibility.reason is BlockedReason.InsufficientTier) {
-                            ActionState.LockedForTier
-                        } else {
-                            ActionState.Unavailable
-                        }
-                    }
+                    swapEligibility is FeatureAccess.Blocked -> swapEligibility.toActionState()
                     !isActiveFunded -> ActionState.LockedForBalance
                     else -> ActionState.Available
                 },
@@ -284,24 +287,23 @@ abstract class CryptoNonCustodialAccount(
             )
             val sell = StateAwareAction(
                 when {
-                    baseActions.contains(
-                        AssetAction.Sell
-                    ) && isActiveFunded && fiatAccounts.isNotEmpty() -> ActionState.Available
+                    !baseActions.contains(AssetAction.Sell) -> ActionState.Unavailable
+                    sellEligibility is FeatureAccess.Blocked -> sellEligibility.toActionState()
                     fiatAccounts.isEmpty() -> ActionState.LockedForTier
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.Unavailable
+                    else -> ActionState.Available
                 },
                 AssetAction.Sell
             )
 
             val interest = StateAwareAction(
                 when {
-                    baseActions.contains(
-                        AssetAction.InterestDeposit
-                    ) && isActiveFunded && isEligibleForInterest -> ActionState.Available
+                    !baseActions.contains(AssetAction.InterestDeposit) -> ActionState.Unavailable
+                    depositCryptoEligibility is FeatureAccess.Blocked -> depositCryptoEligibility.toActionState()
+                    depositInterestEligibility is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                     !isEligibleForInterest -> ActionState.LockedForTier
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.Unavailable
+                    else -> ActionState.Available
                 },
                 AssetAction.InterestDeposit
             )

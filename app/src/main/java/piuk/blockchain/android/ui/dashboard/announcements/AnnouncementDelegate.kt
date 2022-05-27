@@ -42,6 +42,9 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
                         announcement.titleText, *announcement.titleFormatParams
                     )
                 }
+                announcement.title != null -> {
+                    title.text = announcement.title
+                }
                 else -> {
                     title.gone()
                 }
@@ -68,6 +71,9 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
                     )
                     body.movementMethod = null
                     body.visible()
+                }
+                announcement.body != null -> {
+                    body.text = announcement.body
                 }
                 else -> {
                     body.gone()

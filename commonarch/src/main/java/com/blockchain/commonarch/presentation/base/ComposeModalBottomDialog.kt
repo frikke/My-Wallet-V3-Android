@@ -3,30 +3,18 @@ package com.blockchain.commonarch.presentation.base
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.CallSuper
-import androidx.viewbinding.ViewBinding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import com.blockchain.analytics.Analytics
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.android.ext.android.inject
 
-interface HostedBottomSheet {
-    interface Host {
-        fun onSheetClosed()
-        @CallSuper
-        fun onSheetClosed(sheet: BottomSheetDialogFragment) {
-            onSheetClosed()
-        }
-    }
-
-    val host: Host
-}
-
-abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFragment() {
+abstract class ComposeModalBottomDialog : BottomSheetDialogFragment() {
 
     interface Host : HostedBottomSheet.Host
 
@@ -38,25 +26,26 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
 
     private var dismissed = false
 
-    abstract fun initBinding(inflater: LayoutInflater, container: ViewGroup?): T
-
-    private var _binding: T? = null
-
-    val binding: T
-        get() = _binding!!
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     protected val analytics: Analytics by inject()
 
     final override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dlg = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        val dialog = BottomSheetDialog(requireActivity())
 
-        _binding = initBinding(layoutInflater, null)
+        dialog.setContentView(
+            ComposeView(requireContext()).apply {
+                setContent {
+                    Sheet()
+                }
+            }
+        )
 
-        dlg.setContentView(binding.root)
+        dialog.setCanceledOnTouchOutside(false)
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
-
-        dlg.setCanceledOnTouchOutside(false)
+        val layout =
+            dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
+        bottomSheetBehavior = BottomSheetBehavior.from(layout)
 
         bottomSheetBehavior.addBottomSheetCallback(object :
                 BottomSheetBehavior.BottomSheetCallback() {
@@ -73,24 +62,20 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
                 override fun onSlide(view: View, v: Float) {}
             })
 
-        initControls(binding)
-
-        dlg.setOnShowListener {
+        dialog.setOnShowListener {
             bottomSheetBehavior.skipCollapsed = true
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        return dlg
+        return dialog
     }
+
+    @Composable
+    abstract fun Sheet()
 
     @CallSuper
     protected open fun onSheetHidden() {
         dismiss()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     @CallSuper
@@ -100,8 +85,6 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
     @CallSuper
     protected open fun onSheetCollapsed() {
     }
-
-    abstract fun initControls(binding: T)
 
     // We use this dismissed flag to make sure that only one of onCancel or dismiss methods are called,
     // when the bottomsheet is dismissed in different ways.
@@ -129,7 +112,6 @@ abstract class SlidingModalBottomDialog<T : ViewBinding> : BottomSheetDialogFrag
     }
 
     private fun resetSheetParent() {
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.root.parent as View)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 }

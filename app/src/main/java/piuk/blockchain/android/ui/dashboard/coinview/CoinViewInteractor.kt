@@ -23,6 +23,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistInfo
 import com.blockchain.extensions.minus
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -91,16 +92,19 @@ class CoinViewInteractor(
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
             identity.userAccessForFeature(Feature.SimpleBuy),
             identity.userAccessForFeature(Feature.Buy),
+            identity.userAccessForFeature(Feature.Sell),
+            identity.userAccessForFeature(Feature.DepositCrypto),
             custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
-        ) { tier, sddEligible, simpleBuyAccess, buyAccess, isSupportedPair ->
+        ) { tier, sddEligible, simpleBuyAccess, buyAccess,
+            sellAccess, depositCryptoAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             val isTradable = custodialAccount != null
-            val canTrade = simpleBuyAccess is FeatureAccess.Granted && buyAccess is FeatureAccess.Granted
+            val canBuy = simpleBuyAccess is FeatureAccess.Granted && buyAccess is FeatureAccess.Granted
 
-            when {
-                isTradable && canTrade -> {
+            val quickActions = when {
+                isTradable && canBuy -> {
                     require(custodialAccount != null)
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
@@ -120,7 +124,7 @@ class CoinViewInteractor(
                         }
                     }
                 }
-                isTradable && !canTrade -> {
+                isTradable && !canBuy -> {
                     require(custodialAccount != null)
                     if (isSupportedPair) {
                         QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
@@ -147,7 +151,27 @@ class CoinViewInteractor(
                     )
                 }
             }
+
+            quickActions.filterActions { action ->
+                val isActionBlocked = when (action) {
+                    QuickActionCta.Receive -> {
+                        quickActions.actionableAccount == custodialAccount &&
+                            depositCryptoAccess is FeatureAccess.Blocked
+                    }
+                    QuickActionCta.Sell -> sellAccess is FeatureAccess.Blocked
+                    QuickActionCta.Buy ->
+                        buyAccess is FeatureAccess.Blocked && buyAccess.reason !is BlockedReason.InsufficientTier
+                    else -> false
+                }
+                !isActionBlocked
+            }
         }
+
+    private fun QuickActionData.filterActions(predicate: (QuickActionCta) -> Boolean): QuickActionData =
+        this.copy(
+            startAction = if (predicate(startAction)) startAction else QuickActionCta.None,
+            endAction = if (predicate(endAction)) endAction else QuickActionCta.None
+        )
 
     internal fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
         account.stateAwareActions,

@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.api.NabuApiException
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.databinding.FragmentActivityBinding
@@ -21,6 +20,7 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -35,6 +35,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_B
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -121,9 +122,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     override fun onSheetClosed() {
     }
 
-    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+    override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         super<SimpleBuyNavigator>.onSheetClosed(sheet)
-        if (sheet is KycUpgradeNowSheet) exitSimpleBuyFlow()
+        if (sheet is KycUpgradeNowSheet || sheet is BlockedDueToSanctionsSheet) exitSimpleBuyFlow()
         else subscribeForNavigation(true)
     }
 
@@ -140,10 +141,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
                 when (it) {
                     is BuyNavigation.CurrencySelection -> launchCurrencySelector(it.currencies, it.selectedCurrency)
                     is BuyNavigation.FlowScreenWithCurrency -> startFlow(it)
-                    is BuyNavigation.BlockBuy -> blockBuy(it.access)
+                    is BuyNavigation.BlockBuy -> blockBuy(it.reason)
                     BuyNavigation.OrderInProgressScreen -> goToPaymentScreen(false, startedFromApprovalDeepLink)
                     BuyNavigation.CurrencyNotAvailable -> finish()
-                    is BuyNavigation.TransactionsLimitReached -> showBottomSheet(KycUpgradeNowSheet.newInstance())
                 }.exhaustive
             }
     }
@@ -251,15 +251,22 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             .commitAllowingStateLoss()
     }
 
-    private fun blockBuy(accessState: FeatureAccess.Blocked) {
-        supportFragmentManager.beginTransaction()
-            .addAnimationTransaction()
-            .replace(
-                R.id.content_frame,
-                SimpleBuyBlockedFragment.newInstance(accessState, resources),
-                SimpleBuyBlockedFragment::class.simpleName
-            )
-            .commitAllowingStateLoss()
+    private fun blockBuy(reason: BlockedReason) {
+        when (reason) {
+            is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
+            is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
+            BlockedReason.NotEligible,
+            is BlockedReason.TooManyInFlightTransactions -> {
+                supportFragmentManager.beginTransaction()
+                    .addAnimationTransaction()
+                    .replace(
+                        R.id.content_frame,
+                        SimpleBuyBlockedFragment.newInstance(FeatureAccess.Blocked(reason), resources),
+                        SimpleBuyBlockedFragment::class.simpleName
+                    )
+                    .commitAllowingStateLoss()
+            }
+        }
     }
 
     override fun startKyc() {
@@ -354,7 +361,7 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     }
 
     override fun goToBlockedBuyScreen() {
-        blockBuy(FeatureAccess.Blocked(BlockedReason.NotEligible))
+        blockBuy(BlockedReason.NotEligible)
     }
 
     companion object {

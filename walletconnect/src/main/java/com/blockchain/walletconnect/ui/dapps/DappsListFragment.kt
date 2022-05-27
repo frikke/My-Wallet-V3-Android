@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,10 +38,11 @@ import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi.MviComposeFragment
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.DestructiveMinimalButton
-import com.blockchain.componentlib.button.MinimalButton
-import com.blockchain.componentlib.sheets.BottomSheet
+import com.blockchain.componentlib.sheets.BottomSheetButton
 import com.blockchain.componentlib.sheets.BottomSheetHostLayout
+import com.blockchain.componentlib.sheets.BottomSheetOneButton
+import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
+import com.blockchain.componentlib.sheets.ButtonType
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.scopedInject
@@ -200,35 +200,21 @@ private fun ConfirmActionBottomSheet(
     onConfirmationClick: () -> Unit,
     session: WalletConnectSession
 ) {
-    BottomSheet(
+    BottomSheetTwoButtons(
         onCloseClick = closeSheet,
         title = stringResource(R.string.are_you_sure),
         subtitle = stringResource(R.string.you_are_about_disconnect, session.dAppInfo.peerMeta.name),
-        imageResource = ImageResource.Local(R.drawable.ic_warning),
-        topButton = {
-            DestructiveMinimalButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin)
-                    ),
-                text = stringResource(R.string.common_disconnect),
-                onClick = onConfirmationClick
-            )
-        },
-        bottomButton = {
-            MinimalButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin)
-                    ),
-                text = stringResource(R.string.common_cancel),
-                onClick = closeSheet
-            )
-        }
+        headerImageResource = ImageResource.Local(R.drawable.ic_warning),
+        button1 = BottomSheetButton(
+            type = ButtonType.DESTRUCTIVE_MINIMAL,
+            text = stringResource(R.string.common_disconnect),
+            onClick = onConfirmationClick
+        ),
+        button2 = BottomSheetButton(
+            type = ButtonType.MINIMAL,
+            text = stringResource(R.string.common_cancel),
+            onClick = closeSheet
+        )
     )
 }
 
@@ -238,24 +224,16 @@ private fun DisconnectBottomSheet(
     onDisconnectClick: () -> Unit,
     session: WalletConnectSession
 ) {
-    BottomSheet(
+    BottomSheetOneButton(
         onCloseClick = closeSheet,
         title = session.dAppInfo.peerMeta.name,
         subtitle = session.dAppInfo.peerMeta.description,
-        imageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
-        topButton = {
-            DestructiveMinimalButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = dimensionResource(R.dimen.standard_margin),
-                        end = dimensionResource(R.dimen.standard_margin)
-                    ),
-                text = stringResource(R.string.common_disconnect),
-                onClick = onDisconnectClick
-            )
-        },
-        bottomButton = null
+        headerImageResource = ImageResource.Remote(session.dAppInfo.peerMeta.uiIcon()),
+        button = BottomSheetButton(
+            type = ButtonType.DESTRUCTIVE_MINIMAL,
+            text = stringResource(R.string.common_disconnect),
+            onClick = onDisconnectClick
+        )
     )
 }
 

@@ -43,6 +43,8 @@ import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
 class BuyIntroFragment :
@@ -106,18 +108,18 @@ class BuyIntroFragment :
 
     private fun checkEligibilityAndLoadBuyDetails(showLoading: Boolean = true) {
         compositeDisposable +=
-            userIdentity.userAccessForFeature(Feature.Buy).map { eligibility ->
-                eligibility is FeatureAccess.Blocked
-            }
+            userIdentity.userAccessForFeature(Feature.Buy)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .trackProgress(activityIndicator.takeIf { showLoading })
                 .subscribeBy(
-                    onSuccess = { isNotEligible ->
-                        if (isNotEligible) {
-                            renderKycUpgradeNow()
-                        } else {
-                            loadBuyDetails(showLoading)
+                    onSuccess = { eligibility ->
+                        when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
+                            BlockedReason.NotEligible,
+                            is BlockedReason.InsufficientTier -> renderKycUpgradeNow()
+                            is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
+                            is BlockedReason.TooManyInFlightTransactions,
+                            null -> loadBuyDetails(showLoading)
                         }
                     },
                     onError = {
@@ -187,7 +189,8 @@ class BuyIntroFragment :
                         reason.maxTransactions
                     )
                     BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
-                    BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
+                    is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
+                    is BlockedReason.Sanctions -> throw IllegalStateException("Buy should not be accessible")
                 }.exhaustive
             } ?: run {
                 startActivity(
@@ -216,6 +219,24 @@ class BuyIntroFragment :
                 .commitAllowingStateLoss()
         }
         binding.viewFlipper.displayedChild = ViewFlipperItem.KYC.ordinal
+    }
+
+    private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        with(binding) {
+            viewFlipper.displayedChild = ViewFlipperItem.EMPTY_STATE.ordinal
+            customEmptyState.apply {
+                title = R.string.trading_restricted
+                descriptionText = when (reason) {
+                    BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
+                    is BlockedReason.Sanctions.Unknown -> reason.message
+                }
+                icon = R.drawable.ic_wallet_intro_image
+                secondaryText = R.string.learn_more
+                secondaryAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+                ctaText = R.string.common_empty_cta
+                ctaAction = { checkEligibilityAndLoadBuyDetails() }
+            }
+        }
     }
 
     private fun renderBuyIntro(
@@ -257,7 +278,8 @@ class BuyIntroFragment :
         private enum class ViewFlipperItem {
             INTRO,
             ERROR,
-            KYC
+            KYC,
+            EMPTY_STATE
         }
 
         fun newInstance() = BuyIntroFragment()

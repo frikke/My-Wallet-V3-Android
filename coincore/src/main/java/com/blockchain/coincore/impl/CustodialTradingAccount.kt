@@ -17,10 +17,10 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.takeEnabledIf
+import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toFiat
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -136,24 +136,37 @@ class CustodialTradingAccount(
     override val actions: Single<AvailableActions>
         get() = Single.zip(
             balance.firstOrError(),
-            identity.userAccessForFeature(Feature.CustodialAccounts),
-            identity.userAccessForFeature(Feature.SimpleBuy),
             identity.isEligibleFor(Feature.Interest(currency)),
-            identity.userAccessForFeature(Feature.Buy),
-            identity.userAccessForFeature(Feature.Swap),
-            identity.userAccessForFeature(Feature.CryptoDeposit),
+            identity.userAccessForFeatures(
+                listOf(
+                    Feature.CustodialAccounts,
+                    Feature.SimpleBuy,
+                    Feature.Buy,
+                    Feature.Swap,
+                    Feature.Sell,
+                    Feature.DepositCrypto,
+                    Feature.DepositInterest
+                )
+            ),
             custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
             custodialWalletManager.isCurrencyAvailableForTrading(currency)
-        ) { balance, hasAccessToCustodialAccounts, hasSimpleBuyAccess,
-            isEligibleForInterest, buyEligibility, swapEligibility, cryptoDepositEligibility,
+        ) { balance, isEligibleForInterest, accessToFeatures,
             fiatAccounts, isCurrencySupported ->
             val isActiveFunded = !isArchived && balance.total.isPositive
+
+            val hasAccessToCustodialAccounts = accessToFeatures[Feature.CustodialAccounts]!!
+            val hasSimpleBuyAccess = accessToFeatures[Feature.SimpleBuy]!!
+            val buyEligibility = accessToFeatures[Feature.Buy]!!
+            val swapEligibility = accessToFeatures[Feature.Swap]!!
+            val sellEligibility = accessToFeatures[Feature.Sell]!!
+            val depositCryptoEligibility = accessToFeatures[Feature.DepositCrypto]!!
+            val depositInterestEligibility = accessToFeatures[Feature.DepositInterest]!!
 
             val activity = AssetAction.ViewActivity.takeEnabledIf(baseActions) { hasTransactions }
 
             val receive = AssetAction.Receive.takeEnabledIf(baseActions) {
                 hasAccessToCustodialAccounts is FeatureAccess.Granted &&
-                    cryptoDepositEligibility is FeatureAccess.Granted
+                    depositCryptoEligibility is FeatureAccess.Granted
             }
 
             val buy = AssetAction.Buy.takeEnabledIf(baseActions) {
@@ -166,7 +179,7 @@ class CustodialTradingAccount(
             }
 
             val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
-                isActiveFunded && isEligibleForInterest
+                isActiveFunded && isEligibleForInterest && depositInterestEligibility is FeatureAccess.Granted
             }
 
             val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
@@ -175,7 +188,8 @@ class CustodialTradingAccount(
             }
 
             val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
-                isActiveFunded && !hasSimpleBuyAccess.isBlockedDueToEligibility() && fiatAccounts.isNotEmpty()
+                isActiveFunded && !hasSimpleBuyAccess.isBlockedDueToEligibility() &&
+                    fiatAccounts.isNotEmpty() && sellEligibility is FeatureAccess.Granted
             }
 
             setOfNotNull(
@@ -192,7 +206,9 @@ class CustodialTradingAccount(
                     Feature.SimpleBuy,
                     Feature.Buy,
                     Feature.Swap,
-                    Feature.CryptoDeposit
+                    Feature.Sell,
+                    Feature.DepositCrypto,
+                    Feature.DepositInterest
                 )
             ),
             identity.isEligibleFor(Feature.Interest(currency)),
@@ -203,11 +219,13 @@ class CustodialTradingAccount(
         ) { balance, accessToFeatures, isEligibleForInterest, supportedCurrencyPairs, fiatAccounts,
             isAssetSupportedForSwap, highestTier ->
 
-            val hasAccessToCustodialAccounts = accessToFeatures.first { it.first == Feature.CustodialAccounts }.second
-            val hasSimpleBuyAccess = accessToFeatures.first { it.first == Feature.SimpleBuy }.second
-            val buyEligibility = accessToFeatures.first { it.first == Feature.Buy }.second
-            val swapEligibility = accessToFeatures.first { it.first == Feature.Swap }.second
-            val cryptoDepositEligibility = accessToFeatures.first { it.first == Feature.Swap }.second
+            val hasAccessToCustodialAccounts = accessToFeatures[Feature.CustodialAccounts]!!
+            val hasSimpleBuyAccess = accessToFeatures[Feature.SimpleBuy]!!
+            val buyEligibility = accessToFeatures[Feature.Buy]!!
+            val swapEligibility = accessToFeatures[Feature.Swap]!!
+            val sellEligibility = accessToFeatures[Feature.Sell]!!
+            val depositCryptoEligibility = accessToFeatures[Feature.DepositCrypto]!!
+            val depositInterestEligibility = accessToFeatures[Feature.DepositInterest]!!
 
             val isActiveFunded = !isArchived && balance.total.isPositive
 
@@ -223,13 +241,7 @@ class CustodialTradingAccount(
             val receive = StateAwareAction(
                 when {
                     !baseActions.contains(AssetAction.Receive) -> ActionState.Unavailable
-                    cryptoDepositEligibility is FeatureAccess.Blocked -> {
-                        if (cryptoDepositEligibility.reason is BlockedReason.InsufficientTier) {
-                            ActionState.LockedForTier
-                        } else {
-                            ActionState.Unavailable
-                        }
-                    }
+                    depositCryptoEligibility is FeatureAccess.Blocked -> depositCryptoEligibility.toActionState()
                     hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForTier
                     else -> ActionState.Available
                 },
@@ -240,11 +252,7 @@ class CustodialTradingAccount(
                 when {
                     !baseActions.contains(AssetAction.Buy) -> ActionState.Unavailable
                     supportedCurrencyPairs.none { it.source == currency } -> ActionState.Unavailable
-                    buyEligibility is FeatureAccess.Blocked -> {
-                        if (buyEligibility.reason is BlockedReason.InsufficientTier) {
-                            ActionState.LockedForTier
-                        } else { ActionState.Unavailable }
-                    }
+                    buyEligibility is FeatureAccess.Blocked -> buyEligibility.toActionState()
                     hasSimpleBuyAccess.isBlockedDueToEligibility() -> ActionState.LockedDueToAvailability
                     else -> ActionState.Available
                 },
@@ -262,6 +270,7 @@ class CustodialTradingAccount(
 
             val interest = StateAwareAction(
                 when {
+                    depositInterestEligibility is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                     baseActions.contains(AssetAction.InterestDeposit) &&
                         isActiveFunded && isEligibleForInterest -> ActionState.Available
                     !isEligibleForInterest -> ActionState.LockedForTier
@@ -275,10 +284,7 @@ class CustodialTradingAccount(
                 when {
                     !baseActions.contains(AssetAction.Swap) -> ActionState.Unavailable
                     !isAssetSupportedForSwap -> ActionState.Unavailable
-                    swapEligibility is FeatureAccess.Blocked -> {
-                        if (swapEligibility.reason is BlockedReason.InsufficientTier) ActionState.LockedForTier
-                        else ActionState.Unavailable
-                    }
+                    swapEligibility is FeatureAccess.Blocked -> swapEligibility.toActionState()
                     hasAccessToCustodialAccounts !is FeatureAccess.Granted -> ActionState.LockedForTier
                     !isActiveFunded || balance.withdrawable.isZero -> ActionState.LockedForBalance
                     else -> ActionState.Available
@@ -288,13 +294,11 @@ class CustodialTradingAccount(
 
             val sell = StateAwareAction(
                 when {
-                    baseActions.contains(AssetAction.Sell) && isActiveFunded &&
-                        !hasSimpleBuyAccess.isBlockedDueToEligibility() &&
-                        fiatAccounts.isNotEmpty() -> ActionState.Available
-                    hasSimpleBuyAccess.isBlockedDueToEligibility() ||
-                        fiatAccounts.isEmpty() -> ActionState.LockedForTier
+                    !baseActions.contains(AssetAction.Sell) -> ActionState.Unavailable
+                    sellEligibility is FeatureAccess.Blocked -> sellEligibility.toActionState()
+                    fiatAccounts.isEmpty() -> ActionState.LockedForTier
                     !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.Unavailable
+                    else -> ActionState.Available
                 },
                 AssetAction.Sell
             )

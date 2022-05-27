@@ -4,11 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.dimensionResource
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.BlockchainAccount
@@ -18,8 +14,9 @@ import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.sheets.BottomSheet
+import com.blockchain.componentlib.sheets.BottomSheetButton
+import com.blockchain.componentlib.sheets.BottomSheetOneButton
+import com.blockchain.componentlib.sheets.ButtonType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -62,29 +59,22 @@ class AccountExplainerBottomSheet : BottomSheetDialogFragment() {
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
-                    BottomSheet(
+                    BottomSheetOneButton(
                         title = account.title,
                         subtitle = account.description,
-                        imageResource = ImageResource.Local(account.icon),
+                        headerImageResource = ImageResource.Local(account.icon),
                         onCloseClick = {
                             dismiss()
                         },
-                        topButton = {
-                            PrimaryButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        start = dimensionResource(R.dimen.standard_margin),
-                                        end = dimensionResource(R.dimen.standard_margin)
-                                    ),
-                                text = account.buttonText,
-                                onClick = {
-                                    host.navigateToActionSheet(accountActions)
-                                    explainerAcceptedToAnalytics(selectedAccount, networkTicker)
-                                    super.dismiss()
-                                }
-                            )
-                        },
+                        button = BottomSheetButton(
+                            type = ButtonType.PRIMARY,
+                            text = account.buttonText,
+                            onClick = {
+                                host.navigateToActionSheet(accountActions)
+                                explainerAcceptedToAnalytics(selectedAccount, networkTicker)
+                                super.dismiss()
+                            }
+                        ),
                         shouldShowHeaderDivider = false
                     )
                 }

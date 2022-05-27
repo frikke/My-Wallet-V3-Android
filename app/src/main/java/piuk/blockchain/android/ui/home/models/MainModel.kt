@@ -9,8 +9,8 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
-import com.blockchain.extensions.valueOf
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
@@ -275,7 +275,7 @@ class MainModel(
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchKyc(
-                            valueOf<CampaignType>(
+                            enumValueOfOrNull<CampaignType>(
                                 link.campaignType.capitalizeFirstChar()
                             ) ?: CampaignType.None
                         )

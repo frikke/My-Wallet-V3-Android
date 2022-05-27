@@ -44,6 +44,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.data.Entry
@@ -61,6 +62,7 @@ import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
@@ -108,6 +110,7 @@ class CoinViewActivity :
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
+
     private var ctaActions: List<QuickActionCta> = emptyList()
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
@@ -115,7 +118,7 @@ class CoinViewActivity :
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
-            onLockedAccountSelected = ::navigateToKyc,
+            onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
@@ -990,8 +993,12 @@ class CoinViewActivity :
         model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
     }
 
-    override fun navigateToKyc() {
+    override fun showUpgradeKycSheet() {
         showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    override fun showSanctionsSheet(reason: BlockedReason.Sanctions) {
+        showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
     }
 
     override fun startKycClicked() {
