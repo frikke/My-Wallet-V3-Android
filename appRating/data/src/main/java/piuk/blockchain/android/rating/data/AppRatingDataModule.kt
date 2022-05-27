@@ -31,7 +31,7 @@ val appRatingDataModule = module {
             }
 
             Retrofit.Builder()
-                .baseUrl(getProperty(CHECKMARKET_URL))
+                .baseUrl(getProperty<String>(CHECKMARKET_URL))
                 .client(get())
                 .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))

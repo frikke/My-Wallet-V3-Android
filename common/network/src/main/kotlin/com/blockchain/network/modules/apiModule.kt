@@ -40,7 +40,7 @@ val apiModule = module {
      */
     single(serializerExplorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("explorer-api"))
+            .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -76,7 +76,7 @@ val apiModule = module {
 
     single(apiRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("blockchain-api"))
+            .baseUrl(getProperty<String>("blockchain-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
@@ -85,7 +85,7 @@ val apiModule = module {
 
     single(explorerRetrofit) {
         Retrofit.Builder()
-            .baseUrl(getProperty("explorer-api"))
+            .baseUrl(getProperty<String>("explorer-api"))
             .client(get())
             .addConverterFactory(get(kotlinJsonConverterFactory))
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())

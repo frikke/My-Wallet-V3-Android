@@ -16,23 +16,24 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.kyc.SubmitQuestionnaireError
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
 import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navigate
 
-class KycQuestionnaireFragment() : MVIFragment<KycQuestionnaireState>() {
+class KycQuestionnaireFragment() : MVIFragment<KycQuestionnaireState>(), AndroidScopeComponent {
 
     private val progressListener: KycProgressListener by ParentActivityDelegate(
         this
     )
 
-    private val model: KycQuestionnaireModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+
+    private val model: KycQuestionnaireModel by viewModel()
 
     private val navigator: NavigationRouter<Navigation> = object : NavigationRouter<Navigation> {
         override fun route(navigationEvent: Navigation) {
