@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDe
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.screens.DefaultPhrase
+import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.Splash
 import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 import org.koin.androidx.compose.getViewModel
@@ -27,6 +28,8 @@ class BackupPhraseActivity : BlockchainActivity() {
         setContent {
             BackupPhraseNavHost()
         }
+
+
     }
 
     companion object {
@@ -53,10 +56,14 @@ fun BackupPhraseNavHost(
         composable(navigationEvent = BackPhraseDestination.DefaultPhrase) {
             DefaultPhrase(viewModel, navController)
         }
+        composable(navigationEvent = BackPhraseDestination.ManualBackup) {
+            ManualBackup(viewModel, navController)
+        }
     }
 }
 
 sealed class BackPhraseDestination(override val route: String) : ComposeNavigationDestination {
     object Splash : BackPhraseDestination("Splash")
     object DefaultPhrase : BackPhraseDestination("DefaultPhrase")
+    object ManualBackup : BackPhraseDestination("ManualBackup")
 }

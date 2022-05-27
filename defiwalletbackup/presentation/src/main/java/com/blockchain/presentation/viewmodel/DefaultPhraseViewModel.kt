@@ -1,21 +1,28 @@
 package com.blockchain.presentation.viewmodel
 
-import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
-import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
-import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.extensions.exhaustive
+import com.blockchain.presentation.BackUpPhraseWarning
+import com.blockchain.presentation.CopyState
+import com.blockchain.presentation.DefaultPhraseViewState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
-class DefaultPhraseViewModel : MviViewModel<DefaultPhraseViewModel.DefaultPhraseIntent,
-    DefaultPhraseViewModel.DefaultPhraseViewState,
-    DefaultPhraseViewModel.DefaultPhraseModelState,
-    DefaultPhraseViewModel.DefaultPhraseNavigationEvent,
+class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
+    DefaultPhraseViewState,
+    DefaultPhraseModelState,
+    DefaultPhraseNavigationEvent,
     ModelConfigArgs.NoArgs>(
     initialState = DefaultPhraseModelState()
 ) {
+    private val customeScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         onIntent(DefaultPhraseIntent.LoadDefaultPhrase)
     }
@@ -24,46 +31,34 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseViewModel.DefaultPhrase
         return with(state) {
             DefaultPhraseViewState(
                 showProgress = isLoading,
-                keyWords = mnemonic,
-                warning = if (hasBackup) BackUpPhraseWarning.NONE else BackUpPhraseWarning.NO_BACKUP
+                mnemonic = mnemonic,
+                mnemonicString = mnemonic.joinToString(separator = " "),
+                warning = if (hasBackup) BackUpPhraseWarning.NONE else BackUpPhraseWarning.NO_BACKUP,
+                copyState = copyState
             )
         }
     }
 
     override suspend fun handleIntent(modelState: DefaultPhraseModelState, intent: DefaultPhraseIntent) {
         when (intent) {
-            is DefaultPhraseIntent.LoadDefaultPhrase -> {
+            DefaultPhraseIntent.LoadDefaultPhrase -> {
                 updateState {
                     modelState.copy(
                         mnemonic = mnemonic()
                     )
                 }
             }
+
+            DefaultPhraseIntent.MnemonicCopied -> {
+                resetCopyState()
+                updateState { it.copy(copyState = CopyState.Copied) }
+            }
+
+            DefaultPhraseIntent.ResetCopy -> {
+                updateState { it.copy(copyState = CopyState.Idle) }
+            }
+
         }.exhaustive
-    }
-
-    data class DefaultPhraseViewState(
-        val showProgress: Boolean,
-        val keyWords: List<String>,
-        val warning: BackUpPhraseWarning = BackUpPhraseWarning.NONE
-    ) : ViewState
-
-    data class DefaultPhraseModelState(
-        val isLoading: Boolean = false,
-        val mnemonic: List<String> = emptyList(),
-        val hasBackup: Boolean = false
-    ) : ModelState
-
-    sealed interface DefaultPhraseIntent : Intent<DefaultPhraseModelState> {
-        object LoadDefaultPhrase : DefaultPhraseIntent
-    }
-
-    enum class BackUpPhraseWarning {
-        NONE, NO_BACKUP
-    }
-
-    sealed class DefaultPhraseNavigationEvent : NavigationEvent {
-        object BackupManually : DefaultPhraseNavigationEvent()
     }
 
     private fun mnemonic(): List<String> {
@@ -71,5 +66,13 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseViewModel.DefaultPhrase
         return locales.map {
             Locale("", it).displayCountry
         }.shuffled().subList(0, 12)
+    }
+
+    private fun resetCopyState() {
+        customeScope.launch {
+            delay(TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES))
+            onIntent(DefaultPhraseIntent.ResetCopy)
+            // todo reset clipboard
+        }
     }
 }

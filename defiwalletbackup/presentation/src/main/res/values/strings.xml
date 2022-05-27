@@ -10,6 +10,14 @@
 <!--    <string name="recovery_phrase_title"/>-->
 <!--    <string name="recovery_phrase_description"/>-->
 
+<!--    <string name="manual_backup_title"/>-->
+<!--    <string name="manual_backup_description"/>-->
+<!--    <string name="manual_backup_copy_description"/>-->
+<!--    <string name="manual_backup_copied"/>-->
+
+<!--    <string name="common_copy"/>-->
+    <!--    <string name="next"/>-->
+
     <string name="lets_backup_your_wallet">Let’s Back Up Your Wallet</string>
     <string name="back_up_splash_status_negative">Not Backed Up</string>
     <string name="back_up_splash_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
@@ -19,5 +27,13 @@
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
+
+    <string name="manual_backup_title">Manual Back Up</string>
+    <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>
+    <string name="manual_backup_copy_description">Copy them to a password manager or write them down with ink and paper. Keep it handy, the next step is to verify your phrase.</string>
+    <string name="manual_backup_copied">Copied for 2 Minutes</string>
+
+    <string name="common_copy">Copy</string>
+    <string name="next">Next</string>
 
 </resources>
