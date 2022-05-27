@@ -12,7 +12,6 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
-import com.blockchain.koin.kycAdditionalInfoFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
@@ -92,15 +91,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_send_to_domains_announcement",
                 "Show Send To Domains Banner"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(kycAdditionalInfoFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_kyc_additional_info",
-                "KYC Additional Info"
             )
         )
     }.bind(FeatureFlag::class)

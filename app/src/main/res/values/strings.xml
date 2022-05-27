@@ -2825,7 +2825,7 @@
     <string name="entity_switch_silver_dialog_title">We are updating our account verification requirements</string>
     <string name="entity_switch_silver_dialog_subtitle">To buy, sell, and swap, you will need to verify your identity.</string>
 
-    <!-- Kyc Additional Info -->
+    <!-- Kyc Questionnaire -->
     <string name="kyc_additional_info_toolbar">Use of Account Information</string>
     <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
 

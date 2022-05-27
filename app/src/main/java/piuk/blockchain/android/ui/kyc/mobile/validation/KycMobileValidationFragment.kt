@@ -29,12 +29,12 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycMobileValidationBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.extensions.skipFirstUnless
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
 import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
+import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
@@ -165,11 +165,11 @@ class KycMobileValidationFragment :
         }
     }
 
-    override fun navigateToAdditionalInfo(root: TreeNode.Root) {
+    override fun navigateToQuestionnaire(root: TreeNode.Root) {
         requireActivity().hideKeyboard()
         findNavController(this).apply {
             navigate(
-                KycMobileValidationFragmentDirections.actionKycMobileValidationFragmentToKycAdditionalInfoFragment(
+                KycMobileValidationFragmentDirections.actionKycMobileValidationFragmentToKycQuestionnaireFragment(
                     root,
                     countryCode
                 )

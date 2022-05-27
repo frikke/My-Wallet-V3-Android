@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.additional_info
+package piuk.blockchain.android.ui.kyc.questionnaire
 
 import android.os.Looper
 import com.blockchain.nabu.models.responses.nabu.NodeId
@@ -10,9 +10,9 @@ import java.util.UUID
 import org.junit.Before
 import org.junit.Test
 
-class StateMachineTest {
+class KycQuestionnaireStateMachineTest {
 
-    private val subject = StateMachine()
+    private val subject = KycQuestionnaireStateMachine()
 
     @Before
     fun setup() {
@@ -285,7 +285,7 @@ class StateMachineTest {
     }
 
     // Helper
-    private fun StateMachine.stateAsObservable(): Observable<State> {
+    private fun KycQuestionnaireStateMachine.stateAsObservable(): Observable<State> {
         val subject = ReplaySubject.create<State>()
         onStateChanged = {
             subject.onNext(State(it, getRoot(), isValid(), invalidNodes))

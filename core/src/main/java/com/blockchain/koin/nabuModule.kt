@@ -62,8 +62,7 @@ val nabuModule = module {
         factory {
             KycDataManager(
                 authenticator = get(),
-                kycService = get(),
-                kycAdditionalInfoFeatureFlag = get(kycAdditionalInfoFeatureFlag)
+                kycService = get()
             )
         }
 

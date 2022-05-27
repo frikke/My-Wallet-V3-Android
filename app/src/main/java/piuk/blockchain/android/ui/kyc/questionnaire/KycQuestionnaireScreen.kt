@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.additional_info
+package piuk.blockchain.android.ui.kyc.questionnaire
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,8 +56,8 @@ import com.blockchain.nabu.models.responses.nabu.NodeId
 import piuk.blockchain.android.R
 
 @Composable
-fun KycAdditionalInfoScreen(
-    state: KycAdditionalInfoState,
+fun KycQuestionnaireScreen(
+    state: KycQuestionnaireState,
     onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
     onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
@@ -488,7 +488,7 @@ private val previewNodes = listOf(
 @Preview
 @Composable
 private fun ScreenPreview() {
-    val state = KycAdditionalInfoState(
+    val state = KycQuestionnaireState(
         nodes = previewNodes,
         isContinueEnabled = false,
         isUploadingNodes = false,
@@ -496,7 +496,7 @@ private fun ScreenPreview() {
         error = null
     )
 
-    KycAdditionalInfoScreen(
+    KycQuestionnaireScreen(
         state = state,
         onDropdownChoiceChanged = { _, _ -> },
         onSelectionClicked = {},

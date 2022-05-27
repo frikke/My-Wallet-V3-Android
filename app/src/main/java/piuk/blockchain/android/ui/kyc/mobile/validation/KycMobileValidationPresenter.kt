@@ -7,7 +7,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
+import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 import timber.log.Timber
 
@@ -28,7 +28,7 @@ class KycMobileValidationPresenter(
                 .flatMapSingle { (verificationModel, _) ->
                     phoneNumberUpdater.verifySms(verificationModel.verificationCode.code)
                         .flatMapCompletable { nabuUserSync.syncUser() }
-                        .andThen(kycDataManager.getAdditionalInfoFormSingle())
+                        .andThen(kycDataManager.getQuestionnaireSingle())
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnSubscribe { view.showProgressDialog() }
                         .doOnTerminate {
@@ -38,9 +38,9 @@ class KycMobileValidationPresenter(
                             Timber.e(it)
                             view.displayErrorDialog(R.string.kyc_phone_number_validation_error_incorrect)
                         }
-                        .doOnSuccess { missingAdditionalInfo ->
-                            if (missingAdditionalInfo.isNotEmpty()) {
-                                view.navigateToAdditionalInfo(missingAdditionalInfo.toMutableNode())
+                        .doOnSuccess { questionnaire ->
+                            if (questionnaire.isNotEmpty()) {
+                                view.navigateToQuestionnaire(questionnaire.toMutableNode())
                             } else {
                                 view.navigateToVeriff()
                             }

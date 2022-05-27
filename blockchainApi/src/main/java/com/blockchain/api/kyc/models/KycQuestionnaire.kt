@@ -3,16 +3,16 @@ package com.blockchain.api.kyc.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KycAdditionalInfoResponse(
-    val nodes: List<KycAdditionalInfoNodeResponse>
+data class KycQuestionnaireResponse(
+    val nodes: List<KycQuestionnaireNodeResponse>
 )
 
 @Serializable
-data class KycAdditionalInfoNodeResponse(
+data class KycQuestionnaireNodeResponse(
     val id: String,
     val type: String,
     val text: String,
-    val children: List<KycAdditionalInfoNodeResponse>?,
+    val children: List<KycQuestionnaireNodeResponse>?,
 
     /* node type specific fields */
     // SINGLE_SELECTION

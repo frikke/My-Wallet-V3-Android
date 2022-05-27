@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.kyc.mobile.validation
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
-import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
+import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
@@ -19,9 +19,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
+import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 
@@ -34,7 +34,7 @@ class KycMobileValidationPresenterTest {
         on { syncUser() }.thenReturn(Completable.complete())
     }
     private val kycDataManager: KycDataManager = mock {
-        on { getAdditionalInfoFormSingle() }.thenReturn(Single.just(emptyList()))
+        on { getQuestionnaireSingle() }.thenReturn(Single.just(emptyList()))
     }
 
     @Suppress("unused")
@@ -57,7 +57,7 @@ class KycMobileValidationPresenterTest {
     }
 
     @Test
-    fun `onViewReady, should check for questionnaire and navigate to additional info if there's questions to be answered`() = runBlocking {
+    fun `onViewReady, should check for questionnaire and navigate to questionnaire if there's questions to be answered`() = runBlocking {
         // Arrange
         val phoneNumberSanitized = "+1234567890"
         val verificationCode = VerificationCode("VERIFICATION_CODE")
@@ -67,10 +67,10 @@ class KycMobileValidationPresenterTest {
         whenever(phoneNumberUpdater.verifySms(verificationCode.code))
             .thenReturn(Single.just(phoneNumberSanitized))
         val nodes = listOf(
-            KycAdditionalInfoNode.Selection("s1", "text1", emptyList(), false),
-            KycAdditionalInfoNode.Selection("s2", "text2", emptyList(), false),
+            KycQuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+            KycQuestionnaireNode.Selection("s2", "text2", emptyList(), false),
         )
-        whenever(kycDataManager.getAdditionalInfoFormSingle()).thenReturn(Single.just(nodes))
+        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(nodes))
 
         // Act
         subject.onViewReady()
@@ -84,7 +84,7 @@ class KycMobileValidationPresenterTest {
         verify(nabuUserSync).syncUser()
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).navigateToAdditionalInfo(nodes.toMutableNode())
+        verify(view).navigateToQuestionnaire(nodes.toMutableNode())
     }
 
     @Test
@@ -151,7 +151,7 @@ class KycMobileValidationPresenterTest {
         whenever(nabuUserSync.syncUser())
             .thenReturn(Completable.error { Throwable() })
             .thenReturn(Completable.complete())
-        whenever(kycDataManager.getAdditionalInfoFormSingle()).thenReturn(Single.just(emptyList())).thenReturn(Single.just(emptyList()))
+        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(emptyList())).thenReturn(Single.just(emptyList()))
         val verificationModel = PhoneVerificationModel(phoneNumberSanitized, verificationCode)
 
         // Act
