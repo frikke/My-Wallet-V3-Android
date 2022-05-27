@@ -5,6 +5,8 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -75,12 +77,20 @@ data class StateAwareAction(
     val action: AssetAction
 ) : java.io.Serializable, Parcelable
 
-enum class ActionState {
-    Available,
-    LockedForBalance,
-    LockedForTier,
-    LockedDueToAvailability,
-    Unavailable
+sealed class ActionState : Parcelable {
+    @Parcelize
+    object Available : ActionState()
+    @Parcelize
+    object LockedForBalance : ActionState()
+    @Parcelize
+    object LockedForTier : ActionState()
+
+    @Parcelize
+    data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState()
+    @Parcelize
+    object LockedDueToAvailability : ActionState()
+    @Parcelize
+    object Unavailable : ActionState()
 }
 
 typealias AvailableActions = Set<AssetAction>
@@ -90,6 +100,13 @@ internal inline fun AssetAction.takeEnabledIf(
     predicate: (AssetAction) -> Boolean = { true }
 ): AssetAction? =
     this.takeIf { it in baseActions && predicate(this) }
+
+internal fun FeatureAccess.Blocked.toActionState(): ActionState = when (val reason = reason) {
+    is BlockedReason.InsufficientTier -> ActionState.LockedForTier
+    is BlockedReason.Sanctions -> ActionState.LockedDueToSanctions(reason)
+    BlockedReason.NotEligible -> ActionState.Unavailable
+    is BlockedReason.TooManyInFlightTransactions -> ActionState.Unavailable
+}
 
 interface Asset {
     fun accountGroup(filter: AssetFilter = AssetFilter.All): Maybe<AccountGroup>

@@ -16,8 +16,11 @@ import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
@@ -65,7 +68,7 @@ class DashboardActionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
-    private val userIdentity: NabuUserIdentity,
+    private val userIdentity: UserIdentity,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger
 ) {
@@ -368,6 +371,7 @@ class DashboardActionInteractor(
         model: DashboardModel,
         action: AssetAction
     ) = Singles.zip(
+        userIdentity.userAccessForFeature(Feature.DepositFiat),
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
             paymentMethods.filter { it == PaymentMethodType.BANK_TRANSFER || !shouldLaunchBankLinkTransfer }
@@ -377,9 +381,15 @@ class DashboardActionInteractor(
         }
     ).doOnSubscribe {
         model.process(DashboardIntent.LongCallStarted)
-    }.flatMap { (paymentMethods, linkedBanks) ->
+    }.flatMap { (eligibility, paymentMethods, linkedBanks) ->
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
         when {
+            eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
+                Single.just(
+                    FiatTransactionRequestResult.BlockedDueToSanctions(
+                        eligibility.reason as BlockedReason.Sanctions
+                    )
+                )
             eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     targetAccount,
@@ -482,6 +492,15 @@ class DashboardActionInteractor(
             is FiatTransactionRequestResult.NotSupportedPartner -> {
                 // TODO Show an error
             }
+            is FiatTransactionRequestResult.BlockedDueToSanctions -> {
+                model.process(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions(
+                            fiatTxRequestResult.reason
+                        )
+                    )
+                )
+            }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 model.process(
                     DashboardIntent.ShowLinkablePaymentMethodsSheet(
@@ -541,6 +560,7 @@ class DashboardActionInteractor(
         require(sourceAccount is FiatAccount)
 
         return Singles.zip(
+            userIdentity.userAccessForFeature(Feature.WithdrawFiat),
             linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
                 .map { paymentMethods ->
                     // Ignore any WireTransferMethods In case BankLinkTransfer should launch
@@ -549,8 +569,14 @@ class DashboardActionInteractor(
             linkedBanksFactory.getAllLinkedBanks().map {
                 it.filter { bank -> bank.currency == sourceAccount.currency }
             }
-        ).flatMap { (paymentMethods, linkedBanks) ->
+        ).flatMap { (eligibility, paymentMethods, linkedBanks) ->
             when {
+                eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
+                    Single.just(
+                        FiatTransactionRequestResult.BlockedDueToSanctions(
+                            eligibility.reason as BlockedReason.Sanctions
+                        )
+                    )
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
                         sourceAccount,

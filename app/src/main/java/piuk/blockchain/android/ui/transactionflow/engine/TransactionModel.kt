@@ -31,6 +31,7 @@ import com.blockchain.core.price.canConvert
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import info.blockchain.balance.AssetCategory
@@ -55,7 +56,7 @@ import timber.log.Timber
 
 enum class TransactionStep(val addToBackStack: Boolean = false) {
     ZERO,
-    NOT_ELIGIBLE,
+    FEATURE_BLOCKED,
     ENTER_PASSWORD,
     SELECT_SOURCE(true),
     ENTER_ADDRESS(true),
@@ -134,7 +135,8 @@ data class TransactionState(
     val depositOptionsState: DepositOptionsState = DepositOptionsState.None,
     val locks: FundsLocks? = null,
     val shouldShowSendToDomainBanner: Boolean = false,
-    override val transactionsLimit: TransactionsLimit? = null
+    override val transactionsLimit: TransactionsLimit? = null,
+    val featureBlockedReason: BlockedReason? = null
 ) : MviState, TransactionFlowStateInfo {
 
     // workaround for using engine without cryptocurrency source
@@ -346,7 +348,7 @@ class TransactionModel(
             TransactionIntent.ApprovalTriggered,
             is TransactionIntent.SendToDomainPrefLoaded,
             is TransactionIntent.FundsLocksLoaded,
-            is TransactionIntent.ShowKycUpgradeNow,
+            is TransactionIntent.ShowFeatureBlocked,
             is TransactionIntent.FiatDepositOptionSelected -> null
         }
     }
@@ -491,30 +493,39 @@ class TransactionModel(
         sourceAccount: BlockchainAccount,
         target: TransactionTarget
     ): Maybe<FeatureAccess> = when (action) {
-        AssetAction.Buy -> interactor.userAccessForFeature(Feature.Buy).toMaybe()
         AssetAction.Swap ->
             interactor.userAccessForFeature(Feature.Swap)
                 .flatMap { access ->
                     if (access is FeatureAccess.Granted &&
                         sourceAccount is NonCustodialAccount &&
                         target is TradingAccount
-                    ) interactor.userAccessForFeature(Feature.CryptoDeposit)
+                    ) interactor.userAccessForFeature(Feature.DepositCrypto)
                     else Single.just(access)
                 }.toMaybe()
+        AssetAction.InterestDeposit -> interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
         AssetAction.Send ->
             if (sourceAccount is NonCustodialAccount && (target is TradingAccount || target is InterestAccount)) {
-                interactor.userAccessForFeature(Feature.CryptoDeposit).toMaybe()
+                interactor.userAccessForFeature(Feature.DepositCrypto)
+                    .flatMap { access ->
+                        when {
+                            access is FeatureAccess.Granted && target is InterestAccount ->
+                                interactor.userAccessForFeature(Feature.DepositInterest)
+                            else -> Single.just(access)
+                        }
+                    }.toMaybe()
+            } else if (sourceAccount is TradingAccount && target is InterestAccount) {
+                interactor.userAccessForFeature(Feature.DepositInterest).toMaybe()
             } else {
                 Maybe.empty()
             }
+        AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
+        AssetAction.Withdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
+        AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
+        AssetAction.Buy,
         AssetAction.Receive,
         AssetAction.ViewActivity,
-        AssetAction.ViewStatement,
-        AssetAction.Sell,
-        AssetAction.Withdraw,
-        AssetAction.InterestDeposit,
+        AssetAction.ViewStatement -> throw IllegalStateException("$action is not part of TxFlow")
         AssetAction.InterestWithdraw,
-        AssetAction.FiatDeposit,
         AssetAction.Sign -> Maybe.empty()
     }
 
@@ -533,7 +544,7 @@ class TransactionModel(
             .subscribeBy(
                 onSuccess = {
                     if (it is FeatureAccess.Blocked) {
-                        process(TransactionIntent.ShowKycUpgradeNow)
+                        process(TransactionIntent.ShowFeatureBlocked(it.reason))
                     } else {
                         process(
                             TransactionIntent.InitialiseTransaction(

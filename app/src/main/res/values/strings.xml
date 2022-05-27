@@ -2445,6 +2445,8 @@
     <string name="funds_locked_summary_details">See Details</string>
     <string name="funds_locked_summary_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime. <annotation link="learn_more">Learn more →</annotation></string>
 
+    <string name="common_i_understand">I understand</string>
+
     <!-- LocksInfo activity details -->
     <string name="funds_locked_details_text">Newly added funds are subject to a holding period. You can transfer between your Trading, Rewards, and Exchange accounts in the meantime.</string>
     <string name="funds_locked_details_contact_support">See something that doesn\'t look right? <annotation link="contact_support">Contact support</annotation></string>
@@ -2940,5 +2942,9 @@
     <!--  Referral -->
     <string name="referral_code_title">Your referral code</string>
     <string name="referral_criteria_title">What my invited friends need to do?</string>
+
+    <!--  Sanctions  -->
+    <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
+    <string name="trading_restricted">Trading Restricted</string>
 
 </resources>

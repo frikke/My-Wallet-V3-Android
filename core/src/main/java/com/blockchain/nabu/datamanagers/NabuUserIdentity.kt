@@ -3,6 +3,8 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.domain.eligibility.model.ProductEligibility
+import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.BlockedReason
@@ -18,6 +20,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class NabuUserIdentity(
@@ -41,9 +44,13 @@ class NabuUserIdentity(
             is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
-            Feature.Buy -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
-            Feature.CryptoDeposit -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
-            Feature.Swap -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
+            Feature.Buy,
+            Feature.Swap,
+            Feature.Sell,
+            Feature.DepositCrypto,
+            Feature.DepositFiat,
+            Feature.DepositInterest,
+            Feature.WithdrawFiat -> userAccessForFeature(feature).map { it is FeatureAccess.Granted }
         }
     }
 
@@ -62,8 +69,12 @@ class NabuUserIdentity(
             is Feature.SimpleBuy,
             is Feature.Interest,
             Feature.Buy,
-            Feature.CryptoDeposit,
-            Feature.Swap -> throw IllegalArgumentException("Cannot be verified for $feature")
+            Feature.DepositCrypto,
+            Feature.Swap,
+            Feature.DepositFiat,
+            Feature.DepositInterest,
+            Feature.Sell,
+            Feature.WithdrawFiat -> throw IllegalArgumentException("Cannot be verified for $feature")
         }.exhaustive
     }
 
@@ -124,12 +135,13 @@ class NabuUserIdentity(
             }
         }
 
-    override fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>> =
+    override fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>> =
         features.map { feature ->
             userAccessForFeature(feature).map { access ->
                 Pair(feature, access)
             }
         }.zipSingles()
+            .map { mapOf(*it.toTypedArray()) }
 
     override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
         return when (feature) {
@@ -155,33 +167,35 @@ class NabuUserIdentity(
                         }
                     }
                 }
-            Feature.Buy -> eligibilityService.getProductEligibility(EligibleProduct.BUY).map { eligibility ->
-                if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
-                else FeatureAccess.Blocked(
-                    if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
-                    else BlockedReason.NotEligible
-                )
-            }
-            Feature.Swap -> eligibilityService.getProductEligibility(EligibleProduct.SWAP).map { eligibility ->
-                if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
-                else FeatureAccess.Blocked(
-                    if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
-                    else BlockedReason.NotEligible
-                )
-            }
-            Feature.CryptoDeposit -> eligibilityService.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT)
-                .map { eligibility ->
-                    if (eligibility.canTransact) FeatureAccess.Granted(eligibility.maxTransactionsCap)
-                    else FeatureAccess.Blocked(
-                        if (eligibility.canUpgradeTier) BlockedReason.InsufficientTier
-                        else BlockedReason.NotEligible
-                    )
-                }
+            Feature.Buy ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.Swap ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.Sell ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SELL) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.DepositFiat ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.DepositCrypto ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.DepositInterest ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST) }
+                    .map(ProductEligibility::toFeatureAccess)
+            Feature.WithdrawFiat ->
+                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT) }
+                    .map(ProductEligibility::toFeatureAccess)
             is Feature.Interest,
             Feature.SimplifiedDueDiligence,
             is Feature.TierLevel -> TODO("Not Implemented Yet")
         }
     }
+
+    override fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>> =
+        rxSingleOutcome { eligibilityService.getMajorProductsNotEligibleReasons() }
 
     private fun simpleBuyAccessState(eligibility: SimpleBuyEligibility, gold: Boolean): FeatureAccess {
         return when {
@@ -229,3 +243,22 @@ class NabuUserIdentity(
 
 private fun SimpleBuyEligibility.canCreateOrder(): Boolean =
     pendingDepositSimpleBuyTrades < maxPendingDepositSimpleBuyTrades
+
+private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
+    if (canTransact) FeatureAccess.Granted(maxTransactionsCap)
+    else FeatureAccess.Blocked(
+        when (val reason = reasonNotEligible) {
+            ProductNotEligibleReason.InsufficientTier.Tier1TradeLimitExceeded ->
+                BlockedReason.InsufficientTier.Tier1TradeLimitExceeded
+            ProductNotEligibleReason.InsufficientTier.Tier2Required ->
+                BlockedReason.InsufficientTier.Tier2Required
+            is ProductNotEligibleReason.InsufficientTier.Unknown ->
+                BlockedReason.InsufficientTier.Unknown(reason.message)
+            ProductNotEligibleReason.Sanctions.RussiaEU5 ->
+                BlockedReason.Sanctions.RussiaEU5
+            is ProductNotEligibleReason.Sanctions.Unknown ->
+                BlockedReason.Sanctions.Unknown(reason.message)
+            is ProductNotEligibleReason.Unknown -> BlockedReason.NotEligible
+            null -> BlockedReason.NotEligible
+        }
+    )

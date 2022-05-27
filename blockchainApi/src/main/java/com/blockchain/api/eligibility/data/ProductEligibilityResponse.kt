@@ -4,40 +4,57 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class ProductEligibilityResponse(
+    // if the user has many products not eligible by one particular reason, eg. sanctions, there will be a reason
+    // in this `notifications` field so we can display them in a more general(non-product specific) location, like an Announcement
+    val notifications: List<ReasonNotEligibleResponse>,
     val buy: BuyEligibilityResponse?,
     val swap: SwapEligibilityResponse?,
-    val custodialWallets: CustodialWalletsEligibilityResponse?
+    val sell: DefaultEligibilityResponse?,
+    val depositFiat: DefaultEligibilityResponse?,
+    val depositCrypto: DefaultEligibilityResponse?,
+    val depositInterest: DefaultEligibilityResponse?,
+    val withdrawFiat: DefaultEligibilityResponse?
 )
 
 @Serializable
+class ReasonNotEligibleResponse(
+    val reason: String, // specific reason, eg. EU_5_SANCTION
+    val type: String, // general category of the reason, eg. SANCTIONS, INSUFFICIENT_TIER
+    val message: String // human readable message to be used as a fallback
+)
+
+enum class ReasonNotEligibleTypeResponse {
+    INSUFFICIENT_TIER,
+    SANCTIONS
+}
+
+enum class ReasonNotEligibleReasonResponse {
+    // INSUFFICIENT_TIER:
+    TIER_2_REQUIRED,
+    TIER_1_TRADE_LIMIT,
+
+    // SANCTIONS:
+    EU_5_SANCTION
+}
+
+@Serializable
 class BuyEligibilityResponse(
-    val id: String,
-    val canPlaceOrder: Boolean,
+    val enabled: Boolean,
     val maxOrdersCap: Int?, // if null there's no max
     val maxOrdersLeft: Int?, // if null there's infinite orders left
-    val suggestedUpgrade: SuggestedUpgrade?
+    val reasonNotEligible: ReasonNotEligibleResponse?
 )
 
 @Serializable
 class SwapEligibilityResponse(
-    val id: String,
-    val canPlaceOrder: Boolean,
+    val enabled: Boolean,
     val maxOrdersCap: Int?, // if null there's no max
     val maxOrdersLeft: Int?, // if null there's infinite orders left
-    val suggestedUpgrade: SuggestedUpgrade?
+    val reasonNotEligible: ReasonNotEligibleResponse?
 )
 
 @Serializable
-class CustodialWalletsEligibilityResponse(
-    val id: String,
-    val canDepositFiat: Boolean,
-    val canDepositCrypto: Boolean,
-    val canWithdrawFiat: Boolean,
-    val canWithdrawCrypto: Boolean,
-    val suggestedUpgrade: SuggestedUpgrade?
-)
-
-@Serializable
-class SuggestedUpgrade(
-    val requiredTier: Int
+class DefaultEligibilityResponse(
+    val enabled: Boolean,
+    val reasonNotEligible: ReasonNotEligibleResponse?
 )

@@ -19,6 +19,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnno
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycMoreInfoAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycRecoveryResubmissionAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.MajorProductBlockedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
@@ -100,6 +101,13 @@ val dashboardAnnouncementsModule = module {
 
         factory {
             TaxCenterAnnouncement(
+                userIdentity = get(),
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            MajorProductBlockedAnnouncement(
                 userIdentity = get(),
                 dismissRecorder = get()
             )

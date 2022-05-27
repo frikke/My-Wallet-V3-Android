@@ -3,5 +3,9 @@ package com.blockchain.domain.eligibility.model
 enum class EligibleProduct {
     BUY,
     SWAP,
-    CRYPTO_DEPOSIT
+    SELL,
+    DEPOSIT_FIAT,
+    DEPOSIT_CRYPTO,
+    DEPOSIT_INTEREST,
+    WITHDRAW_FIAT
 }

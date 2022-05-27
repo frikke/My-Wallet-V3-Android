@@ -4,6 +4,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
+import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -15,10 +16,13 @@ import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.Tiers
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class NabuUserIdentityTest {
@@ -116,52 +120,123 @@ class NabuUserIdentityTest {
     }
 
     @Test
-    fun `on userAccessForFeature Buy should query eligibility data manager`() {
+    fun `on userAccessForFeature Buy should query eligibility data manager`() = runTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.BUY,
             canTransact = true,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            canUpgradeTier = false
+            reasonNotEligible = null
         )
         whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
-            .thenReturn(Single.just(eligibility))
+            .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Buy)
             .test()
+            .await()
             .assertValue(FeatureAccess.Granted())
     }
 
     @Test
-    fun `on userAccessForFeature Swap should query eligibility data manager`() {
+    fun `on userAccessForFeature Swap should query eligibility data manager`() = runTest {
         val transactionsLimit = TransactionsLimit.Limited(3, 1)
         val eligibility = ProductEligibility(
             product = EligibleProduct.SWAP,
             canTransact = true,
             maxTransactionsCap = transactionsLimit,
-            canUpgradeTier = false
+            reasonNotEligible = null
         )
         whenever(eligibilityService.getProductEligibility(EligibleProduct.SWAP))
-            .thenReturn(Single.just(eligibility))
+            .thenReturn(Outcome.Success(eligibility))
 
         subject.userAccessForFeature(Feature.Swap)
             .test()
+            .await()
             .assertValue(FeatureAccess.Granted(transactionsLimit))
     }
 
     @Test
-    fun `on userAccessForFeature CryptoDeposit should query eligibility data manager`() {
+    fun `on userAccessForFeature DepositCrypto should query eligibility data manager`() = runTest {
         val eligibility = ProductEligibility(
-            product = EligibleProduct.CRYPTO_DEPOSIT,
+            product = EligibleProduct.DEPOSIT_CRYPTO,
             canTransact = false,
             maxTransactionsCap = TransactionsLimit.Unlimited,
-            canUpgradeTier = true
+            reasonNotEligible = ProductNotEligibleReason.InsufficientTier.Tier2Required
         )
-        whenever(eligibilityService.getProductEligibility(EligibleProduct.CRYPTO_DEPOSIT))
-            .thenReturn(Single.just(eligibility))
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_CRYPTO))
+            .thenReturn(Outcome.Success(eligibility))
 
-        subject.userAccessForFeature(Feature.CryptoDeposit)
+        subject.userAccessForFeature(Feature.DepositCrypto)
             .test()
-            .assertValue(FeatureAccess.Blocked(BlockedReason.InsufficientTier))
+            .await()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required))
+    }
+
+    @Test
+    fun `on userAccessForFeature Sell should query eligibility data manager`() = runTest {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.SELL,
+            canTransact = false,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+        )
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.SELL))
+            .thenReturn(Outcome.Success(eligibility))
+
+        subject.userAccessForFeature(Feature.Sell)
+            .test()
+            .await()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+    }
+
+    @Test
+    fun `on userAccessForFeature DepositFiat should query eligibility data manager`() = runTest {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.DEPOSIT_FIAT,
+            canTransact = false,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+        )
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_FIAT))
+            .thenReturn(Outcome.Success(eligibility))
+
+        subject.userAccessForFeature(Feature.DepositFiat)
+            .test()
+            .await()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+    }
+
+    @Test
+    fun `on userAccessForFeature DepositInterest should query eligibility data manager`() = runTest {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.DEPOSIT_INTEREST,
+            canTransact = false,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+        )
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.DEPOSIT_INTEREST))
+            .thenReturn(Outcome.Success(eligibility))
+
+        subject.userAccessForFeature(Feature.DepositInterest)
+            .test()
+            .await()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
+    }
+
+    @Test
+    fun `on userAccessForFeature WithdrawFiat should query eligibility data manager`() = runTest {
+        val eligibility = ProductEligibility(
+            product = EligibleProduct.WITHDRAW_FIAT,
+            canTransact = false,
+            maxTransactionsCap = TransactionsLimit.Unlimited,
+            reasonNotEligible = ProductNotEligibleReason.Sanctions.RussiaEU5
+        )
+        whenever(eligibilityService.getProductEligibility(EligibleProduct.WITHDRAW_FIAT))
+            .thenReturn(Outcome.Success(eligibility))
+
+        subject.userAccessForFeature(Feature.WithdrawFiat)
+            .test()
+            .await()
+            .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
     }
 
     companion object {

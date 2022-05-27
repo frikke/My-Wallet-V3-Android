@@ -9,6 +9,9 @@ import com.blockchain.core.payments.PaymentsDataManager
 import com.blockchain.core.payments.model.BankPartner
 import com.blockchain.core.payments.model.LinkBankTransfer
 import com.blockchain.core.payments.model.YodleeAttributes
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
@@ -16,6 +19,8 @@ import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentMethodType
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -24,6 +29,7 @@ import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 
 class DashboardActionInteractorTest {
@@ -77,6 +83,8 @@ class DashboardActionInteractorTest {
                 emptyList()
             )
         )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         actionInteractor.getBankDepositFlow(
             model = model,
@@ -119,6 +127,9 @@ class DashboardActionInteractorTest {
                 )
             )
         )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+
         actionInteractor.getBankDepositFlow(
             model = model,
             targetAccount = targetFiatAccount,
@@ -149,6 +160,8 @@ class DashboardActionInteractorTest {
                 emptyList()
             )
         )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         actionInteractor.getBankDepositFlow(
             model = model,
@@ -180,6 +193,8 @@ class DashboardActionInteractorTest {
                 )
             )
         )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         actionInteractor.getBankDepositFlow(
             model = model,
@@ -203,6 +218,8 @@ class DashboardActionInteractorTest {
                 emptyList()
             )
         )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         whenever(paymentsDataManager.linkBank(USD)).thenReturn(
             Single.just(
@@ -227,6 +244,39 @@ class DashboardActionInteractorTest {
                 targetFiatAccount,
                 AssetAction.FiatDeposit
             )
+        )
+    }
+
+    @Test
+    fun `if deposit fiat is blocked, blocked due to sanctions sheet should be shown`() {
+        whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
+            Single.just(
+                setOf(PaymentMethodType.BANK_ACCOUNT)
+            )
+        )
+        whenever(linkedBanksFactory.getNonWireTransferBanks()).thenReturn(
+            Single.just(
+                emptyList()
+            )
+        )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5)))
+
+        actionInteractor.getBankDepositFlow(
+            model = model,
+            targetAccount = targetFiatAccount,
+            action = AssetAction.FiatDeposit,
+            shouldLaunchBankLinkTransfer = false
+        )
+
+        val captor = argumentCaptor<DashboardIntent>()
+        verify(model, atLeastOnce()).process(captor.capture())
+        assert(
+            captor.allValues.any {
+                val intent = it as? DashboardIntent.UpdateNavigationAction
+                val action = intent?.action as? DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions
+                action?.reason is BlockedReason.Sanctions.RussiaEU5
+            }
         )
     }
 

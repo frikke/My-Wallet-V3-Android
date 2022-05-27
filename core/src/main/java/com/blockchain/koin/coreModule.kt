@@ -20,8 +20,8 @@ import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
-import com.blockchain.core.eligibility.EligibilityDataManager
-import com.blockchain.core.eligibility.cache.ProductsEligibilityCache
+import com.blockchain.core.eligibility.EligibilityRepository
+import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
@@ -149,15 +149,15 @@ val coreModule = module {
         }.bind(LimitsDataManager::class)
 
         factory {
-            ProductsEligibilityCache(
+            ProductsEligibilityStore(
                 authenticator = get(),
-                service = get()
+                productEligibilityApi = get()
             )
         }
 
         scoped {
-            EligibilityDataManager(
-                productsEligibilityCache = get()
+            EligibilityRepository(
+                productsEligibilityStore = get()
             )
         }.bind(EligibilityService::class)
 

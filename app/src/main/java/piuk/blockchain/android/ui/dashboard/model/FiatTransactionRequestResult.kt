@@ -5,6 +5,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.core.payments.model.LinkBankTransfer
+import com.blockchain.nabu.BlockedReason
 
 sealed class FiatTransactionRequestResult {
     class LaunchBankLink(
@@ -34,4 +35,5 @@ sealed class FiatTransactionRequestResult {
         val sourceAccount: FiatAccount
     ) : FiatTransactionRequestResult()
     object NotSupportedPartner : FiatTransactionRequestResult()
+    data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
 }

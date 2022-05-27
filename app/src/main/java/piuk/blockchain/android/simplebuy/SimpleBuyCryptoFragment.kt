@@ -11,7 +11,6 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -30,6 +29,7 @@ import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -827,7 +827,7 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.ClearError)
     }
 
-    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+    override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         super<TransactionFlowInfoHost>.onSheetClosed(sheet)
         if (sheet is TransactionFlowInfoBottomSheet) {
             analytics.logEvent(InfoBottomSheetDismissed(AssetAction.Buy))

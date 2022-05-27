@@ -49,6 +49,7 @@ import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PortfolioDelegateAdapter
@@ -385,6 +386,8 @@ class PortfolioFragment :
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
                     navigationAction.account
                 )
+                is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
+                    BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 else -> null
             }
         )

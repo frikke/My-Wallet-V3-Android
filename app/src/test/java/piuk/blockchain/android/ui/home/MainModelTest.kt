@@ -9,7 +9,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.core.payments.model.BankTransferDetails
 import com.blockchain.core.payments.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.extensions.valueOf
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
@@ -1199,7 +1199,7 @@ class MainModelTest {
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
-        val expectedType = valueOf<CampaignType>(campaignType.capitalizeFirstChar())
+        val expectedType = enumValueOfOrNull<CampaignType>(campaignType.capitalizeFirstChar())
 
         testState.assertValueAt(0) {
             it == MainState()
