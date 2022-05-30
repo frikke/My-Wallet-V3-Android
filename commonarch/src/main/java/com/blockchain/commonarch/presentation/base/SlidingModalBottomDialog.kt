@@ -18,7 +18,7 @@ interface HostedBottomSheet {
     interface Host {
         fun onSheetClosed()
         @CallSuper
-        fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+        fun onSheetClosed(sheet: BottomSheetDialogFragment) {
             onSheetClosed()
         }
     }

@@ -4,7 +4,7 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
+import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class KycHomeAddressNextStepDecision(
@@ -24,9 +24,9 @@ class KycHomeAddressNextStepDecision(
                     // selected tier 1, so we need to inform them
                     Single.just(KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo)
                 } else {
-                    rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }.map { missingAdditionalInfo ->
-                        if (missingAdditionalInfo.isNotEmpty()) {
-                            KycNextStepDecision.NextStep.MissingAdditionalInfo(missingAdditionalInfo.toMutableNode())
+                    rxSingleOutcome { kycDataManager.getQuestionnaire() }.map { questionnaire ->
+                        if (questionnaire.isNotEmpty()) {
+                            KycNextStepDecision.NextStep.Questionnaire(questionnaire.toMutableNode())
                         } else {
                             KycNextStepDecision.NextStep.Veriff
                         }

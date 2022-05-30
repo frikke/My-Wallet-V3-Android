@@ -1,5 +1,6 @@
 package com.blockchain.nabu.models.responses.simplebuy
 
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
@@ -119,7 +120,8 @@ data class BuySellOrderResponse(
     val processingErrorType: String? = null,
     val recurringBuyId: String? = null,
     val failureReason: String? = null,
-    val paymentError: String? = null
+    val paymentError: String? = null,
+    val ux: NabuUxErrorResponse? = null
 ) {
     companion object {
         const val PENDING_DEPOSIT = "PENDING_DEPOSIT"
@@ -189,7 +191,8 @@ data class BuySellOrderResponse(
 data class TransferRequest(
     val address: String,
     val currency: String,
-    val amount: String
+    val amount: String,
+    val fee: String
 )
 
 @Serializable

@@ -92,7 +92,8 @@ class SimpleBuyBlockedFragment : Fragment() {
                         error = PENDING_ORDERS_LIMIT_REACHED
                     )
                 }
-                BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
+                is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
+                is BlockedReason.Sanctions -> throw IllegalStateException("Not used in Feature.SimpleBuy")
             }.exhaustive
 
             return SimpleBuyBlockedFragment().apply {

@@ -14,9 +14,12 @@ import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
+import com.blockchain.coincore.toActionState
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -153,10 +156,11 @@ class CryptoInterestAccount(
     override val actions: Single<AvailableActions>
         get() = Singles.zip(
             balance.firstOrError(),
-            isEnabled
-        ).map { (balance, isEnabled) ->
+            isEnabled,
+            identity.userAccessForFeature(Feature.DepositInterest)
+        ) { balance, isEnabled, depositInterestEligibility ->
             setOfNotNull(
-                AssetAction.InterestDeposit.takeIf { isEnabled },
+                AssetAction.InterestDeposit.takeIf { isEnabled && depositInterestEligibility is FeatureAccess.Granted },
                 AssetAction.InterestWithdraw.takeIf { balance.withdrawable.isPositive },
                 AssetAction.ViewStatement.takeIf { hasTransactions },
                 AssetAction.ViewActivity.takeIf { hasTransactions }
@@ -167,14 +171,20 @@ class CryptoInterestAccount(
         get() = Single.zip(
             identity.getHighestApprovedKycTier(),
             balance.firstOrError(),
-            isEnabled
-        ) { tier, balance, enabled ->
+            isEnabled,
+            identity.userAccessForFeature(Feature.DepositInterest)
+        ) { tier, balance, enabled, depositInterestEligibility ->
             return@zip when (tier) {
                 Tier.BRONZE,
                 Tier.SILVER -> emptySet()
                 Tier.GOLD -> setOf(
                     StateAwareAction(
-                        if (enabled) ActionState.Available else ActionState.LockedDueToAvailability,
+                        when {
+                            !enabled -> ActionState.LockedDueToAvailability
+                            depositInterestEligibility is FeatureAccess.Blocked ->
+                                depositInterestEligibility.toActionState()
+                            else -> ActionState.Available
+                        },
                         AssetAction.InterestDeposit
                     ),
                     StateAwareAction(

@@ -21,6 +21,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.datamanagers.TransactionError
 import info.blockchain.balance.AssetInfo
@@ -564,10 +565,11 @@ sealed class TransactionIntent : MviIntent<TransactionState> {
             ).updateBackstack(oldState)
     }
 
-    object ShowKycUpgradeNow : TransactionIntent() {
+    data class ShowFeatureBlocked(val reason: BlockedReason) : TransactionIntent() {
         override fun reduce(oldState: TransactionState): TransactionState =
             oldState.copy(
-                currentStep = TransactionStep.NOT_ELIGIBLE
+                currentStep = TransactionStep.FEATURE_BLOCKED,
+                featureBlockedReason = reason
             )
     }
 

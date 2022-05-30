@@ -25,8 +25,7 @@ import org.koin.core.scope.Scope
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 
 class NotificationPreferenceDetailsFragment :
-    MVIFragment<
-        NotificationPreferenceDetailsViewState>(),
+    MVIFragment<NotificationPreferenceDetailsViewState>(),
     AndroidScopeComponent {
 
     private val analytics: Analytics by inject()

@@ -5,7 +5,8 @@ import com.blockchain.nabu.BasicProfileInfo
 
 data class SupportState(
     val viewState: SupportViewState = SupportViewState.None,
-    val supportError: SupportError = SupportError.None
+    val supportError: SupportError = SupportError.None,
+    val crashErrorCount: Int = 0
 ) : MviState
 
 sealed class SupportViewState {
@@ -17,7 +18,8 @@ sealed class SupportViewState {
 
 enum class SupportError {
     None,
-    ErrorLoadingProfileInfo
+    ErrorLoadingProfileInfo,
+    ErrorStartingChat
 }
 
 data class UserInfo(

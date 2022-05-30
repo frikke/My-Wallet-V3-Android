@@ -37,7 +37,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressDialog
 import piuk.blockchain.android.ui.kyc.address.models.AddressIntent
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
@@ -47,6 +46,7 @@ import piuk.blockchain.android.ui.kyc.navhost.KycProgressListener
 import piuk.blockchain.android.ui.kyc.navhost.models.KycStep
 import piuk.blockchain.android.ui.kyc.navigate
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
+import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.throttledClicks
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -125,10 +125,10 @@ class KycHomeAddressFragment :
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
     }
 
-    override fun missingAdditionalInfo(root: TreeNode.Root, countryCode: String) {
+    override fun continueToQuestionnaire(root: TreeNode.Root, countryCode: String) {
         closeKeyboard()
         navigate(
-            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycAdditionalInfoFragment(root, countryCode)
+            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycQuestionnaireFragment(root, countryCode)
         )
     }
 

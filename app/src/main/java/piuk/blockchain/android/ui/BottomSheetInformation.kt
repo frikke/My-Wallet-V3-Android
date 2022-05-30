@@ -3,16 +3,13 @@ package piuk.blockchain.android.ui
 import android.app.Dialog
 import android.os.Bundle
 import android.widget.FrameLayout
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.dimensionResource
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.button.MinimalButton
-import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.sheets.BottomSheet
+import com.blockchain.componentlib.sheets.BottomSheetButton
+import com.blockchain.componentlib.sheets.BottomSheetOneButton
+import com.blockchain.componentlib.sheets.BottomSheetTwoButtons
+import com.blockchain.componentlib.sheets.ButtonType
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -26,8 +23,8 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
     }
 
     val host: Host by lazy {
-        parentFragment as? Host ?: throw IllegalStateException(
-            "Host fragment is not a BottomSheetInformation.Host"
+        activity as? Host ?: parentFragment as? Host ?: throw IllegalStateException(
+            "Host is not a BottomSheetInformation.Host"
         )
     }
 
@@ -42,45 +39,48 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
         dialog.setContentView(
             ComposeView(requireContext()).apply {
                 setContent {
-                    BottomSheet(
-                        title = title,
-                        subtitle = description,
-                        shouldShowHeaderDivider = false,
-                        onCloseClick = { dismiss() },
-                        imageResource = ImageResource.Local(R.drawable.ic_phone),
-                        topButton = {
-                            PrimaryButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        start = dimensionResource(R.dimen.standard_margin),
-                                        end = dimensionResource(R.dimen.standard_margin)
-                                    ),
+                    val secondaryCtaText = secondaryCtaText
+                    if (secondaryCtaText == null) {
+                        BottomSheetOneButton(
+                            title = title,
+                            subtitle = description,
+                            shouldShowHeaderDivider = false,
+                            onCloseClick = { dismiss() },
+                            headerImageResource = ImageResource.Local(R.drawable.ic_phone),
+                            button = BottomSheetButton(
+                                type = ButtonType.PRIMARY,
                                 text = primaryCtaText,
                                 onClick = {
                                     host.primaryButtonClicked()
                                     super.dismiss()
                                 }
                             )
-                        },
-                        bottomButton = {
-                            secondaryCtaText?.let {
-                                MinimalButton(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            start = dimensionResource(R.dimen.standard_margin),
-                                            end = dimensionResource(R.dimen.standard_margin)
-                                        ),
-                                    text = it,
-                                    onClick = {
-                                        host.secondButtonClicked()
-                                        super.dismiss()
-                                    }
-                                )
-                            }
-                        }
-                    )
+                        )
+                    } else {
+                        BottomSheetTwoButtons(
+                            title = title,
+                            subtitle = description,
+                            shouldShowHeaderDivider = false,
+                            onCloseClick = { dismiss() },
+                            headerImageResource = ImageResource.Local(R.drawable.ic_phone),
+                            button1 = BottomSheetButton(
+                                type = ButtonType.PRIMARY,
+                                text = primaryCtaText,
+                                onClick = {
+                                    host.primaryButtonClicked()
+                                    super.dismiss()
+                                }
+                            ),
+                            button2 = BottomSheetButton(
+                                type = ButtonType.MINIMAL,
+                                text = secondaryCtaText,
+                                onClick = {
+                                    host.secondButtonClicked()
+                                    super.dismiss()
+                                }
+                            )
+                        )
+                    }
                 }
             }
         )

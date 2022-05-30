@@ -10,8 +10,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel
-import piuk.blockchain.android.ui.kyc.additional_info.StateMachine
 import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
 import piuk.blockchain.android.ui.kyc.address.EligibilityForFreeEthAdapter
 import piuk.blockchain.android.ui.kyc.address.KycHomeAddressNextStepDecision
@@ -24,6 +22,8 @@ import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostPresenter
 import piuk.blockchain.android.ui.kyc.profile.KycProfilePresenter
+import piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireModel
+import piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireStateMachine
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
@@ -179,9 +179,9 @@ val kycUiNabuModule = module {
         }.bind(EthEligibility::class)
 
         viewModel {
-            KycAdditionalInfoModel(
+            KycQuestionnaireModel(
                 kycDataManager = get(),
-                stateMachine = StateMachine(),
+                stateMachine = KycQuestionnaireStateMachine(),
                 analytics = get()
             )
         }

@@ -10,6 +10,15 @@ import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
+import com.blockchain.api.payments.data.BankInfoResponse
+import com.blockchain.api.payments.data.BankTransferChargeAttributes
+import com.blockchain.api.payments.data.BankTransferChargeResponse
+import com.blockchain.api.payments.data.BankTransferFiatAmount
+import com.blockchain.api.payments.data.BankTransferPaymentResponse
+import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
+import com.blockchain.api.payments.data.LinkedBankTransferResponse
+import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.services.CollateralLock
 import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
@@ -17,8 +26,8 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
-import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.BillingAddress
@@ -38,17 +47,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
-import com.blockchain.domain.paymentmethods.model.response.BankInfoResponse
-import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeAttributes
-import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeResponse
-import com.blockchain.domain.paymentmethods.model.response.BankTransferFiatAmount
-import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentResponse
-import com.blockchain.domain.paymentmethods.model.response.CreateLinkBankResponse
-import com.blockchain.domain.paymentmethods.model.response.LinkedBankTransferAttributesResponse
-import com.blockchain.domain.paymentmethods.model.response.LinkedBankTransferResponse
-import com.blockchain.domain.paymentmethods.model.response.OpenBankingTokenBody
-import com.blockchain.domain.paymentmethods.model.response.ProviderAccountAttrs
-import com.blockchain.domain.paymentmethods.model.response.UpdateProviderAccountBody
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
@@ -69,7 +67,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import java.lang.IllegalArgumentException
 import java.math.BigInteger
 import java.util.Date
 import junit.framework.Assert.assertEquals
@@ -111,7 +108,6 @@ class PaymentsRepositoryTest {
     private val paymentsService: PaymentsService = mockk()
     private val paymentMethodsService: PaymentMethodsService = mockk(relaxed = true)
     private val linkedCardsStore: LinkedCardsStore = mockk(relaxed = true)
-    private val cardsCache: CardsCache = mockk(relaxed = true)
     private val tradingBalanceDataManager: TradingBalanceDataManager = mockk()
     private val assetCatalogue: AssetCatalogue = mockk()
     private val simpleBuyPrefs: SimpleBuyPrefs = mockk()
@@ -119,9 +115,6 @@ class PaymentsRepositoryTest {
         coEvery { getAuthHeader() } returns Single.just(AUTH)
     }
     private val googlePayManager: GooglePayManager = mockk()
-    private val cachingStoreFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
-        every { enabled } returns Single.just(true)
-    }
     private val googlePayFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
         every { enabled } returns Single.just(true)
     }
@@ -134,8 +127,6 @@ class PaymentsRepositoryTest {
             paymentsService,
             paymentMethodsService,
             linkedCardsStore,
-            cardsCache,
-            cachingStoreFeatureFlag,
             tradingBalanceDataManager,
             assetCatalogue,
             simpleBuyPrefs,
@@ -159,7 +150,8 @@ class PaymentsRepositoryTest {
             currency = NETWORK_TICKER,
             details = null,
             error = null,
-            attributes = LinkedBankTransferAttributesResponse(null, null, null, "callback")
+            attributes = LinkedBankTransferAttributesResponse(null, null, null, "callback"),
+            ux = null
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
@@ -187,7 +179,8 @@ class PaymentsRepositoryTest {
             currency = NETWORK_TICKER,
             details = null,
             error = null,
-            attributes = null
+            attributes = null,
+            ux = null
         )
         val fiatCurrency: FiatCurrency = mockk()
         every { assetCatalogue.fiatFromNetworkTicker(NETWORK_TICKER) } returns fiatCurrency
@@ -300,12 +293,17 @@ class PaymentsRepositoryTest {
     @Test
     fun `updateSelectedBankAccount() - success`() {
         // ARRANGE
-        val attrs = ProviderAccountAttrs()
-        every { paymentMethodsService.updateAccountProviderId(AUTH, ID, UpdateProviderAccountBody(attrs)) } returns
+        val domainAttrs = BankProviderAccountAttributes()
+
+        every {
+            paymentMethodsService.updateAccountProviderId(
+                eq(AUTH), eq(ID), any()
+            )
+        } returns
             Completable.complete()
 
         // ASSERT
-        subject.updateSelectedBankAccount(ID, "", "", attrs).test()
+        subject.updateSelectedBankAccount(ID, "", "", domainAttrs).test()
             .assertComplete()
     }
 
@@ -331,7 +329,8 @@ class PaymentsRepositoryTest {
             state = BankTransferChargeAttributes.PENDING,
             amountMinor = "100",
             amount = BankTransferFiatAmount(NETWORK_TICKER, "10"),
-            extraAttributes = BankTransferChargeAttributes("url", "status")
+            extraAttributes = BankTransferChargeAttributes("url", "status"),
+            null
         )
         every { assetCatalogue.fromNetworkTicker(NETWORK_TICKER) } returns FiatCurrency.Dollars
         every { paymentMethodsService.getBankTransferCharge(AUTH, ID) } returns Single.just(response)
@@ -431,7 +430,6 @@ class PaymentsRepositoryTest {
             .assertComplete()
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -453,7 +451,6 @@ class PaymentsRepositoryTest {
             )
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -480,7 +477,6 @@ class PaymentsRepositoryTest {
             }
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -498,7 +494,6 @@ class PaymentsRepositoryTest {
             .assertValue(PartnerCredentials.Unknown)
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 
@@ -535,7 +530,6 @@ class PaymentsRepositoryTest {
             .assertComplete()
         verify {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
     }
 

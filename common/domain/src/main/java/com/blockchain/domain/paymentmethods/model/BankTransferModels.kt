@@ -1,12 +1,9 @@
 package com.blockchain.domain.paymentmethods.model
 
-import com.blockchain.domain.paymentmethods.model.response.LinkBankAttrsResponse
-import com.blockchain.domain.paymentmethods.model.response.YapilyMediaResponse
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
-import java.net.MalformedURLException
 import java.net.URL
 
 data class LinkBankTransfer(val id: String, val partner: BankPartner, val attributes: LinkBankAttributes) : Serializable
@@ -15,44 +12,8 @@ enum class BankPartner {
     YAPILY,
     YODLEE;
 
-    fun attributes(attrsResponse: LinkBankAttrsResponse): LinkBankAttributes =
-        when (this) {
-            YODLEE -> {
-                YodleeAttributes(
-                    attrsResponse.fastlinkUrl!!,
-                    attrsResponse.token!!,
-                    attrsResponse.fastlinkParams!!.configName
-                )
-            }
-            YAPILY -> {
-                YapilyAttributes(
-                    entity = attrsResponse.entity!!,
-                    institutionList = attrsResponse.institutions!!.map {
-                        YapilyInstitution(
-                            operatingCountries = it.countries.map { countryResponse ->
-                                InstitutionCountry(
-                                    countryCode = countryResponse.countryCode2,
-                                    displayName = countryResponse.displayName
-                                )
-                            },
-                            name = it.fullName,
-                            id = it.id,
-                            iconLink = it.media.getBankIcon()
-                        )
-                    }
-                )
-            }
-        }
-
-    private fun List<YapilyMediaResponse>.getBankIcon(): URL? =
-        try {
-            URL(find { it.type == ICON }?.source)
-        } catch (e: MalformedURLException) {
-            null
-        }
-
     companion object {
-        private const val ICON = "icon"
+        const val ICON = "icon"
     }
 }
 

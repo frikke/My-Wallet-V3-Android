@@ -162,6 +162,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Granted(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
@@ -184,6 +187,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }
@@ -196,6 +201,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Granted(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val asset: CryptoAsset = mock {
             on { assetInfo }.thenReturn(CryptoCurrency.BTC)
@@ -218,6 +226,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }
@@ -230,6 +240,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Granted(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
@@ -249,6 +262,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }
@@ -261,6 +276,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Blocked(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Blocked(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
@@ -281,6 +299,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }
@@ -293,6 +313,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Granted(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
@@ -313,6 +336,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }
@@ -325,6 +350,9 @@ class CoinViewInteractorTest {
             Single.just(FeatureAccess.Granted(mock()))
         )
         whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.Sell)).thenReturn(Single.just(FeatureAccess.Granted(mock())))
+        whenever(identity.userAccessForFeature(Feature.DepositCrypto))
+            .thenReturn(Single.just(FeatureAccess.Granted(mock())))
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
@@ -348,6 +376,8 @@ class CoinViewInteractorTest {
         verify(identity).isEligibleFor(Feature.SimplifiedDueDiligence)
         verify(identity).userAccessForFeature(Feature.Buy)
         verify(identity).userAccessForFeature(Feature.SimpleBuy)
+        verify(identity).userAccessForFeature(Feature.Sell)
+        verify(identity).userAccessForFeature(Feature.DepositCrypto)
 
         verifyNoMoreInteractions(identity)
     }

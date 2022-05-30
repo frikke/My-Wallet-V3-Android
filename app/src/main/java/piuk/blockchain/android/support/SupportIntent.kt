@@ -29,6 +29,13 @@ sealed class SupportIntent : MviIntent<SupportState> {
         )
     }
 
+    object UpdateStartingChatError : SupportIntent() {
+        override fun reduce(oldState: SupportState): SupportState = oldState.copy(
+            supportError = SupportError.ErrorStartingChat,
+            crashErrorCount = oldState.crashErrorCount + 1
+        )
+    }
+
     object ResetViewState : SupportIntent() {
         override fun reduce(oldState: SupportState): SupportState = oldState.copy(viewState = SupportViewState.None)
     }

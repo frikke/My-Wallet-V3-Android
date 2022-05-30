@@ -2,14 +2,17 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.IconData
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
+import com.blockchain.api.NabuUxErrorResponse
+import com.blockchain.api.StatusData
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.extensions.valueOf
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
@@ -625,7 +628,7 @@ class MainModelTest {
     }
 
     @Test
-    fun checkForPendingLinksOpenBanking_Approval_NoLocalData_SimpleBuy_State_Exists_Await_Funds() {
+    fun checkForPendingLinksOpenBanking_Approval_InProgress_Success_Poll_NabuException_Error() {
         val mockIntent: Intent = mock()
         val consentToken = "1234"
 
@@ -638,6 +641,60 @@ class MainModelTest {
         val paymentData: BankPaymentApproval = mock {
             on { orderValue }.thenReturn(FiatValue.zero(EUR))
         }
+        val bankState: BankAuthDeepLinkState = mock {
+            on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
+            on { bankPaymentData }.thenReturn(paymentData)
+        }
+
+        val nabuUxErrorResponse = NabuUxErrorResponse(
+            "title",
+            "message",
+            IconData(
+                "iconUrl",
+                StatusData(
+                    "statusUrl"
+                )
+            )
+        )
+
+        whenever(interactor.getBankLinkingState()).thenReturn(bankState)
+        whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
+        whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
+            Single.error(NabuApiExceptionFactory.fromServerSideError(nabuUxErrorResponse))
+        )
+        doNothing().whenever(interactor).resetLocalBankAuthState()
+
+        val testState = model.state.test()
+        model.process(MainIntent.CheckForPendingLinks(mockIntent))
+
+        testState.assertValueAt(0) {
+            it == MainState()
+        }.assertValueAt(1) {
+            it.viewToLaunch is ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress &&
+                (it.viewToLaunch as ViewToLaunch.LaunchOpenBankingApprovalDepositInProgress)
+                .value == paymentData.orderValue
+        }.assertValueAt(2) {
+            it.viewToLaunch is ViewToLaunch.LaunchServerDrivenOpenBankingError &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .currencyCode == paymentData.orderValue.currencyCode &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .title == nabuUxErrorResponse.title &&
+                (it.viewToLaunch as ViewToLaunch.LaunchServerDrivenOpenBankingError)
+                .description == nabuUxErrorResponse.message
+        }
+    }
+
+    @Test
+    fun checkForPendingLinksOpenBanking_Approval_NoLocalData_SimpleBuy_State_Exists_Await_Funds() {
+        val mockIntent: Intent = mock()
+        val consentToken = "1234"
+
+        whenever(interactor.checkForDeepLinks(mockIntent)).thenReturn(
+            Single.just(
+                LinkState.OpenBankingLink(OpenBankingLinkType.PAYMENT_APPROVAL, consentToken)
+            )
+        )
+
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
             on { bankPaymentData }.thenReturn(null)
@@ -710,9 +767,6 @@ class MainModelTest {
             )
         )
 
-        val paymentData: BankPaymentApproval = mock {
-            on { orderValue }.thenReturn(FiatValue.zero(EUR))
-        }
         val bankState: BankAuthDeepLinkState = mock {
             on { bankAuthFlow }.thenReturn(BankAuthFlowState.BANK_APPROVAL_PENDING)
             on { bankPaymentData }.thenReturn(null)
@@ -1129,7 +1183,7 @@ class MainModelTest {
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))
 
-        val expectedType = valueOf<CampaignType>(campaignType.capitalizeFirstChar())
+        val expectedType = enumValueOfOrNull<CampaignType>(campaignType.capitalizeFirstChar())
 
         testState.assertValueAt(0) {
             it == MainState()

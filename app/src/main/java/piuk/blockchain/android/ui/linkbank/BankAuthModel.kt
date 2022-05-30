@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.linkbank
 
+import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.BankPartner
@@ -90,7 +91,18 @@ class BankAuthModel(
                 }
             },
             onError = {
-                process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
+                (it as? NabuApiException)?.getServerSideErrorInfo()?.let { info ->
+                    process(
+                        BankAuthIntent.BankAuthErrorState(
+                            BankAuthError.ServerSideDrivenLinkedBankError(
+                                title = info.title,
+                                message = info.description,
+                                iconUrl = info.iconUrl,
+                                statusIconUrl = info.statusUrl
+                            )
+                        )
+                    )
+                } ?: process(BankAuthIntent.BankAuthErrorState(BankAuthError.BankLinkingFailed))
             }
         )
 

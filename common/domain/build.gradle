@@ -1,11 +1,6 @@
-apply plugin: 'java-library'
 apply plugin: 'kotlinx-serialization'
 apply from: rootProject.file('gradle/local/common-feature.gradle')
 
-java {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
 compileKotlin {
     kotlinOptions {
         jvmTarget = Versions.kotlinJvmTarget
@@ -21,5 +16,4 @@ dependencies {
     implementation Libraries.kotlinCoroutines
     implementation Libraries.rxjava3Coroutines
     implementation Libraries.rxJava
-    implementation project(path: ':common:interface')
 }

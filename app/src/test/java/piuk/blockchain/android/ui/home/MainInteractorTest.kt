@@ -6,7 +6,6 @@ import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.nhaarman.mockitokotlin2.any
@@ -223,54 +222,6 @@ class MainInteractorTest {
         observer.assertComplete()
 
         verify(simpleBuySync).performSync()
-    }
-
-    @Test
-    fun cancelPendingOrder_No_Local_State() {
-        whenever(simpleBuySync.currentState()).thenReturn(null)
-
-        val observer = interactor.cancelAnyPendingConfirmationBuy().test()
-        observer.assertComplete()
-
-        verify(simpleBuySync).currentState()
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
-    }
-
-    @Test
-    fun cancelPendingOrder_Order_Not_Pending() {
-        val sbState: SimpleBuyState = mock {
-            on { it.orderState }.thenReturn(OrderState.FINISHED)
-        }
-        whenever(simpleBuySync.currentState()).thenReturn(sbState)
-
-        interactor.cancelAnyPendingConfirmationBuy()
-
-        verify(simpleBuySync).currentState()
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
-    }
-
-    @Test
-    fun cancelPendingOrder_Order_Delete_Success() {
-        val orderId = "1235"
-        val sbState: SimpleBuyState = mock {
-            on { orderState }.thenReturn(OrderState.PENDING_CONFIRMATION)
-            on { id }.thenReturn(orderId)
-        }
-
-        whenever(simpleBuySync.currentState()).thenReturn(sbState)
-        whenever(custodialWalletManager.deleteBuyOrder(orderId)).thenReturn(Completable.complete())
-
-        val observer = interactor.cancelAnyPendingConfirmationBuy().test()
-        observer.assertComplete()
-
-        verify(custodialWalletManager).deleteBuyOrder(orderId)
-        verify(simpleBuySync).currentState()
-        verify(simpleBuySync).clear()
-
-        verifyNoMoreInteractions(custodialWalletManager)
-        verifyNoMoreInteractions(simpleBuySync)
     }
 
     @Test

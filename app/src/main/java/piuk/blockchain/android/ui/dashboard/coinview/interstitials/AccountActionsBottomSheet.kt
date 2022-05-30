@@ -36,6 +36,7 @@ import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey300
+import com.blockchain.nabu.BlockedReason
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -73,7 +74,8 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             assetInfo: AssetInfo
         )
 
-        fun navigateToKyc()
+        fun showUpgradeKycSheet()
+        fun showSanctionsSheet(reason: BlockedReason.Sanctions)
         fun showBalanceUpsellSheet(item: AssetActionItem)
     }
 
@@ -192,7 +194,13 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
                     }
                     ActionState.LockedForTier -> {
                         {
-                            host.navigateToKyc()
+                            host.showUpgradeKycSheet()
+                            dismiss()
+                        }
+                    }
+                    is ActionState.LockedDueToSanctions -> {
+                        {
+                            host.showSanctionsSheet(stateActionData.state.reason)
                             dismiss()
                         }
                     }

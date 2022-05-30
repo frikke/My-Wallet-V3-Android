@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.kyc.reentry
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.additional_info.toMutableNode
+import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class TiersReentryDecision(
@@ -23,11 +23,11 @@ class TiersReentryDecision(
             tier0ProfileIncompleteOrResubmitAllowed() &&
                 !tier0UnselectedCountry() -> ReentryPoint.Profile
             tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
-            else -> return rxSingleOutcome { kycDataManager.getAdditionalInfoForm() }.map { missingAdditionalInfo ->
+            else -> return rxSingleOutcome { kycDataManager.getQuestionnaire() }.map { questionnaire ->
                 when {
                     !hasMobileVerified() -> ReentryPoint.MobileEntry
-                    missingAdditionalInfo.isNotEmpty() ->
-                        ReentryPoint.AdditionalInfo(missingAdditionalInfo.toMutableNode())
+                    questionnaire.isNotEmpty() ->
+                        ReentryPoint.Questionnaire(questionnaire.toMutableNode())
                     else -> ReentryPoint.Veriff
                 }
             }

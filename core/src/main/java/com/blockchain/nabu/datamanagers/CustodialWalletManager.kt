@@ -133,7 +133,7 @@ interface CustodialWalletManager {
 
     fun deleteBuyOrder(orderId: String): Completable
 
-    fun transferFundsToWallet(amount: CryptoValue, walletAddress: String): Single<String>
+    fun transferFundsToWallet(amount: CryptoValue, fee: CryptoValue, walletAddress: String): Single<String>
 
     // For test/dev
     fun cancelAllPendingOrders(): Completable
@@ -215,8 +215,6 @@ interface CustodialWalletManager {
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
     val selectedFiatcurrency: FiatCurrency
-
-    fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
 
     fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
 

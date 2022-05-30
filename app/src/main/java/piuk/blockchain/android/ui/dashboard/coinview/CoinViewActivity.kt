@@ -44,6 +44,7 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.data.Entry
@@ -59,8 +60,10 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.coinview.accounts.AccountsAdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountActionsBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.interstitials.AccountExplainerBottomSheet
@@ -104,18 +107,21 @@ class CoinViewActivity :
 
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
-    private val listItems = mutableListOf<AssetDetailsItemNew>()
+    private val listItems = mutableListOf<AssetDetailsItem>()
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
     private lateinit var selectedFiat: FiatCurrency
+
     private var ctaActions: List<QuickActionCta> = emptyList()
+
+    private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
-            onLockedAccountSelected = ::navigateToKyc,
+            onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
@@ -306,6 +312,7 @@ class CoinViewActivity :
 
     override fun onResume() {
         super.onResume()
+        simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
         model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 
@@ -332,9 +339,11 @@ class CoinViewActivity :
         when (newState.error) {
             CoinViewError.UnknownAsset -> binding.noAssetError.visible()
             CoinViewError.WalletLoadError -> {
-                listItems.add(AssetDetailsItemNew.AccountError)
-                updateList()
-                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.AccountError)) {
+                    listItems.add(AssetDetailsItem.AccountError)
+                    updateList()
+                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_wallet_load_error), type = SnackbarType.Error
                 ).show()
@@ -346,9 +355,11 @@ class CoinViewActivity :
                 ).show()
             }
             CoinViewError.RecurringBuysLoadError -> {
-                listItems.add(AssetDetailsItemNew.RecurringBuyError)
-                updateList()
-                binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.AccountError)) {
+                    listItems.add(AssetDetailsItem.AccountError)
+                    updateList()
+                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_recurring_buy_load_error), type = SnackbarType.Warning
                 ).show()
@@ -821,18 +832,18 @@ class CoinViewActivity :
         when {
             recurringBuys.isNotEmpty() -> {
                 listItems.removeIf { details ->
-                    details is AssetDetailsItemNew.RecurringBuyInfo
+                    details is AssetDetailsItem.RecurringBuyInfo
                 }
                 val recurringBuysItems = recurringBuys.map {
-                    AssetDetailsItemNew.RecurringBuyInfo(it)
+                    AssetDetailsItem.RecurringBuyInfo(it)
                 }
                 listItems.addAll(recurringBuysItems)
             }
             shouldShowUpsell -> {
                 listItems.removeIf { details ->
-                    details is AssetDetailsItemNew.RecurringBuyBanner
+                    details is AssetDetailsItem.RecurringBuyBanner
                 }
-                listItems.add(AssetDetailsItemNew.RecurringBuyBanner)
+                listItems.add(AssetDetailsItem.RecurringBuyBanner)
             }
         }
         updateList()
@@ -908,11 +919,11 @@ class CoinViewActivity :
     private fun renderAccountsDetails(
         assetDetails: List<AssetDisplayInfo>
     ) {
-        val itemList = mutableListOf<AssetDetailsItemNew>()
+        val itemList = mutableListOf<AssetDetailsItem>()
 
         assetDetails.map {
             itemList.add(
-                AssetDetailsItemNew.CryptoDetailsInfo(
+                AssetDetailsItem.CryptoDetailsInfo(
                     assetFilter = it.filter,
                     account = it.account,
                     balance = it.amount,
@@ -924,14 +935,14 @@ class CoinViewActivity :
         }
 
         listItems.removeIf { details ->
-            details is AssetDetailsItemNew.CryptoDetailsInfo
+            details is AssetDetailsItem.CryptoDetailsInfo
         }
         listItems.addAll(0, itemList)
         updateList()
     }
 
     private fun onAccountSelected(
-        accountDetails: AssetDetailsItemNew.CryptoDetailsInfo
+        accountDetails: AssetDetailsItem.CryptoDetailsInfo
     ) {
         if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
             analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
@@ -986,8 +997,12 @@ class CoinViewActivity :
         model.process(CoinViewIntent.UpdateViewState(CoinViewViewState.ShowAccountActionSheet(actions)))
     }
 
-    override fun navigateToKyc() {
+    override fun showUpgradeKycSheet() {
         showBottomSheet(KycUpgradeNowSheet.newInstance())
+    }
+
+    override fun showSanctionsSheet(reason: BlockedReason.Sanctions) {
+        showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
     }
 
     override fun startKycClicked() {

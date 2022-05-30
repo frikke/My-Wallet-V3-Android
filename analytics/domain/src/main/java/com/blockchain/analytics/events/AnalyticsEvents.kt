@@ -244,8 +244,8 @@ enum class AnalyticsNames(val eventName: String) {
     ENTITY_SWITCH_SILVER_KYC_UPSELL_VIEWED("Verify Now Pop Up Viewed"),
     ENTITY_SWITCH_SILVER_KYC_UPSELL_CTA_CLICKED("Verify Now Pop Up CTA Clicked"),
     ENTITY_SWITCH_SILVER_KYC_UPSELL_DISMISSED("Verify Now Pop Up Dismissed"),
-    KYC_ADDITIONAL_INFO_VIEWED("Account Info Screen Viewed"),
-    KYC_ADDITIONAL_INFO_SUBMITTED("Account Info Submitted"),
+    KYC_QUESTIONNAIRE_VIEWED("Account Info Screen Viewed"),
+    KYC_QUESTIONNAIRE_SUBMITTED("Account Info Submitted"),
     PUSH_NOTIFICATION_RECEIVED("Push Notification Received"),
     PUSH_NOTIFICATION_TAPPED("Push Notification Tapped"),
     CUSTOMER_SUPPORT_CLICKED("Customer Support Clicked"),
@@ -265,7 +265,13 @@ enum class AnalyticsNames(val eventName: String) {
     UI_TOUR_VIEWED("UI Tour Viewed"),
     UI_TOUR_CTA_CLICKED("UI Tour CTA Clicked"),
     UI_TOUR_PROGRESS_CLICKED("UI Tour Progress Clicked"),
-    UI_TOUR_DISMISSED("UI Tour Progress Dismissed");
+    UI_TOUR_DISMISSED("UI Tour Progress Dismissed"),
+    WALLET_ACTIVITY_VIEWED("Wallet Activity Viewed"),
+    WALLET_BUY_SELL_VIEWED("Wallet Buy Sell Viewed"),
+    WALLET_FAB_VIEWED("Wallet FAB Viewed"),
+    WALLET_HOME_VIEWED("Wallet Home Viewed"),
+    WALLET_PRICES_VIEWED("Wallet Prices Viewed"),
+    WALLET_REWARDS_VIEWED("Wallet Rewards Viewed");
 }
 
 enum class LaunchOrigin {
@@ -290,6 +296,7 @@ enum class LaunchOrigin {
     SETTINGS,
     SAVINGS_PAGE,
     VERIFICATION,
+    FAB,
 
     DCA_DETAILS_LINK,
     BUY_CONFIRMATION,

@@ -38,7 +38,7 @@ class BuyFlowNavigatorTest {
 
     @Test
     fun `if user is not eligible to buy then it should navigate to Kyc Upgrade Now`() {
-        val eligibility = FeatureAccess.Blocked(BlockedReason.InsufficientTier)
+        val eligibility = FeatureAccess.Blocked(BlockedReason.InsufficientTier.Tier2Required)
         mockCurrencyIsSupported(true)
         whenever(simpleBuySyncFactory.currentState()).thenReturn(SimpleBuyState())
         whenever(userIdentity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(eligibility))
@@ -51,7 +51,7 @@ class BuyFlowNavigatorTest {
             failOnUnavailableCurrency = false
         ).test()
 
-        test.assertValueAt(0, BuyNavigation.TransactionsLimitReached)
+        test.assertValueAt(0, BuyNavigation.BlockBuy(BlockedReason.InsufficientTier.Tier2Required))
     }
 
     @Test

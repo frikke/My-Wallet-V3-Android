@@ -8,12 +8,12 @@ import com.blockchain.componentlib.alert.AlertType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewItemErrorBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.util.context
 
-class RecurringBuyErrorDelegate : AdapterDelegate<AssetDetailsItemNew> {
-    override fun isForViewType(items: List<AssetDetailsItemNew>, position: Int): Boolean =
-        items[position] is AssetDetailsItemNew.RecurringBuyError
+class RecurringBuyErrorDelegate : AdapterDelegate<AssetDetailsItem> {
+    override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
+        items[position] is AssetDetailsItem.RecurringBuyError
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         RecurringBuyErrorCardViewHolder(
@@ -21,7 +21,7 @@ class RecurringBuyErrorDelegate : AdapterDelegate<AssetDetailsItemNew> {
         )
 
     override fun onBindViewHolder(
-        items: List<AssetDetailsItemNew>,
+        items: List<AssetDetailsItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as RecurringBuyErrorCardViewHolder).bind()

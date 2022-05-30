@@ -10,13 +10,13 @@ import com.blockchain.componentlib.card.CardButton
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyInfoBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 
 class RecurringBuyInfoItemDelegate(
     private val onCardClicked: () -> Unit
-) : AdapterDelegate<AssetDetailsItemNew> {
-    override fun isForViewType(items: List<AssetDetailsItemNew>, position: Int): Boolean =
-        items[position] is AssetDetailsItemNew.RecurringBuyBanner
+) : AdapterDelegate<AssetDetailsItem> {
+    override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
+        items[position] is AssetDetailsItem.RecurringBuyBanner
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         RecurringBuyInfoCardViewHolder(
@@ -24,7 +24,7 @@ class RecurringBuyInfoItemDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<AssetDetailsItemNew>,
+        items: List<AssetDetailsItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as RecurringBuyInfoCardViewHolder).bind(onCardClicked)

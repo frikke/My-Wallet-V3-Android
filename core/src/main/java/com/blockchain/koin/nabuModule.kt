@@ -62,12 +62,11 @@ val nabuModule = module {
         factory {
             KycDataManager(
                 authenticator = get(),
-                kycService = get(),
-                kycAdditionalInfoFeatureFlag = get(kycAdditionalInfoFeatureFlag)
+                kycService = get()
             )
         }
 
-        factory {
+        scoped {
             MetadataRepositoryNabuTokenAdapter(
                 createNabuToken = get(),
                 accountCredentialsMetadata = get()

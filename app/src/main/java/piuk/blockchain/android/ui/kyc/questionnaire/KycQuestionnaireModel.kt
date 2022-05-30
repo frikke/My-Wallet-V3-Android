@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.additional_info
+package piuk.blockchain.android.ui.kyc.questionnaire
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -7,19 +7,19 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
-import com.blockchain.nabu.datamanagers.kyc.UpdateKycAdditionalInfoError
+import com.blockchain.nabu.datamanagers.kyc.SubmitQuestionnaireError
 import com.blockchain.nabu.models.responses.nabu.NodeId
 import com.blockchain.outcome.Outcome
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.campaign.CampaignType
 
-data class KycAdditionalInfoModelState(
+data class KycQuestionnaireModelState(
     val nodes: List<FlatNode> = emptyList(),
     val isFormValid: Boolean = true,
     val isUploadingNodes: Boolean = false,
     val invalidNodes: List<NodeId> = emptyList(),
     val campaignType: CampaignType = CampaignType.None,
-    val error: UpdateKycAdditionalInfoError? = null
+    val error: SubmitQuestionnaireError? = null
 ) : ModelState
 
 sealed class Navigation : NavigationEvent {
@@ -32,20 +32,20 @@ data class Args(
     val campaignType: CampaignType
 ) : ModelConfigArgs.ParcelableArgs
 
-class KycAdditionalInfoModel(
+class KycQuestionnaireModel(
     private val kycDataManager: KycDataManager,
-    private val stateMachine: StateMachine,
+    private val stateMachine: KycQuestionnaireStateMachine,
     private val analytics: Analytics
 ) : MviViewModel<
-    KycAdditionalInfoIntent,
-    KycAdditionalInfoState,
-    KycAdditionalInfoModelState,
+    KycQuestionnaireIntent,
+    KycQuestionnaireState,
+    KycQuestionnaireModelState,
     Navigation,
     Args
-    >(KycAdditionalInfoModelState()) {
+    >(KycQuestionnaireModelState()) {
 
     override fun viewCreated(args: Args) {
-        analytics.logEvent(KycAdditionalInfoViewed)
+        analytics.logEvent(KycQuestionnaireViewed)
         updateState { it.copy(campaignType = args.campaignType) }
         stateMachine.onStateChanged = { nodes ->
             updateState { prevState ->
@@ -59,7 +59,7 @@ class KycAdditionalInfoModel(
         stateMachine.setRoot(args.root)
     }
 
-    override fun reduce(state: KycAdditionalInfoModelState): KycAdditionalInfoState = KycAdditionalInfoState(
+    override fun reduce(state: KycQuestionnaireModelState): KycQuestionnaireState = KycQuestionnaireState(
         nodes = state.nodes,
         isContinueEnabled = state.isFormValid,
         isUploadingNodes = state.isUploadingNodes,
@@ -68,20 +68,20 @@ class KycAdditionalInfoModel(
     )
 
     override suspend fun handleIntent(
-        modelState: KycAdditionalInfoModelState,
-        intent: KycAdditionalInfoIntent
+        modelState: KycQuestionnaireModelState,
+        intent: KycQuestionnaireIntent
     ) {
         when (intent) {
-            is KycAdditionalInfoIntent.DropdownChoiceChanged -> {
+            is KycQuestionnaireIntent.DropdownChoiceChanged -> {
                 stateMachine.onDropdownChoiceChanged(intent.node, intent.newChoice)
             }
-            is KycAdditionalInfoIntent.SelectionClicked -> {
+            is KycQuestionnaireIntent.SelectionClicked -> {
                 stateMachine.onSelectionClicked(intent.node)
             }
-            is KycAdditionalInfoIntent.OpenEndedInputChanged -> {
+            is KycQuestionnaireIntent.OpenEndedInputChanged -> {
                 stateMachine.onOpenEndedInputChanged(intent.node, intent.newInput)
             }
-            KycAdditionalInfoIntent.ContinueClicked -> {
+            KycQuestionnaireIntent.ContinueClicked -> {
                 if (!modelState.isFormValid) {
                     updateState { it.copy(invalidNodes = stateMachine.invalidNodes) }
                     return
@@ -89,14 +89,14 @@ class KycAdditionalInfoModel(
 
                 updateState { it.copy(isUploadingNodes = true, invalidNodes = emptyList()) }
                 val nodes = stateMachine.getRoot().toDomain()
-                when (val result = kycDataManager.updateAdditionalInfo(nodes)) {
+                when (val result = kycDataManager.submitQuestionnaire(nodes)) {
                     is Outcome.Success -> {
-                        analytics.logEvent(KycAdditionalInfoSubmitted)
+                        analytics.logEvent(KycQuestionnaireSubmitted)
                         navigate(Navigation.LaunchVeriff)
                     }
                     is Outcome.Failure -> updateState {
                         val invalidNodes =
-                            listOfNotNull((result.failure as? UpdateKycAdditionalInfoError.InvalidNode)?.nodeId)
+                            listOfNotNull((result.failure as? SubmitQuestionnaireError.InvalidNode)?.nodeId)
                         it.copy(
                             isUploadingNodes = false,
                             error = result.failure,
@@ -106,7 +106,7 @@ class KycAdditionalInfoModel(
                     }
                 }
             }
-            KycAdditionalInfoIntent.ErrorHandled -> updateState { it.copy(error = null) }
+            KycQuestionnaireIntent.ErrorHandled -> updateState { it.copy(error = null) }
         }.exhaustive
     }
 }

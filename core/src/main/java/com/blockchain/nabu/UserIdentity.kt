@@ -1,5 +1,6 @@
 package com.blockchain.nabu
 
+import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Completable
@@ -22,7 +23,8 @@ interface UserIdentity {
     fun getUserCountry(): Maybe<String>
     fun getUserState(): Maybe<String>
     fun userAccessForFeature(feature: Feature): Single<FeatureAccess>
-    fun userAccessForFeatures(features: List<Feature>): Single<List<Pair<Feature, FeatureAccess>>>
+    fun userAccessForFeatures(features: List<Feature>): Single<Map<Feature, FeatureAccess>>
+    fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>>
     fun hasReceivedStxAirdrop(): Single<Boolean>
 }
 
@@ -34,7 +36,11 @@ sealed class Feature {
     object CustodialAccounts : Feature()
     object Buy : Feature()
     object Swap : Feature()
-    object CryptoDeposit : Feature()
+    object Sell : Feature()
+    object DepositFiat : Feature()
+    object DepositCrypto : Feature()
+    object DepositInterest : Feature()
+    object WithdrawFiat : Feature()
 }
 
 /**
@@ -67,8 +73,16 @@ sealed class FeatureAccess {
         this is Blocked && reason == BlockedReason.NotEligible
 }
 
-sealed class BlockedReason {
+sealed class BlockedReason : Serializable {
     object NotEligible : BlockedReason()
-    object InsufficientTier : BlockedReason()
+    sealed class InsufficientTier : BlockedReason() {
+        object Tier2Required : InsufficientTier()
+        object Tier1TradeLimitExceeded : InsufficientTier()
+        data class Unknown(val message: String) : InsufficientTier()
+    }
+    sealed class Sanctions : BlockedReason() {
+        object RussiaEU5 : Sanctions()
+        data class Unknown(val message: String) : Sanctions()
+    }
     class TooManyInFlightTransactions(val maxTransactions: Int) : BlockedReason()
 }

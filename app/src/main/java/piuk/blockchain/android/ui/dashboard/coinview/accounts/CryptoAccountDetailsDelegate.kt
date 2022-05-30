@@ -21,18 +21,18 @@ import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
 
 class CryptoAccountDetailsDelegate(
-    private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
-) : AdapterDelegate<AssetDetailsItemNew> {
-    override fun isForViewType(items: List<AssetDetailsItemNew>, position: Int): Boolean =
-        items[position] is AssetDetailsItemNew.CryptoDetailsInfo
+) : AdapterDelegate<AssetDetailsItem> {
+    override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
+        items[position] is AssetDetailsItem.CryptoDetailsInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetWalletViewHolder(
@@ -44,11 +44,11 @@ class CryptoAccountDetailsDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<AssetDetailsItemNew>,
+        items: List<AssetDetailsItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
-        items[position] as AssetDetailsItemNew.CryptoDetailsInfo,
+        items[position] as AssetDetailsItem.CryptoDetailsInfo,
         isFirstItemOfCategory = items.indexOfFirstItemOfCategory(AssetFilter.NonCustodial) == position ||
             items.indexOfFirstItemOfCategory(AssetFilter.Custodial) == position
     )
@@ -56,14 +56,14 @@ class CryptoAccountDetailsDelegate(
 
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
-    private val onAccountSelected: (AssetDetailsItemNew.CryptoDetailsInfo) -> Unit,
+    private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        item: AssetDetailsItemNew.CryptoDetailsInfo,
+        item: AssetDetailsItem.CryptoDetailsInfo,
         isFirstItemOfCategory: Boolean
     ) {
         val asset = getAsset(item.account, item.balance.currencyCode)
@@ -174,6 +174,6 @@ private class AssetWalletViewHolder(
         } ?: throw IllegalStateException("Unsupported account type ${this::class.java}")
 }
 
-private fun List<AssetDetailsItemNew>.indexOfFirstItemOfCategory(category: AssetFilter) = indexOfFirst { item ->
-    item is AssetDetailsItemNew.CryptoDetailsInfo && item.assetFilter == category
+private fun List<AssetDetailsItem>.indexOfFirstItemOfCategory(category: AssetFilter) = indexOfFirst { item ->
+    item is AssetDetailsItem.CryptoDetailsInfo && item.assetFilter == category
 }

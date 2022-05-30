@@ -41,6 +41,7 @@ import piuk.blockchain.android.ui.activity.detail.FiatActivityDetailsBottomSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.account.AccountSelectSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -84,8 +85,10 @@ class ActivitiesFragment :
     private var state: ActivitiesState? = null
     private var selectedFiatCurrency: FiatCurrency? = null
 
-    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding =
-        FragmentActivitiesBinding.inflate(inflater, container, false)
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentActivitiesBinding {
+        analytics.logEvent(WalletClientAnalytics.WalletActivityViewed)
+        return FragmentActivitiesBinding.inflate(inflater, container, false)
+    }
 
     @UiThread
     override fun render(newState: ActivitiesState) {

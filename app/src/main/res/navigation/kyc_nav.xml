@@ -79,8 +79,8 @@
         android:label="KycHomeAddress"
         tools:layout="@layout/fragment_kyc_home_address">
         <action
-            android:id="@+id/action_kycHomeAddressFragment_to_kycAdditionalInfoFragment"
-            app:destination="@id/kycAdditionalInfoFragment"
+            android:id="@+id/action_kycHomeAddressFragment_to_kycQuestionnaireFragment"
+            app:destination="@id/kycQuestionnaireFragment"
             app:popUpTo="@id/kyc_nav.xml"
             app:popUpToInclusive="true" />
         <argument
@@ -88,13 +88,13 @@
             app:argType="piuk.blockchain.android.ui.kyc.profile.models.ProfileModel" />
     </fragment>
     <fragment
-        android:id="@+id/kycAdditionalInfoFragment"
-        android:name="piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment"
-        android:label="Kyc Additional Info"
+        android:id="@+id/kycQuestionnaireFragment"
+        android:name="piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireFragment"
+        android:label="Kyc Questionnaire"
         >
         <argument
             android:name="root"
-            app:argType="piuk.blockchain.android.ui.kyc.additional_info.TreeNode$Root" />
+            app:argType="piuk.blockchain.android.ui.kyc.questionnaire.TreeNode$Root" />
         <argument
             android:name="countryCode"
             app:argType="string" />
@@ -174,8 +174,8 @@
                 android:name="mobileNumber"
                 app:argType="piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneDisplayModel" />
             <action
-                android:id="@+id/action_kycMobileValidationFragment_to_kycAdditionalInfoFragment"
-                app:destination="@id/kycAdditionalInfoFragment"
+                android:id="@+id/action_kycMobileValidationFragment_to_kycQuestionnaireFragment"
+                app:destination="@id/kycQuestionnaireFragment"
                 app:popUpTo="@id/kyc_nav.xml"
                 app:popUpToInclusive="true"
                 />
@@ -237,8 +237,8 @@
         android:id="@+id/action_startAutocompleteAddressEntry"
         app:destination="@id/kycAutocompleteAddressFragment" />
     <action
-        android:id="@+id/action_startAdditionalInfoEntry"
-        app:destination="@id/kycAdditionalInfoFragment" />
+        android:id="@+id/action_startQuestionnaireEntry"
+        app:destination="@id/kycQuestionnaireFragment" />
 
     <fragment
         android:id="@+id/kycResubmissionSplashFragment"

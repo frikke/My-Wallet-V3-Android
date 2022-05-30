@@ -36,6 +36,7 @@ class SupportModel(
                     )
             SupportIntent.ResetErrorState,
             SupportIntent.ResetViewState,
+            SupportIntent.UpdateStartingChatError,
             is SupportIntent.UpdateViewState,
             is SupportIntent.UpdateErrorState,
             is SupportIntent.OnTopicSelected -> null

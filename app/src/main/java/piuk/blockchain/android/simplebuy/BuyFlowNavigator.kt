@@ -1,5 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
@@ -83,7 +84,7 @@ class BuyFlowNavigator(
             userIdentity.userAccessForFeature(Feature.Buy)
         ).flatMap { (currencySupported, eligibility) ->
             if (eligibility is FeatureAccess.Blocked) {
-                Single.just(BuyNavigation.TransactionsLimitReached)
+                Single.just(BuyNavigation.BlockBuy(eligibility.reason))
             } else if (!currencySupported) {
                 if (!failOnUnavailableCurrency) {
                     custodialWalletManager.getSupportedFiatCurrencies().map {
@@ -111,7 +112,7 @@ class BuyFlowNavigator(
                 FeatureAccess.NotRequested,
                 FeatureAccess.Unknown,
                 is FeatureAccess.Granted -> Maybe.empty()
-                is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access))
+                is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access.reason))
             }
         }
 
@@ -125,8 +126,7 @@ sealed class BuyNavigation {
         BuyNavigation()
 
     data class FlowScreenWithCurrency(val flowScreen: FlowScreen, val cryptoCurrency: AssetInfo) : BuyNavigation()
-    data class BlockBuy(val access: FeatureAccess.Blocked) : BuyNavigation()
+    data class BlockBuy(val reason: BlockedReason) : BuyNavigation()
     object CurrencyNotAvailable : BuyNavigation()
     object OrderInProgressScreen : BuyNavigation()
-    object TransactionsLimitReached : BuyNavigation()
 }

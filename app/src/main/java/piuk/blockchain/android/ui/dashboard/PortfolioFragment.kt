@@ -51,6 +51,7 @@ import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PortfolioDelegateAdapter
@@ -79,6 +80,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -170,6 +172,7 @@ class PortfolioFragment :
         super.onViewCreated(view, savedInstanceState)
 
         analytics.logEvent(AnalyticsEvents.Dashboard)
+        analytics.logEvent(WalletClientAnalytics.WalletHomeViewed)
 
         model.process(DashboardIntent.UpdateDepositButton)
         model.process(DashboardIntent.LoadFundsLocked)
@@ -408,6 +411,8 @@ class PortfolioFragment :
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
                     navigationAction.account
                 )
+                is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
+                    BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 else -> null
             }
         )

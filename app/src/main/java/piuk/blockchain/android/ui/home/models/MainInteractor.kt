@@ -13,7 +13,6 @@ import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.preferences.BankLinkingPrefs
@@ -42,7 +41,6 @@ import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
-import timber.log.Timber
 
 class MainInteractor internal constructor(
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -130,20 +128,6 @@ class MainInteractor internal constructor(
             credentialsWiper.wipe()
             database.historicRateQueries.clear()
         }
-
-    fun cancelAnyPendingConfirmationBuy(): Completable {
-        val currentOrder = simpleBuySync.currentState() ?: return Completable.complete()
-        val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id
-            ?: return Completable.complete()
-
-        return custodialWalletManager.deleteBuyOrder(pendingOrderId)
-            .doOnComplete {
-                simpleBuySync.clear()
-            }
-            .doOnError {
-                Timber.e("Failed to cancel buy order $pendingOrderId")
-            }
-    }
 
     fun processQrScanResult(decodedData: String): Single<out ScanResult> =
         qrScanResultProcessor.processScan(decodedData)

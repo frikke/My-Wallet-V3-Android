@@ -19,7 +19,7 @@ data class RecurringBuyModelState(
 
 sealed class RecurringBuyViewState {
     object Loading : RecurringBuyViewState()
-    class ShowRecurringBuy(rb: RecurringBuy) : RecurringBuyViewState()
+    object ShowRecurringBuy : RecurringBuyViewState()
 }
 
 sealed class RecurringBuyError {
@@ -27,6 +27,7 @@ sealed class RecurringBuyError {
     object RecurringBuyDelete : RecurringBuyError()
     object LoadFailed : RecurringBuyError()
     data class HttpError(val errorMessage: String) : RecurringBuyError()
+    object UnknownError : RecurringBuyError()
 }
 
 class RecurringBuyModel(
@@ -67,17 +68,23 @@ class RecurringBuyModel(
                             onSuccess = { details ->
                                 process(RecurringBuyIntent.UpdatePaymentDetails(details))
                             },
-                            onError = {
-                                if (it is HttpException) {
-                                    val errorMessage =
-                                        NabuApiExceptionFactory.fromResponseBody(it).getErrorDescription()
+                            onError = { error ->
+                                if (error is HttpException) {
+                                    val exception = NabuApiExceptionFactory.fromResponseBody(error)
                                     process(
                                         RecurringBuyIntent.UpdateRecurringBuyError(
-                                            RecurringBuyError.HttpError(errorMessage)
+                                            RecurringBuyError.HttpError(
+                                                exception.getServerSideErrorInfo()?.description
+                                                    ?: exception.getErrorDescription()
+                                            )
                                         )
                                     )
                                 } else {
-                                    throw it
+                                    process(
+                                        RecurringBuyIntent.UpdateRecurringBuyError(
+                                            RecurringBuyError.UnknownError
+                                        )
+                                    )
                                 }
                             }
                         )

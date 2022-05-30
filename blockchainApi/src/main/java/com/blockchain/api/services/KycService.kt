@@ -2,18 +2,18 @@ package com.blockchain.api.services
 
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.kyc.KycApi
-import com.blockchain.api.kyc.models.KycAdditionalInfoResponse
+import com.blockchain.api.kyc.models.KycQuestionnaireResponse
 import com.blockchain.outcome.Outcome
 
 class KycService(
     private val kycApi: KycApi
 ) {
-    suspend fun getAdditionalInfoForm(authorization: String): Outcome<ApiError, KycAdditionalInfoResponse?> =
-        kycApi.getAdditionalInfoForm(authorization)
+    suspend fun getQuestionnaire(authorization: String): Outcome<ApiError, KycQuestionnaireResponse?> =
+        kycApi.getQuestionnaire(authorization)
 
-    suspend fun updateAdditionalInfo(
+    suspend fun submitQuestionnaire(
         authorization: String,
-        nodes: KycAdditionalInfoResponse
+        nodes: KycQuestionnaireResponse
     ): Outcome<ApiError, Unit> =
-        kycApi.updateAdditionalInfo(authorization, nodes)
+        kycApi.submitQuestionnaire(authorization, nodes)
 }

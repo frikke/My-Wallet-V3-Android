@@ -30,21 +30,27 @@ enum class BankLinkingProcessState {
     NONE
 }
 
-enum class BankAuthError {
-    BankLinkingUpdateFailed,
-    BankLinkingFailed,
-    LinkedBankAlreadyLinked,
-    BankLinkingTimeout,
-    LinkedBankInfoNotFound,
-    LinkedBankAccountUnsupported,
-    GenericError,
-    LinkedBankNamesMismatched,
-    LinkedBankRejected,
-    LinkedBankExpired,
-    LinkedBankFailure,
-    LinkedBankInternalFailure,
-    LinkedBankInvalid,
-    LinkedBankFraud
+sealed class BankAuthError : Serializable {
+    object BankLinkingUpdateFailed : BankAuthError()
+    object BankLinkingFailed : BankAuthError()
+    object LinkedBankAlreadyLinked : BankAuthError()
+    object BankLinkingTimeout : BankAuthError()
+    object LinkedBankInfoNotFound : BankAuthError()
+    object LinkedBankAccountUnsupported : BankAuthError()
+    object GenericError : BankAuthError()
+    object LinkedBankNamesMismatched : BankAuthError()
+    object LinkedBankRejected : BankAuthError()
+    object LinkedBankExpired : BankAuthError()
+    object LinkedBankFailure : BankAuthError()
+    object LinkedBankInternalFailure : BankAuthError()
+    object LinkedBankInvalid : BankAuthError()
+    object LinkedBankFraud : BankAuthError()
+    class ServerSideDrivenLinkedBankError(
+        val title: String,
+        val message: String,
+        val iconUrl: String,
+        val statusIconUrl: String
+    ) : BankAuthError()
 }
 
 data class BankLinkingInfo(

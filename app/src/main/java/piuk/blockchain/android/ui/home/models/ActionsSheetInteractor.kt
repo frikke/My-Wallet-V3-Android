@@ -19,7 +19,8 @@ class ActionsSheetInteractor internal constructor(
                         FlowToLaunch.TooManyPendingBuys(reason.maxTransactions)
                     )
                     BlockedReason.NotEligible,
-                    BlockedReason.InsufficientTier ->
+                    is BlockedReason.Sanctions,
+                    is BlockedReason.InsufficientTier ->
                         // launch Buy anyways, because this is handled in that screen
                         ActionsSheetIntent.UpdateFlowToLaunch(FlowToLaunch.BuyFlow)
                 }.exhaustive
