@@ -52,6 +52,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -167,6 +168,8 @@ internal class PricesFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        analytics.logEvent(WalletClientAnalytics.WalletPricesViewed)
 
         setupSwipeRefresh()
         setupRecycler()

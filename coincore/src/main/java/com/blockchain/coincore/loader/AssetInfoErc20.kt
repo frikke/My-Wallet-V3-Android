@@ -65,7 +65,7 @@ internal object AAVE : CryptoCurrency(
 internal object YFI : CryptoCurrency(
     displayTicker = "YFI",
     networkTicker = "YFI",
-    name = "YFI", // TODO Check name
+    name = "YFI",
     categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
     precisionDp = 18,
     l1chainTicker = ETHER.networkTicker,

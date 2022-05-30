@@ -216,8 +216,6 @@ interface CustodialWalletManager {
 
     val selectedFiatcurrency: FiatCurrency
 
-    fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>>
-
     fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy>
 
     fun cancelRecurringBuy(recurringBuyId: String): Completable

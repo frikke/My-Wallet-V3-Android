@@ -309,18 +309,10 @@ class MainActivity :
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
-                    NavigationItem.Home -> {
-                        launchPortfolio()
-                    }
-                    NavigationItem.Prices -> {
-                        launchPrices()
-                    }
-                    NavigationItem.BuyAndSell -> {
-                        launchBuySell()
-                    }
-                    NavigationItem.Activity -> {
-                        startActivitiesFragment()
-                    }
+                    NavigationItem.Home -> launchPortfolio()
+                    NavigationItem.Prices -> launchPrices()
+                    NavigationItem.BuyAndSell -> launchBuySell()
+                    NavigationItem.Activity -> startActivitiesFragment()
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
                 }
             }
@@ -545,6 +537,16 @@ class MainActivity :
                         getString(
                             R.string.deposit_confirmation_error_subtitle
                         ),
+                        FiatTransactionState.ERROR
+                    )
+                )
+            }
+            is ViewToLaunch.LaunchServerDrivenOpenBankingError -> {
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        view.title,
+                        view.description,
                         FiatTransactionState.ERROR
                     )
                 )

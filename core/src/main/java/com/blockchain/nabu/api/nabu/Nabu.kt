@@ -402,12 +402,6 @@ internal interface Nabu {
     ): Single<RecurringBuyResponse>
 
     @GET(NABU_RECURRING_BUY_LIST)
-    fun getRecurringBuysForAsset(
-        @Header("authorization") authorization: String,
-        @Query("currency") assetTicker: String? = null
-    ): Single<List<RecurringBuyResponse>>
-
-    @GET(NABU_RECURRING_BUY_LIST)
     fun getRecurringBuyById(
         @Header("authorization") authorization: String,
         @Query("id") recurringBuyId: String

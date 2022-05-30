@@ -34,6 +34,8 @@ import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.urllinks.URL_YODLEE_SUPPORT_LEARN_MORE
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.getResolvedDrawable
+import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
+import piuk.blockchain.android.util.loadRemoteErrorIcon
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthState, FragmentLinkABankBinding>() {
@@ -522,6 +524,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     linkBankSubtitle.movementMethod = LinkMovementMethod.getInstance()
                 }
             }
+            is BankAuthError.ServerSideDrivenLinkedBankError -> setTitleAndSubtitle(
+                errorState.title,
+                errorState.message
+            )
             else -> {
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
                 if (partner == BankPartner.YODLEE) {
@@ -544,17 +550,64 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     ) {
         with(binding) {
             linkBankProgress.gone()
-            linkBankIcon.setImageResource(R.drawable.ic_bank_details_big)
-            linkBankStateIndicator.apply {
-                setImageResource(
-                    when (state) {
-                        BankAuthError.LinkedBankAlreadyLinked -> R.drawable.ic_question_mark_white_bkgd
-                        BankAuthError.LinkedBankRejected -> R.drawable.ic_cross_white_bckg
-                        else -> R.drawable.ic_alert_white_bkgd
+            if (state is BankAuthError.ServerSideDrivenLinkedBankError) {
+                when {
+                    // we have been provided both icon and status
+                    state.iconUrl.isNotEmpty() && state.statusIconUrl.isNotEmpty() -> {
+                        requireContext().loadRemoteErrorAndStatusIcons(
+                            state.iconUrl,
+                            state.statusIconUrl,
+                            onIconLoadSuccess = { drawable ->
+                                linkBankIcon.setImageDrawable(drawable)
+                            },
+                            onIconLoadError = {
+                                showDefaultErrorIcons(state)
+                            },
+                            onStatusIconLoadSuccess = { drawable ->
+                                linkBankStateIndicator.apply {
+                                    setImageDrawable(drawable)
+                                    visible()
+                                }
+                            },
+                            onStatusIconLoadError = {
+                                showDefaultErrorIcons(state)
+                            },
+                        )
                     }
-                )
-                visible()
+                    // we only have one icon
+                    state.iconUrl.isNotEmpty() && state.statusIconUrl.isEmpty() -> {
+                        requireContext().loadRemoteErrorIcon(
+                            state.iconUrl,
+                            onIconLoadSuccess = { drawable ->
+                                linkBankIcon.setImageDrawable(drawable)
+                            },
+                            onIconLoadError = {
+                                showDefaultErrorIcons(state)
+                            }
+                        )
+                    }
+                    // no icons provided
+                    else -> {
+                        showDefaultErrorIcons(state)
+                    }
+                }
+            } else {
+                showDefaultErrorIcons(state)
             }
+        }
+    }
+
+    private fun FragmentLinkABankBinding.showDefaultErrorIcons(state: BankAuthError) {
+        linkBankIcon.setImageResource(R.drawable.ic_bank_details_big)
+        linkBankStateIndicator.apply {
+            setImageResource(
+                when (state) {
+                    BankAuthError.LinkedBankAlreadyLinked -> R.drawable.ic_question_mark_white_bkgd
+                    BankAuthError.LinkedBankRejected -> R.drawable.ic_cross_white_bckg
+                    else -> R.drawable.ic_alert_white_bkgd
+                }
+            )
+            visible()
         }
     }
 

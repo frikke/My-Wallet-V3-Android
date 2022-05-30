@@ -80,6 +80,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -171,6 +172,7 @@ class PortfolioFragment :
         super.onViewCreated(view, savedInstanceState)
 
         analytics.logEvent(AnalyticsEvents.Dashboard)
+        analytics.logEvent(WalletClientAnalytics.WalletHomeViewed)
 
         model.process(DashboardIntent.UpdateDepositButton)
         model.process(DashboardIntent.LoadFundsLocked)
