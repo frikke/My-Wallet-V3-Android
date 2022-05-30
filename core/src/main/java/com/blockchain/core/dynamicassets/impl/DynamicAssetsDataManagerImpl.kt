@@ -3,6 +3,7 @@ package com.blockchain.core.dynamicassets.impl
 import com.blockchain.api.services.AssetDiscoveryService
 import com.blockchain.api.services.DetailedAssetInformation
 import com.blockchain.api.services.DynamicAsset
+import com.blockchain.api.services.DynamicAssetList
 import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.dynamicassets.CryptoAssetList
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
@@ -16,15 +17,17 @@ import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
 
 internal class DynamicAssetsDataManagerImpl(
-    private val discoveryService: AssetDiscoveryService
+    private val discoveryService: AssetDiscoveryService,
+    private val experimentalL1EvmAssets: Set<CryptoCurrency>
 ) : DynamicAssetsDataManager {
 
     override fun availableCryptoAssets(): Single<CryptoAssetList> =
         Single.zip(
             discoveryService.getErc20Assets(),
-            discoveryService.getCustodialAssets()
-        ) { erc20, custodial ->
-            val cryptoAssets = erc20 + custodial
+            discoveryService.getCustodialAssets(),
+            getEvmCurrencies()
+        ) { erc20, custodial, evmList ->
+            val cryptoAssets = erc20 + custodial + evmList
             cryptoAssets.filterNot { it.isFiat }
                 .toSet() // Remove dups
                 .filter { it.hasSupport() }
@@ -50,6 +53,18 @@ internal class DynamicAssetsDataManagerImpl(
                 }
             )
         }
+
+    private fun getEvmCurrencies(): Single<DynamicAssetList> {
+        return rxSingle {
+            experimentalL1EvmAssets.map { asset ->
+                discoveryService.getAssetsForEvm(asset.displayTicker.lowercase())
+                    .fold(
+                        onFailure = { throw it.throwable },
+                        onSuccess = { it }
+                    )
+            }.flatten()
+        }
+    }
 }
 
 private fun DynamicAsset.hasSupport() =
