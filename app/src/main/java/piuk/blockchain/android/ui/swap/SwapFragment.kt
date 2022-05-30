@@ -50,7 +50,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_SWAP
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
@@ -61,6 +60,8 @@ import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.ui.transactionflow.analytics.SwapAnalyticsEvents
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
 class SwapFragment :
@@ -115,10 +116,6 @@ class SwapFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.swapError.setDetails {
-            loadSwapOrKyc(true)
-        }
 
         binding.swapCta.apply {
             analytics.logEvent(SwapAnalyticsEvents.NewSwapClicked)
@@ -278,7 +275,18 @@ class SwapFragment :
     }
 
     private fun showBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
-        showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
+        binding.swapViewFlipper.gone()
+        binding.swapError.apply {
+            title = R.string.account_restricted
+            descriptionText = when (reason) {
+                BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
+                is BlockedReason.Sanctions.Unknown -> reason.message
+            }
+            icon = R.drawable.ic_wallet_intro_image
+            ctaText = R.string.learn_more
+            ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+            visible()
+        }
     }
 
     private fun showKycUpsellIfEligible(limits: TransferLimits) {
@@ -365,7 +373,14 @@ class SwapFragment :
 
     private fun showErrorUi() {
         binding.swapViewFlipper.gone()
-        binding.swapError.visible()
+        binding.swapError.apply {
+            title = R.string.common_empty_title
+            description = R.string.common_empty_details
+            icon = R.drawable.ic_wallet_intro_image
+            ctaText = R.string.common_empty_cta
+            ctaAction = { loadSwapOrKyc(true) }
+            visible()
+        }
     }
 
     private fun showSwapUi(orders: List<CustodialOrder>, hasAtLeastOneAccountToSwapFrom: Boolean) {

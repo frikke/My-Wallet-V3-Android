@@ -20,7 +20,7 @@ class CustomEmptyStateView @JvmOverloads constructor(
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     @get:StringRes
-    var title: Int by mutableStateOf(R.string.common_empty_title,)
+    var title: Int by mutableStateOf(R.string.common_empty_title)
     @get:StringRes
     var description: Int by mutableStateOf(R.string.common_empty_details)
     var descriptionText: String? by mutableStateOf(null)
