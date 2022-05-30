@@ -60,6 +60,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityCoinviewBinding
 import piuk.blockchain.android.simplebuy.CustodialBalanceClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
@@ -112,6 +113,8 @@ class CoinViewActivity :
     private lateinit var selectedFiat: FiatCurrency
 
     private var ctaActions: List<QuickActionCta> = emptyList()
+
+    private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
@@ -309,6 +312,7 @@ class CoinViewActivity :
 
     override fun onResume() {
         super.onResume()
+        simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
         model.process(CoinViewIntent.LoadAsset(assetTicker))
     }
 

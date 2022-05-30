@@ -162,8 +162,6 @@ class MainModel(
             is MainIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
-            is MainIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
-                .subscribe()
             is MainIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
                 .subscribeBy(
                     onSuccess = {

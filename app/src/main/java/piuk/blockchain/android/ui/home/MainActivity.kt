@@ -61,6 +61,7 @@ import piuk.blockchain.android.databinding.DialogEntitySwitchSilverBinding
 import piuk.blockchain.android.scan.QrScanError
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.simplebuy.SimpleBuyActivity
+import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
@@ -143,6 +144,7 @@ class MainActivity :
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val destinationArgs: DestinationArgs by scopedInject()
+    private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -235,7 +237,7 @@ class MainActivity :
 
     override fun onResume() {
         super.onResume()
-        model.process(MainIntent.CancelAnyPendingConfirmationBuy)
+        simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
     }
 
     override fun onDestroy() {

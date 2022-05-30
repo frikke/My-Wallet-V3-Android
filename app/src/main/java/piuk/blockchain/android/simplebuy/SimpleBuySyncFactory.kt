@@ -60,6 +60,20 @@ class SimpleBuySyncFactory(
         serializer.clear()
     }
 
+    fun cancelAnyPendingConfirmationBuy(): Completable {
+        val currentOrder = currentState() ?: return Completable.complete()
+        val pendingOrderId = currentOrder.takeIf { it.orderState == OrderState.PENDING_CONFIRMATION }?.id
+            ?: return Completable.complete()
+
+        return custodialWallet.deleteBuyOrder(pendingOrderId)
+            .doOnComplete {
+                clear()
+            }
+            .doOnError {
+                Timber.e("Failed to cancel buy order $pendingOrderId")
+            }
+    }
+
     private fun syncStates(): Maybe<SimpleBuyState> {
         return maybeInflateLocalState()
             .flatMap { updateWithRemote(it) }

@@ -35,10 +35,6 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    object CancelAnyPendingConfirmationBuy : MainIntent() {
-        override fun reduce(oldState: MainState): MainState = oldState
-    }
-
     object ResetViewState : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState.copy(
             viewToLaunch = ViewToLaunch.None
