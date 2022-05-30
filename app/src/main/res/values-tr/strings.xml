@@ -1842,9 +1842,9 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="common_deny">Reddet</string>
     <string name="toolbar_cmd_swap">Swap Yap</string>
     <string name="done">Bitti</string>
-    <string name="btn_close">Kapat</string>
-    <string name="options_id">Wallet Kimliği</string>
-    <string name="btn_logout">Çıkış</string>
+    <string name="common_close">Kapat</string>
+    <string name="options_id">Cüzdan Kimliği</string>
+    <string name="btn_logout">Çıkış Yap</string>
     <string name="options_tos">Kullanım Şartları</string>
     <string name="options_privacy">Gizlilik Politikası</string>
     <string name="btn_manual_pairing">Manuel Eşleştirme</string>

@@ -23,8 +23,8 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
     }
 
     val host: Host by lazy {
-        parentFragment as? Host ?: throw IllegalStateException(
-            "Host fragment is not a BottomSheetInformation.Host"
+        activity as? Host ?: parentFragment as? Host ?: throw IllegalStateException(
+            "Host is not a BottomSheetInformation.Host"
         )
     }
 

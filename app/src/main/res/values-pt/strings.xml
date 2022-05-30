@@ -1841,9 +1841,9 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Recusar</string>
     <string name="toolbar_cmd_swap">Trocar</string>
-    <string name="done">Concluído</string>
-    <string name="btn_close">Fechar</string>
-    <string name="options_id">Wallet ID</string>
+    <string name="done">Feito</string>
+    <string name="common_close">Fechar</string>
+    <string name="options_id">ID da Wallet</string>
     <string name="btn_logout">Terminar sessão</string>
     <string name="options_tos">Termos de serviço</string>
     <string name="options_privacy">Política de privacidade</string>

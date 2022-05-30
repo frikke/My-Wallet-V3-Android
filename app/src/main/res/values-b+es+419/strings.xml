@@ -1711,8 +1711,8 @@ Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string
     <string name="common_deny">Denegar</string>
     <string name="toolbar_cmd_swap">Intercambiar</string>
     <string name="done">Listo</string>
-    <string name="btn_close">Cerrar</string>
-    <string name="options_id">ID de Wallet</string>
+    <string name="common_close">Cerrar</string>
+    <string name="options_id">Wallet ID</string>
     <string name="btn_logout">Cerrar sesión</string>
     <string name="options_tos">Términos del servicio</string>
     <string name="options_privacy">Política de privacidad</string>

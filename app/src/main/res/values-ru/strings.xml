@@ -1800,7 +1800,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="common_deny">Отклонить</string>
     <string name="toolbar_cmd_swap">Обменять</string>
     <string name="done">Готово</string>
-    <string name="btn_close">Закрыть</string>
+    <string name="common_close">Закрыть</string>
     <string name="options_id">Wallet ID</string>
     <string name="btn_logout">Выйти</string>
     <string name="options_tos">Условия обслуживания</string>

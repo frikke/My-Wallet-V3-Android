@@ -68,6 +68,7 @@
     <string name="common_i_understand">I Understand</string>
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
+    <string name="common_close">Close</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -102,7 +103,6 @@
     <string name="polite_no">No thanks</string>
 
     <string name="done">Done</string>
-    <string name="btn_close">Close</string>
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
@@ -2849,6 +2849,9 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
+    <string name="customer_support_error_title">An error occurred while starting the chat</string>
+    <string name="customer_support_error_description">It seems like our chat is having issues, please try closing and opening the app and if the problem persists, submit a ticket instead.</string>
+    <string name="customer_support_error_cta">Submit a ticket</string>
 
     <!-- App Maintenance Screens-->
     <string name="app_maintenance_os_not_supported_title">Your OS is Not Supported</string>

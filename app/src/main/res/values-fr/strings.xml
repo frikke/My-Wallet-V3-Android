@@ -1783,8 +1783,8 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
     <string name="common_deny">Refuser</string>
     <string name="toolbar_cmd_swap">Échanger</string>
     <string name="done">Terminé</string>
-    <string name="btn_close">Fermer</string>
-    <string name="options_id">Identifiant Wallet</string>
+    <string name="common_close">Fermer</string>
+    <string name="options_id">Identifiant de Wallet</string>
     <string name="btn_logout">Déconnexion</string>
     <string name="options_tos">Conditions d\'utilisation</string>
     <string name="options_privacy">Politique de confidentialité</string>
