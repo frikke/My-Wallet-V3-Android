@@ -41,14 +41,12 @@ class AccountCredentialsMetadata(
             // Not found - haven't been created yet.
             Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
         ).flatMap { blockchainMetadata ->
-            println("LALALA UNIFIED $blockchainMetadata")
             if (blockchainMetadata.isValid()) {
                 Maybe.just(blockchainMetadata)
             } else {
                 metadataRepository.load<NabuLegacyCredentialsMetadata>(
                     MetadataEntry.NABU_LEGACY_CREDENTIALS
                 ).flatMap { legacyMetadata ->
-                    println("LALALA Legacy $legacyMetadata")
                     migrate(legacyMetadata, blockchainMetadata).thenMaybe {
                         Maybe.just(legacyMetadata)
                     }
@@ -106,7 +104,6 @@ class AccountCredentialsMetadata(
             }.cache()
             metadataMigrationCompletable!!
         } else {
-            println("LALALA We avoided")
             metadataMigrationCompletable!!
         }
     }

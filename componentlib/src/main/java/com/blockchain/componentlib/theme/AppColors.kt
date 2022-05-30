@@ -52,9 +52,6 @@ val Dark000 = Color(0XFFD2D4D6)
 val TierGold = Color(0XFFF5B73D)
 val TierSilver = Color(0XFFC2C9D6)
 
-val SwitchBg = Color(0XFFE9E9EA)
-val SwitchThumbStroke = Color(0XFFC9C9C9)
-
 val Overlay800 = Dark800.copy(0.8f)
 val Overlay600 = Dark600.copy(0.64f)
 val Overlay400 = Dark400.copy(0.4f)

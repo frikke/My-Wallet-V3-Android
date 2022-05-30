@@ -51,7 +51,8 @@ enum class ComposeTypographies {
     Caption1,
     Caption2,
     Overline,
-    Micro;
+    Micro1,
+    Micro2;
 
     @Composable
     fun toComposeTypography() =
@@ -70,7 +71,8 @@ enum class ComposeTypographies {
             Caption1 -> AppTheme.typography.caption1
             Caption2 -> AppTheme.typography.caption2
             Overline -> AppTheme.typography.overline
-            Micro -> AppTheme.typography.micro1
+            Micro1 -> AppTheme.typography.micro1
+            Micro2 -> AppTheme.typography.micro2
         }
 }
 

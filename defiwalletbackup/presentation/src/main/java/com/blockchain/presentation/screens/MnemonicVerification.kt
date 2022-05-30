@@ -48,8 +48,8 @@ fun MnemonicVerification(mnemonic: List<String>, wordSelected: (word: String) ->
             .padding(dimensionResource(R.dimen.small_margin))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = 8.dp,
-        crossAxisSpacing = 8.dp
+        mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
+        crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
     ) {
         mnemonic.forEachIndexed { index, word ->
             MnemonicVerificationWord(index = index.inc(), word = word) {
@@ -65,8 +65,8 @@ fun MnemonicSelection(mnemonic: List<String>, wordSelected: (word: String) -> Un
         modifier = Modifier
             .fillMaxWidth(),
         mainAxisAlignment = FlowMainAxisAlignment.Center,
-        mainAxisSpacing = 8.dp,
-        crossAxisSpacing = 8.dp
+        mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
+        crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
     ) {
         mnemonic.forEach { word ->
             MnemonicVerificationWord(word = word) {
