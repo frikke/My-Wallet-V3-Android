@@ -454,9 +454,19 @@ class MainModel(
                         }
                     }
                 },
-                onError = {
+                onError = { error ->
                     interactor.resetLocalBankAuthState()
-                    process(
+                    (error as? NabuApiException)?.getServerSideErrorInfo()?.let { info ->
+                        process(
+                            MainIntent.UpdateViewToLaunch(
+                                ViewToLaunch.LaunchServerDrivenOpenBankingError(
+                                    currencyCode = paymentData.orderValue.currencyCode,
+                                    title = info.title,
+                                    description = info.description
+                                )
+                            )
+                        )
+                    } ?: process(
                         MainIntent.UpdateViewToLaunch(
                             ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                         )

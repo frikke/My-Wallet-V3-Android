@@ -1,5 +1,6 @@
 package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
@@ -119,7 +120,9 @@ class LiveCustodialWalletManager(
                 custodialWalletOrder,
                 stateAction
             )
-        }.map { response -> response.toBuySellOrder(assetCatalogue) }
+        }.map { response ->
+            response.toDomainOrThrow()
+        }
 
     override fun createRecurringBuyOrder(
         recurringBuyRequestBody: RecurringBuyRequestBody
@@ -401,7 +404,7 @@ class LiveCustodialWalletManager(
     override fun getBuyOrder(orderId: String): Single<BuySellOrder> =
         authenticator.authenticate {
             nabuService.getBuyOrder(it, orderId)
-        }.map { it.toBuySellOrder(assetCatalogue) }
+        }.map { it.toDomainOrThrow() }
 
     override fun deleteBuyOrder(orderId: String): Completable =
         authenticator.authenticateCompletable {
@@ -450,21 +453,6 @@ class LiveCustodialWalletManager(
         return dailyMax.coerceAtMost(max)
     }
 
-    // TODO (dserrano-bc): Remove these methods when we clean up old AssetDetailsSheet
-    override fun getRecurringBuysForAsset(asset: AssetInfo): Single<List<RecurringBuy>> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getRecurringBuysForAsset(sessionToken, asset.networkTicker)
-                .map { list ->
-                    list.mapNotNull {
-                        it.toRecurringBuy(assetCatalogue)
-                    }.filter {
-                        // The endpoint is broken; pass in an unknown ticker and you get the
-                        // list of all buys, so filter the ones we don't want out
-                        it.asset == asset
-                    }
-                }
-        }
-
     override fun getRecurringBuyForId(recurringBuyId: String): Single<RecurringBuy> {
         return authenticator.authenticate { sessionToken ->
             nabuService.getRecurringBuyForId(sessionToken, recurringBuyId)
@@ -480,7 +468,6 @@ class LiveCustodialWalletManager(
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.cancelRecurringBuy(sessionToken, recurringBuyId)
         }
-    // TODO (dserrano-bc): end ------------------
 
     override fun getCardAcquirers(): Single<List<PaymentCardAcquirer>> =
         authenticator.authenticate { nabuSessionToken ->
@@ -506,9 +493,14 @@ class LiveCustodialWalletManager(
                     } else null
                 )
             )
-        }.map {
-            it.toBuySellOrder(assetCatalogue)
+        }.map { response ->
+            response.toDomainOrThrow()
         }
+
+    private fun BuySellOrderResponse.toDomainOrThrow() =
+        ux?.let {
+            throw NabuApiExceptionFactory.fromServerSideError(it)
+        } ?: toBuySellOrder(assetCatalogue)
 
     override fun getInterestAccountRates(asset: AssetInfo): Single<Double> =
         authenticator.authenticate { sessionToken ->
@@ -892,7 +884,6 @@ enum class OrderType {
 }
 
 private fun BuySellOrderResponse.toBuySellOrder(assetCatalogue: AssetCatalogue): BuySellOrder {
-
     return BuySellOrder(
         id = id,
         pair = pair,

@@ -549,6 +549,16 @@ class MainActivity :
                     )
                 )
             }
+            is ViewToLaunch.LaunchServerDrivenOpenBankingError -> {
+                replaceBottomSheet(
+                    FiatTransactionBottomSheet.newInstance(
+                        view.currencyCode,
+                        view.title,
+                        view.description,
+                        FiatTransactionState.ERROR
+                    )
+                )
+            }
             is ViewToLaunch.LaunchOpenBankingLinking -> {
                 launchOpenBankingLinking(view.bankLinkingInfo)
             }

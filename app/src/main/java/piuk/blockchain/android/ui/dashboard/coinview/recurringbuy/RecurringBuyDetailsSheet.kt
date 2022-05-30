@@ -89,7 +89,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                     rbLoading.visible()
                     rbInfoGroup.gone()
                 }
-                is RecurringBuyViewState.ShowRecurringBuy -> {
+                RecurringBuyViewState.ShowRecurringBuy -> {
                     rbLoading.gone()
                     rbInfoGroup.visible()
                     newState.recurringBuy.let {
@@ -121,6 +121,13 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
                                 BlockchainSnackbar.make(
                                     binding.root,
                                     newState.error.errorMessage,
+                                    type = SnackbarType.Error
+                                ).show()
+                            }
+                            newState.error == RecurringBuyError.UnknownError -> {
+                                BlockchainSnackbar.make(
+                                    binding.root,
+                                    getString(R.string.recurring_buy_failed_loading),
                                     type = SnackbarType.Error
                                 ).show()
                             }
