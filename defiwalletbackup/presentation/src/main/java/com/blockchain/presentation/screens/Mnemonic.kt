@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.GridCells
@@ -31,7 +33,9 @@ private const val COLUMN_COUNT = 3
 @Composable
 fun Mnemonic(mnemonic: List<String>) {
     LazyVerticalGrid(
-        modifier = Modifier.border(width = 1.dp, color = Grey100),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = Grey100),
         contentPadding = PaddingValues(
             horizontal = dimensionResource(R.dimen.small_margin),
             vertical = dimensionResource(R.dimen.small_margin)

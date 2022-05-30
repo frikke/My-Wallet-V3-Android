@@ -56,14 +56,13 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
             DefaultPhraseIntent.ResetCopy -> {
                 updateState { it.copy(copyState = CopyState.Idle) }
             }
-
         }.exhaustive
     }
 
     private fun mnemonic(): List<String> {
         val locales = Locale.getISOCountries().toList()
         return locales.map {
-            Locale("", it).displayCountry
+            Locale("", it).isO3Country
         }.shuffled().subList(0, 12)
     }
 

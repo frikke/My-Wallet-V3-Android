@@ -8,6 +8,7 @@
     <dimen name="xxPaddingLarge">40dp</dimen>
     <dimen name="xxxPaddingLarge">48dp</dimen>
 
+    <dimen name="borderRadiiSmallest">4dp</dimen>
     <dimen name="borderRadiiSmall">8dp</dimen>
     <dimen name="borderRadiiMedium">16dp</dimen>
     <dimen name="borderRadiiLarge">100dp</dimen>

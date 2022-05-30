@@ -38,6 +38,7 @@ import com.blockchain.componentlib.extensions.copyToClipboard
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
+import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.DefaultPhraseViewState
 import com.blockchain.presentation.R
@@ -62,7 +63,7 @@ fun ManualBackup(
         copyState = state?.copyState ?: CopyState.Idle,
 
         mnemonicCopied = { viewModel.onIntent(DefaultPhraseIntent.MnemonicCopied) },
-        nextOnClick = { /*todo*/ }
+        nextOnClick = { navController.navigate(BackPhraseDestination.VerifyPhrase.route) }
     )
 }
 

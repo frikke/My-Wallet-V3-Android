@@ -48,6 +48,7 @@ dependencies {
     implementation Libraries.composePreview
     implementation Libraries.composeNavigation
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistFlowLayout
 
     // test
     testImplementation Libraries.kotlinTest

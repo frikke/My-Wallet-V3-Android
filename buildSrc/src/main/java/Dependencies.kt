@@ -298,6 +298,7 @@ object Libraries {
     const val accompanistNavigationMaterial =
         "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+    const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:0.23.1"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

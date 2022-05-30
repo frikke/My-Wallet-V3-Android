@@ -34,8 +34,7 @@ import com.blockchain.presentation.R
 @Composable
 fun Splash(navController: NavController) {
     SplashScreen(backUpNowOnClick = {
-        val route = BackPhraseDestination.DefaultPhrase.route
-        navController.navigate(route)
+        navController.navigate(BackPhraseDestination.DefaultPhrase.route)
     })
 }
 
