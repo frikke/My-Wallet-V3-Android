@@ -213,7 +213,7 @@ class SellIntroFragment : ViewPagerFragment() {
         with(binding) {
             accountsList.gone()
             customEmptyState.apply {
-                title = R.string.trading_restricted
+                title = R.string.account_restricted
                 descriptionText = when (reason) {
                     BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
                     is BlockedReason.Sanctions.Unknown -> reason.message

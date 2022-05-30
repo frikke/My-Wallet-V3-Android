@@ -34,7 +34,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             return ComposeView(requireContext()).apply {
                 setContent {
                     CustomEmptyState(
-                        title = R.string.trading_restricted,
+                        title = R.string.account_restricted,
                         description = descriptionResId ?: R.string.russia_sanctions_eu5_sheet_subtitle,
                         descriptionText = descriptionText,
                         icon = R.drawable.ic_wallet_intro_image,
@@ -50,7 +50,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
     @Composable
     override fun Sheet() {
         BottomSheetTwoButtons(
-            title = getString(R.string.trading_restricted),
+            title = getString(R.string.account_restricted),
             showTitleInHeader = true,
             subtitle = descriptionText ?: getString(descriptionResId!!),
             shouldShowHeaderDivider = false,

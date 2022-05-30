@@ -2589,6 +2589,6 @@ Se já o tiver feito, por favor <annotation link="contact_support">contacte o ap
     <string name="bank_linking_max_attempts_subtitle">Você atingiu o limite de tentativas de vincular seu banco. Os limites são redefinidos diariamente. Tente novamente amanhã.</string>
     <string name="bank_linking_max_accounts_title">Limite bancário atingido</string>
     <string name="bank_linking_max_accounts_subtitle">Você atingiu o limite do número de bancos que pode vincular à sua conta. Exclua um banco vinculado para adicionar um novo.</string>
-    <string name="trading_restricted">Negociação restrita</string>
+    <string name="account_restricted">Conta restrita</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">Atualmente, a negociação não é permitida para saldos superiores a € 10.000 devido a sanções regulatórias. No entanto, você ainda pode manter ou retirar.</string>
 </resources>

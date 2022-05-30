@@ -2945,6 +2945,6 @@
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
-    <string name="trading_restricted">Trading Restricted</string>
+    <string name="account_restricted">Account Restricted</string>
 
 </resources>

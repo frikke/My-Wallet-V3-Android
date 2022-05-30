@@ -2589,6 +2589,6 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="bank_linking_max_attempts_subtitle">Bankanızı bağlamaya yönelik deneme sayısı sınırına ulaştınız. Limitler günlük olarak sıfırlanır, lütfen yarın tekrar deneyin.</string>
     <string name="bank_linking_max_accounts_title">Banka Limitine Ulaşıldı</string>
     <string name="bank_linking_max_accounts_subtitle">Hesabınıza bağlayabileceğiniz banka sayısı sınırına ulaştınız. Yeni bir tane eklemek için lütfen bağlı bir bankayı silin.</string>
-    <string name="trading_restricted">Ticaret Kısıtlı</string>
+    <string name="account_restricted">Hesap Kısıtlı</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">Şu anda, düzenleyici yaptırımlar nedeniyle 10.000 € üzerindeki bakiyeler için ticarete izin verilmemektedir. Ancak, yine de tutabilir veya geri çekebilirsiniz.</string>
 </resources>

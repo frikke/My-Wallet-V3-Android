@@ -2529,6 +2529,6 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="bank_linking_max_attempts_subtitle">Vous avez atteint la limite du nombre de tentatives pour lier votre banque. Les limites sont réinitialisées quotidiennement, veuillez réessayer demain.</string>
     <string name="bank_linking_max_accounts_title">Limite bancaire atteinte</string>
     <string name="bank_linking_max_accounts_subtitle">Vous avez atteint la limite du nombre de banques que vous pouvez lier à votre compte. Veuillez supprimer une banque liée afin d\'en ajouter une nouvelle.</string>
-    <string name="trading_restricted">Commerce restreint</string>
+    <string name="account_restricted">Compte restreint</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">Actuellement, le trading n\'est pas autorisé pour les soldes supérieurs à 10 000 € en raison de sanctions réglementaires. Cependant, vous pouvez toujours conserver ou retirer.</string>
 </resources>
