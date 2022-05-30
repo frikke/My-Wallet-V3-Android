@@ -309,18 +309,10 @@ class MainActivity :
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
-                    NavigationItem.Home -> {
-                        launchPortfolio()
-                    }
-                    NavigationItem.Prices -> {
-                        launchPrices()
-                    }
-                    NavigationItem.BuyAndSell -> {
-                        launchBuySell()
-                    }
-                    NavigationItem.Activity -> {
-                        startActivitiesFragment()
-                    }
+                    NavigationItem.Home -> launchPortfolio()
+                    NavigationItem.Prices -> launchPrices()
+                    NavigationItem.BuyAndSell -> launchBuySell()
+                    NavigationItem.Activity -> startActivitiesFragment()
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
                 }
             }

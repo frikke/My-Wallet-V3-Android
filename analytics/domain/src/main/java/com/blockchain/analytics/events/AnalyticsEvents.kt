@@ -265,7 +265,13 @@ enum class AnalyticsNames(val eventName: String) {
     UI_TOUR_VIEWED("UI Tour Viewed"),
     UI_TOUR_CTA_CLICKED("UI Tour CTA Clicked"),
     UI_TOUR_PROGRESS_CLICKED("UI Tour Progress Clicked"),
-    UI_TOUR_DISMISSED("UI Tour Progress Dismissed");
+    UI_TOUR_DISMISSED("UI Tour Progress Dismissed"),
+    WALLET_ACTIVITY_VIEWED("Wallet Activity Viewed"),
+    WALLET_BUY_SELL_VIEWED("Wallet Buy Sell Viewed"),
+    WALLET_FAB_VIEWED("Wallet FAB Viewed"),
+    WALLET_HOME_VIEWED("Wallet Home Viewed"),
+    WALLET_PRICES_VIEWED("Wallet Prices Viewed"),
+    WALLET_REWARDS_VIEWED("Wallet Rewards Viewed");
 }
 
 enum class LaunchOrigin {
@@ -290,6 +296,7 @@ enum class LaunchOrigin {
     SETTINGS,
     SAVINGS_PAGE,
     VERIFICATION,
+    FAB,
 
     DCA_DETAILS_LINK,
     BUY_CONFIRMATION,
