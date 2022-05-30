@@ -82,3 +82,5 @@ const val URL_CONTACT_SUBMIT_REQUEST = "https://support.blockchain.com/hc/en-us/
 const val URL_FAQ = "https://support.blockchain.com/hc/en-us/articles/4592150619804"
 
 const val URL_OPEN_BANKING_PRIVACY_POLICY = "https://www.yapily.com/legal/privacy-policy/"
+
+const val URL_RUSSIA_SANCTIONS_EU5 = "https://ec.europa.eu/commission/presscorner/detail/en/ip_22_2332"

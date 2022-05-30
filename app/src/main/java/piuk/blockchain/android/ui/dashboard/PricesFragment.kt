@@ -32,6 +32,7 @@ import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
 import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
 import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
@@ -51,6 +52,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSh
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
@@ -166,6 +168,8 @@ internal class PricesFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        analytics.logEvent(WalletClientAnalytics.WalletPricesViewed)
 
         setupSwipeRefresh()
         setupRecycler()
@@ -346,6 +350,8 @@ internal class PricesFragment :
                 is DashboardNavigationAction.InterestSummary -> InterestSummarySheet.newInstance(
                     navigationAction.account
                 )
+                is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
+                    BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
                 else -> null
             }
         )

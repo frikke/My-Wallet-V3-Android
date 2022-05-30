@@ -1,5 +1,6 @@
 package com.blockchain.core.payments
 
+import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
@@ -10,17 +11,31 @@ import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.Limits
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.payments.data.BankInfoResponse
+import com.blockchain.api.payments.data.BankMediaResponse
+import com.blockchain.api.payments.data.BankMediaResponse.Companion.ICON
+import com.blockchain.api.payments.data.BankTransferChargeAttributes
+import com.blockchain.api.payments.data.BankTransferChargeResponse
+import com.blockchain.api.payments.data.BankTransferPaymentAttributes
+import com.blockchain.api.payments.data.BankTransferPaymentBody
+import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.LinkBankAttrsResponse
+import com.blockchain.api.payments.data.LinkedBankTransferResponse
+import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.ProviderAccountAttrs
+import com.blockchain.api.payments.data.UpdateProviderAccountBody
+import com.blockchain.api.payments.data.YapilyMediaResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
 import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
-import com.blockchain.core.payments.cards.CardsCache
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
@@ -33,6 +48,8 @@ import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.GooglePayInfo
+import com.blockchain.domain.paymentmethods.model.InstitutionCountry
+import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
@@ -47,18 +64,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
-import com.blockchain.domain.paymentmethods.model.response.BankInfoResponse
-import com.blockchain.domain.paymentmethods.model.response.BankMediaResponse
-import com.blockchain.domain.paymentmethods.model.response.BankMediaResponse.Companion.ICON
-import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeAttributes
-import com.blockchain.domain.paymentmethods.model.response.BankTransferChargeResponse
-import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentAttributes
-import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentBody
-import com.blockchain.domain.paymentmethods.model.response.CreateLinkBankResponse
-import com.blockchain.domain.paymentmethods.model.response.LinkedBankTransferResponse
-import com.blockchain.domain.paymentmethods.model.response.OpenBankingTokenBody
-import com.blockchain.domain.paymentmethods.model.response.ProviderAccountAttrs
-import com.blockchain.domain.paymentmethods.model.response.UpdateProviderAccountBody
+import com.blockchain.domain.paymentmethods.model.YapilyAttributes
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
@@ -82,6 +90,8 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import java.net.MalformedURLException
+import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
@@ -93,8 +103,6 @@ class PaymentsRepository(
     private val paymentsService: PaymentsService,
     private val paymentMethodsService: PaymentMethodsService,
     private val linkedCardsStore: LinkedCardsStore,
-    private val cardsCache: CardsCache,
-    private val cachingStoreFeatureFlag: FeatureFlag,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
@@ -255,23 +263,13 @@ class PaymentsRepository(
     override fun getLinkedCards(
         vararg states: CardStatus
     ): Single<List<LinkedPaymentMethod.Card>> =
-        cachingStoreFeatureFlag.enabled.onErrorReturnItem(false).flatMap { enabled ->
-            if (enabled) {
-                rxSingleOutcome {
-                    getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
-                        .mapLeft {
-                            when (it) {
-                                is PaymentMethodsError.RequestFailed -> Exception(it.message)
-                            }
-                        }
+        rxSingleOutcome {
+            getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
+                .mapLeft {
+                    when (it) {
+                        is PaymentMethodsError.RequestFailed -> Exception(it.message)
+                    }
                 }
-            } else {
-                cardsCache.cards().map { cardsResponse ->
-                    cardsResponse
-                        .filter { states.contains(it.state.toCardStatus()) || states.isEmpty() }
-                        .map { it.toPaymentMethod() }
-                }
-            }
         }
 
     override fun getLinkedBank(id: String): Single<LinkedBank> =
@@ -280,9 +278,14 @@ class PaymentsRepository(
                 authorization = authToken,
                 id = id
             ).map {
-                it.toLinkedBank()
+                it.toDomainOrThrow()
             }
         }
+
+    private fun LinkedBankTransferResponse.toDomainOrThrow() =
+        ux?.let {
+            throw NabuApiExceptionFactory.fromServerSideError(it)
+        } ?: toLinkedBank()
 
     override fun addNewCard(
         fiatCurrency: FiatCurrency,
@@ -302,7 +305,6 @@ class PaymentsRepository(
             CardToBeActivated(cardId = it.id, partner = it.partner.toPartner())
         }.doOnSuccess {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
 
     override fun activateCard(cardId: String, redirectUrl: String, cvv: String): Single<PartnerCredentials> =
@@ -329,7 +331,6 @@ class PaymentsRepository(
             }
         }.doOnSuccess {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }.wrapErrorMessage()
 
     override fun getCardDetails(cardId: String): Single<PaymentMethod.Card> =
@@ -364,7 +365,6 @@ class PaymentsRepository(
             paymentMethodsService.deleteCard(authToken, cardId)
         }.doOnComplete {
             linkedCardsStore.markAsStale()
-            cardsCache.invalidate()
         }
 
     override fun getLinkedBanks(): Single<List<LinkedPaymentMethod.Bank>> {
@@ -406,6 +406,42 @@ class PaymentsRepository(
         }.wrapErrorMessage()
     }
 
+    fun BankPartner.attributes(attrsResponse: LinkBankAttrsResponse): LinkBankAttributes =
+        when (this) {
+            BankPartner.YODLEE -> {
+                YodleeAttributes(
+                    attrsResponse.fastlinkUrl!!,
+                    attrsResponse.token!!,
+                    attrsResponse.fastlinkParams!!.configName
+                )
+            }
+            BankPartner.YAPILY -> {
+                YapilyAttributes(
+                    entity = attrsResponse.entity!!,
+                    institutionList = attrsResponse.institutions!!.map {
+                        YapilyInstitution(
+                            operatingCountries = it.countries.map { countryResponse ->
+                                InstitutionCountry(
+                                    countryCode = countryResponse.countryCode2,
+                                    displayName = countryResponse.displayName
+                                )
+                            },
+                            name = it.fullName,
+                            id = it.id,
+                            iconLink = it.media.getBankIcon()
+                        )
+                    }
+                )
+            }
+        }
+
+    private fun List<YapilyMediaResponse>.getBankIcon(): URL? =
+        try {
+            URL(find { it.type == BankPartner.ICON }?.source)
+        } catch (e: MalformedURLException) {
+            null
+        }
+
     override fun startBankTransfer(
         id: String,
         amount: Money,
@@ -433,14 +469,22 @@ class PaymentsRepository(
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        attributes: ProviderAccountAttrs
+        attributes: BankProviderAccountAttributes
     ): Completable = authenticator.getAuthHeader().flatMapCompletable { authToken ->
         paymentMethodsService.updateAccountProviderId(
             authToken,
             linkingId,
-            UpdateProviderAccountBody(attributes)
+            UpdateProviderAccountBody(attributes.toProviderAttributes())
         )
     }
+
+    private fun BankProviderAccountAttributes.toProviderAttributes() =
+        ProviderAccountAttrs(
+            providerAccountId = providerAccountId,
+            accountId = accountId,
+            institutionId = institutionId,
+            callback = callback
+        )
 
     override fun updateOpenBankingConsent(
         url: String,
@@ -462,9 +506,14 @@ class PaymentsRepository(
                 authorization = authToken,
                 paymentId = paymentId
             ).map {
-                it.toBankTransferDetails()
+                it.toDomainOrThrow()
             }
         }
+
+    private fun BankTransferChargeResponse.toDomainOrThrow() =
+        ux?.let {
+            throw NabuApiExceptionFactory.fromServerSideError(it)
+        } ?: toBankTransferDetails()
 
     override fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean> =
         if (!SUPPORTED_WIRE_TRANSFER_CURRENCIES.contains(fiatCurrency.networkTicker))

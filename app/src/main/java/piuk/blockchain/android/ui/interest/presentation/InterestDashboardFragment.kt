@@ -9,26 +9,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.blockchain.analytics.Analytics
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.android.ext.android.inject
+import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.presentation.composables.InterestDashboardScreen
 
 class InterestDashboardFragment :
-    MVIFragment<InterestDashboardViewState>() {
+    MVIFragment<InterestDashboardViewState>(),
+    AndroidScopeComponent {
 
-    private val viewModel: InterestDashboardViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
+    private val viewModel: InterestDashboardViewModel by viewModel()
+
     private val sharedViewModel: InterestDashboardSharedViewModel by sharedViewModel()
+    private val analytics: Analytics by inject()
 
     private val navigationRouter: NavigationRouter<InterestDashboardNavigationEvent> by lazy {
         activity as? NavigationRouter<InterestDashboardNavigationEvent>
@@ -49,7 +54,7 @@ class InterestDashboardFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        analytics.logEvent(WalletClientAnalytics.WalletRewardsViewed)
         setupViewModel()
         loadDashboard()
     }

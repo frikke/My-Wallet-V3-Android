@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewbinding.ViewBinding
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
@@ -17,14 +16,15 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.TrendingPair
 import com.blockchain.coincore.TrendingPairsProvider
 import com.blockchain.coincore.toUserFiat
-import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
@@ -37,6 +37,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
@@ -50,6 +51,7 @@ import piuk.blockchain.android.databinding.FragmentSwapBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_SWAP
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
@@ -164,10 +166,11 @@ class SwapFragment :
     }
 
     @SuppressLint("MissingSuperCall")
-    override fun onSheetClosed(sheet: SlidingModalBottomDialog<*>) {
+    override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         when (sheet) {
             is KycBenefitsBottomSheet -> walletPrefs.setSeenSwapPromo()
             is KycUpgradeNowSheet -> host.navigateBack()
+            is BlockedDueToSanctionsSheet -> host.navigateBack()
         }
     }
 
@@ -228,7 +231,13 @@ class SwapFragment :
 
                             val eligibility = composite.eligibility
                             if (eligibility is FeatureAccess.Blocked) {
-                                showKycUpgradeNow()
+                                when (val reason = eligibility.reason) {
+                                    BlockedReason.NotEligible,
+                                    is BlockedReason.InsufficientTier -> showKycUpgradeNow()
+                                    is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
+                                    is BlockedReason.TooManyInFlightTransactions -> { // noop
+                                    }
+                                }.exhaustive
                             } else if (!composite.tiers.isInitialisedFor(KycTierLevel.GOLD)) {
                                 showKycUpsellIfEligible(composite.limits)
                             }
@@ -268,6 +277,10 @@ class SwapFragment :
         showBottomSheet(KycUpgradeNowSheet.newInstance())
     }
 
+    private fun showBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
+    }
+
     private fun showKycUpsellIfEligible(limits: TransferLimits) {
         val usedUpLimitPercent = (limits.maxLimit / limits.maxOrder).toFloat() * 100
         if (usedUpLimitPercent >= KYC_UPSELL_PERCENTAGE && !walletPrefs.hasSeenSwapPromo) {
@@ -296,7 +309,7 @@ class SwapFragment :
         }
     }
 
-    private fun <T : ViewBinding> showBottomSheet(fragment: SlidingModalBottomDialog<T>) {
+    private fun showBottomSheet(fragment: BottomSheetDialogFragment) {
         childFragmentManager.beginTransaction().add(fragment, TAG).commit()
     }
 

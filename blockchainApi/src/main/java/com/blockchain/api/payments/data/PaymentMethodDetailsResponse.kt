@@ -42,24 +42,6 @@ data class CardDetailsResponse(
     val label: String?
 )
 
-// BANK_TRANSFER
-
-@Serializable
-data class LinkedBankTransferResponse(
-    @SerialName("details")
-    val details: LinkedBankDetailsResponse?
-)
-
-@Serializable
-data class LinkedBankDetailsResponse(
-    @SerialName("accountNumber")
-    val accountNumber: String,
-    @SerialName("bankName")
-    val bankName: String?,
-    @SerialName("accountName")
-    val accountName: String?
-)
-
 // BANK_ACCOUNT
 
 @Serializable

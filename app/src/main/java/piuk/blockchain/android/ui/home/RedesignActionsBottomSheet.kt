@@ -10,11 +10,13 @@ import com.blockchain.componentlib.button.Alignment
 import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BottomSheetRedesignActionsBinding
+import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.ui.home.models.ActionsSheetIntent
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
 import piuk.blockchain.android.ui.home.models.FlowToLaunch
 import piuk.blockchain.android.ui.home.models.SplitButtonCtaOrdering
+import piuk.blockchain.android.ui.sell.BuySellFragment
 
 class RedesignActionsBottomSheet :
     MviBottomSheet<ActionsSheetModel, ActionsSheetIntent, ActionsSheetState, BottomSheetRedesignActionsBinding>() {
@@ -41,6 +43,7 @@ class RedesignActionsBottomSheet :
     }
 
     override fun initControls(binding: BottomSheetRedesignActionsBinding) {
+        analytics.logEvent(WalletClientAnalytics.WalletFABViewed)
         with(binding) {
             splitButtons.alpha = 0f
             model.process(ActionsSheetIntent.CheckCtaOrdering)
@@ -48,10 +51,22 @@ class RedesignActionsBottomSheet :
             splitButtons.apply {
                 primaryButtonText = getString(R.string.common_buy)
                 onPrimaryButtonClick = {
+                    analytics.logEvent(
+                        BuySellClicked(
+                            origin = LaunchOrigin.FAB,
+                            type = BuySellFragment.BuySellViewType.TYPE_BUY
+                        )
+                    )
                     model.process(ActionsSheetIntent.CheckForPendingBuys)
                 }
                 secondaryButtonText = getString(R.string.common_sell)
                 onSecondaryButtonClick = {
+                    analytics.logEvent(
+                        BuySellClicked(
+                            origin = LaunchOrigin.FAB,
+                            type = BuySellFragment.BuySellViewType.TYPE_SELL
+                        )
+                    )
                     dismiss()
                     host.launchSell()
                 }

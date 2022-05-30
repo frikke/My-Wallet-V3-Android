@@ -18,18 +18,17 @@ import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.koin.payloadScope
-import org.koin.androidx.viewmodel.ViewModelOwner
-import org.koin.androidx.viewmodel.scope.getViewModel
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.scope.Scope
 
-class BlockchainCardFragment : Fragment(), FlowFragment {
+class BlockchainCardFragment : Fragment(), FlowFragment, AndroidScopeComponent {
 
-    private val orderCardViewModel: OrderCardViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    override val scope: Scope = payloadScope
 
-    private val manageCardViewModel: ManageCardViewModel by lazy {
-        payloadScope.getViewModel(owner = { ViewModelOwner.from(this) })
-    }
+    private val orderCardViewModel: OrderCardViewModel by viewModel()
+
+    private val manageCardViewModel: ManageCardViewModel by viewModel()
 
     private val modelArgs: ModelConfigArgs by lazy {
         (arguments?.getParcelable(BLOCKCHAIN_CARD) as? BlockchainCard)?.let { card ->

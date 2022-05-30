@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.nabu.BlockedReason
 import com.blockchain.preferences.DashboardPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -34,6 +35,7 @@ import org.koin.java.KoinJavaComponent
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
+import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
@@ -166,7 +168,7 @@ class TransactionFlowActivity :
         }
 
         state.currentStep.takeIf { it != TransactionStep.ZERO }?.let { step ->
-            showFlowStep(step)
+            showFlowStep(step, state.featureBlockedReason)
             customiser.getScreenTitle(state).takeIf { it.isNotEmpty() }?.let {
                 updateToolbarTitle(it)
             } ?: updateToolbar()
@@ -224,11 +226,19 @@ class TransactionFlowActivity :
         }
     }
 
-    private fun showFlowStep(step: TransactionStep) {
+    private fun showFlowStep(step: TransactionStep, featureBlockedReason: BlockedReason?) {
         when (step) {
             TransactionStep.ZERO,
             TransactionStep.CLOSED -> null
-            TransactionStep.NOT_ELIGIBLE -> KycUpgradeNowSheet.newInstance()
+            TransactionStep.FEATURE_BLOCKED -> when (featureBlockedReason) {
+                is BlockedReason.Sanctions -> BlockedDueToSanctionsSheet.newInstance(featureBlockedReason)
+                is BlockedReason.TooManyInFlightTransactions,
+                BlockedReason.NotEligible,
+                is BlockedReason.InsufficientTier -> KycUpgradeNowSheet.newInstance()
+                null -> throw IllegalStateException(
+                    "No featureBlockedReason provided for TransactionStep.FEATURE_BLOCKED, state $state"
+                )
+            }
             TransactionStep.ENTER_PASSWORD -> EnterSecondPasswordFragment.newInstance()
             TransactionStep.SELECT_SOURCE -> SelectSourceAccountFragment.newInstance()
             TransactionStep.ENTER_ADDRESS -> EnterTargetAddressFragment.newInstance()

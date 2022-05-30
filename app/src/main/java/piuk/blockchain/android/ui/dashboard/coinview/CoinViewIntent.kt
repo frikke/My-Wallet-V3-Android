@@ -42,7 +42,7 @@ sealed class CoinViewIntent : MviIntent<CoinViewState> {
             oldState.copy(hasActionBuyWarning = true)
     }
 
-    class CheckScreenToOpen(val cryptoAccountSelected: AssetDetailsItemNew.CryptoDetailsInfo) : CoinViewIntent() {
+    class CheckScreenToOpen(val cryptoAccountSelected: AssetDetailsItem.CryptoDetailsInfo) : CoinViewIntent() {
         override fun reduce(oldState: CoinViewState): CoinViewState =
             oldState.copy(selectedCryptoAccount = cryptoAccountSelected)
     }

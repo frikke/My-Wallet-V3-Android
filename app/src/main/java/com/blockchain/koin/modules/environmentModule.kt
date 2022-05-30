@@ -7,7 +7,8 @@ import org.koin.dsl.module
 import piuk.blockchain.android.data.api.EnvironmentSettings
 
 val environmentModule = module {
-    single { EnvironmentSettings() }
-        .bind(EnvironmentUrls::class)
-        .bind(EnvironmentConfig::class)
+    single { EnvironmentSettings() }.apply {
+        bind(EnvironmentUrls::class)
+        bind(EnvironmentConfig::class)
+    }
 }

@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
+import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierLevels
@@ -13,12 +13,12 @@ import io.mockk.mockk
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
+import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
 
 class ReentryDecisionTest {
 
     private val kycDataManager: KycDataManager = mockk {
-        coEvery { getAdditionalInfoForm() } returns Outcome.Success(emptyList())
+        coEvery { getQuestionnaire() } returns Outcome.Success(emptyList())
     }
 
     @Test
@@ -174,12 +174,12 @@ class ReentryDecisionTest {
     }
 
     @Test
-    fun `if user is tier 1, has missing additional info then go to additional info entry`() {
+    fun `if user is tier 1, has questionnaire then go to questionnaire entry`() {
         val nodes = listOf(
-            KycAdditionalInfoNode.Selection("s1", "text1", emptyList(), false),
-            KycAdditionalInfoNode.Selection("s2", "text2", emptyList(), false),
+            KycQuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+            KycQuestionnaireNode.Selection("s2", "text2", emptyList(), false),
         )
-        coEvery { kycDataManager.getAdditionalInfoForm() } returns Outcome.Success(nodes)
+        coEvery { kycDataManager.getQuestionnaire() } returns Outcome.Success(nodes)
         val root = TreeNode.Root(
             listOf(
                 TreeNode.Selection("s1", "text1", emptyList(), false),
@@ -203,7 +203,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be equal to` ReentryPoint.AdditionalInfo(root)
+        ) `should be equal to` ReentryPoint.Questionnaire(root)
     }
 
     @Test

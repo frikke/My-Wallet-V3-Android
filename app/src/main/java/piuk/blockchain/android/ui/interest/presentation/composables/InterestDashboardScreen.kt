@@ -42,38 +42,40 @@ fun InterestDashboardScreen(
 
             isLoading.not() && isError.not() -> {
                 Column {
-                    Box(
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.standard_margin),
-                            end = dimensionResource(R.dimen.standard_margin)
-                        )
-                    ) {
-                        Search(
-                            label = stringResource(R.string.search_coins_hint),
-                            onValueChange = filterData
-                        )
-                    }
-
-                    LazyColumn {
-                        if (isKycGold.not()) {
+                    if (isKycGold.not()) {
+                        LazyColumn {
                             item {
                                 InterestDashboardVerificationItem(startKyc)
                             }
                         }
-
-                        items(
-                            items = data,
+                    } else {
+                        Box(
+                            modifier = Modifier.padding(
+                                start = dimensionResource(R.dimen.standard_margin),
+                                end = dimensionResource(R.dimen.standard_margin)
+                            )
                         ) {
-                            InterestDashboardAssetItem(
-                                assetInfo = it.assetInfo,
-                                assetInterestDetail = it.interestDetail,
-                                isKycGold = isKycGold,
-                                interestItemClicked = interestItemClicked
+                            Search(
+                                label = stringResource(R.string.search_coins_hint),
+                                onValueChange = filterData
                             )
                         }
 
-                        item {
-                            Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                        LazyColumn {
+                            items(
+                                items = data,
+                            ) {
+                                InterestDashboardAssetItem(
+                                    assetInfo = it.assetInfo,
+                                    assetInterestDetail = it.interestDetail,
+                                    isKycGold = isKycGold,
+                                    interestItemClicked = interestItemClicked
+                                )
+                            }
+
+                            item {
+                                Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                            }
                         }
                     }
                 }

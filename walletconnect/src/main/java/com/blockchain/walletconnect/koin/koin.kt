@@ -31,21 +31,28 @@ val walletConnectModule = module {
                 walletConnectAccountProvider = get(),
                 ethSendTransactionRequest = get()
             )
-        }.bind(WalletConnectServiceAPI::class).bind(WalletConnectUrlValidator::class)
+        }.apply {
+            bind(WalletConnectServiceAPI::class)
+            bind(WalletConnectUrlValidator::class)
+        }
 
         factory {
             SignRequestHandler(
                 accountProvider = get()
             )
-        }.bind(EthRequestSign::class)
-            .bind(EthSendTransactionRequest::class)
+        }.apply {
+            bind(EthRequestSign::class)
+            bind(EthSendTransactionRequest::class)
+        }
 
         factory {
             EthWalletAddressProvider(
                 coincore = get()
             )
-        }.bind(WalletConnectAddressProvider::class)
-            .bind(WalletConnectEthAccountProvider::class)
+        }.apply {
+            bind(WalletConnectAddressProvider::class)
+            bind(WalletConnectEthAccountProvider::class)
+        }
 
         factory {
             WalletConnectMetadataRepository(

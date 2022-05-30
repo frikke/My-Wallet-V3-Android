@@ -12,13 +12,13 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewRecurringBuyBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItemNew
+import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 
 class RecurringBuyItemDelegate(
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit
-) : AdapterDelegate<AssetDetailsItemNew> {
-    override fun isForViewType(items: List<AssetDetailsItemNew>, position: Int): Boolean =
-        items[position] is AssetDetailsItemNew.RecurringBuyInfo
+) : AdapterDelegate<AssetDetailsItem> {
+    override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
+        items[position] is AssetDetailsItem.RecurringBuyInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         RecurringBuyViewHolder(
@@ -27,12 +27,12 @@ class RecurringBuyItemDelegate(
         )
 
     override fun onBindViewHolder(
-        items: List<AssetDetailsItemNew>,
+        items: List<AssetDetailsItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as RecurringBuyViewHolder).bind(
-        items[position] as AssetDetailsItemNew.RecurringBuyInfo,
-        items.indexOfFirst { it is AssetDetailsItemNew.RecurringBuyInfo } == position
+        items[position] as AssetDetailsItem.RecurringBuyInfo,
+        items.indexOfFirst { it is AssetDetailsItem.RecurringBuyInfo } == position
     )
 }
 
@@ -41,7 +41,7 @@ private class RecurringBuyViewHolder(
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(item: AssetDetailsItemNew.RecurringBuyInfo, isFirstItemOfCategory: Boolean) {
+    fun bind(item: AssetDetailsItem.RecurringBuyInfo, isFirstItemOfCategory: Boolean) {
         with(binding) {
             rbsLabel.apply {
                 visibleIf { isFirstItemOfCategory }

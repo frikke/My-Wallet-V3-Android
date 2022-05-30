@@ -37,7 +37,7 @@ private data class NabuErrorResponse(
 )
 
 @Serializable
-private data class NabuUxErrorResponse(
+data class NabuUxErrorResponse(
     @SerialName("title")
     val title: String,
     @SerialName("message")
@@ -47,7 +47,7 @@ private data class NabuUxErrorResponse(
 )
 
 @Serializable
-private data class IconData(
+data class IconData(
     @SerialName("url")
     val url: String,
     @SerialName("status")
@@ -55,7 +55,7 @@ private data class IconData(
 )
 
 @Serializable
-private data class StatusData(
+data class StatusData(
     @SerialName("url")
     val url: String
 )
@@ -137,6 +137,23 @@ object NabuApiExceptionFactory {
             contextual(IsoDateSerializer)
         }
     }
+
+    fun fromServerSideError(uxErrorResponse: NabuUxErrorResponse) =
+        NabuApiException(
+            message = uxErrorResponse.title,
+            httpErrorCode = HttpStatus.OK,
+            errorType = null,
+            errorCode = null,
+            errorDescription = null,
+            path = null,
+            id = null,
+            serverSideUxError = ServerSideUxErrorInfo(
+                title = uxErrorResponse.title,
+                description = uxErrorResponse.message,
+                iconUrl = uxErrorResponse.icon?.url.orEmpty(),
+                statusUrl = uxErrorResponse.icon?.status?.url.orEmpty()
+            )
+        )
 
     fun fromResponseBody(exception: HttpException): NabuApiException {
         return exception.response()?.errorBody()?.string()?.let { errorBody ->

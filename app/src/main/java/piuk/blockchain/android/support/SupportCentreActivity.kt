@@ -20,6 +20,7 @@ import io.intercom.android.sdk.UserAttributes
 import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ActivitySupportCentreBinding
+import piuk.blockchain.android.ui.BottomSheetInformation
 import zendesk.chat.Chat
 import zendesk.chat.ChatConfiguration
 import zendesk.chat.ChatEngine
@@ -30,7 +31,8 @@ import zendesk.messaging.MessagingActivity
 
 class SupportCentreActivity :
     MviActivity<SupportModel, SupportIntent, SupportState, ActivitySupportCentreBinding>(),
-    SupportCentreTopicSheet.Host {
+    SupportCentreTopicSheet.Host,
+    BottomSheetInformation.Host {
 
     override val model: SupportModel by scopedInject()
 
@@ -84,7 +86,20 @@ class SupportCentreActivity :
                     // do nothing
                 }
                 is SupportViewState.TopicSelected -> {
-                    setupChat(state.topic)
+                    if (newState.supportError == SupportError.ErrorStartingChat &&
+                        newState.crashErrorCount >= MAX_SETUP_RETRIES
+                    ) {
+                        showBottomSheet(
+                            BottomSheetInformation.newInstance(
+                                title = getString(R.string.customer_support_error_title),
+                                description = getString(R.string.customer_support_error_description),
+                                ctaPrimaryText = getString(R.string.customer_support_error_cta),
+                                ctaSecondaryText = getString(R.string.common_close)
+                            )
+                        )
+                    } else {
+                        setupChat(state.topic)
+                    }
                 }
             }
 
@@ -104,6 +119,9 @@ class SupportCentreActivity :
                 }
                 SupportError.None -> {
                     // do nothing
+                }
+                SupportError.ErrorStartingChat -> {
+                    // do nothing, this is handled above
                 }
             }
 
@@ -163,13 +181,17 @@ class SupportCentreActivity :
         if (isIntercomEnabled) {
             Intercom.client().displayMessenger()
         } else {
-            Chat.INSTANCE.providers()?.profileProvider()?.apply {
-                setVisitorNote(note)
-                appendVisitorNote(note)
-                addVisitorTags(listOf(note), null)
-            }
+            try {
+                Chat.INSTANCE.providers()?.profileProvider()?.apply {
+                    setVisitorNote(note)
+                    appendVisitorNote(note)
+                    addVisitorTags(listOf(note), null)
+                }
 
-            startChat()
+                startChat()
+            } catch (t: Throwable) {
+                model.process(SupportIntent.UpdateStartingChatError)
+            }
         }
     }
 
@@ -215,6 +237,14 @@ class SupportCentreActivity :
         .withOfflineFormEnabled(true)
         .build()
 
+    override fun primaryButtonClicked() {
+        binding.supportCentreWebview.loadUrl(URL_CONTACT_SUPPORT)
+    }
+
+    override fun secondButtonClicked() {
+        // do nothing
+    }
+
     override fun onSheetClosed() {
         // do nothing
     }
@@ -224,6 +254,7 @@ class SupportCentreActivity :
         private const val ZENDESK_CHANNEL = "wallet_sb_department"
         private const val URL_BLOCKCHAIN_SUPPORT_PORTAL = "https://support.blockchain.com/"
         private const val URL_CONTACT_SUPPORT = "https://support.blockchain.com/hc/requests/new"
+        private const val MAX_SETUP_RETRIES = 3
 
         fun newIntent(context: Context, subject: String = ""): Intent =
             Intent(context, SupportCentreActivity::class.java).apply {

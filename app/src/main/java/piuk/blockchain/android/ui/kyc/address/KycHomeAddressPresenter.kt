@@ -22,8 +22,8 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
-import piuk.blockchain.android.ui.kyc.additional_info.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
+import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -34,7 +34,7 @@ interface KycNextStepDecision {
         object Tier1Complete : NextStep(0)
         object SDDComplete : NextStep(1)
         object Tier2ContinueTier1NeedsMoreInfo : NextStep(2)
-        data class MissingAdditionalInfo(val root: TreeNode.Root) : NextStep(3)
+        data class Questionnaire(val root: TreeNode.Root) : NextStep(3)
         object Veriff : NextStep(4)
 
         override fun compareTo(other: NextStep): Int = this.order - other.order
@@ -156,8 +156,8 @@ class KycHomeAddressPresenter(
             .subscribeBy(
                 onSuccess = {
                     when (it.progressToKycNextStep) {
-                        is KycNextStepDecision.NextStep.MissingAdditionalInfo ->
-                            view.missingAdditionalInfo(it.progressToKycNextStep.root, it.countryCode)
+                        is KycNextStepDecision.NextStep.Questionnaire ->
+                            view.continueToQuestionnaire(it.progressToKycNextStep.root, it.countryCode)
                         KycNextStepDecision.NextStep.Tier1Complete -> view.tier1Complete()
                         KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo ->
                             view.continueToTier2MoreInfoNeeded(it.countryCode)

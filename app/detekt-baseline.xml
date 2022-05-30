@@ -382,7 +382,7 @@
     <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:248</ID>
     <ID>MaximumLineLength:piuk.blockchain.android.ui.dashboard.onboarding.DashboardOnboardingModelTest.kt:249</ID>
     <ID>MaximumLineLength:piuk.blockchain.android.ui.interest.presentation.InterestDashboardViewModelTest.kt:78</ID>
-    <ID>MaximumLineLength:piuk.blockchain.android.ui.kyc.additional_info.StateMachineTest.kt:69</ID>
+    <ID>MaximumLineLength:piuk.blockchain.android.ui.kyc.questionnaire.StateMachineTest.kt:69</ID>
     <ID>MaximumLineLength:piuk.blockchain.android.ui.kyc.limits.KycLimitsModelTest.kt:94</ID>
     <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.PasswordChangeInteractorTest.kt:113</ID>
     <ID>MaximumLineLength:piuk.blockchain.android.ui.settings.security.pin.PinModelTest.kt:526</ID>
@@ -491,25 +491,25 @@
     <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics.kt:1</ID>
     <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourCardView.kt:17</ID>
     <ID>PackageName:piuk.blockchain.android.ui.home.ui_tour.UiTourView.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoAnalytics.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoFragment.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoIntent.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoMappers.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoModel.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoNextStepDecision.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoScreen.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.KycAdditionalInfoState.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.StateMachine.kt:1</ID>
-    <ID>PackageName:piuk.blockchain.android.ui.kyc.additional_info.StateMachineTest.kt:1</ID>
-    <ID>PackageNaming:KycAdditionalInfoAnalytics.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoFragment.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoIntent.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoMappers.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoModel.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoNextStepDecision.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoScreen.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:KycAdditionalInfoState.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
-    <ID>PackageNaming:StateMachine.kt$package piuk.blockchain.android.ui.kyc.additional_info</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycAdditionalInfoAnalytics.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireFragment.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireIntent.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycAdditionalInfoMappers.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireModel.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycAdditionalInfoNextStepDecision.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycAdditionalInfoScreen.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireState.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireStateMachine.kt:1</ID>
+    <ID>PackageName:piuk.blockchain.android.ui.kyc.questionnaire.StateMachineTest.kt:1</ID>
+    <ID>PackageNaming:KycAdditionalInfoAnalytics.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoFragment.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoIntent.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoMappers.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoModel.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoNextStepDecision.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoScreen.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:KycAdditionalInfoState.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
+    <ID>PackageNaming:StateMachine.kt$package piuk.blockchain.android.ui.kyc.questionnaire</ID>
     <ID>PackageNaming:TriangleTranslationEdgeTreatment.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
     <ID>PackageNaming:UiTourAnalytics.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>
     <ID>PackageNaming:UiTourCardView.kt$package piuk.blockchain.android.ui.home.ui_tour</ID>

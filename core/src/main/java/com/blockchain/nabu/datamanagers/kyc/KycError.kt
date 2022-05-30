@@ -6,7 +6,7 @@ enum class KycError {
     REQUEST_FAILED
 }
 
-sealed class UpdateKycAdditionalInfoError {
-    object RequestFailed : UpdateKycAdditionalInfoError()
-    data class InvalidNode(val nodeId: NodeId) : UpdateKycAdditionalInfoError()
+sealed class SubmitQuestionnaireError {
+    object RequestFailed : SubmitQuestionnaireError()
+    data class InvalidNode(val nodeId: NodeId) : SubmitQuestionnaireError()
 }

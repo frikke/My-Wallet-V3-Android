@@ -13,13 +13,29 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import timber.log.Timber
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,
     private val accountMetadataMigrationFF: FeatureFlag
 ) {
+    private var loadMetadataMaybe: Maybe<CredentialMetadata>? = null
+
     fun load(): Maybe<CredentialMetadata> {
-        return metadataRepository.load<BlockchainAccountCredentialsMetadata>(
+        loadMetadataMaybe?.let {
+            Timber.d("Metadata loading already")
+            return it
+        } ?: kotlin.run {
+            return loadCached().doFinally {
+                loadMetadataMaybe = null
+            }.also {
+                loadMetadataMaybe = it
+            }
+        }
+    }
+
+    private fun loadCached(): Maybe<CredentialMetadata> =
+        metadataRepository.load<BlockchainAccountCredentialsMetadata>(
             MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         ).switchIfEmpty(
             // Not found - haven't been created yet.
@@ -38,8 +54,7 @@ class AccountCredentialsMetadata(
                     }
                 }
             }
-        }
-    }
+        }.cache()
 
     fun saveAndReturn(tokenResponse: NabuOfflineTokenResponse): Single<CredentialMetadata> {
         return accountMetadataMigrationFF.enabled.flatMap { enabled ->

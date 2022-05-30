@@ -68,6 +68,7 @@
     <string name="common_i_understand">I Understand</string>
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
+    <string name="common_close">Close</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -102,7 +103,6 @@
     <string name="polite_no">No thanks</string>
 
     <string name="done">Done</string>
-    <string name="btn_close">Close</string>
 
     <string name="copied_to_clipboard">Copied to clipboard</string>
 
@@ -2825,7 +2825,7 @@
     <string name="entity_switch_silver_dialog_title">We are updating our account verification requirements</string>
     <string name="entity_switch_silver_dialog_subtitle">To buy, sell, and swap, you will need to verify your identity.</string>
 
-    <!-- Kyc Additional Info -->
+    <!-- Kyc Questionnaire -->
     <string name="kyc_additional_info_toolbar">Use of Account Information</string>
     <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
 
@@ -2849,6 +2849,9 @@
     <string name="customer_support_description">We\'re here to help. Explore common log in issues below in FAQs or if you\'d prefer to chat with a member of our support team, select the contact us option below.</string>
     <string name="customer_support_contact_us">Contact Us</string>
     <string name="customer_support_faq">View FAQs</string>
+    <string name="customer_support_error_title">An error occurred while starting the chat</string>
+    <string name="customer_support_error_description">It seems like our chat is having issues, please try closing and opening the app and if the problem persists, submit a ticket instead.</string>
+    <string name="customer_support_error_cta">Submit a ticket</string>
 
     <!-- App Maintenance Screens-->
     <string name="app_maintenance_os_not_supported_title">Your OS is Not Supported</string>
@@ -2958,6 +2961,10 @@
     <string name="no_fee">No Fee</string>
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
+    <string name="trading_restricted">Trading Restricted</string>
+
+    <!--  Sanctions  -->
+    <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>
 
     <!-- Accessibility -->
     <string name="accessibility_action_menu">Action Menu</string>

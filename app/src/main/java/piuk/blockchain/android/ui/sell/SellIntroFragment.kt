@@ -19,6 +19,10 @@ import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.BlockedReason
+import com.blockchain.nabu.Feature
+import com.blockchain.nabu.FeatureAccess
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.SimpleBuyEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -50,6 +54,8 @@ import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.AccountsSorting
+import piuk.blockchain.android.urllinks.URL_RUSSIA_SANCTIONS_EU5
+import piuk.blockchain.android.util.openUrl
 import retrofit2.HttpException
 
 class SellIntroFragment : ViewPagerFragment() {
@@ -67,7 +73,7 @@ class SellIntroFragment : ViewPagerFragment() {
 
     private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         host.onSellFinished()
-        loadSellDetails(showLoader = false)
+        checkEligibilityAndLoadSellDetails(showLoader = false)
     }
 
     private var _binding: SellIntroFragmentBinding? = null
@@ -81,6 +87,7 @@ class SellIntroFragment : ViewPagerFragment() {
     private val currencyPrefs: CurrencyPrefs by inject()
     private val analytics: Analytics by inject()
     private val accountsSorting: AccountsSorting by scopedInject()
+    private val userIdentity: UserIdentity by scopedInject()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
@@ -94,10 +101,44 @@ class SellIntroFragment : ViewPagerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadSellDetails()
+        checkEligibilityAndLoadSellDetails()
     }
 
-    private fun loadSellDetails(showLoader: Boolean = true) {
+    private fun checkEligibilityAndLoadSellDetails(showLoader: Boolean = true) {
+        compositeDisposable +=
+            userIdentity.userAccessForFeature(Feature.Sell)
+                .subscribeBy(
+                    onSuccess = { eligibility ->
+                        when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
+                            is BlockedReason.InsufficientTier -> renderNonKycedUserUi()
+                            BlockedReason.NotEligible -> renderRejectedKycedUserUi()
+                            is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
+                            is BlockedReason.TooManyInFlightTransactions,
+                            null -> loadSellDetails(showLoader)
+                        }
+                    },
+                    onError = {
+                        renderSellError()
+                        analytics.logEvent(
+                            ClientErrorAnalytics.ClientLogError(
+                                nabuApiException = if (it is HttpException) {
+                                    NabuApiExceptionFactory.fromResponseBody(it)
+                                } else null,
+                                error = ClientErrorAnalytics.OOPS_ERROR,
+                                source = if (it is HttpException) {
+                                    ClientErrorAnalytics.Companion.Source.NABU
+                                } else {
+                                    ClientErrorAnalytics.Companion.Source.CLIENT
+                                },
+                                title = ClientErrorAnalytics.OOPS_ERROR,
+                                action = ClientErrorAnalytics.ACTION_SELL,
+                            )
+                        )
+                    }
+                )
+    }
+
+    private fun loadSellDetails(showLoader: Boolean) {
         binding.accountsList.activityIndicator = if (showLoader) activityIndicator else null
 
         compositeDisposable += tierService.tiers()
@@ -105,6 +146,7 @@ class SellIntroFragment : ViewPagerFragment() {
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 binding.sellEmpty.gone()
+                binding.customEmptyState.gone()
             }
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(binding.accountsList.activityIndicator)
@@ -150,7 +192,7 @@ class SellIntroFragment : ViewPagerFragment() {
         with(binding) {
             accountsList.gone()
             sellEmpty.setDetails {
-                loadSellDetails()
+                checkEligibilityAndLoadSellDetails()
             }
             sellEmpty.visible()
         }
@@ -167,6 +209,25 @@ class SellIntroFragment : ViewPagerFragment() {
                 host.onSellListEmptyCta()
             }
             sellEmpty.visible()
+        }
+    }
+
+    private fun renderBlockedDueToSanctions(reason: BlockedReason.Sanctions) {
+        with(binding) {
+            accountsList.gone()
+            customEmptyState.apply {
+                title = R.string.trading_restricted
+                descriptionText = when (reason) {
+                    BlockedReason.Sanctions.RussiaEU5 -> getString(R.string.russia_sanctions_eu5_sheet_subtitle)
+                    is BlockedReason.Sanctions.Unknown -> reason.message
+                }
+                icon = R.drawable.ic_wallet_intro_image
+                secondaryText = R.string.learn_more
+                secondaryAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
+                ctaText = R.string.common_empty_cta
+                ctaAction = { checkEligibilityAndLoadSellDetails() }
+                visible()
+            }
         }
     }
 
@@ -342,7 +403,7 @@ class SellIntroFragment : ViewPagerFragment() {
     }
 
     override fun onResumeFragment() {
-        loadSellDetails(false)
+        checkEligibilityAndLoadSellDetails(false)
     }
 
     override fun onDestroyView() {

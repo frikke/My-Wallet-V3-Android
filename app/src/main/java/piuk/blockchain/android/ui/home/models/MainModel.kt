@@ -9,8 +9,8 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
-import com.blockchain.extensions.valueOf
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
@@ -162,8 +162,6 @@ class MainModel(
             is MainIntent.UnpairWallet -> interactor.unpairWallet()
                 .onErrorComplete()
                 .subscribe()
-            is MainIntent.CancelAnyPendingConfirmationBuy -> interactor.cancelAnyPendingConfirmationBuy()
-                .subscribe()
             is MainIntent.ProcessScanResult -> interactor.processQrScanResult(intent.decodedData)
                 .subscribeBy(
                     onSuccess = {
@@ -275,7 +273,7 @@ class MainModel(
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchKyc(
-                            valueOf<CampaignType>(
+                            enumValueOfOrNull<CampaignType>(
                                 link.campaignType.capitalizeFirstChar()
                             ) ?: CampaignType.None
                         )
@@ -454,9 +452,19 @@ class MainModel(
                         }
                     }
                 },
-                onError = {
+                onError = { error ->
                     interactor.resetLocalBankAuthState()
-                    process(
+                    (error as? NabuApiException)?.getServerSideErrorInfo()?.let { info ->
+                        process(
+                            MainIntent.UpdateViewToLaunch(
+                                ViewToLaunch.LaunchServerDrivenOpenBankingError(
+                                    currencyCode = paymentData.orderValue.currencyCode,
+                                    title = info.title,
+                                    description = info.description
+                                )
+                            )
+                        )
+                    } ?: process(
                         MainIntent.UpdateViewToLaunch(
                             ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)
                         )

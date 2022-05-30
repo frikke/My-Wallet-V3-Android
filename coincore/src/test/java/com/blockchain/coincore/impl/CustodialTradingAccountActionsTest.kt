@@ -337,33 +337,26 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         custodialAccess: Boolean,
         buySupported: Boolean
     ) {
-        whenever(identity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                if (simpleBuy) {
-                    FeatureAccess.Granted()
-                } else {
-                    FeatureAccess.Blocked(BlockedReason.NotEligible)
-                }
-            )
-        )
+        mockActionsFeatureAccess { original ->
+            val simpleBuyAccess = if (simpleBuy) {
+                FeatureAccess.Granted()
+            } else {
+                FeatureAccess.Blocked(BlockedReason.NotEligible)
+            }
+            val custodialAccountsAccess = if (custodialAccess) {
+                FeatureAccess.Granted()
+            } else {
+                FeatureAccess.Blocked(BlockedReason.NotEligible)
+            }
+            original
+                .plus(Feature.SimpleBuy to simpleBuyAccess)
+                .plus(Feature.CustodialAccounts to custodialAccountsAccess)
+        }
 
-        whenever(identity.userAccessForFeature(Feature.Buy)).thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(identity.userAccessForFeature(Feature.Swap)).thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(identity.userAccessForFeature(Feature.CryptoDeposit)).thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(custodialManager.isCurrencyAvailableForTrading(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
         whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
-
-        whenever(identity.userAccessForFeature(Feature.CustodialAccounts)).thenReturn(
-            Single.just(
-                if (custodialAccess) {
-                    FeatureAccess.Granted()
-                } else {
-                    FeatureAccess.Blocked(BlockedReason.NotEligible)
-                }
-            )
-        )
 
         val balance = TradingAccountBalance(
             total = accountBalance,
@@ -376,6 +369,25 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
         whenever(custodialManager.getSupportedFundsFiats())
             .thenReturn(Single.just(supportedFiat))
+    }
+
+    private fun mockActionsFeatureAccess(
+        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>
+    ) {
+        val features = listOf(
+            Feature.CustodialAccounts,
+            Feature.SimpleBuy,
+            Feature.Buy,
+            Feature.Swap,
+            Feature.Sell,
+            Feature.DepositCrypto,
+            Feature.DepositInterest
+        )
+        val access = features.associateWith { FeatureAccess.Granted() }
+
+        val updatedAccess = block(access)
+        whenever(identity.userAccessForFeatures(features))
+            .thenReturn(Single.just(updatedAccess))
     }
 
     companion object {

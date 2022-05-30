@@ -4,10 +4,10 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
-import com.blockchain.domain.paymentmethods.model.response.BankTransferPaymentBody
-import com.blockchain.domain.paymentmethods.model.response.CreateLinkBankRequestBody
-import com.blockchain.domain.paymentmethods.model.response.OpenBankingTokenBody
-import com.blockchain.domain.paymentmethods.model.response.UpdateProviderAccountBody
+import com.blockchain.api.payments.data.BankTransferPaymentBody
+import com.blockchain.api.payments.data.CreateLinkBankRequestBody
+import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import io.reactivex.rxjava3.core.Single
 
 class PaymentMethodsService internal constructor(

@@ -15,6 +15,7 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
@@ -24,7 +25,6 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
-import com.blockchain.domain.paymentmethods.model.response.ProviderAccountAttrs
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -301,15 +301,15 @@ class SimpleBuyInteractor(
         providerAccountId: String,
         accountId: String,
         action: BankTransferAction
-    ): ProviderAccountAttrs =
+    ): BankProviderAccountAttributes =
         when (partner) {
             BankPartner.YODLEE ->
-                ProviderAccountAttrs(
+                BankProviderAccountAttributes(
                     providerAccountId = providerAccountId,
                     accountId = accountId
                 )
             BankPartner.YAPILY ->
-                ProviderAccountAttrs(
+                BankProviderAccountAttributes(
                     institutionId = accountId,
                     callback = bankPartnerCallbackProvider.callback(BankPartner.YAPILY, action)
                 )

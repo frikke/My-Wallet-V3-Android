@@ -1,5 +1,6 @@
-package com.blockchain.domain.paymentmethods.model.response
+package com.blockchain.api.payments.data
 
+import com.blockchain.api.NabuUxErrorResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -87,7 +88,9 @@ data class LinkedBankTransferResponse(
     @SerialName("error")
     val error: String?,
     @SerialName("attributes")
-    val attributes: LinkedBankTransferAttributesResponse?
+    val attributes: LinkedBankTransferAttributesResponse?,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse?
 ) {
     companion object {
         const val CREATED = "CREATED"
@@ -231,7 +234,9 @@ data class BankTransferChargeResponse(
     @SerialName("amount")
     val amount: BankTransferFiatAmount,
     @SerialName("extraAttributes")
-    val extraAttributes: BankTransferChargeAttributes
+    val extraAttributes: BankTransferChargeAttributes,
+    @SerialName("ux")
+    val ux: NabuUxErrorResponse?
 )
 
 @Serializable

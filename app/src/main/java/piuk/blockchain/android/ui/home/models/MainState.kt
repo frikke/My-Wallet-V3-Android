@@ -44,6 +44,9 @@ sealed class ViewToLaunch {
     class LaunchOpenBankingApprovalDepositInProgress(val value: Money) : ViewToLaunch()
     class LaunchOpenBankingApprovalTimeout(val currencyCode: String) : ViewToLaunch()
     class LaunchOpenBankingError(val currencyCode: String) : ViewToLaunch()
+    class LaunchServerDrivenOpenBankingError(val currencyCode: String, val title: String, val description: String) :
+        ViewToLaunch()
+
     class LaunchOpenBankingApprovalDepositComplete(val amount: Money, val estimatedDepositCompletionTime: String) :
         ViewToLaunch()
 

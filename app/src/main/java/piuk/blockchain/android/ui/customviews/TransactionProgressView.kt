@@ -9,10 +9,6 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import coil.ImageLoader
-import coil.decode.SvgDecoder
-import coil.request.Disposable
-import coil.request.ImageRequest
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import info.blockchain.balance.Currency
@@ -21,6 +17,8 @@ import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
+import piuk.blockchain.android.util.loadRemoteErrorIcon
 
 class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs), KoinComponent {
@@ -159,79 +157,32 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         title: String,
         description: String,
         @DrawableRes defaultStatusIcon: Int
-    ): Disposable {
-        val imageLoader = getSvgImageLoader()
-        val iconRequest = getErrorIconRequest(
-            iconUrl = iconUrl,
-            title = title,
-            description = description,
-            defaultStatusIcon = defaultStatusIcon
-        )
-
-        val statusIconRequest = ImageRequest.Builder(context)
-            .data(statusIconUrl)
-            .size(
-                resources.getDimension(R.dimen.standard_margin).toInt(),
-                resources.getDimension(R.dimen.standard_margin).toInt()
-            )
-            .target(
-                onSuccess = { drawable ->
-                    updateStatusIcon(
-                        title = title,
-                        subtitle = description,
-                        statusIcon = drawable
-                    )
-                },
-                onError = {
-                    showTxError(
-                        title = title,
-                        subtitle = description,
-                        statusIcon = defaultStatusIcon
-                    )
-                }
-            )
-            .build()
-
-        imageLoader.enqueue(iconRequest)
-        return imageLoader.enqueue(statusIconRequest)
-    }
-
-    private fun loadRemoteErrorIcon(
-        iconUrl: String,
-        title: String,
-        description: String,
-        @DrawableRes defaultStatusIcon: Int
-    ): Disposable {
-        val imageLoader = getSvgImageLoader()
-        val request = getErrorIconRequest(
-            iconUrl = iconUrl,
-            title = title,
-            description = description,
-            defaultStatusIcon = defaultStatusIcon
-        )
-        return imageLoader.enqueue(request)
-    }
-
-    private fun getErrorIconRequest(
-        iconUrl: String,
-        title: String,
-        description: String,
-        @DrawableRes defaultStatusIcon: Int
-    ) = ImageRequest.Builder(context)
-        .data(iconUrl)
-        .size(
-            resources.getDimension(R.dimen.asset_icon_size_large).toInt(),
-            resources.getDimension(R.dimen.asset_icon_size_large).toInt()
-        )
-        .target(
-            onSuccess = { drawable ->
+    ) {
+        context.loadRemoteErrorAndStatusIcons(
+            iconUrl,
+            statusIconUrl,
+            onIconLoadSuccess = { drawable ->
                 updateErrorIcon(
                     title = title,
                     subtitle = description,
                     icon = drawable
                 )
             },
-            onError = {
+            onIconLoadError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            },
+            onStatusIconLoadSuccess = { drawable ->
+                updateStatusIcon(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = drawable
+                )
+            },
+            onStatusIconLoadError = {
                 showTxError(
                     title = title,
                     subtitle = description,
@@ -239,12 +190,32 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
                 )
             }
         )
-        .build()
+    }
 
-    private fun getSvgImageLoader(): ImageLoader =
-        ImageLoader.Builder(context)
-            .componentRegistry { add(SvgDecoder(context)) }
-            .build()
+    private fun loadRemoteErrorIcon(
+        iconUrl: String,
+        title: String,
+        description: String,
+        @DrawableRes defaultStatusIcon: Int
+    ) {
+        context.loadRemoteErrorIcon(
+            iconUrl,
+            onIconLoadSuccess = { drawable ->
+                updateErrorIcon(
+                    title = title,
+                    subtitle = description,
+                    icon = drawable
+                )
+            },
+            onIconLoadError = {
+                showTxError(
+                    title = title,
+                    subtitle = description,
+                    statusIcon = defaultStatusIcon
+                )
+            }
+        )
+    }
 
     private fun updateStatusIcon(
         title: String,

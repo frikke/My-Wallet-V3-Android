@@ -1,48 +1,48 @@
 package com.blockchain.nabu.datamanagers.kyc
 
-import com.blockchain.api.kyc.models.KycAdditionalInfoNodeResponse
-import com.blockchain.api.kyc.models.KycAdditionalInfoResponse
-import com.blockchain.nabu.models.responses.nabu.KycAdditionalInfoNode
+import com.blockchain.api.kyc.models.KycQuestionnaireNodeResponse
+import com.blockchain.api.kyc.models.KycQuestionnaireResponse
+import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
 import com.blockchain.nabu.models.responses.nabu.NodeType
 
-fun List<KycAdditionalInfoNode>.toNetwork(): KycAdditionalInfoResponse =
-    KycAdditionalInfoResponse(this.map { it.toNetwork() })
+fun List<KycQuestionnaireNode>.toNetwork(): KycQuestionnaireResponse =
+    KycQuestionnaireResponse(this.map { it.toNetwork() })
 
-private fun KycAdditionalInfoNode.toNetwork(): KycAdditionalInfoNodeResponse {
+private fun KycQuestionnaireNode.toNetwork(): KycQuestionnaireNodeResponse {
     val children = children.map { it.toNetwork() }
     return when (this) {
-        is KycAdditionalInfoNode.SingleSelection ->
-            KycAdditionalInfoNodeResponse(
+        is KycQuestionnaireNode.SingleSelection ->
+            KycQuestionnaireNodeResponse(
                 id, NodeType.SINGLE_SELECTION.toNetwork(), text, children, instructions, isDropdown, null, null, null
             )
-        is KycAdditionalInfoNode.MultipleSelection ->
-            KycAdditionalInfoNodeResponse(
+        is KycQuestionnaireNode.MultipleSelection ->
+            KycQuestionnaireNodeResponse(
                 id, NodeType.MULTIPLE_SELECTION.toNetwork(), text, children, instructions, null, null, null, null
             )
-        is KycAdditionalInfoNode.OpenEnded ->
-            KycAdditionalInfoNodeResponse(
+        is KycQuestionnaireNode.OpenEnded ->
+            KycQuestionnaireNodeResponse(
                 id, NodeType.OPEN_ENDED.toNetwork(), text, children, null, null, input, hint, null
             )
-        is KycAdditionalInfoNode.Selection ->
-            KycAdditionalInfoNodeResponse(
+        is KycQuestionnaireNode.Selection ->
+            KycQuestionnaireNodeResponse(
                 id, NodeType.SELECTION.toNetwork(), text, children, null, null, null, null, isChecked
             )
     }
 }
 
-fun KycAdditionalInfoResponse.toDomain(): List<KycAdditionalInfoNode> =
+fun KycQuestionnaireResponse.toDomain(): List<KycQuestionnaireNode> =
     nodes.mapNotNull { it.toDomain() }
 
-private fun KycAdditionalInfoNodeResponse.toDomain(): KycAdditionalInfoNode? {
+private fun KycQuestionnaireNodeResponse.toDomain(): KycQuestionnaireNode? {
     val type = type.toNodeType() ?: return null
     val children = children.orEmpty().mapNotNull { it.toDomain() }
     return when (type) {
         NodeType.SINGLE_SELECTION ->
-            KycAdditionalInfoNode.SingleSelection(id, text, children, instructions.orEmpty(), isDropdown ?: false)
+            KycQuestionnaireNode.SingleSelection(id, text, children, instructions.orEmpty(), isDropdown ?: false)
         NodeType.MULTIPLE_SELECTION ->
-            KycAdditionalInfoNode.MultipleSelection(id, text, children, instructions.orEmpty())
-        NodeType.OPEN_ENDED -> KycAdditionalInfoNode.OpenEnded(id, text, children, input.orEmpty(), hint.orEmpty())
-        NodeType.SELECTION -> KycAdditionalInfoNode.Selection(id, text, children, checked ?: false)
+            KycQuestionnaireNode.MultipleSelection(id, text, children, instructions.orEmpty())
+        NodeType.OPEN_ENDED -> KycQuestionnaireNode.OpenEnded(id, text, children, input.orEmpty(), hint.orEmpty())
+        NodeType.SELECTION -> KycQuestionnaireNode.Selection(id, text, children, checked ?: false)
     }
 }
 

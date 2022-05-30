@@ -243,7 +243,9 @@ class TradingToOnChainTxEngine(
         } ?: targetAddress.address
 
         return walletManager.transferFundsToWallet(
-            pendingTx.amount as CryptoValue, address
+            amount = pendingTx.amount as CryptoValue,
+            fee = pendingTx.feeAmount as CryptoValue,
+            walletAddress = address
         ).updateTxValidation()
             .map {
                 TxResult.UnHashedTxResult(pendingTx.amount)

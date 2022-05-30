@@ -35,6 +35,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.home.HomeScreenFragment
+import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
@@ -89,6 +90,7 @@ class BuySellFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateTitleToolbar(getString(R.string.buy_and_sell))
+        analytics.logEvent(WalletClientAnalytics.WalletBuySellViewed)
     }
 
     override fun onResume() {
