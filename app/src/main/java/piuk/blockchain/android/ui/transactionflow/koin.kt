@@ -51,13 +51,15 @@ val transactionModule = module {
             assetResources = get(),
             stringUtils = get()
         )
-    }.bind(TransactionFlowCustomiser::class)
-        .bind(EnterAmountCustomisations::class)
-        .bind(SourceSelectionCustomisations::class)
-        .bind(TargetSelectionCustomisations::class)
-        .bind(TransactionConfirmationCustomisations::class)
-        .bind(TransactionProgressCustomisations::class)
-        .bind(TransactionFlowCustomisations::class)
+    }.apply {
+        bind(TransactionFlowCustomiser::class)
+        bind(EnterAmountCustomisations::class)
+        bind(SourceSelectionCustomisations::class)
+        bind(TargetSelectionCustomisations::class)
+        bind(TransactionConfirmationCustomisations::class)
+        bind(TransactionProgressCustomisations::class)
+        bind(TransactionFlowCustomisations::class)
+    }
 
     factory {
         TransactionFlowInfoBottomSheetCustomiserImpl(
