@@ -1,5 +1,6 @@
 package com.blockchain.presentation.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
@@ -21,8 +22,6 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
     ModelConfigArgs.NoArgs>(
     initialState = DefaultPhraseModelState()
 ) {
-    private val customeScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {
         onIntent(DefaultPhraseIntent.LoadDefaultPhrase)
     }
@@ -69,7 +68,7 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
     }
 
     private fun resetCopyState() {
-        customeScope.launch {
+        viewModelScope.launch {
             delay(TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES))
             onIntent(DefaultPhraseIntent.ResetCopy)
             // todo reset clipboard

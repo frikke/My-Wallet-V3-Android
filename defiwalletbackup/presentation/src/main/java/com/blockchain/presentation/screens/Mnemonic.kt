@@ -25,6 +25,8 @@ import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.presentation.R
 import java.util.Locale
 
+private const val COLUMN_COUNT = 3
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Mnemonic(mnemonic: List<String>) {
@@ -34,7 +36,7 @@ fun Mnemonic(mnemonic: List<String>) {
             horizontal = dimensionResource(R.dimen.small_margin),
             vertical = dimensionResource(R.dimen.small_margin)
         ),
-        cells = GridCells.Fixed(count = 3),
+        cells = GridCells.Fixed(count = COLUMN_COUNT),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.standard_margin)),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.smallest_margin))
     ) {
