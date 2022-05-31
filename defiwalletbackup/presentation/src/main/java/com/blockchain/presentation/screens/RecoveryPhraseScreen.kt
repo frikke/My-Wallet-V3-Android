@@ -18,42 +18,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.DefaultPhraseViewState
+import com.blockchain.presentation.BackupPhraseIntent
+import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
+import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun DefaultPhrase(
-    viewModel: DefaultPhraseViewModel,
-    navController: NavController,
-) {
+fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        DefaultPhraseScreen(
+        RecoveryPhraseScreen(
             backupStatus = state.backUpStatus,
             mnemonic = state.mnemonic,
-            backUpNowOnClick = { navController.navigate(BackPhraseDestination.ManualBackup.route) }
+            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
         )
     }
 }
 
 @Composable
-fun DefaultPhraseScreen(
+fun RecoveryPhraseScreen(
     backupStatus: BackUpStatus,
     mnemonic: List<String>,
     backUpNowOnClick: () -> Unit,
@@ -118,20 +114,20 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Default Phrase - no backup", showBackground = true)
+@Preview(name = "Recovery Phrase - no backup", showBackground = true)
 @Composable
-fun PreviewDefaultPhraseScreenNoBackup() {
-    DefaultPhraseScreen(
+fun PreviewRecoveryPhraseScreenNoBackup() {
+    RecoveryPhraseScreen(
         backupStatus = BackUpStatus.NO_BACKUP,
         mnemonic = mnemonic,
         backUpNowOnClick = {}
     )
 }
 
-@Preview(name = "Default Phrase - backup", showBackground = true)
+@Preview(name = "Recovery Phrase - backup", showBackground = true)
 @Composable
-fun PreviewDefaultPhraseScreenBackup() {
-    DefaultPhraseScreen(
+fun PreviewRecoveryPhraseScreenBackup() {
+    RecoveryPhraseScreen(
         backupStatus = BackUpStatus.BACKED_UP,
         mnemonic = mnemonic,
         backUpNowOnClick = {}

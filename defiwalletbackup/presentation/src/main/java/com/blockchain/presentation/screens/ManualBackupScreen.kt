@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -38,24 +37,20 @@ import com.blockchain.componentlib.extensions.copyToClipboard
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
-import com.blockchain.presentation.BackPhraseDestination
+import com.blockchain.presentation.BackupPhraseIntent
+import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
-import com.blockchain.presentation.DefaultPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.DefaultPhraseIntent
-import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
+import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun ManualBackup(
-    viewModel: DefaultPhraseViewModel,
-    navController: NavController
-) {
+fun ManualBackup(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
         ManualBackupScreen(
@@ -63,8 +58,8 @@ fun ManualBackup(
             mnemonicString = state.mnemonicString,
             copyState = state.copyState,
 
-            mnemonicCopied = { viewModel.onIntent(DefaultPhraseIntent.MnemonicCopied) },
-            nextOnClick = { navController.navigate(BackPhraseDestination.VerifyPhrase.route) }
+            mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
+            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartUserPhraseVerification) }
         )
     }
 }

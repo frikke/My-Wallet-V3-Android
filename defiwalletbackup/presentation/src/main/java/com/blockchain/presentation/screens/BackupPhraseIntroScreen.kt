@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
@@ -32,35 +31,30 @@ import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.DefaultPhraseViewState
+import com.blockchain.presentation.BackupPhraseIntent
+import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
+import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 
 @Composable
-fun Splash(
-    viewModel: DefaultPhraseViewModel,
-    navController: NavController
-) {
+fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        SplashScreen(
+        BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
-            backUpNowOnClick = {
-                navController.navigate(BackPhraseDestination.DefaultPhrase.route)
-            }
+            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
         )
     }
 }
 
 @Composable
-fun SplashScreen(
+fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
     backUpNowOnClick: () -> Unit
 ) {
@@ -91,17 +85,17 @@ fun SplashScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            SplashScreenBackupDescription()
+            BackupPhraseIntroScreenDescription()
 
             Spacer(modifier = Modifier.weight(3F))
 
-            SplashScreenCta(backUpNowOnClick = backUpNowOnClick)
+            BackupPhraseIntroScreenCta(backUpNowOnClick = backUpNowOnClick)
         }
     }
 }
 
 @Composable
-fun SplashScreenBackupDescription() {
+fun BackupPhraseIntroScreenDescription() {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -112,7 +106,7 @@ fun SplashScreenBackupDescription() {
         Spacer(Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
         Text(
-            text = stringResource(R.string.lets_backup_your_wallet),
+            text = stringResource(R.string.backup_phrase_intro_title),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.title2,
             color = Grey900
@@ -121,7 +115,7 @@ fun SplashScreenBackupDescription() {
         Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
 
         Text(
-            text = stringResource(R.string.back_up_splash_description),
+            text = stringResource(R.string.backup_phrase_intro_description),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.paragraph1,
             color = Grey900
@@ -130,7 +124,7 @@ fun SplashScreenBackupDescription() {
 }
 
 @Composable
-fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
+fun BackupPhraseIntroScreenCta(backUpNowOnClick: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -145,7 +139,7 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
             Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
             Text(
-                text = stringResource(id = R.string.backup_phrase_checkbox_warning),
+                text = stringResource(id = R.string.backup_phrase_intro_warning),
                 style = AppTheme.typography.micro2
             )
         }
@@ -165,26 +159,26 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
 // PREVIEWS
 // ///////////////
 
-@Preview(name = "Splash no backup", showBackground = true)
+@Preview(name = "Backup Intro no backup", showBackground = true)
 @Composable
-fun PreviewSplashScreenNoBackup() {
-    SplashScreen(BackUpStatus.NO_BACKUP) { }
+fun PreviewBackupPhraseIntroScreenNoBackup() {
+    BackupPhraseIntroScreen(BackUpStatus.NO_BACKUP) { }
 }
 
-@Preview(name = "Splash backup", showBackground = true)
+@Preview(name = "Backup Intro backed up", showBackground = true)
 @Composable
-fun PreviewSplashScreenBackup() {
-    SplashScreen(BackUpStatus.BACKED_UP) { }
+fun PreviewBackupPhraseIntroScreenBackedUp() {
+    BackupPhraseIntroScreen(BackUpStatus.BACKED_UP) { }
 }
 
-@Preview(name = "Splash Backup Description", showBackground = true)
+@Preview(name = "Backup Intro Description", showBackground = true)
 @Composable
-fun PreviewSplashScreenBackupDescription() {
-    SplashScreenBackupDescription()
+fun PreviewBackupPhraseIntroScreenDescription() {
+    BackupPhraseIntroScreenDescription()
 }
 
-@Preview(name = "Splash CTA", showBackground = true)
+@Preview(name = "Backup Intro CTA", showBackground = true)
 @Composable
-fun PreviewSplashScreenCta() {
-    SplashScreenCta {}
+fun PreviewBackupPhraseIntroScreenCta() {
+    BackupPhraseIntroScreenCta {}
 }

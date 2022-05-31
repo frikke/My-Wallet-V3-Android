@@ -1,6 +1,5 @@
-plugins {
-}
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply plugin: 'kotlin-parcelize'
 
 android {
     buildTypes {

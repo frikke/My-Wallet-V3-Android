@@ -9,12 +9,13 @@ import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Orange000
 import com.blockchain.componentlib.theme.Orange600
 
-data class DefaultPhraseViewState(
-    val showProgress: Boolean,
+data class BackupPhraseViewState(
+    val isLoading: Boolean,
     val mnemonic: List<String>,
     val mnemonicString: String,
     val backUpStatus: BackUpStatus,
-    val copyState: CopyState
+    val copyState: CopyState,
+    val mnemonicVerificationStatus: UserMnemonicVerificationStatus
 ) : ViewState
 
 enum class BackUpStatus(
@@ -41,4 +42,8 @@ enum class BackUpStatus(
 sealed interface CopyState {
     object Idle : CopyState
     object Copied : CopyState
+}
+
+enum class UserMnemonicVerificationStatus {
+    NO_STATUS, VERIFIED, INCORRECT
 }
