@@ -4,8 +4,10 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.payments.data.Attributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import io.reactivex.rxjava3.core.Single
@@ -72,14 +74,32 @@ class PaymentMethodsService internal constructor(
 
     fun linkBank(
         authorization: String,
-        fiatCurrency: String
-    ) = api.linkBank(authorization, CreateLinkBankRequestBody(fiatCurrency))
+        fiatCurrency: String,
+        supportedPartners: List<String>,
+        applicationId: String
+    ) = api.linkBank(
+        authorization,
+        CreateLinkBankRequestBody(
+            fiatCurrency,
+            Attributes(supportedPartners, applicationId)
+        )
+    )
 
     fun updateAccountProviderId(
         authorization: String,
         id: String,
         body: UpdateProviderAccountBody
     ) = api.updateProviderAccount(
+        authorization,
+        id,
+        body
+    )
+
+    fun linkPLaidAccount(
+        authorization: String,
+        id: String,
+        body: LinkPlaidAccountBody
+    ) = api.linkPlaidAccount(
         authorization,
         id,
         body

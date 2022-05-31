@@ -66,6 +66,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         arguments?.getString(LINKING_BANK_ID).orEmpty()
     }
 
+    private val linkingBankToken: String by lazy {
+        arguments?.getString(LINKING_BANK_TOKEN).orEmpty()
+    }
+
     private val errorState: BankAuthError? by unsafeLazy {
         arguments?.getSerializable(ERROR_STATE) as? BankAuthError
     }
@@ -151,7 +155,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankLinkingProcessState.ACTIVATING -> showActivationInProgress()
             BankLinkingProcessState.IN_EXTERNAL_FLOW -> {
                 newState.linkBankTransfer?.attributes?.let {
-                    showExternalFlow(it as YapilyAttributes)
+                    if (it is YapilyAttributes) {
+                        showExternalFlow(it)
+                    }
                 }
             }
             BankLinkingProcessState.APPROVAL -> {
@@ -200,9 +206,23 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             }
         } else {
             linkBankTransfer?.let {
-                model.process(
-                    BankAuthIntent.UpdateAccountProvider(accountProviderId, accountId, linkingBankId, it, authSource)
-                )
+                if (it.partner == BankPartner.PLAID) {
+                    model.process(
+                        BankAuthIntent.LinkPlaidAccount(
+                            accountId = accountId,
+                            linkBankAccountId = linkingBankId,
+                            linkBankToken = linkingBankToken,
+                            linkBankTransfer = it,
+                            authSource = authSource
+                        )
+                    )
+                } else {
+                    model.process(
+                        BankAuthIntent.UpdateAccountProvider(
+                            accountProviderId, accountId, linkingBankId, it, authSource
+                        )
+                    )
+                }
             }
         }
     }
@@ -657,7 +677,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                             getString(R.string.yapily_linking_pending_subtitle)
                         )
                     }
-                    BankPartner.YODLEE -> {
+                    BankPartner.YODLEE, BankPartner.PLAID -> {
                         setTitleAndSubtitle(
                             getString(R.string.yodlee_linking_title),
                             getString(R.string.yodlee_linking_subtitle)
@@ -737,6 +757,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         private const val ACCOUNT_PROVIDER_ID = "ACCOUNT_PROVIDER_ID"
         private const val ACCOUNT_ID = "ACCOUNT_ID"
         private const val LINKING_BANK_ID = "LINKING_BANK_ID"
+        private const val LINKING_BANK_TOKEN = "LINKING_BANK_TOKEN"
         private const val LINK_BANK_TRANSFER = "LINK_BANK_TRANSFER"
         private const val LINK_BANK_SOURCE = "LINK_BANK_SOURCE"
         private const val ERROR_STATE = "ERROR_STATE"
@@ -748,6 +769,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             accountProviderId: String,
             accountId: String,
             linkingBankId: String,
+            linkingBankToken: String? = null,
             linkBankTransfer: LinkBankTransfer? = null,
             authSource: BankAuthSource
         ) = BankAuthFragment().apply {
@@ -755,6 +777,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 putString(ACCOUNT_PROVIDER_ID, accountProviderId)
                 putString(ACCOUNT_ID, accountId)
                 putString(LINKING_BANK_ID, linkingBankId)
+                putString(LINKING_BANK_TOKEN, linkingBankToken)
                 putSerializable(LINK_BANK_TRANSFER, linkBankTransfer)
                 putSerializable(LINK_BANK_SOURCE, authSource)
             }

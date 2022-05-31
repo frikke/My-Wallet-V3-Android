@@ -538,6 +538,7 @@ val applicationModule = module {
         factory {
             BankAuthModel(
                 interactor = get(),
+                bankService = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = BankAuthState(),
                 environmentConfig = get(),

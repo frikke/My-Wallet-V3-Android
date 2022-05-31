@@ -13,6 +13,7 @@ import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.BankTransferPaymentResponse
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
 import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
@@ -102,6 +103,13 @@ interface PaymentMethodsApi {
         @Header("authorization") authorization: String,
         @Path("id") id: String,
         @Body body: UpdateProviderAccountBody
+    ): Completable
+
+    @POST("payments/banktransfer/{id}/update")
+    fun linkPlaidAccount(
+        @Header("authorization") authorization: String,
+        @Path("id") id: String,
+        @Body body: LinkPlaidAccountBody
     ): Completable
 
     @POST("payments/banktransfer/{id}/payment")

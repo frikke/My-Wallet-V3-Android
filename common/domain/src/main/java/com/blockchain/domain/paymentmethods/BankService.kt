@@ -31,6 +31,12 @@ interface BankService {
         attributes: BankProviderAccountAttributes
     ): Completable
 
+    fun linkPlaidBankAccount(
+        linkingId: String,
+        accountId: String,
+        publicToken: String
+    ): Completable
+
     fun startBankTransfer(
         id: String,
         amount: Money,

@@ -303,7 +303,7 @@ class SimpleBuyInteractor(
         action: BankTransferAction
     ): BankProviderAccountAttributes =
         when (partner) {
-            BankPartner.YODLEE ->
+            BankPartner.YODLEE, BankPartner.PLAID ->
                 BankProviderAccountAttributes(
                     providerAccountId = providerAccountId,
                     accountId = accountId

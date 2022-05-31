@@ -19,7 +19,11 @@ import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentAttributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
 import com.blockchain.api.payments.data.LinkBankAttrsResponse
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.ProviderAccountAttrs
@@ -64,9 +68,11 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
@@ -89,6 +95,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
@@ -108,7 +115,9 @@ class PaymentsRepository(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
+    private val environmentConfig: EnvironmentConfig,
     private val googlePayFeatureFlag: FeatureFlag,
+    private val plaidFeatureFlag: FeatureFlag
 ) : BankService, CardService, PaymentMethodService {
 
     private val googlePayEnabled: Single<Boolean> by lazy {
@@ -384,9 +393,19 @@ class PaymentsRepository(
             }
         }
 
-    override fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer> {
-        return authenticator.getAuthHeader().flatMap { authToken ->
-            paymentMethodsService.linkBank(authToken, currency.networkTicker)
+    override fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer> =
+        authenticator.getAuthHeader().zipWith(plaidFeatureFlag.enabled).flatMap { (authToken, featureFlag) ->
+            val supportedPartners = if (featureFlag)
+                listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER)
+            else
+                emptyList()
+
+            paymentMethodsService.linkBank(
+                authToken,
+                currency.networkTicker,
+                supportedPartners,
+                environmentConfig.applicationId
+            )
         }.flatMap { response ->
             val partner =
                 response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
@@ -404,7 +423,6 @@ class PaymentsRepository(
                 )
             )
         }.wrapErrorMessage()
-    }
 
     fun BankPartner.attributes(attrsResponse: LinkBankAttrsResponse): LinkBankAttributes =
         when (this) {
@@ -433,6 +451,12 @@ class PaymentsRepository(
                     }
                 )
             }
+            BankPartner.PLAID ->
+                PlaidAttributes(
+                    linkToken = attrsResponse.linkToken!!,
+                    linkUrl = attrsResponse.linkUrl!!,
+                    tokenExpiresAt = attrsResponse.tokenExpiresAt!!
+                )
         }
 
     private fun List<YapilyMediaResponse>.getBankIcon(): URL? =
@@ -475,6 +499,18 @@ class PaymentsRepository(
             authToken,
             linkingId,
             UpdateProviderAccountBody(attributes.toProviderAttributes())
+        )
+    }
+
+    override fun linkPlaidBankAccount(
+        linkingId: String,
+        accountId: String,
+        publicToken: String
+    ): Completable = authenticator.getAuthHeader().flatMapCompletable { authToken ->
+        paymentMethodsService.linkPLaidAccount(
+            authToken,
+            linkingId,
+            LinkPlaidAccountBody(LinkPlaidAccountBody.Attributes(accountId, publicToken))
         )
     }
 
@@ -634,6 +670,7 @@ class PaymentsRepository(
         val partner = when (this) {
             CreateLinkBankResponse.YODLEE_PARTNER -> BankPartner.YODLEE
             CreateLinkBankResponse.YAPILY_PARTNER -> BankPartner.YAPILY
+            CreateLinkBankResponse.PLAID_PARTNER -> BankPartner.PLAID
             else -> null
         }
 
@@ -761,7 +798,7 @@ class PaymentsRepository(
 
     companion object {
         private val SUPPORTED_BANK_PARTNERS = listOf(
-            BankPartner.YAPILY, BankPartner.YODLEE
+            BankPartner.YAPILY, BankPartner.YODLEE, BankPartner.PLAID
         )
         private val SUPPORTED_FUNDS_CURRENCIES = listOf(
             "GBP", "EUR", "USD"

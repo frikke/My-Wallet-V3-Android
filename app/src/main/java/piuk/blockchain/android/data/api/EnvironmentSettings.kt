@@ -18,4 +18,5 @@ class EnvironmentSettings : EnvironmentConfig {
     override val statusUrl: String = BuildConfig.STATUS_API_URL
 
     override val bitpayUrl: String = BITPAY_LIVE_BASE
+    override val applicationId: String = BuildConfig.APPLICATION_ID
 }

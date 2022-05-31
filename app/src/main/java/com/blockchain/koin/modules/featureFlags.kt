@@ -16,6 +16,7 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
+import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
@@ -224,6 +225,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_stx_airdrop_users",
                 "Enable STX For Airdrop Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(plaidFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_plaid",
+                "Enable Plaid For ACH Users"
             )
         )
     }.bind(FeatureFlag::class)

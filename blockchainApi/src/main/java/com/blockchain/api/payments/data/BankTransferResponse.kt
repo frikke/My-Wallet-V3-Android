@@ -16,13 +16,24 @@ data class CreateLinkBankResponse(
     companion object {
         const val YODLEE_PARTNER = "YODLEE"
         const val YAPILY_PARTNER = "YAPILY"
+        const val PLAID_PARTNER = "PLAID"
     }
 }
 
 @Serializable
 data class CreateLinkBankRequestBody(
     @SerialName("currency")
-    private val currency: String
+    private val currency: String,
+    @SerialName("attributes")
+    private val attributes: Attributes? = null
+)
+
+@Serializable
+data class Attributes(
+    @SerialName("supportedPartners")
+    private val supportedPartners: List<String>,
+    @SerialName("android_package_name")
+    private val androidPackageName: String
 )
 
 @Serializable
@@ -36,7 +47,13 @@ data class LinkBankAttrsResponse(
     @SerialName("institutions")
     val institutions: List<YapilyInstitutionResponse>?,
     @SerialName("entity")
-    val entity: String?
+    val entity: String?,
+    @SerialName("link_token")
+    val linkToken: String?,
+    @SerialName("linkUrl")
+    val linkUrl: String?,
+    @SerialName("tokenExpiresAt")
+    val tokenExpiresAt: String?
 )
 
 @Serializable
@@ -294,4 +311,17 @@ data class BankMediaResponse(
         const val ICON = "icon"
         const val LOGO = "logo"
     }
+}
+
+@Serializable
+data class LinkPlaidAccountBody(
+    val attributes: Attributes
+) {
+    @Serializable
+    data class Attributes(
+        @SerialName("account_id")
+        val accountId: String,
+        @SerialName("public_token")
+        val publicToken: String
+    )
 }

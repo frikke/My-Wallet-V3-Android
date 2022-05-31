@@ -2,6 +2,7 @@ package piuk.blockchain.android.linkbank
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.banking.BankTransferAction
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
@@ -34,6 +35,7 @@ class BankAuthModelTest {
 
     private lateinit var model: BankAuthModel
     private val interactor: SimpleBuyInteractor = mock()
+    private val bankService: BankService = mock()
     private var defaultState = BankAuthState(id = "123")
     private val accountProviderId = "123"
     private val accountId = "1234"
@@ -52,6 +54,7 @@ class BankAuthModelTest {
     fun setup() {
         model = BankAuthModel(
             interactor = interactor,
+            bankService = bankService,
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),
@@ -728,6 +731,99 @@ class BankAuthModelTest {
     }
 
     @Test
+    fun `linkPlaidAccount() - success`() {
+        val linkBankAccountId = "linkBankAccountId"
+        val linkBankToken = "linkBankToken"
+        val linkBankTransfer: LinkBankTransfer = mock()
+        val bankAuthSource: BankAuthSource = mock()
+
+        val intent = BankAuthIntent.LinkPlaidAccount(
+            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+        )
+
+        val expectedBank = LinkedBank(
+            id = linkingBankId,
+            currency = GBP,
+            partner = BankPartner.PLAID,
+            accountName = "name",
+            bankName = "bankName",
+            accountNumber = "123",
+            state = LinkedBankState.PENDING,
+            errorStatus = LinkedBankErrorState.NONE,
+            accountType = "",
+            authorisationUrl = "url",
+            sortCode = "123",
+            accountIban = "123",
+            bic = "123",
+            entity = "entity",
+            iconUrl = "iconUrl",
+            callbackPath = ""
+        )
+
+        whenever(interactor.pollForBankLinkingCompleted(linkingBankId)).thenReturn(Single.just(expectedBank))
+        whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(
+            Completable.complete()
+        )
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                id = linkingBankId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken
+            )
+        )
+    }
+
+    @Test
+    fun `linkPlaidAccount() - error`() {
+        val linkBankAccountId = "linkBankAccountId"
+        val linkBankToken = "linkBankToken"
+        val linkBankTransfer: LinkBankTransfer = mock()
+        val bankAuthSource: BankAuthSource = mock()
+
+        val intent = BankAuthIntent.LinkPlaidAccount(
+            linkingBankId, linkBankAccountId, linkBankToken, linkBankTransfer, bankAuthSource
+        )
+
+        whenever(bankService.linkPlaidBankAccount(linkingBankId, linkBankAccountId, linkBankToken)).thenReturn(
+            Completable.error(Exception())
+        )
+        whenever(interactor.pollForBankLinkingCompleted(linkingBankId)).thenReturn(Single.error(Exception()))
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                id = linkingBankId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken
+            )
+        )
+
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                id = linkingBankId,
+                linkBankTransfer = linkBankTransfer,
+                linkBankAccountId = linkBankAccountId,
+                linkBankToken = linkBankToken,
+                errorState = BankAuthError.BankLinkingUpdateFailed,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
     fun pollLinkStatus_active() {
         setupModelWithBankPartner()
 
@@ -1221,7 +1317,8 @@ class BankAuthModelTest {
         defaultState = defaultState.copy(linkBankTransfer = linkBankTransfer)
 
         model = BankAuthModel(
-            interactor,
+            interactor = interactor,
+            bankService = bankService,
             initialState = defaultState,
             uiScheduler = Schedulers.io(),
             environmentConfig = mock(),

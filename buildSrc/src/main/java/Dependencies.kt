@@ -130,6 +130,7 @@ object Versions {
     const val checkoutComVersion = "3.0.1"
     const val stripeVersion = "20.3.0"
     const val intercomVersion = "10.6.0"
+    const val plaidLinkVersion = "3.9.0"
 
     // Logging
     const val timber = "4.7.1"
@@ -311,6 +312,7 @@ object Libraries {
     const val checkoutCom = "com.github.checkout:frames-android:${Versions.checkoutComVersion}"
     const val stripe = "com.stripe:stripe-android:${Versions.stripeVersion}"
     const val intercom = "io.intercom.android:intercom-sdk-base:${Versions.intercomVersion}"
+    const val plaidLink = "com.plaid.link:sdk-core:${Versions.plaidLinkVersion}"
 
     // Logging
     const val timber = "com.jakewharton.timber:timber:${Versions.timber}"

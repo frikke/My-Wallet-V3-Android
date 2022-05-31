@@ -12,6 +12,7 @@ import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
@@ -20,6 +21,10 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
+import com.plaid.link.OpenPlaidLink
+import com.plaid.link.linkTokenConfiguration
+import com.plaid.link.result.LinkExit
+import com.plaid.link.result.LinkSuccess
 import info.blockchain.balance.FiatCurrency
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -55,7 +60,7 @@ class BankAuthActivity :
 
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
 
-    private val removeSafeconnectFF: FeatureFlag by inject(removeSafeconnectFeatureFlag)
+    private val removeSafeConnectFF: FeatureFlag by inject(removeSafeconnectFeatureFlag)
 
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
@@ -79,7 +84,7 @@ class BankAuthActivity :
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
 
-                        removeSafeconnectFF.enabled.subscribe { enabled ->
+                        removeSafeConnectFF.enabled.subscribe { enabled ->
                             if (enabled) {
                                 yapilyApprovalAccepted(it)
                             } else {
@@ -115,6 +120,9 @@ class BankAuthActivity :
             BankPartner.YAPILY -> {
                 launchYapilyBankSelection(linkBankTransfer.attributes as YapilyAttributes)
             }
+            BankPartner.PLAID -> {
+                launchPlaidLink(linkBankTransfer.id, linkBankTransfer.attributes as PlaidAttributes)
+            }
         }
     }
 
@@ -132,7 +140,7 @@ class BankAuthActivity :
     }
 
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
-        removeSafeconnectFF.enabled.subscribe { enabled ->
+        removeSafeConnectFF.enabled.subscribe { enabled ->
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.content_frame,
@@ -154,6 +162,41 @@ class BankAuthActivity :
                 .addToBackStack(null)
                 .commitAllowingStateLoss()
         }
+    }
+
+    override fun launchPlaidLink(id: String, attributes: PlaidAttributes) {
+        val linkTokenConfiguration = linkTokenConfiguration {
+            token = attributes.linkToken
+        }
+
+        registerForActivityResult(OpenPlaidLink()) {
+            when (it) {
+                is LinkSuccess -> {
+                    launchPlaidLinking(id, it)
+                }
+                is LinkExit -> {
+                    finish()
+                }
+            }
+        }
+            .launch(linkTokenConfiguration)
+    }
+
+    private fun launchPlaidLinking(id: String, linkSuccess: LinkSuccess) {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.content_frame,
+                BankAuthFragment.newInstance(
+                    accountProviderId = "",
+                    accountId = id,
+                    linkingBankId = linkSuccess.metadata.accounts.first().id,
+                    linkingBankToken = linkSuccess.publicToken,
+                    linkBankTransfer = linkBankTransfer,
+                    authSource = authSource
+                )
+            )
+            .addToBackStack(BankAuthFragment::class.simpleName)
+            .commitAllowingStateLoss()
     }
 
     private fun launchYapilyApproval(approvalDetails: BankPaymentApproval) {
@@ -259,7 +302,7 @@ class BankAuthActivity :
                 checkBankLinkingState(linkingId)
             }
             approvalDetails != null -> {
-                removeSafeconnectFF.enabled.subscribe { enabled ->
+                removeSafeConnectFF.enabled.subscribe { enabled ->
                     approvalDetails?.let {
                         if (enabled) {
                             yapilyApprovalAccepted(it)

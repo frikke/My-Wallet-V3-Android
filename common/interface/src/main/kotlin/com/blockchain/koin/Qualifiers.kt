@@ -25,6 +25,7 @@ val removeSafeconnectFeatureFlag = StringQualifier("ff_remove_safeconnect_screen
 val referralsFeatureFlag = StringQualifier("ff_referrals")
 val stxForAllFeatureFlag = StringQualifier("ff_stx_all")
 val stxForAirdropUsersFeatureFlag = StringQualifier("ff_stx_airdrop")
+val plaidFeatureFlag = StringQualifier("ff_plaid")
 val nabu = StringQualifier("nabu")
 val status = StringQualifier("status")
 val kotlinApiRetrofit = StringQualifier("kotlin-api")

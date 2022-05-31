@@ -368,10 +368,12 @@ val coreModule = module {
                 tradingBalanceDataManager = get(),
                 simpleBuyPrefs = get(),
                 authenticator = get(),
-                googlePayFeatureFlag = get(googlePayFeatureFlag),
                 googlePayManager = get(),
+                environmentConfig = get(),
                 assetCatalogue = get(),
-                linkedCardsStore = get()
+                linkedCardsStore = get(),
+                googlePayFeatureFlag = get(googlePayFeatureFlag),
+                plaidFeatureFlag = get(plaidFeatureFlag)
             )
         }.apply {
             bind(BankService::class)

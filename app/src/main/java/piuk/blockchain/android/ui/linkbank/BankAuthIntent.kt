@@ -65,6 +65,22 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
         )
     }
 
+    class LinkPlaidAccount(
+        val accountId: String,
+        val linkBankAccountId: String,
+        val linkBankToken: String,
+        val linkBankTransfer: LinkBankTransfer,
+        val authSource: BankAuthSource
+    ) : BankAuthIntent() {
+        override fun reduce(oldState: BankAuthState): BankAuthState = oldState.copy(
+            linkBankTransfer = linkBankTransfer,
+            id = accountId,
+            linkBankToken = linkBankToken,
+            linkBankAccountId = linkBankAccountId,
+            bankLinkingProcessState = BankLinkingProcessState.LINKING
+        )
+    }
+
     object ClearBankLinkingUrl : BankAuthIntent() {
         override fun reduce(oldState: BankAuthState): BankAuthState =
             oldState.copy(

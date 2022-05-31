@@ -16,9 +16,18 @@ import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferFiatAmount
 import com.blockchain.api.payments.data.BankTransferPaymentResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
+import com.blockchain.api.payments.data.FastlinkParamsResponse
+import com.blockchain.api.payments.data.LinkBankAttrsResponse
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.YapilyCountryResponse
+import com.blockchain.api.payments.data.YapilyInstitutionResponse
+import com.blockchain.api.payments.data.YapilyMediaResponse
 import com.blockchain.api.services.CollateralLock
 import com.blockchain.api.services.CollateralLocks
 import com.blockchain.api.services.PaymentMethodsService
@@ -37,6 +46,8 @@ import com.blockchain.domain.paymentmethods.model.EveryPayCredentials
 import com.blockchain.domain.paymentmethods.model.FundsLock
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.GooglePayInfo
+import com.blockchain.domain.paymentmethods.model.InstitutionCountry
+import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -47,6 +58,11 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
+import com.blockchain.domain.paymentmethods.model.YapilyAttributes
+import com.blockchain.domain.paymentmethods.model.YapilyInstitution
+import com.blockchain.domain.paymentmethods.model.YodleeAttributes
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
@@ -103,6 +119,7 @@ class PaymentsRepositoryTest {
         private const val AUTH = "auth"
         private const val ID = "id"
         private const val NETWORK_TICKER = "GBP"
+        private const val APPLICATION_ID = "applicationId"
     }
 
     private val paymentsService: PaymentsService = mockk()
@@ -115,9 +132,13 @@ class PaymentsRepositoryTest {
         coEvery { getAuthHeader() } returns Single.just(AUTH)
     }
     private val googlePayManager: GooglePayManager = mockk()
+    private val environmentConfig: EnvironmentConfig = mockk<EnvironmentConfig>().apply {
+        every { applicationId } returns APPLICATION_ID
+    }
     private val googlePayFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
         every { enabled } returns Single.just(true)
     }
+    private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
 
     private lateinit var subject: PaymentsRepository
 
@@ -132,7 +153,9 @@ class PaymentsRepositoryTest {
             simpleBuyPrefs,
             authenticator,
             googlePayManager,
-            googlePayFeatureFlag
+            environmentConfig,
+            googlePayFeatureFlag,
+            plaidFeatureFlag
         )
     }
 
@@ -305,6 +328,222 @@ class PaymentsRepositoryTest {
         // ASSERT
         subject.updateSelectedBankAccount(ID, "", "", domainAttrs).test()
             .assertComplete()
+    }
+
+    @Test
+    fun `linkPlaidAccount() - success`() {
+        // ARRANGE
+        val attrs = LinkPlaidAccountBody.Attributes("accountId", "publicToken")
+        every { paymentMethodsService.linkPLaidAccount(AUTH, ID, LinkPlaidAccountBody(attrs)) } returns
+            Completable.complete()
+
+        // ASSERT
+        subject.linkPlaidBankAccount(ID, attrs.accountId, attrs.publicToken).test()
+            .assertComplete()
+    }
+
+    @Test
+    fun `linkBank() - Plaid`() {
+        // ARRANGE
+        every { plaidFeatureFlag.enabled } returns (Single.just(true))
+        val currency = mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+        val createLinkBankResponse = CreateLinkBankResponse(
+            partner = PLAID_PARTNER,
+            id = ID,
+            attributes = LinkBankAttrsResponse(
+                linkToken = "linkToken",
+                linkUrl = "linkUrl",
+                tokenExpiresAt = "tokenExpiresAt",
+                token = null,
+                fastlinkUrl = null,
+                fastlinkParams = null,
+                institutions = null,
+                entity = null
+            )
+        )
+        every {
+            paymentMethodsService.linkBank(
+                authorization = AUTH,
+                fiatCurrency = NETWORK_TICKER,
+                supportedPartners = listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER),
+                applicationId = APPLICATION_ID
+            )
+        } returns Single.just(createLinkBankResponse)
+
+        // ASSERT
+        subject.linkBank(currency).test()
+            .assertValue(
+                LinkBankTransfer(
+                    id = ID,
+                    partner = BankPartner.PLAID,
+                    attributes = PlaidAttributes(
+                        createLinkBankResponse.attributes!!.linkToken!!,
+                        createLinkBankResponse.attributes!!.linkUrl!!,
+                        createLinkBankResponse.attributes!!.tokenExpiresAt!!
+                    )
+                )
+            )
+    }
+
+    @Test
+    fun `linkBank() - Yodlee`() {
+        // ARRANGE
+        every { plaidFeatureFlag.enabled } returns (Single.just(false))
+        val currency = mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+        val createLinkBankResponse = CreateLinkBankResponse(
+            partner = YODLEE_PARTNER,
+            id = ID,
+            attributes = LinkBankAttrsResponse(
+                linkToken = null,
+                linkUrl = null,
+                tokenExpiresAt = null,
+                token = "token",
+                fastlinkUrl = "fastLinkUrl",
+                fastlinkParams = FastlinkParamsResponse(configName = "configName"),
+                institutions = null,
+                entity = null
+            )
+        )
+        every {
+            paymentMethodsService.linkBank(
+                authorization = AUTH,
+                fiatCurrency = NETWORK_TICKER,
+                supportedPartners = emptyList(),
+                applicationId = APPLICATION_ID
+            )
+        } returns Single.just(createLinkBankResponse)
+
+        // ASSERT
+        subject.linkBank(currency).test()
+            .assertValue(
+                LinkBankTransfer(
+                    id = ID,
+                    partner = BankPartner.YODLEE,
+                    attributes = YodleeAttributes(
+                        createLinkBankResponse.attributes!!.fastlinkUrl!!,
+                        createLinkBankResponse.attributes!!.token!!,
+                        createLinkBankResponse.attributes!!.fastlinkParams!!.configName
+                    )
+                )
+            )
+    }
+
+    @Test
+    fun `linkBank() - Yapily`() {
+        // ARRANGE
+        every { plaidFeatureFlag.enabled } returns (Single.just(false))
+        val currency = mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+        val createLinkBankResponse = CreateLinkBankResponse(
+            partner = YAPILY_PARTNER,
+            id = ID,
+            attributes = LinkBankAttrsResponse(
+                linkToken = null,
+                linkUrl = null,
+                tokenExpiresAt = null,
+                token = null,
+                fastlinkUrl = null,
+                fastlinkParams = null,
+                institutions = listOf(
+                    YapilyInstitutionResponse(
+                        countries = listOf(YapilyCountryResponse("countryCode2", "displayName")),
+                        fullName = "fullName",
+                        id = "id",
+                        media = listOf(YapilyMediaResponse("source", BankPartner.ICON))
+                    )
+                ),
+                entity = "entity"
+            )
+        )
+        every {
+            paymentMethodsService.linkBank(
+                authorization = AUTH,
+                fiatCurrency = NETWORK_TICKER,
+                supportedPartners = emptyList(),
+                applicationId = APPLICATION_ID
+            )
+        } returns Single.just(createLinkBankResponse)
+
+        // ASSERT
+        subject.linkBank(currency).test()
+            .assertValue(
+                LinkBankTransfer(
+                    id = ID,
+                    partner = BankPartner.YAPILY,
+                    attributes = YapilyAttributes(
+                        entity = createLinkBankResponse.attributes!!.entity!!,
+                        institutionList = listOf(
+                            YapilyInstitution(
+                                operatingCountries = listOf(
+                                    InstitutionCountry(
+                                        createLinkBankResponse.attributes!!.institutions!![0].countries[0].countryCode2,
+                                        createLinkBankResponse.attributes!!.institutions!![0].countries[0].displayName
+                                    )
+                                ),
+                                name = createLinkBankResponse.attributes!!.institutions!![0].fullName,
+                                id = createLinkBankResponse.attributes!!.institutions!![0].id,
+                                iconLink = null
+                            )
+                        )
+                    )
+                )
+            )
+    }
+
+    @Test
+    fun `linkBank() - invalid partner should throw error`() {
+        // ARRANGE
+        every { plaidFeatureFlag.enabled } returns (Single.just(false))
+        val currency = mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+        val createLinkBankResponse = CreateLinkBankResponse(
+            partner = "",
+            id = ID,
+            attributes = LinkBankAttrsResponse(
+                linkToken = null,
+                linkUrl = null,
+                tokenExpiresAt = null,
+                token = "token",
+                fastlinkUrl = "fastLinkUrl",
+                fastlinkParams = FastlinkParamsResponse(configName = "configName"),
+                institutions = null,
+                entity = null
+            )
+        )
+        every {
+            paymentMethodsService.linkBank(
+                authorization = AUTH,
+                fiatCurrency = NETWORK_TICKER,
+                supportedPartners = emptyList(),
+                applicationId = APPLICATION_ID
+            )
+        } returns Single.just(createLinkBankResponse)
+
+        // ASSERT
+        subject.linkBank(currency).test()
+            .assertError { it is IllegalStateException }
+    }
+
+    @Test
+    fun `linkBank() - missing attributes should throw error`() {
+        // ARRANGE
+        every { plaidFeatureFlag.enabled } returns (Single.just(false))
+        val currency = mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
+        val createLinkBankResponse = CreateLinkBankResponse(
+            partner = YODLEE_PARTNER,
+            id = ID,
+            attributes = null
+        )
+        every {
+            paymentMethodsService.linkBank(
+                authorization = AUTH,
+                fiatCurrency = NETWORK_TICKER,
+                supportedPartners = emptyList(),
+                applicationId = APPLICATION_ID
+            )
+        } returns Single.just(createLinkBankResponse)
+
+        // ASSERT
+        subject.linkBank(currency).test()
+            .assertError { it is IllegalStateException }
     }
 
     @Test
