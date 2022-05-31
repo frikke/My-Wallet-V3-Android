@@ -2900,6 +2900,7 @@
     <!--  Referral -->
     <string name="referral_code_title">Your referral code</string>
     <string name="referral_criteria_title">What my invited friends need to do?</string>
+    <string name="referral_program">Referral Program</string>
 
     <!-- App Rating-->
     <string name="app_rating_title">Do you like our app?</string>
