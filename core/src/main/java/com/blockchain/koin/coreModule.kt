@@ -61,6 +61,7 @@ import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
 import com.blockchain.wallet.SeedAccessWithoutPrompt
+import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.UUID
@@ -397,7 +398,8 @@ val coreModule = module {
 
     single {
         DynamicAssetsDataManagerImpl(
-            discoveryService = get()
+            discoveryService = get(),
+            experimentalL1EvmAssets = experimentalL1EvmAssetList()
         )
     }.bind(DynamicAssetsDataManager::class)
 
@@ -475,3 +477,6 @@ val coreModule = module {
         Database(driver = get())
     }
 }
+
+fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
+    setOf(CryptoCurrency.MATIC)

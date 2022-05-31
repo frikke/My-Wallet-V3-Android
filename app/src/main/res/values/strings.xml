@@ -2976,7 +2976,7 @@
     <string name="no_fee">No Fee</string>
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
-    <string name="trading_restricted">Trading Restricted</string>
+    <string name="account_restricted">Account Restricted</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

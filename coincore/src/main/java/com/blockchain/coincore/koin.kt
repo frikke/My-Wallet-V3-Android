@@ -19,6 +19,7 @@ import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.ethMemoHotWalletFeatureFlag
+import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
@@ -290,9 +291,6 @@ val coincoreModule = module {
         FormatUtilities()
     }
 }
-
-fun experimentalL1EvmAssetList(): Set<CryptoCurrency> =
-    setOf(CryptoCurrency.MATIC)
 
 fun nonCustodialAssetList() =
     setOf(

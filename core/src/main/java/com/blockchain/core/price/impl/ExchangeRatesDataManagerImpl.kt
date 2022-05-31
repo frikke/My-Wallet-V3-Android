@@ -242,12 +242,12 @@ internal class ExchangeRatesDataManagerImpl(
                         previousRate = ExchangeRate(
                             from = fromAsset,
                             to = fiat,
-                            rate = price.yesterdayRate!!
+                            rate = price.yesterdayRate
                         ),
                         currentRate = ExchangeRate(
                             from = fromAsset,
                             to = fiat,
-                            rate = price.currentRate!!
+                            rate = price.currentRate
                         ),
                         marketCap = price.marketCap
                     )

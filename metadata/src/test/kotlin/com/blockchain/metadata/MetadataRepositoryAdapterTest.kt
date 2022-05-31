@@ -4,6 +4,7 @@ import com.blockchain.serialization.JsonSerializable
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.serializers.jsonSerializers
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -20,10 +21,20 @@ import kotlinx.serialization.serializer
 import org.amshove.kluent.`should be equal to`
 import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import org.koin.test.inject
 import org.mockito.Mockito
 
 @InternalSerializationApi
-class MetadataRepositoryAdapterTest {
+class MetadataRepositoryAdapterTest : KoinTest {
+
+    private val json: Json by inject()
+
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(jsonSerializers)
+    }
 
     @get:Rule
     val initSchedulers = rxInit {
@@ -36,18 +47,6 @@ class MetadataRepositoryAdapterTest {
         @Serializable(with = BigDecimalSerializer::class)
         val field2: BigDecimal
     ) : JsonSerializable
-
-    private val json = Json {
-        explicitNulls = false
-        ignoreUnknownKeys = true
-        isLenient = true
-        encodeDefaults = true
-        serializersModule = SerializersModule {
-            contextual(BigDecimalSerializer)
-            contextual(BigIntSerializer)
-            contextual(IsoDateSerializer)
-        }
-    }
 
     @Test
     fun `can save json`() {

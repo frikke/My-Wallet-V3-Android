@@ -14,8 +14,8 @@ class MetadataRepositoryNabuTokenAdapter(
     private val createNabuToken: CreateNabuToken,
 ) : NabuToken {
 
-    private fun createMetaData(currency: String?, action: String?): Single<CredentialMetadata> = Single.defer {
-        createNabuToken.createNabuOfflineToken(currency, action)
+    private fun createMetaData(): Single<CredentialMetadata> = Single.defer {
+        createNabuToken.createNabuOfflineToken()
             .flatMap {
                 accountCredentialsMetadata.saveAndReturn(it)
             }
@@ -24,15 +24,13 @@ class MetadataRepositoryNabuTokenAdapter(
     private val defer = Maybe.defer {
         accountCredentialsMetadata.load()
     }.maybeCache()
-        .filter { it.isValid() }
-
-    override fun fetchNabuToken(currency: String?, action: String?): Single<NabuOfflineTokenResponse> =
-        defer
-            .switchIfEmpty(createMetaData(currency, action))
-            .map { metadata ->
-                if (!metadata.isValid()) {
-                    throw MetadataNotFoundException("Nabu Token is empty")
-                }
-                metadata.mapFromMetadata()
+        .filter { it.isValid() }.switchIfEmpty(createMetaData())
+        .map { metadata ->
+            if (!metadata.isValid()) {
+                throw MetadataNotFoundException("Nabu Token is empty")
             }
+            metadata.mapFromMetadata()
+        }
+
+    override fun fetchNabuToken(): Single<NabuOfflineTokenResponse> = defer
 }

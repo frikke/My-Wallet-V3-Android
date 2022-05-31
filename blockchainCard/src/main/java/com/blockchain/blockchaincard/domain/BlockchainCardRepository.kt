@@ -1,7 +1,6 @@
 package com.blockchain.blockchaincard.domain
 
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.domain.models.BlockchainCardAccount
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.coincore.AccountBalance
@@ -36,16 +35,14 @@ interface BlockchainCardRepository {
         cardId: String
     ): Outcome<BlockchainCardError, List<TradingAccount>>
 
-    suspend fun getCardLinkedAccounts(
-        authHeader: String,
-        cardId: String
-    ): Outcome<BlockchainCardError, List<BlockchainCardAccount>>
-
     suspend fun linkCardAccount(
-        authHeader: String,
         cardId: String,
         accountCurrency: String
-    ): Outcome<BlockchainCardError, BlockchainCardAccount>
+    ): Outcome<BlockchainCardError, String>
+
+    suspend fun getCardLinkedAccount(
+        cardId: String
+    ): Outcome<BlockchainCardError, TradingAccount>
 
     suspend fun loadAccountBalance(tradingAccount: BlockchainAccount): Outcome<BlockchainCardError, AccountBalance>
 }

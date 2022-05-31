@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.ui.composables
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,6 +22,7 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationRouter
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewModel
+import com.blockchain.blockchaincard.viewmodel.managecard.ManageCardViewModel
 import com.blockchain.blockchaincard.viewmodel.ordercard.OrderCardViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviBottomSheetNavHost
@@ -30,13 +30,12 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.bottomSheet
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 
-@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun BlockchainCardNavHost(
     viewModel: BlockchainCardViewModel,
     modelArgs: ModelConfigArgs
 ) {
-
     viewModel.viewCreated(modelArgs)
 
     val startDestination =
@@ -108,16 +107,21 @@ fun BlockchainCardNavHost(
 
         // Manage Card Screens
         composable(BlockchainCardDestination.ManageCardDestination) {
-            ManageCard(
-                card = state?.card,
-                cardWidgetUrl = state?.cardWidgetUrl,
-                onManageCardDetails = {
-                    viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
-                },
-                onChoosePaymentMethod = {
-                    viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
+            if (viewModel is ManageCardViewModel) { // Once in the manage flow, the VM must be a ManageCardViewModel
+                state?.let { state ->
+                    ManageCard(
+                        card = state.card,
+                        cardWidgetUrl = state.cardWidgetUrl,
+                        isBalanceLoading = state.isLinkedAccountBalanceLoading,
+                        linkedAccountBalance = state.linkedAccountBalance,
+                        onManageCardDetails = {
+                            viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
+                        }
+                    ) {
+                        viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
+                    }
                 }
-            )
+            }
         }
 
         bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
@@ -126,8 +130,12 @@ fun BlockchainCardNavHost(
 
         bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {
             state?.let {
-                AccountPicker(it.eligibleTradingAccounts) {
-                    // TODO (labreu): Add card linking request (next PR)
+                AccountPicker(it.eligibleTradingAccountBalances) { accountCurrencyNetworkTicker ->
+                    viewModel.onIntent(
+                        BlockchainCardIntent.LinkSelectedAccount(
+                            accountCurrencyNetworkTicker = accountCurrencyNetworkTicker
+                        )
+                    )
                 }
             }
         }

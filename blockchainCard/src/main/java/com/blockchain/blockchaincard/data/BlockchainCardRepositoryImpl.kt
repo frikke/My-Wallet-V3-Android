@@ -5,7 +5,6 @@ import com.blockchain.api.blockchainCard.data.ProductsResponse
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.domain.models.BlockchainCardAccount
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
@@ -138,7 +137,7 @@ internal class BlockchainCardRepositoryImpl(
                     }
 
                     coincore.allWallets().awaitOutcome().mapLeft {
-                        BlockchainCardError.GetEligibleCardAccountsRequestFailed
+                        BlockchainCardError.LoadAllWalletsFailed
                     }.map { accountGroup ->
                         accountGroup.accounts.filterIsInstance<TradingAccount>().filter { tradingAccount ->
                             eligibleCurrencies.any {
@@ -158,20 +157,61 @@ internal class BlockchainCardRepositoryImpl(
                 }
             }
 
-    override suspend fun getCardLinkedAccounts(
-        authHeader: String,
-        cardId: String
-    ): Outcome<BlockchainCardError, List<BlockchainCardAccount>> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun linkCardAccount(
-        authHeader: String,
         cardId: String,
         accountCurrency: String
-    ): Outcome<BlockchainCardError, BlockchainCardAccount> {
-        TODO("Not yet implemented")
-    }
+    ): Outcome<BlockchainCardError, String> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft {
+                BlockchainCardError.GetAuthFailed
+            }
+            .flatMap { tokenResponse ->
+                blockchainCardService.linkCardAccount(
+                    authHeader = tokenResponse,
+                    cardId = cardId,
+                    accountCurrency = accountCurrency
+                ).mapLeft {
+                    BlockchainCardError.LinkCardAccountFailed
+                }.map { cardAccountLinkResponse ->
+                    cardAccountLinkResponse.accountCurrency
+                }
+            }
+
+    override suspend fun getCardLinkedAccount(
+        cardId: String
+    ): Outcome<BlockchainCardError, TradingAccount> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft {
+                BlockchainCardError.GetAuthFailed
+            }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getCardLinkedAccount(
+                    authHeader = tokenResponse,
+                    cardId = cardId
+                ).mapLeft {
+                    BlockchainCardError.GetCardLinkedAccountFailed
+                }.flatMap { cardLinkedAccountResponse ->
+                    coincore.allWallets().awaitOutcome()
+                        .mapLeft {
+                            BlockchainCardError.LoadAllWalletsFailed
+                        }.map { accountGroup ->
+                            accountGroup.accounts.filterIsInstance<TradingAccount>().first { tradingAccount ->
+                                when (tradingAccount) {
+                                    is FiatCustodialAccount ->
+                                        tradingAccount
+                                            .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
+                                    is CustodialTradingAccount ->
+                                        tradingAccount
+                                            .currency.networkTicker == cardLinkedAccountResponse.accountCurrency
+                                    else ->
+                                        throw IllegalStateException(
+                                            "Account is not a FiatCustodialAccount nor CustodialTradingAccount"
+                                        )
+                                }
+                            }
+                        }
+                }
+            }
 
     override suspend fun loadAccountBalance(
         tradingAccount: BlockchainAccount

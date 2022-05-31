@@ -5,6 +5,7 @@ import com.blockchain.api.blockchainCard.data.CardAccount
 import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
 import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
+import com.blockchain.api.blockchainCard.data.CardLinkedAccountResponse
 import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
@@ -53,16 +54,16 @@ internal interface BlockchainCardApi {
         @Path("cardId") cardId: String,
     ): Outcome<ApiError, List<CardAccount>>
 
-    @GET("/card-issuing/cards/{cardId}/account")
-    suspend fun getCardLinkedAccounts(
-        @Header("authorization") authorization: String,
-        @Path("cardId") cardId: String,
-    ): Outcome<ApiError, List<CardAccount>>
-
-    @PUT("/card-issuing/cards/{cardId}/account")
+    @PUT("card-issuing/cards/{cardId}/account")
     suspend fun linkCardAccount(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
         @Body cardAccountLinkRequest: CardAccountLinkRequest
     ): Outcome<ApiError, CardAccountLinkResponse>
+
+    @GET("card-issuing/cards/{cardId}/account")
+    suspend fun getCardLinkedAccount(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, CardLinkedAccountResponse>
 }

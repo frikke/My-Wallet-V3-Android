@@ -203,6 +203,7 @@ class AccountFragment :
                 is BlockchainCardOrderState.Ordered -> {
                     visibility = VISIBLE
                     secondaryText = null
+                    tags = null
                     onClick = {
                         navigator().goToManageBlockchainCard(blockchainCardOrderState.blockchainCard)
                     }

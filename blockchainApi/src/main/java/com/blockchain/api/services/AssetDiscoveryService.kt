@@ -73,6 +73,12 @@ class AssetDiscoveryService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
+    suspend fun getAssetsForEvm(l1Ticker: String): Outcome<ApiError, DynamicAssetList> =
+        api.getCurrenciesForEvm(l1Ticker)
+            .map { dto ->
+                dto.currencies.mapNotNull { it.toDynamicAsset() }
+            }
+
     suspend fun getAssetInformation(assetTicker: String): Outcome<ApiError, DetailedAssetInformation?> =
         api.getAssetInfo(assetTicker).map {
             it.toAssetInfo()

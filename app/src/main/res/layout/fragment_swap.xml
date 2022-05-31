@@ -201,7 +201,7 @@
             android:layout_height="match_parent" />
     </ViewFlipper>
 
-    <piuk.blockchain.android.ui.customviews.EmptyStateView
+    <piuk.blockchain.android.ui.customviews.CustomEmptyStateView
         android:id="@+id/swap_error"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

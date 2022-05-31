@@ -39,7 +39,7 @@ class MajorProductBlockedAnnouncement(
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
             ProductNotEligibleReason.Sanctions.RussiaEU5,
             is ProductNotEligibleReason.Sanctions.Unknown,
-            is ProductNotEligibleReason.Unknown -> R.string.trading_restricted
+            is ProductNotEligibleReason.Unknown -> R.string.account_restricted
         }
 
         val body = when (reason) {

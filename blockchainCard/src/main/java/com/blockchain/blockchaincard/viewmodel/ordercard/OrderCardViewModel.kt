@@ -64,7 +64,9 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.ManageCard -> {
-                navigate(BlockchainCardNavigationEvent.ManageCard)
+                modelState.card?.let {
+                    navigate(BlockchainCardNavigationEvent.ManageCard(modelState.card))
+                }
             }
         }
     }

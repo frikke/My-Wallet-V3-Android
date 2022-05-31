@@ -94,7 +94,7 @@ internal class Erc20BalanceCallCache(
         } else if (oldAccountHash != accountHash) {
             l2CacheRequest.invalidate(parentChainTicker)
         }
-        return if (parentChainTicker.isEmpty()) {
+        return if (parentChainTicker.isEmpty() || parentChainTicker == CryptoCurrency.ETHER.networkTicker) {
             cacheRequest.getCachedSingle()
         } else {
             l2CacheRequest.getCachedSingle(parentChainTicker)
