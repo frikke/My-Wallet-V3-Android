@@ -6,9 +6,7 @@ import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -18,7 +16,6 @@ import kotlinx.serialization.InternalSerializationApi
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
-@OptIn(InternalSerializationApi::class)
 class MetadataRepositoryNabuTokenAdapterTest {
 
     @Test
@@ -101,7 +98,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             accountCredentialsMetadata,
             mock {
-                on { createNabuOfflineToken(anyOrNull(), anyOrNull()) }.thenReturn(Single.just(offlineToken))
+                on { createNabuOfflineToken() }.thenReturn(Single.just(offlineToken))
             }
 
         )
@@ -138,7 +135,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             accountCredentialsMetadata,
             mock {
-                on { createNabuOfflineToken(anyOrNull(), anyOrNull()) }.thenReturn(Single.just(offlineToken))
+                on { createNabuOfflineToken() }.thenReturn(Single.just(offlineToken))
             }
 
         )

@@ -78,6 +78,7 @@ val nabuModule = module {
             AccountCredentialsMetadata(
                 metadataRepository = get(),
                 accountMetadataMigrationFF = get(metadataMigrationFeatureFlag),
+                remoteLogger = get()
             )
         }
 
