@@ -7,10 +7,10 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.DefaultPhraseViewState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
     DefaultPhraseViewState,

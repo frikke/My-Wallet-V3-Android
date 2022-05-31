@@ -65,7 +65,11 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                     start.linkTo(parent.start)
                 }
                 .fillMaxWidth()
-                .border(width = 1.dp, color = Grey100)
+                .border(
+                    width = 1.dp,
+                    color = Grey100,
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
+                )
                 .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.tiny_margin)))
                 .run {
                     if (hidable) {

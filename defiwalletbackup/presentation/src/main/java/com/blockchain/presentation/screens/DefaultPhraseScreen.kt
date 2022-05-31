@@ -134,5 +134,6 @@ fun PreviewDefaultPhraseScreenBackup() {
     DefaultPhraseScreen(
         backupStatus = BackUpStatus.BACKED_UP,
         mnemonic = mnemonic,
-        backUpNowOnClick = {})
+        backUpNowOnClick = {}
+    )
 }

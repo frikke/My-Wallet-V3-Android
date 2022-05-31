@@ -17,7 +17,12 @@ data class DefaultPhraseViewState(
     val copyState: CopyState
 ) : ViewState
 
-enum class BackUpStatus(@DrawableRes val icon: Int, val bgColor: Color, val textColor: Color, @StringRes val text: Int) {
+enum class BackUpStatus(
+    @DrawableRes val icon: Int,
+    val bgColor: Color,
+    val textColor: Color,
+    @StringRes val text: Int
+) {
     NO_BACKUP(
         icon = R.drawable.ic_alert,
         bgColor = Orange000,

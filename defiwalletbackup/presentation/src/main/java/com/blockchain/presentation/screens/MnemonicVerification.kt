@@ -43,7 +43,7 @@ fun MnemonicVerification(mnemonic: List<String>, wordSelected: (word: String) ->
                 color = Grey100,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
             )
-            .background(Grey000)
+            .background(color = Grey000, shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall)))
             .padding(dimensionResource(R.dimen.small_margin))
             .heightIn(min = 182.dp),
         mainAxisAlignment = FlowMainAxisAlignment.Center,

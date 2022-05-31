@@ -137,7 +137,6 @@ fun ManualBackupScreen(
                 }
             }
 
-
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(

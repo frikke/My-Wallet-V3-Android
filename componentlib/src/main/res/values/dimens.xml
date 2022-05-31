@@ -32,7 +32,7 @@
     <dimen name="size_huge">40dp</dimen>
     <dimen name="size_large"></dimen>
     <dimen name="size_medium"></dimen>
-    <dimen name="size_standard"></dimen>
+    <dimen name="size_standard">16dp</dimen>
     <dimen name="size_small"></dimen>
     <dimen name="size_tiny"></dimen>
 

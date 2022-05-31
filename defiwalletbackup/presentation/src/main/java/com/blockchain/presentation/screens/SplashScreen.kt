@@ -139,7 +139,8 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
 
         Row {
             PrimarySwitch(
-                isChecked = isChecked, onCheckChanged = { isChecked = it })
+                isChecked = isChecked, onCheckChanged = { isChecked = it }
+            )
 
             Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 

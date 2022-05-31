@@ -1,7 +1,6 @@
 package com.blockchain.presentation.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -34,7 +33,12 @@ fun BackupStatus(backupStatus: BackUpStatus) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(imageResource = ImageResource.Local(backupStatus.icon))
+        Image(
+            imageResource = ImageResource.Local(
+                id = backupStatus.icon,
+                size = dimensionResource(R.dimen.size_standard)
+            )
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
 
