@@ -90,6 +90,34 @@ internal class BlockchainCardRepositoryImpl(
                 }
             }
 
+    override suspend fun lockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .flatMap { tokenResponse ->
+                blockchainCardService.lockCard(
+                    authHeader = tokenResponse,
+                    cardId = cardId
+                ).mapLeft {
+                    BlockchainCardError.LockCardRequestFailed
+                }.map { card ->
+                    card.toDomainModel()
+                }
+            }
+
+    override suspend fun unlockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .flatMap { tokenResponse ->
+                blockchainCardService.unlockCard(
+                    authHeader = tokenResponse,
+                    cardId = cardId
+                ).mapLeft {
+                    BlockchainCardError.UnlockCardRequestFailed
+                }.map { card ->
+                    card.toDomainModel()
+                }
+            }
+
     override suspend fun getCardWidgetToken(cardId: String): Outcome<BlockchainCardError, String> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapLeft { BlockchainCardError.GetAuthFailed }

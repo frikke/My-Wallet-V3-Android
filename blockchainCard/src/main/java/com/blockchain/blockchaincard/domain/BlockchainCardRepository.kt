@@ -22,6 +22,14 @@ interface BlockchainCardRepository {
         cardId: String
     ): Outcome<BlockchainCardError, BlockchainCard>
 
+    suspend fun lockCard(
+        cardId: String
+    ): Outcome<BlockchainCardError, BlockchainCard>
+
+    suspend fun unlockCard(
+        cardId: String
+    ): Outcome<BlockchainCardError, BlockchainCard>
+
     suspend fun getCardWidgetToken(
         cardId: String
     ): Outcome<BlockchainCardError, String>

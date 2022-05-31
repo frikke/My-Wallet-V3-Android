@@ -61,6 +61,34 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 }
             }
 
+            is BlockchainCardIntent.LockCard -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.lockCard(card.id).fold(
+                        onFailure = { error ->
+                            Timber.e("Card lock failed: $error")
+                        },
+                        onSuccess = { cardUpdated ->
+                            Timber.d("Card locked")
+                            updateState { it.copy(card = cardUpdated) }
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.UnlockCard -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.unlockCard(card.id).fold(
+                        onFailure = { error ->
+                            Timber.e("Card unlock failed: $error")
+                        },
+                        onSuccess = { cardUpdated ->
+                            Timber.d("Card unlocked")
+                            updateState { it.copy(card = cardUpdated) }
+                        }
+                    )
+                }
+            }
+
             is BlockchainCardIntent.LoadCardWidget -> {
                 modelState.card?.let { card ->
                     blockchainCardRepository.getCardWidgetUrl(

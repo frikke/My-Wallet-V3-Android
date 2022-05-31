@@ -125,7 +125,16 @@ fun BlockchainCardNavHost(
         }
 
         bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
-            ManageCardDetails(onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
+            state?.card?.let { card ->
+                ManageCardDetails(
+                    onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) },
+                    onToggleLockCard = { isChecked: Boolean ->
+                        if (isChecked) viewModel.onIntent(BlockchainCardIntent.LockCard)
+                        else viewModel.onIntent(BlockchainCardIntent.UnlockCard)
+                    },
+                    cardStatus = card.status
+                )
+            }
         }
 
         bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {

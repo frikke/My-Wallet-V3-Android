@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -183,7 +184,7 @@ private fun PreviewManageCard() {
 }
 
 @Composable
-fun ManageCardDetails(onDeleteCard: () -> Unit) {
+fun ManageCardDetails(onDeleteCard: () -> Unit, onToggleLockCard: (Boolean) -> Unit, cardStatus: BlockchainCardStatus) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -229,7 +230,8 @@ fun ManageCardDetails(onDeleteCard: () -> Unit) {
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         ToggleTableRow(
-            onCheckedChange = {},
+            onCheckedChange = onToggleLockCard,
+            isChecked = cardStatus == BlockchainCardStatus.LOCKED,
             primaryText = stringResource(R.string.lock_card),
             secondaryText = stringResource(R.string.temporarily_lock_card)
         )
@@ -248,14 +250,14 @@ fun ManageCardDetails(onDeleteCard: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.paddingLarge)
-        ) // Todo add trashcan icon
+        ) // Todo(labreu): add trashcan icon
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails({})
+    ManageCardDetails({}, {}, BlockchainCardStatus.ACTIVE)
 }
 
 @Composable
