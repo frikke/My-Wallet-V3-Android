@@ -9,16 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -29,17 +33,37 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.presentation.BackPhraseDestination
+import com.blockchain.presentation.BackUpStatus
+import com.blockchain.presentation.DefaultPhraseViewState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 
 @Composable
-fun Splash(navController: NavController) {
-    SplashScreen(backUpNowOnClick = {
-        navController.navigate(BackPhraseDestination.DefaultPhrase.route)
-    })
+fun Splash(
+    viewModel: DefaultPhraseViewModel,
+    navController: NavController
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+
+    viewState?.let { state ->
+        SplashScreen(
+            backupStatus = state.backUpStatus,
+            backUpNowOnClick = {
+                navController.navigate(BackPhraseDestination.DefaultPhrase.route)
+            }
+        )
+    }
 }
 
 @Composable
-fun SplashScreen(backUpNowOnClick: () -> Unit) {
+fun SplashScreen(
+    backupStatus: BackUpStatus,
+    backUpNowOnClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -61,7 +85,9 @@ fun SplashScreen(backUpNowOnClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            BackupStatus()
+            if (backupStatus == BackUpStatus.NO_BACKUP) {
+                BackupStatus(backupStatus)
+            }
 
             Spacer(modifier = Modifier.weight(1F))
 
@@ -138,11 +164,16 @@ fun SplashScreenCta(backUpNowOnClick: () -> Unit) {
 // PREVIEWS
 // ///////////////
 
-@Preview(name = "Splash", showBackground = true)
+@Preview(name = "Splash no backup", showBackground = true)
 @Composable
-fun PreviewSplashScreen() {
-    SplashScreen {
-    }
+fun PreviewSplashScreenNoBackup() {
+    SplashScreen(BackUpStatus.NO_BACKUP) { }
+}
+
+@Preview(name = "Splash backup", showBackground = true)
+@Composable
+fun PreviewSplashScreenBackup() {
+    SplashScreen(BackUpStatus.BACKED_UP) { }
 }
 
 @Preview(name = "Splash Backup Description", showBackground = true)

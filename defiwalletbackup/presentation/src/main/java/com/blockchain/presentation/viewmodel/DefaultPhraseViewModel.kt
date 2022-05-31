@@ -4,12 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.BackUpPhraseWarning
+import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.DefaultPhraseViewState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -32,7 +29,7 @@ class DefaultPhraseViewModel : MviViewModel<DefaultPhraseIntent,
                 showProgress = isLoading,
                 mnemonic = mnemonic,
                 mnemonicString = mnemonic.joinToString(separator = " "),
-                warning = if (hasBackup) BackUpPhraseWarning.NONE else BackUpPhraseWarning.NO_BACKUP,
+                backUpStatus = if (hasBackup) BackUpStatus.BACKED_UP else BackUpStatus.NO_BACKUP,
                 copyState = copyState
             )
         }

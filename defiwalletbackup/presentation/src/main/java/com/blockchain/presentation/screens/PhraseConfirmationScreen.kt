@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
@@ -33,9 +36,9 @@ import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun DefaultPhrase(
+fun BackupConfirmation(
     viewModel: DefaultPhraseViewModel,
-    navController: NavController,
+    navController: NavController
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -44,20 +47,19 @@ fun DefaultPhrase(
     val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        DefaultPhraseScreen(
-            backupStatus = state.backUpStatus,
+        PhraseConfirmationScreen(
             mnemonic = state.mnemonic,
-            backUpNowOnClick = { navController.navigate(BackPhraseDestination.ManualBackup.route) }
+            nextOnClick = { /*todo*/ }
         )
     }
 }
 
 @Composable
-fun DefaultPhraseScreen(
-    backupStatus: BackUpStatus,
+fun PhraseConfirmationScreen(
     mnemonic: List<String>,
-    backUpNowOnClick: () -> Unit,
+    nextOnClick: () -> Unit
 ) {
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -74,26 +76,24 @@ fun DefaultPhraseScreen(
         ) {
 
             SimpleText(
-                text = stringResource(id = R.string.recovery_phrase_title),
+                text = stringResource(id = R.string.phrase_confirmation_title),
                 style = ComposeTypographies.Title2,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
 
-            if (backupStatus == BackUpStatus.NO_BACKUP) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-                BackupStatus(backupStatus)
-            }
+            BackupStatus(BackUpStatus.BACKED_UP)
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-            Mnemonic(mnemonic = mnemonic)
+            HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
             SimpleText(
-                text = stringResource(id = R.string.recovery_phrase_description),
+                text = stringResource(id = R.string.phrase_confirmation_description),
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
@@ -103,8 +103,8 @@ fun DefaultPhraseScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.back_up_now),
-                onClick = backUpNowOnClick
+                text = stringResource(id = R.string.next),
+                onClick = nextOnClick
             )
         }
     }
@@ -118,21 +118,11 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Default Phrase - no backup", showBackground = true)
+@Preview(name = "Phrase Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewDefaultPhraseScreenNoBackup() {
-    DefaultPhraseScreen(
-        backupStatus = BackUpStatus.NO_BACKUP,
+fun PreviewPhraseConfirmationScreen() {
+    PhraseConfirmationScreen(
         mnemonic = mnemonic,
-        backUpNowOnClick = {}
+        nextOnClick = {}
     )
-}
-
-@Preview(name = "Default Phrase - backup", showBackground = true)
-@Composable
-fun PreviewDefaultPhraseScreenBackup() {
-    DefaultPhraseScreen(
-        backupStatus = BackUpStatus.BACKED_UP,
-        mnemonic = mnemonic,
-        backUpNowOnClick = {})
 }

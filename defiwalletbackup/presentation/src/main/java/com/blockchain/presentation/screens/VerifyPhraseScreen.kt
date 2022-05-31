@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -26,6 +27,7 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.DefaultPhraseViewState
 import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.DefaultPhraseViewModel
@@ -34,29 +36,30 @@ import java.util.Locale
 @Composable
 fun VerifyPhrase(
     viewModel: DefaultPhraseViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val state: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    VerifyPhraseScreen(
-        mnemonic = state?.mnemonic ?: listOf(),
-        nextOnClick = { /*todo*/ }
-    )
+    viewState?.let { state ->
+        VerifyPhraseScreen(
+            mnemonic = state.mnemonic,
+            /*todo(othmna) onclick verify validity*/
+            nextOnClick = { navController.navigate(BackPhraseDestination.BackupConfirmation.route) }
+        )
+    }
 }
 
 @Composable
 fun VerifyPhraseScreen(
     mnemonic: List<String>,
-    nextOnClick: () -> Unit
+    nextOnClick: () -> Unit,
 ) {
-
     val userMnemonic = remember { mutableStateListOf<String>() }
-    val randomizedMnemonic = remember { mutableStateListOf<String>() }
-    randomizedMnemonic.addAll(mnemonic)
+    val randomizedMnemonic = remember { mnemonic.toMutableStateList() }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -125,8 +128,8 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 @Preview(name = "Verify Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
 fun PreviewVerifyPhrase() {
-    VerifyPhraseScreen(
-        mnemonic = mnemonic,
-        nextOnClick = {}
-    )
+    //    VerifyPhraseScreen(
+    //        mnemonic = mnemonic,
+    //        nextOnClick = {}
+    //    )
 }

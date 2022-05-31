@@ -103,7 +103,7 @@ object Versions {
     const val compose = "1.1.1"
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
-    const val constraintLayoutCompose = "1.0.0-beta02"
+    const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.1.1"
     const val composeKotlinCompile = "1.5.3"
     const val composeNavigation = "2.4.1"

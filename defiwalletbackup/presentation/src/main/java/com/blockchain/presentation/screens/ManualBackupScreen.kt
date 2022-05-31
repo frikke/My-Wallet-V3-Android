@@ -55,16 +55,18 @@ fun ManualBackup(
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
-    val state: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
+    val viewState: DefaultPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    ManualBackupScreen(
-        mnemonic = state?.mnemonic ?: listOf(),
-        mnemonicString = state?.mnemonicString ?: "",
-        copyState = state?.copyState ?: CopyState.Idle,
+    viewState?.let { state ->
+        ManualBackupScreen(
+            mnemonic = state.mnemonic,
+            mnemonicString = state.mnemonicString,
+            copyState = state.copyState,
 
-        mnemonicCopied = { viewModel.onIntent(DefaultPhraseIntent.MnemonicCopied) },
-        nextOnClick = { navController.navigate(BackPhraseDestination.VerifyPhrase.route) }
-    )
+            mnemonicCopied = { viewModel.onIntent(DefaultPhraseIntent.MnemonicCopied) },
+            nextOnClick = { navController.navigate(BackPhraseDestination.VerifyPhrase.route) }
+        )
+    }
 }
 
 @Composable

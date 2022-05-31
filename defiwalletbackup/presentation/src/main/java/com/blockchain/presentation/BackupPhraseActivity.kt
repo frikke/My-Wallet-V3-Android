@@ -12,6 +12,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.koin.payloadScope
+import com.blockchain.presentation.screens.BackupConfirmation
 import com.blockchain.presentation.screens.DefaultPhrase
 import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.Splash
@@ -50,7 +51,7 @@ fun BackupPhraseNavHost(
         startDestination = startDestination
     ) {
         composable(navigationEvent = BackPhraseDestination.Splash) {
-            Splash(navController)
+            Splash(viewModel, navController)
         }
         composable(navigationEvent = BackPhraseDestination.DefaultPhrase) {
             DefaultPhrase(viewModel, navController)
@@ -61,6 +62,9 @@ fun BackupPhraseNavHost(
         composable(navigationEvent = BackPhraseDestination.VerifyPhrase) {
             VerifyPhrase(viewModel, navController)
         }
+        composable(navigationEvent = BackPhraseDestination.BackupConfirmation) {
+            BackupConfirmation(viewModel, navController)
+        }
     }
 }
 
@@ -69,4 +73,5 @@ sealed class BackPhraseDestination(override val route: String) : ComposeNavigati
     object DefaultPhrase : BackPhraseDestination("DefaultPhrase")
     object ManualBackup : BackPhraseDestination("ManualBackup")
     object VerifyPhrase : BackPhraseDestination("VerifyPhrase")
+    object BackupConfirmation : BackPhraseDestination("BackupConfirmation")
 }

@@ -1,10 +1,10 @@
 package com.blockchain.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
@@ -31,8 +32,6 @@ import com.blockchain.presentation.R
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import java.util.Locale
-
-private const val COLUMN_COUNT = 3
 
 @Composable
 fun MnemonicVerification(mnemonic: List<String>, wordSelected: (word: String) -> Unit) {
@@ -92,7 +91,10 @@ fun MnemonicVerificationWord(index: Int? = null, word: String, onClick: () -> Un
                     vertical = dimensionResource(R.dimen.minuscule_margin),
                     horizontal = dimensionResource(R.dimen.very_small_margin)
                 )
-                .clickable { onClick() },
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onClick() },
             horizontalArrangement = Arrangement.Center,
         ) {
             index?.let {
