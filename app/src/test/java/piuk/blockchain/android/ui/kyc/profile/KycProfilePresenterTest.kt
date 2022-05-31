@@ -9,8 +9,9 @@ import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
+import com.blockchain.nabu.models.responses.tokenresponse.toNabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
@@ -23,7 +24,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
-import kotlinx.serialization.InternalSerializationApi
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import org.amshove.kluent.`should throw`
@@ -35,7 +35,6 @@ import piuk.blockchain.android.util.StringUtils
 import retrofit2.HttpException
 import retrofit2.Response
 
-@OptIn(InternalSerializationApi::class)
 class KycProfilePresenterTest {
 
     private lateinit var subject: KycProfilePresenter
@@ -177,11 +176,18 @@ class KycProfilePresenterTest {
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
             nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(NabuOfflineTokenResponse("123", "123")))
+        ).thenReturn(Single.just(NabuOfflineToken("123", "123")))
         val jwt = "JTW"
+
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
         whenever(nabuDataManager.getAuthToken(jwt))
-            .thenReturn(Single.just(offlineToken.mapFromMetadata()))
+            .thenReturn(
+                Single.just(
+                    NabuOfflineTokenResponse(
+                        "123", "123", true
+                    )
+                )
+            )
 
         val responseBody =
             ResponseBody.create(
@@ -193,7 +199,7 @@ class KycProfilePresenterTest {
                 firstName,
                 lastName,
                 dateOfBirth.toISO8601DateString(),
-                offlineToken.mapFromMetadata()
+                offlineToken.toNabuOfflineToken()
             )
         ).thenReturn(
             Completable.error {

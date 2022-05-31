@@ -2,7 +2,6 @@
 
 package piuk.blockchain.android.ui.kyc.koin
 
-import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.CurrentTier
 import com.blockchain.nabu.EthEligibility
@@ -128,9 +127,7 @@ val kycUiModule = module {
 
         factory {
             KycInvalidCountryPresenter(
-                nabuDataManager = get(),
-                metadataRepository = get(),
-                accountMetadataMigrationFF = get(metadataMigrationFeatureFlag)
+                nabuDataManager = get()
             )
         }
 

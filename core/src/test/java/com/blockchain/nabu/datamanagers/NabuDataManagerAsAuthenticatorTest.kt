@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -35,7 +35,7 @@ class NabuDataManagerAsAuthenticatorTest {
             .test()
 
         verify(nabuDataManager).authenticate(
-            eq(NabuOfflineTokenResponse("User", "ABC")),
+            eq(NabuOfflineToken("User", "ABC")),
             any<(NabuSessionTokenResponse) -> Single<Int>>()
         )
         verifyNoMoreInteractions(nabuDataManager)
@@ -47,7 +47,7 @@ class NabuDataManagerAsAuthenticatorTest {
         val token = givenToken("User", "ABC")
 
         val nabuDataManager = mock<NabuDataManager> {
-            on { currentToken(NabuOfflineTokenResponse("User", "ABC")) }.thenReturn(
+            on { currentToken(NabuOfflineToken("User", "ABC")) }.thenReturn(
                 Single.just(
                     nabuSessionTokenResponse("User", "ABC")
                 )
@@ -83,7 +83,7 @@ class NabuDataManagerAsAuthenticatorTest {
         mock {
             on { fetchNabuToken() }.thenReturn(
                 Single.just(
-                    NabuOfflineTokenResponse(
+                    NabuOfflineToken(
                         userId,
                         token
                     )

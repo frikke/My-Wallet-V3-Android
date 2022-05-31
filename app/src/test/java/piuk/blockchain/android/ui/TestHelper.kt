@@ -9,7 +9,7 @@ import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
 import info.blockchain.balance.Currency
@@ -31,7 +31,7 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
 )
 
 val validOfflineToken
-    get() = NabuOfflineTokenResponse(
+    get() = NabuOfflineToken(
         "userId",
         "lifetimeToken"
     )

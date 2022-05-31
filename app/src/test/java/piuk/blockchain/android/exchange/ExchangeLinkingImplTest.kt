@@ -5,7 +5,7 @@ import com.blockchain.annotations.CommonCode
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -17,7 +17,7 @@ import org.junit.Test
 
 @CommonCode("Also exists in nabu/test/TestHelper.kt")
 val validOfflineToken
-    get() = NabuOfflineTokenResponse("userId", "lifetimeToken")
+    get() = NabuOfflineToken("userId", "lifetimeToken")
 
 class ExchangeLinkingImplTest {
 

@@ -10,19 +10,39 @@ data class NabuOfflineTokenRequest(
     val jwt: String
 )
 
+/**
+ * should only used as response from POST /users
+ * This is a get or create endpoint. Created specifies if user was created.
+ * The reason that we handle the created is because under some racing conditions,
+ * this POST can be called multiple times.
+ */
 @Serializable
 data class NabuOfflineTokenResponse(
     val userId: String,
-    val token: String
+    val token: String,
+    val created: Boolean
 )
 
-fun NabuOfflineTokenResponse.mapToLegacyCredentials(): NabuLegacyCredentialsMetadata =
+data class NabuOfflineToken(
+    val userId: String,
+    val token: String
+) {
+
+    fun isValid(): Boolean = userId.isNotEmpty() && token.isNotEmpty()
+}
+
+fun NabuOfflineTokenResponse.toNabuOfflineToken() = NabuOfflineToken(
+    userId = userId,
+    token = token
+)
+
+fun NabuOfflineToken.mapToLegacyCredentials(): NabuLegacyCredentialsMetadata =
     NabuLegacyCredentialsMetadata(userId = this.userId, lifetimeToken = this.token)
 
-fun NabuOfflineTokenResponse.mapToBlockchainCredentialsMetadata(): BlockchainAccountCredentialsMetadata =
+fun NabuOfflineToken.mapToBlockchainCredentialsMetadata(): BlockchainAccountCredentialsMetadata =
     BlockchainAccountCredentialsMetadata(userId = this.userId, lifetimeToken = this.token)
 
-fun CredentialMetadata.mapFromMetadata(): NabuOfflineTokenResponse {
+fun CredentialMetadata.toNabuOfflineToken(): NabuOfflineToken {
     require(userId != null) {
         "Nabu userId cannot be null"
     }
@@ -31,5 +51,5 @@ fun CredentialMetadata.mapFromMetadata(): NabuOfflineTokenResponse {
     }
 
     // requires ensure these values cannot be null, so double bang is ok here
-    return NabuOfflineTokenResponse(userId!!, lifetimeToken!!)
+    return NabuOfflineToken(userId!!, lifetimeToken!!)
 }

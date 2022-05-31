@@ -1,11 +1,7 @@
 package piuk.blockchain.android.ui.kyc.invalidcountry
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.metadata.MetadataEntry
-import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -24,11 +20,7 @@ class KycInvalidCountryPresenterTest {
 
     private lateinit var subject: KycInvalidCountryPresenter
     private val nabuDataManager: NabuDataManager = mock()
-    private val metadataRepo: MetadataRepository = mock()
     private val view: KycInvalidCountryView = mock()
-    private val accountMetadataFlag: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -38,7 +30,7 @@ class KycInvalidCountryPresenterTest {
 
     @Before
     fun setUp() {
-        subject = KycInvalidCountryPresenter(nabuDataManager, metadataRepo, accountMetadataFlag)
+        subject = KycInvalidCountryPresenter(nabuDataManager)
         subject.initView(view)
     }
 
@@ -93,17 +85,9 @@ class KycInvalidCountryPresenterTest {
     private fun givenSuccessfulUserCreation() {
         val jwt = "JWT"
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineTokenResponse("", "", false)
         whenever(nabuDataManager.getAuthToken(jwt))
             .thenReturn(Single.just(offlineToken))
-        whenever(
-            metadataRepo.saveMetadata(
-                any(),
-                eq(NabuLegacyCredentialsMetadata::class.java),
-                any(),
-                eq(MetadataEntry.NABU_LEGACY_CREDENTIALS)
-            )
-        ).thenReturn(Completable.complete())
     }
 
     private fun givenSuccessfulRecordCountryRequest() {

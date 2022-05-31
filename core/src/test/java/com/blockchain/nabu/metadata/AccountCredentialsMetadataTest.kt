@@ -6,7 +6,7 @@ import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -189,15 +189,13 @@ class AccountCredentialsMetadataTest {
         whenever(accountMetadataMigrationFF.enabled).thenReturn(Single.just(false))
         whenever(metadataRepository.saveMetadata(any(), any(), any(), any())).thenReturn(Completable.complete())
 
-        val test = subject.saveAndReturn(NabuOfflineTokenResponse("123", "546")).test()
+        val test = subject.save(NabuOfflineToken("123", "546")).test()
         val metadata = NabuLegacyCredentialsMetadata(
             userId = "123",
             lifetimeToken = "546"
         )
 
-        test.assertValue {
-            it == metadata
-        }
+        test.assertComplete()
 
         Mockito.verify(metadataRepository).save(
             metadata, MetadataEntry.NABU_LEGACY_CREDENTIALS
@@ -210,7 +208,7 @@ class AccountCredentialsMetadataTest {
         whenever(accountMetadataMigrationFF.enabled).thenReturn(Single.just(true))
         whenever(metadataRepository.saveMetadata(any(), any(), any(), any())).thenReturn(Completable.complete())
 
-        val test = subject.saveAndReturn(NabuOfflineTokenResponse("123", "546")).test()
+        val test = subject.save(NabuOfflineToken("123", "546")).test()
 
         val metadata = BlockchainAccountCredentialsMetadata(
             userId = "123",
@@ -219,9 +217,7 @@ class AccountCredentialsMetadataTest {
             exchangeUserId = null
         )
 
-        test.assertValue {
-            it == metadata
-        }
+        test.assertComplete()
 
         Mockito.verify(metadataRepository).save(
             metadata, MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS

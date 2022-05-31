@@ -9,13 +9,11 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
-import kotlinx.serialization.InternalSerializationApi
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
-@OptIn(InternalSerializationApi::class)
 class ResetPasswordInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,

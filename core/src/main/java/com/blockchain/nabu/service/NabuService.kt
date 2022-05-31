@@ -42,6 +42,7 @@ import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.models.responses.swap.QuoteResponse
 import com.blockchain.nabu.models.responses.swap.SwapLimitsResponse
 import com.blockchain.nabu.models.responses.swap.UpdateSwapOrderBody
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -193,7 +194,7 @@ class NabuService internal constructor(
     ).wrapErrorMessage()
 
     internal fun recoverUser(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.recoverUser(
         offlineToken.userId,
@@ -202,7 +203,7 @@ class NabuService internal constructor(
     ).wrapErrorMessage()
 
     internal fun resetUserKyc(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.resetUserKyc(
         offlineToken.userId,

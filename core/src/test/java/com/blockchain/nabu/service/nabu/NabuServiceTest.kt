@@ -9,6 +9,7 @@ import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.service.NabuService
@@ -34,7 +35,8 @@ class NabuServiceTest {
     fun getAuthToken() {
         val expectedTokenResponse = NabuOfflineTokenResponse(
             "d753109e-34c2-42bd-82f1-cc90470234kf",
-            "d753109e-23jd-42bd-82f1-cc904702asdfkjf"
+            "d753109e-23jd-42bd-82f1-cc904702asdfkjf",
+            true
         )
 
         whenever(
@@ -244,7 +246,9 @@ class NabuServiceTest {
     @Test
     fun `recover user`() {
         val userId = "userID"
-        val offlineToken = NabuOfflineTokenResponse(userId, "token")
+        val offlineToken = NabuOfflineToken(
+            userId, "token"
+        )
 
         whenever(
             nabu.recoverUser(userId, NabuJwt(jwt), "Bearer ${offlineToken.token}")
