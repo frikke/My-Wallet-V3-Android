@@ -31,16 +31,12 @@ class MetadataInteractor(
             }
         }
 
-    fun putMetadata(payloadJson: String, metadata: Metadata, index: Int): Completable {
+    fun putMetadata(payloadJson: String, metadata: Metadata): Completable {
         if (!FormatsUtil.isValidJson(payloadJson))
             return Completable.error(JSONException("Payload is not a valid json object."))
 
         val encryptedPayloadBytes: ByteArray =
             Base64.decode(AESUtil.encryptWithKey(metadata.encryptionKey, payloadJson))
-
-        if (index != -1) {
-            println("LALALALA $index")
-        }
 
         return fetchMagic(metadata.address)
             .onErrorReturn { ByteArray(0) }

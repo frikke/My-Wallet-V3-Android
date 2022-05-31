@@ -84,27 +84,18 @@ class AccountCredentialsMetadata(
         }
     }
 
-    private var metadataMigrationCompletable: Completable? = null
-
     private fun migrate(
         legacyMetadata: NabuLegacyCredentialsMetadata,
         blockchainMetadata: BlockchainAccountCredentialsMetadata
     ): Completable {
-        return if (metadataMigrationCompletable == null) {
-            metadataMigrationCompletable = metadataRepository.save(
-                BlockchainAccountCredentialsMetadata(
-                    userId = legacyMetadata.userId,
-                    exchangeLifetimeToken = blockchainMetadata.exchangeLifetimeToken?.takeIf { it.isNotEmpty() },
-                    lifetimeToken = legacyMetadata.lifetimeToken,
-                    exchangeUserId = blockchainMetadata.exchangeUserId?.takeIf { it.isNotEmpty() }
-                ),
-                MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-            ).doFinally {
-                metadataMigrationCompletable = null
-            }.cache()
-            metadataMigrationCompletable!!
-        } else {
-            metadataMigrationCompletable!!
-        }
+        return metadataRepository.save(
+            BlockchainAccountCredentialsMetadata(
+                userId = legacyMetadata.userId,
+                exchangeLifetimeToken = blockchainMetadata.exchangeLifetimeToken?.takeIf { it.isNotEmpty() },
+                lifetimeToken = legacyMetadata.lifetimeToken,
+                exchangeUserId = blockchainMetadata.exchangeUserId?.takeIf { it.isNotEmpty() }
+            ),
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+        )
     }
 }
