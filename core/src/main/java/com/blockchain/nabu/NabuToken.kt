@@ -8,5 +8,5 @@ interface NabuToken {
     /**
      * Find or creates the token
      */
-    fun fetchNabuToken(currency: String? = null, action: String? = null): Single<NabuOfflineTokenResponse>
+    fun fetchNabuToken(): Single<NabuOfflineTokenResponse>
 }

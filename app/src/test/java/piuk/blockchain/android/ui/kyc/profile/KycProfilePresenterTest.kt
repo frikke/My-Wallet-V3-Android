@@ -14,7 +14,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.blockchain.nabu.util.toISO8601DateString
 import com.blockchain.testutils.date
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -125,7 +124,7 @@ class KycProfilePresenterTest {
         whenever(view.lastName).thenReturn("Bennett")
         val dateOfBirth = date(Locale.US, 2014, 8, 10)
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
-        whenever(nabuToken.fetchNabuToken(anyOrNull(), anyOrNull())).thenReturn(Single.error { Throwable() })
+        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onContinueClicked()
         // Assert
@@ -148,9 +147,6 @@ class KycProfilePresenterTest {
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
-        whenever(
-            nabuToken.fetchNabuToken(any(), any())
-        ).thenReturn(Single.just(NabuOfflineTokenResponse("123", "123")))
         whenever(
             nabuDataManager.createBasicUser(
                 firstName,
@@ -180,7 +176,7 @@ class KycProfilePresenterTest {
         whenever(view.dateOfBirth).thenReturn(dateOfBirth)
         whenever(view.countryCode).thenReturn(countryCode)
         whenever(
-            nabuToken.fetchNabuToken(anyOrNull(), anyOrNull())
+            nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(NabuOfflineTokenResponse("123", "123")))
         val jwt = "JTW"
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))

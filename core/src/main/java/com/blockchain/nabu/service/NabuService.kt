@@ -55,11 +55,9 @@ class NabuService internal constructor(
     private val nabu: Nabu
 ) {
     internal fun getAuthToken(
-        jwt: String,
-        currency: String? = null,
-        action: String? = null
+        jwt: String
     ): Single<NabuOfflineTokenResponse> = nabu.getAuthToken(
-        jwt = NabuOfflineTokenRequest(jwt), currency = currency, action = action
+        jwt = NabuOfflineTokenRequest(jwt)
     ).wrapErrorMessage()
 
     internal fun getSessionToken(

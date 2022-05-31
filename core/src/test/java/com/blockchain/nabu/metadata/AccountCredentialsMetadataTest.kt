@@ -1,6 +1,7 @@
 package com.blockchain.nabu.metadata
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
@@ -21,10 +22,12 @@ class AccountCredentialsMetadataTest {
         on { enabled }.thenReturn(Single.just(true))
     }
     private val metadataRepository: MetadataRepository = mock()
+    private val remoteLogger: RemoteLogger = mock()
 
     private val subject = AccountCredentialsMetadata(
         metadataRepository = metadataRepository,
-        accountMetadataMigrationFF = accountMetadataMigrationFF
+        accountMetadataMigrationFF = accountMetadataMigrationFF,
+        remoteLogger = remoteLogger
     )
 
     @Test
@@ -223,5 +226,97 @@ class AccountCredentialsMetadataTest {
         Mockito.verify(metadataRepository).save(
             metadata, MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
         )
+    }
+
+    @Test
+    fun `when corrupted returned for Entry 14 then resync should happen`() {
+
+        val metadata = BlockchainAccountCredentialsMetadata(
+            userId = "id",
+            lifetimeToken = "lifetimeToken",
+            exchangeUserId = "exchangeUserId",
+            exchangeLifetimeToken = "exchangeLifetimeToken",
+            isCorrupted = true
+        )
+
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
+            Maybe.just(
+                metadata
+            )
+        )
+
+        whenever(
+            metadataRepository.saveMetadata(
+                any(), any(), any(), any()
+            )
+        ).thenReturn(
+            Completable.complete()
+        )
+
+        val test = subject.load().test()
+        test.assertValue {
+            it == metadata
+        }
+
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        Mockito.verify(metadataRepository).save(metadata, MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+
+        Mockito.verifyNoMoreInteractions(metadataRepository)
+    }
+
+    @Test
+    fun `when corrupted returned for Entry 10 then resync should happen`() {
+        val metadata = NabuLegacyCredentialsMetadata(
+            userId = "id",
+            lifetimeToken = "lifetimeToken",
+            isCorrupted = true
+        )
+
+        whenever(
+            metadataRepository.load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        ).thenReturn(
+            Maybe.just(
+                metadata
+            )
+        )
+
+        whenever(
+            metadataRepository.load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        ).thenReturn(
+            Maybe.empty()
+        )
+
+        whenever(
+            metadataRepository.saveMetadata(
+                any(), any(), any(), any()
+            )
+        ).thenReturn(
+            Completable.complete()
+        )
+
+        val test = subject.load().test()
+        test.assertValue {
+            it == metadata
+        }
+
+        Mockito.verify(metadataRepository)
+            .load<BlockchainAccountCredentialsMetadata>(MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS)
+        Mockito.verify(metadataRepository).load<NabuLegacyCredentialsMetadata>(MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        Mockito.verify(metadataRepository).save(metadata, MetadataEntry.NABU_LEGACY_CREDENTIALS)
+        Mockito.verify(metadataRepository).save(
+            BlockchainAccountCredentialsMetadata(
+                userId = "id",
+                lifetimeToken = "lifetimeToken",
+                exchangeUserId = null,
+                exchangeLifetimeToken = null,
+                isCorrupted = false
+            ),
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+        ) // due to migrate
+
+        Mockito.verifyNoMoreInteractions(metadataRepository)
     }
 }

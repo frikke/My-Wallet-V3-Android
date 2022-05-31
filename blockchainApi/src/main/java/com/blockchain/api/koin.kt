@@ -47,14 +47,9 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
-import com.blockchain.serializers.BigDecimalSerializer
-import com.blockchain.serializers.BigIntSerializer
-import com.blockchain.serializers.IsoDateSerializer
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.scope.Scope
@@ -68,23 +63,8 @@ val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
 
-private val json = Json {
-    explicitNulls = false
-    ignoreUnknownKeys = true
-    isLenient = true
-    encodeDefaults = true
-    serializersModule = SerializersModule {
-        contextual(BigDecimalSerializer)
-        contextual(BigIntSerializer)
-        contextual(IsoDateSerializer)
-    }
-}
-
-private val jsonConverter = json.asConverterFactory("application/json".toMediaType())
-
 val blockchainApiModule = module {
-
-    single { json }
+    single { get<Json>().asConverterFactory("application/json".toMediaType()) }
 
     single { RxJava3CallAdapterFactory.createWithScheduler(Schedulers.io()) }
 
@@ -96,7 +76,7 @@ val blockchainApiModule = module {
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(jsonConverter)
+            .addConverterFactory(get())
             .build()
     }
 
@@ -105,7 +85,7 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("explorer-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
-            .addConverterFactory(jsonConverter)
+            .addConverterFactory(get())
             .build()
     }
 
@@ -115,7 +95,7 @@ val blockchainApiModule = module {
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
-            .addConverterFactory(jsonConverter)
+            .addConverterFactory(get())
             .build()
     }
 

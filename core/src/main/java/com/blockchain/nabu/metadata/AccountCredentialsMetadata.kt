@@ -1,6 +1,7 @@
 package com.blockchain.nabu.metadata
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
@@ -17,7 +18,8 @@ import timber.log.Timber
 
 class AccountCredentialsMetadata(
     private val metadataRepository: MetadataRepository,
-    private val accountMetadataMigrationFF: FeatureFlag
+    private val accountMetadataMigrationFF: FeatureFlag,
+    private val remoteLogger: RemoteLogger
 ) {
     private var loadMetadataMaybe: Maybe<CredentialMetadata>? = null
 
@@ -36,23 +38,51 @@ class AccountCredentialsMetadata(
 
     private fun loadCached(): Maybe<CredentialMetadata> =
         metadataRepository.load<BlockchainAccountCredentialsMetadata>(
-            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
-        ).switchIfEmpty(
-            // Not found - haven't been created yet.
-            Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
-        ).flatMap { blockchainMetadata ->
-            if (blockchainMetadata.isValid()) {
-                Maybe.just(blockchainMetadata)
-            } else {
-                metadataRepository.load<NabuLegacyCredentialsMetadata>(
-                    MetadataEntry.NABU_LEGACY_CREDENTIALS
-                ).flatMap { legacyMetadata ->
-                    migrate(legacyMetadata, blockchainMetadata).thenMaybe {
-                        Maybe.just(legacyMetadata)
+            MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS,
+        ).reSyncIfNeeded()
+            .switchIfEmpty(
+                // Not found - haven't been created yet.
+                Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
+            ).flatMap { blockchainMetadata ->
+                if (blockchainMetadata.isValid()) {
+                    Maybe.just(blockchainMetadata)
+                } else {
+                    metadataRepository.load<NabuLegacyCredentialsMetadata>(
+                        MetadataEntry.NABU_LEGACY_CREDENTIALS,
+                    ).reSyncLegacyIfNeeded().filter { it.isValid() }.flatMap { legacyMetadata ->
+                        migrate(legacyMetadata, blockchainMetadata).thenMaybe {
+                            Maybe.just(legacyMetadata)
+                        }
                     }
                 }
-            }
-        }.cache()
+            }.cache()
+
+    private fun Maybe<BlockchainAccountCredentialsMetadata>.reSyncIfNeeded():
+        Maybe<BlockchainAccountCredentialsMetadata> {
+        return flatMap {
+            if (it.isCorrupted) {
+                remoteLogger.logEvent("Syncing corrupted metadata entry 14")
+                metadataRepository.save<BlockchainAccountCredentialsMetadata>(
+                    it,
+                    MetadataEntry.BLOCKCHAIN_UNIFIED_CREDENTIALS
+                ).onErrorComplete().thenMaybe { Maybe.just(it) }
+            } else
+                Maybe.just(it)
+        }
+    }
+
+    private fun Maybe<NabuLegacyCredentialsMetadata>.reSyncLegacyIfNeeded(): Maybe<NabuLegacyCredentialsMetadata> {
+        return flatMap {
+            if (it.isCorrupted) {
+                remoteLogger.logEvent("Syncing corrupted metadata entry 10")
+                metadataRepository.save<NabuLegacyCredentialsMetadata>(
+                    it,
+                    MetadataEntry.NABU_LEGACY_CREDENTIALS
+                ).onErrorComplete().thenMaybe { Maybe.just(it) }
+            } else
+                Maybe.just(it)
+        }
+    }
 
     fun saveAndReturn(tokenResponse: NabuOfflineTokenResponse): Single<CredentialMetadata> {
         return accountMetadataMigrationFF.enabled.flatMap { enabled ->
