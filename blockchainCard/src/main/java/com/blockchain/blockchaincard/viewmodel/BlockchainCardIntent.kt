@@ -1,5 +1,7 @@
 package com.blockchain.blockchaincard.viewmodel
 
+import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.TradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
 sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
@@ -16,4 +18,8 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ManageCardDetails : BlockchainCardIntent()
     object LoadCardWidget : BlockchainCardIntent()
     object ChoosePaymentMethod : BlockchainCardIntent()
+    data class LinkSelectedAccount(val accountCurrencyNetworkTicker: String) : BlockchainCardIntent()
+    object LoadLinkedAccount : BlockchainCardIntent()
+    data class LoadAccountBalance(val tradingAccount: BlockchainAccount) : BlockchainCardIntent()
+    data class LoadEligibleAccountsBalances(val eligibleAccounts: List<TradingAccount>) : BlockchainCardIntent()
 }

@@ -62,3 +62,8 @@ class CardAccountLinkRequest(
 class CardAccountLinkResponse(
     val accountCurrency: String
 )
+
+@Serializable
+class CardLinkedAccountResponse(
+    val accountCurrency: String
+)

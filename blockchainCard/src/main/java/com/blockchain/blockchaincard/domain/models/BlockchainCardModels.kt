@@ -15,6 +15,9 @@ sealed class BlockchainCardError {
     object GetCardWidgetRequestFailed : BlockchainCardError()
     object GetEligibleCardAccountsRequestFailed : BlockchainCardError()
     object GetAccountBalanceFailed : BlockchainCardError()
+    object LinkCardAccountFailed : BlockchainCardError()
+    object GetCardLinkedAccountFailed : BlockchainCardError()
+    object LoadAllWalletsFailed : BlockchainCardError()
 }
 
 @Parcelize

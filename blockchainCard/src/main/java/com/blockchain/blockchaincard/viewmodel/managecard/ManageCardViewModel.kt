@@ -1,6 +1,5 @@
 package com.blockchain.blockchaincard.viewmodel.managecard
 
-import androidx.lifecycle.viewModelScope
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -12,8 +11,6 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
@@ -23,6 +20,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             is BlockchainCardArgs.CardArgs -> {
                 updateState { it.copy(card = args.card) }
                 onIntent(BlockchainCardIntent.LoadCardWidget)
+                onIntent(BlockchainCardIntent.LoadLinkedAccount)
             }
 
             is BlockchainCardArgs.ProductArgs -> {
@@ -35,7 +33,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         card = state.card,
         cardProduct = state.cardProduct,
         cardWidgetUrl = state.cardWidgetUrl,
-        eligibleTradingAccounts = state.eligibleTradingAccounts
+        eligibleTradingAccountBalances = state.eligibleTradingAccountBalances,
+        isLinkedAccountBalanceLoading = state.isLinkedAccountBalanceLoading,
+        linkedAccountBalance = state.linkedAccountBalance
     )
 
     override suspend fun handleIntent(
@@ -51,11 +51,11 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 modelState.card?.let { card ->
                     blockchainCardRepository.deleteCard(card.id).fold(
                         onFailure = {
-                            Timber.d("Card delete FAILED")
+                            Timber.d("Card delete failed: $it")
                         },
                         onSuccess = {
                             Timber.d("Card deleted")
-                            // Todo should go back to settings
+                            navigate(BlockchainCardNavigationEvent.CardDeleted)
                         }
                     )
                 }
@@ -68,7 +68,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         last4Digits = card.last4
                     ).fold(
                         onFailure = {
-                            Timber.d("Card widget url FAILED: $it") // TODO(labreu): handle error
+                            Timber.d("Card widget url failed: $it") // TODO(labreu): handle error
                         },
                         onSuccess = { cardWidgetUrl ->
                             updateState { it.copy(cardWidgetUrl = cardWidgetUrl) }
@@ -81,29 +81,84 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 modelState.card?.let { card ->
                     blockchainCardRepository.getEligibleTradingAccounts(
                         cardId = card.id
-                    ).mapLeft {
-                        Timber.d("fetch eligible accounts failed: $it") // TODO(labreu): handle error
-                    }.map { eligibleAccounts ->
-                        val eligibleAccountsWithoutBalance = modelState.eligibleTradingAccounts
-                        eligibleAccounts.map { tradingAccount ->
-                            eligibleAccountsWithoutBalance[tradingAccount] = null
-                            viewModelScope.launch {
-                                val eligibleTradingAccounts = modelState.eligibleTradingAccounts
-                                blockchainCardRepository.loadAccountBalance(tradingAccount as BlockchainAccount).fold(
-                                    onSuccess = { balance ->
-                                        eligibleTradingAccounts[tradingAccount] = balance
-                                        updateState { it.copy(eligibleTradingAccounts = eligibleTradingAccounts) }
-                                    },
-                                    onFailure = {
-                                        Timber.e("Load Account balance failed")
-                                    }
-                                )
-                            }
+                    ).fold(
+                        onSuccess = { eligibleAccounts ->
+                            onIntent(BlockchainCardIntent.LoadEligibleAccountsBalances(eligibleAccounts))
+                            navigate(BlockchainCardNavigationEvent.ChoosePaymentMethod)
+                        },
+                        onFailure = {
+                            Timber.e("fetch eligible accounts failed: $it") // TODO(labreu): handle error
                         }
+                    )
+                }
+            }
 
-                        updateState { it.copy(eligibleTradingAccounts = eligibleAccountsWithoutBalance) }
-                        navigate(BlockchainCardNavigationEvent.ChoosePaymentMethod)
+            is BlockchainCardIntent.LinkSelectedAccount -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.linkCardAccount(
+                        cardId = card.id,
+                        accountCurrency = intent.accountCurrencyNetworkTicker
+                    ).fold(
+                        onSuccess = {
+                            onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                            navigate(BlockchainCardNavigationEvent.HideBottomSheet)
+                        },
+                        onFailure = {
+                            Timber.e("Account linking failed: $it")
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.LoadLinkedAccount -> {
+                modelState.card?.let { card ->
+                    updateState { it.copy(isLinkedAccountBalanceLoading = true) }
+                    blockchainCardRepository.getCardLinkedAccount(
+                        cardId = card.id
+                    ).fold(
+                        onSuccess = { linkedTradingAccount ->
+                            onIntent(BlockchainCardIntent.LoadAccountBalance(linkedTradingAccount as BlockchainAccount))
+                        },
+                        onFailure = {
+                            Timber.e("Unable to get current linked account: $it")
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.LoadAccountBalance -> {
+                blockchainCardRepository.loadAccountBalance(
+                    intent.tradingAccount
+                ).fold(
+                    onSuccess = { balance ->
+                        updateState {
+                            it.copy(linkedAccountBalance = balance, isLinkedAccountBalanceLoading = false)
+                        }
+                    },
+                    onFailure = {
+                        updateState { it.copy(isLinkedAccountBalanceLoading = false) }
+                        Timber.e("Load Account balance failed: $it")
                     }
+                )
+            }
+
+            is BlockchainCardIntent.LoadEligibleAccountsBalances -> {
+                modelState.eligibleTradingAccountBalances.clear()
+                intent.eligibleAccounts.map { tradingAccount ->
+                    blockchainCardRepository.loadAccountBalance(
+                        tradingAccount as BlockchainAccount
+                    ).fold(
+                        onSuccess = { balance ->
+                            val eligibleTradingAccountBalances = modelState.eligibleTradingAccountBalances
+                            eligibleTradingAccountBalances.add(balance)
+                            updateState {
+                                it.copy(eligibleTradingAccountBalances = eligibleTradingAccountBalances)
+                            }
+                        },
+                        onFailure = {
+                            Timber.e("Load Account balance failed: $it")
+                        }
+                    )
                 }
             }
         }

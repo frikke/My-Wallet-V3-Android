@@ -1,5 +1,6 @@
 package com.blockchain.commonarch.presentation.mvi_v2.compose
 
+import androidx.annotation.IdRes
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -10,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.fragment.app.Fragment
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -19,6 +21,8 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.createGraph
 import androidx.navigation.get
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
+import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.R
@@ -31,9 +35,27 @@ import kotlinx.coroutines.flow.collectLatest
 
 interface ComposeNavigationRouter<TNavEvent : NavigationEvent> : NavigationRouter<TNavEvent> {
     val navController: NavHostController
+
+    fun finishHostFragment() {
+        (navController.context as? BlockchainActivity)?.supportFragmentManager?.popBackStack()
+    }
+
+    fun replaceCurrentFragment(@IdRes containerViewId: Int, fragment: Fragment, addToBackStack: Boolean = true) {
+        (navController.context as? BlockchainActivity)?.supportFragmentManager
+            ?.beginTransaction()
+            ?.addAnimationTransaction()
+            ?.replace(containerViewId, fragment, fragment::class.simpleName)
+            ?.apply {
+                if (addToBackStack) {
+                    addToBackStack(fragment::class.simpleName)
+                }
+            }
+            ?.commitAllowingStateLoss()
+    }
 }
 
 interface ComposeNavigationDestination {
+
     val route: String
 
     fun routeWithArgs(args: List<NavArgument>): String {

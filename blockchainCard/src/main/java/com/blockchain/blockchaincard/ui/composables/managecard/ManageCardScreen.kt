@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +20,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +34,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.coincore.AccountBalance
-import com.blockchain.coincore.TradingAccount
-import com.blockchain.coincore.fiat.FiatCustodialAccount
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
@@ -49,18 +44,22 @@ import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
-import timber.log.Timber
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 
 @Composable
 fun ManageCard(
     card: BlockchainCard?,
     cardWidgetUrl: String?,
+    linkedAccountBalance: AccountBalance?,
+    isBalanceLoading: Boolean,
     onManageCardDetails: () -> Unit,
     onChoosePaymentMethod: () -> Unit
 ) {
@@ -119,28 +118,40 @@ fun ManageCard(
                     text = stringResource(R.string.manage),
                     onClick = onManageCardDetails,
                     icon = ImageResource.Local(R.drawable.ic_nav_settings),
-                    modifier = Modifier.weight(1f).padding(end = AppTheme.dimensions.paddingSmall)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = AppTheme.dimensions.paddingSmall)
                 )
                 MinimalButton(
                     text = stringResource(R.string.top_up),
                     onClick = { /*TODO*/ },
                     icon = ImageResource.Local(R.drawable.ic_bottom_nav_plus),
-                    modifier = Modifier.weight(1f).padding(start = AppTheme.dimensions.paddingSmall)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = AppTheme.dimensions.paddingSmall)
                 )
             }
         }
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-        DefaultTableRow(
-            primaryText = stringResource(R.string.choose_payment_method),
-            secondaryText = stringResource(R.string.fund_your_card_purchases),
-            onClick = onChoosePaymentMethod,
-            startImageResource = ImageResource.Local(
-                id = R.drawable.ic_question,
-                contentDescription = null
+        if (linkedAccountBalance != null)
+            AccountItem(
+                accountBalance = linkedAccountBalance,
+                onAccountSelected = { onChoosePaymentMethod() }
             )
-        )
+        else if (isBalanceLoading)
+            ShimmerLoadingTableRow()
+        else
+            DefaultTableRow(
+                primaryText = stringResource(R.string.choose_payment_method),
+                secondaryText = stringResource(R.string.fund_your_card_purchases),
+                onClick = onChoosePaymentMethod,
+                startImageResource = ImageResource.Local(
+                    id = R.drawable.ic_question,
+                    contentDescription = null
+                )
+            )
 
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -168,7 +179,7 @@ fun ManageCard(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard(null, "", {}, {})
+    ManageCard(null, "", null, false, {}, {})
 }
 
 @Composable
@@ -301,8 +312,8 @@ private fun PreviewCardDetailsBottomSheetElement() {
 
 @Composable
 fun AccountPicker(
-    eligibleTradingAccounts: MutableMap<TradingAccount, AccountBalance?>,
-    onAccountSelected: (TradingAccount) -> Unit
+    eligibleTradingAccountBalances: MutableList<AccountBalance>,
+    onAccountSelected: (String) -> Unit
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -317,33 +328,30 @@ fun AccountPicker(
             .background(backgroundColor)
     ) {
         SheetHeader(onClosePress = { /*TODO*/ }, title = stringResource(R.string.spend_from))
-        AccountsContent(eligibleTradingAccounts, onAccountSelected)
+        AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
     }
 }
 
 @Composable
 fun AccountsContent(
-    eligibleTradingAccounts: MutableMap<TradingAccount, AccountBalance?>?,
-    onAccountSelected: (TradingAccount) -> Unit
+    eligibleTradingAccountBalances: MutableList<AccountBalance>,
+    onAccountSelected: (String) -> Unit
 ) {
-    if (eligibleTradingAccounts?.keys?.isNotEmpty() == true)
+    if (eligibleTradingAccountBalances.isNotEmpty()) {
         LazyColumn {
             itemsIndexed(
-                items = eligibleTradingAccounts.keys.toList(),
-                itemContent = { index, tradingAccount ->
-                    val accountBalance = eligibleTradingAccounts[tradingAccount]
+                items = eligibleTradingAccountBalances,
+                itemContent = { index, balance ->
                     AccountItem(
-                        tradingAccount = tradingAccount,
-                        accountBalance = accountBalance
-                    ) {
-                        onAccountSelected
-                    }
-
-                    if (index < eligibleTradingAccounts.keys.toList().lastIndex)
+                        accountBalance = balance,
+                        onAccountSelected = onAccountSelected
+                    )
+                    if (index < eligibleTradingAccountBalances.lastIndex)
                         HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 }
             )
-        } else {
+        }
+    } else {
         SimpleText(
             text = "No accounts eligible for linking",
             style = ComposeTypographies.Caption1,
@@ -354,31 +362,26 @@ fun AccountsContent(
 }
 
 @Composable
-fun AccountItem(tradingAccount: TradingAccount, accountBalance: AccountBalance?, onClick: () -> Unit) {
-    when (tradingAccount) {
-        is FiatCustodialAccount -> {
+fun AccountItem(accountBalance: AccountBalance, onAccountSelected: (String) -> Unit) {
+    when (accountBalance.total) {
+        is FiatValue -> {
             FiatAccountItem(
-                currencyName = tradingAccount.currency.name,
-                currencyTicker = tradingAccount.currency.networkTicker,
-                currentBalance = accountBalance?.totalFiat?.toStringWithSymbol() ?: "",
-                currencyLogo = tradingAccount.currency.logo,
-                onClick = onClick
+                currencyName = accountBalance.totalFiat.currency.name,
+                currencyTicker = accountBalance.totalFiat.currency.networkTicker,
+                currentBalance = accountBalance.totalFiat.toStringWithSymbol() ?: "",
+                currencyLogo = accountBalance.totalFiat.currency.logo,
+                onClick = { onAccountSelected(accountBalance.totalFiat.currency.networkTicker) }
             )
-
-            Timber.d("1")
         }
-        is CustodialTradingAccount -> {
-            tradingAccount.currency.logo
+        is CryptoValue -> {
             CryptoAccountItem(
-                currencyName = tradingAccount.currency.name,
-                currencyTicker = tradingAccount.currency.networkTicker,
-                currentBalance = accountBalance?.total?.toStringWithSymbol() ?: "",
-                currentBalanceInFiat = accountBalance?.totalFiat?.toStringWithSymbol() ?: "",
-                currencyLogo = tradingAccount.currency.logo,
-                onClick = onClick
+                currencyName = accountBalance.total.currency.name,
+                currencyTicker = accountBalance.total.currency.networkTicker,
+                currentBalance = accountBalance.total.toStringWithSymbol() ?: "",
+                currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol() ?: "",
+                currencyLogo = accountBalance.total.currency.logo,
+                onClick = { onAccountSelected(accountBalance.total.currency.networkTicker) }
             )
-
-            Timber.d("2")
         }
     }
 }

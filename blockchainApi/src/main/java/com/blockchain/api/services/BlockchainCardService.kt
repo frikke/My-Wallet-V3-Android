@@ -7,6 +7,7 @@ import com.blockchain.api.blockchainCard.data.CardAccount
 import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
 import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
+import com.blockchain.api.blockchainCard.data.CardLinkedAccountResponse
 import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
 import com.blockchain.api.blockchainCard.data.CardsResponse
 import com.blockchain.api.blockchainCard.data.ProductsResponse
@@ -68,14 +69,6 @@ class BlockchainCardService internal constructor(
         cardId = cardId
     )
 
-    suspend fun getCardLinkedAccounts(
-        authHeader: String,
-        cardId: String
-    ): Outcome<ApiError, List<CardAccount>> = api.getCardLinkedAccounts(
-        authorization = authHeader,
-        cardId = cardId
-    )
-
     suspend fun linkCardAccount(
         authHeader: String,
         cardId: String,
@@ -86,5 +79,13 @@ class BlockchainCardService internal constructor(
         cardAccountLinkRequest = CardAccountLinkRequest(
             accountCurrency = accountCurrency
         )
+    )
+
+    suspend fun getCardLinkedAccount(
+        authHeader: String,
+        cardId: String
+    ): Outcome<ApiError, CardLinkedAccountResponse> = api.getCardLinkedAccount(
+        authorization = authHeader,
+        cardId = cardId
     )
 }
