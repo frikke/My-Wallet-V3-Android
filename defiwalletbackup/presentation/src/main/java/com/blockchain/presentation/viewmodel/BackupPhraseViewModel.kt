@@ -14,9 +14,9 @@ import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService

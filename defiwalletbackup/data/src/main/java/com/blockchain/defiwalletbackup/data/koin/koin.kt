@@ -14,6 +14,5 @@ val backupPhraseDataModule = module {
                 walletStatus = get()
             )
         }
-
     }
 }

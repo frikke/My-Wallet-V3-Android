@@ -156,7 +156,6 @@ import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
-import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 val applicationModule = module {

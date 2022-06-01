@@ -9,13 +9,13 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackupPhraseServiceTest {
