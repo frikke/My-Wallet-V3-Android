@@ -16,4 +16,5 @@
     <string name="common_ok"></string>
 
     <string name="accessibility_action_menu"></string>
+    <string name="accessibility_back"></string>
 </resources>

@@ -93,7 +93,10 @@ class SettingsActivity : BlockchainActivity(), SettingsNavigator, SettingsFragme
     private fun setupSupportButton() {
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(R.drawable.ic_support_chat) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_support_chat,
+                    contentDescription = R.string.accessibility_support
+                ) {
                     analytics.logEvent(AnalyticsEvents.Support)
                     startActivity(SupportCentreActivity.newIntent(this))
                 }

@@ -2987,4 +2987,9 @@
 
     <!-- Accessibility -->
     <string name="accessibility_action_menu">Action Menu</string>
+    <string name="accessibility_back">Back</string>
+    <string name="accessibility_qr_code_scanner">QR Code Scanner</string>
+    <string name="accessibility_user_settings">User Settings</string>
+    <string name="accessibility_close">Close</string>
+    <string name="accessibility_support">Support</string>
 </resources>

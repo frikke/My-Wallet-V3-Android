@@ -187,7 +187,10 @@ class LoginActivity :
 
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(R.drawable.ic_question) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_question,
+                    contentDescription = R.string.accessibility_support
+                ) {
                     analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                     showCustomerSupportSheet()
                 }

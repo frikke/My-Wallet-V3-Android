@@ -265,11 +265,17 @@ class MainActivity :
     private fun setupToolbar() {
         updateToolbarMenuItems(
             listOf(
-                NavigationBarButton.Icon(R.drawable.ic_qr_scan) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_qr_scan,
+                    contentDescription = R.string.accessibility_qr_code_scanner
+                ) {
                     tryToLaunchQrScan()
                     analytics.logEvent(CameraAnalytics.QrCodeClicked())
                 },
-                NavigationBarButton.Icon(R.drawable.ic_bank_user) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bank_user,
+                    contentDescription = R.string.accessibility_user_settings
+                ) {
                     showLoading()
                     settingsResultContract.launch(SettingsActivity.newIntent(this))
                 }
