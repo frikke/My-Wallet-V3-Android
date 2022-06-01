@@ -60,10 +60,6 @@ class BackupPhraseViewModel(
                 navigate(BackupPhraseNavigationEvent.ManualBackup)
             }
 
-            BackupPhraseIntent.StartUserPhraseVerification -> {
-                navigate(BackupPhraseNavigationEvent.VerifyPhrase)
-            }
-
             BackupPhraseIntent.MnemonicCopied -> {
                 resetCopyState()
                 updateState { it.copy(copyState = CopyState.Copied) }
@@ -71,6 +67,10 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.ResetCopy -> {
                 updateState { it.copy(copyState = CopyState.Idle) }
+            }
+
+            BackupPhraseIntent.StartUserPhraseVerification -> {
+                navigate(BackupPhraseNavigationEvent.VerifyPhrase)
             }
 
             is BackupPhraseIntent.VerifyPhrase -> {

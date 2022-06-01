@@ -51,6 +51,7 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
 
     // test
+    testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.coreTesting
