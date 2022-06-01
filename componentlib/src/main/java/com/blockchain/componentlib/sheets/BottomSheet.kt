@@ -33,6 +33,22 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 
 @Composable
+fun MinimalSheet(
+    title: String,
+    subtitle: String,
+    button: BottomSheetButton
+) {
+    BottomSheet(
+        title = title,
+        subtitle = subtitle,
+        buttonsContent = {
+            button.toBottomSheetButtonComposable(Modifier.fillMaxWidth()).invoke()
+        },
+        shouldShowHeaderDivider = false,
+    )
+}
+
+@Composable
 fun BottomSheetTwoButtons(
     onCloseClick: () -> Unit,
     headerImageResource: ImageResource?,
@@ -108,8 +124,8 @@ fun BottomSheetNoButtons(
 
 @Composable
 private fun BottomSheet(
-    onCloseClick: () -> Unit,
-    headerImageResource: ImageResource?,
+    onCloseClick: (() -> Unit)? = null,
+    headerImageResource: ImageResource? = null,
     title: String,
     showTitleInHeader: Boolean = false,
     subtitle: String = "",
@@ -134,7 +150,11 @@ private fun BottomSheet(
             onClosePress = onCloseClick,
             shouldShowDivider = shouldShowHeaderDivider
         )
-        Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+        if (showTitleInHeader || onCloseClick != null) {
+            Spacer(Modifier.size(dimensionResource(R.dimen.small_margin)))
+        }
+
         if (headerImageResource != null) {
             Image(
                 imageResource = headerImageResource,
@@ -224,6 +244,23 @@ data class BottomSheetButton(
 
 enum class ButtonType {
     PRIMARY, MINIMAL, DESTRUCTIVE_MINIMAL, DESTRUCTIVE_PRIMARY
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+fun MinimalBottomSheet() {
+    AppTheme {
+        AppSurface {
+            MinimalSheet(
+                title = "MinimalBottomSheet",
+                subtitle = "MinimalBottomSheetSubtitle",
+                button = BottomSheetButton(
+                    type = ButtonType.PRIMARY,
+                    onClick = {}, text = "OK"
+                )
+            )
+        }
+    }
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)

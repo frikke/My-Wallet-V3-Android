@@ -13,6 +13,7 @@ const val TOTAL_STEP_COUNT = 2
 
 data class BackupPhraseViewState(
     val isLoading: Boolean,
+    val isError: Boolean,
     val mnemonic: List<String>,
     val mnemonicString: String,
     val backUpStatus: BackUpStatus,
