@@ -33,7 +33,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.TertiaryButton
-import com.blockchain.componentlib.extensions.copyToClipboard
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
@@ -41,6 +40,7 @@ import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.extensions.copyToClipboard
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 

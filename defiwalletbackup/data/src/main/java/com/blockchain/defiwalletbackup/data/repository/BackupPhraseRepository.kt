@@ -30,7 +30,7 @@ class BackupPhraseRepository(
     override suspend fun confirmRecoveryPhraseBackedUp(): Outcome<BackupPhraseError, Unit> {
         return payloadManager.syncPayloadWithServer().awaitOutcome()
             .doOnSuccess {
-                payloadManager.wallet!!.walletBody?.mnemonicVerified = true
+                payloadManager.wallet?.walletBody?.mnemonicVerified = true
                 walletStatus.lastBackupTime = System.currentTimeMillis() / 1000
             }
             .mapLeft {
