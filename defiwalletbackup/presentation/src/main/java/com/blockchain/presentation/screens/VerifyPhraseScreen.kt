@@ -32,9 +32,12 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
+
+private const val STEP_INDEX = 2
 
 @Composable
 fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
@@ -72,7 +75,10 @@ fun VerifyPhraseScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            onBackButtonClick = backOnClick
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 

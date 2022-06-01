@@ -40,9 +40,12 @@ import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.extensions.copyToClipboard
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
+
+private const val STEP_INDEX = 1
 
 @Composable
 fun ManualBackup(viewModel: BackupPhraseViewModel) {
@@ -87,7 +90,10 @@ fun ManualBackupScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            onBackButtonClick = backOnClick
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 

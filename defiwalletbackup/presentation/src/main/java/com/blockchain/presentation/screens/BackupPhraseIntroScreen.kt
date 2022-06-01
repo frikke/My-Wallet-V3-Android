@@ -63,7 +63,7 @@ fun BackupPhraseIntroScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = backOnClick)
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
 
