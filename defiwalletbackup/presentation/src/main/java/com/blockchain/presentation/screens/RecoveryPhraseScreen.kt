@@ -43,7 +43,6 @@ fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
         RecoveryPhraseScreen(
             backupStatus = state.backUpStatus,
             mnemonic = state.mnemonic,
-            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
             backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
         )
     }
@@ -53,14 +52,13 @@ fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
 fun RecoveryPhraseScreen(
     backupStatus: BackUpStatus,
     mnemonic: List<String>,
-    backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -122,7 +120,6 @@ fun PreviewRecoveryPhraseScreenNoBackup() {
     RecoveryPhraseScreen(
         backupStatus = BackUpStatus.NO_BACKUP,
         mnemonic = mnemonic,
-        backOnClick = {},
         backUpNowOnClick = {}
     )
 }
@@ -133,7 +130,6 @@ fun PreviewRecoveryPhraseScreenBackup() {
     RecoveryPhraseScreen(
         backupStatus = BackUpStatus.BACKED_UP,
         mnemonic = mnemonic,
-        backOnClick = {},
         backUpNowOnClick = {}
     )
 }

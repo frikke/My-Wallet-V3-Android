@@ -15,8 +15,7 @@ data class BackupPhraseViewState(
     val mnemonicString: String,
     val backUpStatus: BackUpStatus,
     val copyState: CopyState,
-    val mnemonicVerificationStatus: UserMnemonicVerificationStatus,
-    val flowStatus: FlowStatus
+    val mnemonicVerificationStatus: UserMnemonicVerificationStatus
 ) : ViewState
 
 enum class BackUpStatus(
@@ -47,9 +46,4 @@ sealed interface CopyState {
 
 enum class UserMnemonicVerificationStatus {
     NO_STATUS, VERIFIED, INCORRECT
-}
-
-sealed interface FlowStatus {
-    object InProgress : FlowStatus
-    data class Ended(val isSuccessful: Boolean) : FlowStatus
 }

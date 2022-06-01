@@ -48,7 +48,6 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
-            backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
             backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
         )
     }
@@ -57,13 +56,15 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
 @Composable
 fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
-    backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(
+            title = stringResource(id = R.string.secure_defi_wallets),
+            onBackButtonClick = { }
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
 
@@ -161,13 +162,13 @@ fun BackupPhraseIntroScreenCta(backUpNowOnClick: () -> Unit) {
 @Preview(name = "Backup Intro no backup", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroScreenNoBackup() {
-    BackupPhraseIntroScreen(BackUpStatus.NO_BACKUP, backOnClick = {}, backUpNowOnClick = { })
+    BackupPhraseIntroScreen(BackUpStatus.NO_BACKUP) { }
 }
 
 @Preview(name = "Backup Intro backed up", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroScreenBackedUp() {
-    BackupPhraseIntroScreen(BackUpStatus.BACKED_UP, backOnClick = {}, backUpNowOnClick = { })
+    BackupPhraseIntroScreen(BackUpStatus.BACKED_UP) { }
 }
 
 @Preview(name = "Backup Intro Description", showBackground = true)

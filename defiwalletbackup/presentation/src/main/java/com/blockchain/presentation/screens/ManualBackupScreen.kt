@@ -58,7 +58,6 @@ fun ManualBackup(viewModel: BackupPhraseViewModel) {
             mnemonicString = state.mnemonicString,
             copyState = state.copyState,
 
-            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
             mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
             nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartUserPhraseVerification) }
         )
@@ -71,7 +70,6 @@ fun ManualBackupScreen(
     mnemonicString: String,
     copyState: CopyState,
 
-    backOnClick: () -> Unit,
     mnemonicCopied: () -> Unit,
     nextOnClick: () -> Unit
 ) {
@@ -87,7 +85,7 @@ fun ManualBackupScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
+        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -199,7 +197,6 @@ fun PreviewManualBackupScreenCopy() {
         mnemonicString = "",
         copyState = CopyState.Idle,
 
-        backOnClick = {},
         mnemonicCopied = {},
         nextOnClick = {}
     )
@@ -213,7 +210,6 @@ fun PreviewManualBackupScreenCopied() {
         mnemonicString = "",
         copyState = CopyState.Copied,
 
-        backOnClick = {},
         mnemonicCopied = {},
         nextOnClick = {}
     )

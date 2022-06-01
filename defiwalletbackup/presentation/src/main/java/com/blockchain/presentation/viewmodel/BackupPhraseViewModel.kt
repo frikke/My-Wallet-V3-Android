@@ -12,7 +12,6 @@ import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseModelState
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
-import com.blockchain.presentation.FlowStatus
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
 import java.util.concurrent.TimeUnit
@@ -42,8 +41,7 @@ class BackupPhraseViewModel(
                 mnemonicString = mnemonic.joinToString(separator = " "),
                 backUpStatus = if (hasBackup) BackUpStatus.BACKED_UP else BackUpStatus.NO_BACKUP,
                 copyState = copyState,
-                mnemonicVerificationStatus = mnemonicVerificationStatus,
-                flowStatus = flowStatus
+                mnemonicVerificationStatus = mnemonicVerificationStatus
             )
         }
     }
@@ -77,14 +75,6 @@ class BackupPhraseViewModel(
 
             is BackupPhraseIntent.VerifyPhrase -> {
                 verifyPhrase(intent.userMnemonic)
-            }
-
-            BackupPhraseIntent.GoToPreviousScreen -> {
-                navigate(BackupPhraseNavigationEvent.GoToPreviousScreen)
-            }
-
-            is BackupPhraseIntent.EndFlow -> {
-                updateState { it.copy(flowStatus = FlowStatus.Ended(intent.isSuccessful)) }
             }
         }.exhaustive
     }
