@@ -133,7 +133,7 @@ class BackupPhraseViewModelTest {
 
                 val state = expectMostRecentItem()
 
-                assertEquals(CopyState.Copied, state.copyState)
+                assertEquals(CopyState.COPIED, state.copyState)
             }
         }
 
@@ -145,7 +145,7 @@ class BackupPhraseViewModelTest {
 
                 val state = expectMostRecentItem()
 
-                assertEquals(CopyState.Idle, state.copyState)
+                assertEquals(CopyState.IDLE, state.copyState)
             }
         }
 

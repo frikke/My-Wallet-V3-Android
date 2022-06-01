@@ -36,9 +36,8 @@ class BackupPhraseViewModel(
     override fun reduce(state: BackupPhraseModelState): BackupPhraseViewState {
         return with(state) {
             BackupPhraseViewState(
-                isLoading = isLoading,
+                showLoading = isLoading,
                 mnemonic = mnemonic,
-                mnemonicString = mnemonic.joinToString(separator = " "),
                 backUpStatus = if (hasBackup) BackUpStatus.BACKED_UP else BackUpStatus.NO_BACKUP,
                 copyState = copyState,
                 mnemonicVerificationStatus = mnemonicVerificationStatus
@@ -62,11 +61,11 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.MnemonicCopied -> {
                 resetCopyState()
-                updateState { it.copy(copyState = CopyState.Copied) }
+                updateState { it.copy(copyState = CopyState.COPIED) }
             }
 
             BackupPhraseIntent.ResetCopy -> {
-                updateState { it.copy(copyState = CopyState.Idle) }
+                updateState { it.copy(copyState = CopyState.IDLE) }
             }
 
             BackupPhraseIntent.StartUserPhraseVerification -> {

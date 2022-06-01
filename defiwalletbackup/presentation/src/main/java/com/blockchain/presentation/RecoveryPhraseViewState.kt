@@ -10,9 +10,8 @@ import com.blockchain.componentlib.theme.Orange000
 import com.blockchain.componentlib.theme.Orange600
 
 data class BackupPhraseViewState(
-    val isLoading: Boolean,
+    val showLoading: Boolean,
     val mnemonic: List<String>,
-    val mnemonicString: String,
     val backUpStatus: BackUpStatus,
     val copyState: CopyState,
     val mnemonicVerificationStatus: UserMnemonicVerificationStatus
@@ -39,9 +38,8 @@ enum class BackUpStatus(
     )
 }
 
-sealed interface CopyState {
-    object Idle : CopyState
-    object Copied : CopyState
+enum class CopyState {
+    IDLE, COPIED
 }
 
 enum class UserMnemonicVerificationStatus {
