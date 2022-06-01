@@ -32,7 +32,7 @@ fun SheetHeader(
     title: String? = null,
     byline: String? = null,
     startImageResource: ImageResource = ImageResource.None,
-    onClosePress: (() -> Unit)? = null,
+    onClosePress: () -> Unit,
     closePressContentDescription: String? = null,
     shouldShowDivider: Boolean = true,
 ) {
@@ -69,16 +69,14 @@ fun SheetHeader(
                         )
                 )
 
-                onClosePress?.let {
-                    SheetHeaderCloseButton(
-                        onClosePress = onClosePress,
-                        backPressContentDescription = closePressContentDescription,
-                        modifier = Modifier.padding(
-                            top = dimensionResource(R.dimen.medium_margin),
-                            end = dimensionResource(R.dimen.medium_margin)
-                        )
+                SheetHeaderCloseButton(
+                    onClosePress = onClosePress,
+                    backPressContentDescription = closePressContentDescription,
+                    modifier = Modifier.padding(
+                        top = dimensionResource(R.dimen.medium_margin),
+                        end = dimensionResource(R.dimen.medium_margin)
                     )
-                }
+                )
             }
             if (shouldShowDivider) {
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -139,16 +137,6 @@ private fun SheetHeaderNoTitle() {
             SheetHeader(
                 onClosePress = { /* no-op */ },
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun SheetHeaderNoTitleNoClose() {
-    AppTheme {
-        AppSurface {
-            SheetHeader(shouldShowDivider = false)
         }
     }
 }
