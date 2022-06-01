@@ -25,7 +25,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.BackupPhraseActivity
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
@@ -63,7 +62,6 @@ class SecurityFragment :
     override fun onBackPressed(): Boolean = true
 
     override val model: SecurityModel by scopedInject()
-    private val backupFeatureFlag: FeatureFlag by inject(backupPhraseFeatureFlag)
 
     private val biometricsController: BiometricsController by scopedInject()
 
@@ -392,13 +390,7 @@ class SecurityFragment :
     }
 
     private fun startBackupPhraseFlow() {
-        onBackupResult.launch(
-            if (backupFeatureFlag.isEnabled)
-            // todo: move to correct place
-                BackupPhraseActivity.newIntent(requireContext(), secondPassword = null)
-            else
-                BackupWalletActivity.newIntent(requireContext())
-        )
+        onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
     }
 
     override fun onSheetClosed() {

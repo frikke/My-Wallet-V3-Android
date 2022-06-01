@@ -25,4 +25,5 @@ include ':app',
         ':store:core', ':store:caches:persistedjsonsqldelight', ':store:caches:inmemory',
         ':blockchainCard', ':metadata',
         ':appMaintenance:data', ':appMaintenance:domain', ':appMaintenance:presentation',
-        ':appRating:data', ':appRating:domain', ':appRating:presentaion', ':defiwalletbackup:presentation'
+        ':appRating:data', ':appRating:domain', ':appRating:presentaion',
+        ':defiwalletbackup:data', ':defiwalletbackup:domain', ':defiwalletbackup:presentation'

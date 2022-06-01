@@ -8,6 +8,7 @@ import com.blockchain.blockchaincard.koin.blockchainCardModule
 import com.blockchain.coincore.coincoreModule
 import com.blockchain.core.price.pricesModule
 import com.blockchain.deeplinking.koin.deeplinkModule
+import com.blockchain.defiwalletbackup.data.koin.backupPhraseDataModule
 import com.blockchain.koin.modules.apiInterceptorsModule
 import com.blockchain.koin.modules.appProperties
 import com.blockchain.koin.modules.applicationModule
@@ -135,7 +136,7 @@ object KoinStarter {
                     bankAuthDataModule, bankAuthDomainModule, bankAuthPresentationModule,
                     referralPresentationModule,
                     appRatingDataModule, appRatingPresentationModule,
-                    backupPhrasePresentationModule
+                    backupPhraseDataModule, backupPhrasePresentationModule
                 )
             )
         }

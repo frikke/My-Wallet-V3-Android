@@ -145,7 +145,6 @@ import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.OSUtil
@@ -157,6 +156,7 @@ import piuk.blockchain.android.util.wiper.DataWiperImpl
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
+import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 val applicationModule = module {
@@ -336,12 +336,6 @@ val applicationModule = module {
         factory {
             BackupWalletWordListPresenter(
                 backupWalletUtil = get()
-            )
-        }
-
-        factory {
-            BackupWalletUtil(
-                payloadDataManager = get()
             )
         }
 

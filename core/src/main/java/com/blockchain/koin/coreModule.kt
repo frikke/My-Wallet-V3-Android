@@ -75,6 +75,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
+import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManagerSeedAccessAdapter
 import piuk.blockchain.androidcore.data.payload.PayloadService
@@ -268,6 +269,10 @@ val coreModule = module {
                 remoteLogger = get()
             )
         }.bind(WalletPayloadService::class)
+
+        factory {
+            BackupWalletUtil(payloadDataManager = get())
+        }
 
         factory {
             DataManagerPayloadDecrypt(

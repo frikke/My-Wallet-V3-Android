@@ -4,7 +4,7 @@ import android.os.Bundle
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.util.BackupWalletUtil
+import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 
 interface BackupWalletWordListView : View {
     fun getPageBundle(): Bundle?

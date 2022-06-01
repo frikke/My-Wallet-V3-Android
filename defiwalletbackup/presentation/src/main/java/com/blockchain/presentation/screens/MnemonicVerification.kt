@@ -87,14 +87,15 @@ fun MnemonicVerificationWord(index: Int? = null, word: String, onClick: () -> Un
     ) {
         Row(
             modifier = Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onClick
+                )
                 .padding(
                     vertical = dimensionResource(R.dimen.minuscule_margin),
                     horizontal = dimensionResource(R.dimen.very_small_margin)
-                )
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) { onClick() },
+                ),
             horizontalArrangement = Arrangement.Center,
         ) {
             index?.let {
