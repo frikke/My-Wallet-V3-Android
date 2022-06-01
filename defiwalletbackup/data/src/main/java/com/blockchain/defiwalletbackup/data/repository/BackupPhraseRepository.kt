@@ -20,7 +20,7 @@ class BackupPhraseRepository(
     override fun isBackedUp() = payloadManager.isBackedUp
 
     override fun getMnemonic(secondPassword: String?): Outcome<BackupPhraseError, List<String>> {
-        return backupWalletUtil.getMnemonic(null)?.let {
+        return backupWalletUtil.getMnemonic(secondPassword)?.let {
             Outcome.Success(it)
         } ?: kotlin.run {
             Outcome.Failure(BackupPhraseError.NoMnemonicFound)
