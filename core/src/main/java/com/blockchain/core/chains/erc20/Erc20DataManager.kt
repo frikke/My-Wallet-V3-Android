@@ -86,7 +86,6 @@ internal class Erc20DataManagerImpl(
     private val balanceCallCache: Erc20BalanceCallCache,
     private val historyCallCache: Erc20HistoryCallCache,
     private val assetCatalogue: AssetCatalogue,
-    private val ethMemoForHotWalletFeatureFlag: FeatureFlag,
     private val ethLayerTwoFeatureFlag: FeatureFlag
 ) : Erc20DataManager {
 
@@ -208,17 +207,14 @@ internal class Erc20DataManagerImpl(
         val l1Chain = asset.l1chainTicker
         require(l1Chain != null)
 
-        return Singles.zip(
-            getNonce(l1Chain),
-            ethMemoForHotWalletFeatureFlag.enabled
-        )
-            .map { (nonce, enabled) ->
+        return getNonce(l1Chain)
+            .map { nonce ->
                 val contractAddress = asset.l2identifier
                 checkNotNull(contractAddress)
 
                 // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is
                 // returning an empty address) fall back to the usual path.
-                val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
+                val useHotWallet = hotWalletAddress.isNotEmpty()
 
                 RawTransaction.createTransaction(
                     nonce,
@@ -245,14 +241,11 @@ internal class Erc20DataManagerImpl(
         hotWalletAddress: String
     ): Single<RawTransaction> {
 
-        return Singles.zip(
-            getNonce(evmNetwork),
-            ethMemoForHotWalletFeatureFlag.enabled
-        )
-            .map { (nonce, enabled) ->
+        return getNonce(evmNetwork)
+            .map { nonce ->
                 // If we couldn't find a hot wallet address for any reason (in which case the HotWalletService is
                 // returning an empty address) fall back to the usual path.
-                val useHotWallet = enabled && hotWalletAddress.isNotEmpty()
+                val useHotWallet = hotWalletAddress.isNotEmpty()
 
                 ethDataManager.createEthTransaction(
                     nonce = nonce,

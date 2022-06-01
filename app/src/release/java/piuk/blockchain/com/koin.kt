@@ -8,4 +8,8 @@ val internalFeatureFlagsModule = module {
     single {
         FeatureFlagOverridePrefsReleaseImpl()
     }.bind(FeatureFlagOverridePrefs::class)
+
+    single {
+        WalletModeRepository()
+    }.bind(WalletModeService::class)
 }

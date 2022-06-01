@@ -32,8 +32,6 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -88,8 +86,6 @@ class PinActivity :
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
-
-    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private val momentLogger: MomentLogger by inject()
 
@@ -151,8 +147,7 @@ class PinActivity :
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
-            customerSupportSheetFF.enabled.onErrorReturn { false }
-                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupport.visible()
         }
     }
 

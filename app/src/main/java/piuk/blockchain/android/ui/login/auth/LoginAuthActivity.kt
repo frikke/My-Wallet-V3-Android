@@ -20,8 +20,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
@@ -67,8 +65,6 @@ class LoginAuthActivity :
 
     private val remoteLogger: RemoteLogger by inject()
     private val walletPrefs: WalletStatus by inject()
-
-    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private lateinit var currentState: LoginAuthState
 
@@ -203,18 +199,14 @@ class LoginAuthActivity :
             backAction = { clearKeyboardAndFinish() }
         )
 
-        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            if (enabled) {
-                updateToolbarMenuItems(
-                    listOf(
-                        NavigationBarButton.Icon(R.drawable.ic_question) {
-                            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
-                            showCustomerSupportSheet()
-                        }
-                    )
-                )
-            }
-        }
+        updateToolbarMenuItems(
+            listOf(
+                NavigationBarButton.Icon(R.drawable.ic_question) {
+                    analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                    showCustomerSupportSheet()
+                }
+            )
+        )
     }
 
     override fun render(newState: LoginAuthState) {

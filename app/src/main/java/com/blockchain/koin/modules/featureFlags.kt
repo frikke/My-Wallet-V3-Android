@@ -6,19 +6,14 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.ethMemoHotWalletFeatureFlag
-import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
-import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
-import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
@@ -32,24 +27,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(googlePayFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_gpay",
-                "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(ethMemoHotWalletFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_eth_memo",
-                "ETH Memo for Hot Wallets"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(replaceGsonKtxFeatureFlag) {
         IntegratedFeatureFlag(
@@ -105,15 +82,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(customerSupportSheetFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_customer_support_sheet",
-                "Customer Support Sheet"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(notificationPreferencesFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -157,15 +125,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(orderRewardsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_order_rewards",
-                "Order Rewards Screen By Balance"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(appMaintenanceFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -189,15 +148,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_backup_phrase",
                 "Backup Phrase Flow"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(removeSafeconnectFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_remove_safeconnect_screen",
-                "Remove Safeconnect Screen"
             )
         )
     }.bind(FeatureFlag::class)

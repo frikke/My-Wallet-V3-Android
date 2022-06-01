@@ -88,38 +88,40 @@
             android:gravity="center"
             android:text="Device Currency" />
 
+        <TextView
+            android:id="@+id/display_currencies_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:gravity="center"
+            android:text="Wallet Display Mode" />
+
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <RadioButton
-                android:id="@+id/radio_usd"
+                android:id="@+id/radio_defi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="USD" />
+                android:text="DeFi" />
 
             <RadioButton
-                android:id="@+id/radio_eur"
+                android:id="@+id/radio_trading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EUR" />
+                android:text="Trading" />
 
             <RadioButton
-                android:id="@+id/radio_gbp"
+                android:id="@+id/radio_both"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GBP" />
+                android:text="Both" />
         </RadioGroup>
-
-        <Button
-            android:id="@+id/clear_simple_buy_state"
-            style="@style/CtaButton.Blue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp"
-            android:text="Clear SB order" />
 
         <TextView
             android:layout_width="match_parent"

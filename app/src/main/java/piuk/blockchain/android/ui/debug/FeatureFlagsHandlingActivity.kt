@@ -16,8 +16,9 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
-import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.AssetCategory
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
@@ -39,6 +40,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
+    private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
@@ -73,29 +75,30 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
             btnResetWallet.setOnClickListener { onResetWallet() }
             btnResetAnnounce.setOnClickListener { onResetAnnounce() }
             btnResetPrefs.setOnClickListener { onResetPrefs() }
-            clearSimpleBuyState.setOnClickListener { clearSimpleBuyState() }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
             firebaseToken.text = prefs.firebaseToken
 
-            radioEur.setOnCheckedChangeListener { _, isChecked ->
+            radioDefi.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("EUR")
-                    showSnackbar("Currency changed to EUR")
+                    walletModeService.updateEnabledWalletTypes(setOf(AssetCategory.NON_CUSTODIAL))
+                    showSnackbar("Currency mode changed to Non custodial")
                 }
             }
 
-            radioUsd.setOnCheckedChangeListener { _, isChecked ->
+            radioTrading.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("USD")
-                    showSnackbar("Currency changed to USD")
+                    walletModeService.updateEnabledWalletTypes(setOf(AssetCategory.CUSTODIAL))
+                    showSnackbar("Currency mode changed to Trading")
                 }
             }
 
-            radioGbp.setOnCheckedChangeListener { _, isChecked ->
+            radioBoth.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    currencyPrefs.selectedFiatCurrency = FiatCurrency.fromCurrencyCode("GBP")
-                    showSnackbar("Currency changed to GBP")
+                    walletModeService.updateEnabledWalletTypes(
+                        setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL)
+                    )
+                    showSnackbar("Currency mode changed to Trading + Pkw")
                 }
             }
 

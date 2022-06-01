@@ -132,12 +132,11 @@ class PaymentsRepositoryTest {
         coEvery { getAuthHeader() } returns Single.just(AUTH)
     }
     private val googlePayManager: GooglePayManager = mockk()
+
     private val environmentConfig: EnvironmentConfig = mockk<EnvironmentConfig>().apply {
         every { applicationId } returns APPLICATION_ID
     }
-    private val googlePayFeatureFlag: FeatureFlag = mockk<FeatureFlag>().apply {
-        every { enabled } returns Single.just(true)
-    }
+
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
 
     private lateinit var subject: PaymentsRepository
@@ -154,7 +153,6 @@ class PaymentsRepositoryTest {
             authenticator,
             googlePayManager,
             environmentConfig,
-            googlePayFeatureFlag,
             plaidFeatureFlag
         )
     }

@@ -235,7 +235,6 @@ val coreModule = module {
                 balanceCallCache = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
-                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag),
                 ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
             )
         }.bind(Erc20DataManager::class)
@@ -372,7 +371,6 @@ val coreModule = module {
                 environmentConfig = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
-                googlePayFeatureFlag = get(googlePayFeatureFlag),
                 plaidFeatureFlag = get(plaidFeatureFlag)
             )
         }.apply {
