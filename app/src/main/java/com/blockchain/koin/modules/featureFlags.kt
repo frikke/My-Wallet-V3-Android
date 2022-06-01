@@ -1,6 +1,7 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.LocalOnlyFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
@@ -21,7 +22,6 @@ import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
-import io.reactivex.rxjava3.core.Single
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
@@ -92,18 +92,10 @@ val featureFlagsModule = module {
     }.bind(FeatureFlag::class)
 
     single(newAssetPriceStoreFeatureFlag) {
-        IntegratedFeatureFlag(
-//            remoteFlag = get<RemoteConfig>().featureFlag(
-//                "android_ff_new_asset_price_store",
-//                "New AssetPriceStore with Store Cache"
-//            )
-            // TODO(aromano): Reenable the flag once FiatCryptoInputView and FiatCryptoConversionModel concurrency issues are solved
-            remoteFlag = object : FeatureFlag {
-                override val key: String = "android_ff_new_asset_price_store"
-                override val readableName: String = "New AssetPriceStore with Store Cache"
-                override val enabled: Single<Boolean> = Single.just(false)
-                override val isEnabled: Boolean = false
-            }
+        LocalOnlyFeatureFlag(
+            key = "android_ff_new_asset_price_store",
+            readableName = "New AssetPriceStore with Store Cache",
+            prefs = get()
         )
     }.bind(FeatureFlag::class)
 
