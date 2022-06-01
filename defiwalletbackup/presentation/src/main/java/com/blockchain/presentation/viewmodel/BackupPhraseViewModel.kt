@@ -111,6 +111,7 @@ class BackupPhraseViewModel(
 
     private fun verifyPhrase(userMnemonic: List<String>) {
         if (userMnemonic != modelState.mnemonic) {
+            // todo(othman): check with ethan how to show phrase is incorrect
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.VERIFIED) }
