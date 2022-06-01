@@ -9,7 +9,7 @@ import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment.Companion.ARGUMENT_SECOND_PASSWORD
-import piuk.blockchain.android.util.BackupWalletUtil
+import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 
 class BackupWalletWordListPresenterTest {
 

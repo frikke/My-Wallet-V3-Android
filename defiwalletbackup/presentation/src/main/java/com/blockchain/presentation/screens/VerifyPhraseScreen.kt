@@ -50,7 +50,7 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         VerifyPhraseScreen(
             mnemonic = state.mnemonic,
-            isLoading = state.isLoading,
+            isLoading = state.showLoading,
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
 
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },

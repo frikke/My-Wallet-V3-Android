@@ -58,7 +58,6 @@ fun ManualBackup(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         ManualBackupScreen(
             mnemonic = state.mnemonic,
-            mnemonicString = state.mnemonicString,
             copyState = state.copyState,
 
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
@@ -71,7 +70,6 @@ fun ManualBackup(viewModel: BackupPhraseViewModel) {
 @Composable
 fun ManualBackupScreen(
     mnemonic: List<String>,
-    mnemonicString: String,
     copyState: CopyState,
 
     backOnClick: () -> Unit,
@@ -81,7 +79,7 @@ fun ManualBackupScreen(
     var copyMnemonic by remember { mutableStateOf(false) }
 
     if (copyMnemonic) {
-        CopyMnemonic(mnemonicString)
+        CopyMnemonic(mnemonic.joinToString(separator = " "))
         mnemonicCopied()
         copyMnemonic = false
     }
@@ -127,7 +125,7 @@ fun ManualBackupScreen(
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             when (copyState) {
-                CopyState.Idle -> {
+                CopyState.IDLE -> {
                     TertiaryButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(id = R.string.common_copy),
@@ -135,7 +133,7 @@ fun ManualBackupScreen(
                     )
                 }
 
-                CopyState.Copied -> {
+                CopyState.COPIED -> {
                     MnemonicCopied()
                 }
             }
@@ -202,8 +200,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 fun PreviewManualBackupScreenCopy() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        mnemonicString = "",
-        copyState = CopyState.Idle,
+        copyState = CopyState.IDLE,
 
         backOnClick = {},
         mnemonicCopied = {},
@@ -216,8 +213,7 @@ fun PreviewManualBackupScreenCopy() {
 fun PreviewManualBackupScreenCopied() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        mnemonicString = "",
-        copyState = CopyState.Copied,
+        copyState = CopyState.COPIED,
 
         backOnClick = {},
         mnemonicCopied = {},
