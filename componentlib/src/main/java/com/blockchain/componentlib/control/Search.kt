@@ -1,6 +1,7 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,8 +18,9 @@ import com.blockchain.componentlib.theme.AppTheme
 @Composable
 fun Search(
     label: String = "",
+    placeholder: String = "",
     isDarkMode: Boolean = isSystemInDarkTheme(),
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -45,15 +47,20 @@ fun Search(
             value = it
         },
         label = label,
-        placeholder = label,
+        placeholder = placeholder,
+        singleLine = true,
         trailingIcon = trailingIcon,
         onTrailingIconClicked = {
+            onValueChange.invoke("")
             value = ""
             focusManager.clearFocus(true)
         },
         onFocusChanged = {
             isFocused = it.isFocused
-        }
+        },
+        keyboardActions = KeyboardActions(
+            onDone = { focusManager.clearFocus(true) }
+        ),
     )
 }
 
