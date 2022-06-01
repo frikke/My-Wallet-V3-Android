@@ -10,10 +10,14 @@ import com.blockchain.api.payments.data.CreateLinkBankRequestBody
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.preferences.RemoteConfigPrefs
 import io.reactivex.rxjava3.core.Single
 
 class PaymentMethodsService internal constructor(
-    private val api: PaymentMethodsApi
+    private val api: PaymentMethodsApi,
+    private val remoteConfigPrefs: RemoteConfigPrefs,
+    private val environmentConfig: EnvironmentConfig
 ) {
 
     /**
@@ -64,13 +68,21 @@ class PaymentMethodsService internal constructor(
 
     fun deleteCard(authorization: String, cardId: String) = api.deleteCard(authorization, cardId)
 
-    fun getLinkedBank(authorization: String, id: String) = api.getLinkedBank(authorization, id)
+    fun getLinkedBank(authorization: String, id: String) = api.getLinkedBank(
+        authorization = authorization,
+        id = id,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
 
     fun getBanks(authorization: String) = api.getBanks(authorization)
 
     fun removeBeneficiary(authorization: String, id: String) = api.removeBeneficiary(authorization, id)
 
-    fun removeLinkedBank(authorization: String, id: String) = api.removeLinkedBank(authorization, id)
+    fun removeLinkedBank(authorization: String, id: String) = api.removeLinkedBank(
+        authHeader = authorization,
+        id = id,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
 
     fun linkBank(
         authorization: String,
@@ -78,11 +90,12 @@ class PaymentMethodsService internal constructor(
         supportedPartners: List<String>,
         applicationId: String
     ) = api.linkBank(
-        authorization,
-        CreateLinkBankRequestBody(
+        authorization = authorization,
+        body = CreateLinkBankRequestBody(
             fiatCurrency,
             Attributes(supportedPartners, applicationId)
-        )
+        ),
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun updateAccountProviderId(
@@ -90,9 +103,10 @@ class PaymentMethodsService internal constructor(
         id: String,
         body: UpdateProviderAccountBody
     ) = api.updateProviderAccount(
-        authorization,
-        id,
-        body
+        authorization = authorization,
+        id = id,
+        body = body,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun linkPLaidAccount(
@@ -112,7 +126,8 @@ class PaymentMethodsService internal constructor(
     ) = api.startBankTransferPayment(
         authorization = authorization,
         id = id,
-        body = body
+        body = body,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun updateOpenBankingToken(
@@ -130,7 +145,8 @@ class PaymentMethodsService internal constructor(
         paymentId: String
     ) = api.getBankTransferCharge(
         authorization = authorization,
-        paymentId = paymentId
+        paymentId = paymentId,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun getGooglePayInfo(
@@ -140,4 +156,11 @@ class PaymentMethodsService internal constructor(
         authorization = authorization,
         currency = currency
     )
+
+    private fun getLocalisedErrorIfEnabled(): String? =
+        if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {
+            remoteConfigPrefs.brokerageErrorsCode
+        } else {
+            null
+        }
 }

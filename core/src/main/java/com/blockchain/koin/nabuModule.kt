@@ -265,7 +265,11 @@ val nabuModule = module {
     single { NabuSessionTokenStore() }
 
     single {
-        NabuService(get())
+        NabuService(
+            nabu = get(),
+            remoteConfigPrefs = get(),
+            environmentConfig = get()
+        )
     }
 
     factory {

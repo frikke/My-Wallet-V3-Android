@@ -245,7 +245,8 @@ internal interface Nabu {
     fun createOrder(
         @Header("authorization") authorization: String,
         @Query("action") action: String?,
-        @Body order: CustodialWalletOrder
+        @Body order: CustodialWalletOrder,
+        @Query("localisedError") localisedError: String?
     ): Single<BuySellOrderResponse>
 
     @GET(NABU_TRADES_WITHDRAW_FEES_AND_LIMITS)
@@ -284,7 +285,8 @@ internal interface Nabu {
     @GET(NABU_SIMPLE_BUY_ORDERS)
     fun getOrders(
         @Header("authorization") authorization: String,
-        @Query("pendingOnly") pendingOnly: Boolean
+        @Query("pendingOnly") pendingOnly: Boolean,
+        @Query("localisedError") localisedError: String?
     ): Single<BuyOrderListResponse>
 
     @POST(NABU_WITHDRAW_LOCKS_CHECK)
@@ -296,20 +298,23 @@ internal interface Nabu {
     @DELETE("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun deleteBuyOrder(
         @Header("authorization") authorization: String,
-        @Path("orderId") orderId: String
+        @Path("orderId") orderId: String,
+        @Query("localisedError") localisedError: String?
     ): Completable
 
     @GET("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun getBuyOrder(
         @Header("authorization") authHeader: String,
-        @Path("orderId") orderId: String
+        @Path("orderId") orderId: String,
+        @Query("localisedError") localisedError: String?
     ): Single<BuySellOrderResponse>
 
     @POST("$NABU_SIMPLE_BUY_ORDERS/{orderId}")
     fun confirmOrder(
         @Header("authorization") authHeader: String,
         @Path("orderId") orderId: String,
-        @Body confirmBody: ConfirmOrderRequestBody
+        @Body confirmBody: ConfirmOrderRequestBody,
+        @Query("localisedError") localisedError: String?
     ): Single<BuySellOrderResponse>
 
     @GET(NABU_ELIGIBLE_PAYMENT_METHODS)
@@ -370,7 +375,8 @@ internal interface Nabu {
     @POST(NABU_SWAP_ORDER)
     fun createCustodialOrder(
         @Header("authorization") authorization: String,
-        @Body order: CreateOrderRequest
+        @Body order: CreateOrderRequest,
+        @Query("localisedError") localisedError: String?
     ): Single<CustodialOrderResponse>
 
     @GET(NABU_LIMITS)

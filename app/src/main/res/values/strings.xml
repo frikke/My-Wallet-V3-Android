@@ -4,8 +4,9 @@
     <string name="app_name" translatable="false">Blockchain</string>
     <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
-    <string name="debug_app_shortcut">BC Debug Opts</string>
-    <string name="debug_app_shortcut_short">BC Opts</string>
+    <string name="debug_app_shortcut" translatable="false">BC Debug Opts</string>
+    <string name="debug_app_shortcut_short" translatable="false">BC Opts</string>
+    <string name="debug_menu_brokerage_link" translatable="false">Error keys can be found <a href="https://github.com/blockchain/lib-nabu-localisation/blob/master/nabu-localisation/src/main/resources/errors/titles/locale/en.json">here</a>\n\nPLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'.title\' suffix</string>
     <string name="common_company_name" translatable="false">Blockchain.com</string>
     <string name="common_replaceable_value" translatable="false">%1$s</string>
     <string name="common_hyphenated_strings" translatable="false">%1$s - %2$s</string>

@@ -186,6 +186,16 @@ class PrefsUtil(
         setValue(CONFIG_STALE, isStale)
     }
 
+    override val brokerageErrorsCode: String
+        get() = getValue(BROKERAGE_ERROR_CODE, "")
+
+    override fun updateBrokerageErrorCode(code: String) = setValue(BROKERAGE_ERROR_CODE, code)
+
+    override val brokerageErrorsEnabled: Boolean
+        get() = getValue(BROKERAGE_ERRORS_ENABLED, false)
+
+    override fun updateBrokerageErrorStatus(enabled: Boolean) = setValue(BROKERAGE_ERRORS_ENABLED, enabled)
+
     override var installationVersionName: String
         get() = getValue(APP_INSTALLATION_VERSION_NAME, AppInfoPrefs.DEFAULT_APP_VERSION_NAME)
         set(value) {
@@ -688,7 +698,10 @@ class PrefsUtil(
         private const val KEY_PIN_FAILS = "pin_fails"
         const val SESSION_ID = "session_id"
 
+        // remote config prefs
         private const val CONFIG_STALE = "CONFIG_STALE"
+        private const val BROKERAGE_ERROR_CODE = "BROKERAGE_ERROR_CODE"
+        private const val BROKERAGE_ERRORS_ENABLED = "BROKERAGE_ERRORS_ENABLED"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
 

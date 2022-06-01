@@ -3,14 +3,18 @@ package piuk.blockchain.android.ui.debug
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.FiatCurrency
@@ -35,6 +39,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
+    private val remoteConfigPrefs: RemoteConfigPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
 
@@ -93,6 +98,26 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
                     showSnackbar("Currency changed to GBP")
                 }
             }
+
+            brokerageErrorSwitch.setOnCheckedChangeListener { _, isChecked ->
+                brokerageErrorInput.visibleIf { isChecked }
+                brokerageErrorCta.visibleIf { isChecked }
+                brokerageLink.visibleIf { isChecked }
+                brokerageErrorInput.setText(remoteConfigPrefs.brokerageErrorsCode, TextView.BufferType.EDITABLE)
+
+                remoteConfigPrefs.updateBrokerageErrorStatus(isChecked)
+                if (!isChecked) {
+                    remoteConfigPrefs.updateBrokerageErrorCode("")
+                    BlockchainSnackbar.make(this@with.root, "Error message reset", type = SnackbarType.Success).show()
+                }
+            }
+
+            brokerageErrorCta.setOnClickListener {
+                remoteConfigPrefs.updateBrokerageErrorCode(brokerageErrorInput.text?.toString().orEmpty())
+                BlockchainSnackbar.make(this@with.root, "Updated error message", type = SnackbarType.Success).show()
+            }
+
+            brokerageErrorSwitch.isChecked = remoteConfigPrefs.brokerageErrorsEnabled
         }
     }
 

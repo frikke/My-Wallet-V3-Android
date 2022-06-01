@@ -1,5 +1,6 @@
 package com.blockchain.nabu.service.nabu
 
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
@@ -17,6 +18,7 @@ import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuCountryFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.testutils.waitForCompletionWithoutErrors
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,7 +29,9 @@ import org.junit.Test
 class NabuServiceTest {
 
     private val nabu: Nabu = mock()
-    private val subject: NabuService = NabuService(nabu)
+    private val remoteConfigPrefs: RemoteConfigPrefs = mock()
+    private val environmentConfig: EnvironmentConfig = mock()
+    private val subject: NabuService = NabuService(nabu, remoteConfigPrefs, environmentConfig)
 
     private val jwt = "JWT"
 

@@ -213,7 +213,11 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(PaymentMethodsApi::class.java)
-        PaymentMethodsService(api)
+        PaymentMethodsService(
+            api = api,
+            remoteConfigPrefs = get(),
+            environmentConfig = get()
+        )
     }
 
     factory {
