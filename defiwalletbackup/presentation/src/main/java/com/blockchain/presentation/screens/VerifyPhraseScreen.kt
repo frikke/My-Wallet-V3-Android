@@ -49,11 +49,9 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
             mnemonic = state.mnemonic,
             isLoading = state.isLoading,
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
-            /*todo(othmna) onclick verify validity*/
-            nextOnClick = { userMnemonic ->
-                /*navController.navigate(BackPhraseDestination.BackupConfirmation.route)*/
-                viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic))
-            }
+
+            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
+            nextOnClick = { userMnemonic -> viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic)) }
         )
     }
 }
@@ -63,6 +61,8 @@ fun VerifyPhraseScreen(
     mnemonic: List<String>,
     isLoading: Boolean,
     mnemonicVerificationStatus: UserMnemonicVerificationStatus,
+
+    backOnClick: () -> Unit,
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
     val userMnemonic = remember { mutableStateListOf<String>() }
@@ -72,7 +72,7 @@ fun VerifyPhraseScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
+        NavigationBar(title = stringResource(R.string.secure_defi_wallets), onBackButtonClick = backOnClick)
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -174,6 +174,8 @@ fun PreviewVerifyPhrase() {
         mnemonic = mnemonic,
         isLoading = false,
         mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+
+        backOnClick = {},
         nextOnClick = {}
     )
 }
@@ -185,6 +187,8 @@ fun PreviewVerifyPhraseScreenLoading() {
         mnemonic = mnemonic,
         isLoading = true,
         mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+
+        backOnClick = {},
         nextOnClick = {}
     )
 }

@@ -17,4 +17,8 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
 
     // verify phrase
     data class VerifyPhrase(val userMnemonic: List<String>) : BackupPhraseIntent
+
+    // flow
+    object GoToPreviousScreen : BackupPhraseIntent
+    data class EndFlow(val isSuccessful: Boolean) : BackupPhraseIntent
 }
