@@ -166,7 +166,7 @@ class AccountFragment :
     override fun onResume() {
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
-
+        model.process(AccountIntent.LoadReferralData)
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
         }
@@ -222,7 +222,6 @@ class AccountFragment :
                 primaryText = getString(R.string.account_refer_a_friend)
                 onClick = { navigator().goToReferralCode(referralInfo) }
             }
-            binding.settingsReferAFriendDiv.visibility = View.VISIBLE
         }
     }
 

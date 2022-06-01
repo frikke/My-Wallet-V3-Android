@@ -5,6 +5,7 @@ import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.api.services.ReferralApiService
+import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.domain.referral.model.ReferralValidity
 import com.blockchain.nabu.Authenticator
@@ -12,6 +13,8 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
@@ -45,13 +48,16 @@ class ReferralRepositoryTest {
         on { selectedFiatCurrency } doReturn mockFiat
     }
 
+    private val featureFlag: IntegratedFeatureFlag = mock()
+
     private val referralApiService: ReferralApiService = mock()
 
-    private var referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs)
+    private lateinit var referralRepository: ReferralRepository
 
     @Before
-    fun setUp() {
-        referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs)
+    fun setUp() = runBlocking {
+        whenever(featureFlag.isEnabled()).doReturn(true)
+        referralRepository = ReferralRepository(authenticator, referralApiService, currencyPrefs, featureFlag)
     }
 
     @Test
@@ -86,6 +92,16 @@ class ReferralRepositoryTest {
     }
 
     @Test
+    fun `should fetch referral info not available when feature flag disabled`() = runBlocking {
+        whenever(featureFlag.isEnabled()).doReturn(false)
+
+        val result = referralRepository.fetchReferralData()
+
+        assertEquals(Outcome.Success(ReferralInfo.NotAvailable), result)
+        verifyNoMoreInteractions(referralApiService)
+    }
+
+    @Test
     fun `should fetch referral info other errors`() = runBlocking {
         val expectedThrowable: NabuApiException = mock {}
         val apiError: ApiError.KnownError = mock {
@@ -102,8 +118,18 @@ class ReferralRepositoryTest {
     }
 
     @Test
+    fun `should check validity not available`() = runBlocking {
+        whenever(featureFlag.isEnabled()).doReturn(false)
+
+        val result = referralRepository.validateReferralCode(REF_CODE)
+
+        assertEquals(Outcome.Success(ReferralValidity.NOT_AVAILABLE), result)
+        verifyNoMoreInteractions(referralApiService)
+    }
+
+    @Test
     fun `should check validity valid code`() = runBlocking {
-        whenever(referralApiService.validateReferralCode(AUTH, REF_CODE)).doReturn(Outcome.Success(Unit))
+        whenever(referralApiService.validateReferralCode(REF_CODE)).doReturn(Outcome.Success(Unit))
 
         val result = referralRepository.validateReferralCode(REF_CODE)
 
@@ -115,7 +141,7 @@ class ReferralRepositoryTest {
         val apiError: ApiError.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.NotFound
         }
-        whenever(referralApiService.validateReferralCode(AUTH, REF_CODE))
+        whenever(referralApiService.validateReferralCode(REF_CODE))
             .doReturn(Outcome.Failure(apiError))
 
         val result = referralRepository.validateReferralCode(REF_CODE)
@@ -130,11 +156,42 @@ class ReferralRepositoryTest {
             on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
             on { throwable } doReturn expectedThrowable
         }
-        whenever(referralApiService.validateReferralCode(AUTH, REF_CODE))
+        whenever(referralApiService.validateReferralCode(REF_CODE))
             .doReturn(Outcome.Failure(apiError))
 
         val result = referralRepository.validateReferralCode(REF_CODE)
 
         assertEquals(Outcome.Failure(expectedThrowable), result)
+    }
+
+    @Test
+    fun `should send validated referral code`() = runBlocking {
+        whenever(referralApiService.associateReferralCode(AUTH, REF_CODE)).doReturn(Outcome.Success(Unit))
+
+        val result = referralRepository.associateReferralCodeIfPresent(REF_CODE)
+
+        verify(referralApiService).associateReferralCode(AUTH, REF_CODE)
+        assertEquals(Outcome.Success(Unit), result)
+    }
+
+    @Test
+    fun `should not send request when feature disabled`() = runBlocking {
+        whenever(featureFlag.isEnabled()).doReturn(false)
+
+        val result = referralRepository.associateReferralCodeIfPresent(REF_CODE)
+
+        assertEquals(Outcome.Success(Unit), result)
+        verifyNoMoreInteractions(authenticator)
+        verifyNoMoreInteractions(referralApiService)
+    }
+
+    @Test
+    fun `should not send request when code is null`() = runBlocking {
+
+        val result = referralRepository.associateReferralCodeIfPresent(null)
+
+        assertEquals(Outcome.Success(Unit), result)
+        verifyNoMoreInteractions(authenticator)
+        verifyNoMoreInteractions(referralApiService)
     }
 }

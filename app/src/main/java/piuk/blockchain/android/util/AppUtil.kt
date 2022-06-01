@@ -64,12 +64,17 @@ class AppUtil(
         )
     }
 
-    fun loadAppWithVerifiedPin(loaderActivity: Class<*>, isAfterWalletCreation: Boolean = false) {
+    fun loadAppWithVerifiedPin(
+        loaderActivity: Class<*>,
+        isAfterWalletCreation: Boolean = false,
+        referralCode: String? = null
+    ) {
         context.startActivity(
             Intent(context, loaderActivity).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
                 putExtra(INTENT_EXTRA_VERIFIED, true)
                 putExtra(INTENT_EXTRA_IS_AFTER_WALLET_CREATION, isAfterWalletCreation)
+                putExtra(INTENT_EXTRA_REFERRAL_CODE, referralCode)
             }
         )
 
@@ -79,5 +84,6 @@ class AppUtil(
     companion object {
         const val INTENT_EXTRA_VERIFIED = "verified"
         const val INTENT_EXTRA_IS_AFTER_WALLET_CREATION = "is_after_wallet_creation"
+        const val INTENT_EXTRA_REFERRAL_CODE = "referral_code"
     }
 }

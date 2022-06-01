@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.settings.v2.account
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -26,8 +25,7 @@ class AccountInteractor internal constructor(
     private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: ExchangeLinking,
-    private val referralService: ReferralService,
-    private val referralFeatureFlag: IntegratedFeatureFlag
+    private val referralService: ReferralService
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -76,12 +74,8 @@ class AccountInteractor internal constructor(
                 }
             }
 
-    suspend fun getReferralData() = if (referralFeatureFlag.isEnabled()) {
-        referralService.fetchReferralData().fold(
-            onSuccess = { it },
-            onFailure = { ReferralInfo.NotAvailable }
-        )
-    } else {
-        ReferralInfo.NotAvailable
-    }
+    suspend fun getReferralData() = referralService.fetchReferralData().fold(
+        onSuccess = { it },
+        onFailure = { ReferralInfo.NotAvailable }
+    )
 }

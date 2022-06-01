@@ -9,4 +9,6 @@ interface ReferralService {
     suspend fun fetchReferralData(): Outcome<Throwable, ReferralInfo>
 
     suspend fun validateReferralCode(code: String): Outcome<Throwable, ReferralValidity>
+
+    suspend fun associateReferralCodeIfPresent(validatedCode: String?): Outcome<Throwable, Unit>
 }

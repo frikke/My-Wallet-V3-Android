@@ -36,7 +36,7 @@ fun ReferralCard(text: String, onClick: () -> Unit) {
         Image(
             modifier = Modifier.align(Alignment.TopEnd),
             painter = painterResource(R.drawable.ic_referral_cta),
-            contentDescription = ""
+            contentDescription = null
         )
 
         Column(

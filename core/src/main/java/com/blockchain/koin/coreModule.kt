@@ -394,6 +394,7 @@ val coreModule = module {
                 authenticator = get(),
                 referralApi = get(),
                 currencyPrefs = get(),
+                referralFlag = get(referralsFeatureFlag)
             )
         }.bind(ReferralService::class)
     }

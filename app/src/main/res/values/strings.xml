@@ -214,6 +214,8 @@
     >
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
+    <string name="new_account_referral_code">Enter referral code</string>
+    <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
     <string name="strength_weak">Weak</string>

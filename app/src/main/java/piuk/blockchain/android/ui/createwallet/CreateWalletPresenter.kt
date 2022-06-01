@@ -7,7 +7,9 @@ import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.enviroment.EnvironmentConfig
+import info.blockchain.wallet.payload.data.Wallet
 import info.blockchain.wallet.util.PasswordUtil
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
@@ -25,11 +27,13 @@ import timber.log.Timber
 interface CreateWalletView : View {
     fun showError(@StringRes message: Int)
     fun warnWeakPassword(email: String, password: String)
-    fun startPinEntryActivity()
+    fun startPinEntryActivity(referral: String?)
     fun showProgressDialog(message: Int)
     fun dismissProgressDialog()
     fun getDefaultAccountName(): String
     fun setEligibleCountries(countries: List<CountryIso>)
+    fun showReferralInvalidMessage()
+    fun hideReferralInvalidMessage()
 }
 
 class CreateWalletPresenter(
@@ -40,7 +44,8 @@ class CreateWalletPresenter(
     private val analytics: Analytics,
     private val environmentConfig: EnvironmentConfig,
     private val formatChecker: FormatChecker,
-    private val eligibilityService: EligibilityService
+    private val eligibilityService: EligibilityService,
+    private val referralInteractor: ReferralInteractor
 ) : BasePresenter<CreateWalletView>() {
 
     override fun onViewReady() {
@@ -88,54 +93,109 @@ class CreateWalletPresenter(
             else -> true
         }
 
+    fun validateReferralFormat(referralCode: String?): Boolean {
+        return when {
+            referralCode.isNullOrEmpty() || referralCode.length == 8 -> {
+                view.hideReferralInvalidMessage()
+                true
+            }
+            else -> {
+                view.showReferralInvalidMessage()
+                false
+            }
+        }
+    }
+
     fun createOrRestoreWallet(
         email: String,
         password: String,
         recoveryPhrase: String,
         countryCode: String,
-        stateIsoCode: String? = null
+        stateIsoCode: String? = null,
+        referralCode: String
     ) = when {
         recoveryPhrase.isNotEmpty() -> recoverWallet(email, password, recoveryPhrase)
-        else -> createWallet(email, password, countryCode, stateIsoCode)
+        else -> createWallet(email, password, countryCode, stateIsoCode, referralCode)
     }
 
     private fun createWallet(
         emailEntered: String,
         password: String,
         countryCode: String,
-        stateIsoCode: String? = null
+        stateIsoCode: String? = null,
+        referralCode: String
     ) {
         analytics.logEventOnce(AnalyticsEvents.WalletSignupCreated)
 
-        compositeDisposable += payloadDataManager.createHdWallet(
-            password,
-            view.getDefaultAccountName(),
-            emailEntered
-        )
+        compositeDisposable += referralInteractor.validateReferralIfNeeded(referralCode)
+            .flatMap { codeState ->
+                if (codeState != ReferralCodeState.INVALID) {
+                    payloadDataManager.createHdWallet(
+                        password,
+                        view.getDefaultAccountName(),
+                        emailEntered
+                    )
+                        .map { wallet ->
+                            CreateWalletResult.WalletCreated(wallet) as CreateWalletResult
+                        }
+                        .onErrorReturn { CreateWalletResult.CreateWalletError(it) }
+                } else {
+                    Single.just(CreateWalletResult.ReferralInvalid)
+                }
+            }
+            .onErrorReturn { CreateWalletResult.ValidateReferralError(it) }
             .doOnSubscribe { view.showProgressDialog(R.string.creating_wallet) }
             .doOnTerminate { view.dismissProgressDialog() }
             .subscribeBy(
-                onSuccess = { wallet ->
-                    prefs.isNewlyCreated = true
-                    analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
-                    prefs.apply {
-                        walletGuid = wallet.guid
-                        sharedKey = wallet.sharedKey
-                        countrySelectedOnSignUp = countryCode
-                        stateIsoCode?.let { stateSelectedOnSignUp = it }
-                        email = emailEntered
+                onSuccess = { result ->
+                    when (result) {
+                        is CreateWalletResult.WalletCreated -> handleWalletCreateSuccess(
+                            wallet = result.wallet,
+                            countryCode = countryCode,
+                            stateIsoCode = stateIsoCode,
+                            emailEntered = emailEntered,
+                            referralCode = referralCode
+                        )
+                        is CreateWalletResult.ReferralInvalid -> view.showReferralInvalidMessage()
+                        is CreateWalletResult.ValidateReferralError -> handleValidationError(result.t)
+                        is CreateWalletResult.CreateWalletError -> handleWalletCreateError(result.t)
                     }
-                    analytics.logEvent(AnalyticsEvents.WalletCreation)
-                    view.startPinEntryActivity()
-                    specificAnalytics.logSingUp(true)
                 },
-                onError = {
-                    Timber.e(it)
-                    view.showError(R.string.hd_error)
-                    appUtil.clearCredentialsAndRestart()
-                    specificAnalytics.logSingUp(false)
-                }
+                onError = { handleWalletCreateError(it) }
             )
+    }
+
+    private fun handleWalletCreateSuccess(
+        wallet: Wallet,
+        countryCode: String,
+        stateIsoCode: String?,
+        emailEntered: String,
+        referralCode: String?
+    ) {
+        prefs.isNewlyCreated = true
+        analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryCode, stateIsoCode))
+        prefs.apply {
+            walletGuid = wallet.guid
+            sharedKey = wallet.sharedKey
+            countrySelectedOnSignUp = countryCode
+            stateIsoCode?.let { stateSelectedOnSignUp = it }
+            email = emailEntered
+        }
+        analytics.logEvent(AnalyticsEvents.WalletCreation)
+        view.startPinEntryActivity(referralCode)
+        specificAnalytics.logSingUp(true)
+    }
+
+    private fun handleWalletCreateError(throwable: Throwable) {
+        Timber.e(throwable)
+        view.showError(R.string.hd_error)
+        appUtil.clearCredentialsAndRestart()
+        specificAnalytics.logSingUp(false)
+    }
+
+    private fun handleValidationError(throwable: Throwable) {
+        Timber.e(throwable)
+        view.showReferralInvalidMessage()
     }
 
     private fun recoverWallet(
@@ -162,7 +222,7 @@ class CreateWalletPresenter(
                         sharedKey = wallet.sharedKey
                         email = emailEntered
                     }
-                    view.startPinEntryActivity()
+                    view.startPinEntryActivity(null)
                 },
                 onError = {
                     Timber.e(it)
@@ -188,4 +248,11 @@ class CreateWalletPresenter(
         private const val MIN_PWD_LENGTH = 4
         private const val MAX_PWD_LENGTH = 255
     }
+}
+
+private sealed class CreateWalletResult {
+    object ReferralInvalid : CreateWalletResult()
+    data class WalletCreated(val wallet: Wallet) : CreateWalletResult()
+    data class ValidateReferralError(val t: Throwable) : CreateWalletResult()
+    data class CreateWalletError(val t: Throwable) : CreateWalletResult()
 }

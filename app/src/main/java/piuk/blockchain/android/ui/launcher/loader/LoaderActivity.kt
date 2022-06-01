@@ -36,6 +36,10 @@ class LoaderActivity :
 
     override val model: LoaderModel by scopedInject()
 
+    private val referralCode: String? by lazy {
+        intent?.getStringExtra(PinActivity.KEY_REFERRAL_CODE)
+    }
+
     override val alwaysDisableScreenshots: Boolean = true
 
     override fun initBinding(): ActivityLoaderBinding = ActivityLoaderBinding.inflate(layoutInflater)
@@ -50,8 +54,7 @@ class LoaderActivity :
         val extras = intent?.extras
         val isPinValidated = extras?.getBoolean(INTENT_EXTRA_VERIFIED, false) ?: false
         val isAfterWalletCreation = extras?.getBoolean(AppUtil.INTENT_EXTRA_IS_AFTER_WALLET_CREATION, false) == true
-
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, referralCode))
     }
 
     override val toolbarBinding: ToolbarGeneralBinding
@@ -158,7 +161,8 @@ class LoaderActivity :
                 context = this,
                 startForResult = false,
                 originScreen = PinActivity.Companion.OriginScreenToPin.LOADER_SCREEN,
-                addFlagsToClear = true
+                addFlagsToClear = true,
+                referralCode = referralCode
             )
         )
     }

@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.account
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.preferences.CurrencyPrefs
@@ -29,7 +28,6 @@ class AccountInteractorTest {
     private val exchangeLinkingState: ExchangeLinking = mock()
     private val blockchainCardRepository: BlockchainCardRepository = mock()
     private val referralService: ReferralService = mock()
-    private val referralFeatureFlag: IntegratedFeatureFlag = mock()
 
     @Before
     fun setup() {
@@ -39,7 +37,6 @@ class AccountInteractorTest {
             currencyPrefs = currencyPrefs,
             exchangeLinkingState = exchangeLinkingState,
             blockchainCardRepository = blockchainCardRepository,
-            referralFeatureFlag = referralFeatureFlag,
             referralService = referralService
         )
     }

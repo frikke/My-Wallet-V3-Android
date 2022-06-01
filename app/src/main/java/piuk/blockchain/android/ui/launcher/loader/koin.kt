@@ -38,7 +38,8 @@ val loaderModule = module {
                 prerequisites = get(),
                 ioScheduler = Schedulers.io(),
                 deepLinkPersistence = get(),
-                termsAndConditionsFeatureFlag = get(termsAndConditionsFeatureFlag)
+                termsAndConditionsFeatureFlag = get(termsAndConditionsFeatureFlag),
+                referralService = get()
             )
         }
     }

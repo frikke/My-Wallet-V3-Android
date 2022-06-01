@@ -89,10 +89,10 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_FIAT_UPDATE_FAIL))
                     }
                 )
+            is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateErrorState,
             is AccountIntent.ResetViewState,
             is AccountIntent.UpdateViewToLaunch,
-            is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateReferralInfo,
             is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive

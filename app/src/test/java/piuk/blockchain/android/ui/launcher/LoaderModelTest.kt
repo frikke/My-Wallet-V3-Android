@@ -71,10 +71,10 @@ class LoaderModelTest {
             Observable.just(LoaderIntents.UpdateProgressStep(ProgressStep.START))
         )
 
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, null))
 
         // Assert
-        verify(interactor).initSettings(isAfterWalletCreation)
+        verify(interactor).initSettings(isAfterWalletCreation, null)
     }
 
     @Test
@@ -86,7 +86,7 @@ class LoaderModelTest {
 
         whenever(authPrefs.walletGuid).thenReturn("")
 
-        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation))
+        model.process(LoaderIntents.CheckIsLoggedIn(isPinValidated, isAfterWalletCreation, null))
 
         // Assert
         testState

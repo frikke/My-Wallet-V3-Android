@@ -119,6 +119,7 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
 import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
+import piuk.blockchain.android.ui.createwallet.ReferralInteractor
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -312,7 +313,14 @@ val applicationModule = module {
                 environmentConfig = get(),
                 formatChecker = get(),
                 specificAnalytics = get(),
-                eligibilityService = get()
+                eligibilityService = get(),
+                referralInteractor = get()
+            )
+        }
+
+        factory {
+            ReferralInteractor(
+                referralService = get()
             )
         }
 
