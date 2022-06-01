@@ -51,7 +51,7 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
 
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
-            nextOnClick = { userMnemonic -> viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic)) }
+            nextOnClick = { userMnemonic -> viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic.toList())) }
         )
     }
 }
