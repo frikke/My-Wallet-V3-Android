@@ -1,6 +1,5 @@
-plugins {
-}
 apply from: rootProject.file('gradle/local/common-feature-android.gradle')
+apply plugin: 'kotlin-parcelize'
 
 android {
     buildTypes {
@@ -40,6 +39,7 @@ dependencies {
 
     // koin
     implementation Libraries.koinAndroid
+    implementation Libraries.koinCompose
 
     // Compose
     implementation Libraries.composeUi
@@ -47,6 +47,8 @@ dependencies {
     implementation Libraries.composePreview
     implementation Libraries.composeNavigation
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistFlowLayout
+    implementation Libraries.constraintLayoutCompose
 
     // test
     testImplementation Libraries.kotlinTest

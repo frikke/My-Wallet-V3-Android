@@ -8,6 +8,7 @@
     <dimen name="xxPaddingLarge">40dp</dimen>
     <dimen name="xxxPaddingLarge">48dp</dimen>
 
+    <dimen name="borderRadiiSmallest">4dp</dimen>
     <dimen name="borderRadiiSmall">8dp</dimen>
     <dimen name="borderRadiiMedium">16dp</dimen>
     <dimen name="borderRadiiLarge">100dp</dimen>
@@ -31,7 +32,7 @@
     <dimen name="size_huge">40dp</dimen>
     <dimen name="size_large"></dimen>
     <dimen name="size_medium"></dimen>
-    <dimen name="size_standard"></dimen>
+    <dimen name="size_standard">16dp</dimen>
     <dimen name="size_small"></dimen>
     <dimen name="size_tiny"></dimen>
 

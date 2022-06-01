@@ -1,15 +1,12 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
@@ -47,7 +44,6 @@ fun PrimarySwitch(
         ),
         enabled = enabled,
         modifier = modifier
-            .padding(dimensionResource(R.dimen.very_small_margin)),
     )
 }
 

@@ -103,10 +103,11 @@ object Versions {
     const val compose = "1.1.1"
     const val coil = "1.4.0"
     const val composeActivity = "1.3.1"
-    const val constraintLayoutCompose = "1.0.0-beta02"
+    const val constraintLayoutCompose = "1.0.1"
     const val composeRx = "1.1.1"
     const val composeKotlinCompile = "1.5.3"
     const val composeNavigation = "2.4.1"
+    const val composeFlowLayout = "0.23.1"
 
     // Accompanist
     const val systemUi = "0.24.3-alpha"
@@ -300,6 +301,7 @@ object Libraries {
     const val accompanistNavigationMaterial =
         "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
+    const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

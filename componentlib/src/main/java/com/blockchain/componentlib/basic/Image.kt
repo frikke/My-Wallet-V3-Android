@@ -49,10 +49,11 @@ fun Image(
             androidx.compose.foundation.Image(
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
-                modifier = modifier.apply {
-                    size(imageResource.size ?: defaultSize)
-                    imageResource.shape?.let { clip(it) }
-                },
+                modifier = modifier
+                    .size(imageResource.size ?: defaultSize)
+                    .run {
+                        imageResource.shape?.let { clip(it) } ?: this
+                    },
                 colorFilter = imageResource.colorFilter,
                 contentScale = contentScale,
             )

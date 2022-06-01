@@ -1,11 +1,14 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.blockchain.componentlib.R
 import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.control.SuccessSwitch
 import com.blockchain.componentlib.theme.AppTheme
@@ -40,6 +43,8 @@ fun ToggleTableRow(
             when (toggleTableRowType) {
                 ToggleTableRowType.Primary -> {
                     PrimarySwitch(
+                        modifier = Modifier
+                            .padding(dimensionResource(R.dimen.very_small_margin)),
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
                         enabled = enabled,
@@ -47,6 +52,8 @@ fun ToggleTableRow(
                 }
                 ToggleTableRowType.Success -> {
                     SuccessSwitch(
+                        modifier = Modifier
+                            .padding(dimensionResource(R.dimen.very_small_margin)),
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
                         enabled = enabled,

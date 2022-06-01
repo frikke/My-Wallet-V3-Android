@@ -76,7 +76,7 @@ fun LoadingChart(
         )
         Text(
             text = loadingText,
-            style = AppTheme.typography.micro,
+            style = AppTheme.typography.micro1,
             modifier = Modifier
                 .wrapContentSize()
                 .align(Alignment.CenterHorizontally)

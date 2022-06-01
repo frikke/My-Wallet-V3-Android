@@ -394,7 +394,8 @@ class SecurityFragment :
     private fun startBackupPhraseFlow() {
         onBackupResult.launch(
             if (backupFeatureFlag.isEnabled)
-                BackupPhraseActivity.newIntent(requireContext())
+            // todo: move to correct place
+                BackupPhraseActivity.newIntent(requireContext(), secondPassword = null)
             else
                 BackupWalletActivity.newIntent(requireContext())
         )
