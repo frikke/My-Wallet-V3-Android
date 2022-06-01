@@ -9,25 +9,29 @@ class BackupPhraseNavigationRouter(
     override val navController: NavHostController
 ) : ComposeNavigationRouter<BackupPhraseNavigationEvent> {
 
+    @Suppress("IMPLICIT_CAST_TO_ANY")
     override fun route(navigationEvent: BackupPhraseNavigationEvent) {
-        val route = when (navigationEvent) {
+        when (navigationEvent) {
             BackupPhraseNavigationEvent.RecoveryPhrase -> {
-                BackPhraseDestination.RecoveryPhrase.route
+                navController.navigate(BackPhraseDestination.RecoveryPhrase.route)
             }
 
             BackupPhraseNavigationEvent.ManualBackup -> {
-                BackPhraseDestination.ManualBackup.route
+                navController.navigate(BackPhraseDestination.ManualBackup.route)
             }
 
             BackupPhraseNavigationEvent.VerifyPhrase -> {
-                BackPhraseDestination.VerifyPhrase.route
+                navController.navigate(BackPhraseDestination.VerifyPhrase.route)
             }
 
             BackupPhraseNavigationEvent.BackupConfirmation -> {
-                BackPhraseDestination.BackupConfirmation.route
+                navController.navigate(BackPhraseDestination.BackupConfirmation.route)
             }
-        }.exhaustive
 
-        navController.navigate(route)
+            BackupPhraseNavigationEvent.GoToPreviousScreen -> {
+                navController.popBackStack()
+            }
+
+        }.exhaustive
     }
 }
