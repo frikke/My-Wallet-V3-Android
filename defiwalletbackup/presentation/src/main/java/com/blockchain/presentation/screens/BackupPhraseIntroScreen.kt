@@ -59,7 +59,8 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
 @Composable
 fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
-    // todo (othman) check with ethan what to show
+    // todo (othman) check with ethan what to show in case we can't get mnemonic
+    // most likely never going to happen
     showError: Boolean,
     backOnClick: () -> Unit,
     backUpNowOnClick: () -> Unit
