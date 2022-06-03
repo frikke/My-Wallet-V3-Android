@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.featureflag.FeatureFlag
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -10,12 +11,20 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
 class NftAnnouncement(
-    dismissRecorder: DismissRecorder
+    dismissRecorder: DismissRecorder,
+    private val showNftAnnouncementFeatureFlag: FeatureFlag
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
 
-    override fun shouldShow(): Single<Boolean> = Single.just(!dismissEntry.isDismissed)
+    override fun shouldShow(): Single<Boolean> {
+        return Single.zip(
+            showNftAnnouncementFeatureFlag.enabled,
+            Single.just(dismissEntry.isDismissed)
+        ) { enabled, dismissed ->
+            enabled && dismissed.not()
+        }
+    }
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

@@ -17,6 +17,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.showNftAnnouncementFeatureFlag
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
@@ -176,6 +177,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(showNftAnnouncementFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_nft_announcement",
+                "Show Nft Announcement"
             )
         )
     }.bind(FeatureFlag::class)
