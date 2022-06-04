@@ -4,5 +4,5 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.outcome.Outcome
 
 interface NftWaitlistService {
-    suspend fun addToWaitlist(userEmail: String): Outcome<ApiError, Unit>
+    suspend fun joinWaitlist(): Outcome<ApiError, Unit>
 }

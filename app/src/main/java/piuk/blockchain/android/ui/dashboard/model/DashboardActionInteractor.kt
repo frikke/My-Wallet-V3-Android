@@ -45,7 +45,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
@@ -648,11 +647,8 @@ class DashboardActionInteractor(
             }
         )
 
-    fun subscribeToNftWaitlist(model: DashboardModel): Disposable {
-        return rxSingle {
-            val email = userIdentity.getBasicProfileInformation().await().email
-            nftWaitlistService.addToWaitlist(userEmail = email)
-        }.subscribeBy(
+    fun joinNftWaitlist(model: DashboardModel): Disposable {
+        return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
             onSuccess = { result ->
                 model.process(DashboardIntent.NftWaitlistSubscriptionComplete(isSuccessful = result is Outcome.Success))
             },

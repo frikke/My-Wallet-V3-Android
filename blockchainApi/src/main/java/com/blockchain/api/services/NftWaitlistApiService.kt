@@ -8,10 +8,6 @@ import com.blockchain.outcome.Outcome
 class NftWaitlistApiService internal constructor(
     private val nftWaitlistApi: NftWaitlistApi
 ) {
-    suspend fun subscribeToNftWaitlist(
-        nftWaitlistDto: NftWaitlistDto
-    ): Outcome<ApiError, Unit> =
-        nftWaitlistApi.subscribeToNftWaitlist(
-            nftWaitlistDto = nftWaitlistDto
-        )
+    suspend fun joinNftWaitlist(nftWaitlistDto: NftWaitlistDto): Outcome<ApiError, Unit> =
+        nftWaitlistApi.joinNftWaitlist(nftWaitlistDto = nftWaitlistDto)
 }

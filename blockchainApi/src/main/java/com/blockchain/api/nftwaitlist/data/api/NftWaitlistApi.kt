@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 internal interface NftWaitlistApi {
     @POST("explorer-gateway/features/subscribe")
-    suspend fun subscribeToNftWaitlist(
+    suspend fun joinNftWaitlist(
         @Body nftWaitlistDto: NftWaitlistDto
     ): Outcome<ApiError, Unit>
 }

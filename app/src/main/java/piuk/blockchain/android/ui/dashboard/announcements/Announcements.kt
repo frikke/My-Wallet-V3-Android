@@ -43,7 +43,7 @@ interface AnnouncementHost {
     fun showBankLinking()
     fun openBrowserLink(url: String)
 
-    fun subscribeToNftWaitlist()
+    fun joinNftWaitlist()
 }
 
 abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {

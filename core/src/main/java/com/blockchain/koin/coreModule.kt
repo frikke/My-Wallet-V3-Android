@@ -400,7 +400,8 @@ val coreModule = module {
 
         scoped<NftWaitlistService> {
             NftWailslitRepository(
-                nftWaitlistApiService = get()
+                nftWaitlistApiService = get(),
+                userIdentity = get()
             )
         }
     }

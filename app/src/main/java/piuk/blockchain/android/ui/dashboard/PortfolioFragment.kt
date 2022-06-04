@@ -749,8 +749,8 @@ class PortfolioFragment :
             startActivity(RecurringBuyOnboardingActivity.newInstance(requireActivity(), false))
         }
 
-        override fun subscribeToNftWaitlist() {
-            model.process(DashboardIntent.SubscribeToNftWaitlist)
+        override fun joinNftWaitlist() {
+            model.process(DashboardIntent.JoinNftWaitlist)
         }
     }
 

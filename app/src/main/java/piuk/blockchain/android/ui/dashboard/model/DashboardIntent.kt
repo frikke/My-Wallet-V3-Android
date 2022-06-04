@@ -290,7 +290,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    object SubscribeToNftWaitlist : DashboardIntent() {
+    object JoinNftWaitlist : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
                 announcement = (oldState.announcement as ApiAnnouncementCard).copy(
@@ -306,7 +306,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
                 announcement = (oldState.announcement as ApiAnnouncementCard).copy(
-                    apiStatus = if (!isSuccessful) ApiAnnouncementCard.ApiStatus.SUCCESS
+                    apiStatus = if (isSuccessful) ApiAnnouncementCard.ApiStatus.SUCCESS
                     else ApiAnnouncementCard.ApiStatus.ERROR
                 )
             )
