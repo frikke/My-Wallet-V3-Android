@@ -276,7 +276,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             NftAnnouncement(
                 dismissRecorder = get(),
-                showNftAnnouncementFeatureFlag = get(showNftAnnouncementFeatureFlag)
+                showNftAnnouncementFF = get(showNftAnnouncementFeatureFlag)
             )
         }.bind(AnnouncementRule::class)
     }

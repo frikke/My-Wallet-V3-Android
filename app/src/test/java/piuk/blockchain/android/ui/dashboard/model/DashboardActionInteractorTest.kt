@@ -1,10 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -16,12 +18,14 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -40,10 +44,13 @@ class DashboardActionInteractorTest {
     private val bankService: BankService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val userIdentity: NabuUserIdentity = mock()
+    private val nftWaitlistService: NftWaitlistService = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
     }
+
+    private val apiError: ApiError = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -66,6 +73,7 @@ class DashboardActionInteractorTest {
             onboardingPrefs = mock(),
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
+            nftWaitlistService = nftWaitlistService,
             exchangeRates = mock(),
             bankService = bankService
         )
@@ -289,5 +297,31 @@ class DashboardActionInteractorTest {
 
         verify(userIdentity).getHighestApprovedKycTier()
         verifyNoMoreInteractions(userIdentity)
+    }
+
+    @Test
+    fun `GIVEN joinWaitlist Successful, WHEN joinNftWaitlist is called, THEN NftWaitlistSubscriptionComplete(true) should be returned`() {
+        nftWaitlistService.stub {
+            onBlocking { nftWaitlistService.joinWaitlist() }.thenReturn(Outcome.Success(Unit))
+        }
+
+        actionInteractor.joinNftWaitlist(model = model)
+
+        verify(model).process(
+            DashboardIntent.NftWaitlistSubscriptionComplete(true)
+        )
+    }
+
+    @Test
+    fun `GIVEN joinWaitlist Unsuccessful, WHEN joinNftWaitlist is called, THEN NftWaitlistSubscriptionComplete(false) should be returned`() {
+        nftWaitlistService.stub {
+            onBlocking { nftWaitlistService.joinWaitlist() }.thenReturn(Outcome.Failure(apiError))
+        }
+
+        actionInteractor.joinNftWaitlist(model = model)
+
+        verify(model).process(
+            DashboardIntent.NftWaitlistSubscriptionComplete(false)
+        )
     }
 }

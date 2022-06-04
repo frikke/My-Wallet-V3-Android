@@ -302,7 +302,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun isValidFor(oldState: DashboardState) = oldState.announcement is ApiAnnouncementCard
     }
 
-    class NftWaitlistSubscriptionComplete(private val isSuccessful: Boolean) : DashboardIntent() {
+    data class NftWaitlistSubscriptionComplete(private val isSuccessful: Boolean) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
                 announcement = (oldState.announcement as ApiAnnouncementCard).copy(

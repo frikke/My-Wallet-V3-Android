@@ -12,14 +12,14 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
 
 class NftAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val showNftAnnouncementFeatureFlag: FeatureFlag
+    private val showNftAnnouncementFF: FeatureFlag
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
 
     override fun shouldShow(): Single<Boolean> {
         return Single.zip(
-            showNftAnnouncementFeatureFlag.enabled,
+            showNftAnnouncementFF.enabled,
             Single.just(dismissEntry.isDismissed)
         ) { enabled, dismissed ->
             enabled && dismissed.not()
@@ -41,7 +41,7 @@ class NftAnnouncement(
                     host.dismissAnnouncementCard()
                 },
                 ctaFunction = {
-                    host.subscribeToNftWaitlist()
+                    host.joinNftWaitlist()
                 },
                 successFunction = {
                     host.dismissAnnouncementCard()
