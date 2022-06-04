@@ -40,6 +40,12 @@ class DashboardModel(
                 }
             }
             DashboardIntent.ShowAppRating -> null
+
+            DashboardIntent.SubscribeToNftWaitlist -> {
+                interactor.subscribeToNftWaitlist(this)
+            }
+            is DashboardIntent.NftWaitlistSubscriptionComplete -> null
+
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
             is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is DashboardIntent.UpdateAllAssetsAndBalances -> {

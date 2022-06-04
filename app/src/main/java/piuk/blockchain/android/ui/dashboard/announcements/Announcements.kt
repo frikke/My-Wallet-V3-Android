@@ -42,6 +42,8 @@ interface AnnouncementHost {
     fun showFiatFundsKyc()
     fun showBankLinking()
     fun openBrowserLink(url: String)
+
+    fun subscribeToNftWaitlist()
 }
 
 abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {

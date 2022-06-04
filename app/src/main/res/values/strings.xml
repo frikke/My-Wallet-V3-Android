@@ -951,6 +951,7 @@
     <string name="nft_announcement_title">View NFTs In Your Wallet</string>
     <string name="nft_announcement_description">Soon you will be able to view your NFTs right from the comfort of your wallet.</string>
     <string name="nft_announcement_action">Join Waitlist</string>
+    <string name="nft_announcement_action_failure">Try Again</string>
 
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>

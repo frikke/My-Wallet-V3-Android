@@ -27,6 +27,8 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
+import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -64,7 +66,6 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -103,6 +104,7 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
+import java.util.UUID
 
 val coreModule = module {
 
@@ -395,6 +397,12 @@ val coreModule = module {
                 referralFlag = get(referralsFeatureFlag)
             )
         }.bind(ReferralService::class)
+
+        scoped<NftWaitlistService> {
+            NftWailslitRepository(
+                nftWaitlistApiService = get()
+            )
+        }
     }
 
     single {
