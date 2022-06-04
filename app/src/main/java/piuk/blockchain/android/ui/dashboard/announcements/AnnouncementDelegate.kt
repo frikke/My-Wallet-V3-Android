@@ -280,8 +280,8 @@ class ApiAnnouncementDelegate<in T>(private val analytics: Analytics) :
 
             if (announcement.ctaText != 0) {
                 when {
-                    announcement.apiStatus == ApiStatus.ERROR
-                        && announcement.ctaTextOnFailure != 0 -> {
+                    announcement.apiStatus == ApiStatus.ERROR &&
+                        announcement.ctaTextOnFailure != 0 -> {
                         ctaBtn.text = ctaBtn.context.getString(announcement.ctaTextOnFailure)
                     }
 

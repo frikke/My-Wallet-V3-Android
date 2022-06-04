@@ -3,8 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements.rule
 import com.blockchain.featureflag.FeatureFlag
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import io.mockk.every
-import io.mockk.mockk
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test

@@ -1,12 +1,12 @@
 package com.blockchain.api.nftwaitlist.data.model
 
-import org.junit.Test
 import kotlin.test.assertEquals
+import org.junit.Test
 
-class NftWaitlistDtoTest{
+class NftWaitlistDtoTest {
 
     @Test
-    fun testBuild(){
+    fun testBuild() {
         val result = NftWaitlistDto.build("email")
 
         assertEquals("email", result.email)

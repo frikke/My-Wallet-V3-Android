@@ -18,4 +18,3 @@ class NftWaitlistDto private constructor(
 
 @Serializable
 object UserDataDto
-
