@@ -116,10 +116,17 @@ fun BlockchainCardNavHost(
                         linkedAccountBalance = state.linkedAccountBalance,
                         onManageCardDetails = {
                             viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
+                        },
+                        onChoosePaymentMethod = {
+                            viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
+                        },
+                        onTopUp = {
+                            viewModel.onIntent(BlockchainCardIntent.TopUp)
+                        },
+                        onRefreshBalance = {
+                            viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
                         }
-                    ) {
-                        viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
-                    }
+                    )
                 }
             }
         }

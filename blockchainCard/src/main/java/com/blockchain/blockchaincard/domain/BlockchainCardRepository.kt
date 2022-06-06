@@ -5,8 +5,10 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.outcome.Outcome
+import info.blockchain.balance.AssetInfo
 
 interface BlockchainCardRepository {
     suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>>
@@ -53,4 +55,8 @@ interface BlockchainCardRepository {
     ): Outcome<BlockchainCardError, TradingAccount>
 
     suspend fun loadAccountBalance(tradingAccount: BlockchainAccount): Outcome<BlockchainCardError, AccountBalance>
+
+    suspend fun getAsset(networkTicker: String): Outcome<BlockchainCardError, AssetInfo>
+
+    suspend fun getFiatAccount(networkTicker: String): Outcome<BlockchainCardError, FiatAccount>
 }

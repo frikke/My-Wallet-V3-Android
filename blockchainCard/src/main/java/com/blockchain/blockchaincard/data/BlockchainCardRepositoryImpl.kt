@@ -13,6 +13,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
@@ -21,6 +22,8 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapLeft
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import java.math.BigDecimal
@@ -29,7 +32,8 @@ import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val authenticator: Authenticator,
-    private val coincore: Coincore
+    private val coincore: Coincore,
+    private val assetCatalogue: AssetCatalogue
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -247,6 +251,22 @@ internal class BlockchainCardRepositoryImpl(
         tradingAccount.balance.firstOrError().awaitOutcome().mapLeft {
             BlockchainCardError.GetAccountBalanceFailed
         }
+
+    override suspend fun getAsset(networkTicker: String): Outcome<BlockchainCardError, AssetInfo> =
+        assetCatalogue.assetInfoFromNetworkTicker(networkTicker)?.let { asset ->
+            Outcome.Success(asset)
+        }
+            ?: Outcome.Failure(BlockchainCardError.GetAssetFailed)
+
+    override suspend fun getFiatAccount(networkTicker: String): Outcome<BlockchainCardError, FiatAccount> =
+        coincore.allWallets().awaitOutcome()
+            .mapLeft {
+                BlockchainCardError.LoadAllWalletsFailed
+            }.map { accountGroup ->
+                accountGroup.accounts.filterIsInstance<FiatAccount>().first { tradingAccount ->
+                    tradingAccount.currency.networkTicker == networkTicker
+                }
+            }
 
     //
     // Domain Model Conversion

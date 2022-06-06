@@ -20,6 +20,7 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object ManageCardDetails : BlockchainCardIntent()
     object LoadCardWidget : BlockchainCardIntent()
     object ChoosePaymentMethod : BlockchainCardIntent()
+    object TopUp : BlockchainCardIntent()
     data class LinkSelectedAccount(val accountCurrencyNetworkTicker: String) : BlockchainCardIntent()
     object LoadLinkedAccount : BlockchainCardIntent()
     data class LoadAccountBalance(val tradingAccount: BlockchainAccount) : BlockchainCardIntent()

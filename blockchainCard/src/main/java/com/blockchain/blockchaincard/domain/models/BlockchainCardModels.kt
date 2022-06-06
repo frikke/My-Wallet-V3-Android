@@ -20,6 +20,8 @@ sealed class BlockchainCardError {
     object LoadAllWalletsFailed : BlockchainCardError()
     object LockCardRequestFailed : BlockchainCardError()
     object UnlockCardRequestFailed : BlockchainCardError()
+    object GetAssetFailed : BlockchainCardError()
+    object GetFiatAccountFailed : BlockchainCardError()
 }
 
 @Parcelize
