@@ -77,7 +77,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
@@ -124,7 +124,7 @@ class PaymentsRepository(
     ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         val auth = authenticator.getAuthHeader().await()
-        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapLeft { apiError: ApiError ->
+        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapError { apiError: ApiError ->
             when (apiError) {
                 is ApiError.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
                 is ApiError.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
@@ -268,7 +268,7 @@ class PaymentsRepository(
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
             getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
-                .mapLeft {
+                .mapError {
                     when (it) {
                         is PaymentMethodsError.RequestFailed -> Exception(it.message)
                     }

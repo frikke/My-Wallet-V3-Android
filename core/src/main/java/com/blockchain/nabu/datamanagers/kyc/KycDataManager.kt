@@ -8,7 +8,7 @@ import com.blockchain.nabu.models.responses.nabu.NodeId
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
@@ -26,15 +26,15 @@ class KycDataManager(
     suspend fun getQuestionnaire(): Outcome<KycError, List<KycQuestionnaireNode>> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { authToken -> kycService.getQuestionnaire(authToken) }
-            .mapLeft { KycError.REQUEST_FAILED }
+            .mapError { KycError.REQUEST_FAILED }
             .map { it?.toDomain() ?: emptyList() }
 
     suspend fun submitQuestionnaire(nodes: List<KycQuestionnaireNode>): Outcome<SubmitQuestionnaireError, Unit> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { SubmitQuestionnaireError.RequestFailed }
+            .mapError { SubmitQuestionnaireError.RequestFailed }
             .flatMap { authToken ->
                 kycService.submitQuestionnaire(authToken, nodes.toNetwork())
-                    .mapLeft {
+                    .mapError {
                         val nodeId = it.tryParseNodeIdFromApiError()
                         if (nodeId != null) {
                             SubmitQuestionnaireError.InvalidNode(nodeId)

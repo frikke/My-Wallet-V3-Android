@@ -14,7 +14,7 @@ import com.blockchain.core.price.model.AssetPriceRecord2
 import com.blockchain.domain.common.model.toSeconds
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.store.asObservable
 import info.blockchain.balance.AssetCatalogue
@@ -50,7 +50,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun init(): Completable =
         isNewAssetPriceStoreFFEnabled().flatMapCompletable { enabled ->
-            if (enabled) rxCompletableOutcome { priceStore2.warmSupportedTickersCache().mapLeft(::toRxThrowable) }
+            if (enabled) rxCompletableOutcome { priceStore2.warmSupportedTickersCache().mapError(::toRxThrowable) }
             else priceStore.init().ignoreElement()
         }
 
@@ -267,7 +267,7 @@ internal class ExchangeRatesDataManagerImpl(
                 rxSingleOutcome {
                     priceStore2.getHistoricalPriceForAsset(asset, userFiat, span)
                         .map { prices -> prices.map { it.toHistoricalRate() } }
-                        .mapLeft(::toRxThrowable)
+                        .mapError(::toRxThrowable)
                 }
             } else {
                 val scale = span.suggestTimescaleInterval()
@@ -291,7 +291,7 @@ internal class ExchangeRatesDataManagerImpl(
                 rxSingleOutcome {
                     priceStore2.getHistoricalPriceForAsset(asset, userFiat, HistoricalTimeSpan.DAY)
                         .map { prices -> prices.map { it.toHistoricalRate() } }
-                        .mapLeft(::toRxThrowable)
+                        .mapError(::toRxThrowable)
                 }
             } else {
                 sparklineCall.fetch(asset, userFiat)

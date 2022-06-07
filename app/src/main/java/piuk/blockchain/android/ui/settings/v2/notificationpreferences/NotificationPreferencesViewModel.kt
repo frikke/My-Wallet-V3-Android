@@ -8,7 +8,9 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.map
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -80,17 +82,10 @@ class NotificationPreferencesViewModel(
         updateState { NotificationPreferencesModelState.Loading }
         viewModelScope.launch(ioDispatcher) {
             interactor.getNotificationPreferences()
-                .fold(
-                    onFailure = {
-                        updateState {
-                            Timber.e("Error fetching preference", it)
-                            NotificationPreferencesModelState.Error
-                        }
-                    },
-                    onSuccess = { prefs ->
-                        updateState { NotificationPreferencesModelState.Data(prefs) }
-                    }
-                )
+                .map { NotificationPreferencesModelState.Data(it) }
+                .doOnFailure { Timber.e("Error fetching preference", NotificationPreferencesModelState.Error) }
+                .getOrDefault(NotificationPreferencesModelState.Error)
+                .also { state -> updateState { state } }
         }
     }
 }

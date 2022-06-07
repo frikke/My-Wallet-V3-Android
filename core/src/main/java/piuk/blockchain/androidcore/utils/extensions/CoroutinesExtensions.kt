@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.utils.extensions
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.getOrThrow
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -16,30 +17,21 @@ fun <E, R : Any> rxSingleOutcome(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Outcome<E, R>
 ): Single<R> = rxSingle(context) {
-    when (val outcome = block(this)) {
-        is Outcome.Success -> outcome.value
-        is Outcome.Failure -> throw (outcome.failure as? Throwable ?: Exception())
-    }
+    block(this).getOrThrow()
 }
 
 fun <E, R : Any?> rxMaybeOutcome(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Outcome<E, R?>
 ): Maybe<R> = rxMaybe(context) {
-    when (val outcome = block(this)) {
-        is Outcome.Success -> outcome.value
-        is Outcome.Failure -> throw (outcome.failure as? Throwable ?: Exception())
-    }
+    block(this).getOrThrow()
 }
 
 fun <E, R : Any> rxCompletableOutcome(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend CoroutineScope.() -> Outcome<E, R>
 ): Completable = rxCompletable(context) {
-    val outcome = block(this)
-    if (outcome is Outcome.Failure) {
-        throw (outcome.failure as? Throwable ?: Exception())
-    }
+    block(this).getOrThrow()
 }
 
 suspend fun <T : Any> Single<T>.awaitOutcome(): Outcome<Exception, T> =

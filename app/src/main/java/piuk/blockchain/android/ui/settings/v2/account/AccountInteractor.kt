@@ -8,9 +8,9 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
@@ -56,7 +56,7 @@ class AccountInteractor internal constructor(
 
     suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
         blockchainCardRepository.getCards()
-            .mapLeft { BlockchainCardError.GetCardsRequestFailed }
+            .mapError { BlockchainCardError.GetCardsRequestFailed }
             .flatMap { cards ->
                 val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
                 if (activeCards.isNotEmpty()) {
@@ -64,7 +64,7 @@ class AccountInteractor internal constructor(
                     Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first()))
                 } else {
                     blockchainCardRepository.getProducts()
-                        .mapLeft { BlockchainCardError.GetProductsRequestFailed }
+                        .mapError { BlockchainCardError.GetProductsRequestFailed }
                         .map { products ->
                             if (products.isNotEmpty())
                                 BlockchainCardOrderState.Eligible(products)
@@ -74,8 +74,5 @@ class AccountInteractor internal constructor(
                 }
             }
 
-    suspend fun getReferralData() = referralService.fetchReferralData().fold(
-        onSuccess = { it },
-        onFailure = { ReferralInfo.NotAvailable }
-    )
+    suspend fun getReferralData() = referralService.fetchReferralData().getOrDefault(ReferralInfo.NotAvailable)
 }

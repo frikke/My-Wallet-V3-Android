@@ -8,6 +8,8 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import kotlinx.coroutines.CoroutineScope
@@ -43,10 +45,7 @@ internal class AppRatingRepository(
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
-        return appRatingRemoteConfig.getThreshold().fold(
-            onSuccess = { it },
-            onFailure = { defaultThreshold }
-        )
+        return appRatingRemoteConfig.getThreshold().getOrDefault(defaultThreshold)
     }
 
     override fun postRatingData(appRating: AppRating, forceRetrigger: Boolean) {
