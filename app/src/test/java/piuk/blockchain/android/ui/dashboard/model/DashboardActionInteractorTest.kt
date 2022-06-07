@@ -50,8 +50,6 @@ class DashboardActionInteractorTest {
         on { currency }.thenReturn(USD)
     }
 
-    private val apiError: ApiError = mock()
-
     @get:Rule
     val rx = rxInit {
         ioTrampoline()
