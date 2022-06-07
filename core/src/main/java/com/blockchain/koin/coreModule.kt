@@ -27,6 +27,8 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
+import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.payments.cache.LinkedCardsStore
@@ -50,6 +52,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -395,6 +398,13 @@ val coreModule = module {
                 referralFlag = get(referralsFeatureFlag)
             )
         }.bind(ReferralService::class)
+
+        scoped<NftWaitlistService> {
+            NftWailslitRepository(
+                nftWaitlistApiService = get(),
+                userIdentity = get()
+            )
+        }
     }
 
     single {
@@ -449,6 +459,7 @@ val coreModule = module {
         bind(SecureChannelPrefs::class)
         bind(OnboardingPrefs::class)
         bind(AppRatingPrefs::class)
+        bind(NftAnnouncementPrefs::class)
     }
 
     factory {

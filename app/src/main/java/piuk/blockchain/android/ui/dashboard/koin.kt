@@ -49,7 +49,9 @@ val dashboardModule = module {
                 analytics = get(),
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
-                getDashboardOnboardingStepsUseCase = get()
+                getDashboardOnboardingStepsUseCase = get(),
+                nftWaitlistService = get(),
+                nftAnnouncementPrefs = get()
             )
         }
 

@@ -11,6 +11,7 @@ import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
 import com.blockchain.domain.paymentmethods.BankService
@@ -23,7 +24,9 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
@@ -44,6 +47,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
@@ -67,6 +71,8 @@ class DashboardActionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
+    private val nftWaitlistService: NftWaitlistService,
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger
@@ -642,6 +648,17 @@ class DashboardActionInteractor(
                 Timber.e(it)
             }
         )
+
+    fun joinNftWaitlist(): Disposable {
+        return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
+            onSuccess = { result ->
+                nftAnnouncementPrefs.isJoinNftWaitlistSuccessful = result is Outcome.Success
+            },
+            onError = {
+                Timber.e(it)
+            }
+        )
+    }
 
     companion object {
         private val FLATLINE_CHART = listOf(

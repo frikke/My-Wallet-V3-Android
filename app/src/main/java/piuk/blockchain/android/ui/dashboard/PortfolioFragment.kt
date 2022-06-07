@@ -748,6 +748,10 @@ class PortfolioFragment :
         override fun startRecurringBuyUpsell() {
             startActivity(RecurringBuyOnboardingActivity.newInstance(requireActivity(), false))
         }
+
+        override fun joinNftWaitlist() {
+            model.process(DashboardIntent.JoinNftWaitlist)
+        }
     }
 
     // DialogBottomSheet.Host

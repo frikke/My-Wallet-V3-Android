@@ -947,6 +947,11 @@
     <string name="wallet_connect_announcement_card_subtitle">Securely connect your wallet to any web 3.0 application. </string>
     <string name="wallet_connect_announcement_action">Learn More</string>
 
+    <!-- NFT announcement -->
+    <string name="nft_announcement_title">View NFTs In Your Wallet</string>
+    <string name="nft_announcement_description">Soon you will be able to view your NFTs right from the comfort of your wallet.</string>
+    <string name="nft_announcement_action">Join Waitlist</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
