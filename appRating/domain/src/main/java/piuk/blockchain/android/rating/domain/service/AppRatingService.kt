@@ -5,7 +5,7 @@ import piuk.blockchain.android.rating.domain.model.AppRating
 
 interface AppRatingService {
     suspend fun getThreshold(): Int
-    fun postRatingData(appRating: AppRating, forceRetrigger: Boolean)
+    fun postRatingData(appRating: AppRating)
 
     /**
      * * has not rated before

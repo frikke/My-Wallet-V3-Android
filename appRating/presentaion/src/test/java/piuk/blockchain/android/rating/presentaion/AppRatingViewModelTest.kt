@@ -90,11 +90,11 @@ class AppRatingViewModelTest {
     fun `WHEN InAppReviewRequested is called, THEN postRatingData should be called, dismiss should be true`() =
         runTest {
             viewModel.viewState.test {
-                coEvery { appRatingService.postRatingData(any(), any()) } just Runs
+                coEvery { appRatingService.postRatingData(any()) } just Runs
 
                 viewModel.onIntent(AppRatingIntents.InAppReviewRequested(successful = true))
 
-                coVerify(exactly = 1) { appRatingService.postRatingData(any(), any()) }
+                coVerify(exactly = 1) { appRatingService.postRatingData(any()) }
                 assertEquals(true, expectMostRecentItem().dismiss)
             }
         }
@@ -108,13 +108,13 @@ class AppRatingViewModelTest {
                     feedback = "$feedback$SEPARATOR$WALLET_ID$walletGuid$SEPARATOR$SCREEN${appRatingTriggerSource.value}"
                 )
                 coEvery { appRatingService.getThreshold() } returns 3
-                coEvery { appRatingService.postRatingData(any(), forceRetrigger = false) } just Runs
+                coEvery { appRatingService.postRatingData(any()) } just Runs
 
                 viewModel.viewCreated(appRatingTriggerSource)
                 viewModel.onIntent(AppRatingIntents.StarsSubmitted(stars = 3))
                 viewModel.onIntent(AppRatingIntents.FeedbackSubmitted(feedback = feedback))
 
-                coVerify(exactly = 1) { appRatingService.postRatingData(data, forceRetrigger = false) }
+                coVerify(exactly = 1) { appRatingService.postRatingData(data) }
                 assertEquals(true, expectMostRecentItem().dismiss)
             }
         }

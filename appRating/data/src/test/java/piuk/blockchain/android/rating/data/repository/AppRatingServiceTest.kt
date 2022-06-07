@@ -109,27 +109,15 @@ class AppRatingServiceTest {
     }
 
     @Test
-    fun `GIVEN success apiKeys, success appRatingApi, forceRetrigger false, WHEN postRatingData is called, THEN completed should be true`() =
+    fun `GIVEN success apiKeys, success appRatingApi, WHEN postRatingData is called, THEN completed should be true`() =
         runTest {
             coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Success(apiKeys)
             coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Success(true)
 
-            appRatingService.postRatingData(appRating, forceRetrigger = false)
+            appRatingService.postRatingData(appRating)
 
             verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
             verify(exactly = 1) { appRatingPrefs.completed = true }
-        }
-
-    @Test
-    fun `GIVEN success apiKeys, success appRatingApi, forceRetrigger true, WHEN postRatingData is called, THEN true should be returned`() =
-        runTest {
-            coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Success(apiKeys)
-            coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Success(true)
-
-            appRatingService.postRatingData(appRating, forceRetrigger = true)
-
-            verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
-            verify(exactly = 0) { appRatingPrefs.completed = true }
         }
 
     @Test
@@ -138,7 +126,7 @@ class AppRatingServiceTest {
             coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Success(apiKeys)
             coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Failure(mockk())
 
-            appRatingService.postRatingData(appRating, forceRetrigger = false)
+            appRatingService.postRatingData(appRating)
 
             verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
             verify(exactly = 0) { appRatingPrefs.completed = true }
@@ -148,7 +136,7 @@ class AppRatingServiceTest {
     fun `GIVEN failure apiKeys, WHEN postRatingData is called, THEN false should be returned`() = runTest {
         coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Failure(Throwable())
 
-        appRatingService.postRatingData(appRating, forceRetrigger = false)
+        appRatingService.postRatingData(appRating)
 
         verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
         verify(exactly = 0) { appRatingPrefs.completed = true }

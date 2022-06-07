@@ -83,10 +83,12 @@ class AppRatingViewModel(
     }
 
     private fun inAppReviewRequested(successful: Boolean) {
-        // forceRetrigger will be used in postRatingData request
-        updateState { it.copy(forceRetrigger = successful.not()) }
+        if (successful) {
+            postRatingData()
+        } else {
+            appRatingService.saveRatingDateForLater()
+        }
 
-        postRatingData()
         ratingCompleted()
     }
 
@@ -104,8 +106,7 @@ class AppRatingViewModel(
             appRating = AppRating(
                 rating = modelState.stars,
                 feedback = modelState.feedbackFormatted()
-            ),
-            forceRetrigger = modelState.forceRetrigger
+            )
         )
     }
 }

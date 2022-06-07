@@ -5,7 +5,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
@@ -45,26 +46,16 @@ internal class AppRatingRepository(
         return appRatingRemoteConfig.getThreshold().getOrDefault(defaultThreshold)
     }
 
-    override fun postRatingData(appRating: AppRating, forceRetrigger: Boolean) {
+    override fun postRatingData(appRating: AppRating) {
         externalScope.launch(dispatcher) {
 
             // get api keys from remote config
-            val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().fold(
-                onSuccess = { it },
-                onFailure = { null }
-            )
+            val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrDefault(null)
 
             apiKeys?.let {
-                val successful = appRatingApi.postRatingData(
-                    apiKeys = apiKeys,
-                    appRating = appRating
-                ).getOrDefault(false)
-
-                if (successful && forceRetrigger.not()) {
-                    markRatingCompleted()
-                } else {
-                    saveRatingDateForLater()
-                }
+                appRatingApi.postRatingData(apiKeys = apiKeys, appRating = appRating)
+                    .doOnSuccess { markRatingCompleted() }
+                    .doOnFailure { saveRatingDateForLater() }
             } ?: kotlin.run {
                 // if for some reason we can't get api keys, or json is damaged, we save to retrigger again in 1 month
                 saveRatingDateForLater()
