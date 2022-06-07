@@ -50,64 +50,86 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/receive_account_details" />
 
-        <ProgressBar
-            android:id="@+id/progressbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:layout_constraintBottom_toBottomOf="@+id/qrImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/qrImage" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/qrImage"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/small_margin"
-            android:contentDescription="@string/scan_qr"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/receive_account_details" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/wallet_address_label"
-            style="@style/Text.Semibold.16"
-            android:layout_width="0dp"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/content_scroll"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/tiny_margin"
-            android:text="@string/receive_details_address_label"
+            android:layout_marginBottom="@dimen/tiny_margin"
+            android:fadeScrollbars="true"
+            android:fadingEdgeLength="@dimen/very_small_margin"
+            android:requiresFadingEdge="vertical"
+            android:scrollbars="vertical"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@id/copy_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/qrImage"
-            />
+            app:layout_constraintTop_toBottomOf="@id/separator">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/receiving_address"
-            style="@style/Text.Standard.14"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginTop="@dimen/smallest_margin"
-            android:layout_marginBottom="@dimen/small_margin"
-            android:ellipsize="middle"
-            android:gravity="start|center_vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wallet_address_label"
-            tools:text="Some bitcoin address" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <com.blockchain.componentlib.alert.CardAlertView
-            android:id="@+id/network_alert"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_margin"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receiving_address"
-            android:visibility="gone"
-            />
+                <ProgressBar
+                    android:id="@+id/progressbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:layout_constraintBottom_toBottomOf="@+id/qrImage"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/qrImage" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/qrImage"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/small_margin"
+                    android:contentDescription="@string/scan_qr"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/wallet_address_label"
+                    style="@style/Text.Semibold.16"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/tiny_margin"
+                    android:text="@string/receive_details_address_label"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/qrImage" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/receiving_address"
+                    style="@style/Text.Standard.14"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    android:layout_marginTop="@dimen/smallest_margin"
+                    android:layout_marginBottom="@dimen/small_margin"
+                    android:ellipsize="middle"
+                    android:gravity="start|center_vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/wallet_address_label"
+                    tools:text="Some bitcoin address" />
+
+                <com.blockchain.componentlib.alert.CardAlertView
+                    android:id="@+id/network_alert"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/small_margin"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/receiving_address"
+                    tools:visibility="visible" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
 
         <Button
             android:id="@+id/copy_button"
@@ -118,7 +140,7 @@
             android:text="@string/receive_copy"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/network_alert"
+            app:layout_constraintTop_toBottomOf="@id/content_scroll"
             app:layout_goneMarginBottom="@dimen/small_margin" />
 
         <androidx.core.widget.NestedScrollView
