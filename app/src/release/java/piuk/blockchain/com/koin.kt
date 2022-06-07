@@ -1,6 +1,7 @@
 package piuk.blockchain.com
 
 import com.blockchain.preferences.FeatureFlagOverridePrefs
+import com.blockchain.walletmode.WalletModeService
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
