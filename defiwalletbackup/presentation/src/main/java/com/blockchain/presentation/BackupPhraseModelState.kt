@@ -10,5 +10,5 @@ data class BackupPhraseModelState(
     val mnemonic: List<String> = emptyList(),
     val copyState: CopyState = CopyState.IDLE,
     val mnemonicVerificationStatus: UserMnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
-    val flowStatus: FlowStatus = FlowStatus.InProgress
+    val flowState: FlowState = FlowState.InProgress
 ) : ModelState

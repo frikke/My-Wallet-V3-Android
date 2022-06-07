@@ -48,7 +48,7 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
-            showError = state.isError,
+            showError = state.showError,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
             backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
         )

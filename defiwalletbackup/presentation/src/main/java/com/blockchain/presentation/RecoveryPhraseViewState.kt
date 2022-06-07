@@ -13,12 +13,12 @@ const val TOTAL_STEP_COUNT = 2
 
 data class BackupPhraseViewState(
     val showLoading: Boolean,
-    val isError: Boolean,
+    val showError: Boolean,
     val mnemonic: List<String>,
     val backUpStatus: BackUpStatus,
     val copyState: CopyState,
     val mnemonicVerificationStatus: UserMnemonicVerificationStatus,
-    val flowStatus: FlowStatus
+    val flowState: FlowState
 ) : ViewState
 
 enum class BackUpStatus(
@@ -50,7 +50,7 @@ enum class UserMnemonicVerificationStatus {
     NO_STATUS, VERIFIED, INCORRECT
 }
 
-sealed interface FlowStatus {
-    object InProgress : FlowStatus
-    data class Ended(val isSuccessful: Boolean) : FlowStatus
+sealed interface FlowState {
+    object InProgress : FlowState
+    data class Ended(val isSuccessful: Boolean) : FlowState
 }

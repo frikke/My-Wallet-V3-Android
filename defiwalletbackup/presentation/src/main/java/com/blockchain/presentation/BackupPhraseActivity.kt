@@ -46,7 +46,7 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
                 viewModel.viewState.collect { viewState ->
                     with(viewState) {
                         when {
-                            flowStatus is FlowStatus.Ended -> finish(flowStatus.isSuccessful)
+                            flowState is FlowState.Ended -> finish(flowState.isSuccessful)
                             else -> {
                                 /* n/a */
                             }
