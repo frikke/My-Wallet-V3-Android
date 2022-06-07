@@ -8,13 +8,12 @@ import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.serialization.serializer
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class ProductsEligibilityStore(
@@ -27,7 +26,7 @@ class ProductsEligibilityStore(
     storeId = STORE_ID,
     fetcher = Fetcher.ofOutcome {
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft(Throwable::toError)
+            .mapError(Throwable::toError)
             .flatMap {
                 productEligibilityApi.getProductEligibility(it)
                     .map {
@@ -35,7 +34,7 @@ class ProductsEligibilityStore(
                         val products = it.toDomain().associateBy { it.product }
                         ProductsEligibilityData(majorBlocked, products)
                     }
-                    .mapLeft(ApiError::toError)
+                    .mapError(ApiError::toError)
             }
     },
     dataSerializer = ProductsEligibilityData.serializer(),

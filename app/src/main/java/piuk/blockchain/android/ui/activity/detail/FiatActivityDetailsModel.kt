@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.PaymentMethodDetails
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import info.blockchain.balance.FiatCurrency
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,21 +48,19 @@ class FiatActivityDetailsModel(
         viewModelScope.launch {
             withContext(dispatcher) {
                 paymentMethodService.getPaymentMethodDetailsForId(activityItem.paymentMethodId.orEmpty())
-                    .fold(
-                        onSuccess = { paymentMethodDetails ->
-                            internalState.value = internalState.value.copy(
-                                activityItem = activityItem,
-                                paymentDetails = paymentMethodDetails
-                            )
-                        },
-                        onFailure = { error ->
-                            Timber.e("Failed to get PaymentMethodDetails: ${error.name}")
-                            // TODO Map error types to error messages
-                            internalState.value = internalState.value.copy(
-                                errorMessage = "Error: Something went wrong."
-                            )
-                        }
-                    )
+                    .doOnFailure { error ->
+                        Timber.e("Failed to get PaymentMethodDetails: ${error.name}")
+                        // TODO Map error types to error messages
+                        internalState.value = internalState.value.copy(
+                            errorMessage = "Error: Something went wrong."
+                        )
+                    }
+                    .doOnSuccess { paymentMethodDetails ->
+                        internalState.value = internalState.value.copy(
+                            activityItem = activityItem,
+                            paymentDetails = paymentMethodDetails
+                        )
+                    }
             }
         }
     }

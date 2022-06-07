@@ -6,7 +6,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import java.util.Calendar
@@ -37,31 +38,22 @@ internal class AppRatingRepository(
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
-        return appRatingRemoteConfig.getThreshold().fold(
-            onSuccess = { it },
-            onFailure = { defaultThreshold }
-        )
+        return appRatingRemoteConfig.getThreshold().getOrDefault(defaultThreshold)
     }
 
     override suspend fun postRatingData(appRating: AppRating): Boolean {
         // get api keys from remote config
-        val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().fold(
-            onSuccess = { it },
-            onFailure = { null }
-        )
+        val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrNull()
 
         // if for some reason we can't get api keys, or json is damaged, we return false
         // for the vm to retrigger again in 1 month
         return apiKeys?.let {
+            // if there is any error in the api, we return false
+            // for the vm to retrigger again in 1 month
             appRatingApi.postRatingData(
                 apiKeys = apiKeys,
                 appRating = appRating
-            ).fold(
-                // if there is any error in the api, we return false
-                // for the vm to retrigger again in 1 month
-                onSuccess = { true },
-                onFailure = { false }
-            )
+            ).getOrDefault(false)
         } ?: false
     }
 

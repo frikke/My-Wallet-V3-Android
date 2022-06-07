@@ -9,7 +9,6 @@ import com.blockchain.logging.LastTxUpdater
 import com.blockchain.metadata.MetadataEntry
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -32,12 +31,12 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.util.HashMap
-import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.datastores.EthDataStore
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class EthDataManager(
     private val payloadDataManager: PayloadDataManager,
@@ -150,32 +149,22 @@ class EthDataManager(
      * @return An [Observable] wrapping a [Number]
      */
     fun getLatestBlockNumber(nodeUrl: String = EthUrls.ETH_NODES): Single<EthLatestBlockNumber> =
-        rxSingle {
+        rxSingleOutcome {
             ethAccountApi.getLatestBlockNumber(nodeUrl = nodeUrl)
-                .fold(
-                    onSuccess = { latestBlockNumber -> latestBlockNumber },
-                    onFailure = { throw it.throwable }
-                )
         }.applySchedulers()
 
     fun isContractAddress(address: String, nodeUrl: String = EthUrls.ETH_NODES): Single<Boolean> =
-        rxSingle {
+        rxSingleOutcome {
             ethAccountApi.postEthNodeRequest(
                 nodeUrl = nodeUrl,
                 requestType = RequestType.IS_CONTRACT,
                 address,
                 EthJsonRpcRequest.defaultBlock
-            )
-                .fold(
-                    onSuccess = { response ->
-                        // In order to distinguish between these two addresses we need to call eth_getCode,
-                        // which will return contract code if it's a contract and nothing if it's a wallet
-                        response.result.removePrefix(EthUtils.PREFIX).isNotEmpty()
-                    },
-                    onFailure = { error ->
-                        throw error.throwable
-                    }
-                )
+            ).map { response ->
+                // In order to distinguish between these two addresses we need to call eth_getCode,
+                // which will return contract code if it's a contract and nothing if it's a wallet
+                response.result.removePrefix(EthUtils.PREFIX).isNotEmpty()
+            }
         }.applySchedulers()
 
     private fun String.toLocalState() =
@@ -266,21 +255,16 @@ class EthDataManager(
         ethAccountApi.getTransaction(hash)
             .applySchedulers()
 
-    fun getNonce(nodeUrl: String = EthUrls.ETH_NODES): Single<BigInteger> = rxSingle {
+    fun getNonce(nodeUrl: String = EthUrls.ETH_NODES): Single<BigInteger> = rxSingleOutcome {
         ethAccountApi.postEthNodeRequest(
             nodeUrl = nodeUrl,
             requestType = RequestType.GET_NONCE,
             accountAddress,
             EthJsonRpcRequest.defaultBlock
         )
-            .fold(
-                onSuccess = { response ->
-                    EthUtils.convertHexToBigInteger(response.result)
-                },
-                onFailure = { error ->
-                    throw error.throwable
-                }
-            )
+            .map { response ->
+                EthUtils.convertHexToBigInteger(response.result)
+            }
     }
 
     fun signEthTransaction(
@@ -334,16 +318,12 @@ class EthDataManager(
             .applySchedulers()
 
     fun pushEvmTx(signedTxBytes: ByteArray, l1Chain: String): Single<String> =
-        rxSingle {
+        rxSingleOutcome {
             nonCustodialEvmService.pushTransaction(EthUtils.decorateAndEncode(signedTxBytes), l1Chain)
-                .fold(
-                    onFailure = { throw it.throwable },
-                    onSuccess = { response -> response.txId }
-                )
-        }.flatMap {
+        }.flatMap { response ->
             lastTxUpdater.updateLastTxTime()
                 .onErrorComplete()
-                .andThen(Single.just(it))
+                .andThen(Single.just(response.txId))
         }
             .applySchedulers()
 

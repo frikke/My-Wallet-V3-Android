@@ -12,7 +12,8 @@ import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
@@ -27,7 +28,6 @@ import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import timber.log.Timber
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
     payloadManager: PayloadDataManager,
@@ -59,16 +59,10 @@ import timber.log.Timber
         rxSingle {
             // Only get the balance for ETH from the node if we are on the Ethereum network
             if (l1Network.networkTicker == currency.networkTicker) {
+                // TODO AND-5913 Use result/either and coroutines
                 ethDataManager.getBalance()
-                    .fold(
-                        onSuccess = { Money.fromMinor(currency, it) },
-                        onFailure = { error ->
-                            // TODO AND-5913 Use result/either and coroutines
-                            // for getting the balance for non-custodial account
-                            Timber.e(error.throwable)
-                            Money.fromMajor(currency, BigDecimal.ZERO)
-                        }
-                    )
+                    .map { Money.fromMinor(currency, it) }
+                    .getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
             } else {
                 // TODO get the L2 balance of Eth from the backend
                 Money.fromMajor(currency, BigDecimal.ZERO)

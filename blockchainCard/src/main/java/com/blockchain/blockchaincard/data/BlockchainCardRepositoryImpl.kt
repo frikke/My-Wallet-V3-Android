@@ -21,7 +21,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
@@ -38,11 +38,11 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getProducts(
                     tokenResponse
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.GetProductsRequestFailed
                 }.map { response ->
                     response.map {
@@ -53,11 +53,11 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun getCards(): Outcome<BlockchainCardError, List<BlockchainCard>> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getCards(
                     tokenResponse
-                ).mapLeft { BlockchainCardError.GetCardsRequestFailed }.map { response ->
+                ).mapError { BlockchainCardError.GetCardsRequestFailed }.map { response ->
                     response.map {
                         it.toDomainModel()
                     }
@@ -69,25 +69,25 @@ internal class BlockchainCardRepositoryImpl(
         ssn: String
     ): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.createCard(
                     authHeader = tokenResponse,
                     productCode = productCode,
                     ssn = ssn
-                ).mapLeft { BlockchainCardError.CreateCardRequestFailed }.map { card ->
+                ).mapError { BlockchainCardError.CreateCardRequestFailed }.map { card ->
                     card.toDomainModel()
                 }
             }
 
     override suspend fun deleteCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.deleteCard(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.DeleteCardRequestFailed
                 }.map { card ->
                     card.toDomainModel()
@@ -96,12 +96,12 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun lockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.lockCard(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.LockCardRequestFailed
                 }.map { card ->
                     card.toDomainModel()
@@ -110,12 +110,12 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun unlockCard(cardId: String): Outcome<BlockchainCardError, BlockchainCard> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.unlockCard(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.UnlockCardRequestFailed
                 }.map { card ->
                     card.toDomainModel()
@@ -124,12 +124,12 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun getCardWidgetToken(cardId: String): Outcome<BlockchainCardError, String> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getCardWidgetToken(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.GetCardWidgetTokenRequestFailed
                 }.map { widgetToken ->
                     widgetToken.token
@@ -138,16 +138,16 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun getCardWidgetUrl(cardId: String, last4Digits: String): Outcome<BlockchainCardError, String> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getCardWidgetToken(
                     authHeader = tokenResponse,
                     cardId = cardId,
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.GetCardWidgetTokenRequestFailed
                 }.flatMap { widgetToken ->
                     blockchainCardService.getCardWidgetUrl(widgetToken.token, last4Digits)
-                }.mapLeft {
+                }.mapError {
                     BlockchainCardError.GetCardWidgetRequestFailed
                 }
             }
@@ -156,19 +156,19 @@ internal class BlockchainCardRepositoryImpl(
         cardId: String
     ): Outcome<BlockchainCardError, List<TradingAccount>> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft { BlockchainCardError.GetAuthFailed }
+            .mapError { BlockchainCardError.GetAuthFailed }
             .flatMap { tokenResponse ->
                 blockchainCardService.getEligibleAccounts(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.GetEligibleCardAccountsRequestFailed
                 }.flatMap { eligibleAccountsList ->
                     val eligibleCurrencies = eligibleAccountsList.map { cardAccount ->
                         cardAccount.balance.symbol
                     }
 
-                    coincore.allWallets().awaitOutcome().mapLeft {
+                    coincore.allWallets().awaitOutcome().mapError {
                         BlockchainCardError.LoadAllWalletsFailed
                     }.map { accountGroup ->
                         accountGroup.accounts.filterIsInstance<TradingAccount>().filter { tradingAccount ->
@@ -194,7 +194,7 @@ internal class BlockchainCardRepositoryImpl(
         accountCurrency: String
     ): Outcome<BlockchainCardError, String> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft {
+            .mapError {
                 BlockchainCardError.GetAuthFailed
             }
             .flatMap { tokenResponse ->
@@ -202,7 +202,7 @@ internal class BlockchainCardRepositoryImpl(
                     authHeader = tokenResponse,
                     cardId = cardId,
                     accountCurrency = accountCurrency
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.LinkCardAccountFailed
                 }.map { cardAccountLinkResponse ->
                     cardAccountLinkResponse.accountCurrency
@@ -213,18 +213,18 @@ internal class BlockchainCardRepositoryImpl(
         cardId: String
     ): Outcome<BlockchainCardError, TradingAccount> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapLeft {
+            .mapError {
                 BlockchainCardError.GetAuthFailed
             }
             .flatMap { tokenResponse ->
                 blockchainCardService.getCardLinkedAccount(
                     authHeader = tokenResponse,
                     cardId = cardId
-                ).mapLeft {
+                ).mapError {
                     BlockchainCardError.GetCardLinkedAccountFailed
                 }.flatMap { cardLinkedAccountResponse ->
                     coincore.allWallets().awaitOutcome()
-                        .mapLeft {
+                        .mapError {
                             BlockchainCardError.LoadAllWalletsFailed
                         }.map { accountGroup ->
                             accountGroup.accounts.filterIsInstance<TradingAccount>().first { tradingAccount ->
@@ -248,7 +248,7 @@ internal class BlockchainCardRepositoryImpl(
     override suspend fun loadAccountBalance(
         tradingAccount: BlockchainAccount
     ): Outcome<BlockchainCardError, AccountBalance> =
-        tradingAccount.balance.firstOrError().awaitOutcome().mapLeft {
+        tradingAccount.balance.firstOrError().awaitOutcome().mapError {
             BlockchainCardError.GetAccountBalanceFailed
         }
 
@@ -260,7 +260,7 @@ internal class BlockchainCardRepositoryImpl(
 
     override suspend fun getFiatAccount(networkTicker: String): Outcome<BlockchainCardError, FiatAccount> =
         coincore.allWallets().awaitOutcome()
-            .mapLeft {
+            .mapError {
                 BlockchainCardError.LoadAllWalletsFailed
             }.map { accountGroup ->
                 accountGroup.accounts.filterIsInstance<FiatAccount>().first { tradingAccount ->

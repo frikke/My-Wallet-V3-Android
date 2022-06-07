@@ -13,7 +13,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
@@ -52,10 +52,7 @@ class SettingsInteractor internal constructor(
     private fun getReferralDataSingle(): Single<ReferralInfo> {
         return rxSingle {
             referralService.fetchReferralData()
-                .fold(
-                    onSuccess = { it },
-                    onFailure = { ReferralInfo.NotAvailable }
-                )
+                .getOrDefault(ReferralInfo.NotAvailable)
         }
             .onErrorResumeWith { ReferralInfo.NotAvailable }
     }

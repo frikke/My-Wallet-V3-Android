@@ -13,12 +13,11 @@ sealed class Outcome<out E, out R> {
 fun <E, R, T> Outcome<E, R>.map(transform: (R) -> T): Outcome<E, T> {
     return when (this) {
         is Outcome.Success -> Outcome.Success(transform(value))
-        is Outcome.Failure -> Outcome.Failure(failure)
+        is Outcome.Failure -> this
     }
 }
 
-// Outcome/Result-type is right-biased by convention. This method allows us to map the type on the left (failure)
-fun <E, F, R> Outcome<E, R>.mapLeft(transform: (E) -> F): Outcome<F, R> {
+fun <E, F, R> Outcome<E, R>.mapError(transform: (E) -> F): Outcome<F, R> {
     return when (this) {
         is Outcome.Success -> Outcome.Success(value)
         is Outcome.Failure -> Outcome.Failure(transform(failure))
@@ -52,3 +51,26 @@ fun <E, R, T> Outcome<E, R>.fold(onFailure: (E) -> T, onSuccess: (R) -> T): T =
         is Outcome.Success -> onSuccess(value)
         is Outcome.Failure -> onFailure(failure)
     }
+
+fun <E, R> Outcome<E, R>.getOrDefault(defaultValue: R): R =
+    when (this) {
+        is Outcome.Success -> value
+        is Outcome.Failure -> defaultValue
+    }
+
+fun <E, R> Outcome<E, R>.getOrNull(): R? = getOrDefault(null)
+
+fun <E, R> Outcome<E, R>.getOrElse(onFailure: (E) -> R): R =
+    when (this) {
+        is Outcome.Success -> value
+        is Outcome.Failure -> onFailure(failure)
+    }
+
+fun <E, R> Outcome<E, R>.getOrThrow(): R =
+    when (this) {
+        is Outcome.Success -> value
+        is Outcome.Failure -> throw (failure as? Throwable ?: Exception())
+    }
+
+// TODO(dtverdota): Check back for uptake in end of July
+infix fun <E, R, T> Outcome<E, R>.then(transform: (R) -> T): Outcome<E, T> = map(transform)

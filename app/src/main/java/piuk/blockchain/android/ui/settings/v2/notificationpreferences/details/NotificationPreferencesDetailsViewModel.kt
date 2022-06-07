@@ -6,7 +6,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.notificationpreferences.NotificationPreferencesAnalyticsEvents.Companion.createChannelSetUpEvent
 import timber.log.Timber
@@ -90,17 +91,15 @@ class NotificationPreferencesDetailsViewModel(
                     modelState.copy(methods = contactMethods)
                 }
                 interactor.updateContactPreferences(modelState.channel, contactMethods)
-                    .fold(
-                        onSuccess = {
-                            analytics.logEvent(createChannelSetUpEvent(modelState.channel, contactMethods))
-                        },
-                        onFailure = {
-                            Timber.e(it)
-                            analytics.logEvent(
-                                NotificationPreferencesAnalyticsEvents.StatusChangeError(modelState.channel)
-                            )
-                        }
-                    )
+                    .doOnSuccess {
+                        analytics.logEvent(createChannelSetUpEvent(modelState.channel, contactMethods))
+                    }
+                    .doOnFailure {
+                        Timber.e(it)
+                        analytics.logEvent(
+                            NotificationPreferencesAnalyticsEvents.StatusChangeError(modelState.channel)
+                        )
+                    }
             }
         }
     }

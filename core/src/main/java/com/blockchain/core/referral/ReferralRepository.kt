@@ -11,7 +11,7 @@ import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.fold
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
@@ -87,7 +87,7 @@ class ReferralRepository(
                 .awaitOutcome()
                 .flatMap { authToken ->
                     referralApi.associateReferralCode(authToken, validatedCode)
-                        .mapLeft { it.throwable }
+                        .mapError { it.throwable }
                 }
         }
     }

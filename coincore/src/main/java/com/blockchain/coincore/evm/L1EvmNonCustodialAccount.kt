@@ -14,7 +14,8 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.map
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -62,10 +63,8 @@ class L1EvmNonCustodialAccount(
     override fun getOnChainBalance(): Observable<Money> =
         rxSingle {
             ethDataManager.getBalance(l1Network.nodeUrl)
-                .fold(
-                    onFailure = { Money.fromMajor(currency, BigDecimal.ZERO) },
-                    onSuccess = { Money.fromMinor(currency, it) }
-                )
+                .map { Money.fromMinor(currency, it) }
+                .getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
         }
             .toObservable()
             .doOnNext { hasFunds.set(it.isPositive) }

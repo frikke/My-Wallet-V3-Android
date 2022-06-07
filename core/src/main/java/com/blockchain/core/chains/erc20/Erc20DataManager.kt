@@ -7,7 +7,7 @@ import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
 import com.blockchain.core.chains.erc20.model.Erc20Balance
 import com.blockchain.core.chains.erc20.model.Erc20HistoryList
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -19,11 +19,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.math.BigInteger
 import kotlin.IllegalStateException
-import kotlinx.coroutines.rx3.rxSingle
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
@@ -101,16 +101,14 @@ internal class Erc20DataManagerImpl(
             getL1AssetFor(asset)
         )
             .flatMap { (supportedNetworks, l1Asset) ->
-                rxSingle {
+                rxSingleOutcome {
                     supportedNetworks.firstOrNull { evmNetwork ->
                         // Fall back to the network ticker in case of an L1 coin
                         evmNetwork.networkTicker == (asset.l1chainTicker ?: asset.networkTicker)
                     }?.let { evmNetwork ->
                         ethDataManager.getBalance(evmNetwork.nodeUrl)
-                    }?.fold(
-                        onFailure = { throw it.throwable },
-                        onSuccess = { value -> CryptoValue(l1Asset, value) }
-                    ) ?: throw IllegalStateException("L1 chain is missing or not supported")
+                            .map { value -> CryptoValue(l1Asset, value) }
+                    } ?: throw IllegalStateException("L1 chain is missing or not supported")
                 }
             }
 
@@ -123,14 +121,12 @@ internal class Erc20DataManagerImpl(
             if (isEnabled) {
                 ethDataManager.supportedNetworks.flatMapObservable { supportedNetworks ->
                     supportedNetworks.firstOrNull { it.networkTicker == asset.l1chainTicker }?.let { evmNetwork ->
-                        rxSingle {
+                        rxSingleOutcome {
                             // Get the balance of the native token for example Matic in Polygon's case. Only load
                             // the balances of the other tokens on that network if the native token balance is positive.
-                            ethDataManager.getBalance(evmNetwork.nodeUrl)
-                                .fold(
-                                    onFailure = { throw it.throwable },
-                                    onSuccess = { value -> Pair(evmNetwork, value) }
-                                )
+                            ethDataManager.getBalance(evmNetwork.nodeUrl).map { balance ->
+                                Pair(evmNetwork, balance)
+                            }
                         }
                             .flatMapObservable { (evmNetwork, value) -> getErc20Balance(asset, evmNetwork, value) }
                     } ?: Observable.just(Erc20Balance.zero(asset))
