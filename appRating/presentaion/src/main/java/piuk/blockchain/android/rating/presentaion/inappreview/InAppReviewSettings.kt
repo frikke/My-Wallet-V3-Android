@@ -10,5 +10,8 @@ interface InAppReviewSettings {
      */
     suspend fun init(context: Context)
 
-    suspend fun triggerAppReview(activity: Activity, onComplete: (successful: Boolean) -> Unit)
+    /**
+     * @return false if an error prevented inapp review from showing - true otherwise
+     */
+    suspend fun triggerAppReview(activity: Activity): Boolean
 }

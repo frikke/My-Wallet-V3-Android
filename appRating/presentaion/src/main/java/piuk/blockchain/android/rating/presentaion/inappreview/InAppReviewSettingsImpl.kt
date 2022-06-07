@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
-import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 internal class InAppReviewSettingsImpl(
     private val reviewManager: ReviewManager
@@ -19,21 +19,18 @@ internal class InAppReviewSettingsImpl(
         initialized = true
     }
 
-    override suspend fun triggerAppReview(activity: Activity, onComplete: (successful: Boolean) -> Unit) {
-        if (initialized) {
+    override suspend fun triggerAppReview(activity: Activity): Boolean {
+        return if (initialized) {
             reviewInfo?.let {
-                reviewManager
-                    .launchReviewFlow(activity, reviewInfo)
-                    .addOnCompleteListener {
-                        onComplete(true)
-                    }
-            } ?: onComplete(false)
+                reviewManager.launchReviewFlow(activity, reviewInfo)
+                true
+            } ?: false
         } else { // internet too slow and/or user was so fast
             // retry init
             init(activity)
 
             // retrigger
-            triggerAppReview(activity, onComplete)
+            triggerAppReview(activity)
         }
     }
 

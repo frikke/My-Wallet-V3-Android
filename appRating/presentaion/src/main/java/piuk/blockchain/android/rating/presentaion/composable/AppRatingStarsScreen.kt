@@ -1,18 +1,12 @@
 package piuk.blockchain.android.rating.presentaion.composable
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -23,7 +17,6 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
-import com.blockchain.componentlib.button.SmallPrimaryButton
 import com.blockchain.componentlib.controls.RatingBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey600
@@ -42,14 +35,13 @@ fun AppRatingStars(viewModel: AppRatingViewModel) {
 
 /**
  * Figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=109%3A4789
+ * button removed to make user journey faster
  */
 @Composable
 fun AppRatingStarsScreen(
     onSubmit: (rating: Int) -> Unit,
     onCanceled: () -> Unit
 ) {
-    var rating by remember { mutableStateOf(0) }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,26 +81,18 @@ fun AppRatingStarsScreen(
         RatingBar(
             imageFilled = R.drawable.ic_favorite_filled,
             imageOutline = R.drawable.ic_favorite_outline,
-            onRatingChanged = { rating = it }
+            onRatingChanged = { rating ->
+                onSubmit(rating)
+            }
         )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-        Row {
-            SmallMinimalButton(
-                text = stringResource(R.string.common_cancel),
-                onClick = onCanceled,
-                state = ButtonState.Enabled
-            )
-
-            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.tiny_margin)))
-
-            SmallPrimaryButton(
-                text = stringResource(R.string.common_submit),
-                onClick = { onSubmit(rating) },
-                state = if (rating > 0) ButtonState.Enabled else ButtonState.Disabled
-            )
-        }
+        SmallMinimalButton(
+            text = stringResource(R.string.common_cancel),
+            onClick = onCanceled,
+            state = ButtonState.Enabled
+        )
     }
 }
 

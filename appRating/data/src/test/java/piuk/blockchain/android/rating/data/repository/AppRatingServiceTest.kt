@@ -48,7 +48,6 @@ class AppRatingServiceTest {
     private val userIdentity = mockk<UserIdentity>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val bankService = mockk<BankService>()
-    private val environmentConfig = mockk<EnvironmentConfig>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
         appRatingRemoteConfig = appRatingRemoteConfig,
@@ -59,8 +58,7 @@ class AppRatingServiceTest {
         appRatingFF = appRatingFF,
         userIdentity = userIdentity,
         currencyPrefs = currencyPrefs,
-        bankService = bankService,
-        environmentConfig = environmentConfig
+        bankService = bankService
     )
 
     private val appRating = AppRating(rating = 3, feedback = "feedback")
@@ -74,8 +72,6 @@ class AppRatingServiceTest {
     @Before
     fun setUp() {
         every { appRatingFF.enabled } returns Single.just(true)
-
-        every { environmentConfig.isRunningInDebugMode() } returns true
 
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
 

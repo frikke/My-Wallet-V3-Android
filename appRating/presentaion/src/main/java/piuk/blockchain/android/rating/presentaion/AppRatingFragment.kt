@@ -73,9 +73,10 @@ class AppRatingFragment : DialogFragment(), AndroidScopeComponent {
 
     private fun triggerInAppReview() {
         lifecycleScope.launch {
-            inAppReviewSettings.triggerAppReview(requireActivity()) { successful ->
-                viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(successful))
-            }
+            inAppReviewSettings.triggerAppReview(requireActivity())
+                .also { successfulTrigger ->
+                    viewModel.onIntent(AppRatingIntents.InAppReviewRequested(successful = successfulTrigger))
+                }
         }
     }
 

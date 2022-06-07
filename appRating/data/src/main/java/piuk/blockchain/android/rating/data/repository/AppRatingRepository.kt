@@ -1,16 +1,19 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
@@ -19,8 +22,12 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import timber.log.Timber
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
+    private val externalScope: CoroutineScope,
+
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
     private val appRatingApiKeysRemoteConfig: AppRatingApiKeysRemoteConfig,
     private val defaultThreshold: Int,
@@ -32,8 +39,7 @@ internal class AppRatingRepository(
     // prerequisites verification
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val bankService: BankService,
-    private val environmentConfig: EnvironmentConfig
+    private val bankService: BankService
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
@@ -43,26 +49,32 @@ internal class AppRatingRepository(
         )
     }
 
-    override suspend fun postRatingData(appRating: AppRating): Boolean {
-        // get api keys from remote config
-        val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().fold(
-            onSuccess = { it },
-            onFailure = { null }
-        )
-
-        // if for some reason we can't get api keys, or json is damaged, we return false
-        // for the vm to retrigger again in 1 month
-        return apiKeys?.let {
-            appRatingApi.postRatingData(
-                apiKeys = apiKeys,
-                appRating = appRating
-            ).fold(
-                // if there is any error in the api, we return false
-                // for the vm to retrigger again in 1 month
-                onSuccess = { true },
-                onFailure = { false }
+    override fun postRatingData(appRating: AppRating, forceRetrigger: Boolean) {
+        externalScope.launch(Dispatchers.IO) {
+            // get api keys from remote config
+            val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().fold(
+                onSuccess = { it },
+                onFailure = { null }
             )
-        } ?: false
+
+            apiKeys?.let {
+                appRatingApi.postRatingData(
+                    apiKeys = apiKeys,
+                    appRating = appRating
+                )
+                    .doOnSuccess {
+                        markRatingCompleted()
+                    }
+                    .doOnFailure {
+                        // if there is any error in the api, we save to retrigger again in 1 month
+                        saveRatingDateForLater()
+                    }
+
+            } ?: kotlin.run {
+                // if for some reason we can't get api keys, or json is damaged, we save to retrigger again in 1 month
+                saveRatingDateForLater()
+            }
+        }
     }
 
     override suspend fun shouldShowRating(): Boolean {
@@ -105,7 +117,11 @@ internal class AppRatingRepository(
         }
     }
 
-    override fun markRatingCompleted() {
+    /**
+     * Saves the current date/time if needed in the future [AppRatingPrefs.promptDateMillis]
+     * And set [AppRatingPrefs.completed] true
+     */
+    private fun markRatingCompleted() {
         appRatingPrefs.promptDateMillis = Calendar.getInstance().timeInMillis
         appRatingPrefs.completed = true
     }

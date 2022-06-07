@@ -3,6 +3,7 @@ package com.blockchain.koin
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 
+val applicationScope = StringQualifier("applicationScope")
 val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val newAssetPriceStoreFeatureFlag = StringQualifier("ff_new_asset_price_store")
