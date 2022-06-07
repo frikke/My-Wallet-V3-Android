@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 internal class InAppReviewSettingsImpl(
     private val reviewManager: ReviewManager

@@ -1,9 +1,7 @@
 package piuk.blockchain.android.rating.presentaion
 
-import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.google.android.play.core.review.ReviewManagerFactory
-import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import piuk.blockchain.android.rating.presentaion.inappreview.InAppReviewSettings

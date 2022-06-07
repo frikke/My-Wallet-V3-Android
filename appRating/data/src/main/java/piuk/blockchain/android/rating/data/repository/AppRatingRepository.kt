@@ -9,6 +9,8 @@ import com.blockchain.outcome.fold
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -20,8 +22,6 @@ import piuk.blockchain.android.rating.data.remoteconfig.AppRatingRemoteConfig
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import timber.log.Timber
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
     private val externalScope: CoroutineScope,
@@ -59,7 +59,6 @@ internal class AppRatingRepository(
                     apiKeys = apiKeys,
                     appRating = appRating
                 ).getOrDefault(false)
-
 
                 if (successful && forceRetrigger.not()) {
                     markRatingCompleted()

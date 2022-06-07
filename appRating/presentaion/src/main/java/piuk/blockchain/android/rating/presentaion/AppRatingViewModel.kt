@@ -4,8 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.extensions.exhaustive
 import com.blockchain.preferences.AuthPrefs
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
