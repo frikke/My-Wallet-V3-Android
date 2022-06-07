@@ -5,6 +5,7 @@ import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -61,6 +62,7 @@ val appRatingDataModule = module {
         scoped<AppRatingService> {
             AppRatingRepository(
                 externalScope = get(applicationScope),
+                dispatcher = Dispatchers.IO,
 
                 appRatingRemoteConfig = get(),
                 appRatingApiKeysRemoteConfig = get(),

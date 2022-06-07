@@ -55,7 +55,6 @@ import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.CoroutineScope
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
@@ -162,10 +161,11 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
+import java.io.File
 
 val applicationModule = module {
 
-    single(applicationScope) { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+    single(applicationScope) { CoroutineScope(SupervisorJob()) }
 
     factory { OSUtil(get()) }
 

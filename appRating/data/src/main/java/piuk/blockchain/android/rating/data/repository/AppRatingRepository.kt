@@ -5,16 +5,12 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.doOnFailure
-import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.fold
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
@@ -29,6 +25,7 @@ import java.util.concurrent.TimeUnit
 
 internal class AppRatingRepository(
     private val externalScope: CoroutineScope,
+    private val dispatcher: CoroutineDispatcher,
 
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
     private val appRatingApiKeysRemoteConfig: AppRatingApiKeysRemoteConfig,
@@ -49,7 +46,8 @@ internal class AppRatingRepository(
     }
 
     override fun postRatingData(appRating: AppRating, forceRetrigger: Boolean) {
-        externalScope.launch(Dispatchers.IO) {
+        externalScope.launch(dispatcher) {
+
             // get api keys from remote config
             val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().fold(
                 onSuccess = { it },
@@ -57,18 +55,17 @@ internal class AppRatingRepository(
             )
 
             apiKeys?.let {
-                appRatingApi.postRatingData(
+                val successful = appRatingApi.postRatingData(
                     apiKeys = apiKeys,
                     appRating = appRating
-                )
-                    .doOnSuccess {
-                        markRatingCompleted()
-                    }
-                    .doOnFailure {
-                        // if there is any error in the api, we save to retrigger again in 1 month
-                        saveRatingDateForLater()
-                    }
+                ).getOrDefault(false)
 
+
+                if (successful && forceRetrigger.not()) {
+                    markRatingCompleted()
+                } else {
+                    saveRatingDateForLater()
+                }
             } ?: kotlin.run {
                 // if for some reason we can't get api keys, or json is damaged, we save to retrigger again in 1 month
                 saveRatingDateForLater()
