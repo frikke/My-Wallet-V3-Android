@@ -9,7 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackupPhraseArgs
 import com.blockchain.presentation.screens.BackupConfirmation
@@ -18,7 +17,6 @@ import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.RecoveryPhrase
 import com.blockchain.presentation.screens.VerifyPhrase
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
-import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun BackupPhraseNavHost(

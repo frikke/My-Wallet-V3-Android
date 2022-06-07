@@ -4,7 +4,7 @@ import com.blockchain.defiwalletbackup.domain.errors.BackupPhraseError
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.preferences.WalletStatus
 import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -33,7 +33,7 @@ class BackupPhraseRepository(
                 payloadManager.wallet?.walletBody?.mnemonicVerified = true
                 walletStatus.lastBackupTime = System.currentTimeMillis() / 1000
             }
-            .mapLeft {
+            .mapError {
                 Timber.e(it)
                 BackupPhraseError.BackupConfirmationError
             }

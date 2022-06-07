@@ -25,7 +25,7 @@ class BackupPhraseNavigationRouter(
             }
 
             BackupPhraseNavigationEvent.BackupConfirmation -> {
-                navController.navigate(BackPhraseDestination.BackupConfirmation.route){
+                navController.navigate(BackPhraseDestination.BackupConfirmation.route) {
                     popUpTo(BackPhraseDestination.BackupPhraseIntro.route) {
                         inclusive = true
                     }
@@ -35,7 +35,6 @@ class BackupPhraseNavigationRouter(
             BackupPhraseNavigationEvent.GoToPreviousScreen -> {
                 navController.popBackStack()
             }
-
         }.exhaustive
     }
 }

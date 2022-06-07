@@ -15,9 +15,9 @@ import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.FlowStatus
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService
@@ -104,8 +104,8 @@ class BackupPhraseViewModel(
     private fun loadRecoveryPhrase() {
         backupPhraseService.getMnemonic(modelState.secondPassword)
             .doOnSuccess { mnemonic ->
-//                updateState { modelState.copy(mnemonic = mnemonic) }
-                updateState { modelState.copy(isError = true) }
+                updateState { modelState.copy(mnemonic = mnemonic) }
+                updateState { modelState.copy(isError = false) }
             }
             .doOnFailure {
                 updateState { modelState.copy(isError = true) }

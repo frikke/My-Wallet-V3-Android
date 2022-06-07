@@ -69,7 +69,7 @@ fun VerifyPhraseScreen(
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
     val userMnemonic = remember { mutableStateListOf<String>() }
-    val randomizedMnemonic = remember { mnemonic.toMutableStateList() }
+    val randomizedMnemonic = remember { mnemonic.shuffled().toMutableStateList() }
 
     Column(
         modifier = Modifier.fillMaxSize(),
