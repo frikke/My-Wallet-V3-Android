@@ -1,5 +1,6 @@
 package piuk.blockchain.android.util
 
+import com.blockchain.wallet.BackupWallet
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -10,12 +11,11 @@ import info.blockchain.wallet.payload.data.WalletBody
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-class BackupWalletUtilTest {
+class BackupWalletTest {
 
-    private lateinit var subject: BackupWalletUtil
+    private lateinit var subject: BackupWallet
     private val payloadDataManager: PayloadDataManager = mock()
 
     @Before

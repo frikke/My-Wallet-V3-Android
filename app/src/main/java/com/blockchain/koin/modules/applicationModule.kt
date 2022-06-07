@@ -45,6 +45,7 @@ import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
+import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
@@ -145,6 +146,7 @@ import piuk.blockchain.android.ui.ssl.SSLVerifyPresenter
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailIntentHelper
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AppUtil
+import piuk.blockchain.android.util.BackupWalletUtil
 import piuk.blockchain.android.util.CurrentContextAccess
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.android.util.OSUtil
@@ -334,14 +336,20 @@ val applicationModule = module {
 
         factory {
             BackupWalletWordListPresenter(
-                backupWalletUtil = get()
+                backupWallet = get()
+            )
+        }
+
+        factory<BackupWallet> {
+            BackupWalletUtil(
+                payloadDataManager = get()
             )
         }
 
         factory {
             BackupVerifyPresenter(
                 payloadDataManager = get(),
-                backupWalletUtil = get(),
+                backupWallet = get(),
                 walletStatus = get()
             )
         }
