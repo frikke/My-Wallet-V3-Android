@@ -61,7 +61,7 @@ val appRatingDataModule = module {
 
         scoped<AppRatingService> {
             AppRatingRepository(
-                externalScope = get(applicationScope),
+                coroutineScope = get(applicationScope),
                 dispatcher = Dispatchers.IO,
 
                 appRatingRemoteConfig = get(),

@@ -51,8 +51,8 @@ class AppRatingServiceTest {
     private val bankService = mockk<BankService>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
-        TestScope(),
-        UnconfinedTestDispatcher(),
+        coroutineScope = TestScope(),
+        dispatcher = UnconfinedTestDispatcher(),
 
         appRatingRemoteConfig = appRatingRemoteConfig,
         appRatingApiKeysRemoteConfig = appRatingApiKeysRemoteConfig,

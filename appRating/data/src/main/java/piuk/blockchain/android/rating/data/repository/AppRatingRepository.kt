@@ -25,7 +25,7 @@ import piuk.blockchain.android.rating.domain.service.AppRatingService
 import timber.log.Timber
 
 internal class AppRatingRepository(
-    private val externalScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher,
 
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
@@ -47,7 +47,7 @@ internal class AppRatingRepository(
     }
 
     override fun postRatingData(appRating: AppRating) {
-        externalScope.launch(dispatcher) {
+        coroutineScope.launch(dispatcher) {
 
             // get api keys from remote config
             val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrDefault(null)
