@@ -71,6 +71,13 @@ class AppRatingFragment : DialogFragment(), AndroidScopeComponent {
         }
     }
 
+    /**
+     * Try to trigger in-app review, and notify the vm of the status so it can:
+     * * fire the api if successful
+     * * save date to retrigger in 1 month otherwise
+     *
+     * @see AppRatingViewModel.inAppReviewRequested
+     */
     private fun triggerInAppReview() {
         lifecycleScope.launch {
             inAppReviewSettings.triggerAppReview(requireActivity())
