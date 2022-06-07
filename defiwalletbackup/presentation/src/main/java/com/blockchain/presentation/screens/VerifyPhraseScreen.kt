@@ -47,7 +47,7 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         VerifyPhraseScreen(
             mnemonic = state.mnemonic,
-            isLoading = state.isLoading,
+            isLoading = state.showLoading,
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
             /*todo(othmna) onclick verify validity*/
             nextOnClick = { userMnemonic ->

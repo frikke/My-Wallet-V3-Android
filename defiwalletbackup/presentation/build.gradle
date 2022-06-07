@@ -25,8 +25,8 @@ android {
 }
 
 dependencies {
+    implementation project(':defiwalletbackup:domain')
     implementation project(':commonarch')
-    implementation project(':core')
     implementation project(':componentlib')
     implementation project(':common:interface')
 
@@ -51,6 +51,7 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
 
     // test
+    testImplementation project(':testutils')
     testImplementation Libraries.kotlinTest
     testImplementation Libraries.kotlinCoroutinesTest
     testImplementation Libraries.coreTesting

@@ -1,4 +1,4 @@
-package com.blockchain.componentlib.extensions
+package com.blockchain.presentation.extensions
 
 import android.content.ClipData
 import android.content.ClipboardManager

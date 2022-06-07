@@ -8,7 +8,7 @@ import org.koin.dsl.module
 val backupPhrasePresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
-            BackupPhraseViewModel()
+            BackupPhraseViewModel(backupPhraseService = get())
         }
     }
 }

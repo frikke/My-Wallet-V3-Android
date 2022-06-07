@@ -45,6 +45,7 @@ import com.blockchain.payments.googlepay.manager.GooglePayManagerImpl
 import com.blockchain.payments.stripe.StripeCardProcessor
 import com.blockchain.payments.stripe.StripeFactory
 import com.blockchain.ui.password.SecondPasswordHandler
+import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.google.gson.GsonBuilder
@@ -343,11 +344,11 @@ val applicationModule = module {
 
         factory {
             BackupWalletWordListPresenter(
-                backupWalletUtil = get()
+                backupWallet = get()
             )
         }
 
-        factory {
+        factory<BackupWallet> {
             BackupWalletUtil(
                 payloadDataManager = get()
             )
@@ -356,7 +357,7 @@ val applicationModule = module {
         factory {
             BackupVerifyPresenter(
                 payloadDataManager = get(),
-                backupWalletUtil = get(),
+                backupWallet = get(),
                 walletStatus = get()
             )
         }
