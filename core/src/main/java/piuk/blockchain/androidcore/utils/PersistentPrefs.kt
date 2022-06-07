@@ -6,6 +6,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -28,7 +29,8 @@ interface PersistentPrefs :
     AppInfoPrefs,
     RemoteConfigPrefs,
     OnboardingPrefs,
-    AppRatingPrefs {
+    AppRatingPrefs,
+    NftAnnouncementPrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc

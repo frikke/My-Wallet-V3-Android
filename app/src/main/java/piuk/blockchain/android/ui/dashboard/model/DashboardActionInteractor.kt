@@ -26,6 +26,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
@@ -71,6 +72,7 @@ class DashboardActionInteractor(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val getDashboardOnboardingStepsUseCase: GetDashboardOnboardingStepsUseCase,
     private val nftWaitlistService: NftWaitlistService,
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger
@@ -647,13 +649,13 @@ class DashboardActionInteractor(
             }
         )
 
-    fun joinNftWaitlist(model: DashboardModel): Disposable {
+    fun joinNftWaitlist(): Disposable {
         return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(
             onSuccess = { result ->
-                model.process(DashboardIntent.NftWaitlistSubscriptionComplete(isSuccessful = result is Outcome.Success))
+                nftAnnouncementPrefs.isJoinNftWaitlistSuccessful = result is Outcome.Success
             },
             onError = {
-                model.process(DashboardIntent.NftWaitlistSubscriptionComplete(isSuccessful = false))
+                Timber.e(it)
             }
         )
     }

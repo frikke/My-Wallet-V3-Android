@@ -597,6 +597,15 @@ class PrefsUtil(
         completed = false
         promptDateMillis = 0L
     }
+
+    override var isNftAnnouncementDismissed: Boolean
+        get() = getValue(NFT_ANNOUNCEMENT_DISMISSED, false)
+        set(value) = setValue(NFT_ANNOUNCEMENT_DISMISSED, value)
+
+    override var isJoinNftWaitlistSuccessful: Boolean
+        get() = getValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, false)
+        set(value) = setValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, value)
+
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -708,6 +717,10 @@ class PrefsUtil(
         // App Rating
         private const val APP_RATING_COMPLETED = "APP_RATING_COMPLETED"
         private const val APP_RATING_PROMPT_DATE = "APP_RATING_PROMPT_DATE"
+
+        // Nft Announcement
+        private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
+        private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
     }
 }
 

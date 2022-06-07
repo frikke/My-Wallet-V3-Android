@@ -48,54 +48,6 @@ data class StandardAnnouncementCard(
         get() = dismissEntry.prefsKey
 }
 
-data class ApiAnnouncementCard(
-    override val name: String,
-    val dismissRule: DismissRule,
-    val dismissEntry: DismissRecorder.DismissEntry,
-    @StringRes val titleText: Int = 0,
-    val title: String? = null,
-    @StringRes val bodyText: Int = 0,
-    val body: String? = null,
-    val bodyTextSpannable: Spannable? = null,
-    @StringRes val ctaText: Int = 0,
-    @StringRes val ctaTextOnFailure: Int = 0,
-    @StringRes val dismissText: Int = 0,
-    @DrawableRes val background: Int = 0,
-    @DrawableRes val iconImage: Int = 0,
-    val iconUrl: String = "",
-    @ColorRes val buttonColor: Int = R.color.default_announce_button,
-    val shouldWrapIconWidth: Boolean = false,
-    private val ctaFunction: () -> Unit,
-    private val dismissFunction: () -> Unit = { },
-    private val successFunction: () -> Unit,
-    val apiStatus: ApiStatus = ApiStatus.IDLE,
-    val titleFormatParams: Array<String> = emptyArray(),
-    val bodyFormatParams: Array<String> = emptyArray(),
-    val ctaFormatParams: Array<String> = emptyArray()
-) : AnnouncementCard {
-
-    enum class ApiStatus {
-        IDLE, LOADING, ERROR, SUCCESS
-    }
-
-    fun success() {
-        dismissEntry.done()
-        successFunction.invoke()
-    }
-
-    fun ctaClicked() {
-        ctaFunction.invoke()
-    }
-
-    fun dismissClicked() {
-        dismissEntry.dismiss(dismissRule)
-        dismissFunction.invoke()
-    }
-
-    override val dismissKey: String
-        get() = dismissEntry.prefsKey
-}
-
 class MiniAnnouncementCard(
     override val name: String,
     val dismissRule: DismissRule,

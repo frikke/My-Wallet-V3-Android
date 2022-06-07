@@ -1,50 +1,46 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.preferences.NftAnnouncementPrefs
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementRule
-import piuk.blockchain.android.ui.dashboard.announcements.ApiAnnouncementCard
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRule
+import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCard
 
 class NftAnnouncement(
     dismissRecorder: DismissRecorder,
-    private val showNftAnnouncementFF: FeatureFlag
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs,
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
 
     override fun shouldShow(): Single<Boolean> {
-        return Single.zip(
-            showNftAnnouncementFF.enabled,
-            Single.just(dismissEntry.isDismissed)
-        ) { enabled, dismissed ->
-            enabled && dismissed.not()
-        }
+        return Single.just(
+            nftAnnouncementPrefs.isJoinNftWaitlistSuccessful.not() &&
+                nftAnnouncementPrefs.isNftAnnouncementDismissed.not()
+        )
     }
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(
-            card = ApiAnnouncementCard(
+            card = StandardAnnouncementCard(
                 name = name,
                 dismissRule = DismissRule.CardOneTime,
                 dismissEntry = dismissEntry,
                 titleText = R.string.nft_announcement_title,
                 bodyText = R.string.nft_announcement_description,
                 ctaText = R.string.nft_announcement_action,
-                ctaTextOnFailure = R.string.nft_announcement_action_failure,
                 iconImage = R.drawable.ic_nft,
                 dismissFunction = {
                     host.dismissAnnouncementCard()
+                    nftAnnouncementPrefs.isNftAnnouncementDismissed = true
                 },
                 ctaFunction = {
-                    host.joinNftWaitlist()
-                },
-                successFunction = {
                     host.dismissAnnouncementCard()
+                    host.joinNftWaitlist()
                 }
             )
         )

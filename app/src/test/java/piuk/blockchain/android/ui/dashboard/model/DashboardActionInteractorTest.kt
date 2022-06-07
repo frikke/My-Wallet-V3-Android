@@ -18,14 +18,13 @@ import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
-import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -45,6 +44,7 @@ class DashboardActionInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val userIdentity: NabuUserIdentity = mock()
     private val nftWaitlistService: NftWaitlistService = mock()
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
@@ -74,6 +74,7 @@ class DashboardActionInteractorTest {
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
             nftWaitlistService = nftWaitlistService,
+            nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             bankService = bankService
         )
@@ -297,31 +298,5 @@ class DashboardActionInteractorTest {
 
         verify(userIdentity).getHighestApprovedKycTier()
         verifyNoMoreInteractions(userIdentity)
-    }
-
-    @Test
-    fun `GIVEN joinWaitlist Successful, WHEN joinNftWaitlist is called, THEN NftWaitlistSubscriptionComplete(true) should be returned`() {
-        nftWaitlistService.stub {
-            onBlocking { nftWaitlistService.joinWaitlist() }.thenReturn(Outcome.Success(Unit))
-        }
-
-        actionInteractor.joinNftWaitlist(model = model)
-
-        verify(model).process(
-            DashboardIntent.NftWaitlistSubscriptionComplete(true)
-        )
-    }
-
-    @Test
-    fun `GIVEN joinWaitlist Unsuccessful, WHEN joinNftWaitlist is called, THEN NftWaitlistSubscriptionComplete(false) should be returned`() {
-        nftWaitlistService.stub {
-            onBlocking { nftWaitlistService.joinWaitlist() }.thenReturn(Outcome.Failure(apiError))
-        }
-
-        actionInteractor.joinNftWaitlist(model = model)
-
-        verify(model).process(
-            DashboardIntent.NftWaitlistSubscriptionComplete(false)
-        )
     }
 }

@@ -42,9 +42,8 @@ class DashboardModel(
             DashboardIntent.ShowAppRating -> null
 
             DashboardIntent.JoinNftWaitlist -> {
-                interactor.joinNftWaitlist(this)
+                interactor.joinNftWaitlist()
             }
-            is DashboardIntent.NftWaitlistSubscriptionComplete -> null
 
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
             is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)

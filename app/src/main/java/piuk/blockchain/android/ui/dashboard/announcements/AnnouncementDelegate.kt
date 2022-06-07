@@ -14,19 +14,15 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.Analytics
-import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.PrimaryButtonView
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.isVisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import piuk.blockchain.android.R
-import piuk.blockchain.android.databinding.ItemAnnouncementApiBinding
 import piuk.blockchain.android.databinding.ItemAnnouncementMiniBinding
 import piuk.blockchain.android.databinding.ItemAnnouncementStandardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.ui.dashboard.announcements.ApiAnnouncementCard.ApiStatus
 
 class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
     AdapterDelegate<T> {
@@ -188,170 +184,6 @@ class StdAnnouncementDelegate<in T>(private val analytics: Analytics) :
                 dismissBtn.setTextColor(colour)
             }
         }
-    }
-}
-
-class ApiAnnouncementDelegate<in T>(private val analytics: Analytics) :
-    AdapterDelegate<T> {
-
-    @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(
-        items: List<T>,
-        position: Int,
-        holder: RecyclerView.ViewHolder
-    ) {
-        val announcement = items[position] as ApiAnnouncementCard
-
-        if (announcement.apiStatus == ApiStatus.SUCCESS) {
-            announcement.success()
-        }
-
-        (holder as AnnouncementViewHolder).apply {
-            when {
-                announcement.titleText != 0 -> {
-                    title.text = title.context.getString(
-                        announcement.titleText, *announcement.titleFormatParams
-                    )
-                }
-                announcement.title != null -> {
-                    title.text = announcement.title
-                }
-                else -> {
-                    title.gone()
-                }
-            }
-
-            if (announcement.background != 0) {
-                container.setBackgroundResource(announcement.background)
-            } else {
-                container.setBackgroundColor(Color.WHITE)
-            }
-
-            when {
-                announcement.bodyTextSpannable != null -> {
-                    val text = announcement.bodyTextSpannable
-                    body.text = text
-                    val hasClickableSpans = text.getSpans(0, text.length, ClickableSpan::class.java).isNotEmpty()
-                    body.movementMethod =
-                        if (hasClickableSpans) LinkMovementMethod.getInstance()
-                        else null
-                }
-                announcement.bodyText != 0 -> {
-                    body.text = body.context.getString(
-                        announcement.bodyText, *announcement.bodyFormatParams
-                    )
-                    body.movementMethod = null
-                    body.visible()
-                }
-                announcement.body != null -> {
-                    body.text = announcement.body
-                }
-                else -> {
-                    body.gone()
-                }
-            }
-
-            when {
-                announcement.iconImage != 0 -> {
-                    check(announcement.iconUrl.isEmpty()) { "Can't set both a drawable and a URL on an announcement" }
-
-                    icon.setImageDrawable(ContextCompat.getDrawable(itemView.context, announcement.iconImage))
-                    if (announcement.shouldWrapIconWidth) {
-                        // This is only used to display the vector_aave_yfi_dot_announcement icon in the correct size
-                        icon.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-                    }
-
-                    icon.visible()
-                }
-                announcement.iconUrl.isNotEmpty() -> {
-                    check(announcement.iconImage == 0) { "Can't set both a drawable and a URL on an announcement" }
-
-                    Glide.with(icon.context)
-                        .load(announcement.iconUrl)
-                        .apply(RequestOptions().placeholder(R.drawable.ic_default_asset_logo))
-                        .into(icon)
-
-                    icon.visible()
-                }
-                else -> {
-                    icon.gone()
-                }
-            }
-
-            if (announcement.ctaText != 0) {
-                when {
-                    announcement.apiStatus == ApiStatus.ERROR &&
-                        announcement.ctaTextOnFailure != 0 -> {
-                        ctaBtn.text = ctaBtn.context.getString(announcement.ctaTextOnFailure)
-                    }
-
-                    else -> {
-                        ctaBtn.text = ctaBtn.context.getString(announcement.ctaText)
-                    }
-                }
-
-                ctaBtn.onClick = {
-                    analytics.logEvent(AnnouncementAnalyticsEvent.CardActioned(announcement.name))
-                    announcement.ctaClicked()
-                }
-
-                ctaBtn.visible()
-            } else {
-                ctaBtn.gone()
-            }
-
-            ctaBtn.buttonState =
-                if (announcement.apiStatus == ApiStatus.LOADING) ButtonState.Loading
-                else ButtonState.Enabled
-
-            if (announcement.dismissText != 0) {
-                dismissBtn.setText(announcement.dismissText)
-                dismissBtn.setOnClickListener {
-                    analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
-                    announcement.dismissClicked()
-                }
-                dismissBtn.visible()
-                closeBtn.gone()
-            } else {
-                dismissBtn.gone()
-            }
-
-            if (announcement.dismissRule != DismissRule.CardPersistent) {
-                closeBtn.setOnClickListener {
-                    analytics.logEvent(AnnouncementAnalyticsEvent.CardDismissed(announcement.name))
-                    announcement.dismissClicked()
-                }
-                closeBtn.visible()
-            } else {
-                closeBtn.gone()
-                dismissBtn.gone()
-            }
-        }
-        analytics.logEvent(AnnouncementAnalyticsEvent.CardShown(announcement.name))
-    }
-
-    override fun isForViewType(items: List<T>, position: Int): Boolean {
-        val item = items[position]
-        return item is ApiAnnouncementCard
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-
-        val binding = ItemAnnouncementApiBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return AnnouncementViewHolder(binding)
-    }
-
-    private class AnnouncementViewHolder constructor(
-        binding: ItemAnnouncementApiBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        val container: View = binding.cardContainer
-        val icon: ImageView = binding.icon
-        val title: TextView = binding.msgTitle
-        val body: TextView = binding.msgBody
-        val closeBtn: ImageView = binding.btnClose
-        val ctaBtn: PrimaryButtonView = binding.btnCta1
-        val dismissBtn: TextView = binding.btnDismiss
     }
 }
 

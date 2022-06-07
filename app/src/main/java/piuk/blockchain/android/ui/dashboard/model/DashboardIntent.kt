@@ -17,7 +17,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
-import piuk.blockchain.android.ui.dashboard.announcements.ApiAnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
@@ -291,28 +290,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     object JoinNftWaitlist : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                announcement = (oldState.announcement as ApiAnnouncementCard).copy(
-                    apiStatus = ApiAnnouncementCard.ApiStatus.LOADING
-                )
-            )
-        }
-
-        override fun isValidFor(oldState: DashboardState) = oldState.announcement is ApiAnnouncementCard
-    }
-
-    data class NftWaitlistSubscriptionComplete(private val isSuccessful: Boolean) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                announcement = (oldState.announcement as ApiAnnouncementCard).copy(
-                    apiStatus = if (isSuccessful) ApiAnnouncementCard.ApiStatus.SUCCESS
-                    else ApiAnnouncementCard.ApiStatus.ERROR
-                )
-            )
-        }
-
-        override fun isValidFor(oldState: DashboardState) = oldState.announcement is ApiAnnouncementCard
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
     object ClearAnnouncement : DashboardIntent() {
