@@ -31,6 +31,7 @@ class LandingCtaActivity : BlockchainActivity() {
         binding.toolbar.apply {
             startNavigationBarButton = NavigationBarButton.Icon(
                 drawable = R.drawable.ic_close_circle_v2,
+                contentDescription = R.string.accessibility_close,
                 color = null,
                 onIconClick = {
                     onboardingPrefs.isLandingCtaDismissed = true

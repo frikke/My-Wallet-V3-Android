@@ -20,25 +20,31 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.DestructiveMinimalButton
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.divider.HorizontalDivider
@@ -61,8 +67,24 @@ fun ManageCard(
     linkedAccountBalance: AccountBalance?,
     isBalanceLoading: Boolean,
     onManageCardDetails: () -> Unit,
-    onChoosePaymentMethod: () -> Unit
+    onChoosePaymentMethod: () -> Unit,
+    onTopUp: () -> Unit,
+    onRefreshBalance: () -> Unit
 ) {
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                onRefreshBalance()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -124,7 +146,8 @@ fun ManageCard(
                 )
                 MinimalButton(
                     text = stringResource(R.string.top_up),
-                    onClick = { /*TODO*/ },
+                    state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
+                    onClick = onTopUp,
                     icon = ImageResource.Local(R.drawable.ic_bottom_nav_plus),
                     modifier = Modifier
                         .weight(1f)
@@ -179,11 +202,11 @@ fun ManageCard(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard(null, "", null, false, {}, {})
+    ManageCard(null, "", null, false, {}, {}, {}, {})
 }
 
 @Composable
-fun ManageCardDetails(onDeleteCard: () -> Unit) {
+fun ManageCardDetails(onDeleteCard: () -> Unit, onToggleLockCard: (Boolean) -> Unit, cardStatus: BlockchainCardStatus) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -229,7 +252,8 @@ fun ManageCardDetails(onDeleteCard: () -> Unit) {
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
         ToggleTableRow(
-            onCheckedChange = {},
+            onCheckedChange = onToggleLockCard,
+            isChecked = cardStatus == BlockchainCardStatus.LOCKED,
             primaryText = stringResource(R.string.lock_card),
             secondaryText = stringResource(R.string.temporarily_lock_card)
         )
@@ -248,14 +272,14 @@ fun ManageCardDetails(onDeleteCard: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(AppTheme.dimensions.paddingLarge)
-        ) // Todo add trashcan icon
+        ) // Todo(labreu): add trashcan icon
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails({})
+    ManageCardDetails({}, {}, BlockchainCardStatus.ACTIVE)
 }
 
 @Composable

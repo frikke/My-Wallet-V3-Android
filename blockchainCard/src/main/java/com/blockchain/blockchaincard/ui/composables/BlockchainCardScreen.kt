@@ -116,16 +116,32 @@ fun BlockchainCardNavHost(
                         linkedAccountBalance = state.linkedAccountBalance,
                         onManageCardDetails = {
                             viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
+                        },
+                        onChoosePaymentMethod = {
+                            viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
+                        },
+                        onTopUp = {
+                            viewModel.onIntent(BlockchainCardIntent.TopUp)
+                        },
+                        onRefreshBalance = {
+                            viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
                         }
-                    ) {
-                        viewModel.onIntent(BlockchainCardIntent.ChoosePaymentMethod)
-                    }
+                    )
                 }
             }
         }
 
         bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
-            ManageCardDetails(onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) })
+            state?.card?.let { card ->
+                ManageCardDetails(
+                    onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) },
+                    onToggleLockCard = { isChecked: Boolean ->
+                        if (isChecked) viewModel.onIntent(BlockchainCardIntent.LockCard)
+                        else viewModel.onIntent(BlockchainCardIntent.UnlockCard)
+                    },
+                    cardStatus = card.status
+                )
+            }
         }
 
         bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {

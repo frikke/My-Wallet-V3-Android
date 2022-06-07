@@ -3,7 +3,11 @@ package piuk.blockchain.android.ui.launcher.loader
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 
 sealed class LoaderIntents : MviIntent<LoaderState> {
-    data class CheckIsLoggedIn(val isPinValidated: Boolean, val isAfterWalletCreation: Boolean) :
+    data class CheckIsLoggedIn(
+        val isPinValidated: Boolean,
+        val isAfterWalletCreation: Boolean,
+        val referralCode: String?
+    ) :
         LoaderIntents() {
         override fun reduce(oldState: LoaderState): LoaderState = oldState
     }

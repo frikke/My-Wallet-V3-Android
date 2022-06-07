@@ -47,7 +47,8 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
@@ -303,7 +304,7 @@ class SimpleBuyInteractor(
         action: BankTransferAction
     ): BankProviderAccountAttributes =
         when (partner) {
-            BankPartner.YODLEE ->
+            BankPartner.YODLEE, BankPartner.PLAID ->
                 BankProviderAccountAttributes(
                     providerAccountId = providerAccountId,
                     accountId = accountId
@@ -487,13 +488,8 @@ class SimpleBuyInteractor(
         cardDetails = cardData.toCardDetails(),
         billingAddress = billingAddress.toCardBillingAddress(),
         apiKey = acquirer.apiKey
-    )?.fold(
-        onSuccess = { token -> token },
-        onFailure = { cardProcessingFailure ->
-            Timber.e(cardProcessingFailure.throwable)
-            EMPTY_PAYMENT_TOKEN
-        }
-    )
+    )?.doOnFailure { Timber.e(it.throwable) }
+        ?.getOrDefault(EMPTY_PAYMENT_TOKEN)
         ?: EMPTY_PAYMENT_TOKEN
 
     fun updateApprovalStatus(callbackPath: String) {

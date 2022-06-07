@@ -58,7 +58,6 @@ class Erc20DataManagerTest {
     private val balanceCallCache: Erc20BalanceCallCache = mock()
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val assetCatalogue: AssetCatalogue = mockk()
-    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag = mock()
     private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(false))
     }
@@ -68,7 +67,6 @@ class Erc20DataManagerTest {
         balanceCallCache = balanceCallCache,
         historyCallCache = historyCallCache,
         assetCatalogue = assetCatalogue,
-        ethMemoForHotWalletFeatureFlag = ethMemoForHotWalletFeatureFlag,
         ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag
     )
 
@@ -170,12 +168,12 @@ class Erc20DataManagerTest {
     }
 
     @Test
-    fun `createErc20Transaction correctly constructs a transaction`() {
+    fun `createErc20Transaction correctly constructs a transaction without hot wallet`() {
         val nonce = 1001.toBigInteger()
         every { ethDataManager.getNonce(any()) } returns Single.just(nonce)
-        whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(false))
 
-        val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
+        val destination = ""
+        val to = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
         val amount = 200.toBigInteger()
         val gasPrice = 5.toBigInteger()
         val gasLimit = 21.toBigInteger()
@@ -185,7 +183,7 @@ class Erc20DataManagerTest {
 
         subject.createErc20Transaction(
             asset = ERC20_TOKEN,
-            to = destination,
+            to = to,
             amount = amount,
             gasPriceWei = gasPrice,
             gasLimitGwei = gasLimit,
@@ -212,7 +210,6 @@ class Erc20DataManagerTest {
         val extraGasLimit = 1.toBigInteger()
         every { ethDataManager.getNonce(any()) } returns Single.just(nonce)
         every { ethDataManager.extraGasLimitForMemo() } returns extraGasLimit
-        whenever(ethMemoForHotWalletFeatureFlag.enabled).thenReturn(Single.just(true))
 
         val destination = "0x2ca28ffadd20474ffe2705580279a1e67cd10a29"
         val hotWalletAddress = "0x2ca28ffadd20474ffe2705580279a1e67cd10a30"
@@ -428,7 +425,7 @@ class Erc20DataManagerTest {
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
 
         private val UNKNOWN_ERC20_TOKEN: AssetInfo = object : CryptoCurrency(
             displayTicker = "WHATEVER",
@@ -440,6 +437,6 @@ class Erc20DataManagerTest {
             l2identifier = CONTRACT_ADDRESS,
             requiredConfirmations = 5,
             colour = "#123456"
-        ) { }
+        ) {}
     }
 }

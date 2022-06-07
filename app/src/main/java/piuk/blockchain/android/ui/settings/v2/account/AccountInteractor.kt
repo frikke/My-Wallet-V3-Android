@@ -3,15 +3,14 @@ package piuk.blockchain.android.ui.settings.v2.account
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
@@ -26,8 +25,7 @@ class AccountInteractor internal constructor(
     private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val exchangeLinkingState: ExchangeLinking,
-    private val referralService: ReferralService,
-    private val referralFeatureFlag: IntegratedFeatureFlag
+    private val referralService: ReferralService
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -58,7 +56,7 @@ class AccountInteractor internal constructor(
 
     suspend fun getDebitCardState(): Outcome<BlockchainCardError, BlockchainCardOrderState> =
         blockchainCardRepository.getCards()
-            .mapLeft { BlockchainCardError.GetCardsRequestFailed }
+            .mapError { BlockchainCardError.GetCardsRequestFailed }
             .flatMap { cards ->
                 val activeCards = cards.filter { it.status != BlockchainCardStatus.TERMINATED }
                 if (activeCards.isNotEmpty()) {
@@ -66,7 +64,7 @@ class AccountInteractor internal constructor(
                     Outcome.Success(BlockchainCardOrderState.Ordered(activeCards.first()))
                 } else {
                     blockchainCardRepository.getProducts()
-                        .mapLeft { BlockchainCardError.GetProductsRequestFailed }
+                        .mapError { BlockchainCardError.GetProductsRequestFailed }
                         .map { products ->
                             if (products.isNotEmpty())
                                 BlockchainCardOrderState.Eligible(products)
@@ -76,12 +74,5 @@ class AccountInteractor internal constructor(
                 }
             }
 
-    suspend fun getReferralData() = if (referralFeatureFlag.isEnabled()) {
-        referralService.fetchReferralData().fold(
-            onSuccess = { it },
-            onFailure = { ReferralInfo.NotAvailable }
-        )
-    } else {
-        ReferralInfo.NotAvailable
-    }
+    suspend fun getReferralData() = referralService.fetchReferralData().getOrDefault(ReferralInfo.NotAvailable)
 }

@@ -160,6 +160,30 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/referral_layout"
+                style="@style/CommonDataInputAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginRight="@dimen/small_margin"
+                android:hint="@string/new_account_referral_code"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_state"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/referral_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/email"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/wallet_password_checkbox"
                 android:layout_width="wrap_content"
@@ -170,7 +194,7 @@
                 android:button="@drawable/checkbox_selector_blue"
                 android:paddingEnd="@dimen/very_small_margin"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/select_state" />
+                app:layout_constraintTop_toBottomOf="@id/referral_layout" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/wallet_password_blurb"
@@ -183,7 +207,7 @@
                 android:lineSpacingExtra="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/wallet_password_checkbox"
-                app:layout_constraintTop_toBottomOf="@id/select_state"
+                app:layout_constraintTop_toBottomOf="@id/referral_layout"
                 tools:text="@string/password_disclaimer_1" />
 
             <Button

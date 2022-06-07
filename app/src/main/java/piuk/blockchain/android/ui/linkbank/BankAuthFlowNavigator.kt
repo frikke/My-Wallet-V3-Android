@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.linkbank
 
 import com.blockchain.banking.BankPaymentApproval
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
@@ -16,6 +17,7 @@ interface BankAuthFlowNavigator {
     fun launchYapilyBankSelection(attributes: YapilyAttributes)
     fun showTransferDetails()
     fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String)
+    fun launchPlaidLink(attributes: PlaidAttributes, id: String, retry: Boolean = false)
 
     @Deprecated("will be deleted after FF is removed")
     fun yapilyAgreementAccepted(institution: YapilyInstitution)

@@ -1,6 +1,7 @@
 package com.blockchain.nabu.service
 
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.TransactionError
@@ -42,9 +43,11 @@ import com.blockchain.nabu.models.responses.swap.QuoteRequest
 import com.blockchain.nabu.models.responses.swap.QuoteResponse
 import com.blockchain.nabu.models.responses.swap.SwapLimitsResponse
 import com.blockchain.nabu.models.responses.swap.UpdateSwapOrderBody
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenRequest
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.veriff.VeriffApplicantAndToken
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -52,7 +55,9 @@ import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 
 class NabuService internal constructor(
-    private val nabu: Nabu
+    private val nabu: Nabu,
+    private val remoteConfigPrefs: RemoteConfigPrefs,
+    private val environmentConfig: EnvironmentConfig
 ) {
     internal fun getAuthToken(
         jwt: String
@@ -193,7 +198,7 @@ class NabuService internal constructor(
     ).wrapErrorMessage()
 
     internal fun recoverUser(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.recoverUser(
         offlineToken.userId,
@@ -202,7 +207,7 @@ class NabuService internal constructor(
     ).wrapErrorMessage()
 
     internal fun resetUserKyc(
-        offlineToken: NabuOfflineTokenResponse,
+        offlineToken: NabuOfflineToken,
         jwt: String
     ): Completable = nabu.resetUserKyc(
         offlineToken.userId,
@@ -248,8 +253,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         createOrderRequest: CreateOrderRequest
     ): Single<CustodialOrderResponse> = nabu.createCustodialOrder(
-        sessionToken.authHeader,
-        createOrderRequest
+        authorization = sessionToken.authHeader,
+        order = createOrderRequest,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     internal fun fetchProductLimits(
@@ -318,7 +324,10 @@ class NabuService internal constructor(
         order: CustodialWalletOrder,
         action: String?
     ) = nabu.createOrder(
-        authorization = sessionToken.authHeader, action = action, order = order
+        authorization = sessionToken.authHeader,
+        action = action,
+        order = order,
+        localisedError = getLocalisedErrorIfEnabled()
     ).onErrorResumeNext {
         if (it is HttpException && it.code() == 409) {
             Single.error(TransactionError.OrderLimitReached)
@@ -392,8 +401,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         pendingOnly: Boolean
     ) = nabu.getOrders(
-        sessionToken.authHeader,
-        pendingOnly
+        authorization = sessionToken.authHeader,
+        pendingOnly = pendingOnly,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     internal fun getSwapTrades(sessionToken: NabuSessionTokenResponse) = nabu.getSwapOrders(sessionToken.authHeader)
@@ -405,7 +415,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         orderId: String
     ) = nabu.deleteBuyOrder(
-        sessionToken.authHeader, orderId
+        authorization = sessionToken.authHeader,
+        orderId = orderId,
+        localisedError = getLocalisedErrorIfEnabled()
     ).onErrorResumeNext {
         if (it is HttpException && it.code() == 409) {
             Completable.error(TransactionError.OrderNotCancelable)
@@ -418,7 +430,9 @@ class NabuService internal constructor(
         sessionToken: NabuSessionTokenResponse,
         orderId: String
     ) = nabu.getBuyOrder(
-        sessionToken.authHeader, orderId
+        authHeader = sessionToken.authHeader,
+        orderId = orderId,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     fun confirmOrder(
@@ -426,7 +440,10 @@ class NabuService internal constructor(
         orderId: String,
         confirmBody: ConfirmOrderRequestBody
     ) = nabu.confirmOrder(
-        sessionToken.authHeader, orderId, confirmBody
+        authHeader = sessionToken.authHeader,
+        orderId = orderId,
+        confirmBody = confirmBody,
+        localisedError = getLocalisedErrorIfEnabled()
     ).wrapErrorMessage()
 
     fun transferFunds(
@@ -517,6 +534,13 @@ class NabuService internal constructor(
         authorization = sessionToken.authHeader,
         id = id
     ).wrapErrorMessage()
+
+    private fun getLocalisedErrorIfEnabled(): String? =
+        if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {
+            remoteConfigPrefs.brokerageErrorsCode
+        } else {
+            null
+        }
 
     companion object {
         internal const val CLIENT_TYPE = "APP"

@@ -18,6 +18,10 @@ sealed class BlockchainCardError {
     object LinkCardAccountFailed : BlockchainCardError()
     object GetCardLinkedAccountFailed : BlockchainCardError()
     object LoadAllWalletsFailed : BlockchainCardError()
+    object LockCardRequestFailed : BlockchainCardError()
+    object UnlockCardRequestFailed : BlockchainCardError()
+    object GetAssetFailed : BlockchainCardError()
+    object GetFiatAccountFailed : BlockchainCardError()
 }
 
 @Parcelize
@@ -59,5 +63,6 @@ enum class BlockchainCardType {
 enum class BlockchainCardStatus {
     CREATED,
     ACTIVE,
+    LOCKED,
     TERMINATED
 }

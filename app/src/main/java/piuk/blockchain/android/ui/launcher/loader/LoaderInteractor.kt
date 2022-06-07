@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -21,6 +22,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.io.Serializable
+import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -42,7 +44,8 @@ class LoaderInteractor(
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
-    private val termsAndConditionsFeatureFlag: FeatureFlag
+    private val termsAndConditionsFeatureFlag: FeatureFlag,
+    private val referralService: ReferralService
 ) {
 
     private val wallet: Wallet
@@ -71,7 +74,7 @@ class LoaderInteractor(
     private val notificationTokenUpdate: Completable
         get() = notificationTokenManager.resendNotificationToken().onErrorComplete()
 
-    fun initSettings(isAfterWalletCreation: Boolean): Disposable {
+    fun initSettings(isAfterWalletCreation: Boolean, referralCode: String?): Disposable {
         return settings
             .flatMap {
                 metadata.toSingle { it }
@@ -88,6 +91,10 @@ class LoaderInteractor(
                     emitter.onNext(
                         LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)
                     )
+                }
+            }.then {
+                rxCompletable {
+                    referralService.associateReferralCodeIfPresent(referralCode)
                 }
             }.thenMaybe {
                 termsAndConditionsFeatureFlag.enabled

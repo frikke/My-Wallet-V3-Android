@@ -18,7 +18,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.Tiers
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -249,7 +249,7 @@ class NabuUserIdentityTest {
     fun `has received STX airdrop`() {
         val userId = "user_id"
         val userToken = "user_token"
-        val mockOfflineTokenResponse = NabuOfflineTokenResponse(userId, userToken)
+        val mockOfflineTokenResponse = NabuOfflineToken(userId, userToken)
         val mockNabuUser: NabuUser = mock {
             on { isStxAirdropRegistered }.thenReturn(true)
         }
@@ -265,7 +265,7 @@ class NabuUserIdentityTest {
     fun `has not received STX airdrop`() {
         val userId = "user_id"
         val userToken = "user_token"
-        val mockOfflineTokenResponse = NabuOfflineTokenResponse(userId, userToken)
+        val mockOfflineTokenResponse = NabuOfflineToken(userId, userToken)
         val mockNabuUser: NabuUser = mock {
             on { isStxAirdropRegistered }.thenReturn(false)
         }

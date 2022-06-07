@@ -21,6 +21,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.KycRecoveryResubm
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycResubmissionAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.MajorProductBlockedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.NewAssetAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.NftAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
@@ -268,6 +269,13 @@ val dashboardAnnouncementsModule = module {
         factory {
             WalletConnectAnnouncement(
                 dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
+
+        factory {
+            NftAnnouncement(
+                dismissRecorder = get(),
+                nftAnnouncementPrefs = get()
             )
         }.bind(AnnouncementRule::class)
     }

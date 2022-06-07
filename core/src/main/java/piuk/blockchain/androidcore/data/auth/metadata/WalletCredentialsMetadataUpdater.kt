@@ -5,10 +5,8 @@ import com.blockchain.metadata.MetadataRepository
 import com.blockchain.metadata.load
 import com.blockchain.metadata.save
 import io.reactivex.rxjava3.core.Completable
-import kotlinx.serialization.InternalSerializationApi
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-@OptIn(InternalSerializationApi::class)
 class WalletCredentialsMetadataUpdater(
     private val metadataRepository: MetadataRepository,
     private val payloadDataManager: PayloadDataManager

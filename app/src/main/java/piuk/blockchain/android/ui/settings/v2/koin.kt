@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.referralsFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -65,8 +64,7 @@ val redesignSettingsModule = module {
                 cardService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
-                referralService = get(),
-                referralFeatureFlag = get(referralsFeatureFlag)
+                referralService = get()
             )
         }
 
@@ -202,8 +200,7 @@ val redesignSettingsModule = module {
                 blockchainCardRepository = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
-                referralService = get(),
-                referralFeatureFlag = get(referralsFeatureFlag)
+                referralService = get()
             )
         }
 

@@ -23,6 +23,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
@@ -64,6 +65,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
     private val linkingBankId: String by lazy {
         arguments?.getString(LINKING_BANK_ID).orEmpty()
+    }
+
+    private val linkingBankToken: String by lazy {
+        arguments?.getString(LINKING_BANK_TOKEN).orEmpty()
     }
 
     private val errorState: BankAuthError? by unsafeLazy {
@@ -151,7 +156,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankLinkingProcessState.ACTIVATING -> showActivationInProgress()
             BankLinkingProcessState.IN_EXTERNAL_FLOW -> {
                 newState.linkBankTransfer?.attributes?.let {
-                    showExternalFlow(it as YapilyAttributes)
+                    if (it is YapilyAttributes) {
+                        showExternalFlow(it)
+                    }
                 }
             }
             BankLinkingProcessState.APPROVAL -> {
@@ -200,9 +207,23 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             }
         } else {
             linkBankTransfer?.let {
-                model.process(
-                    BankAuthIntent.UpdateAccountProvider(accountProviderId, accountId, linkingBankId, it, authSource)
-                )
+                if (it.partner == BankPartner.PLAID) {
+                    model.process(
+                        BankAuthIntent.LinkPlaidAccount(
+                            accountId = accountId,
+                            linkBankAccountId = linkingBankId,
+                            linkBankToken = linkingBankToken,
+                            linkBankTransfer = it,
+                            authSource = authSource
+                        )
+                    )
+                } else {
+                    model.process(
+                        BankAuthIntent.UpdateAccountProvider(
+                            accountProviderId, accountId, linkingBankId, it, authSource
+                        )
+                    )
+                }
             }
         }
     }
@@ -316,36 +337,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun setButtonsForErrors(
-        errorState: BankAuthError,
-        partner: BankPartner?,
-        linkBankTransferId: String
-    ) {
+    private fun setButtonsForErrors(errorState: BankAuthError, partner: BankPartner?, linkBankTransferId: String) {
         when (errorState) {
             BankAuthError.LinkedBankAlreadyLinked -> {
                 showGoBackButton(binding.mainCta) {
                     logRetryAnalytics(errorState, partner)
-                    if (partner == BankPartner.YAPILY) {
-                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                    } else {
-                        navigator().launchYodleeSplash(
-                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                            bankId = linkBankTransferId
-                        )
-                    }
+                    navigateBack(partner, linkBankTransferId)
                 }
             }
             BankAuthError.LinkedBankInvalid,
             BankAuthError.LinkedBankAccountUnsupported -> {
                 showGoBackButton(binding.mainCta) {
-                    if (partner == BankPartner.YAPILY) {
-                        navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                    } else {
-                        navigator().launchYodleeSplash(
-                            attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                            bankId = linkBankTransferId
-                        )
-                    }
+                    navigateBack(partner, linkBankTransferId)
                 }
             }
             BankAuthError.LinkedBankInfoNotFound,
@@ -358,14 +361,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     visible()
                     setOnClickListener {
                         logRetryAnalytics(errorState, partner)
-                        if (partner == BankPartner.YAPILY) {
-                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                        } else {
-                            navigator().launchYodleeSplash(
-                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                                bankId = linkBankTransferId
-                            )
-                        }
+                        retryLinking(partner, linkBankTransferId)
                     }
                 }
                 showGoBackButton(binding.secondaryCta) {
@@ -379,14 +375,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     visible()
                     setOnClickListener {
                         logRetryAnalytics(errorState, partner)
-                        if (partner == BankPartner.YAPILY) {
-                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                        } else {
-                            navigator().launchYodleeSplash(
-                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                                bankId = linkBankTransferId
-                            )
-                        }
+                        retryLinking(partner, linkBankTransferId)
                     }
                 }
                 showGoBackButton(binding.secondaryCta) {
@@ -400,14 +389,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     visible()
                     setOnClickListener {
                         logRetryAnalytics(errorState, partner)
-                        if (partner == BankPartner.YAPILY) {
-                            navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
-                        } else {
-                            navigator().launchYodleeSplash(
-                                attributes = linkBankTransfer?.attributes as YodleeAttributes,
-                                bankId = linkBankTransferId
-                            )
-                        }
+                        retryLinking(partner, linkBankTransferId)
                     }
                 }
                 showGoBackButton(binding.secondaryCta) {
@@ -423,11 +405,33 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         }
     }
 
-    private fun showErrorState(
-        errorState: BankAuthError,
-        partner: BankPartner?,
-        bankId: String
-    ) {
+    private fun navigateBack(partner: BankPartner?, bankId: String) {
+        when (partner) {
+            BankPartner.YAPILY ->
+                navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+            BankPartner.YODLEE ->
+                navigator().launchYodleeSplash(linkBankTransfer?.attributes as YodleeAttributes, bankId)
+            BankPartner.PLAID ->
+                navigator().bankAuthCancelled()
+            null ->
+                navigator().bankAuthCancelled()
+        }.exhaustive
+    }
+
+    private fun retryLinking(partner: BankPartner?, bankId: String) {
+        when (partner) {
+            BankPartner.YAPILY ->
+                navigator().launchYapilyBankSelection(linkBankTransfer?.attributes as YapilyAttributes)
+            BankPartner.YODLEE ->
+                navigator().launchYodleeSplash(linkBankTransfer?.attributes as YodleeAttributes, bankId)
+            BankPartner.PLAID ->
+                navigator().launchPlaidLink(linkBankTransfer?.attributes as PlaidAttributes, bankId, true)
+            null ->
+                navigator().bankAuthCancelled()
+        }.exhaustive
+    }
+
+    private fun showErrorState(errorState: BankAuthError, partner: BankPartner?, bankId: String) {
         setErrorIcons(errorState)
         setButtonsForErrors(errorState, partner, bankId)
 
@@ -441,33 +445,35 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankAuthError.LinkedBankInvalid,
             BankAuthError.LinkedBankAccountUnsupported -> {
                 logAnalytics(BankAuthAnalytics.INCORRECT_ACCOUNT, partner)
-                if (partner == BankPartner.YODLEE) {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_account_ach_error_title),
-                        getString(R.string.bank_linking_account_ach_error_subtitle)
-                    )
-                } else {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_account_ob_error_title),
-                        getString(R.string.bank_linking_account_ob_error_subtitle)
-                    )
-                }
+                when (partner) {
+                    BankPartner.YODLEE, BankPartner.PLAID ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_account_ach_error_title),
+                            getString(R.string.bank_linking_account_ach_error_subtitle)
+                        )
+                    BankPartner.YAPILY, null ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_account_ob_error_title),
+                            getString(R.string.bank_linking_account_ob_error_subtitle)
+                        )
+                }.exhaustive
             }
             BankAuthError.LinkedBankInfoNotFound,
             BankAuthError.LinkedBankInternalFailure,
             BankAuthError.LinkedBankFailure,
             BankAuthError.LinkedBankFraud -> {
-                if (partner == BankPartner.YODLEE) {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ob_title),
-                        getString(R.string.bank_linking_failed_subtitle)
-                    )
-                } else {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ach_title),
-                        getString(R.string.bank_linking_failed_subtitle)
-                    )
-                }
+                when (partner) {
+                    BankPartner.YODLEE, BankPartner.PLAID ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_failed_ob_title),
+                            getString(R.string.bank_linking_failed_subtitle)
+                        )
+                    BankPartner.YAPILY, null ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_failed_ach_title),
+                            getString(R.string.bank_linking_failed_subtitle)
+                        )
+                }.exhaustive
             }
             BankAuthError.LinkedBankAlreadyLinked -> {
                 logAnalytics(BankAuthAnalytics.ALREADY_LINKED, partner)
@@ -495,17 +501,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 }
             }
             BankAuthError.LinkedBankExpired -> {
-                if (partner == BankPartner.YODLEE) {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_expired_ach_title),
-                        getString(R.string.bank_linking_expired_subtitle)
-                    )
-                } else {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_expired_ob_title),
-                        getString(R.string.bank_linking_expired_subtitle)
-                    )
-                }
+                when (partner) {
+                    BankPartner.YODLEE, BankPartner.PLAID ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_expired_ach_title),
+                            getString(R.string.bank_linking_expired_subtitle)
+                        )
+                    BankPartner.YAPILY, null ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_expired_ob_title),
+                            getString(R.string.bank_linking_expired_subtitle)
+                        )
+                }.exhaustive
             }
             BankAuthError.LinkedBankRejected -> {
                 with(binding) {
@@ -530,17 +537,18 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             )
             else -> {
                 logAnalytics(BankAuthAnalytics.GENERIC_ERROR, partner)
-                if (partner == BankPartner.YODLEE) {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ach_title),
-                        getString(R.string.bank_linking_failed_subtitle)
-                    )
-                } else {
-                    setTitleAndSubtitle(
-                        getString(R.string.bank_linking_failed_ob_title),
-                        getString(R.string.bank_linking_failed_subtitle)
-                    )
-                }
+                when (partner) {
+                    BankPartner.YODLEE, BankPartner.PLAID ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_failed_ach_title),
+                            getString(R.string.bank_linking_failed_subtitle)
+                        )
+                    BankPartner.YAPILY, null ->
+                        setTitleAndSubtitle(
+                            getString(R.string.bank_linking_failed_ob_title),
+                            getString(R.string.bank_linking_failed_subtitle)
+                        )
+                }.exhaustive
             }
         }
     }
@@ -657,7 +665,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                             getString(R.string.yapily_linking_pending_subtitle)
                         )
                     }
-                    BankPartner.YODLEE -> {
+                    BankPartner.YODLEE, BankPartner.PLAID -> {
                         setTitleAndSubtitle(
                             getString(R.string.yodlee_linking_title),
                             getString(R.string.yodlee_linking_subtitle)
@@ -737,6 +745,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         private const val ACCOUNT_PROVIDER_ID = "ACCOUNT_PROVIDER_ID"
         private const val ACCOUNT_ID = "ACCOUNT_ID"
         private const val LINKING_BANK_ID = "LINKING_BANK_ID"
+        private const val LINKING_BANK_TOKEN = "LINKING_BANK_TOKEN"
         private const val LINK_BANK_TRANSFER = "LINK_BANK_TRANSFER"
         private const val LINK_BANK_SOURCE = "LINK_BANK_SOURCE"
         private const val ERROR_STATE = "ERROR_STATE"
@@ -748,6 +757,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             accountProviderId: String,
             accountId: String,
             linkingBankId: String,
+            linkingBankToken: String? = null,
             linkBankTransfer: LinkBankTransfer? = null,
             authSource: BankAuthSource
         ) = BankAuthFragment().apply {
@@ -755,6 +765,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 putString(ACCOUNT_PROVIDER_ID, accountProviderId)
                 putString(ACCOUNT_ID, accountId)
                 putString(LINKING_BANK_ID, linkingBankId)
+                putString(LINKING_BANK_TOKEN, linkingBankToken)
                 putSerializable(LINK_BANK_TRANSFER, linkBankTransfer)
                 putSerializable(LINK_BANK_SOURCE, authSource)
             }

@@ -471,6 +471,9 @@ dependencies {
     // Checkout.com
     implementation Libraries.checkoutCom
 
+    // Plaid
+    implementation Libraries.plaidLink
+
     // Compose
     implementation Libraries.composeUi
     implementation Libraries.composeMaterial

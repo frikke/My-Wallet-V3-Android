@@ -1,23 +1,20 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.core.featureflag.LocalOnlyFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.ethMemoHotWalletFeatureFlag
-import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
-import com.blockchain.koin.orderRewardsFeatureFlag
+import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
-import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
@@ -25,30 +22,11 @@ import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
-import io.reactivex.rxjava3.core.Single
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
-
-    single(googlePayFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_gpay",
-                "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(ethMemoHotWalletFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_eth_memo",
-                "ETH Memo for Hot Wallets"
-            )
-        )
-    }.bind(FeatureFlag::class)
 
     single(replaceGsonKtxFeatureFlag) {
         IntegratedFeatureFlag(
@@ -104,15 +82,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(customerSupportSheetFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_customer_support_sheet",
-                "Customer Support Sheet"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(notificationPreferencesFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -123,18 +92,10 @@ val featureFlagsModule = module {
     }.bind(FeatureFlag::class)
 
     single(newAssetPriceStoreFeatureFlag) {
-        IntegratedFeatureFlag(
-//            remoteFlag = get<RemoteConfig>().featureFlag(
-//                "android_ff_new_asset_price_store",
-//                "New AssetPriceStore with Store Cache"
-//            )
-            // TODO(aromano): Reenable the flag once FiatCryptoInputView and FiatCryptoConversionModel concurrency issues are solved
-            remoteFlag = object : FeatureFlag {
-                override val key: String = "android_ff_new_asset_price_store"
-                override val readableName: String = "New AssetPriceStore with Store Cache"
-                override val enabled: Single<Boolean> = Single.just(false)
-                override val isEnabled: Boolean = false
-            }
+        LocalOnlyFeatureFlag(
+            key = "android_ff_new_asset_price_store",
+            readableName = "New AssetPriceStore with Store Cache",
+            prefs = get()
         )
     }.bind(FeatureFlag::class)
 
@@ -152,15 +113,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_eth_layer_two_networks",
                 "Enable Eth L2 Networks"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(orderRewardsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_order_rewards",
-                "Order Rewards Screen By Balance"
             )
         )
     }.bind(FeatureFlag::class)
@@ -192,15 +144,6 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
-    single(removeSafeconnectFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_remove_safeconnect_screen",
-                "Remove Safeconnect Screen"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
     single(referralsFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -224,6 +167,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_stx_airdrop_users",
                 "Enable STX For Airdrop Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(plaidFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_plaid",
+                "Enable Plaid For ACH Users"
             )
         )
     }.bind(FeatureFlag::class)

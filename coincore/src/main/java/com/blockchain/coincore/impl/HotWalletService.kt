@@ -5,16 +5,13 @@ import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.chains.erc20.isErc20
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 
 class HotWalletService(
-    private val walletApi: WalletApi,
-    private val ethMemoForHotWalletFeatureFlag: IntegratedFeatureFlag
+    private val walletApi: WalletApi
 ) {
     // When the feature is not enabled, or no hot wallet address is found for the given product/currency
     // return the original target address. This will mean no change in behaviour.
@@ -23,18 +20,11 @@ class HotWalletService(
         target: CryptoAccount,
         isSwap: Boolean = false
     ): Single<String> {
-        return Singles.zip(
-            ethMemoForHotWalletFeatureFlag.enabled,
-            Single.fromObservable(walletApi.walletOptions)
-        ).map { (enabled, walletOptions) ->
-            if (enabled) {
-                val product = resolveProduct(target, isSwap)
-                walletOptions.hotWalletAddresses[product.name.lowercase()]?.let { addressesForProduct ->
-                    addressesForProduct[getAssetNetworkTicker(sourceCurrency).lowercase()] ?: EMPTY_ADDRESS
-                } ?: EMPTY_ADDRESS
-            } else {
-                EMPTY_ADDRESS
-            }
+        return Single.fromObservable(walletApi.walletOptions).map { walletOptions ->
+            val product = resolveProduct(target, isSwap)
+            walletOptions.hotWalletAddresses[product.name.lowercase()]?.let { addressesForProduct ->
+                addressesForProduct[getAssetNetworkTicker(sourceCurrency).lowercase()] ?: EMPTY_ADDRESS
+            } ?: EMPTY_ADDRESS
         }
     }
 

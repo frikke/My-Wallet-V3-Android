@@ -1,6 +1,6 @@
 package com.blockchain.nabu
 
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import io.reactivex.rxjava3.core.Single
 
 interface NabuToken {
@@ -8,5 +8,5 @@ interface NabuToken {
     /**
      * Find or creates the token
      */
-    fun fetchNabuToken(): Single<NabuOfflineTokenResponse>
+    fun fetchNabuToken(): Single<NabuOfflineToken>
 }

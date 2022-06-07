@@ -8,13 +8,15 @@ import com.blockchain.api.services.DynamicAssetProducts
 import com.blockchain.core.dynamicassets.CryptoAssetList
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.FiatAssetList
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 internal class DynamicAssetsDataManagerImpl(
     private val discoveryService: AssetDiscoveryService,
@@ -39,29 +41,21 @@ internal class DynamicAssetsDataManagerImpl(
             .map { list -> list.map { it.toFiatCurrency() } }
 
     override fun getAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation> =
-        rxSingle {
-            discoveryService.getAssetInformation(assetTicker = asset.networkTicker).fold(
-                onFailure = {
-                    throw it.throwable
-                },
-                onSuccess = { info ->
-                    DetailedAssetInformation(
-                        description = info?.description.orEmpty(),
-                        website = info?.website.orEmpty(),
-                        whitepaper = info?.whitepaper.orEmpty()
-                    )
-                }
-            )
+        rxSingleOutcome {
+            discoveryService.getAssetInformation(assetTicker = asset.networkTicker).map { info ->
+                DetailedAssetInformation(
+                    description = info?.description.orEmpty(),
+                    website = info?.website.orEmpty(),
+                    whitepaper = info?.whitepaper.orEmpty()
+                )
+            }
         }
 
     private fun getEvmCurrencies(): Single<DynamicAssetList> {
         return rxSingle {
             experimentalL1EvmAssets.map { asset ->
                 discoveryService.getAssetsForEvm(asset.displayTicker.lowercase())
-                    .fold(
-                        onFailure = { throw it.throwable },
-                        onSuccess = { it }
-                    )
+                    .getOrThrow()
             }.flatten()
         }
     }

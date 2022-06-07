@@ -4,8 +4,9 @@
     <string name="app_name" translatable="false">Blockchain</string>
     <string name="alpha_app_name" translatable="false">Blockchain Alpha</string>
     <string name="staging_app_name" translatable="false">BlockStaging</string>
-    <string name="debug_app_shortcut">BC Debug Opts</string>
-    <string name="debug_app_shortcut_short">BC Opts</string>
+    <string name="debug_app_shortcut" translatable="false">BC Debug Opts</string>
+    <string name="debug_app_shortcut_short" translatable="false">BC Opts</string>
+    <string name="debug_menu_brokerage_link" translatable="false">Error keys can be found <a href="https://github.com/blockchain/lib-nabu-localisation/blob/master/nabu-localisation/src/main/resources/errors/titles/locale/en.json">here</a>\n\nPLEASE NOTE: Key should be used without \'blockchain.nabu.error.\' prefix and \'.title\' suffix</string>
     <string name="common_company_name" translatable="false">Blockchain.com</string>
     <string name="common_replaceable_value" translatable="false">%1$s</string>
     <string name="common_hyphenated_strings" translatable="false">%1$s - %2$s</string>
@@ -213,6 +214,8 @@
     >
     <string name="new_account_cta_text">Next</string>
     <string name="new_account_title_1">New Account</string>
+    <string name="new_account_referral_code">Enter referral code</string>
+    <string name="new_account_referral_code_invalid">Please enter a valid referral code</string>
     <string name="create_wallet_state">State</string>
     <string name="create_wallet_country">Country of Residence</string>
     <string name="strength_weak">Weak</string>
@@ -943,6 +946,11 @@
     <string name="wallet_connect_announcement_card_title">WalletConnect is Now Available!</string>
     <string name="wallet_connect_announcement_card_subtitle">Securely connect your wallet to any web 3.0 application. </string>
     <string name="wallet_connect_announcement_action">Learn More</string>
+
+    <!-- NFT announcement -->
+    <string name="nft_announcement_title">View NFTs In Your Wallet</string>
+    <string name="nft_announcement_description">Soon you will be able to view your NFTs right from the comfort of your wallet.</string>
+    <string name="nft_announcement_action">Join Waitlist</string>
 
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
@@ -2900,6 +2908,7 @@
     <!--  Referral -->
     <string name="referral_code_title">Your referral code</string>
     <string name="referral_criteria_title">What my invited friends need to do?</string>
+    <string name="referral_program">Referral Program</string>
 
     <!-- App Rating-->
     <string name="app_rating_title">Do you like our app?</string>
@@ -2985,4 +2994,9 @@
 
     <!-- Accessibility -->
     <string name="accessibility_action_menu">Action Menu</string>
+    <string name="accessibility_back">Back</string>
+    <string name="accessibility_qr_code_scanner">QR Code Scanner</string>
+    <string name="accessibility_user_settings">User Settings</string>
+    <string name="accessibility_close">Close</string>
+    <string name="accessibility_support">Support</string>
 </resources>

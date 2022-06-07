@@ -7,6 +7,7 @@ import com.blockchain.domain.common.model.CountryIso
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -15,6 +16,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.payload.data.Wallet
 import io.reactivex.rxjava3.core.Single
 import java.util.Locale
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,6 +40,7 @@ class CreateWalletPresenterTest {
     private val environmentConfig: EnvironmentConfig = mock()
     private val formatChecker: FormatChecker = mock()
     private val eligibilityService: EligibilityService = mock()
+    private val referralInteractor: ReferralInteractor = mock()
 
     @get:Rule
     val rxSchedulers = rxInit {
@@ -53,9 +57,16 @@ class CreateWalletPresenterTest {
             analytics = analytics,
             environmentConfig = environmentConfig,
             formatChecker = formatChecker,
-            eligibilityService = eligibilityService
+            eligibilityService = eligibilityService,
+            referralInteractor = referralInteractor
         )
         subject.initView(view)
+
+        whenever(referralInteractor.validateReferralIfNeeded(any()))
+            .doReturn(Single.just(ReferralCodeState.NOT_AVAILABLE))
+
+        val eligibleCountries: List<CountryIso> = listOf("US", "UK", "PT", "DE", "NL")
+        whenever(eligibilityService.getCustodialEligibleCountries()).thenReturn(Single.just(eligibleCountries))
     }
 
     @Test
@@ -87,7 +98,7 @@ class CreateWalletPresenterTest {
         )
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "", "")
         // Assert
         val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
         observer.assertComplete()
@@ -98,9 +109,61 @@ class CreateWalletPresenterTest {
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
         verify(prefsUtil).isNewlyCreated = true
-        verify(view).startPinEntryActivity()
+        verify(view).startPinEntryActivity("")
         verify(view).dismissProgressDialog()
         verify(analytics).logEvent(AnalyticsEvents.WalletCreation)
+    }
+
+    @Test
+    fun `create wallet invalid referral`() {
+        // Arrange
+        val email = "john@snow.com"
+        val pw1 = "MyTestWallet"
+        val accountName = "AccountName"
+        val recoveryPhrase = ""
+        val referral = "invalid"
+
+        whenever(view.getDefaultAccountName()).thenReturn(accountName)
+        whenever(referralInteractor.validateReferralIfNeeded(referral)).doReturn(Single.just(ReferralCodeState.INVALID))
+
+        // Act
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "", referral)
+        // Assert
+        val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
+        observer.assertComplete()
+        observer.assertNoErrors()
+
+        verifyNoMoreInteractions(prefsUtil)
+        verify(view).showProgressDialog(any())
+        verify(view).dismissProgressDialog()
+        verify(view).showReferralInvalidMessage()
+        verifyNoMoreInteractions(view)
+    }
+
+    @Test
+    fun `create wallet referral api error`() {
+        // Arrange
+        val email = "john@snow.com"
+        val pw1 = "MyTestWallet"
+        val accountName = "AccountName"
+        val recoveryPhrase = ""
+        val referral = "valid"
+
+        whenever(view.getDefaultAccountName()).thenReturn(accountName)
+        whenever(referralInteractor.validateReferralIfNeeded(referral)).doReturn(Single.error(Throwable()))
+
+        // Act
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "", referral)
+        // Assert
+        val observer = payloadDataManager.createHdWallet(pw1, accountName, email).test()
+        observer.assertComplete()
+        observer.assertNoErrors()
+
+        verifyNoMoreInteractions(prefsUtil)
+        verify(view).showProgressDialog(any())
+        verify(view).dismissProgressDialog()
+        verify(view).showReferralInvalidMessage()
+        verifyNoMoreInteractions(view)
     }
 
     @Test
@@ -121,7 +184,7 @@ class CreateWalletPresenterTest {
             .thenReturn(Single.just(wallet))
 
         // Act
-        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "")
+        subject.createOrRestoreWallet(email, pw1, recoveryPhrase, "", "", "")
 
         // Assert
         val observer = payloadDataManager.restoreHdWallet(email, pw1, accountName, recoveryPhrase)
@@ -134,8 +197,47 @@ class CreateWalletPresenterTest {
         verify(prefsUtil).walletGuid = guid
         verify(prefsUtil).sharedKey = sharedKey
         verify(prefsUtil).isNewlyCreated = true
-        verify(view).startPinEntryActivity()
+        verify(view).startPinEntryActivity(null)
         verify(view).dismissProgressDialog()
+    }
+
+    @Test
+    fun `validateReferralIfNeeded empty`() {
+        // Arrange
+        val referralCode = ""
+
+        // Act
+        val result = subject.validateReferralFormat(referralCode)
+
+        // Assert
+        assertTrue(result)
+        verify(view).hideReferralInvalidMessage()
+    }
+
+    @Test
+    fun `validateReferralIfNeeded valid`() {
+        // Arrange
+        val referralCode = "ABCD1234"
+
+        // Act
+        val result = subject.validateReferralFormat(referralCode)
+
+        // Assert
+        assertTrue(result)
+        verify(view).hideReferralInvalidMessage()
+    }
+
+    @Test
+    fun `validateReferralFormat invalid`() {
+        // Arrange
+        val referralCode = "SNOW123"
+
+        // Act
+        val result = subject.validateReferralFormat(referralCode)
+
+        // Assert
+        assertFalse(result)
+        verify(view).showReferralInvalidMessage()
     }
 
     @Test

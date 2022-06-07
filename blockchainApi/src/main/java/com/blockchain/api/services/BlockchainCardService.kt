@@ -88,4 +88,20 @@ class BlockchainCardService internal constructor(
         authorization = authHeader,
         cardId = cardId
     )
+
+    suspend fun lockCard(
+        authHeader: String,
+        cardId: String
+    ): Outcome<ApiError, CardsResponse> = api.lockCard(
+        authorization = authHeader,
+        cardId = cardId
+    )
+
+    suspend fun unlockCard(
+        authHeader: String,
+        cardId: String
+    ): Outcome<ApiError, CardsResponse> = api.unlockCard(
+        authorization = authHeader,
+        cardId = cardId
+    )
 }

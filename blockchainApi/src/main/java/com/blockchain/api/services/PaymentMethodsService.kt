@@ -4,14 +4,20 @@ import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.api.payments.data.Attributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
+import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.preferences.RemoteConfigPrefs
 import io.reactivex.rxjava3.core.Single
 
 class PaymentMethodsService internal constructor(
-    private val api: PaymentMethodsApi
+    private val api: PaymentMethodsApi,
+    private val remoteConfigPrefs: RemoteConfigPrefs,
+    private val environmentConfig: EnvironmentConfig
 ) {
 
     /**
@@ -62,24 +68,52 @@ class PaymentMethodsService internal constructor(
 
     fun deleteCard(authorization: String, cardId: String) = api.deleteCard(authorization, cardId)
 
-    fun getLinkedBank(authorization: String, id: String) = api.getLinkedBank(authorization, id)
+    fun getLinkedBank(authorization: String, id: String) = api.getLinkedBank(
+        authorization = authorization,
+        id = id,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
 
     fun getBanks(authorization: String) = api.getBanks(authorization)
 
     fun removeBeneficiary(authorization: String, id: String) = api.removeBeneficiary(authorization, id)
 
-    fun removeLinkedBank(authorization: String, id: String) = api.removeLinkedBank(authorization, id)
+    fun removeLinkedBank(authorization: String, id: String) = api.removeLinkedBank(
+        authHeader = authorization,
+        id = id,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
 
     fun linkBank(
         authorization: String,
-        fiatCurrency: String
-    ) = api.linkBank(authorization, CreateLinkBankRequestBody(fiatCurrency))
+        fiatCurrency: String,
+        supportedPartners: List<String>,
+        applicationId: String
+    ) = api.linkBank(
+        authorization = authorization,
+        body = CreateLinkBankRequestBody(
+            fiatCurrency,
+            Attributes(supportedPartners, applicationId)
+        ),
+        localisedError = getLocalisedErrorIfEnabled()
+    )
 
     fun updateAccountProviderId(
         authorization: String,
         id: String,
         body: UpdateProviderAccountBody
     ) = api.updateProviderAccount(
+        authorization = authorization,
+        id = id,
+        body = body,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
+
+    fun linkPLaidAccount(
+        authorization: String,
+        id: String,
+        body: LinkPlaidAccountBody
+    ) = api.linkPlaidAccount(
         authorization,
         id,
         body
@@ -92,7 +126,8 @@ class PaymentMethodsService internal constructor(
     ) = api.startBankTransferPayment(
         authorization = authorization,
         id = id,
-        body = body
+        body = body,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun updateOpenBankingToken(
@@ -110,7 +145,8 @@ class PaymentMethodsService internal constructor(
         paymentId: String
     ) = api.getBankTransferCharge(
         authorization = authorization,
-        paymentId = paymentId
+        paymentId = paymentId,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun getGooglePayInfo(
@@ -120,4 +156,11 @@ class PaymentMethodsService internal constructor(
         authorization = authorization,
         currency = currency
     )
+
+    private fun getLocalisedErrorIfEnabled(): String? =
+        if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {
+            remoteConfigPrefs.brokerageErrorsCode
+        } else {
+            null
+        }
 }

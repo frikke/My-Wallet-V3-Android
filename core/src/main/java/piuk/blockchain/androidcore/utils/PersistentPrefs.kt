@@ -6,6 +6,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -28,7 +29,8 @@ interface PersistentPrefs :
     AppInfoPrefs,
     RemoteConfigPrefs,
     OnboardingPrefs,
-    AppRatingPrefs {
+    AppRatingPrefs,
+    NftAnnouncementPrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc
@@ -58,13 +60,10 @@ interface PersistentPrefs :
 
     companion object {
         const val KEY_ENCRYPTED_PASSWORD = "encrypted_password"
-        const val KEY_PIN_FAILS = "pin_fails"
-
         const val KEY_EMAIL_VERIFIED = "code_verified"
         const val KEY_SCHEME_URL = "scheme_url"
         const val KEY_METADATA_URI = "metadata_uri"
         const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
-
         const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
     }
 }

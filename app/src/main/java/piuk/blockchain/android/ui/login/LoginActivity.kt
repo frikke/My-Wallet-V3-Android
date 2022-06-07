@@ -18,8 +18,6 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -68,8 +66,6 @@ class LoginActivity :
     private val recaptchaClient: GoogleReCaptchaClient by lazy {
         GoogleReCaptchaClient(this, environmentConfig)
     }
-
-    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
 
     private var state: LoginState? = null
 
@@ -189,18 +185,17 @@ class LoginActivity :
             backAction = { onBackPressed() }
         )
 
-        customerSupportSheetFF.enabled.onErrorReturn { false }.subscribe { enabled ->
-            if (enabled) {
-                updateToolbarMenuItems(
-                    listOf(
-                        NavigationBarButton.Icon(R.drawable.ic_question) {
-                            analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
-                            showCustomerSupportSheet()
-                        }
-                    )
-                )
-            }
-        }
+        updateToolbarMenuItems(
+            listOf(
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_question,
+                    contentDescription = R.string.accessibility_support
+                ) {
+                    analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
+                    showCustomerSupportSheet()
+                }
+            )
+        )
     }
 
     override fun process(intent: LoginIntents) = model.process(intent)
@@ -380,10 +375,8 @@ class LoginActivity :
         appMaintenanceJob?.cancel()
         appMaintenanceJob = lifecycleScope.launch {
             appMaintenanceViewModel.resumeAppFlow.collect {
-
                 // resume by checking deeplinks
                 checkExistingSessionOrDeeplink(intent)
-
                 appMaintenanceJob?.cancel()
                 appMaintenanceJob = null
             }

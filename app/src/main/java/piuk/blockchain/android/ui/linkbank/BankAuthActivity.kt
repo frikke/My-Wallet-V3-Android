@@ -12,22 +12,23 @@ import com.blockchain.componentlib.databinding.FragmentActivityBinding
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.removeSafeconnectFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.BankLinkingPrefs
+import com.plaid.link.OpenPlaidLink
+import com.plaid.link.linkTokenConfiguration
+import com.plaid.link.result.LinkExit
+import com.plaid.link.result.LinkSuccess
 import info.blockchain.balance.FiatCurrency
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionFragment
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.OpenBankingPermissionNavEvent
 import piuk.blockchain.android.ui.linkbank.yapily.YapilyBankSelectionFragment
-import piuk.blockchain.android.ui.linkbank.yapily.YapilyPermissionFragmentLegacy
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeSplashFragment
 import piuk.blockchain.android.ui.linkbank.yodlee.YodleeWebViewFragment
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
@@ -55,8 +56,6 @@ class BankAuthActivity :
 
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
 
-    private val removeSafeconnectFF: FeatureFlag by inject(removeSafeconnectFeatureFlag)
-
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
     }
@@ -79,13 +78,7 @@ class BankAuthActivity :
                     approvalDetails?.let {
                         title = getString(R.string.approve_payment)
 
-                        removeSafeconnectFF.enabled.subscribe { enabled ->
-                            if (enabled) {
-                                yapilyApprovalAccepted(it)
-                            } else {
-                                launchYapilyApproval(it)
-                            }
-                        }
+                        yapilyApprovalAccepted(it)
                     } ?: launchBankLinkingWithError(BankAuthError.GenericError)
                 }
                 else -> {
@@ -115,6 +108,9 @@ class BankAuthActivity :
             BankPartner.YAPILY -> {
                 launchYapilyBankSelection(linkBankTransfer.attributes as YapilyAttributes)
             }
+            BankPartner.PLAID -> {
+                launchPlaidLink(linkBankTransfer.attributes as PlaidAttributes, linkBankTransfer.id)
+            }
         }
     }
 
@@ -132,35 +128,57 @@ class BankAuthActivity :
     }
 
     override fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String) {
-        removeSafeconnectFF.enabled.subscribe { enabled ->
-            supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.content_frame,
-                    if (enabled) {
-                        OpenBankingPermissionFragment.newInstance(
-                            institution = institution,
-                            entity = entity,
-                            authSource = authSource
-                        )
-                    } else {
-                        YapilyPermissionFragmentLegacy.newInstance(
-                            institution = institution,
-                            entity = entity,
-                            authSource = authSource
-                        )
-                    }
 
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.content_frame,
+
+                OpenBankingPermissionFragment.newInstance(
+                    institution = institution,
+                    entity = entity,
+                    authSource = authSource
                 )
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
+
+            )
+            .addToBackStack(null)
+            .commitAllowingStateLoss()
+    }
+
+    override fun launchPlaidLink(attributes: PlaidAttributes, id: String, retry: Boolean) {
+        if (retry) {
+            // Need to recreate the activity, otherwise registerForActivityResult(OpenPlaidLink()) will throw an error
+            // if the activity already exists and is called outside onCreate().
+            finish()
+            startActivity(
+                newInstance(linkBankTransfer, authSource, this).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                }
+            )
+        } else {
+            val linkTokenConfiguration = linkTokenConfiguration { token = attributes.linkToken }
+            registerForActivityResult(OpenPlaidLink()) {
+                when (it) {
+                    is LinkSuccess -> launchPlaidLinking(id, it)
+                    is LinkExit -> onBackPressed()
+                }
+            }.launch(linkTokenConfiguration)
         }
     }
 
-    private fun launchYapilyApproval(approvalDetails: BankPaymentApproval) {
+    private fun launchPlaidLinking(id: String, linkSuccess: LinkSuccess) {
         supportFragmentManager.beginTransaction()
             .replace(
-                R.id.content_frame, YapilyPermissionFragmentLegacy.newInstance(approvalDetails, authSource)
+                R.id.content_frame,
+                BankAuthFragment.newInstance(
+                    accountProviderId = "",
+                    accountId = id,
+                    linkingBankId = linkSuccess.metadata.accounts.first().id,
+                    linkingBankToken = linkSuccess.publicToken,
+                    linkBankTransfer = linkBankTransfer,
+                    authSource = authSource
+                )
             )
+            .addToBackStack(BankAuthFragment::class.simpleName)
             .commitAllowingStateLoss()
     }
 
@@ -255,19 +273,9 @@ class BankAuthActivity :
 
     override fun retry() {
         when {
-            isFromDeepLink -> {
-                checkBankLinkingState(linkingId)
-            }
-            approvalDetails != null -> {
-                removeSafeconnectFF.enabled.subscribe { enabled ->
-                    approvalDetails?.let {
-                        if (enabled) {
-                            yapilyApprovalAccepted(it)
-                        } else {
-                            launchYapilyApproval(it)
-                        }
-                    }
-                }
+            isFromDeepLink -> checkBankLinkingState(linkingId)
+            approvalDetails != null -> approvalDetails?.let {
+                yapilyApprovalAccepted(it)
             }
             else -> onBackPressed()
         }

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.linkbank
 import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
@@ -20,6 +21,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
 
 class BankAuthModel(
     private val interactor: SimpleBuyInteractor,
+    private val bankService: BankService,
     initialState: BankAuthState,
     uiScheduler: Scheduler,
     environmentConfig: EnvironmentConfig,
@@ -47,6 +49,7 @@ class BankAuthModel(
                     }
                 )
             is BankAuthIntent.UpdateAccountProvider -> processBankLinkingUpdate(intent)
+            is BankAuthIntent.LinkPlaidAccount -> processPlaidBankLinking(intent)
             is BankAuthIntent.GetLinkedBankState -> processBankLinkStateUpdate(intent)
             is BankAuthIntent.StartPollingForLinkStatus -> processLinkStatusPolling(
                 intent, previousState.linkBankTransfer?.partner
@@ -69,6 +72,16 @@ class BankAuthModel(
         ).subscribeBy(
             onComplete = {
                 process(BankAuthIntent.StartPollingForLinkStatus(intent.linkingBankId))
+            },
+            onError = {
+                process(BankAuthIntent.ProviderAccountIdUpdateError)
+            }
+        )
+
+    private fun processPlaidBankLinking(intent: BankAuthIntent.LinkPlaidAccount) =
+        bankService.linkPlaidBankAccount(intent.accountId, intent.linkBankAccountId, intent.linkBankToken).subscribeBy(
+            onComplete = {
+                process(BankAuthIntent.GetLinkedBankState(intent.accountId, false))
             },
             onError = {
                 process(BankAuthIntent.ProviderAccountIdUpdateError)

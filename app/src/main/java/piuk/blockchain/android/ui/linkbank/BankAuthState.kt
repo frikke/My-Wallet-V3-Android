@@ -13,6 +13,8 @@ data class BankAuthState(
     val linkedBank: LinkedBank? = null,
     val linkBankTransfer: LinkBankTransfer? = null,
     val linkBankUrl: String? = null,
+    val linkBankAccountId: String? = null,
+    val linkBankToken: String? = null,
     val bankLinkingProcessState: BankLinkingProcessState = BankLinkingProcessState.NONE,
     val errorState: BankAuthError? = null,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,

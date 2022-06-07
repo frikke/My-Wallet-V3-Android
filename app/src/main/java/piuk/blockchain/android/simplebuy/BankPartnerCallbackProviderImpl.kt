@@ -9,8 +9,10 @@ import piuk.blockchain.android.BuildConfig
 class BankPartnerCallbackProviderImpl : BankPartnerCallbackProvider {
     override fun callback(partner: BankPartner, action: BankTransferAction): String =
         when (partner) {
-            BankPartner.YODLEE -> throw IllegalStateException("Partner $partner doesn't support deeplink callbacks")
-            BankPartner.YAPILY -> yapilyCallback(action)
+            BankPartner.YODLEE, BankPartner.PLAID ->
+                throw IllegalStateException("Partner $partner doesn't support deeplink callbacks")
+            BankPartner.YAPILY ->
+                yapilyCallback(action)
         }
 
     private fun yapilyCallback(action: BankTransferAction): String =

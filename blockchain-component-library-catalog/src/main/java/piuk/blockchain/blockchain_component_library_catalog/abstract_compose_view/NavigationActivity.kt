@@ -18,10 +18,16 @@ class NavigationActivity : AppCompatActivity() {
         findViewById<NavigationBarView>(R.id.default_navigation).apply {
             title = "Activity"
             endNavigationBarButtons = listOf(
-                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_home) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bottom_nav_home,
+                    contentDescription = R.string.accessibility_back
+                ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
                 },
-                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_activity) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bottom_nav_activity,
+                    contentDescription = R.string.accessibility_back
+                ) {
                     Toast.makeText(this@NavigationActivity, "Second icon button clicked", Toast.LENGTH_SHORT).show()
                 }
             )
@@ -49,7 +55,10 @@ class NavigationActivity : AppCompatActivity() {
                 Toast.makeText(this@NavigationActivity, "Back button clicked", Toast.LENGTH_SHORT).show()
             }
             endNavigationBarButtons = listOf(
-                NavigationBarButton.Icon(R.drawable.ic_bottom_nav_home) {
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_bottom_nav_home,
+                    contentDescription = R.string.accessibility_back
+                ) {
                     Toast.makeText(this@NavigationActivity, "First icon button clicked", Toast.LENGTH_SHORT).show()
                 }
             )

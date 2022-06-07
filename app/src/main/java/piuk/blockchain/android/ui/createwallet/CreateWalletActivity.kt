@@ -15,12 +15,13 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
-import com.blockchain.componentlib.legacy.MaterialProgressDialog
-import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.common.model.CountryIso
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.wallet.DefaultLabels
 import com.jakewharton.rxbinding4.widget.afterTextChangeEvents
@@ -54,10 +55,11 @@ class CreateWalletActivity :
 
     private val defaultLabels: DefaultLabels by inject()
     private val createWalletPresenter: CreateWalletPresenter by scopedInject()
-    private var progressDialog: MaterialProgressDialog? = null
     private var applyConstraintSet: ConstraintSet = ConstraintSet()
     private var countryPickerItem: CountryPickerItem? = null
     private var statePickerItem: StatePickerItem? = null
+
+    private val referralFF: FeatureFlag by inject(referralsFeatureFlag)
 
     override val alwaysDisableScreenshots: Boolean
         get() = true
@@ -101,31 +103,19 @@ class CreateWalletActivity :
                     showEntropyContainer()
                     createWalletPresenter.logEventPasswordOneClicked()
                     binding.entropyContainerNew.updatePassword(it.editable.toString())
-                    updateCreateButtonState(
-                        it.editable.toString().length,
-                        walletPassConfirm.getTextString().length,
-                        walletPasswordCheckbox.isChecked
-                    )
+                    updateCreateButtonState(password1Length = it.editable.toString().length)
                 }
                 .emptySubscribe()
 
             walletPassConfirm.afterTextChangeEvents()
                 .doOnNext {
                     createWalletPresenter.logEventPasswordTwoClicked()
-                    updateCreateButtonState(
-                        walletPass.getTextString().length,
-                        it.editable.toString().length,
-                        walletPasswordCheckbox.isChecked
-                    )
+                    updateCreateButtonState(password2Length = it.editable.toString().length)
                 }
                 .emptySubscribe()
 
             walletPasswordCheckbox.setOnCheckedChangeListener { _, isChecked ->
-                updateCreateButtonState(
-                    walletPass.getTextString().length,
-                    walletPassConfirm.getTextString().length,
-                    isChecked
-                )
+                updateCreateButtonState(isTickBoxChecked = isChecked)
             }
 
             emailAddress.setOnClickListener { createWalletPresenter.logEventEmailClicked() }
@@ -137,9 +127,28 @@ class CreateWalletActivity :
                 consume { if (i == EditorInfo.IME_ACTION_GO) onNextClicked() }
             }
 
+            showReferralFieldIfNeeded()
+
             hideEntropyContainer()
 
             onViewReady()
+        }
+    }
+
+    private fun showReferralFieldIfNeeded() {
+        with(binding) {
+            referralLayout.visibleIf { referralFF.isEnabled }
+
+            if (referralFF.isEnabled) {
+                referralCode.afterTextChangeEvents()
+                    .doOnNext {
+                        updateCreateButtonState(referralLength = it.editable.toString().length)
+                        if (it.editable.isNullOrEmpty()) {
+                            hideReferralInvalidMessage()
+                        }
+                    }
+                    .emptySubscribe()
+            }
         }
     }
 
@@ -181,8 +190,18 @@ class CreateWalletActivity :
         }
     }
 
-    private fun updateCreateButtonState(password1Length: Int, password2Length: Int, isChecked: Boolean) {
-        val areFieldsFilled = (password1Length > 0 && password1Length == password2Length && isChecked)
+    private fun updateCreateButtonState(
+        password1Length: Int = binding.walletPass.editableText.length,
+        password2Length: Int = binding.walletPassConfirm.editableText.length,
+        isTickBoxChecked: Boolean = binding.walletPasswordCheckbox.isChecked,
+        referralLength: Int = binding.referralCode.editableText.length
+    ) {
+        val areFieldsFilled = (
+            password1Length > 0 &&
+                password1Length == password2Length &&
+                isTickBoxChecked &&
+                referralLength == 0 || referralLength == REFERRAL_CODE_LENGTH
+            )
         binding.commandNext.isEnabled = areFieldsFilled
     }
 
@@ -213,6 +232,18 @@ class CreateWalletActivity :
             type = SnackbarType.Error
         ).show()
 
+    override fun showReferralInvalidMessage() {
+        with(binding) {
+            referralLayout.error = getString(R.string.new_account_referral_code_invalid)
+        }
+    }
+
+    override fun hideReferralInvalidMessage() {
+        with(binding) {
+            referralLayout.error = null
+        }
+    }
+
     override fun warnWeakPassword(email: String, password: String) {
         AlertDialog.Builder(this, R.style.AlertDialogStyle)
             .setTitle(R.string.app_name)
@@ -222,7 +253,7 @@ class CreateWalletActivity :
             }.show()
     }
 
-    override fun startPinEntryActivity() {
+    override fun startPinEntryActivity(referralCode: String?) {
         hideKeyboard()
         startActivity(
             PinActivity.newIntent(
@@ -230,17 +261,13 @@ class CreateWalletActivity :
                 startForResult = false,
                 originScreen = PinActivity.Companion.OriginScreenToPin.CREATE_WALLET,
                 addFlagsToClear = true,
+                referralCode = referralCode
             )
         )
     }
 
     override fun showProgressDialog(message: Int) {
-        dismissProgressDialog()
-        progressDialog = MaterialProgressDialog(this).apply {
-            setCancelable(false)
-            setMessage(getString(message))
-            if (!isFinishing) show()
-        }
+        super.showProgressDialog(message, null)
     }
 
     override fun getDefaultAccountName(): String = defaultLabels.getDefaultNonCustodialWalletLabel()
@@ -255,11 +282,6 @@ class CreateWalletActivity :
         }
     }
 
-    private fun createStateItemFromIsoCode(isoCode: String): StatePickerItem {
-        val stateItem = US.values().first { it.iSOAbbreviation == isoCode }
-        return StatePickerItem(stateItem.iSOAbbreviation, stateItem.unabbreviated)
-    }
-
     private fun onNextClicked() {
         with(binding) {
             val email = emailAddress.text.toString().trim()
@@ -267,13 +289,22 @@ class CreateWalletActivity :
             val password2 = walletPassConfirm.text.toString()
             val countryCode = countryPickerItem?.code
             val stateCode = statePickerItem?.code
+            val referralCode = referralCode.text.toString()
 
             if (walletPasswordCheckbox.isChecked &&
                 createWalletPresenter.validateCredentials(email, password1, password2) &&
-                createWalletPresenter.validateGeoLocation(countryCode, stateCode)
+                createWalletPresenter.validateGeoLocation(countryCode, stateCode) &&
+                createWalletPresenter.validateReferralFormat(referralCode)
             ) {
                 countryCode?.let {
-                    createWalletPresenter.createOrRestoreWallet(email, password1, recoveryPhrase, it, stateCode)
+                    createWalletPresenter.createOrRestoreWallet(
+                        email,
+                        password1,
+                        recoveryPhrase,
+                        it,
+                        stateCode,
+                        referralCode
+                    )
                 }
             }
         }
@@ -310,6 +341,7 @@ class CreateWalletActivity :
     }
 
     companion object {
+        private const val REFERRAL_CODE_LENGTH = 8
         const val CODE_US = "US"
         const val RECOVERY_PHRASE = "RECOVERY_PHRASE"
 

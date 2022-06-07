@@ -18,6 +18,7 @@ import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.kyc.KycApi
 import com.blockchain.api.nabu.NabuUserApi
+import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
@@ -32,6 +33,7 @@ import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.KycService
 import com.blockchain.api.services.NabuUserService
+import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
@@ -47,6 +49,7 @@ import com.blockchain.api.trade.TradeApi
 import com.blockchain.api.txlimits.TxLimitsApi
 import com.blockchain.api.wallet.WalletApi
 import com.blockchain.api.watchlist.WatchlistApi
+import com.blockchain.koin.kotlinXApiRetrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.serialization.json.Json
@@ -213,7 +216,11 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(PaymentMethodsApi::class.java)
-        PaymentMethodsService(api)
+        PaymentMethodsService(
+            api = api,
+            remoteConfigPrefs = get(),
+            environmentConfig = get()
+        )
     }
 
     factory {
@@ -282,6 +289,13 @@ val blockchainApiModule = module {
         val api = get<Retrofit>(nabuApi).create(ReferralApi::class.java)
         ReferralApiService(
             api = api,
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(kotlinXApiRetrofit).create(NftWaitlistApi::class.java)
+        NftWaitlistApiService(
+            nftWaitlistApi = api
         )
     }
 }

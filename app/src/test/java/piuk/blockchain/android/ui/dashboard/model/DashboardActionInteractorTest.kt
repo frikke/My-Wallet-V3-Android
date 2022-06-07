@@ -5,6 +5,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.coincore.fiat.LinkedBanksFactory
+import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -17,6 +18,7 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -40,6 +42,8 @@ class DashboardActionInteractorTest {
     private val bankService: BankService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val userIdentity: NabuUserIdentity = mock()
+    private val nftWaitlistService: NftWaitlistService = mock()
+    private val nftAnnouncementPrefs: NftAnnouncementPrefs = mock()
     private val model: DashboardModel = mock()
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
@@ -66,6 +70,8 @@ class DashboardActionInteractorTest {
             onboardingPrefs = mock(),
             userIdentity = userIdentity,
             getDashboardOnboardingStepsUseCase = mock(),
+            nftWaitlistService = nftWaitlistService,
+            nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             bankService = bankService
         )

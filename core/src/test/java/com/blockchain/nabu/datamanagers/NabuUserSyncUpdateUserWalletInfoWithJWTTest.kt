@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.getBlankNabuUser
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.testutils.rxInit
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -34,7 +34,7 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
     @Test
     fun `on sync user`() {
         val jwt = "JWT"
-        val offlineToken = NabuOfflineTokenResponse("", "")
+        val offlineToken = NabuOfflineToken("", "")
         val nabuToken: NabuToken = mock {
             on { fetchNabuToken() }.thenReturn(Single.just(offlineToken))
         }

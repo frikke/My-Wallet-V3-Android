@@ -13,6 +13,7 @@ import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.BankTransferPaymentResponse
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
 import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
@@ -76,7 +77,8 @@ interface PaymentMethodsApi {
     @GET("payments/banktransfer/{id}")
     fun getLinkedBank(
         @Header("authorization") authorization: String,
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Query("localisedError") localisedError: String?
     ): Single<LinkedBankTransferResponse>
 
     @DELETE("payments/banks/{id}")
@@ -88,27 +90,38 @@ interface PaymentMethodsApi {
     @DELETE("payments/banktransfer/{id}")
     fun removeLinkedBank(
         @Header("authorization") authHeader: String,
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Query("localisedError") localisedError: String?
     ): Completable
 
     @POST("payments/banktransfer")
     fun linkBank(
         @Header("authorization") authorization: String,
-        @Body body: CreateLinkBankRequestBody
+        @Body body: CreateLinkBankRequestBody,
+        @Query("localisedError") localisedError: String?
     ): Single<CreateLinkBankResponse>
 
     @POST("payments/banktransfer/{id}/update")
     fun updateProviderAccount(
         @Header("authorization") authorization: String,
         @Path("id") id: String,
-        @Body body: UpdateProviderAccountBody
+        @Body body: UpdateProviderAccountBody,
+        @Query("localisedError") localisedError: String?
+    ): Completable
+
+    @POST("payments/banktransfer/{id}/update")
+    fun linkPlaidAccount(
+        @Header("authorization") authorization: String,
+        @Path("id") id: String,
+        @Body body: LinkPlaidAccountBody
     ): Completable
 
     @POST("payments/banktransfer/{id}/payment")
     fun startBankTransferPayment(
         @Header("authorization") authorization: String,
         @Path("id") id: String,
-        @Body body: BankTransferPaymentBody
+        @Body body: BankTransferPaymentBody,
+        @Query("localisedError") localisedError: String?
     ): Single<BankTransferPaymentResponse>
 
     @POST
@@ -121,7 +134,8 @@ interface PaymentMethodsApi {
     @GET("payments/payment/{paymentId}")
     fun getBankTransferCharge(
         @Header("authorization") authorization: String,
-        @Path("paymentId") paymentId: String
+        @Path("paymentId") paymentId: String,
+        @Query("localisedError") localisedError: String?
     ): Single<BankTransferChargeResponse>
 
     @GET("payments/google-pay/info")

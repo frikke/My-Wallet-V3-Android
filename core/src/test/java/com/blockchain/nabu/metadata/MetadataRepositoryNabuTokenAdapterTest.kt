@@ -3,16 +3,16 @@ package com.blockchain.nabu.metadata
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.metadata.MetadataRepository
 import com.blockchain.nabu.CreateNabuToken
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
-import com.blockchain.nabu.models.responses.tokenresponse.mapFromMetadata
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import kotlinx.serialization.InternalSerializationApi
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
 
@@ -49,7 +49,7 @@ class MetadataRepositoryNabuTokenAdapterTest {
         ).fetchNabuToken()
             .test()
             .values()
-            .single() `should be equal to` NabuOfflineTokenResponse(
+            .single() `should be equal to` NabuOfflineToken(
             userId = "User1",
             token = "TOKEN123"
         )
@@ -83,16 +83,14 @@ class MetadataRepositoryNabuTokenAdapterTest {
         // Arrange
         val id = "ID"
         val lifetimeToken = "LIFETIME_TOKEN"
-        val offlineToken = NabuOfflineTokenResponse(id, lifetimeToken)
+        val offlineToken = NabuOfflineTokenResponse(id, lifetimeToken, true)
         val accountCredentialsMetadata: AccountCredentialsMetadata = mock()
         whenever(accountCredentialsMetadata.load()).thenReturn(
             Maybe.empty()
         )
 
-        whenever(accountCredentialsMetadata.saveAndReturn(any())).thenReturn(
-            Single.just(
-                BlockchainAccountCredentialsMetadata(id, lifetimeToken)
-            )
+        whenever(accountCredentialsMetadata.save(any())).thenReturn(
+            Completable.complete()
         )
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
@@ -110,8 +108,10 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val (userId, token) = testObserver.values().single()
         userId `should be equal to` id
         token `should be equal to` lifetimeToken
-        verify(accountCredentialsMetadata).saveAndReturn(
-            offlineToken
+        verify(accountCredentialsMetadata).save(
+            NabuOfflineToken(
+                "ID", "LIFETIME_TOKEN"
+            )
         )
     }
 
@@ -120,16 +120,14 @@ class MetadataRepositoryNabuTokenAdapterTest {
         // Arrange
         val id = "ID"
         val lifetimeToken = "LIFETIME_TOKEN"
-        val offlineToken = NabuOfflineTokenResponse(id, lifetimeToken)
+        val offlineToken = NabuOfflineTokenResponse(id, lifetimeToken, true)
         val accountCredentialsMetadata: AccountCredentialsMetadata = mock()
         whenever(accountCredentialsMetadata.load()).thenReturn(
             Maybe.just(BlockchainAccountCredentialsMetadata.invalid())
         )
 
-        whenever(accountCredentialsMetadata.saveAndReturn(any())).thenReturn(
-            Single.just(
-                BlockchainAccountCredentialsMetadata(id, lifetimeToken)
-            )
+        whenever(accountCredentialsMetadata.save(any())).thenReturn(
+            Completable.complete()
         )
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
@@ -147,28 +145,34 @@ class MetadataRepositoryNabuTokenAdapterTest {
         val (userId, token) = testObserver.values().single()
         userId `should be equal to` id
         token `should be equal to` lifetimeToken
-        verify(accountCredentialsMetadata).saveAndReturn(
-            offlineToken
+        verify(accountCredentialsMetadata).save(
+            NabuOfflineToken(
+                "ID", "LIFETIME_TOKEN"
+            )
         )
     }
 
     @Test
     fun `should throw MetadataNotFoundException as token is invalid from create call`() {
         // Arrange
-        val offlineToken = NabuLegacyCredentialsMetadata("", "")
-        val metadata = offlineToken.mapFromMetadata()
         val accountCredentialsMetadata: AccountCredentialsMetadata = mock()
         whenever(accountCredentialsMetadata.load()).thenReturn(
             Maybe.just(BlockchainAccountCredentialsMetadata(null, null, null, null))
         )
-        whenever(accountCredentialsMetadata.saveAndReturn(any())).thenReturn(
-            Single.just(BlockchainAccountCredentialsMetadata(null, null, null, null))
+        whenever(accountCredentialsMetadata.save(any())).thenReturn(
+            Completable.complete()
         )
 
         val nabuToken = MetadataRepositoryNabuTokenAdapter(
             accountCredentialsMetadata,
             mock {
-                on { createNabuOfflineToken() }.thenReturn(Single.just(metadata))
+                on { createNabuOfflineToken() }.thenReturn(
+                    Single.just(
+                        NabuOfflineTokenResponse(
+                            "", "", true
+                        )
+                    )
+                )
             }
         )
         // Act
@@ -250,7 +254,6 @@ class MetadataRepositoryNabuTokenAdapterTest {
     }
 }
 
-@OptIn(InternalSerializationApi::class)
 private fun AccountCredentialsMetadata.givenAccountMetadata(
     metadata: Maybe<CredentialMetadata>
 ): AccountCredentialsMetadata {

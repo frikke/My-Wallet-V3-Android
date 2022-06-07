@@ -615,22 +615,24 @@ class SimpleBuyPaymentFragment :
                                     BankPartner.YAPILY -> {
                                         getString(R.string.bank_transfer_in_progress_ob_blurb)
                                     }
-                                    BankPartner.YODLEE -> {
+                                    BankPartner.YODLEE, BankPartner.PLAID -> {
                                         getString(
                                             R.string.bank_transfer_in_progress_blurb,
                                             getEstimatedTransactionCompletionTime()
                                         )
                                     }
                                 }
-                            } ?: getString(
-                                R.string.completing_card_buy_1,
-                                newState.order.amount?.toStringWithSymbol(),
-                                newState.selectedCryptoAsset?.displayTicker
-                            ) + appendRecurringBuyInfo(
-                                order = newState.order,
-                                selectedCryptoAsset = newState.selectedCryptoAsset,
-                                recurringBuyFrequency = newState.recurringBuyFrequency
-                            )
+                            } ?: (
+                                getString(
+                                    R.string.completing_card_buy_1,
+                                    newState.order.amount?.toStringWithSymbol(),
+                                    newState.selectedCryptoAsset?.displayTicker
+                                ) + appendRecurringBuyInfo(
+                                    order = newState.order,
+                                    selectedCryptoAsset = newState.selectedCryptoAsset,
+                                    recurringBuyFrequency = newState.recurringBuyFrequency
+                                )
+                                )
                         )
                     }
                     else -> {

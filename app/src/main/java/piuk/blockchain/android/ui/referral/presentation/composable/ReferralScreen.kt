@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.referral.presentation.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,15 +53,18 @@ fun ReferralScreen(
     shareCode: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier
+            .fillMaxSize()
+            .scrollable(enabled = false, orientation = Orientation.Vertical, state = rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         NavigationBar(title = stringResource(id = R.string.empty), onBackButtonClick = onBackPressed)
 
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .fillMaxSize()
+                .fillMaxWidth()
+                .weight(weight = 1f, fill = false)
                 .padding(
                     top = dimensionResource(R.dimen.zero_margin),
                     start = dimensionResource(R.dimen.standard_margin),
@@ -119,13 +124,20 @@ fun ReferralScreen(
             ReferralCriteria(criteria)
 
             Spacer(modifier = Modifier.size(111.dp))
-
-            PrimaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Share",
-                onClick = { shareCode(code) }
-            )
         }
+
+        PrimaryButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.standard_margin),
+                    end = dimensionResource(id = R.dimen.standard_margin),
+                    top = dimensionResource(id = R.dimen.tiny_margin),
+                    bottom = dimensionResource(id = R.dimen.medium_margin)
+                ),
+            text = stringResource(R.string.common_share),
+            onClick = { shareCode(code) }
+        )
     }
 }
 

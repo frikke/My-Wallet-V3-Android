@@ -10,7 +10,8 @@ data class LinkBankTransfer(val id: String, val partner: BankPartner, val attrib
 
 enum class BankPartner {
     YAPILY,
-    YODLEE;
+    YODLEE,
+    PLAID;
 
     companion object {
         const val ICON = "icon"
@@ -36,6 +37,12 @@ data class YapilyInstitution(
 ) : Serializable
 
 data class InstitutionCountry(val countryCode: String, val displayName: String) : Serializable
+
+data class PlaidAttributes(
+    val linkToken: String,
+    val linkUrl: String,
+    val tokenExpiresAt: String
+) : LinkBankAttributes, Serializable
 
 data class LinkedBank(
     val id: String,

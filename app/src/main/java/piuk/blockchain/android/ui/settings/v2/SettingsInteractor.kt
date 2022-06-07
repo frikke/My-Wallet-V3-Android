@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.core.Database
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -14,7 +13,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.outcome.fold
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Completable
@@ -34,8 +33,7 @@ class SettingsInteractor internal constructor(
     private val cardService: CardService,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val currencyPrefs: CurrencyPrefs,
-    private val referralService: ReferralService,
-    private val referralFeatureFlag: IntegratedFeatureFlag
+    private val referralService: ReferralService
 ) {
     private val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -45,27 +43,17 @@ class SettingsInteractor internal constructor(
         return Singles.zip(
             userIdentity.getHighestApprovedKycTier(),
             userIdentity.getBasicProfileInformation(),
-            getReferralDataSingleIfEnabled()
+            getReferralDataSingle()
         ).map { (tier, basicInfo, referral) ->
             UserDetails(userTier = tier, userInfo = basicInfo, referralInfo = referral)
         }
     }
 
-    private fun getReferralDataSingleIfEnabled(): Single<ReferralInfo> {
-        return referralFeatureFlag.enabled
-            .flatMap {
-                if (it) {
-                    rxSingle {
-                        referralService.fetchReferralData()
-                            .fold(
-                                onSuccess = { it },
-                                onFailure = { ReferralInfo.NotAvailable }
-                            )
-                    }
-                } else {
-                    Single.just(ReferralInfo.NotAvailable as ReferralInfo)
-                }
-            }
+    private fun getReferralDataSingle(): Single<ReferralInfo> {
+        return rxSingle {
+            referralService.fetchReferralData()
+                .getOrDefault(ReferralInfo.NotAvailable)
+        }
             .onErrorResumeWith { ReferralInfo.NotAvailable }
     }
 

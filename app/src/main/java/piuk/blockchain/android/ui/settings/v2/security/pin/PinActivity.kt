@@ -32,8 +32,6 @@ import com.blockchain.componentlib.viewextensions.showKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.customerSupportSheetFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
@@ -89,8 +87,6 @@ class PinActivity :
     private val biometricsController: BiometricsController by scopedInject()
     private var isBiometricsVisible = false
 
-    private val customerSupportSheetFF: FeatureFlag by inject(customerSupportSheetFeatureFlag)
-
     private val momentLogger: MomentLogger by inject()
 
     override val toolbarBinding: ToolbarGeneralBinding
@@ -106,6 +102,10 @@ class PinActivity :
 
     private val isAfterCreateWallet: Boolean by lazy {
         originScreen == OriginScreenToPin.CREATE_WALLET
+    }
+
+    private val referralCode: String? by lazy {
+        intent?.getStringExtra(KEY_REFERRAL_CODE)
     }
 
     private val isChangingPin: Boolean by lazy {
@@ -147,8 +147,7 @@ class PinActivity :
                 analytics.logEvent(CustomerSupportAnalytics.CustomerSupportClicked)
                 showCustomerSupportSheet()
             }
-            customerSupportSheetFF.enabled.onErrorReturn { false }
-                .subscribe { enabled -> customerSupport.visibleIf { enabled } }
+            customerSupport.visible()
         }
     }
 
@@ -665,7 +664,8 @@ class PinActivity :
                 context = this,
                 startForResult = false,
                 originScreen = OriginScreenToPin.PIN_SCREEN,
-                addFlagsToClear = true
+                addFlagsToClear = true,
+                referralCode = referralCode
             )
         )
     }
@@ -818,7 +818,7 @@ class PinActivity :
     }
 
     private fun finishSignupProcess() {
-        util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet)
+        util.loadAppWithVerifiedPin(LoaderActivity::class.java, isAfterCreateWallet, referralCode)
     }
 
     private fun updateFlexibleNatively(
@@ -1048,6 +1048,7 @@ class PinActivity :
         const val ORIGIN_SCREEN = "origin_screen"
         const val KEY_VALIDATING_PIN_FOR_RESULT = "validating_pin"
         const val KEY_VALIDATED_PIN = "validated_pin"
+        const val KEY_REFERRAL_CODE = "referral_code"
         private const val PIN_LENGTH = 4
         private const val REQUEST_CODE_UPDATE = 188
         const val KEY_ORIGIN_SETTINGS = "pin_from_settings"
@@ -1059,9 +1060,11 @@ class PinActivity :
             startForResult: Boolean,
             originScreen: OriginScreenToPin,
             addFlagsToClear: Boolean,
+            referralCode: String? = null
         ) =
             Intent(context, PinActivity::class.java).apply {
                 putExtra(KEY_VALIDATING_PIN_FOR_RESULT, startForResult)
+                putExtra(KEY_REFERRAL_CODE, referralCode)
                 putExtra(ORIGIN_SCREEN, originScreen)
                 if (addFlagsToClear) {
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

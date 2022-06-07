@@ -66,4 +66,16 @@ internal interface BlockchainCardApi {
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
     ): Outcome<ApiError, CardLinkedAccountResponse>
+
+    @PUT("card-issuing/cards/{cardId}/lock")
+    suspend fun lockCard(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, CardsResponse>
+
+    @PUT("card-issuing/cards/{cardId}/unlock")
+    suspend fun unlockCard(
+        @Header("authorization") authorization: String,
+        @Path("cardId") cardId: String,
+    ): Outcome<ApiError, CardsResponse>
 }

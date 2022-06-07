@@ -289,6 +289,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
+    object JoinNftWaitlist : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState
+    }
+
     object ClearAnnouncement : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(announcement = null)

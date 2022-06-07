@@ -19,7 +19,11 @@ import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentAttributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankResponse
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
+import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
 import com.blockchain.api.payments.data.LinkBankAttrsResponse
+import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.ProviderAccountAttrs
@@ -64,14 +68,16 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
+import com.blockchain.domain.paymentmethods.model.PlaidAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
-import com.blockchain.outcome.mapLeft
+import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
@@ -89,6 +95,7 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
@@ -108,19 +115,16 @@ class PaymentsRepository(
     private val simpleBuyPrefs: SimpleBuyPrefs,
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
-    private val googlePayFeatureFlag: FeatureFlag,
+    private val environmentConfig: EnvironmentConfig,
+    private val plaidFeatureFlag: FeatureFlag
 ) : BankService, CardService, PaymentMethodService {
-
-    private val googlePayEnabled: Single<Boolean> by lazy {
-        googlePayFeatureFlag.enabled.cache()
-    }
 
     override suspend fun getPaymentMethodDetailsForId(
         paymentId: String
     ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         val auth = authenticator.getAuthHeader().await()
-        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapLeft { apiError: ApiError ->
+        return paymentsService.getPaymentMethodDetailsForId(auth, paymentId).mapError { apiError: ApiError ->
             when (apiError) {
                 is ApiError.HttpError -> PaymentMethodDetailsError.REQUEST_FAILED
                 is ApiError.NetworkError -> PaymentMethodDetailsError.SERVICE_UNAVAILABLE
@@ -158,14 +162,13 @@ class PaymentsRepository(
                 tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
                 eligibleOnly = onlyEligible
             ),
-            googlePayEnabled,
             rxSingle {
                 googlePayManager.checkIfGooglePayIsAvailable(
                     GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
                 )
             }
-        ) { methods, isGooglePayFeatureFlagEnabled, isGooglePayAvailableOnDevice ->
-            if (isGooglePayFeatureFlagEnabled && isGooglePayAvailableOnDevice) {
+        ) { methods, isGooglePayAvailableOnDevice ->
+            if (isGooglePayAvailableOnDevice) {
                 return@zip methods.toMutableList().apply {
                     val googlePayPaymentMethod = this.firstOrNull {
                         it.mobilePayment?.any { payment ->
@@ -265,7 +268,7 @@ class PaymentsRepository(
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
             getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
-                .mapLeft {
+                .mapError {
                     when (it) {
                         is PaymentMethodsError.RequestFailed -> Exception(it.message)
                     }
@@ -384,9 +387,19 @@ class PaymentsRepository(
             }
         }
 
-    override fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer> {
-        return authenticator.getAuthHeader().flatMap { authToken ->
-            paymentMethodsService.linkBank(authToken, currency.networkTicker)
+    override fun linkBank(currency: FiatCurrency): Single<LinkBankTransfer> =
+        authenticator.getAuthHeader().zipWith(plaidFeatureFlag.enabled).flatMap { (authToken, featureFlag) ->
+            val supportedPartners = if (featureFlag)
+                listOf(PLAID_PARTNER, YODLEE_PARTNER, YAPILY_PARTNER)
+            else
+                emptyList()
+
+            paymentMethodsService.linkBank(
+                authToken,
+                currency.networkTicker,
+                supportedPartners,
+                environmentConfig.applicationId
+            )
         }.flatMap { response ->
             val partner =
                 response.partner.toLinkingBankPartner() ?: return@flatMap Single.error<LinkBankTransfer>(
@@ -404,7 +417,6 @@ class PaymentsRepository(
                 )
             )
         }.wrapErrorMessage()
-    }
 
     fun BankPartner.attributes(attrsResponse: LinkBankAttrsResponse): LinkBankAttributes =
         when (this) {
@@ -433,6 +445,12 @@ class PaymentsRepository(
                     }
                 )
             }
+            BankPartner.PLAID ->
+                PlaidAttributes(
+                    linkToken = attrsResponse.linkToken!!,
+                    linkUrl = attrsResponse.linkUrl!!,
+                    tokenExpiresAt = attrsResponse.tokenExpiresAt!!
+                )
         }
 
     private fun List<YapilyMediaResponse>.getBankIcon(): URL? =
@@ -475,6 +493,18 @@ class PaymentsRepository(
             authToken,
             linkingId,
             UpdateProviderAccountBody(attributes.toProviderAttributes())
+        )
+    }
+
+    override fun linkPlaidBankAccount(
+        linkingId: String,
+        accountId: String,
+        publicToken: String
+    ): Completable = authenticator.getAuthHeader().flatMapCompletable { authToken ->
+        paymentMethodsService.linkPLaidAccount(
+            authToken,
+            linkingId,
+            LinkPlaidAccountBody(LinkPlaidAccountBody.Attributes(accountId, publicToken))
         )
     }
 
@@ -634,6 +664,7 @@ class PaymentsRepository(
         val partner = when (this) {
             CreateLinkBankResponse.YODLEE_PARTNER -> BankPartner.YODLEE
             CreateLinkBankResponse.YAPILY_PARTNER -> BankPartner.YAPILY
+            CreateLinkBankResponse.PLAID_PARTNER -> BankPartner.PLAID
             else -> null
         }
 
@@ -761,7 +792,7 @@ class PaymentsRepository(
 
     companion object {
         private val SUPPORTED_BANK_PARTNERS = listOf(
-            BankPartner.YAPILY, BankPartner.YODLEE
+            BankPartner.YAPILY, BankPartner.YODLEE, BankPartner.PLAID
         )
         private val SUPPORTED_FUNDS_CURRENCIES = listOf(
             "GBP", "EUR", "USD"

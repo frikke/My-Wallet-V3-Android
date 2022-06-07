@@ -2,12 +2,14 @@ package com.blockchain.blockchaincard.viewmodel
 
 import androidx.navigation.NavHostController
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
-import com.blockchain.blockchaincard.ui.BlockchainCardFragment
+import com.blockchain.blockchaincard.ui.BlockchainCardHostFragment
+import com.blockchain.coincore.FiatAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 import com.blockchain.extensions.exhaustive
+import info.blockchain.balance.AssetInfo
 
 class BlockchainCardNavigationRouter(override val navController: NavHostController) :
     ComposeNavigationRouter<BlockchainCardNavigationEvent> {
@@ -54,12 +56,12 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 */
 
                 val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
-                val fragmentOld = fragmentManager?.findFragmentByTag(BlockchainCardFragment::class.simpleName)
+                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
 
                 fragmentOld?.let {
                     replaceCurrentFragment(
                         containerViewId = fragmentOld.id,
-                        fragment = BlockchainCardFragment.newInstance(navigationEvent.card),
+                        fragment = (fragmentOld as BlockchainCardHostFragment).newInstance(navigationEvent.card),
                         addToBackStack = false
                     )
                 }
@@ -75,6 +77,18 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
             is BlockchainCardNavigationEvent.CardDeleted -> {
                 finishHostFragment()
+            }
+
+            is BlockchainCardNavigationEvent.TopUpCrypto -> {
+                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
+                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
+                (fragmentOld as BlockchainCardHostFragment).startBuy(navigationEvent.asset)
+            }
+
+            is BlockchainCardNavigationEvent.TopUpFiat -> {
+                val fragmentManager = (navController.context as? BlockchainActivity)?.supportFragmentManager
+                val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
+                (fragmentOld as BlockchainCardHostFragment).startDeposit(navigationEvent.account)
             }
         }.exhaustive
 
@@ -108,6 +122,10 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     object ChoosePaymentMethod : BlockchainCardNavigationEvent()
 
     object CardDeleted : BlockchainCardNavigationEvent()
+
+    data class TopUpCrypto(val asset: AssetInfo) : BlockchainCardNavigationEvent()
+
+    data class TopUpFiat(val account: FiatAccount) : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {

@@ -18,7 +18,6 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
-import com.blockchain.koin.ethMemoHotWalletFeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
@@ -210,8 +209,7 @@ val coincoreModule = module {
 
         scoped {
             HotWalletService(
-                walletApi = get(),
-                ethMemoForHotWalletFeatureFlag = get(ethMemoHotWalletFeatureFlag)
+                walletApi = get()
             )
         }
 

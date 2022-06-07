@@ -2,6 +2,7 @@ package com.blockchain.componentlib.navigation
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
@@ -34,6 +36,7 @@ sealed class NavigationBarButton(val onClick: () -> Unit) {
         val drawable: Int,
         val color: Color? = Grey400,
         @DimenRes val size: Int = R.dimen.standard_margin,
+        @StringRes val contentDescription: Int,
         val onIconClick: () -> Unit
     ) :
         NavigationBarButton(onIconClick)
@@ -53,7 +56,11 @@ fun NavigationBar(
 ) = NavigationBar(
     title = title,
     startNavigationBarButton = onBackButtonClick?.let { onClick ->
-        NavigationBarButton.Icon(drawable = R.drawable.ic_nav_bar_back, onIconClick = onClick)
+        NavigationBarButton.Icon(
+            drawable = R.drawable.ic_nav_bar_back,
+            onIconClick = onClick,
+            contentDescription = R.string.accessibility_back
+        )
     },
     endNavigationBarButtons = navigationBarButtons
 )
@@ -92,7 +99,7 @@ fun NavigationBar(
                 ) {
                     Image(
                         painter = painterResource(id = button.drawable),
-                        contentDescription = null,
+                        contentDescription = stringResource(id = button.contentDescription),
                         colorFilter = if (button.color != null) ColorFilter.tint(button.color) else null
                     )
                 }
@@ -125,7 +132,7 @@ fun NavigationBar(
                             Image(
                                 modifier = Modifier.size(dimensionResource(it.size)),
                                 painter = painterResource(id = it.drawable),
-                                contentDescription = null,
+                                contentDescription = stringResource(id = it.contentDescription),
                                 colorFilter = if (it.color != null) ColorFilter.tint(it.color) else null
                             )
                         }
@@ -167,10 +174,12 @@ fun NavigationBarPreview2() {
             {},
             listOf(
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
                 ) {},
                 NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bottom_nav_buy
+                    drawable = R.drawable.ic_bottom_nav_buy,
+                    contentDescription = R.string.accessibility_back
                 ) {}
             )
         )

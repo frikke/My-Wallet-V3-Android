@@ -81,7 +81,7 @@ private enum class BankPartnerTypes {
         fun toAnalyticsType(partner: BankPartner) =
             when (partner) {
                 BankPartner.YAPILY -> OB.name
-                BankPartner.YODLEE -> ACH.name
+                BankPartner.YODLEE, BankPartner.PLAID -> ACH.name
             }.exhaustive
     }
 }

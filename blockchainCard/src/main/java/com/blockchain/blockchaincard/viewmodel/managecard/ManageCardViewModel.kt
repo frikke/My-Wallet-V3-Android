@@ -10,7 +10,8 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.fold
-import com.blockchain.outcome.map
+import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatValue
 import timber.log.Timber
 
 class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
@@ -61,6 +62,34 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 }
             }
 
+            is BlockchainCardIntent.LockCard -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.lockCard(card.id).fold(
+                        onFailure = { error ->
+                            Timber.e("Card lock failed: $error")
+                        },
+                        onSuccess = { cardUpdated ->
+                            Timber.d("Card locked")
+                            updateState { it.copy(card = cardUpdated) }
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.UnlockCard -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.unlockCard(card.id).fold(
+                        onFailure = { error ->
+                            Timber.e("Card unlock failed: $error")
+                        },
+                        onSuccess = { cardUpdated ->
+                            Timber.d("Card unlocked")
+                            updateState { it.copy(card = cardUpdated) }
+                        }
+                    )
+                }
+            }
+
             is BlockchainCardIntent.LoadCardWidget -> {
                 modelState.card?.let { card ->
                     blockchainCardRepository.getCardWidgetUrl(
@@ -90,6 +119,39 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                             Timber.e("fetch eligible accounts failed: $it") // TODO(labreu): handle error
                         }
                     )
+                }
+            }
+
+            is BlockchainCardIntent.TopUp -> {
+                modelState.linkedAccountBalance?.let { accountBalance ->
+                    when (accountBalance.total) {
+                        is FiatValue -> {
+                            blockchainCardRepository.getFiatAccount(
+                                accountBalance.totalFiat.currency.networkTicker
+                            ).fold(
+                                onSuccess = { account ->
+                                    navigate(BlockchainCardNavigationEvent.TopUpFiat(account))
+                                },
+                                onFailure = {
+                                    Timber.e("Unable to get fiat account: $it")
+                                }
+                            )
+                        }
+                        is CryptoValue -> {
+                            blockchainCardRepository.getAsset(
+                                accountBalance.total.currency.networkTicker
+                            ).fold(
+                                onSuccess = { asset ->
+                                    navigate(BlockchainCardNavigationEvent.TopUpCrypto(asset))
+                                },
+                                onFailure = {
+                                    Timber.e("Unable to get asset: $it")
+                                }
+                            )
+                        }
+                        else ->
+                            throw IllegalStateException("Unable to top up, current asset is not Fiat nor Crypto value")
+                    }
                 }
             }
 

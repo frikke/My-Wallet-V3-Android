@@ -4,7 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
+import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -19,7 +19,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.properties.Delegates
-import kotlinx.serialization.InternalSerializationApi
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
@@ -27,7 +26,6 @@ import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
-@OptIn(InternalSerializationApi::class)
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
@@ -111,7 +109,7 @@ class KycProfilePresenter(
         }
     }
 
-    private fun createBasicUser(offlineToken: NabuOfflineTokenResponse): Completable =
+    private fun createBasicUser(offlineToken: NabuOfflineToken): Completable =
         nabuDataManager.createBasicUser(
             view.firstName,
             view.lastName,

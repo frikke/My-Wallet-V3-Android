@@ -30,7 +30,11 @@ class LoaderModel(
 ) : MviModel<LoaderState, LoaderIntents>(initialState, mainScheduler, environmentConfig, remoteLogger) {
     override fun performAction(previousState: LoaderState, intent: LoaderIntents): Disposable? {
         return when (intent) {
-            is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(intent.isPinValidated, intent.isAfterWalletCreation)
+            is LoaderIntents.CheckIsLoggedIn -> checkIsLoggedIn(
+                intent.isPinValidated,
+                intent.isAfterWalletCreation,
+                intent.referralCode
+            )
             is LoaderIntents.OnTermsAndConditionsSigned -> {
                 process(LoaderIntents.StartMainActivity(null, false))
                 null
@@ -50,7 +54,11 @@ class LoaderModel(
         }
     }
 
-    private fun checkIsLoggedIn(isPinValidated: Boolean, isAfterWalletCreation: Boolean): Disposable? {
+    private fun checkIsLoggedIn(
+        isPinValidated: Boolean,
+        isAfterWalletCreation: Boolean,
+        referralCode: String?
+    ): Disposable? {
 
         val hasLoginInfo = authPrefs.walletGuid.isNotEmpty() && prefs.pinId.isNotEmpty()
 
@@ -60,7 +68,7 @@ class LoaderModel(
                 interactor.loaderIntents.subscribe {
                     process(it)
                 }
-                interactor.initSettings(isAfterWalletCreation)
+                interactor.initSettings(isAfterWalletCreation, referralCode)
             }
             else -> {
                 process(LoaderIntents.StartLauncherActivity)

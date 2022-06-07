@@ -110,7 +110,10 @@ class TransactionFlowActivity :
         setContentView(binding.root)
         updateToolbar(
             menuItems = listOf(
-                NavigationBarButton.Icon(R.drawable.ic_close) { finish() }
+                NavigationBarButton.Icon(
+                    drawable = R.drawable.ic_close,
+                    contentDescription = R.string.accessibility_close
+                ) { finish() }
             ),
             backAction = { onBackPressed() }
         )
