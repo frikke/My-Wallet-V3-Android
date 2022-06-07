@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
