@@ -109,7 +109,7 @@ class BankAuthActivity :
                 launchYapilyBankSelection(linkBankTransfer.attributes as YapilyAttributes)
             }
             BankPartner.PLAID -> {
-                launchPlaidLink(linkBankTransfer.id, linkBankTransfer.attributes as PlaidAttributes)
+                launchPlaidLink(linkBankTransfer.attributes as PlaidAttributes, linkBankTransfer.id)
             }
         }
     }
@@ -144,22 +144,25 @@ class BankAuthActivity :
             .commitAllowingStateLoss()
     }
 
-    override fun launchPlaidLink(id: String, attributes: PlaidAttributes) {
-        val linkTokenConfiguration = linkTokenConfiguration {
-            token = attributes.linkToken
-        }
-
-        registerForActivityResult(OpenPlaidLink()) {
-            when (it) {
-                is LinkSuccess -> {
-                    launchPlaidLinking(id, it)
+    override fun launchPlaidLink(attributes: PlaidAttributes, id: String, retry: Boolean) {
+        if (retry) {
+            // Need to recreate the activity, otherwise registerForActivityResult(OpenPlaidLink()) will throw an error
+            // if the activity already exists and is called outside onCreate().
+            finish()
+            startActivity(
+                newInstance(linkBankTransfer, authSource, this).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 }
-                is LinkExit -> {
-                    finish()
+            )
+        } else {
+            val linkTokenConfiguration = linkTokenConfiguration { token = attributes.linkToken }
+            registerForActivityResult(OpenPlaidLink()) {
+                when (it) {
+                    is LinkSuccess -> launchPlaidLinking(id, it)
+                    is LinkExit -> onBackPressed()
                 }
-            }
+            }.launch(linkTokenConfiguration)
         }
-            .launch(linkTokenConfiguration)
     }
 
     private fun launchPlaidLinking(id: String, linkSuccess: LinkSuccess) {

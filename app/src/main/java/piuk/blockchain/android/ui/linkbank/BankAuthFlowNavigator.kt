@@ -17,7 +17,7 @@ interface BankAuthFlowNavigator {
     fun launchYapilyBankSelection(attributes: YapilyAttributes)
     fun showTransferDetails()
     fun yapilyInstitutionSelected(institution: YapilyInstitution, entity: String)
-    fun launchPlaidLink(id: String, attributes: PlaidAttributes)
+    fun launchPlaidLink(attributes: PlaidAttributes, id: String, retry: Boolean = false)
 
     @Deprecated("will be deleted after FF is removed")
     fun yapilyAgreementAccepted(institution: YapilyInstitution)
