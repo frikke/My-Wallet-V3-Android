@@ -1,16 +1,15 @@
-package piuk.blockchain.androidcore.data.payload
+package piuk.blockchain.android.util
 
+import com.blockchain.wallet.BackupWallet
 import java.security.SecureRandom
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import timber.log.Timber
 
 class BackupWalletUtil(
     private val payloadDataManager: PayloadDataManager
-) {
+) : BackupWallet {
 
-    /**
-     * Returns an ordered list of [Int], [String] pairs which can be used to confirm mnemonic.
-     */
-    fun getConfirmSequence(secondPassword: String?): List<Pair<Int, String>> {
+    override fun getConfirmSequence(secondPassword: String?): List<Pair<Int, String>> {
         val mnemonic = getMnemonic(secondPassword)
         val randomGenerator = SecureRandom()
         val seen = mutableListOf<Int>()
@@ -29,11 +28,7 @@ class BackupWalletUtil(
         return (0..2).map { seen[it] to mnemonic!![seen[it]] }
     }
 
-    /**
-     * Returns a [MutableList] of Strings representing the user's backup mnemonic, or null
-     * if the mnemonic isn't found.
-     */
-    fun getMnemonic(secondPassword: String?): List<String>? = try {
+    override fun getMnemonic(secondPassword: String?): List<String>? = try {
         payloadDataManager.wallet?.let {
             it.decryptHDWallet(secondPassword)
             it.walletBody?.getMnemonic()?.toList()

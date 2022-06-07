@@ -4,6 +4,7 @@ import com.blockchain.defiwalletbackup.domain.errors.BackupPhraseError
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.wallet.BackupWallet
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -14,18 +15,17 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.BackupWalletUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackupPhraseServiceTest {
     private val payloadManager = mockk<PayloadDataManager>()
-    private val backupWalletUtil = mockk<BackupWalletUtil>()
+    private val backupWallet = mockk<BackupWallet>()
     private val walletStatus = mockk<WalletStatus>()
 
     private val backupPhraseService: BackupPhraseService = BackupPhraseRepository(
         payloadManager = payloadManager,
-        backupWalletUtil = backupWalletUtil,
+        backupWallet = backupWallet,
         walletStatus = walletStatus
     )
 
@@ -57,7 +57,7 @@ class BackupPhraseServiceTest {
 
     @Test
     fun `GIVEN mnemonic exists, WHEN getMnemonic is called, THEN mnemonic should be returned`() {
-        every { backupWalletUtil.getMnemonic(any()) } returns mnemonic
+        every { backupWallet.getMnemonic(any()) } returns mnemonic
 
         val result = backupPhraseService.getMnemonic(null)
 
@@ -66,7 +66,7 @@ class BackupPhraseServiceTest {
 
     @Test
     fun `GIVEN mnemonic null, WHEN getMnemonic is called, THEN Failure NoMnemonicFound should be returned`() {
-        every { backupWalletUtil.getMnemonic(any()) } returns null
+        every { backupWallet.getMnemonic(any()) } returns null
 
         val result = backupPhraseService.getMnemonic(null)
 

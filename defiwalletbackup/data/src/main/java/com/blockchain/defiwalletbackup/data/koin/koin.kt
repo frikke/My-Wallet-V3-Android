@@ -10,7 +10,7 @@ val backupPhraseDataModule = module {
         factory<BackupPhraseService> {
             BackupPhraseRepository(
                 payloadManager = get(),
-                backupWalletUtil = get(),
+                backupWallet = get(),
                 walletStatus = get()
             )
         }
