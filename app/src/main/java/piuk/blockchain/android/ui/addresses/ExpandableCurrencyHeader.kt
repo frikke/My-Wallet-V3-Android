@@ -1,11 +1,9 @@
 package piuk.blockchain.android.ui.addresses
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Outline
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -22,6 +20,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.coincore.Coincore
+import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.scopedInject
@@ -72,7 +71,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     init {
         // Inflate layout
         coincore.activeCryptoAssets()
-            .filter { it.multiWallet }
+            .filterIsInstance<MultipleWalletsAsset>()
             .map { it.assetInfo }
             .forEach { asset ->
                 redesignTextView(asset)?.apply {
@@ -239,7 +238,6 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     fun getSelectedCurrency() = selectedCurrency
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private inner class CustomOutline constructor(
         var width: Int,
         var height: Int

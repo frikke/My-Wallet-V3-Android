@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val isDefault: Boolean = false,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    private val bankService: BankService,
+    bankService: BankService,
     private val exchangesRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)

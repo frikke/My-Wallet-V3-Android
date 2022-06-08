@@ -53,7 +53,7 @@ private val PendingTx.memo: String?
 // Transfer from a custodial trading account to an onChain non-custodial account
 class TradingToOnChainTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val isNoteSupported: Boolean,
+    val isNoteSupported: Boolean = false,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     private val userIdentity: UserIdentity,

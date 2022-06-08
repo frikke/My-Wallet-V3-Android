@@ -13,7 +13,12 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
+import com.blockchain.coincore.loader.CustodialOnlyDynamicAssetsRepository
 import com.blockchain.coincore.loader.DynamicAssetLoader
+import com.blockchain.coincore.loader.DynamicAssetsService
+import com.blockchain.coincore.loader.NonCustodialDynamicAssetRepository
+import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
+import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.featureflag.FeatureFlag
@@ -23,9 +28,12 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
+import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -35,21 +43,12 @@ val coincoreModule = module {
 
         scoped {
             BtcAsset(
-                exchangeRates = get(),
+                payloadManager = get(),
                 sendDataManager = get(),
                 feeDataManager = get(),
-                currencyPrefs = get(),
-                payloadManager = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                exchangeLinking = get(),
-                remoteLogger = get(),
-                labels = get(),
+                coinsWebsocket = get(),
                 walletPreferences = get(),
                 notificationUpdater = get(),
-                coinsWebsocket = get(),
-                identity = get(),
                 addressResolver = get()
             )
         }.bind(CryptoAsset::class)
@@ -58,19 +57,11 @@ val coincoreModule = module {
             BchAsset(
                 payloadManager = get(),
                 bchDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                interestBalances = get(),
-                tradingBalances = get(),
+                labels = get(),
                 feeDataManager = get(),
                 sendDataManager = get(),
-                exchangeLinking = get(),
-                labels = get(),
                 walletPreferences = get(),
                 beNotifyUpdate = get(),
-                identity = get(),
                 addressResolver = get()
             )
         }.bind(CryptoAsset::class)
@@ -81,16 +72,7 @@ val coincoreModule = module {
                 xlmDataManager = get(),
                 xlmFeesFetcher = get(),
                 walletOptionsDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                exchangeLinking = get(),
-                remoteLogger = get(),
-                labels = get(),
                 walletPreferences = get(),
-                identity = get(),
                 addressResolver = get()
             )
         }.bind(CryptoAsset::class)
@@ -100,21 +82,12 @@ val coincoreModule = module {
                 payloadManager = get(),
                 ethDataManager = get(),
                 feeDataManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
                 walletPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                exchangeLinking = get(),
                 labels = get(),
                 notificationUpdater = get(),
-                identity = get(),
                 assetCatalogue = lazy { get() },
                 formatUtils = get(),
-                addressResolver = get(),
-                layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                addressResolver = get()
             )
         }.bind(CryptoAsset::class)
 
@@ -130,15 +103,7 @@ val coincoreModule = module {
                 feeDataManager = get(),
                 walletPreferences = get(),
                 payloadManager = get(),
-                exchangeRates = get(),
-                currencyPrefs = get(),
-                remoteLogger = get(),
-                custodialManager = get(),
-                tradingBalances = get(),
-                interestBalances = get(),
-                exchangeLinking = get(),
                 labels = get(),
-                identity = get(),
                 formatUtils = get(),
                 addressResolver = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
@@ -149,6 +114,7 @@ val coincoreModule = module {
             FiatAsset(
                 labels = get(),
                 tradingBalanceDataManager = get(),
+                walletModeService = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
                 bankService = get(),
@@ -178,18 +144,23 @@ val coincoreModule = module {
         }
 
         scoped {
-            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+            val ncAssets: List<CryptoAsset> =
+                if (get<WalletModeService>().enabledWalletMode().nonCustodialEnabled) {
+                    payloadScope.getAll()
+                } else {
+                    emptyList()
+                }
             // For some unknown reason `getAll()` adds the last element twice. Which means
             // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
-                nonCustodialAssets = ncAssets.toSet(),
-                experimentalL1EvmAssets = experimentalL1EvmAssetList(),
+                nonCustodialAssets = ncAssets.toSet(), // All the non custodial L1s that we support
+                experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
+                walletModeService = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 exchangeRates = get(),
-                currencyPrefs = get(),
                 custodialManager = get(),
                 tradingBalances = get(),
                 interestBalances = get(),
@@ -199,7 +170,6 @@ val coincoreModule = module {
                 walletPreferences = get(),
                 identity = get(),
                 formatUtils = get(),
-                identityAddressResolver = get(),
                 ethHotWalletAddressResolver = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
                 stxForAllFeatureFlag = get(stxForAllFeatureFlag),
@@ -279,11 +249,45 @@ val coincoreModule = module {
     }
 
     single {
+        val assetsService = when (get<WalletModeService>().enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> get(StringQualifier("Universal"))
+            WalletMode.NON_CUSTODIAL_ONLY -> get(StringQualifier("NonCustodialOnlyQualifier"))
+            WalletMode.CUSTODIAL_ONLY -> get<DynamicAssetsService>(StringQualifier("CustodialOnly"))
+        }
         AssetCatalogueImpl(
-            fixedAssets = nonCustodialAssetList(),
+            assetsService = assetsService,
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
+
+    single(StringQualifier("Universal")) {
+        UniversalDynamicAssetRepository(
+            discoveryService = get(),
+            l2sDynamicAssetRepository = get()
+        )
+    }.bind(DynamicAssetsService::class)
+
+    single(StringQualifier("CustodialOnly")) {
+        CustodialOnlyDynamicAssetsRepository(
+            discoveryService = get()
+        )
+    }.bind(DynamicAssetsService::class)
+
+    single(StringQualifier("NonCustodialOnlyQualifier")) {
+        NonCustodialDynamicAssetRepository(
+            discoveryService = get(),
+            fixedAssets = nonCustodialAssetList(),
+            l2sDynamicAssetRepository = get()
+        )
+    }.bind(DynamicAssetsService::class)
+
+    single {
+        NonCustodialL2sDynamicAssetRepository(
+            l1EvmAssets = experimentalL1EvmAssetList(),
+            discoveryService = get(),
+            layerTwoFeatureFlag = lazy { get(ethLayerTwoFeatureFlag) }
+        )
+    }
 
     factory {
         FormatUtilities()

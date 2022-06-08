@@ -24,7 +24,7 @@ import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
-import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.api.services.AssetPriceService
 import com.blockchain.api.services.AuthApiService
 import com.blockchain.api.services.BlockchainCardService
@@ -149,7 +149,7 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(assetsApi).create(AssetDiscoveryApiInterface::class.java)
-        AssetDiscoveryService(
+        AssetDiscoveryApiService(
             api
         )
     }

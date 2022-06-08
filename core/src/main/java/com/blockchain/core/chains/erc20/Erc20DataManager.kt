@@ -1,6 +1,6 @@
 package com.blockchain.core.chains.erc20
 
-import com.blockchain.api.services.AssetDiscoveryService
+import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
@@ -139,8 +139,8 @@ internal class Erc20DataManagerImpl(
         }
     }
 
-    override fun getActiveAssets(): Single<Set<AssetInfo>> =
-        ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
+    override fun getActiveAssets(): Single<Set<AssetInfo>> {
+        return ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
             balanceCallCache.getBalances(accountHash).map { it.keys }.flatMap { baseErc20Assets ->
                 if (isEnabled) {
                     getSupportedNetworks().flatMap { supportedNetworks ->
@@ -155,6 +155,7 @@ internal class Erc20DataManagerImpl(
                 }
             }
         }
+    }
 
     override fun getErc20History(asset: AssetInfo, evmNetwork: EvmNetwork): Single<Erc20HistoryList> {
         return historyCallCache.fetch(accountHash, asset, evmNetwork.networkTicker)
@@ -360,4 +361,4 @@ internal class Erc20DataManagerImpl(
 // TODO this has to scale, need to find a way to get the networks from the remote config
 fun Currency.isErc20() =
     (this as? AssetInfo)?.l1chainTicker?.equals(CryptoCurrency.ETHER.networkTicker) == true ||
-        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryService.MATIC) == true
+        (this as? AssetInfo)?.l1chainTicker?.equals(AssetDiscoveryApiService.MATIC) == true

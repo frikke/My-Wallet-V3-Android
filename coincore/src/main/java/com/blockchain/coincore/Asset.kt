@@ -80,15 +80,19 @@ data class StateAwareAction(
 sealed class ActionState : Parcelable {
     @Parcelize
     object Available : ActionState()
+
     @Parcelize
     object LockedForBalance : ActionState()
+
     @Parcelize
     object LockedForTier : ActionState()
 
     @Parcelize
     data class LockedDueToSanctions(val reason: BlockedReason.Sanctions) : ActionState()
+
     @Parcelize
     object LockedDueToAvailability : ActionState()
+
     @Parcelize
     object Unavailable : ActionState()
 }
@@ -130,9 +134,19 @@ interface CryptoAsset : Asset {
     fun lastDayTrend(): Single<HistoricalRateList>
 
     // Temp feature accessors - this will change, but until it's building these have to be somewhere
-    val isCustodialOnly: Boolean
-    val multiWallet: Boolean
     val assetInfo: AssetInfo
+}
+
+interface MultipleWalletsAsset {
+    val assetInfo: AssetInfo
+    fun createWalletFromLabel(label: String, secondPassword: String?): Single<out SingleAccount>
+    fun createWalletFromAddress(address: String): Completable
+    fun importWalletFromKey(
+        keyData: String,
+        keyFormat: String,
+        keyPassword: String? = null, // Required for BIP38 format keys
+        walletSecondPassword: String? = null
+    ): Single<out SingleAccount>
 }
 
 internal interface NonCustodialSupport {

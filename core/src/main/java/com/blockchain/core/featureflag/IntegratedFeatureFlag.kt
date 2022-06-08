@@ -17,7 +17,7 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
         get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
             FeatureFlagState.ENABLED -> Single.just(true)
             FeatureFlagState.DISABLED -> Single.just(false)
-            FeatureFlagState.REMOTE -> remoteFlag.enabled.cache()
+            FeatureFlagState.REMOTE -> remoteFlag.enabled
         }.onErrorReturnItem(false)
 
     override val isEnabled: Boolean
@@ -33,18 +33,19 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
 class LocalOnlyFeatureFlag(
     private val prefs: FeatureFlagOverridePrefs,
     override val key: String,
-    override val readableName: String
+    override val readableName: String,
+    val defaultValue: Boolean
 ) : FeatureFlag {
     override val enabled: Single<Boolean>
         get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
             FeatureFlagState.ENABLED -> Single.just(true)
             FeatureFlagState.DISABLED -> Single.just(false)
-            else -> Single.just(false)
+            else -> Single.just(defaultValue)
         }
     override val isEnabled: Boolean
         get() = when (FeatureFlagState.valueOf(prefs.getFeatureState(key))) {
             FeatureFlagState.ENABLED -> true
             FeatureFlagState.DISABLED -> false
-            else -> false
+            else -> defaultValue
         }
 }

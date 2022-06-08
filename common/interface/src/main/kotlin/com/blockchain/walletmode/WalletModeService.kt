@@ -1,8 +1,18 @@
 package com.blockchain.walletmode
 
-import info.blockchain.balance.AssetCategory
-
 interface WalletModeService {
-    fun enabledWalletTypes(): Set<AssetCategory>
-    fun updateEnabledWalletTypes(types: Set<AssetCategory>)
+    fun enabledWalletMode(): WalletMode
+    fun updateEnabledWalletMode(type: WalletMode)
+}
+
+enum class WalletMode {
+    CUSTODIAL_ONLY,
+    NON_CUSTODIAL_ONLY,
+    UNIVERSAL;
+
+    val custodialEnabled: Boolean
+        get() = this == CUSTODIAL_ONLY || this == UNIVERSAL
+
+    val nonCustodialEnabled: Boolean
+        get() = this == NON_CUSTODIAL_ONLY || this == UNIVERSAL
 }

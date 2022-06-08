@@ -91,7 +91,7 @@ open class CryptoCurrency(
         displayTicker = "BTC",
         networkTicker = "BTC",
         name = "Bitcoin",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 3,
         startDate = 1282089600L, // 2010-08-18 00:00:00 UTC
@@ -104,7 +104,7 @@ open class CryptoCurrency(
         displayTicker = "ETH",
         networkTicker = "ETH",
         name = "Ethereum",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 18,
         requiredConfirmations = 12,
         startDate = 1438992000L, // 2015-08-08 00:00:00 UTC
@@ -117,7 +117,7 @@ open class CryptoCurrency(
         displayTicker = "BCH",
         networkTicker = "BCH",
         name = "Bitcoin Cash",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 8,
         requiredConfirmations = 3,
         startDate = 1500854400L, // 2017-07-24 00:00:00 UTC
@@ -130,7 +130,7 @@ open class CryptoCurrency(
         displayTicker = "XLM",
         networkTicker = "XLM",
         name = "Stellar",
-        categories = setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL),
+        categories = setOf(AssetCategory.NON_CUSTODIAL, AssetCategory.CUSTODIAL),
         precisionDp = 7,
         requiredConfirmations = 1,
         startDate = 1409875200L, // 2014-09-04 00:00:00 UTC

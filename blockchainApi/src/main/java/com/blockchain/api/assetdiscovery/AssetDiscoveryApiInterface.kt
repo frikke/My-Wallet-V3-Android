@@ -35,7 +35,7 @@ internal interface AssetDiscoveryApiInterface {
     @Cacheable(maxAge = Cacheable.MAX_AGE_THREE_DAYS)
     @DoNotLogResponseBody
     @GET("assets/currencies/{assetTicker}")
-    suspend fun getCurrenciesForEvm(
+    suspend fun getL2CurrenciesForL1(
         @Path("assetTicker") ticker: String
     ): Outcome<ApiError, DynamicCurrencyList>
 

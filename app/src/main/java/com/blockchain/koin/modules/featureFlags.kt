@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.core.featureflag.LocalOnlyFeatureFlag
+import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
@@ -95,7 +96,8 @@ val featureFlagsModule = module {
         LocalOnlyFeatureFlag(
             key = "android_ff_new_asset_price_store",
             readableName = "New AssetPriceStore with Store Cache",
-            prefs = get()
+            prefs = get(),
+            defaultValue = get<EnvironmentConfig>().isRunningInDebugMode()
         )
     }.bind(FeatureFlag::class)
 

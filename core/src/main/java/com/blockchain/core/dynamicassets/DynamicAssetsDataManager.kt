@@ -9,7 +9,6 @@ typealias CryptoAssetList = List<AssetInfo>
 typealias FiatAssetList = List<FiatCurrency>
 
 interface DynamicAssetsDataManager {
-    fun availableCryptoAssets(): Single<CryptoAssetList>
     fun availableFiatAssets(): Single<FiatAssetList>
     fun getAssetInformation(asset: AssetInfo): Single<DetailedAssetInformation>
 }

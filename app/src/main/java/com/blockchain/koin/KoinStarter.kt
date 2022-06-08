@@ -84,6 +84,7 @@ object KoinStarter {
             modules(
                 listOf(
                     versionsModule,
+                    featureFlagsModule,
                     activitiesModule,
                     apiInterceptorsModule,
                     apiModule,
@@ -102,7 +103,7 @@ object KoinStarter {
                     pricesModule,
                     dashboardAnnouncementsModule,
                     environmentModule,
-                    featureFlagsModule,
+
                     internalFeatureFlagsModule,
                     authenticationModule,
                     kycUiModule,

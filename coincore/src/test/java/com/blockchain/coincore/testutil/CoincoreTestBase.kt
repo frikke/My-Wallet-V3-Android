@@ -107,6 +107,16 @@ open class CoincoreTestBase {
             requiredConfirmations = 3,
             colour = "000000"
         ) {}
+
+        val TEST_ASSET_NC = object : CryptoCurrency(
+            displayTicker = "NOPE",
+            networkTicker = "NOPE",
+            name = "Not a real thing",
+            categories = setOf(AssetCategory.NON_CUSTODIAL),
+            precisionDp = 8,
+            requiredConfirmations = 3,
+            colour = "000000"
+        ) {}
     }
 }
 

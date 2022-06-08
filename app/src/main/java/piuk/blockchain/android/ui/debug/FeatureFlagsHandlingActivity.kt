@@ -16,9 +16,9 @@ import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
-import info.blockchain.balance.AssetCategory
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
@@ -81,26 +81,29 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
             radioDefi.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    walletModeService.updateEnabledWalletTypes(setOf(AssetCategory.NON_CUSTODIAL))
+                    walletModeService.updateEnabledWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
                     showSnackbar("Currency mode changed to Non custodial")
                 }
             }
 
             radioTrading.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    walletModeService.updateEnabledWalletTypes(setOf(AssetCategory.CUSTODIAL))
+                    walletModeService.updateEnabledWalletMode(WalletMode.CUSTODIAL_ONLY)
                     showSnackbar("Currency mode changed to Trading")
                 }
             }
 
             radioBoth.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    walletModeService.updateEnabledWalletTypes(
-                        setOf(AssetCategory.CUSTODIAL, AssetCategory.NON_CUSTODIAL)
+                    walletModeService.updateEnabledWalletMode(
+                        WalletMode.UNIVERSAL
                     )
                     showSnackbar("Currency mode changed to Trading + Pkw")
                 }
             }
+            radioBoth.isChecked = walletModeService.enabledWalletMode() == WalletMode.UNIVERSAL
+            radioTrading.isChecked = walletModeService.enabledWalletMode() == WalletMode.CUSTODIAL_ONLY
+            radioDefi.isChecked = walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY
 
             brokerageErrorSwitch.setOnCheckedChangeListener { _, isChecked ->
                 brokerageErrorInput.visibleIf { isChecked }

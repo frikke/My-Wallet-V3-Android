@@ -11,6 +11,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <TextView
+            android:id="@+id/display_currencies_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:gravity="center"
+            android:text="Wallet Supported Currencies Mode" />
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/radio_defi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DeFi" />
+
+            <RadioButton
+                android:id="@+id/radio_trading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trading" />
+
+            <RadioButton
+                android:id="@+id/radio_both"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Both" />
+        </RadioGroup>
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.Semibold.16"
@@ -87,41 +120,6 @@
             android:layout_marginBottom="2dp"
             android:gravity="center"
             android:text="Device Currency" />
-
-        <TextView
-            android:id="@+id/display_currencies_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="2dp"
-            android:gravity="center"
-            android:text="Wallet Display Mode" />
-
-        <RadioGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <RadioButton
-                android:id="@+id/radio_defi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DeFi" />
-
-            <RadioButton
-                android:id="@+id/radio_trading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trading" />
-
-            <RadioButton
-                android:id="@+id/radio_both"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Both" />
-        </RadioGroup>
 
         <TextView
             android:layout_width="match_parent"

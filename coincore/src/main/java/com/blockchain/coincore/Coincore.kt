@@ -11,7 +11,6 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
-import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -232,7 +231,5 @@ class Coincore internal constructor(
 
     fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
 
-    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets)
-
-    fun supportedFiatAssets(): List<FiatCurrency> = assetCatalogue.supportedFiatAssets
+    fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }

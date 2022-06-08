@@ -54,8 +54,6 @@ class CustodialTradingAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     val custodialWalletManager: CustodialWalletManager,
     val tradingBalances: TradingBalanceDataManager,
-    val isNoteSupported: Boolean = false,
-    override val isMemoSupported: Boolean = false,
     private val identity: UserIdentity,
     override val baseActions: Set<AssetAction> = defaultActions
 ) : CryptoAccountBase(), TradingAccount {

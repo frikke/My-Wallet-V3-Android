@@ -7,26 +7,15 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.CryptoAssetBase
-import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
-import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
-import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -35,43 +24,19 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class EthAsset(
-    payloadManager: PayloadDataManager,
+    private val payloadManager: PayloadDataManager,
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
-    custodialManager: CustodialWalletManager,
-    interestBalances: InterestBalanceDataManager,
-    tradingBalances: TradingBalanceDataManager,
-    exchangeRates: ExchangeRatesDataManager,
-    currencyPrefs: CurrencyPrefs,
     private val walletPrefs: WalletStatus,
     private val notificationUpdater: BackendNotificationUpdater,
-    labels: DefaultLabels,
-    exchangeLinking: ExchangeLinking,
-    remoteLogger: RemoteLogger,
-    identity: UserIdentity,
     private val formatUtils: FormatUtilities,
-    addressResolver: EthHotWalletAddressResolver,
-    private val layerTwoFeatureFlag: FeatureFlag
-) : CryptoAssetBase(
-    payloadManager,
-    exchangeRates,
-    currencyPrefs,
-    labels,
-    custodialManager,
-    interestBalances,
-    tradingBalances,
-    exchangeLinking,
-    remoteLogger,
-    identity,
-    addressResolver
-),
+    private val labels: DefaultLabels,
+    private val addressResolver: EthHotWalletAddressResolver
+) : CryptoAssetBase(),
     NonCustodialSupport {
     override val assetInfo: AssetInfo
         get() = CryptoCurrency.ETHER
-
-    override val isCustodialOnly: Boolean = assetInfo.isCustodialOnly
-    override val multiWallet: Boolean = false
 
     override fun initToken(): Completable =
         ethDataManager.initEthereumWallet(
@@ -104,20 +69,6 @@ internal class EthAsset(
             }.map {
                 listOf(it)
             }
-
-    override fun loadCustodialAccounts(): Single<SingleAccountList> =
-        Single.just(
-            listOf(
-                CustodialTradingAccount(
-                    currency = assetInfo,
-                    label = labels.getDefaultCustodialWalletLabel(),
-                    exchangeRates = exchangeRates,
-                    custodialWalletManager = custodialManager,
-                    tradingBalances = tradingBalances,
-                    identity = identity
-                )
-            )
-        )
 
     private fun updateBackendNotificationAddresses(account: EthCryptoWalletAccount) {
         val notify = NotificationAddresses(

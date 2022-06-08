@@ -4,17 +4,10 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -30,40 +23,23 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val ethDataManager: EthDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val assetCatalogue: Lazy<AssetCatalogue> = mock()
-    private val custodialManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
-    private val tradingBalances: TradingBalanceDataManager = mock()
     private val walletPrefs: WalletStatus = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
-    private val exchangeLinking: ExchangeLinking = mock()
-    private val remoteLogger: RemoteLogger = mock()
-    private val identity: UserIdentity = mock()
+
     private val formatUtils: FormatUtilities = mock()
     private val addressResolver: EthHotWalletAddressResolver = mock()
-    private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(false))
-    }
 
     private val subject = EthAsset(
         payloadManager = payloadManager,
         ethDataManager = ethDataManager,
         feeDataManager = feeDataManager,
         assetCatalogue = assetCatalogue,
-        custodialManager = custodialManager,
-        interestBalances = interestBalances,
-        tradingBalances = tradingBalances,
-        exchangeRates = exchangeRates,
-        currencyPrefs = currencyPrefs,
         walletPrefs = walletPrefs,
         notificationUpdater = notificationUpdater,
         labels = labels,
-        exchangeLinking = exchangeLinking,
-        remoteLogger = remoteLogger,
-        identity = identity,
         formatUtils = formatUtils,
-        addressResolver = addressResolver,
-        ethLayerTwoFeatureFlag
+        addressResolver = addressResolver
     )
 
     @Test

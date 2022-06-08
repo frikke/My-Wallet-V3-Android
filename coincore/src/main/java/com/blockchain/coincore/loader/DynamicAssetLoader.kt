@@ -3,7 +3,6 @@ package com.blockchain.coincore.loader
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
-import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
@@ -21,9 +20,10 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -46,6 +46,7 @@ internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
+    private val walletModeService: WalletModeService,
     private val payloadManager: PayloadDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
@@ -54,13 +55,11 @@ internal class DynamicAssetLoader(
     private val exchangeRates: ExchangeRatesDataManager,
     private val tradingBalances: TradingBalanceDataManager,
     private val interestBalances: InterestBalanceDataManager,
-    private val currencyPrefs: CurrencyPrefs,
     private val labels: DefaultLabels,
     private val exchangeLinking: ExchangeLinking,
     private val remoteLogger: RemoteLogger,
     private val identity: UserIdentity,
     private val formatUtils: FormatUtilities,
-    private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
     private val stxForAllFeatureFlag: FeatureFlag,
@@ -84,8 +83,8 @@ internal class DynamicAssetLoader(
             assetMap[assetInfo] = it
         }
 
-    override fun initAndPreload(): Completable =
-        layerTwoFeatureFlag.enabled.flatMapCompletable { isEnabled ->
+    override fun initAndPreload(): Completable {
+        return layerTwoFeatureFlag.enabled.flatMapCompletable { isEnabled ->
             val enabledNonCustodialAssets = if (isEnabled) {
                 nonCustodialAssets
             } else {
@@ -114,6 +113,7 @@ internal class DynamicAssetLoader(
                 .doOnError { Timber.e("init failed") }
                 .ignoreElement()
         }
+    }
 
     private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
         Completable.concat(
@@ -142,7 +142,7 @@ internal class DynamicAssetLoader(
                     loadedErc20.find { erc20 -> erc20.assetInfo == dynamicAsset } == null
             }
             // Those two sets should NOT overlap
-            check(loadedErc20.intersect(custodialAssets).isEmpty())
+            check(loadedErc20.intersect(custodialAssets.toSet()).isEmpty())
             loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
                 loadedErc20 + custodialList
             }
@@ -169,11 +169,31 @@ internal class DynamicAssetLoader(
 
     private fun loadErc20Assets(
         erc20Assets: Iterable<AssetInfo>
-    ): Single<List<CryptoAsset>> =
-        Single.zip(
-            tradingBalances.getActiveAssets(),
-            interestBalances.getActiveAssets(),
-            erc20DataManager.getActiveAssets()
+    ): Single<List<CryptoAsset>> {
+        val walletMode = walletModeService.enabledWalletMode()
+
+        val shouldLoadCustodial = walletMode == WalletMode.CUSTODIAL_ONLY || walletMode == WalletMode.UNIVERSAL
+        val shouldLoadNonCustodial = walletMode == WalletMode.NON_CUSTODIAL_ONLY || walletMode == WalletMode.UNIVERSAL
+
+        val tradingBalancesAssets =
+            if (shouldLoadCustodial) tradingBalances.getActiveAssets() else Single.just(
+                emptySet()
+            )
+        val interestBalancesAssets =
+            if (shouldLoadCustodial) interestBalances.getActiveAssets() else Single.just(
+                emptySet()
+            )
+
+        // Assets with non custodial balance
+        val erc20ActiveAssets =
+            if (shouldLoadNonCustodial) erc20DataManager.getActiveAssets() else Single.just(
+                emptySet()
+            )
+
+        return Single.zip(
+            tradingBalancesAssets,
+            interestBalancesAssets,
+            erc20ActiveAssets
         ) { activeTrading, activeInterest, activeNoncustodial ->
 
             activeInterest + activeTrading + activeNoncustodial
@@ -195,23 +215,12 @@ internal class DynamicAssetLoader(
                 loadErc20Asset(asset)
             }
         }
+    }
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
         return DynamicOnlyTradingAsset(
             assetInfo = assetInfo,
-            payloadManager = payloadManager,
-            custodialManager = custodialManager,
-            tradingBalances = tradingBalances,
-            interestBalances = interestBalances,
-            exchangeRates = exchangeRates,
-            currencyPrefs = currencyPrefs,
-            labels = labels,
-            exchangeLinking = exchangeLinking,
-            remoteLogger = remoteLogger,
-            identity = identity,
-            addressValidation = defaultCustodialAddressValidation,
-            availableActions = assetActions,
-            addressResolver = identityAddressResolver
+            addressValidation = defaultCustodialAddressValidation
         )
     }
 
@@ -220,38 +229,13 @@ internal class DynamicAssetLoader(
         return if (assetInfo.networkTicker == "STX") {
             StxAsset(
                 assetInfo = assetInfo,
-                payloadManager = payloadManager,
-                custodialManager = custodialManager,
-                tradingBalances = tradingBalances,
-                interestBalances = interestBalances,
-                exchangeRates = exchangeRates,
-                currencyPrefs = currencyPrefs,
-                labels = labels,
-                exchangeLinking = exchangeLinking,
-                remoteLogger = remoteLogger,
-                identity = identity,
                 addressValidation = defaultCustodialAddressValidation,
-                availableActions = selfCustodyAssetActions,
-                addressResolver = identityAddressResolver,
                 stxForAllFeatureFlag = stxForAllFeatureFlag,
                 stxForAirdropFeatureFlag = stxForAirdropFeatureFlag
             )
         } else {
             DynamicSelfCustodyAsset(
-                assetInfo = assetInfo,
-                payloadManager = payloadManager,
-                custodialManager = custodialManager,
-                tradingBalances = tradingBalances,
-                interestBalances = interestBalances,
-                exchangeRates = exchangeRates,
-                currencyPrefs = currencyPrefs,
-                labels = labels,
-                exchangeLinking = exchangeLinking,
-                remoteLogger = remoteLogger,
-                identity = identity,
-                addressValidation = defaultCustodialAddressValidation,
-                availableActions = selfCustodyAssetActions,
-                addressResolver = identityAddressResolver
+                assetInfo = assetInfo
             )
         }
     }
@@ -264,17 +248,8 @@ internal class DynamicAssetLoader(
             payloadManager = payloadManager,
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
-            exchangeRates = exchangeRates,
-            currencyPrefs = currencyPrefs,
-            custodialManager = custodialManager,
-            tradingBalances = tradingBalances,
-            interestBalances = interestBalances,
-            remoteLogger = remoteLogger,
             labels = labels,
-            exchangeLinking = exchangeLinking,
             walletPreferences = walletPreferences,
-            identity = identity,
-            availableCustodialActions = assetActions,
             availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,

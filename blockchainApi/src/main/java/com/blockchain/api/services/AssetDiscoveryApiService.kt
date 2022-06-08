@@ -46,14 +46,9 @@ data class DetailedAssetInformation(
 
 typealias DynamicAssetList = List<DynamicAsset>
 
-class AssetDiscoveryService internal constructor(
+class AssetDiscoveryApiService internal constructor(
     private val api: AssetDiscoveryApiInterface
 ) {
-    fun getNonCustodialAssets(): Single<DynamicAssetList> =
-        api.getCurrencies()
-            .map { dto ->
-                dto.currencies.mapNotNull { it.toDynamicAsset() }
-            }
 
     fun getFiatAssets(): Single<DynamicAssetList> =
         api.getFiatCurrencies()
@@ -73,8 +68,8 @@ class AssetDiscoveryService internal constructor(
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
 
-    suspend fun getAssetsForEvm(l1Ticker: String): Outcome<ApiError, DynamicAssetList> =
-        api.getCurrenciesForEvm(l1Ticker)
+    suspend fun getL2AssetsForL1(l1Ticker: String): Outcome<ApiError, DynamicAssetList> =
+        api.getL2CurrenciesForL1(l1Ticker)
             .map { dto ->
                 dto.currencies.mapNotNull { it.toDynamicAsset() }
             }
@@ -94,6 +89,7 @@ class AssetDiscoveryService internal constructor(
         } else {
             null
         }
+
     private fun DynamicCurrency.toDynamicAsset(): DynamicAsset? =
         when {
             coinType is Erc20Asset && !supportedErc20Chains.contains(coinType.parentChain) -> null
@@ -108,7 +104,9 @@ class AssetDiscoveryService internal constructor(
                 products = if (networkSymbol == "STX") {
                     // TODO(dtverdota): Remove once added on BE
                     makeProductSet(products).plus(DynamicAssetProducts.DynamicSelfCustody)
-                } else { makeProductSet(products) },
+                } else {
+                    makeProductSet(products)
+                },
                 logoUrl = coinType.logoUrl,
                 websiteUrl = coinType.websiteUrl,
                 minConfirmations = when (coinType) {

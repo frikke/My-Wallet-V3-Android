@@ -290,8 +290,7 @@ class TxProcessorFactory(
                     engine = TradingToOnChainTxEngine(
                         walletManager = walletManager,
                         userIdentity = userIdentity,
-                        limitsDataManager = limitsDataManager,
-                        isNoteSupported = source.isNoteSupported
+                        limitsDataManager = limitsDataManager
                     )
                 )
             )
@@ -345,8 +344,7 @@ class TxProcessorFactory(
                         engine = TradingToOnChainTxEngine(
                             walletManager = walletManager,
                             limitsDataManager = limitsDataManager,
-                            userIdentity = userIdentity,
-                            isNoteSupported = source.isNoteSupported
+                            userIdentity = userIdentity
                         )
                     )
                 }

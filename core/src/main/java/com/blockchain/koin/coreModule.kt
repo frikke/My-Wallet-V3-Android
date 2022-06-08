@@ -410,7 +410,6 @@ val coreModule = module {
     single {
         DynamicAssetsDataManagerImpl(
             discoveryService = get(),
-            experimentalL1EvmAssets = experimentalL1EvmAssetList()
         )
     }.bind(DynamicAssetsDataManager::class)
 

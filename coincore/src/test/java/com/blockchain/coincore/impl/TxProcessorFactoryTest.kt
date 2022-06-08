@@ -255,7 +255,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(true)
         }
 
         val target: CryptoAddress = mock {
@@ -270,8 +269,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -280,7 +278,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteNotSupportedSendProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(false)
         }
 
         val target: CryptoAddress = mock {
@@ -295,8 +292,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -377,7 +373,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(true)
         }
 
         val mockReceiveAddress: CryptoAddress = mock {
@@ -395,8 +390,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -405,7 +399,6 @@ class TxProcessorFactoryTest {
     fun tradingToOnChainNoteNotSupportedProcessor() {
         val source: CustodialTradingAccount = mock {
             on { currency }.thenReturn(TEST_ASSET)
-            on { isNoteSupported }.thenReturn(false)
         }
 
         val mockReceiveAddress: CryptoAddress = mock {
@@ -423,8 +416,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is TradingToOnChainTxEngine &&
                     (it.engine as TradingToOnChainTxEngine).run {
-                        this.isNoteSupported == source.isNoteSupported &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }

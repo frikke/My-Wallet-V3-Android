@@ -6,8 +6,8 @@ import com.blockchain.analytics.events.WalletAnalytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.Coincore
-import com.blockchain.coincore.bch.BchAsset
-import com.blockchain.coincore.btc.BtcAsset
+import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.MultipleWalletsAsset
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -25,7 +25,9 @@ import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 import org.mockito.Mockito.verifyNoMoreInteractions
+import org.mockito.Mockito.withSettings
 import piuk.blockchain.android.R
 
 class AccountPresenterTest {
@@ -40,11 +42,15 @@ class AccountPresenterTest {
     private val activity: AccountView = mock()
     private val privateKeyFactory: PrivateKeyFactory = mock()
 
-    private val btcAsset: BtcAsset = mock()
-    private val bchAsset: BchAsset = mock()
+    private val mockedBtcCryptoAsset: CryptoAsset =
+        Mockito.mock(CryptoAsset::class.java, withSettings().extraInterfaces(MultipleWalletsAsset::class.java))
+
+    private val mockedBchCryptoAsset: CryptoAsset =
+        Mockito.mock(CryptoAsset::class.java, withSettings().extraInterfaces(MultipleWalletsAsset::class.java))
+
     private val coincore: Coincore = mock {
-        on { get(CryptoCurrency.BTC) }.thenReturn(btcAsset)
-        on { get(CryptoCurrency.BCH) }.thenReturn(bchAsset)
+        on { get(CryptoCurrency.BTC) }.thenReturn(mockedBtcCryptoAsset)
+        on { get(CryptoCurrency.BCH) }.thenReturn(mockedBchCryptoAsset)
     }
 
     private val analytics: Analytics = mock()
@@ -81,8 +87,12 @@ class AccountPresenterTest {
         val newAccount: BtcCryptoWalletAccount = mock {
             on { xpubAddress }.thenReturn(VALID_XPUB)
         }
-        whenever(btcAsset.createAccount(NEW_BTC_LABEL, null)).thenReturn(Single.just(newAccount))
-        whenever(bchAsset.createAccount(VALID_XPUB)).thenReturn(Completable.complete())
+        whenever((mockedBtcCryptoAsset as MultipleWalletsAsset).createWalletFromLabel(NEW_BTC_LABEL, null)).thenReturn(
+            Single.just(newAccount)
+        )
+        whenever((mockedBchCryptoAsset as MultipleWalletsAsset).createWalletFromAddress(VALID_XPUB)).thenReturn(
+            Completable.complete()
+        )
 
         whenever(coincore.isLabelUnique(any())).thenReturn(Single.just(true))
 
@@ -100,7 +110,7 @@ class AccountPresenterTest {
     @Test
     fun createNewAccountIncorrectSecondPassword() {
         // Arrange
-        whenever(btcAsset.createAccount(NEW_BTC_LABEL, null))
+        whenever((mockedBtcCryptoAsset as MultipleWalletsAsset).createWalletFromLabel(NEW_BTC_LABEL, null))
             .thenReturn(Single.error(DecryptionException()))
 
         whenever(coincore.isLabelUnique(any())).thenReturn(Single.just(true))
@@ -118,7 +128,7 @@ class AccountPresenterTest {
     @Test
     fun createNewAccountUnknownException() {
         // Arrange
-        whenever(btcAsset.createAccount(NEW_BTC_LABEL, null))
+        whenever((mockedBtcCryptoAsset as MultipleWalletsAsset).createWalletFromLabel(NEW_BTC_LABEL, null))
             .thenReturn(Single.error(RuntimeException()))
 
         whenever(coincore.isLabelUnique(any())).thenReturn(Single.just(true))
@@ -245,7 +255,7 @@ class AccountPresenterTest {
 
         val importedAccount: BtcCryptoWalletAccount = mock()
         whenever(
-            btcAsset.importAddressFromKey(
+            (mockedBtcCryptoAsset as MultipleWalletsAsset).importWalletFromKey(
                 SCANNED_ADDRESS,
                 PrivateKeyFactory.BIP38,
                 BIP38_PASSWORD,
@@ -272,7 +282,7 @@ class AccountPresenterTest {
             .thenReturn(PrivateKeyFactory.BIP38)
 
         whenever(
-            btcAsset.importAddressFromKey(
+            (mockedBtcCryptoAsset as MultipleWalletsAsset).importWalletFromKey(
                 SCANNED_ADDRESS,
                 PrivateKeyFactory.BIP38,
                 BIP38_PASSWORD,
@@ -298,7 +308,7 @@ class AccountPresenterTest {
 
         val importedAccount: BtcCryptoWalletAccount = mock()
         whenever(
-            btcAsset.importAddressFromKey(
+            (mockedBtcCryptoAsset as MultipleWalletsAsset).importWalletFromKey(
                 SCANNED_ADDRESS,
                 PrivateKeyFactory.HEX,
                 null,
@@ -325,7 +335,7 @@ class AccountPresenterTest {
             .thenReturn(PrivateKeyFactory.HEX)
 
         whenever(
-            btcAsset.importAddressFromKey(
+            (mockedBtcCryptoAsset as MultipleWalletsAsset).importWalletFromKey(
                 SCANNED_ADDRESS,
                 PrivateKeyFactory.HEX,
                 null,
@@ -347,7 +357,7 @@ class AccountPresenterTest {
     fun onAddressScannedWatchOnlyInvalidAddress() {
         // Arrange
         whenever(privateKeyFactory.getFormat(SCANNED_ADDRESS)).thenReturn(null)
-        whenever(btcAsset.isValidAddress(SCANNED_ADDRESS)).thenReturn(true)
+        whenever(mockedBtcCryptoAsset.isValidAddress(SCANNED_ADDRESS)).thenReturn(true)
 
         // Act
         subject.importScannedAddress(SCANNED_ADDRESS, null)
@@ -361,7 +371,7 @@ class AccountPresenterTest {
     fun onAddressScannedUnknownFormat() {
         // Arrange
         whenever(privateKeyFactory.getFormat(SCANNED_ADDRESS)).thenReturn(null)
-        whenever(btcAsset.isValidAddress(SCANNED_ADDRESS)).thenReturn(false)
+        whenever(mockedBtcCryptoAsset.isValidAddress(SCANNED_ADDRESS)).thenReturn(false)
 
         // Act
         subject.importScannedAddress(SCANNED_ADDRESS, null)

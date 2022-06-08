@@ -1,18 +1,10 @@
 package com.blockchain.coincore.xlm
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
-import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
-import exchange.ExchangeLinking
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -31,14 +23,6 @@ class XlmAssetUriParseTest {
     private val xlmDataManager: XlmDataManager = mock()
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
-    private val custodialManager: CustodialWalletManager = mock()
-    private val exchangeRates: ExchangeRatesDataManager = mock()
-    private val tradingBalances: TradingBalanceDataManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
-    private val labels: DefaultLabels = mock()
-    private val exchangeLinking: ExchangeLinking = mock()
-    private val remoteLogger: RemoteLogger = mock()
     private val walletPreferences: WalletStatus = mock()
 
     private val subject = XlmAsset(
@@ -46,16 +30,7 @@ class XlmAssetUriParseTest {
         xlmDataManager = xlmDataManager,
         xlmFeesFetcher = xlmFeesFetcher,
         walletOptionsDataManager = walletOptionsDataManager,
-        custodialManager = custodialManager,
-        tradingBalances = tradingBalances,
-        interestBalances = interestBalances,
-        exchangeRates = exchangeRates,
-        currencyPrefs = currencyPrefs,
-        labels = labels,
-        exchangeLinking = exchangeLinking,
-        remoteLogger = remoteLogger,
         walletPreferences = walletPreferences,
-        identity = mock(),
         addressResolver = mock()
     )
 
