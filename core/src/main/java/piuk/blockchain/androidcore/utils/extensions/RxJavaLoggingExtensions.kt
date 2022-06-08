@@ -62,3 +62,30 @@ inline fun <reified T> Flowable<T>.log(): Flowable<T> {
         .doOnSubscribe { Timber.d("$line Subscribe") }
         .doOnCancel { Timber.d("$line Cancel") }
 }
+
+fun <T> Single<T>.logTime(tag: String): Single<T> {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
+    }
+}
+
+fun <T> Maybe<T>.logTime(tag: String): Maybe<T> {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
+    }
+}
+
+fun Completable.logTime(tag: String): Completable {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
+    }
+}

@@ -5,13 +5,11 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.metadata.MetadataInitException
 import com.blockchain.metadata.MetadataService
-import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.android.ui.home.models.MetadataEvent
@@ -29,14 +27,13 @@ class Prerequisites(
     private val exchangeRates: ExchangeRatesDataManager,
     private val remoteLogger: RemoteLogger,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
-    private val flushables: List<AppStartUpFlushable>,
     private val globalEventHandler: GlobalEventHandler,
     private val walletCredentialsUpdater: WalletCredentialsMetadataUpdater,
     private val rxBus: RxBus
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =
-        metadataService.attemptMetadataSetup().printTime("attemptMetadataSetup")
+        metadataService.attemptMetadataSetup()
             .logOnError(METADATA_ERROR_MESSAGE)
             .onErrorResumeNext {
                 if (it is InvalidCredentialsException || it is HDWalletException) {
@@ -44,14 +41,14 @@ class Prerequisites(
                 } else
                     Completable.error(MetadataInitException(it))
             }.then {
-                coincore.init().printTime("coincore.init()") // Coincore signals the remote logger internally
+                coincore.init() // Coincore signals the remote logger internally
             }.then {
                 walletCredentialsUpdater.checkAndUpdate()
-                    .logAndCompleteOnError(WALLET_CREDENTIALS).printTime("walletCredentialsUpdater")
+                    .logAndCompleteOnError(WALLET_CREDENTIALS)
             }.then {
                 Completable.fromCallable {
                     walletConnectServiceAPI.init()
-                }.printTime("walletConnectServiceAPI")
+                }
             }
             .doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
@@ -91,32 +88,5 @@ class Prerequisites(
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
         private const val WALLET_CONNECT = "wallet_connect"
-    }
-}
-
-fun <T> Single<T>.printTime(tag: String): Single<T> {
-    var timer = 0L
-    return this.doOnSubscribe {
-        timer = System.currentTimeMillis()
-    }.doFinally {
-        println("Total time for $tag ${System.currentTimeMillis() - timer}")
-    }
-}
-
-fun <T> Maybe<T>.printTime(tag: String): Maybe<T> {
-    var timer = 0L
-    return this.doOnSubscribe {
-        timer = System.currentTimeMillis()
-    }.doFinally {
-        println("Total time for $tag ${System.currentTimeMillis() - timer}")
-    }
-}
-
-fun Completable.printTime(tag: String): Completable {
-    var timer = 0L
-    return this.doOnSubscribe {
-        timer = System.currentTimeMillis()
-    }.doFinally {
-        println("Total time for $tag ${System.currentTimeMillis() - timer}")
     }
 }

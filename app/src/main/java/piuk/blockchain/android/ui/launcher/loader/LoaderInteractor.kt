@@ -25,7 +25,6 @@ import java.io.Serializable
 import kotlinx.coroutines.rx3.rxCompletable
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
-import piuk.blockchain.android.ui.launcher.printTime
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
@@ -78,31 +77,31 @@ class LoaderInteractor(
     fun initSettings(isAfterWalletCreation: Boolean, referralCode: String?): Disposable {
         return settings
             .flatMap {
-                metadata.toSingle { it }.printTime("metadata total")
+                metadata.toSingle { it }
             }.flatMapCompletable {
-                syncFiatCurrency(it).printTime("syncFiatCurrency")
+                syncFiatCurrency(it)
             }.then {
-                saveInitialCountry().printTime("saveInitialCountry")
+                saveInitialCountry()
             }.then {
-                updateUserFiatIfNotSet().printTime("updateUserFiatIfNotSet")
+                updateUserFiatIfNotSet()
             }.then {
-                notificationTokenUpdate.printTime("notificationTokenUpdate")
+                notificationTokenUpdate
             }.then {
                 warmCaches.doOnSubscribe {
                     emitter.onNext(
                         LoaderIntents.UpdateProgressStep(ProgressStep.LOADING_PRICES)
                     )
-                }.printTime("warmCaches")
+                }
             }.then {
                 rxCompletable {
                     referralService.associateReferralCodeIfPresent(referralCode)
-                }.printTime("referralService")
+                }
             }.thenMaybe {
                 termsAndConditionsFeatureFlag.enabled
                     .flatMapMaybe { enabled ->
                         if (enabled) checkNewTermsAndConditions(isAfterWalletCreation)
                         else Maybe.empty()
-                    }.printTime("metadata total")
+                    }
             }.doOnSubscribe {
                 emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.SYNCING_ACCOUNT))
             }.subscribeBy(

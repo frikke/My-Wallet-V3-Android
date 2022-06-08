@@ -86,7 +86,7 @@ internal class DynamicAssetLoader(
                     experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
                 }
             }
-            assetCatalogue.initialise().printTime("assetCatalogue.initialise")
+            assetCatalogue.initialise()
                 .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
                 .flatMap { supportedAssets ->
                     // We need to make sure than any l1 assets - notably ETH - is initialised before
@@ -99,7 +99,7 @@ internal class DynamicAssetLoader(
                             doLoadAssets(
                                 supportedAssets.filterIsInstance<AssetInfo>().toSet()
                                     .minus(enabledNonCustodialAssets.map { it.assetInfo }.toSet())
-                            ).printTime("doLoadAssets")
+                            )
                         }
                 }
                 .map { enabledNonCustodialAssets + it }
@@ -118,14 +118,14 @@ internal class DynamicAssetLoader(
                     )
                 )
             }
-        }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement().printTime("initNonCustodialAssets")
+        }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
     private fun doLoadAssets(
         dynamicAssets: Set<AssetInfo>
     ): Single<List<CryptoAsset>> {
         val erc20assets = dynamicAssets.filter { it.isErc20() }
 
-        return loadErc20Assets(erc20assets).printTime("loadErc20Assets").flatMap { loadedErc20 ->
+        return loadErc20Assets(erc20assets).flatMap { loadedErc20 ->
             // Loading Custodial ERC20s even without a balance is necessary so they show up for swap
             val custodialAssets = dynamicAssets.filter { dynamicAsset ->
                 dynamicAsset.isCustodial &&
@@ -135,7 +135,7 @@ internal class DynamicAssetLoader(
             check(loadedErc20.intersect(custodialAssets.toSet()).isEmpty())
             loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
                 loadedErc20 + custodialList
-            }.printTime("loadCustodialOnlyAssets")
+            }
         }
     }
 
@@ -271,23 +271,5 @@ internal class DynamicAssetLoader(
                 AssetAction.Receive,
                 AssetAction.ViewActivity
             )
-    }
-}
-
-fun <T> Single<T>.printTime(tag: String): Single<T> {
-    var timer = 0L
-    return this.doOnSubscribe {
-        timer = System.currentTimeMillis()
-    }.doFinally {
-        println("Total time for $tag ${System.currentTimeMillis() - timer}")
-    }
-}
-
-fun Completable.printTime(tag: String): Completable {
-    var timer = 0L
-    return this.doOnSubscribe {
-        timer = System.currentTimeMillis()
-    }.doFinally {
-        println("Total time for $tag ${System.currentTimeMillis() - timer}")
     }
 }

@@ -634,7 +634,6 @@ val applicationModule = module {
                 globalEventHandler = get(),
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
-                flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get(),
                 payloadDataManager = get()
             )
