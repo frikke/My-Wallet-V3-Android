@@ -3,10 +3,12 @@ package com.blockchain.core.custodial
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
-import com.blockchain.auth.AuthHeaderProvider
+import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.GBP
 import com.blockchain.nabu.USD
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.waitForCompletionWithoutErrors
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
@@ -25,9 +27,7 @@ class TradingBalanceCallCacheTest {
         ioTrampoline()
     }
 
-    private val authHeaderProvider: AuthHeaderProvider = mock {
-        on { getAuthHeader() }.thenReturn(Single.just(EXPECTED_HEADER))
-    }
+    private val authenticator = FakeAuthenticator(FakeNabuSessionTokenFactory.any)
 
     private val assetCatalogue: AssetCatalogue = mock {
         on { fromNetworkTicker(CRYPTO_TICKER_1) }.thenReturn(CRYPTO_ASSET_1)
@@ -42,7 +42,7 @@ class TradingBalanceCallCacheTest {
     private val subject = TradingBalanceCallCache(
         balanceService,
         assetCatalogue,
-        authHeaderProvider
+        authenticator
     )
 
     @Test
@@ -68,7 +68,7 @@ class TradingBalanceCallCacheTest {
     private fun givenATradingBalanceFor(vararg assetCode: String) {
         val mapEntries = assetCode.map { makeTradingBalanceFor(it) }
         whenever(
-            balanceService.getTradingBalanceForAllAssets(EXPECTED_HEADER)
+            balanceService.getTradingBalanceForAllAssets(any())
         ).thenReturn(
             Single.just(mapEntries)
         )
@@ -111,7 +111,5 @@ class TradingBalanceCallCacheTest {
 
         private val FIAT_CURRENCY_1 = USD
         private val FIAT_CURRENCY_2 = GBP
-
-        private const val EXPECTED_HEADER = "some_header"
     }
 }
