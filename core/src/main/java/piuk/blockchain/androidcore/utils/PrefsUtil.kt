@@ -585,6 +585,20 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
+    // app maintenance
+    override var isAppMaintenanceRemoteConfigIgnored: Boolean
+        get() = getValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, false)
+        set(value) = setValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, value)
+
+    override var isAppMaintenanceDebugOverrideEnabled: Boolean
+        get() = getValue(APP_MAINTENANCE_DEBUG_OVERRIDE, false)
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_OVERRIDE, value)
+
+    override var appMaintenanceDebugJson: String
+        get() = getValue(APP_MAINTENANCE_DEBUG_JSON, "")
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_JSON, value)
+
+    // app rating
     override var completed: Boolean
         get() = getValue(APP_RATING_COMPLETED, false)
         set(value) = setValue(APP_RATING_COMPLETED, value)
@@ -713,6 +727,11 @@ class PrefsUtil(
         private const val BROKERAGE_ERRORS_ENABLED = "BROKERAGE_ERRORS_ENABLED"
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
+
+        // App Maintenance
+        private const val APP_MAINTENANCE_IGNORE_REMOTE_CONFIG = "APP_MAINTENANCE_IGNORE_REMOTE_CONFIG"
+        private const val APP_MAINTENANCE_DEBUG_OVERRIDE = "APP_MAINTENANCE_DEBUG_OVERRIDE"
+        private const val APP_MAINTENANCE_DEBUG_JSON = "APP_MAINTENANCE_DEBUG_JSON"
 
         // App Rating
         private const val APP_RATING_COMPLETED = "APP_RATING_COMPLETED"

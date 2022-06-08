@@ -29,6 +29,7 @@ class AppMaintenanceConfigMapperTest {
     )
 
     private val expected = AppMaintenanceConfig(
+        isRemoteConfigIgnored = false,
         currentVersionCode = 1000,
         currentOsVersion = 10,
         playStoreVersion = 2000,
@@ -47,7 +48,14 @@ class AppMaintenanceConfigMapperTest {
     fun testMap() = runBlocking {
         every { appUpdateInfo.availableVersionCode() } returns 2000
 
-        val result = AppMaintenanceConfigMapper.map(appUpdateInfo, configDto, currentVersionCode, currentOsVersion)
+        val result =
+            AppMaintenanceConfigMapper.map(
+                isRemoteConfigIgnored = false,
+                appUpdateInfo = appUpdateInfo,
+                maintenanceConfig = configDto,
+                currentVersionCode = currentVersionCode,
+                currentOsVersion = currentOsVersion
+            )
 
         assertEquals(expected, result)
     }

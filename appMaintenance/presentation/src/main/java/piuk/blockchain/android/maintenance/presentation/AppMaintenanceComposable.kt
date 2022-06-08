@@ -28,6 +28,7 @@ import com.blockchain.componentlib.theme.Grey900
  */
 @Composable
 fun AppMaintenanceScreen(
+    isDebugBuild: Boolean,
     uiState: AppMaintenanceViewState,
     button1OnClick: (AppMaintenanceIntents) -> Unit,
     button2OnClick: (AppMaintenanceIntents) -> Unit
@@ -84,6 +85,17 @@ fun AppMaintenanceScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                if (isDebugBuild) {
+                    Text(
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.tiny_margin)),
+                        style = AppTheme.typography.body1,
+                        color = Grey900,
+                        textAlign = TextAlign.Center,
+                        text = "Debug Build - Press back to skip"
+                    )
+                    Spacer(Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                }
+
                 button1?.let { buttonSettings ->
                     TertiaryButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -111,35 +123,35 @@ fun AppMaintenanceScreen(
 @Preview(name = "NO_STATUS", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenNO_STATUS() {
-    AppMaintenanceScreen(AppMaintenanceViewState.NO_STATUS, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.NO_STATUS, {}, {})
 }
 
 @Preview(name = "OS_NOT_SUPPORTED", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenOS_NOT_SUPPORTED() {
-    AppMaintenanceScreen(AppMaintenanceViewState.OS_NOT_SUPPORTED, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.OS_NOT_SUPPORTED, {}, {})
 }
 
 @Preview(name = "SITE_WIDE_MAINTENANCE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenSITE_WIDE_MAINTENANCE() {
-    AppMaintenanceScreen(AppMaintenanceViewState.SITE_WIDE_MAINTENANCE, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.SITE_WIDE_MAINTENANCE, {}, {})
 }
 
 @Preview(name = "REDIRECT_TO_WEBSITE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenREDIRECT_TO_WEBSITE() {
-    AppMaintenanceScreen(AppMaintenanceViewState.REDIRECT_TO_WEBSITE, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.REDIRECT_TO_WEBSITE, {}, {})
 }
 
 @Preview(name = "MANDATORY_UPDATE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenMANDATORY_UPDATE() {
-    AppMaintenanceScreen(AppMaintenanceViewState.MANDATORY_UPDATE, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.MANDATORY_UPDATE, {}, {})
 }
 
 @Preview(name = "OPTIONAL_UPDATE", showBackground = true)
 @Composable
 fun PreviewAppMaintenanceScreenOPTIONAL_UPDATE() {
-    AppMaintenanceScreen(AppMaintenanceViewState.OPTIONAL_UPDATE, {}, {})
+    AppMaintenanceScreen(isDebugBuild = false, AppMaintenanceViewState.OPTIONAL_UPDATE, {}, {})
 }

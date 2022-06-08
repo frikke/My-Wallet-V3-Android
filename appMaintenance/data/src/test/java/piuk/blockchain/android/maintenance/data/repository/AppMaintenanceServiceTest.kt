@@ -50,6 +50,7 @@ class AppMaintenanceServiceTest {
     )
 
     private val expected = AppMaintenanceConfig(
+        isRemoteConfigIgnored = false,
         currentVersionCode = 1000,
         currentOsVersion = 10,
         playStoreVersion = 2000,

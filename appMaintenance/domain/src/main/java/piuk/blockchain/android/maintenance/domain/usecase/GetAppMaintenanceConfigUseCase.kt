@@ -13,6 +13,10 @@ class GetAppMaintenanceConfigUseCase(private val service: AppMaintenanceService)
             .map { config ->
                 with(config) {
                     when {
+                        isRemoteConfigIgnored -> {
+                            AppMaintenanceStatus.NonActionable.AllClear
+                        }
+
                         currentOsVersion < minimumOSVersion -> {
                             AppMaintenanceStatus.Actionable.OSNotSupported(websiteUrl)
                         }

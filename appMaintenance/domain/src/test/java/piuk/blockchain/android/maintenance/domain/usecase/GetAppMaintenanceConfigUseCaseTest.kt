@@ -17,6 +17,7 @@ class GetAppMaintenanceConfigUseCaseTest {
     private val useCase by lazy { GetAppMaintenanceConfigUseCase(service = repository) }
 
     private val data = AppMaintenanceConfig(
+        isRemoteConfigIgnored = false,
         currentVersionCode = 0,
         currentOsVersion = 0,
         playStoreVersion = 0,
