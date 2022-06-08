@@ -21,9 +21,9 @@
     <string name="common_copy" />
     <string name="next" />
     <string name="verify" />
-    <string name="common_ok" />
-    <string name="ops" />
-    <string name="something_went_wrong_try_again" />
+    <!--    <string name="common_ok" />-->
+    <!--    <string name="ops" />-->
+    <!--    <string name="something_went_wrong_try_again" />-->
 
     <string name="verify_phrase_title" />
     <string name="verify_phrase_description" />

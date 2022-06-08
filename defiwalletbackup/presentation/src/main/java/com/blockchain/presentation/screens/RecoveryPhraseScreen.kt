@@ -60,7 +60,10 @@ fun RecoveryPhraseScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = backOnClick)
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_secure_wallet),
+            onBackButtonClick = backOnClick
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
