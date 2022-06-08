@@ -35,6 +35,7 @@ import okhttp3.OkHttpClient
 import okhttp3.WebSocketListener
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
+import timber.log.Timber
 
 class WalletConnectService(
     private val walletConnectAccountProvider: WalletConnectAddressProvider,
@@ -76,12 +77,16 @@ class WalletConnectService(
         compositeDisposable += Singles.zip(
             sessionRepository.retrieve(),
             walletConnectAccountProvider.address()
-        ).subscribe { (sessions, address) ->
-            sessions.forEach { session ->
-                session.connect()
-                connectedSessions.add(session)
-            }
+        ).subscribeBy(
+            onSuccess = { (sessions, _) ->
+                sessions.forEach { session ->
+                    session.connect()
+                    connectedSessions.add(session)
+                }
+            }, onError = {
+            Timber.e(it)
         }
+        )
 
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe { state ->
             when (state) {

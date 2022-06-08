@@ -14,17 +14,13 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -33,10 +29,12 @@ import info.blockchain.balance.isCustodialOnly
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
 
 // This is a rubbish regex, but it'll do until I'm provided a better one
@@ -51,14 +49,10 @@ internal class DynamicAssetLoader(
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
-    private val custodialManager: CustodialWalletManager,
-    private val exchangeRates: ExchangeRatesDataManager,
     private val tradingBalances: TradingBalanceDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val labels: DefaultLabels,
-    private val exchangeLinking: ExchangeLinking,
     private val remoteLogger: RemoteLogger,
-    private val identity: UserIdentity,
     private val formatUtils: FormatUtilities,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val layerTwoFeatureFlag: FeatureFlag,
@@ -116,19 +110,15 @@ internal class DynamicAssetLoader(
     }
 
     private fun initNonCustodialAssets(assetList: Set<CryptoAsset>): Completable =
-        Completable.concat(
-            assetList.filterIsInstance<NonCustodialSupport>()
-                .map { asset ->
-                    Completable.defer { asset.initToken() }
-                        .doOnError {
-                            remoteLogger.logException(
-                                CoincoreInitFailure(
-                                    "Failed init: ${(asset as CryptoAsset).assetInfo.networkTicker}", it
-                                )
-                            )
-                        }
-                }.toList()
-        )
+        assetList.filterIsInstance<NonCustodialSupport>().map {
+            Single.defer { it.initToken().toSingle { } }.doOnError {
+                remoteLogger.logException(
+                    CoincoreInitFailure(
+                        "Failed init: ${(it as CryptoAsset).assetInfo.networkTicker}", it
+                    )
+                )
+            }
+        }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
     private fun doLoadAssets(
         dynamicAssets: Set<AssetInfo>

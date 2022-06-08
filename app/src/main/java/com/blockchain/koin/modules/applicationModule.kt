@@ -33,7 +33,6 @@ import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
 import com.blockchain.network.websocket.debugLog
 import com.blockchain.network.websocket.newBlockchainWebSocket
-import com.blockchain.operations.AppStartUpFlushable
 import com.blockchain.payments.checkoutcom.CheckoutCardProcessor
 import com.blockchain.payments.checkoutcom.CheckoutFactory
 import com.blockchain.payments.core.CardProcessor
@@ -632,10 +631,8 @@ val applicationModule = module {
                 exchangeRates = get(),
                 remoteLogger = get(),
                 globalEventHandler = get(),
-                simpleBuySync = get(),
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
-                flushables = getAll(AppStartUpFlushable::class),
                 walletCredentialsUpdater = get(),
                 payloadDataManager = get()
             )

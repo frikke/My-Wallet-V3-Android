@@ -2,8 +2,8 @@ package com.blockchain.core.interest
 
 import com.blockchain.api.services.InterestBalanceDetails
 import com.blockchain.api.services.InterestService
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.common.caching.TimedCacheRequest
+import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -14,19 +14,18 @@ typealias AssetInterestBalanceMap = Map<AssetInfo, InterestAccountBalance>
 internal class InterestBalanceCallCache(
     private val balanceService: InterestService,
     private val assetCatalogue: AssetCatalogue,
-    private val authHeaderProvider: AuthHeaderProvider
+    private val authenticator: Authenticator
 ) {
     private val refresh: () -> Single<AssetInterestBalanceMap> = {
-        authHeaderProvider.getAuthHeader()
-            .flatMap { auth ->
-                balanceService.getAllInterestAccountBalances(auth)
-            }.map { details ->
-                details.mapNotNull { entry ->
-                    (assetCatalogue.fromNetworkTicker(entry.assetTicker) as? AssetInfo)?.let { assetInfo ->
-                        assetInfo to entry.toInterestBalance(assetInfo)
-                    }
-                }.toMap()
-            }
+        authenticator.authenticate {
+            balanceService.getAllInterestAccountBalances(it.authHeader)
+        }.map { details ->
+            details.mapNotNull { entry ->
+                (assetCatalogue.fromNetworkTicker(entry.assetTicker) as? AssetInfo)?.let { assetInfo ->
+                    assetInfo to entry.toInterestBalance(assetInfo)
+                }
+            }.toMap()
+        }
     }
 
     private val cache = TimedCacheRequest(

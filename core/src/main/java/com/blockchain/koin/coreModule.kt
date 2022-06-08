@@ -130,7 +130,7 @@ val coreModule = module {
             TradingBalanceCallCache(
                 balanceService = get(),
                 assetCatalogue = get(),
-                authHeaderProvider = get()
+                authenticator = get()
             )
         }
 
@@ -173,7 +173,7 @@ val coreModule = module {
             InterestBalanceCallCache(
                 balanceService = get(),
                 assetCatalogue = get(),
-                authHeaderProvider = get()
+                authenticator = get()
             )
         }
 

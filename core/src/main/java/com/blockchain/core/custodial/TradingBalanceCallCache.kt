@@ -3,8 +3,8 @@ package com.blockchain.core.custodial
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.TradingBalance
 import com.blockchain.api.services.TradingBalanceList
-import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.common.caching.TimedCacheRequest
+import com.blockchain.nabu.Authenticator
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -17,11 +17,12 @@ internal class TradingBalanceRecord(
 internal class TradingBalanceCallCache(
     private val balanceService: CustodialBalanceService,
     private val assetCatalogue: AssetCatalogue,
-    private val authHeaderProvider: AuthHeaderProvider
+    private val authenticator: Authenticator
 ) {
     private val refresh: () -> Single<TradingBalanceRecord> = {
-        authHeaderProvider.getAuthHeader()
-            .flatMap { balanceService.getTradingBalanceForAllAssets(it) }
+        authenticator.authenticate {
+            balanceService.getTradingBalanceForAllAssets(it.authHeader)
+        }
             .map { buildRecordMap(it) }
             .onErrorReturn { TradingBalanceRecord() }
     }
