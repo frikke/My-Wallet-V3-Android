@@ -1,13 +1,14 @@
 package com.blockchain.componentlib.tablerow
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.control.PrimarySwitch
 import com.blockchain.componentlib.control.SuccessSwitch
@@ -22,7 +23,13 @@ fun ToggleTableRow(
     enabled: Boolean = true,
     toggleTableRowType: ToggleTableRowType = ToggleTableRowType.Primary,
 ) {
-    TableRow(
+    FlexibleTableRow(
+        paddingValues = PaddingValues(
+            start = dimensionResource(R.dimen.standard_margin),
+            end = 18.dp, // Switch has a built-in padding and we need to consider it for the screen padding
+            top = dimensionResource(R.dimen.medium_margin),
+            bottom = dimensionResource(R.dimen.medium_margin),
+        ),
         content = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -43,8 +50,6 @@ fun ToggleTableRow(
             when (toggleTableRowType) {
                 ToggleTableRowType.Primary -> {
                     PrimarySwitch(
-                        modifier = Modifier
-                            .padding(dimensionResource(R.dimen.very_small_margin)),
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
                         enabled = enabled,
@@ -52,8 +57,6 @@ fun ToggleTableRow(
                 }
                 ToggleTableRowType.Success -> {
                     SuccessSwitch(
-                        modifier = Modifier
-                            .padding(dimensionResource(R.dimen.very_small_margin)),
                         isChecked = isChecked,
                         onCheckChanged = onCheckedChange,
                         enabled = enabled,
