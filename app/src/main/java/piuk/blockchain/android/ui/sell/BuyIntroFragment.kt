@@ -231,10 +231,8 @@ class BuyIntroFragment :
                     is BlockedReason.Sanctions.Unknown -> reason.message
                 }
                 icon = R.drawable.ic_wallet_intro_image
-                secondaryText = R.string.learn_more
-                secondaryAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
-                ctaText = R.string.common_empty_cta
-                ctaAction = { checkEligibilityAndLoadBuyDetails() }
+                ctaText = R.string.learn_more
+                ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
             }
         }
     }
