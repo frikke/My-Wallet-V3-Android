@@ -183,11 +183,18 @@ class CoinViewInteractor(
             is InterestAccount -> {
                 when {
                     !enabled && account.isFunded -> {
-                        actions.minus { it.action == AssetAction.InterestDeposit } +
-                            StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
+                        val newActions = actions.minus { it.action == AssetAction.InterestDeposit }.toMutableSet()
+                        if (newActions.none { it.action == AssetAction.InterestWithdraw }) {
+                            newActions += StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
+                        }
+                        newActions
                     }
                     else -> {
-                        actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
+                        if (actions.none { it.action == AssetAction.InterestDeposit }) {
+                            actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
+                        } else {
+                            actions
+                        }
                     }
                 }
             }
