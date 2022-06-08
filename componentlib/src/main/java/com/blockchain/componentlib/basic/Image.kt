@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.core.content.ContextCompat
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -41,7 +40,6 @@ fun Image(
         placeholder(ColorDrawable(placeholderColor))
     }
 
-    val defaultSize: Dp = dimensionResource(R.dimen.large_margin)
     val defaultShape: Shape = CircleShape
 
     when (imageResource) {
@@ -50,10 +48,8 @@ fun Image(
                 painter = painterResource(id = imageResource.id),
                 contentDescription = imageResource.contentDescription,
                 modifier = modifier
-                    .size(imageResource.size ?: defaultSize)
-                    .run {
-                        imageResource.shape?.let { clip(it) } ?: this
-                    },
+                    .run { imageResource.size?.let { size(it) } ?: this }
+                    .run { imageResource.shape?.let { clip(it) } ?: this },
                 colorFilter = imageResource.colorFilter,
                 contentScale = contentScale,
             )
