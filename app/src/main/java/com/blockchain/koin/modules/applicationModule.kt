@@ -632,7 +632,6 @@ val applicationModule = module {
                 exchangeRates = get(),
                 remoteLogger = get(),
                 globalEventHandler = get(),
-                simpleBuySync = get(),
                 rxBus = get(),
                 walletConnectServiceAPI = get(),
                 flushables = getAll(AppStartUpFlushable::class),

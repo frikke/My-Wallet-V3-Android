@@ -26,7 +26,7 @@ class NonCustodialL2sDynamicAssetRepository(
             l1EvmAssets.map { asset ->
                 discoveryService.getL2AssetsForL1(asset.displayTicker.lowercase())
                     .fold(
-                        onFailure = { throw it.throwable },
+                        onFailure = { emptyList() },
                         onSuccess = { it }
                     )
             }.flatten()

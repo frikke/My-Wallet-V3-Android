@@ -1,6 +1,5 @@
 package com.blockchain.coincore
 
-import com.blockchain.coincore.loader.PAX
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.UserIdentity
 import info.blockchain.balance.AssetCatalogue
@@ -84,13 +83,15 @@ internal class SwapTrendingPairsProvider(
             }
         }
 
-    companion object {
-        private val DEFAULT_SWAP_PAIRS = listOf(
-            Pair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
-            Pair(CryptoCurrency.BTC, PAX),
-            Pair(CryptoCurrency.BTC, CryptoCurrency.XLM),
-            Pair(CryptoCurrency.BTC, CryptoCurrency.BCH),
-            Pair(CryptoCurrency.ETHER, PAX)
-        )
-    }
+    private val DEFAULT_SWAP_PAIRS = listOfNotNull(
+        Pair(CryptoCurrency.BTC, CryptoCurrency.ETHER),
+        assetCatalogue.assetInfoFromNetworkTicker("PAX")?.let {
+            Pair(CryptoCurrency.BTC, it)
+        },
+        Pair(CryptoCurrency.BTC, CryptoCurrency.XLM),
+        Pair(CryptoCurrency.BTC, CryptoCurrency.BCH),
+        assetCatalogue.assetInfoFromNetworkTicker("PAX")?.let {
+            Pair(CryptoCurrency.ETHER, it)
+        }
+    )
 }

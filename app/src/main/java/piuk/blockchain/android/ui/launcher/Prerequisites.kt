@@ -11,9 +11,9 @@ import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.home.models.MetadataEvent
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -28,7 +28,6 @@ class Prerequisites(
     private val payloadDataManager: PayloadDataManager,
     private val exchangeRates: ExchangeRatesDataManager,
     private val remoteLogger: RemoteLogger,
-    private val simpleBuySync: SimpleBuySyncFactory,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val flushables: List<AppStartUpFlushable>,
     private val globalEventHandler: GlobalEventHandler,
@@ -37,7 +36,7 @@ class Prerequisites(
 ) {
 
     fun initMetadataAndRelatedPrerequisites(): Completable =
-        metadataService.attemptMetadataSetup()
+        metadataService.attemptMetadataSetup().printTime("attemptMetadataSetup")
             .logOnError(METADATA_ERROR_MESSAGE)
             .onErrorResumeNext {
                 if (it is InvalidCredentialsException || it is HDWalletException) {
@@ -45,21 +44,14 @@ class Prerequisites(
                 } else
                     Completable.error(MetadataInitException(it))
             }.then {
-                coincore.init() // Coincore signals the remote logger internally
-            }.then {
-                simpleBuySync.performSync()
-                    .logAndCompleteOnError(SIMPLE_BUY_SYNC)
-            }.then {
-                Completable.concat(
-                    flushables.distinct().map { it.flush().logAndCompleteOnError(it.tag) }
-                )
+                coincore.init().printTime("coincore.init()") // Coincore signals the remote logger internally
             }.then {
                 walletCredentialsUpdater.checkAndUpdate()
-                    .logAndCompleteOnError(WALLET_CREDENTIALS)
+                    .logAndCompleteOnError(WALLET_CREDENTIALS).printTime("walletCredentialsUpdater")
             }.then {
                 Completable.fromCallable {
                     walletConnectServiceAPI.init()
-                }
+                }.printTime("walletConnectServiceAPI")
             }
             .doOnComplete {
                 rxBus.emitEvent(MetadataEvent::class.java, MetadataEvent.SETUP_COMPLETE)
@@ -99,5 +91,32 @@ class Prerequisites(
         private const val SIMPLE_BUY_SYNC = "simple_buy_sync"
         private const val WALLET_CREDENTIALS = "wallet_credentials"
         private const val WALLET_CONNECT = "wallet_connect"
+    }
+}
+
+fun <T> Single<T>.printTime(tag: String): Single<T> {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
+    }
+}
+
+fun <T> Maybe<T>.printTime(tag: String): Maybe<T> {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
+    }
+}
+
+fun Completable.printTime(tag: String): Completable {
+    var timer = 0L
+    return this.doOnSubscribe {
+        timer = System.currentTimeMillis()
+    }.doFinally {
+        println("Total time for $tag ${System.currentTimeMillis() - timer}")
     }
 }
