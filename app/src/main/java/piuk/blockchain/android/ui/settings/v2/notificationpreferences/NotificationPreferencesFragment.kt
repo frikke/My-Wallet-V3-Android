@@ -20,6 +20,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
 
 class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewState>(), AndroidScopeComponent {
@@ -66,7 +67,7 @@ class NotificationPreferencesFragment : MVIFragment<NotificationPreferencesViewS
         analytics.logEvent(NotificationPreferencesAnalyticsEvents.NotificationViewed)
 
         updateToolbar(
-            menuItems = emptyList()
+            toolbarTitle = getString(R.string.notifications_toolbar)
         )
     }
 

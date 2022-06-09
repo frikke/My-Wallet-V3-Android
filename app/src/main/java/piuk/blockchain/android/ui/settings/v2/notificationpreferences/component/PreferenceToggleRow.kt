@@ -50,7 +50,7 @@ fun PreferenceToggleRow(
     isChecked: Boolean = false,
     enabled: Boolean = true
 ) {
-    Box() {
+    Box {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,6 +58,7 @@ fun PreferenceToggleRow(
                 .background(AppTheme.colors.background)
                 .padding(
                     start = dimensionResource(R.dimen.standard_margin),
+                    end = dimensionResource(R.dimen.standard_margin)
                 ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -75,7 +76,8 @@ fun PreferenceToggleRow(
         }
         if (!enabled) {
             Box(
-                modifier = Modifier.background(White.copy(alpha = .75f))
+                modifier = Modifier
+                    .background(White.copy(alpha = .75f))
                     .matchParentSize()
                     .clickable(enabled = true, onClick = { })
             )

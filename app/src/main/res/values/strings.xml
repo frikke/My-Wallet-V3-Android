@@ -2551,7 +2551,6 @@
     <string name="settings_signout_wallet">Sign Out</string>
     <string name="settings_ask_you_sure_signout">Are you sure you want to sign out from this wallet?</string>
     <string name="settings_btn_signout">Sign out</string>
-    <string name="settings_notification_preferences_title">Notification Preferences</string>
     <string name="settings_notification_preferences_subtitle">Choose how you want to stay informed.</string>
     <string name="settings_notification_error">Notification settings failed to load</string>
     <string name="settings_notification_error_details">There was a problem fetching your notifications settings. Please reload or try again later.</string>

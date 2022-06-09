@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.services.ContactMethod
 import com.blockchain.api.services.ContactPreference
+import com.blockchain.commonarch.presentation.base.updateToolbar
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -55,6 +56,13 @@ class NotificationPreferenceDetailsFragment :
                 }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        updateToolbar(
+            toolbarTitle = args.title
+        )
     }
 
     override fun onStop() {
