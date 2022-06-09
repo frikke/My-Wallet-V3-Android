@@ -7,10 +7,11 @@ import java.text.DecimalFormatSymbols
 class InputAmountKeyboard : InputKeyboard {
     private fun getDecimalSeparator(): Char = DecimalFormatSymbols.getInstance().decimalSeparator
     private fun getDeviceManufacturer(): String = android.os.Build.MANUFACTURER
+    private fun isDeviceManufacturerFlagged(): Boolean =
+        FLAGGED_DEVICES.any { it.equals(getDeviceManufacturer(), ignoreCase = true) }
+
     override fun inputTypeForAmount(): Int {
-        return if (getDeviceManufacturer().equals(SAMSUNG_DEVICE, ignoreCase = true) &&
-            getDecimalSeparator() != SEPARATOR_US
-        ) {
+        return if (isDeviceManufacturerFlagged() && getDecimalSeparator() != SEPARATOR_US) {
             InputType.TYPE_CLASS_PHONE
         } else {
             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
@@ -20,8 +21,11 @@ class InputAmountKeyboard : InputKeyboard {
     override fun validInputCharacters(): String = DIGITS + getDecimalSeparator()
 
     companion object {
-        const val SAMSUNG_DEVICE = "samsung"
-        const val SEPARATOR_US = '.'
-        const val DIGITS = "0123456789"
+        private const val SAMSUNG_DEVICE = "samsung"
+        private const val XIAOMI_DEVICE = "xiaomi"
+        private val FLAGGED_DEVICES = listOf(SAMSUNG_DEVICE, XIAOMI_DEVICE)
+
+        private const val SEPARATOR_US = '.'
+        private const val DIGITS = "0123456789"
     }
 }
