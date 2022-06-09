@@ -2996,4 +2996,10 @@
     <string name="accessibility_user_settings">User Settings</string>
     <string name="accessibility_close">Close</string>
     <string name="accessibility_support">Support</string>
+
+    <!-- Bottom Nav Items -->
+    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_prices">Prices</string>
+    <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
+    <string name="bottom_nav_activity">Activity</string>
 </resources>

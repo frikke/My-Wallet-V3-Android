@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="bottom_nav_home">Home</string>
-    <string name="bottom_nav_prices">Prices</string>
-    <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
-    <string name="bottom_nav_activity">Activity</string>
+    <string name="bottom_nav_home"/>
+    <string name="bottom_nav_prices"/>
+    <string name="bottom_nav_buy_and_sell"/>
+    <string name="bottom_nav_activity"/>
 
-    <string name="app_name"></string>
-    <string name="screen_overlay_warning"></string>
-    <string name="screen_overlay_note"></string>
-    <string name="dialog_continue"></string>
-    <string name="exit"></string>
+    <string name="app_name"/>
+    <string name="screen_overlay_warning"/>
+    <string name="screen_overlay_note"/>
+    <string name="dialog_continue"/>
+    <string name="exit"/>
 
-    <string name="common_cancel"></string>
-    <string name="common_confirm"></string>
-    <string name="common_ok"></string>
+    <string name="common_cancel"/>
+    <string name="common_confirm"/>
+    <string name="common_ok"/>
 
-    <string name="accessibility_action_menu"></string>
-    <string name="accessibility_back"></string>
+    <string name="accessibility_action_menu"/>
+    <string name="accessibility_back"/>
 </resources>
