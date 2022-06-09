@@ -34,8 +34,9 @@ internal class AppMaintenanceRepository(
             if (appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored) {
                 Outcome.Success(AppMaintenanceConfigMapper.mapIgnored())
             } else {
-                val deferredMaintenanceConfig =
-                    async(dispatcher) { appMaintenanceRemoteConfig.getAppMaintenanceConfig() }
+                val deferredMaintenanceConfig = async(dispatcher) {
+                    appMaintenanceRemoteConfig.getAppMaintenanceConfig()
+                }
                 val deferredAppUpdateInfo = async(dispatcher) { appUpdateInfoFactory.getAppUpdateInfo() }
 
                 val maintenanceConfig: AppMaintenanceConfigDto? = try {

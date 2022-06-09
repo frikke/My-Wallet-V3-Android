@@ -50,7 +50,6 @@ class AppMaintenanceConfigMapperTest {
 
         val result =
             AppMaintenanceConfigMapper.map(
-                isRemoteConfigIgnored = false,
                 appUpdateInfo = appUpdateInfo,
                 maintenanceConfig = configDto,
                 currentVersionCode = currentVersionCode,

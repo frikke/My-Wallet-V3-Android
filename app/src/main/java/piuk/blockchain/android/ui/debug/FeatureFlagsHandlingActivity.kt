@@ -43,7 +43,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val appMaintenancePres: AppMaintenancePrefs by inject()
+    private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
     private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
@@ -132,28 +132,28 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
 
             // app maintenance
             ignoreAppMaintenanceRcSwitch.setOnCheckedChangeListener { _, isChecked ->
-                appMaintenancePres.isAppMaintenanceRemoteConfigIgnored = isChecked
+                appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored = isChecked
             }
-            ignoreAppMaintenanceRcSwitch.isChecked = appMaintenancePres.isAppMaintenanceRemoteConfigIgnored
+            ignoreAppMaintenanceRcSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored
 
             appMaintenanceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 appMaintenanceJson.visibleIf { isChecked }
                 btnSaveAppMaintenanceJson.visibleIf { isChecked }
 
                 if (isChecked.not()) {
-                    appMaintenancePres.isAppMaintenanceDebugOverrideEnabled = false
+                    appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = false
                 }
             }
-            appMaintenanceSwitch.isChecked = appMaintenancePres.isAppMaintenanceDebugOverrideEnabled
+            appMaintenanceSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled
 
-            appMaintenanceJson.setText(appMaintenancePres.appMaintenanceDebugJson)
+            appMaintenanceJson.setText(appMaintenancePrefs.appMaintenanceDebugJson)
 
             btnSaveAppMaintenanceJson.setOnClickListener {
                 appMaintenanceJson.getTextString().let { json ->
                     try {
                         Json.parseToJsonElement(json)
-                        appMaintenancePres.isAppMaintenanceDebugOverrideEnabled = true
-                        appMaintenancePres.appMaintenanceDebugJson = json
+                        appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = true
+                        appMaintenancePrefs.appMaintenanceDebugJson = json
                         BlockchainSnackbar.make(this@with.root, "Json saved", type = SnackbarType.Success).show()
                     } catch (e: SerializationException) {
                         BlockchainSnackbar.make(this@with.root, "Malformed Json!", type = SnackbarType.Error).show()

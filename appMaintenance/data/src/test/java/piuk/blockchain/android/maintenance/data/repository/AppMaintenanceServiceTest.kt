@@ -1,6 +1,7 @@
 package piuk.blockchain.android.maintenance.data.repository
 
 import com.blockchain.outcome.Outcome
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.versions.VersionsInfo
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.install.model.InstallStatus
@@ -24,6 +25,7 @@ class AppMaintenanceServiceTest {
     private val appMaintenanceRemoteConfig = mockk<AppMaintenanceRemoteConfig>()
     private val appUpdateInfoFactory = mockk<AppUpdateInfoFactory>()
     private val versionsInfo = mockk<VersionsInfo>()
+    private val appMaintenancePrefs = mockk<AppMaintenancePrefs>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     private val appUpdateInfo = mockk<AppUpdateInfo>()
@@ -32,6 +34,7 @@ class AppMaintenanceServiceTest {
         appMaintenanceRemoteConfig,
         appUpdateInfoFactory,
         versionsInfo,
+        appMaintenancePrefs,
         dispatcher
     )
 
@@ -70,6 +73,7 @@ class AppMaintenanceServiceTest {
         coEvery { appUpdateInfoFactory.getAppUpdateInfo() } returns appUpdateInfo
         coEvery { versionsInfo.versionCode } returns 1000
         coEvery { versionsInfo.osVersion } returns 10
+        coEvery { appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored } returns false
     }
 
     @Test

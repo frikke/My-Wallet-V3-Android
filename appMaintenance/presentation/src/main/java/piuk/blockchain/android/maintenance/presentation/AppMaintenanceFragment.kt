@@ -1,6 +1,5 @@
 package piuk.blockchain.android.maintenance.presentation
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +35,7 @@ class AppMaintenanceFragment :
     private val environmentConfig: EnvironmentConfig by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        isCancelable = environmentConfig.isRunningInDebugMode()
+        isCancelable = false
 
         disableDragging()
 
@@ -68,9 +67,10 @@ class AppMaintenanceFragment :
         val state = viewModel.viewState.collectAsState()
         AppMaintenanceScreen(
             isDebugBuild = environmentConfig.isRunningInDebugMode(),
+            debugSkip = ::resumeAppFlow,
             uiState = state.value,
-            button1OnClick = { viewModel.onIntent(it) },
-            button2OnClick = { viewModel.onIntent(it) }
+            button1OnClick = viewModel::onIntent,
+            button2OnClick = viewModel::onIntent
         )
     }
 
@@ -123,11 +123,6 @@ class AppMaintenanceFragment :
                 type = SnackbarType.Error
             ).show()
         }
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        resumeAppFlow()
     }
 
     companion object {
