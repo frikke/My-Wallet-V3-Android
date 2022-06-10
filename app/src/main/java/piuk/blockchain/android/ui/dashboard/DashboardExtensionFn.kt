@@ -2,11 +2,13 @@ package piuk.blockchain.android.ui.dashboard
 
 import android.annotation.SuppressLint
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.elyeproj.loaderviewlibrary.LoaderTextView
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import piuk.blockchain.android.R
+import piuk.blockchain.android.util.context
 
 fun LoaderTextView.showLoading() =
     resetLoader()
@@ -38,4 +40,12 @@ fun TextView.asDeltaPercent(delta: Double, prefix: String = "", postfix: String 
         delta.asPercentString()
     } + postfix
     setDeltaColour(delta)
+}
+
+fun TextView.setContentDescriptionSuffix(@StringRes accessibilityLabelRes: Int) {
+    contentDescription = "${context.getString(accessibilityLabelRes)}: $text"
+}
+
+fun TextView.setContentDescriptionSuffix(accessibilityLabel: String) {
+    contentDescription = "$accessibilityLabel: $text"
 }

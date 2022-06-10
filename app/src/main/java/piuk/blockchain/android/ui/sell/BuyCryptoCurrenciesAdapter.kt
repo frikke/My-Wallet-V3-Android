@@ -8,8 +8,10 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.BuyCryptoItemLayoutBinding
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
+import piuk.blockchain.android.ui.dashboard.setContentDescriptionSuffix
 import piuk.blockchain.android.ui.resources.AssetResources
 
 class BuyCryptoCurrenciesAdapter(
@@ -45,9 +47,16 @@ class BuyCryptoCurrenciesAdapter(
         val item = items[position]
         with(holder) {
             assetResources.loadAssetIcon(iconView, item.asset)
+
             currency.text = item.asset.name
-            priceDelta.asDeltaPercent(item.percentageDelta)
+            currency.setContentDescriptionSuffix(R.string.accessibility_asset_name)
+
             price.text = item.price.toStringWithSymbol()
+            price.setContentDescriptionSuffix(R.string.accessibility_current_market_price)
+
+            priceDelta.asDeltaPercent(item.percentageDelta)
+            priceDelta.setContentDescriptionSuffix(R.string.accessibility_24h_change)
+
             container.setOnClickListener {
                 onItemClick(item)
             }
