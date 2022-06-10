@@ -1,9 +1,7 @@
 package piuk.blockchain.android.rating.data.repository
 
-import com.blockchain.api.adapters.ApiError
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.FundsLocks
-import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -27,6 +25,8 @@ import java.math.BigDecimal
 import java.util.Calendar
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -39,6 +39,7 @@ import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppRatingServiceTest {
+
     private val appRatingRemoteConfig = mockk<AppRatingRemoteConfig>()
     private val appRatingApiKeysRemoteConfig = mockk<AppRatingApiKeysRemoteConfig>()
     private val defaultThreshold = 3
@@ -48,9 +49,11 @@ class AppRatingServiceTest {
     private val userIdentity = mockk<UserIdentity>()
     private val currencyPrefs = mockk<CurrencyPrefs>()
     private val bankService = mockk<BankService>()
-    private val environmentConfig = mockk<EnvironmentConfig>()
 
     private val appRatingService: AppRatingService = AppRatingRepository(
+        coroutineScope = TestScope(),
+        dispatcher = UnconfinedTestDispatcher(),
+
         appRatingRemoteConfig = appRatingRemoteConfig,
         appRatingApiKeysRemoteConfig = appRatingApiKeysRemoteConfig,
         defaultThreshold = defaultThreshold,
@@ -59,8 +62,7 @@ class AppRatingServiceTest {
         appRatingFF = appRatingFF,
         userIdentity = userIdentity,
         currencyPrefs = currencyPrefs,
-        bankService = bankService,
-        environmentConfig = environmentConfig
+        bankService = bankService
     )
 
     private val appRating = AppRating(rating = 3, feedback = "feedback")
@@ -75,9 +77,10 @@ class AppRatingServiceTest {
     fun setUp() {
         every { appRatingFF.enabled } returns Single.just(true)
 
-        every { environmentConfig.isRunningInDebugMode() } returns true
-
         every { currencyPrefs.selectedFiatCurrency } returns FiatCurrency.Dollars
+
+        every { appRatingPrefs.promptDateMillis = any() } just Runs
+        every { appRatingPrefs.completed = any() } just Runs
 
         every { kycTiersGold.isApprovedFor(KycTierLevel.GOLD) } returns true
         every { kycTiersNotGold.isApprovedFor(KycTierLevel.GOLD) } returns false
@@ -106,38 +109,37 @@ class AppRatingServiceTest {
     }
 
     @Test
-    fun `GIVEN success apiKeys, success appRatingApi, WHEN postRatingData is called, THEN true should be returned`() =
+    fun `GIVEN success apiKeys, success appRatingApi, WHEN postRatingData is called, THEN completed should be true`() =
         runTest {
             coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Success(apiKeys)
             coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Success(true)
 
-            val result = appRatingService.postRatingData(appRating)
+            appRatingService.postRatingData(appRating)
 
-            assertEquals(true, result)
+            verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
+            verify(exactly = 1) { appRatingPrefs.completed = true }
         }
 
     @Test
     fun `GIVEN success apiKeys, failure appRatingApi, WHEN postRatingData is called, THEN false should be returned`() =
         runTest {
             coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Success(apiKeys)
-            coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Failure(
-                ApiError.HttpError(
-                    Throwable()
-                )
-            )
+            coEvery { appRatingApi.postRatingData(apiKeys, appRating) } returns Outcome.Failure(mockk())
 
-            val result = appRatingService.postRatingData(appRating)
+            appRatingService.postRatingData(appRating)
 
-            assertEquals(false, result)
+            verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
+            verify(exactly = 0) { appRatingPrefs.completed = true }
         }
 
     @Test
     fun `GIVEN failure apiKeys, WHEN postRatingData is called, THEN false should be returned`() = runTest {
         coEvery { appRatingApiKeysRemoteConfig.getApiKeys() } returns Outcome.Failure(Throwable())
 
-        val result = appRatingService.postRatingData(appRating)
+        appRatingService.postRatingData(appRating)
 
-        assertEquals(false, result)
+        verify(exactly = 1) { appRatingPrefs.promptDateMillis = any() }
+        verify(exactly = 0) { appRatingPrefs.completed = true }
     }
 
     @Test
@@ -199,14 +201,4 @@ class AppRatingServiceTest {
 
             assertEquals(false, result)
         }
-
-    @Test
-    fun `WHEN markRatingCompleted is called, THEN completed should be true`() {
-        every { appRatingPrefs.promptDateMillis = any() } just Runs
-        every { appRatingPrefs.completed = any() } just Runs
-
-        appRatingService.markRatingCompleted()
-
-        verify { appRatingPrefs.completed = true }
-    }
 }

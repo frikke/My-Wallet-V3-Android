@@ -19,21 +19,18 @@ internal class InAppReviewSettingsImpl(
         initialized = true
     }
 
-    override suspend fun triggerAppReview(activity: Activity, onComplete: (successful: Boolean) -> Unit) {
-        if (initialized) {
+    override suspend fun triggerAppReview(activity: Activity): Boolean {
+        return if (initialized) {
             reviewInfo?.let {
-                reviewManager
-                    .launchReviewFlow(activity, reviewInfo)
-                    .addOnCompleteListener {
-                        onComplete(true)
-                    }
-            } ?: onComplete(false)
+                reviewManager.launchReviewFlow(activity, reviewInfo)
+                true
+            } ?: false
         } else { // internet too slow and/or user was so fast
             // retry init
             init(activity)
 
             // retrigger
-            triggerAppReview(activity, onComplete)
+            triggerAppReview(activity)
         }
     }
 

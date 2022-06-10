@@ -1,17 +1,20 @@
 package piuk.blockchain.android.rating.data.repository
 
 import com.blockchain.domain.paymentmethods.BankService
-import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.getOrDefault
-import com.blockchain.outcome.getOrNull
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.await
 import piuk.blockchain.android.rating.data.api.AppRatingApi
 import piuk.blockchain.android.rating.data.model.AppRatingApiKeys
@@ -22,6 +25,9 @@ import piuk.blockchain.android.rating.domain.service.AppRatingService
 import timber.log.Timber
 
 internal class AppRatingRepository(
+    private val coroutineScope: CoroutineScope,
+    private val dispatcher: CoroutineDispatcher,
+
     private val appRatingRemoteConfig: AppRatingRemoteConfig,
     private val appRatingApiKeysRemoteConfig: AppRatingApiKeysRemoteConfig,
     private val defaultThreshold: Int,
@@ -33,28 +39,28 @@ internal class AppRatingRepository(
     // prerequisites verification
     private val userIdentity: UserIdentity,
     private val currencyPrefs: CurrencyPrefs,
-    private val bankService: BankService,
-    private val environmentConfig: EnvironmentConfig
+    private val bankService: BankService
 ) : AppRatingService {
 
     override suspend fun getThreshold(): Int {
         return appRatingRemoteConfig.getThreshold().getOrDefault(defaultThreshold)
     }
 
-    override suspend fun postRatingData(appRating: AppRating): Boolean {
-        // get api keys from remote config
-        val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrNull()
+    override fun postRatingData(appRating: AppRating) {
+        coroutineScope.launch(dispatcher) {
 
-        // if for some reason we can't get api keys, or json is damaged, we return false
-        // for the vm to retrigger again in 1 month
-        return apiKeys?.let {
-            // if there is any error in the api, we return false
-            // for the vm to retrigger again in 1 month
-            appRatingApi.postRatingData(
-                apiKeys = apiKeys,
-                appRating = appRating
-            ).getOrDefault(false)
-        } ?: false
+            // get api keys from remote config
+            val apiKeys: AppRatingApiKeys? = appRatingApiKeysRemoteConfig.getApiKeys().getOrDefault(null)
+
+            apiKeys?.let {
+                appRatingApi.postRatingData(apiKeys = apiKeys, appRating = appRating)
+                    .doOnSuccess { markRatingCompleted() }
+                    .doOnFailure { saveRatingDateForLater() }
+            } ?: kotlin.run {
+                // if for some reason we can't get api keys, or json is damaged, we save to retrigger again in 1 month
+                saveRatingDateForLater()
+            }
+        }
     }
 
     override suspend fun shouldShowRating(): Boolean {
@@ -97,7 +103,11 @@ internal class AppRatingRepository(
         }
     }
 
-    override fun markRatingCompleted() {
+    /**
+     * Saves the current date/time if needed in the future [AppRatingPrefs.promptDateMillis]
+     * And set [AppRatingPrefs.completed] true
+     */
+    private fun markRatingCompleted() {
         appRatingPrefs.promptDateMillis = Calendar.getInstance().timeInMillis
         appRatingPrefs.completed = true
     }

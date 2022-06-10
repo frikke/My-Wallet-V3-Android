@@ -12,7 +12,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -44,7 +43,6 @@ class AppRatingViewModelTest {
     fun setUp() {
         every { authPrefs.walletGuid } returns walletGuid
         every { appRatingService.saveRatingDateForLater() } just Runs
-        every { appRatingService.markRatingCompleted() } just Runs
 
         viewModel = AppRatingViewModel(
             appRatingService = appRatingService,
@@ -89,88 +87,35 @@ class AppRatingViewModelTest {
         }
 
     @Test
-    fun `WHEN FeedbackSubmitted is called, THEN Completed(withFeedback true) should be called`() =
+    fun `WHEN InAppReviewRequested is called, THEN postRatingData should be called, dismiss should be true`() =
         runTest {
-            viewModel.navigationEventFlow.test {
+            viewModel.viewState.test {
+                coEvery { appRatingService.postRatingData(any()) } just Runs
+
+                viewModel.onIntent(AppRatingIntents.InAppReviewRequested(successful = true))
+
+                coVerify(exactly = 1) { appRatingService.postRatingData(any()) }
+                assertEquals(true, expectMostRecentItem().dismiss)
+            }
+        }
+
+    @Test
+    fun `GIVEN 3 stars, feedback message, WHEN RatingCompleted is called, THEN postRatingData should be called with correct data, dismiss should be true`() =
+        runTest {
+            viewModel.viewState.test {
+                val data = AppRating(
+                    rating = 3,
+                    feedback = "$feedback$SEPARATOR$WALLET_ID$walletGuid$SEPARATOR$SCREEN${appRatingTriggerSource.value}"
+                )
+                coEvery { appRatingService.getThreshold() } returns 3
+                coEvery { appRatingService.postRatingData(any()) } just Runs
+
+                viewModel.viewCreated(appRatingTriggerSource)
+                viewModel.onIntent(AppRatingIntents.StarsSubmitted(stars = 3))
                 viewModel.onIntent(AppRatingIntents.FeedbackSubmitted(feedback = feedback))
 
-                assertEquals(AppRatingNavigationEvent.Completed(withFeedback = true), expectMostRecentItem())
+                coVerify(exactly = 1) { appRatingService.postRatingData(data) }
+                assertEquals(true, expectMostRecentItem().dismiss)
             }
-        }
-
-    @Test
-    fun `WHEN InAppReviewCompleted is called, THEN promptInAppReview should be false, Completed(withFeedback false) should be called`() =
-        runTest {
-            combine(viewModel.navigationEventFlow, viewModel.viewState) { event, view ->
-                Pair(event, view)
-            }.test {
-                viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(successful = true))
-
-                val item = expectMostRecentItem()
-                assertEquals(AppRatingNavigationEvent.Completed(withFeedback = false), item.first)
-                assertEquals(false, item.second.promptInAppReview)
-            }
-        }
-
-    @Test
-    fun `GIVEN 3 stars, feedback message, WHEN RatingCompleted is called, THEN postRatingData should be called with correct data`() =
-        runTest {
-            val data = AppRating(
-                rating = 3,
-                feedback = "$feedback$SEPARATOR$WALLET_ID$walletGuid$SEPARATOR$SCREEN${appRatingTriggerSource.value}"
-            )
-            coEvery { appRatingService.getThreshold() } returns 3
-            coEvery { appRatingService.postRatingData(any()) } returns true
-
-            viewModel.viewCreated(appRatingTriggerSource)
-            viewModel.onIntent(AppRatingIntents.StarsSubmitted(stars = 3))
-            viewModel.onIntent(AppRatingIntents.FeedbackSubmitted(feedback = feedback))
-            viewModel.onIntent(AppRatingIntents.RatingCompleted)
-
-            coVerify { appRatingService.postRatingData(data) }
-        }
-
-    @Test
-    fun `GIVEN postRatingData successful, retrigger false, WHEN RatingCompleted is called, THEN markRatingCompleted should be called`() =
-        runTest {
-            coEvery { appRatingService.postRatingData(any()) } returns true
-
-            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(true)) // = retrigger false
-            viewModel.onIntent(AppRatingIntents.RatingCompleted)
-
-            verify(exactly = 1) { appRatingService.markRatingCompleted() }
-        }
-
-    @Test
-    fun `GIVEN postRatingData successful, retrigger true, WHEN RatingCompleted is called, THEN saveRatingDateForLater should be called`() =
-        runTest {
-            coEvery { appRatingService.postRatingData(any()) } returns true
-
-            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(false)) // = retrigger true
-            viewModel.onIntent(AppRatingIntents.RatingCompleted)
-
-            verify(exactly = 1) { appRatingService.saveRatingDateForLater() }
-        }
-
-    @Test
-    fun `GIVEN postRatingData unsuccessful, retrigger false, WHEN RatingCompleted is called, THEN markRatingCompleted should be called`() =
-        runTest {
-            coEvery { appRatingService.postRatingData(any()) } returns false
-
-            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(true)) // = retrigger false
-            viewModel.onIntent(AppRatingIntents.RatingCompleted)
-
-            verify(exactly = 1) { appRatingService.saveRatingDateForLater() }
-        }
-
-    @Test
-    fun `GIVEN postRatingData unsuccessful, retrigger true, WHEN RatingCompleted is called, THEN saveRatingDateForLater should be called`() =
-        runTest {
-            coEvery { appRatingService.postRatingData(any()) } returns true
-
-            viewModel.onIntent(AppRatingIntents.InAppReviewCompleted(false)) // = retrigger true
-            viewModel.onIntent(AppRatingIntents.RatingCompleted)
-
-            verify(exactly = 1) { appRatingService.saveRatingDateForLater() }
         }
 }

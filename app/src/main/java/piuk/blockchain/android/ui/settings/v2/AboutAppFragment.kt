@@ -10,8 +10,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.updateToolbar
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.appRatingFeatureFlag
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAboutAppBinding
+import piuk.blockchain.android.rating.presentaion.AppRatingFragment
+import piuk.blockchain.android.rating.presentaion.AppRatingTriggerSource
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.urllinks.URL_PRIVACY_POLICY
 import piuk.blockchain.android.urllinks.URL_TOS_POLICY
@@ -27,6 +32,8 @@ class AboutAppFragment : Fragment(), SettingsScreen {
         (activity as? SettingsNavigator) ?: throw IllegalStateException(
             "Parent must implement SettingsNavigator"
         )
+
+    private val appRatingFF: FeatureFlag by inject(appRatingFeatureFlag)
 
     override fun onBackPressed(): Boolean = true
 
@@ -60,7 +67,15 @@ class AboutAppFragment : Fragment(), SettingsScreen {
 
             rateOption.apply {
                 primaryText = getString(R.string.about_app_rate_app)
-                onClick = { goToPlayStore() }
+                onClick = {
+                    appRatingFF.enabled.subscribe { enabled ->
+                        if (enabled) {
+                            showAppRating()
+                        } else {
+                            goToPlayStore()
+                        }
+                    }
+                }
             }
             termsOption.apply {
                 primaryText = getString(R.string.about_app_terms_service)
@@ -71,6 +86,11 @@ class AboutAppFragment : Fragment(), SettingsScreen {
                 onClick = { onPrivacyClicked() }
             }
         }
+    }
+
+    private fun showAppRating() {
+        AppRatingFragment.newInstance(AppRatingTriggerSource.DASHBOARD)
+            .show(childFragmentManager, AppRatingFragment.TAG)
     }
 
     private fun goToPlayStore() {

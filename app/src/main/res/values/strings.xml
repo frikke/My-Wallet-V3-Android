@@ -2912,9 +2912,6 @@
     <!-- App Rating-->
     <string name="app_rating_title">Do you like our app?</string>
     <string name="app_rating_description">Help us improve our app by rating your experience.</string>
-    <string name="app_rating_completed_no_feedback_title">Thanks for rating our app!</string>
-    <string name="app_rating_completed_feedback_title">Thank you for your feedback!</string>
-    <string name="app_rating_completed_feedback_description">Your feedback helps us know where we can do better.</string>
     <string name="app_rating_feedback_title">Tell us more.</string>
     <string name="app_rating_feedback_description">Let us know how we can improve the app.</string>
     <string name="app_rating_feedback_hint">Tell us more</string>

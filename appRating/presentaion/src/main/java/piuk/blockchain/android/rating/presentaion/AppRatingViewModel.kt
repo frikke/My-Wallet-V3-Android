@@ -9,8 +9,8 @@ import piuk.blockchain.android.rating.domain.model.AppRating
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 
 class AppRatingViewModel(
-    val appRatingService: AppRatingService,
-    val authPrefs: AuthPrefs
+    private val appRatingService: AppRatingService,
+    private val authPrefs: AuthPrefs
 ) : MviViewModel<AppRatingIntents,
     AppRatingViewState,
     AppRatingModelState,
@@ -46,16 +46,12 @@ class AppRatingViewModel(
                 submitFeedback(intent.feedback)
             }
 
-            is AppRatingIntents.InAppReviewCompleted -> {
-                inAppReviewCompleted(intent.successful)
+            is AppRatingIntents.InAppReviewRequested -> {
+                inAppReviewRequested(intent.successful)
             }
 
             AppRatingIntents.RatingCanceled -> {
                 saveRatingDateAndDismiss()
-            }
-
-            AppRatingIntents.RatingCompleted -> {
-                ratingCompleted()
             }
         }.exhaustive
     }
@@ -82,44 +78,35 @@ class AppRatingViewModel(
             }
         }
 
-        navigate(AppRatingNavigationEvent.Completed(withFeedback = true))
+        postRatingData()
+        ratingCompleted()
     }
 
-    private fun inAppReviewCompleted(successful: Boolean) {
-        // remove prompt
-        // forceRetrigger will be used in postRatingData response
-        updateState { it.copy(promptInAppReview = false, forceRetrigger = successful.not()) }
+    private fun inAppReviewRequested(successful: Boolean) {
+        if (successful) {
+            postRatingData()
+        } else {
+            appRatingService.saveRatingDateForLater()
+        }
 
-        navigate(AppRatingNavigationEvent.Completed(withFeedback = false))
+        ratingCompleted()
     }
 
     private fun saveRatingDateAndDismiss() {
         appRatingService.saveRatingDateForLater()
-        updateState { it.copy(dismiss = true) }
+        ratingCompleted()
     }
 
     private fun ratingCompleted() {
-        viewModelScope.launch {
-            updateState { it.copy(isLoading = true) }
-
-            postRatingData()
-
-            updateState { it.copy(dismiss = true) }
-        }
+        updateState { it.copy(dismiss = true) }
     }
 
-    private suspend fun postRatingData() {
+    private fun postRatingData() {
         appRatingService.postRatingData(
             appRating = AppRating(
                 rating = modelState.stars,
                 feedback = modelState.feedbackFormatted()
             )
-        ).let { successful ->
-            if (successful && modelState.forceRetrigger.not()) {
-                appRatingService.markRatingCompleted()
-            } else {
-                appRatingService.saveRatingDateForLater()
-            }
-        }
+        )
     }
 }

@@ -2,8 +2,10 @@ package piuk.blockchain.android.rating.data
 
 import com.blockchain.api.adapters.OutcomeCallAdapterFactory
 import com.blockchain.koin.appRatingFeatureFlag
+import com.blockchain.koin.applicationScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -59,6 +61,9 @@ val appRatingDataModule = module {
 
         scoped<AppRatingService> {
             AppRatingRepository(
+                coroutineScope = get(applicationScope),
+                dispatcher = Dispatchers.IO,
+
                 appRatingRemoteConfig = get(),
                 appRatingApiKeysRemoteConfig = get(),
                 defaultThreshold = DEFAULT_THRESHOLD,
@@ -69,8 +74,7 @@ val appRatingDataModule = module {
 
                 userIdentity = get(),
                 currencyPrefs = get(),
-                bankService = get(),
-                environmentConfig = get()
+                bankService = get()
             )
         }
     }

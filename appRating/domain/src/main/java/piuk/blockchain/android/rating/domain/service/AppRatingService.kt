@@ -5,7 +5,7 @@ import piuk.blockchain.android.rating.domain.model.AppRating
 
 interface AppRatingService {
     suspend fun getThreshold(): Int
-    suspend fun postRatingData(appRating: AppRating): Boolean
+    fun postRatingData(appRating: AppRating)
 
     /**
      * * has not rated before
@@ -14,12 +14,6 @@ interface AppRatingService {
      * * last try was more than a month ago
      **/
     suspend fun shouldShowRating(): Boolean
-
-    /**
-     * Saves the current date/time if needed in the future [AppRatingPrefs.promptDateMillis]
-     * And set [AppRatingPrefs.completed] true
-     */
-    fun markRatingCompleted()
 
     /**
      * Saves the current date/time [AppRatingPrefs.promptDateMillis] to check against

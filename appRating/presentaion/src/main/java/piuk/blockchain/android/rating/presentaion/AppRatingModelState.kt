@@ -10,11 +10,7 @@ data class AppRatingModelState(
     val stars: Int = 0,
     val walletId: String = "",
     val screenName: String = "",
-    val feedback: String = "",
-    /**
-     * [AppRatingViewModel.inAppReviewCompleted] could return an error because showing in-app could've failed
-     */
-    val forceRetrigger: Boolean = false
+    val feedback: String = ""
 ) : ModelState {
     companion object {
         private const val SEPARATOR = ", ------ "

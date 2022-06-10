@@ -15,6 +15,7 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
+import com.blockchain.koin.applicationScope
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -54,7 +55,9 @@ import exchange.ExchangeLinking
 import info.blockchain.wallet.metadata.MetadataDerivation
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import org.koin.dsl.bind
 import org.koin.dsl.binds
@@ -161,6 +164,8 @@ import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataU
 import piuk.blockchain.androidcore.utils.SSLVerifyUtil
 
 val applicationModule = module {
+
+    single(applicationScope) { CoroutineScope(SupervisorJob()) }
 
     factory { OSUtil(get()) }
 

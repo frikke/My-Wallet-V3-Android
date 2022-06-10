@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_rating_title"/>
-    <string name="app_rating_description"/>
-    <string name="app_rating_completed_no_feedback_title"/>
-    <string name="app_rating_completed_feedback_title"/>
-    <string name="app_rating_completed_feedback_description"/>
-    <string name="app_rating_feedback_title"/>
-    <string name="app_rating_feedback_description"/>
-    <string name="app_rating_feedback_hint"/>
-    <string name="common_submit"/>
-    <string name="common_cancel"/>
-    <string name="done"/>
+    <string name="app_rating_title" />
+    <string name="app_rating_description" />
+    <string name="app_rating_feedback_title" />
+    <string name="app_rating_feedback_description" />
+    <string name="app_rating_feedback_hint" />
+    <string name="common_submit" />
+    <string name="common_cancel" />
+
+    <!--    <string name="app_rating_title">Do you like our app?</string>-->
+    <!--    <string name="app_rating_description">Help us improve our app by rating your experience.</string>-->
+    <!--    <string name="app_rating_feedback_title">Tell us more.</string>-->
+    <!--    <string name="app_rating_feedback_description">Let us know how we can improve the app.</string>-->
+    <!--    <string name="app_rating_feedback_hint">Tell us more</string>-->
+    <!--    <string name="common_submit">Submit</string>-->
+    <!--    <string name="common_cancel">Cancel</string>-->
+
+
 </resources>
