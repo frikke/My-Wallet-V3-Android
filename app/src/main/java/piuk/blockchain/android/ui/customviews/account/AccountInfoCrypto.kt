@@ -48,22 +48,27 @@ class AccountInfoCrypto @JvmOverloads constructor(
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
+    /**
+     * @param isSenderAccount if true, cell title/subtitle are switched
+     */
     fun updateAccount(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit = {},
-        cellDecorator: CellDecorator = DefaultCellDecorator()
+        cellDecorator: CellDecorator = DefaultCellDecorator(),
+        isSenderAccount: Boolean = false
     ) {
         compositeDisposable.clear()
-        updateView(account, onAccountClicked, cellDecorator)
+        updateView(account, onAccountClicked, cellDecorator, isSenderAccount)
     }
 
     private fun updateView(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator
+        cellDecorator: CellDecorator,
+        isSenderAccount: Boolean
     ) {
         val accountsAreTheSame = displayedAccount.isTheSameWith(account)
-        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator)
+        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator, isSenderAccount)
 
         (account as? InterestAccount)?.let { setInterestAccountDetails(account, accountsAreTheSame) }
 
@@ -104,15 +109,17 @@ class AccountInfoCrypto @JvmOverloads constructor(
         account: CryptoAccount,
         accountsAreTheSame: Boolean,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator
+        cellDecorator: CellDecorator,
+        isSenderAccount: Boolean
     ) {
 
         with(binding) {
             root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val crypto = account.currency
-            walletName.text = account.label
 
-            assetSubtitle.text = crypto.name
+
+            assetTitle.text = if (isSenderAccount) crypto.name else account.label
+            assetSubtitle.text = if (isSenderAccount) account.label else crypto.name
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
@@ -194,7 +201,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     override fun update(state: TransactionState) {
-        updateAccount(state.sendingAccount as CryptoAccount, { })
+        updateAccount(state.sendingAccount as CryptoAccount, { }, isSenderAccount = true)
     }
 
     override fun setVisible(isVisible: Boolean) {
