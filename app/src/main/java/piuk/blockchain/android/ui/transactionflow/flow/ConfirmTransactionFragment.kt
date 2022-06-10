@@ -52,6 +52,7 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
                 false
             )
             adapter = listAdapter
+            itemAnimator = null
         }
         model.process(TransactionIntent.ValidateTransaction)
     }

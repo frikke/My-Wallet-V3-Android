@@ -128,7 +128,7 @@ abstract class QuotedEngine(
         startQuotesFetchingIfNotStarted(pendingTx)
 
     private fun startQuotesFetching(): Disposable =
-        quotesEngine.pricedQuote.doOnNext {
+        quotesEngine.getPricedQuote().doOnNext {
             refreshConfirmations(true)
         }.emptySubscribe()
 

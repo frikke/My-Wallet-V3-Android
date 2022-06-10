@@ -1760,6 +1760,7 @@
     <string name="tx_enter_amount_deposit_cta">Preview Deposit</string>
     <string name="tx_enter_amount_withdraw_cta">Preview Withdrawal</string>
     <string name="tx_enter_amount_orders_limit_info">%1$d Transaction Allowed, Verify Now -></string>
+    <string name="tx_confirmation_countdown">New quote in %1$s</string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>

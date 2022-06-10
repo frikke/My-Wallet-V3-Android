@@ -5,6 +5,8 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
@@ -66,7 +68,31 @@ private class ExpandableComplexConfirmationCheckoutItemViewHolder(
             }
         }
         updateIcon()
+
+        if (item is TxConfirmationValue.SwapExchange) {
+            updateUiElementsIfNeeded(item)
+        }
     }
+
+    private fun updateUiElementsIfNeeded(item: TxConfirmationValue.SwapExchange) {
+        with(binding) {
+            when {
+                item.isNewQuote -> {
+                    expandableComplexItemTitle.updateColour(R.color.blue_600)
+                    expandableComplexItemSubtitle.updateColour(R.color.blue_600)
+                }
+                else -> {
+                    expandableComplexItemTitle.updateColour(R.color.grey_800)
+                    expandableComplexItemSubtitle.updateColour(R.color.grey_600)
+                }
+            }
+        }
+    }
+
+    private fun TextView.updateColour(@ColorRes colour: Int) =
+        setTextColor(
+            ContextCompat.getColor(context, colour)
+        )
 
     private fun updateIcon() {
         with(binding) {

@@ -50,6 +50,7 @@ class ConfirmTransactionDelegateAdapter(
             addAdapterDelegate(LargeTransactionWarningItemDelegate(model))
             addAdapterDelegate(InvoiceCountdownTimerDelegate())
             addAdapterDelegate(ConfirmInfoItemValidationStatusDelegate())
+            addAdapterDelegate(QuoteCountdownConfirmationDelegate())
         }
     }
 }
@@ -73,11 +74,15 @@ class TxConfirmationValueDiffUtil(
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
         when {
             oldItems[oldItemPosition] is UserEditable && newItems[newItemPosition] is UserEditable -> true
+            oldItems[oldItemPosition] is TxConfirmationValue.QuoteCountDown &&
+                newItems[newItemPosition] is TxConfirmationValue.QuoteCountDown -> false
             else -> oldItems[oldItemPosition] == newItems[newItemPosition]
         }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = when {
         oldItems[oldItemPosition] is UserEditable && newItems[newItemPosition] is UserEditable -> true
+        oldItems[oldItemPosition] is TxConfirmationValue.QuoteCountDown &&
+            newItems[newItemPosition] is TxConfirmationValue.QuoteCountDown -> false
         else -> oldItems[oldItemPosition] == newItems[newItemPosition]
     }
 }

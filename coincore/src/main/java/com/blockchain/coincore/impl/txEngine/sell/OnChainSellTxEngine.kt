@@ -45,7 +45,7 @@ class OnChainSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.pricedQuote
+        quotesEngine.getPricedQuote()
             .firstOrError()
             .doOnSuccess { pricedQuote ->
                 engine.startFromQuote(pricedQuote)

@@ -36,7 +36,7 @@ class TradingToTradingSwapTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.pricedQuote.firstOrError()
+        quotesEngine.getPricedQuote().firstOrError()
             .flatMap { pricedQuote ->
                 availableBalance.flatMap { balance ->
                     Single.just(

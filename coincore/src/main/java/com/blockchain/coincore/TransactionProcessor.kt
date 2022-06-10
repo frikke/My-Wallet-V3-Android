@@ -95,7 +95,7 @@ data class PendingTx(
         confirmations.find { it.confirmation == confirmation } as? T
 
     // Internal, coincore only helper methods for managing option lists. If you're using these in
-    // UI are client code, you're doing something wrong!
+    // UI or client code, you're doing something wrong!
     internal fun removeOption(confirmation: TxConfirmation): PendingTx =
         this.copy(
             confirmations = confirmations.filter { it.confirmation != confirmation }
@@ -141,7 +141,8 @@ enum class TxConfirmation {
     EXPANDABLE_SINGLE_VALUE_READ_ONLY,
     LARGE_TRANSACTION_WARNING,
     ERROR_NOTICE,
-    INVOICE_COUNTDOWN
+    INVOICE_COUNTDOWN,
+    QUOTE_COUNTDOWN
 }
 
 sealed class FeeState {

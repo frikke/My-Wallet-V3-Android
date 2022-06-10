@@ -3,7 +3,10 @@ package piuk.blockchain.android.ui.transactionflow.plugin
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.toFiat
 import com.blockchain.componentlib.viewextensions.visible
@@ -12,6 +15,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.koin.scopedInject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCheckoutSwapHeaderBinding
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -61,9 +65,22 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
             state.targetRate?.let { cryptoExchangeRate ->
                 val receivingAmount = cryptoExchangeRate.convert(state.amount)
+                val previousAmount = receivingAmountCrypto.text
                 receivingAmountCrypto.text = receivingAmount.toStringWithSymbol()
                 state.pendingTx?.selectedFiat?.let { fiat ->
                     receivingAmountFiat.text = receivingAmount.toFiat(fiat, exchangeRates).toStringWithSymbol()
+                }
+                if (previousAmount.isNotEmpty() && previousAmount != receivingAmount.toStringWithSymbol()) {
+                    receivingAmountCrypto.animateChange {
+                        receivingAmountCrypto.setTextColor(
+                            ContextCompat.getColor(receivingAmountCrypto.context, R.color.grey_800)
+                        )
+                    }
+                    receivingAmountFiat.animateChange {
+                        receivingAmountFiat.setTextColor(
+                            ContextCompat.getColor(receivingAmountFiat.context, R.color.grey_600)
+                        )
+                    }
                 }
             }
 
@@ -95,5 +112,28 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
+    }
+
+    private fun TextView.animateChange(onAnimationEnd: () -> Unit) {
+        pivotX = this.measuredWidth * 0.5f
+        pivotY = this.measuredHeight * 0.5f
+
+        setTextColor(ContextCompat.getColor(context, R.color.blue_600))
+
+        animate()
+            .scaleX(1.1f)
+            .scaleY(1.1f)
+            .setDuration(300)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .withEndAction {
+                this.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(300)
+                    .setInterpolator(AccelerateDecelerateInterpolator())
+                    .withEndAction {
+                        onAnimationEnd()
+                    }
+            }
     }
 }
