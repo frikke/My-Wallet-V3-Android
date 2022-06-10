@@ -11,6 +11,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
@@ -59,8 +60,9 @@ class MainModelTest {
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
-
-    private val interactor: MainInteractor = mock()
+    private val interactor: MainInteractor = mock {
+        on { checkReferral() }.thenReturn(Single.just(ReferralInfo.NotAvailable))
+    }
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
@@ -1204,5 +1206,15 @@ class MainModelTest {
             .assertValues(
                 MainState()
             )
+    }
+
+    @Test
+    fun checkForReferralCode() {
+        model.process(MainIntent.CheckReferralCode)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralInfo.NotAvailable)
+        )
     }
 }

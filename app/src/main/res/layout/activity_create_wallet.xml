@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/email"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
+                    android:inputType="textCapCharacters"
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 

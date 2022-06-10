@@ -19,7 +19,8 @@ class ReferralRepository(
     private val authenticator: Authenticator,
     private val referralApi: ReferralApiService,
     private val currencyPrefs: CurrencyPrefs,
-    private val referralFlag: IntegratedFeatureFlag
+    private val referralFlag: IntegratedFeatureFlag,
+
 ) : ReferralService {
 
     override suspend fun fetchReferralData(): Outcome<Throwable, ReferralInfo> =

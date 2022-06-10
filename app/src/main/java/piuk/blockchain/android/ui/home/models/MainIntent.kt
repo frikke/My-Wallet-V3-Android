@@ -5,6 +5,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 
 sealed class MainIntent : MviIntent<MainState> {
@@ -14,6 +15,17 @@ sealed class MainIntent : MviIntent<MainState> {
 
     data class CheckForInitialDialogs(val shouldStartUiTour: Boolean) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    object CheckReferralCode : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class ReferralCodeIntent(val referralInfo: ReferralInfo) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                referral = referralInfo
+            )
     }
 
     class CheckForPendingLinks(val appIntent: Intent) : MainIntent() {

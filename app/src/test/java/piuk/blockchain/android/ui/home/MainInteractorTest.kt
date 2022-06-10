@@ -2,10 +2,13 @@ package piuk.blockchain.android.ui.home
 
 import android.content.Intent
 import com.blockchain.core.Database
+import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.nhaarman.mockitokotlin2.any
@@ -20,6 +23,7 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Ignore
@@ -55,6 +59,7 @@ class MainInteractorTest {
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val bankService: BankService = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
+    private val referralRepository: ReferralRepository = mock()
 
     @Before
     fun setup() {
@@ -65,7 +70,6 @@ class MainInteractorTest {
             exchangeLinking = exchangeLinking,
             assetCatalogue = assetCatalogue,
             bankLinkingPrefs = bankLinkingPrefs,
-            custodialWalletManager = custodialWalletManager,
             simpleBuySync = simpleBuySync,
             userIdentity = userIdentity,
             upsellManager = upsellManager,
@@ -76,6 +80,7 @@ class MainInteractorTest {
             cancelOrderUseCase = cancelOrderUseCase,
             bankService = bankService,
             onboardingPrefs = onboardingPrefs,
+            referralRepository = referralRepository
         )
     }
 
@@ -234,5 +239,19 @@ class MainInteractorTest {
 
         // Assert
         verify(cancelOrderUseCase).invoke(orderId)
+    }
+
+    @Test
+    fun fetchReferralData() {
+        runBlocking {
+            val referralMock = mock<ReferralInfo.Data>()
+            whenever(referralRepository.fetchReferralData()).thenReturn(Outcome.Success(referralMock))
+
+            interactor.checkReferral()
+                .test()
+                .await()
+                .assertComplete()
+                .assertValue(referralMock)
+        }
     }
 }

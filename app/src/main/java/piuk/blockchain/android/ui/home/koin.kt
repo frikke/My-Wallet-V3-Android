@@ -20,7 +20,7 @@ val mainModule = module {
                 interactor = get(),
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
-                remoteLogger = get(),
+                remoteLogger = get()
             )
         }
 
@@ -32,7 +32,6 @@ val mainModule = module {
                 exchangeLinking = get(),
                 assetCatalogue = get(),
                 bankLinkingPrefs = get(),
-                custodialWalletManager = get(),
                 bankService = get(),
                 simpleBuySync = get(),
                 userIdentity = get(),
@@ -42,7 +41,8 @@ val mainModule = module {
                 qrScanResultProcessor = get(),
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
-                onboardingPrefs = get()
+                onboardingPrefs = get(),
+                referralRepository = get()
             )
         }
 

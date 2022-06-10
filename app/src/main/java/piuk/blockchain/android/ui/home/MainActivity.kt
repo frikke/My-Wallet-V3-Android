@@ -35,6 +35,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
@@ -94,6 +95,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -141,10 +143,11 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
-    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
-
     private val destinationArgs: DestinationArgs by scopedInject()
+
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
+
+    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -233,6 +236,7 @@ class MainActivity :
         }
         model.process(MainIntent.CheckForInitialDialogs(startUiTour))
         model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.CheckReferralCode)
     }
 
     override fun onResume() {
@@ -262,25 +266,42 @@ class MainActivity :
         }
     }
 
+    private val qrButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_qr_scan,
+        contentDescription = R.string.accessibility_qr_code_scanner
+    ) {
+        tryToLaunchQrScan()
+        analytics.logEvent(CameraAnalytics.QrCodeClicked())
+    }
+
+    private val settingsButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_bank_user,
+        contentDescription = R.string.accessibility_user_settings
+    ) {
+        showLoading()
+        settingsResultContract.launch(SettingsActivity.newIntent(this))
+    }
+
     private fun setupToolbar() {
         updateToolbarMenuItems(
-            listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_qr_scan,
-                    contentDescription = R.string.accessibility_qr_code_scanner
-                ) {
-                    tryToLaunchQrScan()
-                    analytics.logEvent(CameraAnalytics.QrCodeClicked())
-                },
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bank_user,
-                    contentDescription = R.string.accessibility_user_settings
-                ) {
-                    showLoading()
-                    settingsResultContract.launch(SettingsActivity.newIntent(this))
-                }
-            )
+            listOf(qrButton, settingsButton)
         )
+    }
+
+    private fun setupMenuWithPresentButton(info: ReferralInfo) {
+        val presentButton = if (info is ReferralInfo.Data) {
+            NavigationBarButton.Icon(
+                drawable = R.drawable.ic_present_dot,
+                contentDescription = R.string.accessibility_qr_code_scanner // TODO
+            ) {
+                showReferralBottomSheet(info)
+            }
+        } else {
+            null
+        }
+        if (presentButton != null) {
+            updateToolbarMenuItems(listOf(qrButton, presentButton, settingsButton))
+        }
     }
 
     private fun tryToLaunchQrScan() {
@@ -307,6 +328,14 @@ class MainActivity :
 
     private fun showScanAndConnectBottomSheet() {
         showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
+    }
+
+    private fun showReferralBottomSheet(info: ReferralInfo) {
+        if (info is ReferralInfo.Data) {
+            showBottomSheet(
+                ReferralSheet.newInstance(info)
+            )
+        }
     }
 
     private fun setupNavigation() {
@@ -644,6 +673,9 @@ class MainActivity :
         // ensure we reset the UI state to avoid duplication of screens on navigating back
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
+        }
+        if (newState.referral != ReferralInfo.NotAvailable) {
+            setupMenuWithPresentButton(newState.referral)
         }
     }
 
