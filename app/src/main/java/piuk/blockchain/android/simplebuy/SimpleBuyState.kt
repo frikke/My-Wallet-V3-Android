@@ -197,7 +197,7 @@ enum class KycState {
 }
 
 enum class FlowScreen {
-    ENTER_AMOUNT, KYC, KYC_VERIFICATION, CHECKOUT
+    ENTER_AMOUNT, KYC, KYC_VERIFICATION
 }
 
 sealed class ErrorState : Serializable {

@@ -191,14 +191,5 @@ fun BuySellOrder.toSimpleBuyState(): SimpleBuyState =
             paymentMethodType = paymentMethodType,
             isEligible = true
         ),
-        currentScreen = configureCurrentScreen(state)
+        currentScreen = FlowScreen.ENTER_AMOUNT
     )
-
-private fun configureCurrentScreen(
-    state: OrderState
-): FlowScreen =
-    if (state == OrderState.PENDING_CONFIRMATION) {
-        FlowScreen.ENTER_AMOUNT
-    } else {
-        FlowScreen.CHECKOUT
-    }

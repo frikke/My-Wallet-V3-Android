@@ -89,7 +89,6 @@ class SimpleBuyCheckoutFragment :
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
 
-        model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.CHECKOUT))
         if (!showOnlyOrderData) {
             setupToolbar()
         }

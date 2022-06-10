@@ -169,7 +169,6 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             )
             FlowScreen.KYC -> startKyc()
             FlowScreen.KYC_VERIFICATION -> goToKycVerificationScreen(false)
-            FlowScreen.CHECKOUT -> goToCheckOutScreen(false)
         }
     }
 
