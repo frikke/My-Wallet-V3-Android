@@ -47,6 +47,7 @@ import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
@@ -457,6 +458,7 @@ val coreModule = module {
         bind(BankLinkingPrefs::class)
         bind(SecureChannelPrefs::class)
         bind(OnboardingPrefs::class)
+        bind(AppMaintenancePrefs::class)
         bind(AppRatingPrefs::class)
         bind(NftAnnouncementPrefs::class)
     }

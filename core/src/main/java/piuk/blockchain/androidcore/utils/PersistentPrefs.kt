@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.utils
 
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
@@ -29,6 +30,7 @@ interface PersistentPrefs :
     AppInfoPrefs,
     RemoteConfigPrefs,
     OnboardingPrefs,
+    AppMaintenancePrefs,
     AppRatingPrefs,
     NftAnnouncementPrefs {
 
