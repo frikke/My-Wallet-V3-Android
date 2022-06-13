@@ -116,8 +116,13 @@ class PaymentsRepository(
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
+    private val googlePayFeatureFlag: FeatureFlag,
     private val plaidFeatureFlag: FeatureFlag
 ) : BankService, CardService, PaymentMethodService {
+
+    private val googlePayEnabled: Single<Boolean> by lazy {
+        googlePayFeatureFlag.enabled.cache()
+    }
 
     override suspend fun getPaymentMethodDetailsForId(
         paymentId: String
@@ -162,13 +167,14 @@ class PaymentsRepository(
                 tier = if (fetchSddLimits) SDD_ELIGIBLE_TIER else null,
                 eligibleOnly = onlyEligible
             ),
+            googlePayEnabled,
             rxSingle {
                 googlePayManager.checkIfGooglePayIsAvailable(
                     GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
                 )
             }
-        ) { methods, isGooglePayAvailableOnDevice ->
-            if (isGooglePayAvailableOnDevice) {
+        ) { methods, isGooglePayFeatureFlagEnabled, isGooglePayAvailableOnDevice ->
+            if (isGooglePayFeatureFlagEnabled && isGooglePayAvailableOnDevice) {
                 return@zip methods.toMutableList().apply {
                     val googlePayPaymentMethod = this.firstOrNull {
                         it.mobilePayment?.any { payment ->

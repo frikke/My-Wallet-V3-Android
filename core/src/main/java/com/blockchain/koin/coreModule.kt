@@ -375,6 +375,7 @@ val coreModule = module {
                 environmentConfig = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
+                googlePayFeatureFlag = get(googlePayFeatureFlag),
                 plaidFeatureFlag = get(plaidFeatureFlag)
             )
         }.apply {
