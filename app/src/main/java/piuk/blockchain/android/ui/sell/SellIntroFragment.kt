@@ -107,6 +107,8 @@ class SellIntroFragment : ViewPagerFragment() {
     private fun checkEligibilityAndLoadSellDetails(showLoader: Boolean = true) {
         compositeDisposable +=
             userIdentity.userAccessForFeature(Feature.Sell)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
