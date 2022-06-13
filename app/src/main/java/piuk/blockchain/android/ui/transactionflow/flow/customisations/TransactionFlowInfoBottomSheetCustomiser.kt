@@ -150,7 +150,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             )
             // No max Limit for FiatDeposit,Sell and WithDraw. Those actions are not supported by Silver users
             AssetAction.Sell,
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> null
             else -> null
         }
@@ -174,7 +174,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     availableAmount
                 )
             )
-            AssetAction.Withdraw -> TransactionFlowBottomSheetInfo(
+            AssetAction.FiatWithdraw -> TransactionFlowBottomSheetInfo(
                 type = type,
                 title = resources.getString(R.string.maximum_with_value, availableAmount),
                 description = infoDescriptionForPeriodicLimits(
@@ -270,7 +270,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
         )
         return when (state.action) {
             AssetAction.Send -> null // TODO("Missing Designs- Replace once available")
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
                     title = resources.getString(
@@ -420,7 +420,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                 AssetAction.Swap -> resources.getString(R.string.swap_enter_amount_max_limit_info_action_title)
                 AssetAction.Buy -> resources.getString(R.string.buy_enter_amount_max_limit_info_action_title)
                 // We should never use those as actions are not permitted for upgradable accounts.
-                AssetAction.Withdraw -> ""
+                AssetAction.FiatWithdraw -> ""
                 AssetAction.Sell -> ""
                 AssetAction.FiatDeposit -> ""
                 else -> ""
@@ -472,7 +472,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
                     )
                 )
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 return TransactionFlowBottomSheetInfo(
                     type = type,
                     title = resources.getString(R.string.not_enough_funds, sendingCurrencyTicker),
@@ -514,7 +514,7 @@ class TransactionFlowInfoBottomSheetCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.common_swap)
             AssetAction.InterestDeposit,
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.common_withdraw)
             else -> throw IllegalArgumentException("Action not supported by this customiser")
         }

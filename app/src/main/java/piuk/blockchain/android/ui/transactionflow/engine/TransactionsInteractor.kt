@@ -9,7 +9,6 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.InterestAccount
-import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
@@ -126,7 +125,7 @@ class TransactionInteractor(
             AssetAction.Swap -> swapTargets(sourceAccount as CryptoAccount)
             AssetAction.Sell -> sellTargets(sourceAccount as CryptoAccount)
             AssetAction.FiatDeposit -> linkedBanksFactory.getNonWireTransferBanks().mapList { it }
-            AssetAction.Withdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
+            AssetAction.FiatWithdraw -> linkedBanksFactory.getAllLinkedBanks().mapList { it }
             else -> coincore.getTransactionTargets(sourceAccount as CryptoAccount, action)
         }
 
@@ -152,16 +151,13 @@ class TransactionInteractor(
     }
 
     private fun swapTargets(sourceAccount: CryptoAccount): Single<List<SingleAccount>> =
-        Singles.zip(
+        Single.zip(
             coincore.getTransactionTargets(sourceAccount, AssetAction.Swap),
-            custodialRepository.getSwapAvailablePairs(),
-            identity.isEligibleFor(Feature.SimpleBuy)
-        ).map { (accountList, pairs, eligible) ->
+            custodialRepository.getSwapAvailablePairs()
+        ) { accountList, pairs ->
             accountList.filterIsInstance(CryptoAccount::class.java)
                 .filter { account ->
                     pairs.any { it.source == sourceAccount.currency && account.currency == it.destination }
-                }.filter { account ->
-                    eligible or (account is NonCustodialAccount)
                 }
         }
 

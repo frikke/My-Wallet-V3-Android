@@ -271,7 +271,7 @@ class TransactionFlowIntentMapperTest {
     @Test(expected = IllegalStateException::class)
     fun `fiat withdraw with no defined source`() {
 
-        val assetAction = AssetAction.Withdraw
+        val assetAction = AssetAction.FiatWithdraw
         val passwordRequired = false
 
         val sourceAccount: CryptoAccount = mock()
@@ -284,7 +284,7 @@ class TransactionFlowIntentMapperTest {
 
     @Test
     fun `fiat withdraw with defined source and no target account`() {
-        val assetAction = AssetAction.Withdraw
+        val assetAction = AssetAction.FiatWithdraw
         val passwordRequired = false
 
         val sourceAccount: FiatAccount = mock()
@@ -306,7 +306,7 @@ class TransactionFlowIntentMapperTest {
 
     @Test
     fun `fiat withdraw with defined source and defined target account`() {
-        val assetAction = AssetAction.Withdraw
+        val assetAction = AssetAction.FiatWithdraw
         val passwordRequired = false
 
         val sourceAccount: FiatAccount = mock()

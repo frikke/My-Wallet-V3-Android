@@ -183,9 +183,9 @@ class PortfolioFragment :
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
                 AssetAction.FiatDeposit,
-                AssetAction.Withdraw -> model.process(
+                AssetAction.FiatWithdraw -> model.process(
                     DashboardIntent.StartBankTransferFlow(
-                        action = AssetAction.Withdraw
+                        action = AssetAction.FiatWithdraw
                     )
                 )
                 else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
@@ -369,7 +369,7 @@ class PortfolioFragment :
                     AssetAction.FiatDeposit -> {
                         BankAuthSource.DEPOSIT
                     }
-                    AssetAction.Withdraw -> {
+                    AssetAction.FiatWithdraw -> {
                         BankAuthSource.WITHDRAW
                     }
                     else -> {
@@ -771,7 +771,7 @@ class PortfolioFragment :
             if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
                 model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatDeposit, true))
             } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
-                model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.Withdraw, true))
+                model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
             }
         }
     }
@@ -785,7 +785,7 @@ class PortfolioFragment :
     }
 
     override fun startBankTransferWithdrawal(fiatAccount: FiatAccount) {
-        model.process(DashboardIntent.LaunchBankTransferFlow(fiatAccount, AssetAction.Withdraw, false))
+        model.process(DashboardIntent.LaunchBankTransferFlow(fiatAccount, AssetAction.FiatWithdraw, false))
     }
 
     override fun startDepositFlow(fiatAccount: FiatAccount) {

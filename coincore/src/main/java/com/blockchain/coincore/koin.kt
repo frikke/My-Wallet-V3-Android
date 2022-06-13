@@ -238,8 +238,7 @@ val coincoreModule = module {
         factory {
             SwapTrendingPairsProvider(
                 coincore = get(),
-                assetCatalogue = get(),
-                identity = get()
+                assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
     }

@@ -443,7 +443,7 @@ class MainActivity :
             BANK_DEEP_LINK_WITHDRAW -> {
                 if (resultCode == RESULT_OK) {
                     launchPortfolio(
-                        AssetAction.Withdraw,
+                        AssetAction.FiatWithdraw,
                         data?.getStringExtra(
                             BankAuthActivity.LINKED_BANK_CURRENCY
                         )

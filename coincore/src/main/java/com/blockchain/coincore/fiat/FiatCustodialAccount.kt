@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicBoolean
                     setOfNotNull(
                         AssetAction.ViewActivity,
                         AssetAction.FiatDeposit,
-                        if (hasActionableBalance) AssetAction.Withdraw else null
+                        if (hasActionableBalance) AssetAction.FiatWithdraw else null
                     )
                 } else {
                     setOf(AssetAction.ViewActivity)

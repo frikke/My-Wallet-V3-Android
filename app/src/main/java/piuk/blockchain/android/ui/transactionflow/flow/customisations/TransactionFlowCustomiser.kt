@@ -79,7 +79,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> R.drawable.ic_tx_deposit_w_green_bkgd
             AssetAction.Swap -> R.drawable.ic_swap_light_blue
             AssetAction.Sell -> R.drawable.ic_tx_sell
-            AssetAction.Withdraw -> R.drawable.ic_tx_withdraw_w_green_bkgd
+            AssetAction.FiatWithdraw -> R.drawable.ic_tx_withdraw_w_green_bkgd
             AssetAction.InterestWithdraw -> R.drawable.ic_tx_withdraw
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -92,7 +92,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap,
             AssetAction.FiatDeposit,
-            AssetAction.Withdraw -> false
+            AssetAction.FiatWithdraw -> false
             else -> true
         }
 
@@ -153,7 +153,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.Swap -> resources.getString(R.string.swap_select_target_title)
-            AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
+            AssetAction.FiatWithdraw -> resources.getString(R.string.common_withdraw)
             AssetAction.InterestWithdraw -> resources.getString(R.string.select_withdraw_target_title)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -175,7 +175,7 @@ class TransactionFlowCustomiserImpl(
     override fun selectTargetAddressWalletsCta(state: TransactionState) =
         resources.getString(
             when (state.action) {
-                AssetAction.Withdraw -> R.string.select_a_bank
+                AssetAction.FiatWithdraw -> R.string.select_a_bank
                 else -> R.string.select_a_wallet
             }
         )
@@ -231,7 +231,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.tx_title_deposit,
                 (state.selectedTarget as FiatAccount).currency.displayTicker
             )
-            AssetAction.Withdraw -> resources.getString(
+            AssetAction.FiatWithdraw -> resources.getString(
                 R.string.tx_title_withdraw,
                 (state.sendingAccount as FiatAccount).currency.displayTicker
             )
@@ -288,7 +288,7 @@ class TransactionFlowCustomiserImpl(
     override fun enterAmountLimitsViewTitle(state: TransactionState): String =
         when (state.action) {
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_enter_amount_limit_title)
-            AssetAction.Withdraw -> state.sendingAccount.label
+            AssetAction.FiatWithdraw -> state.sendingAccount.label
             else -> throw java.lang.IllegalStateException("Limits title view not configured for ${state.action}")
         }
 
@@ -299,7 +299,7 @@ class TransactionFlowCustomiserImpl(
                     R.string.deposit_enter_amount_limit_label,
                     (state.pendingTx?.limits?.max as? TxLimit.Limited)?.amount?.toStringWithSymbol() ?: ""
                 )
-            AssetAction.Withdraw -> state.availableBalance.toStringWithSymbol()
+            AssetAction.FiatWithdraw -> state.availableBalance.toStringWithSymbol()
             else -> throw java.lang.IllegalStateException("Limits info view not configured for ${state.action}")
         }
 
@@ -328,7 +328,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.tx_enter_amount_send_cta)
             AssetAction.Swap -> resources.getString(R.string.tx_enter_amount_swap_cta)
             AssetAction.Sell -> resources.getString(R.string.tx_enter_amount_sell_cta)
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.tx_enter_amount_withdraw_cta)
             AssetAction.InterestDeposit -> resources.getString(R.string.tx_enter_amount_transfer_cta)
             AssetAction.FiatDeposit -> resources.getString(R.string.tx_enter_amount_deposit_cta)
@@ -363,7 +363,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> resources.getString(
                 R.string.common_parametrised_confirm, resources.getString(R.string.common_deposit)
             )
-            AssetAction.Withdraw -> resources.getString(
+            AssetAction.FiatWithdraw -> resources.getString(
                 R.string.common_parametrised_confirm, resources.getString(R.string.common_withdraw)
             )
             AssetAction.ViewActivity,
@@ -380,7 +380,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sign -> resources.getString(R.string.common_sign)
             AssetAction.InterestDeposit -> resources.getString(R.string.send_confirmation_deposit_cta_button)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_cta_button)
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_cta_button)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -392,7 +392,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.InterestDeposit -> resources.getString(R.string.common_transfer)
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-            AssetAction.Withdraw -> resources.getString(R.string.common_withdraw)
+            AssetAction.FiatWithdraw -> resources.getString(R.string.common_withdraw)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
     }
@@ -472,7 +472,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.deposit_confirmation_progress_title,
                 amount
             )
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(
                 R.string.withdraw_confirmation_progress_title,
                 amount
@@ -495,7 +495,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap -> resources.getString(R.string.swap_confirmation_progress_message)
             AssetAction.FiatDeposit -> resources.getString(R.string.deposit_confirmation_progress_message)
             AssetAction.Sign -> resources.getString(R.string.sign_confirmation_progress_message)
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_progress_message)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
         }
@@ -538,7 +538,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.deposit_confirmation_success_title,
                 amount
             )
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_confirmation_success_title, amount)
             AssetAction.Sign -> resources.getString(R.string.signed)
             else -> throw IllegalArgumentException("Action not supported by Transaction Flow")
@@ -565,7 +565,7 @@ class TransactionFlowCustomiserImpl(
                 }
             }
             AssetAction.FiatDeposit,
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.Sign,
             AssetAction.InterestWithdraw -> R.drawable.ic_check_circle
 
@@ -642,7 +642,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sign -> resources.getString(
                 R.string.message_signed
             )
-            AssetAction.Withdraw -> resources.getString(
+            AssetAction.FiatWithdraw -> resources.getString(
                 R.string.withdraw_confirmation_success_message,
                 getEstimatedTransactionCompletionTime()
             )
@@ -661,7 +661,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Send -> resources.getString(R.string.common_receive)
             AssetAction.Sell -> resources.getString(R.string.common_sell)
             AssetAction.FiatDeposit -> resources.getString(R.string.common_deposit)
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.InterestWithdraw -> resources.getString(R.string.withdraw_target_select_title)
             else -> resources.getString(R.string.select_a_wallet)
         }
@@ -845,7 +845,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Sell,
             AssetAction.Swap -> BalanceAndFeeView(ctx).also { frame.addView(it) }
             AssetAction.Receive -> SmallBalanceView(ctx).also { frame.addView(it) }
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> AccountInfoBank(ctx).also { frame.addView(it) }
             AssetAction.ViewActivity,
             AssetAction.ViewStatement,
@@ -859,7 +859,7 @@ class TransactionFlowCustomiserImpl(
         state: TransactionState
     ): EnterAmountWidget =
         when (state.action) {
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> AccountLimitsView(ctx).also {
                 frame.addView(it)
             }
@@ -874,7 +874,7 @@ class TransactionFlowCustomiserImpl(
         state: TransactionState
     ): TxFlowWidget =
         when (state.action) {
-            AssetAction.Withdraw -> AccountInfoFiat(ctx).also {
+            AssetAction.FiatWithdraw -> AccountInfoFiat(ctx).also {
                 frame.addView(it)
             }
             else -> AccountInfoCrypto(ctx).also {
@@ -905,7 +905,7 @@ class TransactionFlowCustomiserImpl(
     override fun transactionProgressStandardIcon(state: TransactionState): Int? =
         when (state.action) {
             AssetAction.Swap -> R.drawable.swap_masked_asset
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> {
                 val sendingCurrency = (state.sendingAccount as? FiatAccount)?.currency?.networkTicker
                 when (sendingCurrency) {
@@ -1048,7 +1048,7 @@ class TransactionFlowCustomiserImpl(
         resources.getString(
             when (action) {
                 AssetAction.Send -> R.string.common_send
-                AssetAction.Withdraw,
+                AssetAction.FiatWithdraw,
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
@@ -1073,7 +1073,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> SwapInfoHeaderView(ctx).also { frame.addView(it) }
             AssetAction.FiatDeposit,
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 SimpleInfoHeaderView(ctx).also {
                     frame.addView(it)
                     it.shouldShowExchange = false
@@ -1086,7 +1086,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap,
             AssetAction.Sell -> fiatCurrency
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> state.amount.currency
             else -> state.sendingAsset
         }
@@ -1099,7 +1099,7 @@ class TransactionFlowCustomiserImpl(
                 }
             }
             AssetAction.InterestDeposit,
-            AssetAction.Withdraw,
+            AssetAction.FiatWithdraw,
             AssetAction.FiatDeposit -> {
                 {
                     DefaultCellDecorator()
@@ -1113,7 +1113,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.FiatDeposit -> {
                 BankAuthSource.DEPOSIT
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 BankAuthSource.WITHDRAW
             }
             else -> {

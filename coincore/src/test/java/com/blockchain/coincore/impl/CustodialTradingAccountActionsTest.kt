@@ -43,10 +43,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = false
         )
 
@@ -67,10 +65,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = true
         )
 
@@ -91,10 +87,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
             actionableBalance = CryptoValue.zero(TEST_ASSET),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = true
         )
 
@@ -111,64 +105,6 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If user has balance and all default Actions, but no simple buy & no custodial then action set is correct`() {
-
-        // Arrange
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = false,
-            interest = true,
-            supportedFiat = listOf(USD),
-            custodialAccess = false,
-            buySupported = false
-        )
-
-        // Act
-        subject.actions
-            .test()
-            .assertValue {
-                it == setOf(
-                    AssetAction.ViewActivity,
-                    AssetAction.InterestDeposit,
-                    AssetAction.Send
-                )
-            }
-    }
-
-    @Test
-    fun `If user has balance and all default Actions, but has custodial access and NO simple buy then actions match`() {
-
-        // Arrange
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = false,
-            interest = true,
-            supportedFiat = listOf(USD),
-            custodialAccess = true,
-            buySupported = false
-        )
-
-        // Act
-        subject.actions
-            .test()
-            .assertValue {
-                it == setOf(
-                    AssetAction.ViewActivity,
-                    AssetAction.InterestDeposit,
-                    AssetAction.Send,
-                    AssetAction.Receive,
-                    AssetAction.Swap
-                )
-            }
-    }
-
-    @Test
     fun `If user has actionable balance and all default Actions then action set is correct`() {
 
         // Arrange
@@ -177,10 +113,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.zero(TEST_ASSET),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = true
         )
 
@@ -208,10 +142,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.zero(TEST_ASSET),
-            simpleBuy = true,
             interest = false,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = true
         )
 
@@ -238,10 +170,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = true,
             interest = true,
             supportedFiat = emptyList(),
-            custodialAccess = true,
             buySupported = true
         )
 
@@ -268,10 +198,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = false
         )
 
@@ -298,10 +226,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
             actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            simpleBuy = true,
             interest = true,
             supportedFiat = listOf(USD),
-            custodialAccess = true,
             buySupported = false
         )
 
@@ -331,26 +257,17 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         accountBalance: CryptoValue,
         actionableBalance: CryptoValue,
         pendingBalance: CryptoValue = CryptoValue.zero(TEST_ASSET),
-        simpleBuy: Boolean,
         interest: Boolean,
         supportedFiat: List<FiatCurrency>,
-        custodialAccess: Boolean,
         buySupported: Boolean
     ) {
         mockActionsFeatureAccess { original ->
-            val simpleBuyAccess = if (simpleBuy) {
+            val buyAccess = if (buySupported) {
                 FeatureAccess.Granted()
             } else {
                 FeatureAccess.Blocked(BlockedReason.NotEligible)
             }
-            val custodialAccountsAccess = if (custodialAccess) {
-                FeatureAccess.Granted()
-            } else {
-                FeatureAccess.Blocked(BlockedReason.NotEligible)
-            }
-            original
-                .plus(Feature.SimpleBuy to simpleBuyAccess)
-                .plus(Feature.CustodialAccounts to custodialAccountsAccess)
+            original.plus(Feature.Buy to buyAccess)
         }
 
         whenever(custodialManager.isCurrencyAvailableForTrading(TEST_ASSET)).thenReturn(Single.just(buySupported))
@@ -375,8 +292,6 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>
     ) {
         val features = listOf(
-            Feature.CustodialAccounts,
-            Feature.SimpleBuy,
             Feature.Buy,
             Feature.Swap,
             Feature.Sell,

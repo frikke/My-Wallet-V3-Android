@@ -24,7 +24,7 @@ class TransactionFlowIntentMapper(
             AssetAction.Send -> {
                 handleSendAndSell(passwordRequired)
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 handleFiatWithdraw(passwordRequired)
             }
             AssetAction.Swap -> {

@@ -83,7 +83,7 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         fundDetails.fundsUserFiatBalance.text = balanceInWalletCurrency.toStringWithSymbol()
                         fundDetails.fundsBalance.text = accountBalance.toStringWithSymbol()
                         fundDetails.fundsBalance.visibleIf { accountBalance.isZero || accountBalance.isPositive }
-                        fundsWithdrawHolder.visibleIf { actions.contains(AssetAction.Withdraw) }
+                        fundsWithdrawHolder.visibleIf { actions.contains(AssetAction.FiatWithdraw) }
                         fundsDepositHolder.visibleIf { actions.contains(AssetAction.FiatDeposit) }
                         fundsActivityHolder.visibleIf { actions.contains(AssetAction.ViewActivity) }
                     },

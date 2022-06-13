@@ -116,7 +116,7 @@ class DashboardModel(
                     intent.shouldLaunchBankLinkTransfer
                 )
             }
-            AssetAction.Withdraw -> {
+            AssetAction.FiatWithdraw -> {
                 interactor.getBankWithdrawalFlow(
                     this,
                     intent.account,

@@ -31,7 +31,7 @@ class SellIntroAnnouncement(
         }
 
         return Single.zip(
-            identity.isEligibleFor(Feature.SimpleBuy),
+            identity.isEligibleFor(Feature.Sell),
             coincore.allWallets().map { acg ->
                 acg.accounts.filterNot { it is InterestAccount || it is FiatAccount }
             }.map { list ->

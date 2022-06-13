@@ -90,7 +90,7 @@ class FiatWithdrawalTxEngine(
                         txTarget.label,
                         (txTarget as LinkedBankAccount).accountNumber,
                         (txTarget as LinkedBankAccount).accountType,
-                        AssetAction.Withdraw
+                        AssetAction.FiatWithdraw
                     ),
                     TxConfirmationValue.EstimatedCompletion,
                     TxConfirmationValue.Amount(pendingTx.amount, false),
@@ -152,7 +152,7 @@ class FiatWithdrawalTxEngine(
             } else {
                 Completable.error(
                     MissingLimitsException(
-                        action = AssetAction.Withdraw,
+                        action = AssetAction.FiatWithdraw,
                         source = sourceAccount,
                         target = txTarget
                     )

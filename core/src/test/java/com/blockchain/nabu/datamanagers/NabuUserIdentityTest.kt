@@ -18,6 +18,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.Tiers
+import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
@@ -126,15 +127,19 @@ class NabuUserIdentityTest {
     }
 
     @Test
-    fun `on userAccessForFeature Buy should query eligibility data manager`() = runTest {
+    fun `on userAccessForFeature Buy should query eligibility data manager and simpleBuyTradingEligibility`() = runTest {
         val eligibility = ProductEligibility(
             product = EligibleProduct.BUY,
             canTransact = true,
             maxTransactionsCap = TransactionsLimit.Unlimited,
             reasonNotEligible = null
         )
+        val mockTiers = createMockTiers(tier1 = KycTierState.Verified, tier2 = KycTierState.Verified)
+        whenever(nabuUserDataManager.tiers()).thenReturn(Single.just(mockTiers))
         whenever(eligibilityService.getProductEligibility(EligibleProduct.BUY))
             .thenReturn(Outcome.Success(eligibility))
+        whenever(simpleBuyEligibilityProvider.simpleBuyTradingEligibility())
+            .thenReturn(Single.just(SimpleBuyEligibility(true, true, 0, 1)))
 
         subject.userAccessForFeature(Feature.Buy)
             .test()

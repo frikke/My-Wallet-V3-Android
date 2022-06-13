@@ -1,12 +1,11 @@
 package com.blockchain.coincore
 
-import com.blockchain.nabu.Feature
-import com.blockchain.nabu.UserIdentity
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.l1chain
 import io.reactivex.rxjava3.core.Single
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
@@ -22,12 +21,13 @@ interface TrendingPairsProvider {
 
 internal class SwapTrendingPairsProvider(
     private val coincore: Coincore,
-    private val assetCatalogue: AssetCatalogue,
-    private val identity: UserIdentity
+    private val assetCatalogue: AssetCatalogue
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        identity.isEligibleFor(Feature.SimpleBuy)
+        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Custodial).toSingle() }
+            .zipSingles()
+            .map { it.isNotEmpty() }
             .flatMap { useCustodial ->
                 val filter = if (useCustodial) AssetFilter.Custodial else AssetFilter.NonCustodial
 

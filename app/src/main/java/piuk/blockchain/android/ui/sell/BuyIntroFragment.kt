@@ -12,7 +12,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -181,18 +180,11 @@ class BuyIntroFragment :
     }
 
     private fun onItemClick(item: BuyCryptoItem) {
-        compositeDisposable += userIdentity.userAccessForFeature(Feature.SimpleBuy).subscribeBy { accessState ->
-            val blockedState = accessState as? FeatureAccess.Blocked
-            blockedState?.let {
-                when (val reason = it.reason) {
-                    is BlockedReason.TooManyInFlightTransactions -> showPendingOrdersBottomSheet(
-                        reason.maxTransactions
-                    )
-                    BlockedReason.NotEligible -> throw IllegalStateException("Buy should not be accessible")
-                    is BlockedReason.InsufficientTier -> throw IllegalStateException("Not used in Feature.SimpleBuy")
-                    is BlockedReason.Sanctions -> throw IllegalStateException("Buy should not be accessible")
-                }.exhaustive
-            } ?: run {
+        compositeDisposable += userIdentity.userAccessForFeature(Feature.Buy).subscribeBy { accessState ->
+            val blockedReason = (accessState as? FeatureAccess.Blocked)?.reason
+            if (blockedReason is BlockedReason.TooManyInFlightTransactions) {
+                showPendingOrdersBottomSheet(blockedReason.maxTransactions)
+            } else {
                 startActivity(
                     SimpleBuyActivity.newIntent(
                         activity as Context,
