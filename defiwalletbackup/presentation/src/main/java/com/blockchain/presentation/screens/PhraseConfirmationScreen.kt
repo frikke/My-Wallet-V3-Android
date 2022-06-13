@@ -25,6 +25,7 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.presentation.BackUpStatus
+import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
@@ -41,7 +42,7 @@ fun BackupConfirmation(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         PhraseConfirmationScreen(
             mnemonic = state.mnemonic,
-            nextOnClick = { /*todo*/ }
+            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
         )
     }
 }
@@ -56,7 +57,7 @@ fun PhraseConfirmationScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
+        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 

@@ -45,6 +45,14 @@ class BackupPhraseViewModelTest {
     }
 
     @Test
+    fun `WHEN viewCreated is called, THEN getMnemonic should be called with second password`() =
+        runTest {
+            viewModel.viewCreated(args)
+
+            verify(exactly = 1) { backupPhraseService.getMnemonic(args.secondPassword) }
+        }
+
+    @Test
     fun `GIVEN phrase backed up, WHEN loadData is called, THEN isBackedUp should be called and state should be updated`() =
         runTest {
             every { backupPhraseService.isBackedUp() } returns true

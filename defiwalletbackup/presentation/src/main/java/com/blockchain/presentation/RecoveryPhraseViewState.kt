@@ -9,12 +9,16 @@ import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Orange000
 import com.blockchain.componentlib.theme.Orange600
 
+const val TOTAL_STEP_COUNT = 2
+
 data class BackupPhraseViewState(
     val showLoading: Boolean,
+    val showError: Boolean,
     val mnemonic: List<String>,
     val backUpStatus: BackUpStatus,
     val copyState: CopyState,
-    val mnemonicVerificationStatus: UserMnemonicVerificationStatus
+    val mnemonicVerificationStatus: UserMnemonicVerificationStatus,
+    val flowState: FlowState
 ) : ViewState
 
 enum class BackUpStatus(
@@ -27,14 +31,14 @@ enum class BackUpStatus(
         icon = R.drawable.ic_alert,
         bgColor = Orange000,
         textColor = Orange600,
-        text = R.string.back_up_splash_status_negative
+        text = R.string.back_up_status_negative
     ),
 
     BACKED_UP(
         icon = R.drawable.ic_check,
         bgColor = Green000,
         textColor = Green600,
-        text = R.string.back_up_splash_status_positive
+        text = R.string.back_up_status_positive
     )
 }
 
@@ -44,4 +48,9 @@ enum class CopyState {
 
 enum class UserMnemonicVerificationStatus {
     NO_STATUS, VERIFIED, INCORRECT
+}
+
+sealed interface FlowState {
+    object InProgress : FlowState
+    data class Ended(val isSuccessful: Boolean) : FlowState
 }

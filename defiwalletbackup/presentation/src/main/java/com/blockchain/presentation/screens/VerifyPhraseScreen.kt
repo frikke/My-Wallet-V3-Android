@@ -32,9 +32,12 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
+
+private const val STEP_INDEX = 2
 
 @Composable
 fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
@@ -49,11 +52,9 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
             mnemonic = state.mnemonic,
             isLoading = state.showLoading,
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
-            /*todo(othmna) onclick verify validity*/
-            nextOnClick = { userMnemonic ->
-                /*navController.navigate(BackPhraseDestination.BackupConfirmation.route)*/
-                viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic))
-            }
+
+            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
+            nextOnClick = { userMnemonic -> viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic.toList())) }
         )
     }
 }
@@ -63,16 +64,21 @@ fun VerifyPhraseScreen(
     mnemonic: List<String>,
     isLoading: Boolean,
     mnemonicVerificationStatus: UserMnemonicVerificationStatus,
+
+    backOnClick: () -> Unit,
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
     val userMnemonic = remember { mutableStateListOf<String>() }
-    val randomizedMnemonic = remember { mnemonic.toMutableStateList() }
+    val randomizedMnemonic = remember { mnemonic.shuffled().toMutableStateList() }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            onBackButtonClick = backOnClick
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -174,6 +180,8 @@ fun PreviewVerifyPhrase() {
         mnemonic = mnemonic,
         isLoading = false,
         mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+
+        backOnClick = {},
         nextOnClick = {}
     )
 }
@@ -185,6 +193,8 @@ fun PreviewVerifyPhraseScreenLoading() {
         mnemonic = mnemonic,
         isLoading = true,
         mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+
+        backOnClick = {},
         nextOnClick = {}
     )
 }

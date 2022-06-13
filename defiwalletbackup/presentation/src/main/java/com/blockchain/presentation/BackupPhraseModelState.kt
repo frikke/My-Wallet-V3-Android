@@ -6,7 +6,9 @@ data class BackupPhraseModelState(
     val secondPassword: String? = null,
     val hasBackup: Boolean = false,
     val isLoading: Boolean = false,
+    val isError: Boolean = false,
     val mnemonic: List<String> = emptyList(),
     val copyState: CopyState = CopyState.IDLE,
-    val mnemonicVerificationStatus: UserMnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS
+    val mnemonicVerificationStatus: UserMnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+    val flowState: FlowState = FlowState.InProgress
 ) : ModelState

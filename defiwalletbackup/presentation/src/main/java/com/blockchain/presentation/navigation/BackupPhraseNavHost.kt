@@ -1,4 +1,4 @@
-package com.blockchain.presentation
+package com.blockchain.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -9,20 +9,20 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.navigation.BackupPhraseNavigationRouter
+import com.blockchain.presentation.BackPhraseDestination
+import com.blockchain.presentation.BackupPhraseArgs
 import com.blockchain.presentation.screens.BackupConfirmation
 import com.blockchain.presentation.screens.BackupPhraseIntro
 import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.RecoveryPhrase
 import com.blockchain.presentation.screens.VerifyPhrase
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
-import org.koin.androidx.compose.getViewModel
 
 @Composable
-fun BackupPhraseNavHost(backupPhraseArgs: BackupPhraseArgs) {
-    val viewModel: BackupPhraseViewModel = getViewModel(scope = payloadScope)
-
+fun BackupPhraseNavHost(
+    viewModel: BackupPhraseViewModel,
+    backupPhraseArgs: BackupPhraseArgs
+) {
     viewModel.viewCreated(backupPhraseArgs)
 
     val lifecycleOwner = LocalLifecycleOwner.current
