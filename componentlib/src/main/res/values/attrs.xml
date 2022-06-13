@@ -16,7 +16,9 @@
 
     <declare-styleable name="SplitButton">
         <attr name="leftButtonText" format="string"/>
+        <attr name="leftButtonIcon" format="integer"/>
         <attr name="rightButtonText" format="string"/>
+        <attr name="rightButtonIcon" format="string"/>
     </declare-styleable>
 
     <declare-styleable name="LoadingMessageView">

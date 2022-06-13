@@ -23,7 +23,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/benefit_title"
         style="@style/Text.Semibold.16"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
         android:layout_marginEnd="24dp"
@@ -31,7 +31,7 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/benefit_index"
         app:layout_constraintTop_toTopOf="@id/benefit_index"
-        tools:text="@string/fiat_funds_no_kyc_step_1_title" />
+        tools:text="This is a very long-text-that is-not-going-to-fit into a single line" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/benefit_subtitle"
