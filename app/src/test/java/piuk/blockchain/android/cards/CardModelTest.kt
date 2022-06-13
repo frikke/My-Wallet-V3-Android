@@ -124,7 +124,34 @@ class CardModelTest {
     }
 
     @Test
-    fun `add new card fails`() {
+    fun `add new card fails with nabu exception`() {
+        val cardData: CardData = mock()
+        val billingAddress: BillingAddress = mock()
+        whenever(defaultState.billingAddress).thenReturn(billingAddress)
+
+        val intent = CardIntent.AddNewCard(cardData)
+        val exception: NabuApiException = mock {
+            on { getErrorCode() }.thenReturn(NabuErrorCodes.CardCreateNoToken)
+        }
+        whenever(interactor.addNewCard(cardData, FiatCurrency.Dollars, billingAddress)).thenReturn(
+            Single.error(exception)
+        )
+
+        val test = model.state.test()
+        model.process(intent)
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRequestStatus == CardRequestStatus.Loading
+        }.assertValueAt(2) {
+            it.cardRequestStatus is CardRequestStatus.Error &&
+                (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.CARD_CREATE_NO_TOKEN
+        }
+    }
+
+    @Test
+    fun `add new card fails with other exception`() {
         val cardData: CardData = mock()
         val billingAddress: BillingAddress = mock()
         whenever(defaultState.billingAddress).thenReturn(billingAddress)

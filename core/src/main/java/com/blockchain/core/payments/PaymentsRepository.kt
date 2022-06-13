@@ -308,7 +308,7 @@ class PaymentsRepository(
             CardToBeActivated(cardId = it.id, partner = it.partner.toPartner())
         }.doOnSuccess {
             linkedCardsStore.markAsStale()
-        }
+        }.wrapErrorMessage()
 
     override fun activateCard(cardId: String, redirectUrl: String, cvv: String): Single<PartnerCredentials> =
         authenticator.getAuthHeader().flatMap { authToken ->
