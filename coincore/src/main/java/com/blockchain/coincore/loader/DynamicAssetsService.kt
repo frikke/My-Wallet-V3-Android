@@ -67,6 +67,11 @@ internal val custodialProducts = setOf(
 )
 
 private val colourLookup = mapOf(
+    "BTC" to "#FF9B22",
+    "BCH" to "#8DC351",
+    "ETH" to "#473BCB",
+    "XLM" to "#000000",
+    "MATIC" to "#8247E5",
     "PAX" to "#00522C",
     "USDT" to "#26A17B",
     "WDGLD" to "#A39424",
