@@ -1,8 +1,10 @@
 package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.testutils.numberToBigDecimal
@@ -97,10 +99,13 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
     @Test
     fun `group with single account returns single account actions`() {
         // Arrange
-        val accountActions = setOf(AssetAction.Send, AssetAction.Receive)
+        val accountActions = setOf(
+            StateAwareAction(ActionState.Available, AssetAction.Send),
+            StateAwareAction(ActionState.Available, AssetAction.Receive)
+        )
 
         val account: CryptoAccount = mock {
-            on { actions }.thenReturn(Single.just(accountActions))
+            on { stateAwareActions }.thenReturn(Single.just(accountActions))
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -110,10 +115,10 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        val r = subject.actions.test()
+        val r = subject.stateAwareActions.test()
 
         // Assert
-        r.assertValue(setOf(AssetAction.Send, AssetAction.Receive))
+        r.assertValue(accountActions)
     }
 
     @Test
@@ -121,41 +126,41 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         // Arrange
         val accountActions1 = Single.just(
             setOf(
-                AssetAction.Send,
-                AssetAction.Receive
+                StateAwareAction(ActionState.Available, AssetAction.Send),
+                StateAwareAction(ActionState.Available, AssetAction.Receive)
             )
         )
 
         val accountActions2 = Single.just(
             setOf(
-                AssetAction.Send,
-                AssetAction.Swap
+                StateAwareAction(ActionState.Available, AssetAction.Send),
+                StateAwareAction(ActionState.Available, AssetAction.Swap)
             )
         )
 
         val accountActions3 = Single.just(
             setOf(
-                AssetAction.Send,
-                AssetAction.Receive
+                StateAwareAction(ActionState.Available, AssetAction.Send),
+                StateAwareAction(ActionState.Available, AssetAction.Receive)
             )
         )
 
         val expectedResult = setOf(
-            AssetAction.Send,
-            AssetAction.Swap,
-            AssetAction.Receive
+            StateAwareAction(ActionState.Available, AssetAction.Send),
+            StateAwareAction(ActionState.Available, AssetAction.Swap),
+            StateAwareAction(ActionState.Available, AssetAction.Receive)
         )
 
         val account1: CryptoAccount = mock {
-            on { actions }.thenReturn(accountActions1)
+            on { stateAwareActions }.thenReturn(accountActions1)
         }
 
         val account2: CryptoAccount = mock {
-            on { actions }.thenReturn(accountActions2)
+            on { stateAwareActions }.thenReturn(accountActions2)
         }
 
         val account3: CryptoAccount = mock {
-            on { actions }.thenReturn(accountActions3)
+            on { stateAwareActions }.thenReturn(accountActions3)
         }
 
         val subject = CryptoAccountNonCustodialGroup(
@@ -165,7 +170,7 @@ class CryptoAccountCompoundGroupTest : CoincoreTestBase() {
         )
 
         // Act
-        val r = subject.actions.test()
+        val r = subject.stateAwareActions.test()
 
         // Assert
         r.assertValue(expectedResult)

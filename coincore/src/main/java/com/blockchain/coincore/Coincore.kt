@@ -90,8 +90,9 @@ class Coincore internal constructor(
         allWallets()
             .flattenAsObservable { it.accounts }
             .flatMapMaybe { account ->
-                account.actions.flatMapMaybe { availableActions ->
-                    if (availableActions.containsAll(actions)) Maybe.just(account) else Maybe.empty()
+                account.stateAwareActions.flatMapMaybe { availableActions ->
+                    val assetActions = availableActions.map { it.action }
+                    if (assetActions.containsAll(actions)) Maybe.just(account) else Maybe.empty()
                 }
             }
             .toList()

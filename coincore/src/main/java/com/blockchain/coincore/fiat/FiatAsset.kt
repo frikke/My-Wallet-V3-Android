@@ -78,7 +78,7 @@ class FiatAsset(
                 label = labels.getDefaultCustodialFiatWalletLabel(fiatCurrency),
                 currency = fiatCurrency,
                 tradingBalanceDataManager = tradingBalanceDataManager,
-                exchangesRates = exchangeRateDataManager,
+                exchangeRates = exchangeRateDataManager,
                 custodialWalletManager = custodialWalletManager,
                 bankService = bankService
             )

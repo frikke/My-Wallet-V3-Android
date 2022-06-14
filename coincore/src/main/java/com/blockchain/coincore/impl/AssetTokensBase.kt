@@ -2,6 +2,7 @@ package com.blockchain.coincore.impl
 
 import androidx.annotation.VisibleForTesting
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.CryptoAccount
@@ -266,8 +267,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             }.flattenAsObservable {
                 it
             }.flatMapMaybe { account ->
-                account.actions.flatMapMaybe {
-                    if (it.contains(AssetAction.Receive)) {
+                account.stateAwareActions.flatMapMaybe { set ->
+                    if (set.find { it.action == AssetAction.Receive && it.state == ActionState.Available } != null) {
                         Maybe.just(account)
                     } else Maybe.empty()
                 }

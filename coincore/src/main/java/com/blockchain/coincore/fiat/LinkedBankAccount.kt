@@ -2,7 +2,6 @@ package com.blockchain.coincore.fiat
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.ActivitySummaryList
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BankAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.ReceiveAddress
@@ -61,9 +60,6 @@ class LinkedBankAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
-
-    override val actions: Single<AvailableActions>
-        get() = Single.just(emptySet())
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())

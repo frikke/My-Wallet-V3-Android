@@ -5,7 +5,6 @@ import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.InterestAccount
@@ -34,7 +33,6 @@ import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
@@ -152,20 +150,6 @@ class CryptoInterestAccount(
             .map { (_, reason) ->
                 reason
             }
-
-    override val actions: Single<AvailableActions>
-        get() = Singles.zip(
-            balance.firstOrError(),
-            isEnabled,
-            identity.userAccessForFeature(Feature.DepositInterest)
-        ) { balance, isEnabled, depositInterestEligibility ->
-            setOfNotNull(
-                AssetAction.InterestDeposit.takeIf { isEnabled && depositInterestEligibility is FeatureAccess.Granted },
-                AssetAction.InterestWithdraw.takeIf { balance.withdrawable.isPositive },
-                AssetAction.ViewStatement.takeIf { hasTransactions },
-                AssetAction.ViewActivity.takeIf { hasTransactions }
-            )
-        }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
