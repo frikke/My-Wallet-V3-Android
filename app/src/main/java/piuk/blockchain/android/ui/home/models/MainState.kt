@@ -23,7 +23,7 @@ data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed,
     val deeplinkIntent: Intent? = null,
-    val referral: ReferralInfo = ReferralInfo.NotAvailable
+    val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
 ) : MviState
 
 sealed class ViewToLaunch {

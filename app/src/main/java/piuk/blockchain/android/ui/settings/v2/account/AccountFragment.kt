@@ -166,7 +166,6 @@ class AccountFragment :
     override fun onResume() {
         super.onResume()
         model.process(AccountIntent.LoadAccountInformation)
-        model.process(AccountIntent.LoadReferralData)
         compositeDisposable += blockchainCardFF.enabled.onErrorReturn { false }.subscribe { enabled ->
             if (enabled) model.process(AccountIntent.LoadBCDebitCardInformation)
         }

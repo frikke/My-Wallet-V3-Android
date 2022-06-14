@@ -5,7 +5,6 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.deeplinking.processor.DeepLinkResult
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 
 sealed class MainIntent : MviIntent<MainState> {
@@ -21,11 +20,17 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
-    class ReferralCodeIntent(val referralInfo: ReferralInfo) : MainIntent() {
+    class ReferralCodeIntent(val referralInfo: ReferralState) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 referral = referralInfo
             )
+    }
+
+    object ReferralIconClicked : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy(
+            referral = oldState.referral.copy(hasReferralBeenClicked = true)
+        )
     }
 
     class CheckForPendingLinks(val appIntent: Intent) : MainIntent() {

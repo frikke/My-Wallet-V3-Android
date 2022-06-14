@@ -620,6 +620,10 @@ class PrefsUtil(
         get() = getValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, false)
         set(value) = setValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, value)
 
+    override var hasReferralIconBeenClicked: Boolean
+        get() = getValue(REFERRAL_ICON_CLICKED, false)
+        set(value) = setValue(REFERRAL_ICON_CLICKED, value)
+
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -740,6 +744,9 @@ class PrefsUtil(
         // Nft Announcement
         private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
         private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
+
+        // Referral clicked
+        private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
     }
 }
 

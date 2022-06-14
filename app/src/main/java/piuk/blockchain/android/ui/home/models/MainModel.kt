@@ -122,10 +122,14 @@ class MainModel(
             }
             is MainIntent.CheckReferralCode -> {
                 interactor.checkReferral()
-                    .onErrorReturn { ReferralInfo.NotAvailable }
+                    .onErrorReturn { ReferralState(ReferralInfo.NotAvailable) }
                     .subscribeBy {
                         process(MainIntent.ReferralCodeIntent(it))
                     }
+            }
+            is MainIntent.ReferralIconClicked -> {
+                interactor.storeReferralClicked()
+                null
             }
             is MainIntent.CheckForPendingLinks -> {
                 interactor.checkForDeepLinks(intent.appIntent)

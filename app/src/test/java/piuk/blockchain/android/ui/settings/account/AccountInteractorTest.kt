@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.settings.account
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.domain.referral.ReferralService
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.mock
@@ -27,7 +26,6 @@ class AccountInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val exchangeLinkingState: ExchangeLinking = mock()
     private val blockchainCardRepository: BlockchainCardRepository = mock()
-    private val referralService: ReferralService = mock()
 
     @Before
     fun setup() {
@@ -36,8 +34,7 @@ class AccountInteractorTest {
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             exchangeLinkingState = exchangeLinkingState,
-            blockchainCardRepository = blockchainCardRepository,
-            referralService = referralService
+            blockchainCardRepository = blockchainCardRepository
         )
     }
 

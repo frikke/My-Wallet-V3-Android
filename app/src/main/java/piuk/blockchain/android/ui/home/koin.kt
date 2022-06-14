@@ -42,6 +42,7 @@ val mainModule = module {
                 secureChannelService = get(),
                 cancelOrderUseCase = get(),
                 onboardingPrefs = get(),
+                referralPrefs = get(),
                 referralRepository = get()
             )
         }

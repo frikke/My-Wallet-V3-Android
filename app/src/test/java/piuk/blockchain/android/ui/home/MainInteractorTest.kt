@@ -11,6 +11,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -36,6 +37,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelService
 import piuk.blockchain.android.ui.home.models.MainInteractor
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
@@ -59,6 +61,7 @@ class MainInteractorTest {
     private val cancelOrderUseCase: CancelOrderUseCase = mock()
     private val bankService: BankService = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
+    private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
 
     @Before
@@ -80,6 +83,7 @@ class MainInteractorTest {
             cancelOrderUseCase = cancelOrderUseCase,
             bankService = bankService,
             onboardingPrefs = onboardingPrefs,
+            referralPrefs = referralPrefs,
             referralRepository = referralRepository
         )
     }
@@ -246,12 +250,13 @@ class MainInteractorTest {
         runBlocking {
             val referralMock = mock<ReferralInfo.Data>()
             whenever(referralRepository.fetchReferralData()).thenReturn(Outcome.Success(referralMock))
+            whenever(referralPrefs.hasReferralIconBeenClicked).thenReturn(true)
 
             interactor.checkReferral()
                 .test()
                 .await()
                 .assertComplete()
-                .assertValue(referralMock)
+                .assertValue(ReferralState(referralMock, true))
         }
     }
 }

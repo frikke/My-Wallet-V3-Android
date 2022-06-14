@@ -2999,6 +2999,7 @@
     <string name="accessibility_asset_name">Asset Name</string>
     <string name="accessibility_current_market_price">Current Market Price</string>
     <string name="accessibility_24h_change">24 Hour Change</string>
+    <string name="accessibility_referral">Show Referral Code</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>

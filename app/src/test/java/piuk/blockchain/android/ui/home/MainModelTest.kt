@@ -22,6 +22,7 @@ import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -46,6 +47,7 @@ import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -61,7 +63,7 @@ class MainModelTest {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
     private val interactor: MainInteractor = mock {
-        on { checkReferral() }.thenReturn(Single.just(ReferralInfo.NotAvailable))
+        on { checkReferral() }.thenReturn(Single.just(ReferralState(ReferralInfo.NotAvailable)))
     }
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
@@ -1214,7 +1216,21 @@ class MainModelTest {
 
         val testState = model.state.test()
         testState.assertValue(
-            MainState(referral = ReferralInfo.NotAvailable)
+            MainState(referral = ReferralState(ReferralInfo.NotAvailable))
+        )
+    }
+
+    @Test
+    fun updateReferralClickedState() {
+        val mockReferralInfo: ReferralInfo = mock()
+        whenever(interactor.checkReferral()).doReturn(Single.just(ReferralState(mockReferralInfo, false)))
+
+        model.process(MainIntent.CheckReferralCode)
+        model.process(MainIntent.ReferralIconClicked)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(mockReferralInfo, true))
         )
     }
 }

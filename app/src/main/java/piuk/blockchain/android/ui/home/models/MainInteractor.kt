@@ -19,6 +19,7 @@ import com.blockchain.network.PollService
 import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -62,6 +63,7 @@ class MainInteractor internal constructor(
     private val secureChannelService: SecureChannelService,
     private val cancelOrderUseCase: CancelOrderUseCase,
     private val onboardingPrefs: OnboardingPrefs,
+    private val referralPrefs: ReferralPrefs,
     private val referralRepository: ReferralRepository
 ) {
 
@@ -157,10 +159,14 @@ class MainInteractor internal constructor(
             deepLinkPersistence.popDataFromSharedPrefs()
         }
 
-    fun checkReferral(): Single<ReferralInfo> = rxSingle {
+    fun checkReferral(): Single<ReferralState> = rxSingle {
         referralRepository.fetchReferralData().fold(
-            onSuccess = { it },
-            onFailure = { ReferralInfo.NotAvailable }
+            onSuccess = { ReferralState(it, referralPrefs.hasReferralIconBeenClicked) },
+            onFailure = { ReferralState(ReferralInfo.NotAvailable, false) }
         )
+    }
+
+    fun storeReferralClicked() {
+        referralPrefs.hasReferralIconBeenClicked = true
     }
 }

@@ -83,6 +83,7 @@ import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellView
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
@@ -288,13 +289,19 @@ class MainActivity :
         )
     }
 
-    private fun setupMenuWithPresentButton(info: ReferralInfo) {
-        val presentButton = if (info is ReferralInfo.Data) {
+    private fun setupMenuWithPresentButton(referralState: ReferralState) {
+        val presentButton = if (referralState.referralInfo is ReferralInfo.Data) {
             NavigationBarButton.Icon(
-                drawable = R.drawable.ic_present_dot,
-                contentDescription = R.string.accessibility_qr_code_scanner // TODO
+                drawable = if (referralState.hasReferralBeenClicked) {
+                    R.drawable.ic_present
+                } else {
+                    R.drawable.ic_present_dot
+                },
+                contentDescription = R.string.accessibility_referral,
+                color = null
             ) {
-                showReferralBottomSheet(info)
+                model.process(MainIntent.ReferralIconClicked)
+                showReferralBottomSheet(referralState.referralInfo)
             }
         } else {
             null
@@ -674,7 +681,7 @@ class MainActivity :
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
         }
-        if (newState.referral != ReferralInfo.NotAvailable) {
+        if (newState.referral.referralInfo != ReferralInfo.NotAvailable) {
             setupMenuWithPresentButton(newState.referral)
         }
     }

@@ -56,6 +56,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -462,6 +463,7 @@ val coreModule = module {
         bind(AppMaintenancePrefs::class)
         bind(AppRatingPrefs::class)
         bind(NftAnnouncementPrefs::class)
+        bind(ReferralPrefs::class)
     }
 
     factory {
