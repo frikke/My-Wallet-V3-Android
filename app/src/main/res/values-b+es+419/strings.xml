@@ -2409,4 +2409,11 @@ Compra criptomonedas hoy.</string>
     <string name="back_up_now">Hacer copia de seguridad ahora</string>
     <string name="secure_defi_wallets">Asegura tus billeteras DeFi</string>
     <string name="account_refer_a_friend">Referir a un amigo</string>
+    <string name="nft_announcement_title">Mira los NFT en tu Wallet</string>
+    <string name="nft_announcement_description">Pronto podrás ver tus NFT desde la comodidad de tu billetera.</string>
+    <string name="nft_announcement_action">Únete a la lista de espera</string>
+    <string name="bottom_nav_home">Inicio</string>
+    <string name="bottom_nav_prices">Precios</string>
+    <string name="bottom_nav_buy_and_sell">Comprar y vender</string>
+    <string name="bottom_nav_activity">Actividad</string>
 </resources>

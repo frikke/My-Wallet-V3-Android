@@ -2497,4 +2497,11 @@ Compre hoy criptomonedas.</string>
     <string name="bank_linking_max_accounts_subtitle">Ha alcanzado el límite de la cantidad de bancos que puede vincular a su cuenta. Elimine un banco vinculado para agregar uno nuevo.</string>
     <string name="trading_restricted">Negociación restringida</string>
     <string name="russia_sanctions_eu5_sheet_subtitle">Actualmente no se permite negociar con saldos superiores a 10.000€ por sanciones regulatorias. Sin embargo, todavía puede mantener o retirar.</string>
+    <string name="nft_announcement_title">Ver NFT en su billetera</string>
+    <string name="nft_announcement_description">Pronto podrá ver sus NFT desde la comodidad de su billetera.</string>
+    <string name="nft_announcement_action">Unirse a la lista de espera</string>
+    <string name="bottom_nav_home">Inicio</string>
+    <string name="bottom_nav_prices">Precios</string>
+    <string name="bottom_nav_buy_and_sell">Comprar y vender</string>
+    <string name="bottom_nav_activity">Actividad</string>
 </resources>
