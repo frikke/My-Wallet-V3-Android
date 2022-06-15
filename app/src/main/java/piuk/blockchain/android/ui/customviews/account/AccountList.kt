@@ -25,7 +25,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
-import java.io.Serializable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountSelectBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectCryptoBinding
@@ -37,6 +36,7 @@ import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.util.context
+import java.io.Serializable
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 

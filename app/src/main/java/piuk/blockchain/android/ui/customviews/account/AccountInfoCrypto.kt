@@ -114,9 +114,9 @@ class AccountInfoCrypto @JvmOverloads constructor(
             root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val crypto = account.currency
 
-
             assetTitle.text = crypto.name
             assetSubtitle.text =  account.label
+
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
@@ -198,7 +198,10 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     override fun update(state: TransactionState) {
-        updateAccount(state.sendingAccount as CryptoAccount, { })
+        updateAccount(
+            account = state.sendingAccount as CryptoAccount,
+            onAccountClicked = { }
+        )
     }
 
     override fun setVisible(isVisible: Boolean) {
