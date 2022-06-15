@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.toUserFiat
@@ -79,7 +78,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
-            compositeDisposable += (coincore[account.currency] as CryptoAsset)
+            compositeDisposable += coincore[account.currency]
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
@@ -110,9 +109,9 @@ class AccountInfoCrypto @JvmOverloads constructor(
         with(binding) {
             root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val crypto = account.currency
-            walletName.text = account.label
 
-            assetSubtitle.text = crypto.name
+            assetTitle.text = crypto.name
+            assetSubtitle.text = account.label
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
@@ -194,7 +193,10 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     override fun update(state: TransactionState) {
-        updateAccount(state.sendingAccount as CryptoAccount, { })
+        updateAccount(
+            account = state.sendingAccount as CryptoAccount,
+            onAccountClicked = { }
+        )
     }
 
     override fun setVisible(isVisible: Boolean) {

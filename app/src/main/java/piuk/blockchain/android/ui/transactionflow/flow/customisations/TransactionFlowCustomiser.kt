@@ -23,6 +23,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -70,7 +71,8 @@ interface TransactionFlowCustomiser :
 class TransactionFlowCustomiserImpl(
     private val resources: Resources,
     private val assetResources: AssetResources,
-    private val stringUtils: StringUtils
+    private val stringUtils: StringUtils,
+    private val walletModeService: WalletModeService
 ) : TransactionFlowCustomiser {
     override fun enterAmountActionIcon(state: TransactionState): Int {
         return when (state.action) {
@@ -196,7 +198,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> {
                 {
-                    SwapAccountSelectSheetFeeDecorator(it)
+                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletModeService.enabledWalletMode())
                 }
             }
             else -> {
@@ -1095,7 +1097,7 @@ class TransactionFlowCustomiserImpl(
         when (state.action) {
             AssetAction.Swap -> {
                 {
-                    SwapAccountSelectSheetFeeDecorator(it)
+                    SwapAccountSelectSheetFeeDecorator(account = it, walletMode = walletModeService.enabledWalletMode())
                 }
             }
             AssetAction.InterestDeposit,
