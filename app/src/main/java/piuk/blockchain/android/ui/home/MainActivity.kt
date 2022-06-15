@@ -891,20 +891,14 @@ class MainActivity :
     override fun onSessionApproved(session: WalletConnectSession) {
         model.process(MainIntent.ApproveWCSession(session))
         analytics.logEvent(
-            WalletConnectAnalytics.DappConectionActioned(
-                action = WalletConnectAnalytics.DappConnectionAction.CONFIRM,
-                appName = session.dAppInfo.peerMeta.name
-            )
+            WalletConnectAnalytics.DappConnectionConfirmed
         )
     }
 
     override fun onSessionRejected(session: WalletConnectSession) {
         model.process(MainIntent.RejectWCSession(session))
         analytics.logEvent(
-            WalletConnectAnalytics.DappConectionActioned(
-                action = WalletConnectAnalytics.DappConnectionAction.CANCEL,
-                appName = session.dAppInfo.peerMeta.name
-            )
+            WalletConnectAnalytics.DappConnectionRejected
         )
     }
 

@@ -39,15 +39,12 @@ sealed class WalletConnectAnalytics(
         event = AnalyticsNames.CONNECTED_DAPPS_LIST_CLICKED.eventName,
     )
 
-    class DappConectionActioned(
-        action: DappConnectionAction,
-        appName: String
-    ) : WalletConnectAnalytics(
-        event = AnalyticsNames.DAPP_CONNECTION_ACTIONED.eventName,
-        params = mapOf(
-            ACTION to action.name,
-            APP_NAME to appName
-        )
+    object DappConnectionConfirmed : WalletConnectAnalytics(
+        event = AnalyticsNames.DAPP_CONNECTION_CONFIRMED.eventName
+    )
+
+    object DappConnectionRejected : WalletConnectAnalytics(
+        event = AnalyticsNames.DAPP_CONNECTION_REJECTED.eventName
     )
 
     object ConnectedDappsListViewed : WalletConnectAnalytics(
@@ -59,7 +56,7 @@ sealed class WalletConnectAnalytics(
         appName: String,
         method: DappRequestMethod
     ) : WalletConnectAnalytics(
-        event = AnalyticsNames.CONNECTED_DAPPS_LIST_VIEWED.eventName,
+        event = AnalyticsNames.DAPP_REQUEST_ACTIONED.eventName,
         params = mapOf(
             APP_NAME to appName,
             METHOD to method.name,
