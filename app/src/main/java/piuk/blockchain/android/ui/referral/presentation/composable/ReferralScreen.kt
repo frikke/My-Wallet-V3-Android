@@ -74,6 +74,7 @@ fun ReferralScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
+                modifier = Modifier.size(dimensionResource(R.dimen.asset_icon_size_large)),
                 imageResource = ImageResource.Local(
                     R.drawable.ic_referral
                 )
@@ -111,7 +112,7 @@ fun ReferralScreen(
                 copyToClipboard = copyToClipboard
             )
 
-            Spacer(modifier = Modifier.size(67.dp))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.huge_margin)))
 
             Text(
                 style = AppTheme.typography.paragraph1,
@@ -119,7 +120,7 @@ fun ReferralScreen(
                 text = stringResource(R.string.referral_criteria_title),
             )
 
-            Spacer(modifier = Modifier.size(27.dp))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
             ReferralCriteria(criteria)
 
@@ -147,26 +148,22 @@ fun ReferralCode(
     confirmCopiedToClipboard: Boolean,
     copyToClipboard: (String) -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .background(UltraLight)
             .padding(
-                top = dimensionResource(R.dimen.xhuge_margin),
-                bottom = dimensionResource(R.dimen.xhuge_margin)
-            ),
-        verticalAlignment = Alignment.CenterVertically
+                top = dimensionResource(R.dimen.standard_margin),
+                bottom = dimensionResource(R.dimen.standard_margin)
+            )
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                style = AppTheme.typography.title4,
-                color = Grey900,
-                text = code,
-            )
-        }
+        Text(
+            style = AppTheme.typography.title4,
+            color = Grey900,
+            text = code,
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
 
@@ -178,8 +175,6 @@ fun ReferralCode(
             color = Blue600,
             text = stringResource(if (confirmCopiedToClipboard) R.string.common_copied else R.string.common_copy),
         )
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
     }
 }
 
