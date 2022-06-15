@@ -111,7 +111,7 @@ class MainInteractor internal constructor(
         PollService(
             bankService.getBankTransferCharge(paymentData.paymentId)
         ) { transferDetails ->
-            transferDetails.status != BankTransferStatus.PENDING
+            transferDetails.status != BankTransferStatus.Pending
         }.start()
 
     fun getEstimatedDepositCompletionTime(): String {

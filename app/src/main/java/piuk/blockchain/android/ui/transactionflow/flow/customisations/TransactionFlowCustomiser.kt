@@ -23,6 +23,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -990,6 +991,7 @@ class TransactionFlowCustomiserImpl(
                 R.string.invalid_domain_address
             )
             TransactionError.TransactionDenied -> resources.getString(R.string.transaction_denied)
+            is TransactionError.FiatDepositError -> getFiatDepositError(error.errorCode).title
         }
     }
 
@@ -1003,17 +1005,72 @@ class TransactionFlowCustomiserImpl(
             )
         }
 
+    private fun getFiatDepositError(error: String): FiatDepositErrorContent {
+        val errorContent = when (error) {
+            BuySellOrderResponse.APPROVAL_ERROR_INVALID,
+            BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID ->
+                Pair(
+                    R.string.bank_transfer_payment_invalid_title,
+                    R.string.bank_transfer_payment_invalid_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_FAILED ->
+                Pair(
+                    R.string.bank_transfer_payment_failed_title,
+                    R.string.bank_transfer_payment_failed_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_DECLINED ->
+                Pair(
+                    R.string.bank_transfer_payment_declined_title,
+                    R.string.bank_transfer_payment_declined_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_REJECTED ->
+                Pair(
+                    R.string.bank_transfer_payment_rejected_title,
+                    R.string.bank_transfer_payment_rejected_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_EXPIRED ->
+                Pair(
+                    R.string.bank_transfer_payment_expired_title,
+                    R.string.bank_transfer_payment_expired_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_EXCEEDED ->
+                Pair(
+                    R.string.bank_transfer_payment_limited_exceeded_title,
+                    R.string.bank_transfer_payment_limited_exceeded_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_FAILED_INTERNAL ->
+                Pair(
+                    R.string.bank_transfer_payment_failed_title,
+                    R.string.bank_transfer_payment_failed_subtitle
+                )
+            BuySellOrderResponse.APPROVAL_ERROR_INSUFFICIENT_FUNDS -> Pair(
+                R.string.bank_transfer_payment_insufficient_funds_title,
+                R.string.bank_transfer_payment_insufficient_funds_subtitle
+            )
+            else -> Pair(
+                R.string.common_oops_bank,
+                R.string.send_progress_error_subtitle
+            )
+        }
+
+        return FiatDepositErrorContent(
+            title = resources.getString(errorContent.first),
+            message = resources.getString(errorContent.second)
+        )
+    }
+
     override fun transactionProgressExceptionDescription(state: TransactionState): String {
         require(state.executionStatus is TxExecutionStatus.Error)
         require(state.executionStatus.exception is TransactionError)
-        val error = state.executionStatus.exception
 
-        return if (error is TransactionError.HttpError) {
-            error.nabuApiException.getServerSideErrorInfo()?.description ?: resources.getString(
-                R.string.send_progress_error_subtitle
-            )
-        } else {
-            resources.getString(R.string.send_progress_error_subtitle)
+        return when (val error = state.executionStatus.exception) {
+            is TransactionError.HttpError ->
+                error.nabuApiException.getServerSideErrorInfo()?.description
+                    ?: resources.getString(R.string.send_progress_error_subtitle)
+            is TransactionError.FiatDepositError ->
+                getFiatDepositError(error.errorCode).message
+            else ->
+                resources.getString(R.string.send_progress_error_subtitle)
         }
     }
 
@@ -1252,3 +1309,8 @@ fun Money.toEnteredCurrency(
             .convert(this).toStringWithSymbol()
         else -> throw IllegalStateException("Not valid currency")
     }
+
+data class FiatDepositErrorContent(
+    val title: String,
+    val message: String
+)

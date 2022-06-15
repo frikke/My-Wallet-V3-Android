@@ -32,6 +32,7 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -57,6 +58,7 @@ class TxProcessorFactoryTest {
     private val userIdentity: UserIdentity = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankService: BankService = mock()
+    private val plaidFeatureFlag: FeatureFlag = mock()
 
     private lateinit var subject: TxProcessorFactory
 
@@ -77,7 +79,8 @@ class TxProcessorFactoryTest {
             withdrawLocksRepository = withdrawalLocksRepository,
             bankService = bankService,
             ethDataManager = mock(),
-            fees = mock()
+            fees = mock(),
+            plaidFeatureFlag = plaidFeatureFlag
         )
     }
 

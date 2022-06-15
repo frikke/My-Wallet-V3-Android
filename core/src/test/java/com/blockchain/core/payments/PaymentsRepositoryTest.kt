@@ -570,6 +570,7 @@ class PaymentsRepositoryTest {
             amountMinor = "100",
             amount = BankTransferFiatAmount(NETWORK_TICKER, "10"),
             extraAttributes = BankTransferChargeAttributes("url", "status"),
+            null,
             null
         )
         every { assetCatalogue.fromNetworkTicker(NETWORK_TICKER) } returns FiatCurrency.Dollars
@@ -579,8 +580,8 @@ class PaymentsRepositoryTest {
         subject.getBankTransferCharge(ID).test()
             .assertValue {
                 it.id == ID &&
-                    it.authorisationUrl == response.extraAttributes.authorisationUrl &&
-                    it.status == BankTransferStatus.PENDING
+                    it.authorisationUrl == response.extraAttributes?.authorisationUrl &&
+                    it.status == BankTransferStatus.Pending
             }
     }
 

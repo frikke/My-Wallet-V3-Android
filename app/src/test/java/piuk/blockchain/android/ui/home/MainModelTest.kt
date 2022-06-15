@@ -425,7 +425,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.COMPLETE)
+            on { status }.thenReturn(BankTransferStatus.Complete)
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -474,7 +474,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.PENDING)
+            on { status }.thenReturn(BankTransferStatus.Pending)
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -520,7 +520,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.ERROR)
+            on { status }.thenReturn(BankTransferStatus.Error())
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(
@@ -566,7 +566,7 @@ class MainModelTest {
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)
         whenever(interactor.updateOpenBankingConsent(consentToken)).thenReturn(Completable.complete())
         val transferDetails: BankTransferDetails = mock {
-            on { status }.thenReturn(BankTransferStatus.ERROR)
+            on { status }.thenReturn(BankTransferStatus.Error())
             on { amount }.thenReturn(FiatValue.zero(EUR))
         }
         whenever(interactor.pollForBankTransferCharge(paymentData)).thenReturn(

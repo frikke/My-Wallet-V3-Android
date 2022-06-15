@@ -735,12 +735,13 @@ class PaymentsRepository(
                 ),
                 this.amountMinor.toBigInteger()
             ),
-            authorisationUrl = this.extraAttributes.authorisationUrl,
-            status = this.state?.toBankTransferStatus() ?: this.extraAttributes.status?.toBankTransferStatus()
-                ?: BankTransferStatus.UNKNOWN
+            authorisationUrl = this.extraAttributes?.authorisationUrl,
+            status = this.state?.toBankTransferStatus(this.error)
+                ?: this.extraAttributes?.status?.toBankTransferStatus(this.error)
+                ?: BankTransferStatus.Unknown
         )
 
-    private fun String.toBankTransferStatus() =
+    private fun String.toBankTransferStatus(error: String?) =
         when (this) {
             BankTransferChargeAttributes.CREATED,
             BankTransferChargeAttributes.PRE_CHARGE_REVIEW,
@@ -748,14 +749,14 @@ class PaymentsRepository(
             BankTransferChargeAttributes.AWAITING_AUTHORIZATION,
             BankTransferChargeAttributes.PENDING,
             BankTransferChargeAttributes.AUTHORIZED,
-            BankTransferChargeAttributes.CREDITED -> BankTransferStatus.PENDING
+            BankTransferChargeAttributes.CREDITED -> BankTransferStatus.Pending
             BankTransferChargeAttributes.FAILED,
             BankTransferChargeAttributes.FRAUD_REVIEW,
             BankTransferChargeAttributes.MANUAL_REVIEW,
-            BankTransferChargeAttributes.REJECTED -> BankTransferStatus.ERROR
+            BankTransferChargeAttributes.REJECTED -> BankTransferStatus.Error(error)
             BankTransferChargeAttributes.CLEARED,
-            BankTransferChargeAttributes.COMPLETE -> BankTransferStatus.COMPLETE
-            else -> BankTransferStatus.UNKNOWN
+            BankTransferChargeAttributes.COMPLETE -> BankTransferStatus.Complete
+            else -> BankTransferStatus.Unknown
         }
 
     private fun BillingAddress.toAddressRequest() = AddressRequest(

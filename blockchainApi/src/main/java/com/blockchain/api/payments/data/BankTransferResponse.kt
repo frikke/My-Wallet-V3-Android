@@ -251,9 +251,11 @@ data class BankTransferChargeResponse(
     @SerialName("amount")
     val amount: BankTransferFiatAmount,
     @SerialName("extraAttributes")
-    val extraAttributes: BankTransferChargeAttributes,
+    val extraAttributes: BankTransferChargeAttributes?,
     @SerialName("ux")
-    val ux: NabuUxErrorResponse?
+    val ux: NabuUxErrorResponse?,
+    @SerialName("error")
+    val error: String?
 )
 
 @Serializable

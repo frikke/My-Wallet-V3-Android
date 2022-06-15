@@ -39,6 +39,8 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -63,7 +65,8 @@ class TxProcessorFactory(
     private val fees: FeeDataManager,
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val userIdentity: UserIdentity
+    private val userIdentity: UserIdentity,
+    private val plaidFeatureFlag: FeatureFlag
 ) {
     fun createProcessor(
         source: BlockchainAccount,
@@ -132,7 +135,8 @@ class TxProcessorFactory(
                             userIdentity = userIdentity,
                             bankPartnerCallbackProvider = bankPartnerCallbackProvider,
                             limitsDataManager = limitsDataManager,
-                            withdrawLocksRepository = withdrawLocksRepository
+                            withdrawLocksRepository = withdrawLocksRepository,
+                            plaidFeatureFlag = plaidFeatureFlag
                         )
                     )
                 )

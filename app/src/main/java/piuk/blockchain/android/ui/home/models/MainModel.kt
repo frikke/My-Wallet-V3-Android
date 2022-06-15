@@ -491,7 +491,7 @@ class MainModel(
         paymentData: BankPaymentApproval
     ) {
         when (it.status) {
-            BankTransferStatus.COMPLETE -> {
+            BankTransferStatus.Complete -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalDepositComplete(
@@ -500,15 +500,15 @@ class MainModel(
                     )
                 )
             }
-            BankTransferStatus.PENDING -> {
+            BankTransferStatus.Pending -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingApprovalTimeout(paymentData.orderValue.currencyCode)
                     )
                 )
             }
-            BankTransferStatus.ERROR,
-            BankTransferStatus.UNKNOWN -> {
+            is BankTransferStatus.Error,
+            BankTransferStatus.Unknown -> {
                 process(
                     MainIntent.UpdateViewToLaunch(
                         ViewToLaunch.LaunchOpenBankingError(paymentData.orderValue.currencyCode)

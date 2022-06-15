@@ -210,7 +210,6 @@ class SimpleBuyPaymentFragment :
             }
         }
     }
-
     private fun addLink(stringResource: Int): CharSequence {
         return StringUtils.getStringWithMappedAnnotations(
             requireContext(),

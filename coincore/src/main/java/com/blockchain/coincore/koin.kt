@@ -26,6 +26,7 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.walletmode.WalletMode
@@ -206,7 +207,8 @@ val coincoreModule = module {
                 ethDataManager = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
-                withdrawLocksRepository = get()
+                withdrawLocksRepository = get(),
+                plaidFeatureFlag = get(plaidFeatureFlag)
             )
         }
 

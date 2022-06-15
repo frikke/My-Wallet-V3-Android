@@ -538,6 +538,7 @@ sealed class TransactionError : Throwable() {
     object TransactionDenied : TransactionError()
     object ExecutionFailed : TransactionError()
     object InternetConnectionError : TransactionError()
+    class FiatDepositError(val errorCode: String) : TransactionError()
     class HttpError(val nabuApiException: NabuApiException) : TransactionError()
 }
 

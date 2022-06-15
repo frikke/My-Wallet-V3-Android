@@ -1,10 +1,12 @@
 package com.blockchain.coincore.impl.txEngine
 
 import com.blockchain.banking.BankPartnerCallbackProvider
+import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
@@ -15,13 +17,20 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
+import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankTransferDetails
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
+import com.blockchain.testutils.eur
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -32,6 +41,7 @@ import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import java.security.InvalidParameterException
 import org.junit.Before
 import org.junit.Test
 
@@ -42,6 +52,7 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     private val bankService: BankService = mock()
     private val withdrawalLocksRepository: WithdrawLocksRepository = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
+    private val plaidFeatureFlag: FeatureFlag = mock()
     private val limits = PaymentLimits(
         min = 100.toBigInteger(),
         max = 1000.toBigInteger(),
@@ -74,7 +85,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             userIdentity = userIdentity,
             withdrawLocksRepository = withdrawalLocksRepository,
             limitsDataManager = limitsDataManager,
-            bankService = bankService
+            bankService = bankService,
+            plaidFeatureFlag = plaidFeatureFlag
         )
     }
 
@@ -515,6 +527,260 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
     }
 
+    @Test
+    fun `doPostExecute() - poll for OpenBanking with valid authUrl should return NeedsApprovalException`() {
+        // Arrange
+        val fiatValue = 10.eur()
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(true)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YAPILY)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { authorisationUrl }.thenReturn(AUTH_URL)
+            on { id }.thenReturn(ACCOUNT_ID)
+            on { amount }.thenReturn(fiatValue)
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertError {
+                (it as NeedsApprovalException).bankPaymentData == BankPaymentApproval(
+                    paymentId = TX_ID,
+                    authorisationUrl = AUTH_URL,
+                    linkedBank = linkedBank,
+                    orderValue = fiatValue
+                )
+            }
+    }
+
+    @Test
+    fun `doPostExecute() - poll for OpenBanking with missing authUrl should throw InvalidParameterException`() {
+        // Arrange
+        val fiatValue = 10.eur()
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(true)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YAPILY)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { authorisationUrl }.thenReturn(AUTH_URL, null)
+            on { id }.thenReturn(ACCOUNT_ID)
+            on { amount }.thenReturn(fiatValue)
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertError {
+                it is InvalidParameterException
+            }
+    }
+
+    @Test
+    fun `doPostExecute() - poll for Plaid with COMPLETE status should complete`() {
+        // Arrange
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(false)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { status }.thenReturn(BankTransferStatus.Complete)
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertComplete()
+    }
+
+    @Test
+    fun `doPostExecute() - poll for Plaid with UNKNOWN status should complete`() {
+        // Arrange
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(false)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { status }.thenReturn(BankTransferStatus.Unknown)
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertComplete()
+    }
+
+    @Test
+    fun `doPostExecute() - poll for Plaid with ERROR should return FiatDepositError`() {
+        // Arrange
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(false)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { status }.thenReturn(BankTransferStatus.Error(ERROR))
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertError {
+                (it as TransactionError.FiatDepositError).errorCode == ERROR
+            }
+    }
+
+    @Test
+    fun `doPostExecute() - poll for Plaid with missing ERROR should complete`() {
+        // Arrange
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(false)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { status }.thenReturn(BankTransferStatus.Error(null))
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertComplete()
+    }
+
+    @Test
+    fun `doPostExecute() - if account is not OpenBanking or Plaid, should complete`() {
+        // Arrange
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(false)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YODLEE)
+        }
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), mock())
+
+        // Assert
+        result.test()
+            .assertComplete()
+    }
+
     private fun verifyFeeLevels(feeSelection: FeeSelection) =
         feeSelection.selectedLevel == FeeLevel.None &&
             feeSelection.availableLevels == setOf(FeeLevel.None) &&
@@ -524,5 +790,9 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
 
     companion object {
         private val TGT_ASSET = USD
+        private const val ACCOUNT_ID = "accountId"
+        private const val TX_ID = "txId"
+        private const val AUTH_URL = "authUrl"
+        private const val ERROR = "error"
     }
 }

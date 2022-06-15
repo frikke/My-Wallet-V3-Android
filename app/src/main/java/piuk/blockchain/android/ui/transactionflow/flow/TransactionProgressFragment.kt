@@ -295,6 +295,10 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 INVALID_ADDRESS
             )
             TransactionError.TransactionDenied -> Pair(getString(R.string.transaction_denied), UNKNOWN_ERROR)
+            is TransactionError.FiatDepositError -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                error.errorCode
+            )
         }
 
         // Making it uppercase to match "BUY" in ClientErrorAnalytics

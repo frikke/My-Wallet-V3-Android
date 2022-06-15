@@ -22,13 +22,16 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankPartner
+import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.withoutNullValues
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.network.PollService
 import com.blockchain.utils.secondsToDays
@@ -51,7 +54,8 @@ class FiatDepositTxEngine(
     val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
-    private val withdrawLocksRepository: WithdrawLocksRepository
+    private val withdrawLocksRepository: WithdrawLocksRepository,
+    private val plaidFeatureFlag: FeatureFlag
 ) : TxEngine() {
 
     private val userIsGoldVerified: Single<Boolean>
@@ -200,12 +204,33 @@ class FiatDepositTxEngine(
             TxResult.HashedTxResult(it, pendingTx.amount)
         }
 
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        if (isOpenBankingCurrency()) {
-            val paymentId = (txResult as TxResult.HashedTxResult).txId
-            PollService(bankService.getBankTransferCharge(paymentId)) {
-                it.authorisationUrl != null
-            }.start().map { it.value }.flatMap { bankTransferDetails ->
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
+        val plaidBankAccount = if (sourceAccount is LinkedBankAccount) {
+            bankService.getLinkedBank((sourceAccount as LinkedBankAccount).accountId)
+                .map { it.partner == BankPartner.PLAID }
+        } else {
+            Single.just(false)
+        }
+
+        return plaidBankAccount.zipWith(plaidFeatureFlag.enabled)
+            .flatMapCompletable { (isPlaidAccount, isPlaidEnabled) ->
+                if (isOpenBankingCurrency()) {
+                    pollForOpenBanking(txResult)
+                } else if (isPlaidAccount && isPlaidEnabled) {
+                    pollForPlaid(txResult)
+                } else {
+                    Completable.complete()
+                }
+            }
+    }
+
+    private fun pollForOpenBanking(txResult: TxResult): Completable {
+        val paymentId = (txResult as TxResult.HashedTxResult).txId
+        return PollService(bankService.getBankTransferCharge(paymentId)) {
+            it.authorisationUrl != null
+        }.start()
+            .map { it.value }
+            .flatMap { bankTransferDetails ->
                 bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
                     bankTransferDetails.authorisationUrl?.let {
                         BankPaymentApproval(
@@ -219,9 +244,26 @@ class FiatDepositTxEngine(
             }.flatMapCompletable {
                 Completable.error(NeedsApprovalException(it))
             }
-        } else {
-            Completable.complete()
-        }
+    }
+
+    private fun pollForPlaid(txResult: TxResult): Completable {
+        val paymentId = (txResult as TxResult.HashedTxResult).txId
+        return PollService(bankService.getBankTransferCharge(paymentId)) {
+            it.status != BankTransferStatus.Pending
+        }.start()
+            .flatMapCompletable {
+                when (it.value.status) {
+                    BankTransferStatus.Pending,
+                    BankTransferStatus.Unknown,
+                    BankTransferStatus.Complete ->
+                        Completable.complete()
+                    is BankTransferStatus.Error ->
+                        (it.value.status as BankTransferStatus.Error).error?.let { error ->
+                            Completable.error(TransactionError.FiatDepositError(error))
+                        } ?: Completable.complete()
+                }
+            }
+    }
 
     private fun isOpenBankingCurrency(): Boolean {
         return (sourceAccount as? LinkedBankAccount)?.isOpenBankingCurrency() == true

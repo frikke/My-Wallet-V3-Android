@@ -130,9 +130,9 @@ data class BankTransferDetails(
     val status: BankTransferStatus
 )
 
-enum class BankTransferStatus {
-    UNKNOWN,
-    PENDING,
-    ERROR,
-    COMPLETE
+sealed class BankTransferStatus {
+    object Unknown : BankTransferStatus()
+    object Pending : BankTransferStatus()
+    class Error(val error: String? = null) : BankTransferStatus()
+    object Complete : BankTransferStatus()
 }
