@@ -84,7 +84,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
-            compositeDisposable += (coincore[account.currency] as CryptoAsset)
+            compositeDisposable += coincore[account.currency]
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
@@ -118,8 +118,8 @@ class AccountInfoCrypto @JvmOverloads constructor(
             val crypto = account.currency
 
 
-            assetTitle.text = if (isSenderAccount) crypto.name else account.label
-            assetSubtitle.text = if (isSenderAccount) account.label else crypto.name
+            assetTitle.text = crypto.name
+            assetSubtitle.text =  account.label
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
