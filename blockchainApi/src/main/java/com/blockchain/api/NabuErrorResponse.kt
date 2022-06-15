@@ -43,7 +43,9 @@ data class NabuUxErrorResponse(
     @SerialName("message")
     val message: String,
     @SerialName("icon")
-    val icon: IconData?
+    val icon: IconData?,
+    @SerialName("actions")
+    val actions: List<ActionData>?
 )
 
 @Serializable
@@ -60,12 +62,34 @@ data class StatusData(
     val url: String
 )
 
+@Serializable
+data class ActionData(
+    @SerialName("title")
+    val title: String,
+    @SerialName("url")
+    val url: String?
+)
+
 data class ServerSideUxErrorInfo(
     val title: String,
     val description: String,
     val iconUrl: String,
-    val statusUrl: String
+    val statusUrl: String,
+    val actions: List<ServerErrorAction>
 )
+
+data class ServerErrorAction(
+    val title: String,
+    val deeplinkPath: String
+)
+
+private fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =
+    this.actions?.map {
+        ServerErrorAction(
+            title = it.title,
+            deeplinkPath = it.url.orEmpty()
+        )
+    } ?: emptyList()
 
 class NabuApiException constructor(
     message: String,
@@ -151,7 +175,8 @@ object NabuApiExceptionFactory {
                 title = uxErrorResponse.title,
                 description = uxErrorResponse.message,
                 iconUrl = uxErrorResponse.icon?.url.orEmpty(),
-                statusUrl = uxErrorResponse.icon?.status?.url.orEmpty()
+                statusUrl = uxErrorResponse.icon?.status?.url.orEmpty(),
+                actions = uxErrorResponse.mapActions()
             )
         )
 
@@ -174,7 +199,8 @@ object NabuApiExceptionFactory {
                         title = nabuUxResponse.title,
                         description = nabuUxResponse.message,
                         iconUrl = nabuUxResponse.icon?.url.orEmpty(),
-                        statusUrl = nabuUxResponse.icon?.status?.url.orEmpty()
+                        statusUrl = nabuUxResponse.icon?.status?.url.orEmpty(),
+                        actions = nabuUxResponse.mapActions()
                     )
                 }
 

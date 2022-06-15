@@ -19,6 +19,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.FragmentKycLimitsBinding
 import piuk.blockchain.android.ui.adapters.Diffable
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
@@ -26,7 +27,8 @@ import retrofit2.HttpException
 
 class KycLimitsFragment :
     MviFragment<KycLimitsModel, KycLimitsIntent, KycLimitsState, FragmentKycLimitsBinding>(),
-    HostedBottomSheet.Host {
+    HostedBottomSheet.Host,
+    ErrorSlidingBottomDialog.Host {
 
     override val model: KycLimitsModel by scopedInject()
 
@@ -94,15 +96,14 @@ class KycLimitsFragment :
     }
 
     private fun handleErrorState(errorState: KycLimitsError) = when (errorState) {
-        is KycLimitsError.FullscreenError -> {
-        }
         is KycLimitsError.SheetError -> {
+            // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
             showBottomSheet(
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
                         title = getString(R.string.ops),
                         description = getString(R.string.something_went_wrong_try_again),
-                        buttonText = getString(R.string.common_ok),
+                        errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
                         error = errorState.toString(),
                         nabuApiException = (errorState.exception as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(errorState.exception)
@@ -113,7 +114,11 @@ class KycLimitsFragment :
                 )
             )
         }
+        is KycLimitsError.FullscreenError -> {
+            // do nothing
+        }
         KycLimitsError.None -> {
+            // do nothing
         }
     }
 
@@ -138,7 +143,8 @@ class KycLimitsFragment :
             Header.NEW_KYC -> model.process(KycLimitsIntent.NewKycHeaderCtaClicked)
             Header.UPGRADE_TO_GOLD -> model.process(KycLimitsIntent.UpgradeToGoldHeaderCtaClicked)
             Header.HIDDEN,
-            Header.MAX_TIER_REACHED -> {
+            Header.MAX_TIER_REACHED,
+            -> {
             }
         }
     }
@@ -151,6 +157,18 @@ class KycLimitsFragment :
     private fun hideLoading() {
         binding.progress.gone()
         binding.progress.pauseAnimation()
+    }
+
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
     }
 
     override fun onSheetClosed() {

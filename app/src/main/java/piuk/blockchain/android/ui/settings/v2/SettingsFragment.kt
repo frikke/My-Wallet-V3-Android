@@ -54,6 +54,7 @@ import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -67,7 +68,8 @@ class SettingsFragment :
     AddPaymentMethodsBottomSheet.Host,
     RemoveCardBottomSheet.Host,
     RemoveLinkedBankBottomSheet.Host,
-    SettingsScreen {
+    SettingsScreen,
+    ErrorSlidingBottomDialog.Host {
 
     interface Host {
         fun updateBasicProfile(basicProfileInfo: BasicProfileInfo)
@@ -236,11 +238,13 @@ class SettingsFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            getString(R.string.bank_linking_max_accounts_title),
-                            getString(R.string.bank_linking_max_accounts_subtitle),
-                            getString(R.string.common_ok),
-                            errorState.toString(),
-                            errorState.error
+                            title = getString(R.string.bank_linking_max_accounts_title),
+                            description = getString(R.string.bank_linking_max_accounts_subtitle),
+                            error = errorState.toString(),
+                            nabuApiException = errorState.error,
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryButtonText = getString(R.string.common_ok)
+                            )
                         )
                     )
                 )
@@ -249,11 +253,13 @@ class SettingsFragment :
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            getString(R.string.bank_linking_max_attempts_title),
-                            getString(R.string.bank_linking_max_attempts_subtitle),
-                            getString(R.string.common_ok),
-                            errorState.toString(),
-                            errorState.error
+                            title = getString(R.string.bank_linking_max_attempts_title),
+                            description = getString(R.string.bank_linking_max_attempts_subtitle),
+                            error = errorState.toString(),
+                            nabuApiException = errorState.error,
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryButtonText = getString(R.string.common_ok)
+                            )
                         )
                     )
                 )
@@ -532,6 +538,18 @@ class SettingsFragment :
 
     override fun onLinkedBankRemoved(bankId: String) {
         model.process(SettingsIntent.OnBankRemoved(bankId))
+    }
+
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
     }
 
     override fun onSheetClosed() {

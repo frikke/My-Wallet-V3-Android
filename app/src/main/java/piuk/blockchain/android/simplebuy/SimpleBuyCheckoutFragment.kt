@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
@@ -551,7 +552,9 @@ class SimpleBuyCheckoutFragment :
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateDebitOnly),
                     description = getString(R.string.msg_cardCreateDebitOnly),
-                    button = getString(R.string.sb_checkout_card_debit_only_cta),
+                    serverErrorHandling = listOf(
+                        ServerErrorAction(getString(R.string.sb_checkout_card_debit_only_cta), "")
+                    ),
                     error = errorState.toString()
                 )
             ErrorState.CardPaymentDebitOnly ->
@@ -605,7 +608,8 @@ class SimpleBuyCheckoutFragment :
                 navigator().showErrorInBottomSheet(
                     title = errorState.serverSideUxErrorInfo.title,
                     description = errorState.serverSideUxErrorInfo.description,
-                    error = SERVER_SIDE_HANDLED_ERROR
+                    error = SERVER_SIDE_HANDLED_ERROR,
+                    serverErrorHandling = errorState.serverSideUxErrorInfo.actions
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,

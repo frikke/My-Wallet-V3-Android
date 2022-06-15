@@ -22,4 +22,25 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     data class ActivityDestination(val filter: String? = null) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountLinkCardDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    data class AssetEnterAmountNewMethodDestination(
+        val networkTicker: String
+    ) : Destination()
+
+    @Parcelize
+    object CustomerSupportDestination : Destination()
+
+    @Parcelize
+    object StartKyc : Destination()
 }

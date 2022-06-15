@@ -68,6 +68,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyActivity
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.simplebuy.SmallSimpleBuyNavigator
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
+import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.activity.ActivitiesFragment
 import piuk.blockchain.android.ui.addresses.AddressesActivity
 import piuk.blockchain.android.ui.airdrops.AirdropCentreActivity
@@ -757,6 +758,50 @@ class MainActivity :
 
             is Destination.ActivityDestination -> {
                 startActivitiesFragment()
+            }
+            is Destination.AssetEnterAmountDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+            is Destination.AssetEnterAmountLinkCardDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            launchLinkCard = true
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+            is Destination.AssetEnterAmountNewMethodDestination -> {
+                destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
+                    startActivity(
+                        SimpleBuyActivity.newIntent(
+                            context = this,
+                            asset = assetInfo,
+                            launchNewPaymentMethodSelection = true
+                        )
+                    )
+                } ?: run {
+                    Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
+                }
+            }
+            Destination.CustomerSupportDestination -> {
+                startActivity(SupportCentreActivity.newIntent(this))
+            }
+            Destination.StartKyc -> {
+                startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
             }
         }.exhaustive
 

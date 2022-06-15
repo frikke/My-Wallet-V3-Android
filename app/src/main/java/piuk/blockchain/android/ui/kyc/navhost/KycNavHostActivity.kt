@@ -230,9 +230,6 @@ class KycNavHostActivity :
                 .apply {
                     putExtra(EXTRA_CAMPAIGN_TYPE, campaignType)
                 }
-
-        fun kycStatusUpdated(resultCode: Int) =
-            resultCode == RESULT_KYC_FOR_SDD_COMPLETE || resultCode == RESULT_KYC_FOR_TIER_COMPLETE
     }
 }
 

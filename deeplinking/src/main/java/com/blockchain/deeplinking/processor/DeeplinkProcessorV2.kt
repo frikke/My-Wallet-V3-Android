@@ -28,7 +28,6 @@ class DeeplinkProcessorV2 {
                 } else
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
             }
-
             BUY_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
                 val amount = getAmount(deeplinkUri)
@@ -46,7 +45,6 @@ class DeeplinkProcessorV2 {
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
                 }
             }
-
             SEND_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
                 val amount = getAmount(deeplinkUri)
@@ -64,9 +62,7 @@ class DeeplinkProcessorV2 {
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
                 }
             }
-
             ACTIVITY_URL -> {
-
                 // Todo add filter parameter to destination
                 // val filter = getFilter(deeplinkUri)
                 Timber.d("deeplink: Activity")
@@ -74,18 +70,89 @@ class DeeplinkProcessorV2 {
                 val destination = Destination.ActivityDestination()
                 Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
             }
+            DIFFERENT_CARD_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Enter Amount with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetEnterAmountLinkCardDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                }
+            }
+            DIFFERENT_PAYMENT_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Enter Amount with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetEnterAmountNewMethodDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                }
+            }
+            ENTER_AMOUNT_URL -> {
+                val code = getAssetNetworkTicker(deeplinkUri)
+                Timber.d("deeplink: Enter Amount with args $code")
+
+                if (!code.isNullOrEmpty()) {
+                    val destination = Destination.AssetEnterAmountDestination(code)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                }
+            }
+            CUSTOMER_SUPPORT_URL -> {
+                Single.just(
+                    DeepLinkResult.DeepLinkResultSuccess(
+                        destination = Destination.CustomerSupportDestination,
+                        notificationPayload = payload
+                    )
+                )
+            }
+            KYC_URL -> {
+                Single.just(
+                    DeepLinkResult.DeepLinkResultSuccess(
+                        destination = Destination.StartKyc,
+                        notificationPayload = payload
+                    )
+                )
+            }
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
     }
 
     companion object {
 
-        const val APP_URL = "/app"
+        private const val APP_URL = "/app"
+        private const val TRANSACTION_URL = "$APP_URL/transaction"
 
         const val ASSET_URL = "$APP_URL/asset"
         const val BUY_URL = "$ASSET_URL/buy"
         const val SEND_URL = "$ASSET_URL/send"
 
+        const val DIFFERENT_CARD_URL = "$TRANSACTION_URL/try/different/card"
+        const val DIFFERENT_PAYMENT_URL = "$TRANSACTION_URL/try/different/payment_method"
+        const val ENTER_AMOUNT_URL = "$TRANSACTION_URL/back/to/enter_amount"
+
+        const val CUSTOMER_SUPPORT_URL = "$APP_URL/contact/customer/support"
+        const val KYC_URL = "$APP_URL/kyc"
         const val ACTIVITY_URL = "$APP_URL/activity"
 
         const val PARAMETER_CODE = "code"

@@ -658,7 +658,8 @@ class MainModelTest {
                 StatusData(
                     "statusUrl"
                 )
-            )
+            ),
+            actions = emptyList()
         )
 
         whenever(interactor.getBankLinkingState()).thenReturn(bankState)

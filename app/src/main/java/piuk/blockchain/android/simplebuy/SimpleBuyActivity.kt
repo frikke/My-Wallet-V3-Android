@@ -2,9 +2,11 @@ package piuk.blockchain.android.simplebuy
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.commonarch.presentation.base.addAnimationTransaction
 import com.blockchain.commonarch.presentation.base.trackProgress
@@ -13,6 +15,7 @@ import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
@@ -33,8 +36,10 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_BUY
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.MainActivity
@@ -46,10 +51,16 @@ import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuySuccessfulFragment
 import piuk.blockchain.android.ui.sell.BuySellFragment
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.helperfunctions.consume
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
-class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNowSheet.Host {
+class SimpleBuyActivity :
+    BlockchainActivity(),
+    SimpleBuyNavigator,
+    KycUpgradeNowSheet.Host,
+    ErrorSlidingBottomDialog.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
@@ -57,8 +68,13 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     private val compositeDisposable = CompositeDisposable()
     private val buyFlowNavigator: BuyFlowNavigator by scopedInject()
     private val bankLinkingPrefs: BankLinkingPrefs by scopedInject()
+    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
+
+    private var primaryErrorCtaAction = {}
+    private var secondaryErrorCtaAction = {}
+    private var tertiaryErrorCtaAction = {}
 
     private val startedFromDashboard: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_NAVIGATION_KEY, false)
@@ -78,6 +94,14 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
 
     private val startedFromKycResume: Boolean by unsafeLazy {
         intent.getBooleanExtra(STARTED_FROM_KYC_RESUME, false)
+    }
+
+    private val launchLinkNewCard: Boolean by unsafeLazy {
+        intent.getBooleanExtra(LAUNCH_LINK_CARD, false)
+    }
+
+    private val launchSelectNewPaymentMethod: Boolean by unsafeLazy {
+        intent.getBooleanExtra(LAUNCH_SELECT_PAYMENT_METHOD, false)
     }
 
     private val asset: AssetInfo? by unsafeLazy {
@@ -119,13 +143,18 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         }
     }
 
-    override fun onSheetClosed() {
-    }
-
     override fun onSheetClosed(sheet: BottomSheetDialogFragment) {
         super<SimpleBuyNavigator>.onSheetClosed(sheet)
-        if (sheet is KycUpgradeNowSheet || sheet is BlockedDueToSanctionsSheet) exitSimpleBuyFlow()
-        else subscribeForNavigation(true)
+        when (sheet) {
+            is KycUpgradeNowSheet,
+            is BlockedDueToSanctionsSheet,
+            -> exitSimpleBuyFlow()
+            is ErrorSlidingBottomDialog -> {
+                // do nothing for now
+                Timber.e("----- ErrorSlidingBottomDialog sheet closed")
+            }
+            else -> subscribeForNavigation(true)
+        }
     }
 
     private fun subscribeForNavigation(failOnUnavailableCurrency: Boolean = false) {
@@ -165,7 +194,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
                 addToBackStack = false,
                 preselectedAsset = screenWithCurrency.cryptoCurrency,
                 preselectedPaymentMethodId = preselectedPaymentMethodId,
-                preselectedAmount = preselectedAmount
+                preselectedAmount = preselectedAmount,
+                launchLinkCard = launchLinkNewCard,
+                launchPaymentMethodSelection = launchSelectNewPaymentMethod
             )
             FlowScreen.KYC -> startKyc()
             FlowScreen.KYC_VERIFICATION -> goToKycVerificationScreen(false)
@@ -197,13 +228,21 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         addToBackStack: Boolean,
         preselectedAsset: AssetInfo,
         preselectedPaymentMethodId: String?,
-        preselectedAmount: String?
+        preselectedAmount: String?,
+        launchLinkCard: Boolean,
+        launchPaymentMethodSelection: Boolean,
     ) {
         supportFragmentManager.beginTransaction()
             .addAnimationTransaction()
             .replace(
                 R.id.content_frame,
-                SimpleBuyCryptoFragment.newInstance(preselectedAsset, preselectedPaymentMethodId, preselectedAmount),
+                SimpleBuyCryptoFragment.newInstance(
+                    asset = preselectedAsset,
+                    preselectedMethodId = preselectedPaymentMethodId,
+                    preselectedAmount = preselectedAmount,
+                    launchLinkCard = launchLinkNewCard,
+                    launchPaymentMethodSelection = launchSelectNewPaymentMethod
+                ),
                 SimpleBuyCryptoFragment::class.simpleName
             )
             .apply {
@@ -255,7 +294,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
             is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
             BlockedReason.NotEligible,
-            is BlockedReason.TooManyInFlightTransactions -> {
+            is BlockedReason.TooManyInFlightTransactions,
+            -> {
                 supportFragmentManager.beginTransaction()
                     .addAnimationTransaction()
                     .replace(
@@ -339,17 +379,25 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
     override fun showErrorInBottomSheet(
         title: String,
         description: String,
-        button: String?,
+        serverErrorHandling: List<ServerErrorAction>,
         error: String,
         errorDescription: String?,
-        nabuApiException: NabuApiException?
+        nabuApiException: NabuApiException?,
     ) {
+        serverErrorHandling.assignErrorActions()
+
         showBottomSheet(
             ErrorSlidingBottomDialog.newInstance(
                 ErrorDialogData(
                     title = title,
                     description = description,
-                    buttonText = button ?: getString(R.string.common_ok),
+                    errorButtonCopies = if (serverErrorHandling.isEmpty()) {
+                        ErrorButtonCopies(
+                            primaryButtonText = getString(R.string.common_ok)
+                        )
+                    } else {
+                        serverErrorHandling.mapToErrorCopies()
+                    },
                     error = error,
                     nabuApiException = nabuApiException,
                     errorDescription = description,
@@ -357,6 +405,55 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
                 )
             )
         )
+    }
+
+    private fun List<ServerErrorAction>.assignErrorActions() =
+        mapIndexed { index, info ->
+            when (index) {
+                0 -> primaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    }
+                }
+                1 -> secondaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    }
+                }
+                2 -> tertiaryErrorCtaAction = {
+                    if (info.deeplinkPath.isNotEmpty()) {
+                        redirectToDeeplinkProcessor(info.deeplinkPath)
+                    }
+                }
+                else -> {
+                    // do nothing, only support 3 error types
+                }
+            }
+        }
+
+    private fun redirectToDeeplinkProcessor(link: String) {
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(
+            link.appendTickerToDeeplink()
+        ).emptySubscribe()
+    }
+
+    private fun String.appendTickerToDeeplink(): Uri =
+        Uri.parse("$this?code=${asset?.networkTicker}")
+
+    override fun onErrorPrimaryCta() {
+        primaryErrorCtaAction()
+    }
+
+    override fun onErrorSecondaryCta() {
+        secondaryErrorCtaAction()
+    }
+
+    override fun onErrorTertiaryCta() {
+        tertiaryErrorCtaAction()
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
     }
 
     override fun goToBlockedBuyScreen() {
@@ -373,6 +470,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
         private const val PRESELECTED_PAYMENT_METHOD = "preselected_payment_method_key"
         private const val PRESELECTED_AMOUNT = "preselected_amount_key"
         private const val STARTED_FROM_KYC_RESUME = "started_from_kyc_resume_key"
+        private const val LAUNCH_LINK_CARD = "launch_link_card"
+        private const val LAUNCH_SELECT_PAYMENT_METHOD = "launch_select_new_method"
 
         fun newIntent(
             context: Context,
@@ -381,7 +480,9 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             launchKycResume: Boolean = false,
             preselectedPaymentMethodId: String? = null,
             preselectedAmount: String? = null,
-            launchFromApprovalDeepLink: Boolean = false
+            launchFromApprovalDeepLink: Boolean = false,
+            launchLinkCard: Boolean = false,
+            launchNewPaymentMethodSelection: Boolean = false,
         ) = Intent(context, SimpleBuyActivity::class.java).apply {
             putExtra(STARTED_FROM_NAVIGATION_KEY, launchFromNavigationBar)
             putExtra(ASSET_KEY, asset?.networkTicker)
@@ -389,6 +490,8 @@ class SimpleBuyActivity : BlockchainActivity(), SimpleBuyNavigator, KycUpgradeNo
             putExtra(PRESELECTED_PAYMENT_METHOD, preselectedPaymentMethodId)
             putExtra(PRESELECTED_AMOUNT, preselectedAmount)
             putExtra(STARTED_FROM_APPROVAL_KEY, launchFromApprovalDeepLink)
+            putExtra(LAUNCH_LINK_CARD, launchLinkCard)
+            putExtra(LAUNCH_SELECT_PAYMENT_METHOD, launchNewPaymentMethodSelection)
         }
     }
 }

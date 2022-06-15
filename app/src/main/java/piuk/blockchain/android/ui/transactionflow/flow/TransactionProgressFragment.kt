@@ -51,7 +51,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         FragmentTxFlowInProgressBinding.inflate(inflater, container, false)
 
     private val customiser: TransactionProgressCustomisations by inject()
-    private val MAX_STACKTRACE_CHARS = 400
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -351,5 +350,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     companion object {
         fun newInstance(): TransactionProgressFragment = TransactionProgressFragment()
         private const val PAYMENT_APPROVAL = 3974
+        private const val MAX_STACKTRACE_CHARS = 400
     }
 }

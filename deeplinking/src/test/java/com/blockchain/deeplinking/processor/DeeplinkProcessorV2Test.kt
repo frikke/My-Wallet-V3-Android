@@ -65,4 +65,66 @@ class DeeplinkProcessorV2Test {
                 (deeplinkResult.destination as Destination.AssetSendDestination).accountAddress == "2bIRbcq3xIgHSUgBaWenCCU0jh6KI2F2cf"
         }
     }
+
+    @Test
+    fun `test parse of link new card deeplink URI`() {
+        val assetNewCardTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/transaction/try/different/card?code=BTC"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetNewCardTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.AssetEnterAmountLinkCardDestination &&
+                (deeplinkResult.destination as Destination.AssetEnterAmountLinkCardDestination).networkTicker == "BTC"
+        }
+    }
+
+    @Test
+    fun `test parse of choose new payment method deeplink URI`() {
+        val assetNewPaymentMethodTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/transaction/try/different/payment_method?code=BTC"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetNewPaymentMethodTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.AssetEnterAmountNewMethodDestination &&
+                (deeplinkResult.destination as Destination.AssetEnterAmountNewMethodDestination).networkTicker == "BTC"
+        }
+    }
+
+    @Test
+    fun `test parse of kyc deeplink URI`() {
+        val assetKycTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/kyc"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetKycTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess && deeplinkResult.destination is Destination.StartKyc
+        }
+    }
+
+    @Test
+    fun `test parse of back to enter amount deeplink URI`() {
+        val assetBackToEnterAmountTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/transaction/back/to/enter_amount?code=BTC"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetBackToEnterAmountTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.AssetEnterAmountDestination &&
+                (deeplinkResult.destination as Destination.AssetEnterAmountDestination).networkTicker == "BTC"
+        }
+    }
+
+    @Test
+    fun `test parse of customer support deeplink URI`() {
+        val assetCustomerSupportTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/contact/customer/support"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetCustomerSupportTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.CustomerSupportDestination
+        }
+    }
 }

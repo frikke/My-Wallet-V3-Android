@@ -23,6 +23,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxAccountSelectorBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
@@ -37,7 +38,10 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.SourceSelectionCustomisations
 import piuk.blockchain.android.util.StringLocalizationUtil
 
-class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSelectorBinding>(), BankLinkingHost {
+class SelectSourceAccountFragment :
+    TransactionFlowFragment<FragmentTxAccountSelectorBinding>(),
+    BankLinkingHost,
+    ErrorSlidingBottomDialog.Host {
 
     private val customiser: SourceSelectionCustomisations by inject()
 
@@ -146,14 +150,15 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
         val error = linkBankState.e
         when ((error as? NabuApiException)?.getErrorCode()) {
             NabuErrorCodes.MaxPaymentBankAccounts ->
+                // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            getString(R.string.bank_linking_max_accounts_title),
-                            getString(R.string.bank_linking_max_accounts_subtitle),
-                            getString(R.string.common_ok),
-                            (error as? NabuApiException)?.getErrorDescription(),
-                            error as? NabuApiException
+                            title = getString(R.string.bank_linking_max_accounts_title),
+                            description = getString(R.string.bank_linking_max_accounts_subtitle),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            error = (error as? NabuApiException)?.getErrorDescription(),
+                            nabuApiException = error as? NabuApiException
                         )
                     )
                 )
@@ -161,11 +166,11 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            getString(R.string.bank_linking_max_attempts_title),
-                            getString(R.string.bank_linking_max_attempts_subtitle),
-                            getString(R.string.common_ok),
-                            (error as? NabuApiException)?.getErrorDescription(),
-                            error as? NabuApiException
+                            title = getString(R.string.bank_linking_max_attempts_title),
+                            description = getString(R.string.bank_linking_max_attempts_subtitle),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
+                            error = (error as? NabuApiException)?.getErrorDescription(),
+                            nabuApiException = error as? NabuApiException
                         )
                     )
                 )
@@ -241,6 +246,18 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
     override fun onLinkBankSelected(paymentMethodForAction: LinkablePaymentMethodsForAction) {
         binding.progress.visible()
         model.process(TransactionIntent.FiatDepositOptionSelected(DepositOptionsState.LaunchLinkBank))
+    }
+
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
     }
 
     override fun onSheetClosed() {}

@@ -32,6 +32,7 @@ import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -48,7 +49,8 @@ class DashboardOnboardingActivity :
         ActivityDashboardOnboardingBinding
         >(),
     CurrencySelectionSheet.Host,
-    PaymentMethodChooserBottomSheet.Host {
+    PaymentMethodChooserBottomSheet.Host,
+    ErrorSlidingBottomDialog.Host {
 
     private var analyticsCurrentStepIndex: Int? = null
     private var analyticsNextStepButtonClicked = false
@@ -114,12 +116,13 @@ class DashboardOnboardingActivity :
             DashboardOnboardingError.None -> {
             }
             is DashboardOnboardingError.Error -> {
+                // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
                             title = getString(R.string.ops),
                             description = getString(R.string.something_went_wrong_try_again),
-                            buttonText = getString(R.string.common_ok),
+                            errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
                             error = error.throwable.message,
                             nabuApiException = (error.throwable as? HttpException)?.let {
                                 NabuApiExceptionFactory.fromResponseBody(error.throwable)
@@ -218,8 +221,20 @@ class DashboardOnboardingActivity :
         model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
     }
 
+    override fun onErrorPrimaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorSecondaryCta() {
+        // do nothing
+    }
+
+    override fun onErrorTertiaryCta() {
+        // do nothing
+    }
+
     override fun onSheetClosed() {
-        // no-op
+        // do nothing
     }
 
     private fun updateCtaButton(steps: List<CompletableDashboardOnboardingStep>) {

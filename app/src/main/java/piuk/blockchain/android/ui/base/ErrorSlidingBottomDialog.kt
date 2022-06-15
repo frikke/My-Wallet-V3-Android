@@ -5,8 +5,10 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
-import java.lang.IllegalStateException
+import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.visible
 import kotlinx.parcelize.Parcelize
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
@@ -14,6 +16,18 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_U
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDialogBinding>() {
+
+    interface Host : SlidingModalBottomDialog.Host {
+        fun onErrorPrimaryCta()
+        fun onErrorSecondaryCta()
+        fun onErrorTertiaryCta()
+    }
+
+    override val host: Host by lazy {
+        super.host as? Host ?: throw IllegalStateException(
+            "Host fragment is not a ErrorSlidingBottomDialog.Host"
+        )
+    }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): ErrorSlidingBottomDialogBinding =
         ErrorSlidingBottomDialogBinding.inflate(inflater, container, false)
@@ -24,12 +38,39 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
     }
 
     override fun initControls(binding: ErrorSlidingBottomDialogBinding) {
-        binding.title.text = errorDialogData.title
-        binding.description.text = errorDialogData.description
-        binding.ctaButton.text = errorDialogData.buttonText
-
-        binding.ctaButton.setOnClickListener {
-            dismiss()
+        with(binding) {
+            title.text = errorDialogData.title
+            description.text = errorDialogData.description
+            errorDialogData.errorButtonCopies?.primaryButtonText?.let { primaryButtonText ->
+                primaryCtaButton.apply {
+                    text = primaryButtonText
+                    onClick = {
+                        dismiss()
+                        host.onErrorPrimaryCta()
+                    }
+                    visible()
+                }
+            } ?: primaryCtaButton.gone()
+            errorDialogData.errorButtonCopies?.secondaryButtonText?.let { secondaryButtonText ->
+                secondaryCtaButton.apply {
+                    text = secondaryButtonText
+                    onClick = {
+                        dismiss()
+                        host.onErrorSecondaryCta()
+                    }
+                    visible()
+                }
+            } ?: secondaryCtaButton.gone()
+            errorDialogData.errorButtonCopies?.tertiaryButtonText?.let { tertiaryButtonText ->
+                tertiaryCtaButton.apply {
+                    text = tertiaryButtonText
+                    onClick = {
+                        dismiss()
+                        host.onErrorTertiaryCta()
+                    }
+                    visible()
+                }
+            } ?: tertiaryCtaButton.gone()
         }
         logClientError(
             title = errorDialogData.title,
@@ -45,7 +86,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         error: String,
         nabuApiException: NabuApiException?,
         description: String,
-        action: String?
+        action: String?,
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -73,9 +114,31 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
 data class ErrorDialogData(
     val title: String,
     val description: String,
-    val buttonText: String,
     val error: String? = null,
     val nabuApiException: NabuApiException? = null,
     val errorDescription: String? = null,
-    val action: String? = ACTION_UNKNOWN
+    val action: String? = ACTION_UNKNOWN,
+    val errorButtonCopies: ErrorButtonCopies?,
+) : Parcelable
+
+fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {
+    var buttonCopies = ErrorButtonCopies()
+    mapIndexed { index, info ->
+        when (index) {
+            0 -> buttonCopies = buttonCopies.copy(primaryButtonText = info.title)
+            1 -> buttonCopies = buttonCopies.copy(secondaryButtonText = info.title)
+            2 -> buttonCopies = buttonCopies.copy(tertiaryButtonText = info.title)
+            else -> {
+                // do nothing, only support 3 error types
+            }
+        }
+    }
+    return buttonCopies
+}
+
+@Parcelize
+data class ErrorButtonCopies(
+    val primaryButtonText: String? = null,
+    val secondaryButtonText: String? = null,
+    val tertiaryButtonText: String? = null,
 ) : Parcelable

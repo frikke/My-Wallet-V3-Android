@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/error_sheet_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/tiny_margin"
         android:layout_gravity="center"
+        android:layout_marginTop="@dimen/tiny_margin"
         app:srcCompat="@drawable/vector_sheet_indicator_small" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -36,12 +36,31 @@
         android:layout_marginEnd="@dimen/standard_margin"
         tools:text="Something went wrong. Please try again." />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/cta_button"
-        style="@style/CtaButton.Blue"
+    <com.blockchain.componentlib.button.SmallMinimalButtonView
+        android:id="@+id/tertiary_cta_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/small_margin"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.blockchain.componentlib.button.PrimaryButtonView
+        android:id="@+id/primary_cta_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/small_margin"
+        android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/small_margin"
-        tools:text="Ok" />
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/small_margin" />
+
+    <com.blockchain.componentlib.button.MinimalButtonView
+        android:id="@+id/secondary_cta_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/small_margin"
+        android:visibility="gone"
+        tools:visibility="visible" />
 </LinearLayout>

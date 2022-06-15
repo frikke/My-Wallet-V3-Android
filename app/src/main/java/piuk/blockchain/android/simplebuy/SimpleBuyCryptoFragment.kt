@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.gone
@@ -103,6 +104,7 @@ class SimpleBuyCryptoFragment :
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
+    private var shouldShowPaymentMethodSheet = false
 
     private val asset: AssetInfo
         get() = arguments?.getString(ARG_CRYPTO_ASSET)?.let {
@@ -116,6 +118,14 @@ class SimpleBuyCryptoFragment :
         get() = arguments?.getString(ARG_AMOUNT)?.let { amount ->
             FiatValue.fromMajor(fiatCurrency, BigDecimal(amount))
         }
+
+    private val launchLinkCard: Boolean by lazy {
+        arguments?.getBoolean(ARG_LINK_NEW_CARD, false) ?: false
+    }
+
+    private val launchSelectPaymentMethod: Boolean by lazy {
+        arguments?.getBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, false) ?: false
+    }
 
     private val errorContainer by lazy {
         binding.errorLayout.errorContainer
@@ -155,8 +165,6 @@ class SimpleBuyCryptoFragment :
         model.process(SimpleBuyIntent.FetchEligibility)
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
-        preselectedAmount
-
         compositeDisposable += binding.inputAmount.amount
             .doOnSubscribe {
                 preselectedAmount?.let { amount ->
@@ -176,6 +184,12 @@ class SimpleBuyCryptoFragment :
             if (it == PrefixedOrSuffixedEditText.ImeOptions.NEXT)
                 startBuy()
         }
+
+        if (launchLinkCard) {
+            addPaymentMethod(PaymentMethodType.PAYMENT_CARD, fiatCurrency)
+        }
+
+        shouldShowPaymentMethodSheet = launchSelectPaymentMethod
     }
 
     override fun showAvailableToAddPaymentMethods() =
@@ -326,6 +340,13 @@ class SimpleBuyCryptoFragment :
             newState.selectedPaymentMethodDetails?.let { paymentMethod ->
                 renderDefinedPaymentMethod(newState, paymentMethod)
             }
+            if (shouldShowPaymentMethodSheet) {
+                showPaymentMethodsBottomSheet(
+                    paymentOptions = newState.paymentOptions,
+                    state = PaymentMethodsChooserState.AVAILABLE_TO_PAY
+                )
+                shouldShowPaymentMethodSheet = false
+            }
         }
 
         binding.btnContinue.isEnabled = canContinue(newState)
@@ -370,11 +391,13 @@ class SimpleBuyCryptoFragment :
         val infoType = when (state.errorState) {
             TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
+            TransactionErrorState.BELOW_MIN_LIMIT,
+            -> InfoBottomSheetType.BELOW_MIN_LIMIT
             // we need to keep those for working with the feature flag off, otherwise we would be based only on the
             // suggested upgrade
             TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
+            -> InfoBottomSheetType.OVER_MAX_LIMIT
             TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
                 InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
             else -> null
@@ -394,7 +417,7 @@ class SimpleBuyCryptoFragment :
 
     private fun handlePossibleInfoAction(
         info: TransactionFlowBottomSheetInfo,
-        transactionsLimit: TransactionsLimit
+        transactionsLimit: TransactionsLimit,
     ): () -> Unit {
         val type = info.action?.actionType ?: return {}
         return when (type) {
@@ -451,12 +474,14 @@ class SimpleBuyCryptoFragment :
                     }
                     // Awaiting results state
                     KycState.IN_REVIEW,
-                    KycState.UNDECIDED -> {
+                    KycState.UNDECIDED,
+                    -> {
                         navigator().goToKycVerificationScreen()
                     }
                     // Got results, kyc verification screen will show error
                     KycState.VERIFIED_BUT_NOT_ELIGIBLE,
-                    KycState.FAILED -> {
+                    KycState.FAILED,
+                    -> {
                         navigator().goToKycVerificationScreen()
                     }
                     KycState.VERIFIED_AND_ELIGIBLE -> throw IllegalStateException(
@@ -740,7 +765,9 @@ class SimpleBuyCryptoFragment :
                 navigator().showErrorInBottomSheet(
                     title = getString(R.string.title_cardCreateDebitOnly),
                     description = getString(R.string.msg_cardCreateDebitOnly),
-                    button = getString(R.string.sb_checkout_card_debit_only_cta),
+                    serverErrorHandling = listOf(
+                        ServerErrorAction(getString(R.string.sb_checkout_card_debit_only_cta), "")
+                    ),
                     error = errorState.toString()
                 )
             ErrorState.CardPaymentDebitOnly ->
@@ -788,7 +815,8 @@ class SimpleBuyCryptoFragment :
                 navigator().showErrorInBottomSheet(
                     title = errorState.serverSideUxErrorInfo.title,
                     description = errorState.serverSideUxErrorInfo.description,
-                    error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR
+                    error = ClientErrorAnalytics.SERVER_SIDE_HANDLED_ERROR,
+                    serverErrorHandling = errorState.serverSideUxErrorInfo.actions
                 )
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
@@ -805,7 +833,8 @@ class SimpleBuyCryptoFragment :
             ErrorState.BankLinkingTimeout,
             ErrorState.Card3DsFailed,
             ErrorState.UnknownCardProvider,
-            ErrorState.LinkedBankNotSupported -> {
+            ErrorState.LinkedBankNotSupported,
+            -> {
                 analytics.logEvent(
                     ClientErrorAnalytics.ClientLogError(
                         nabuApiException = null,
@@ -959,17 +988,23 @@ class SimpleBuyCryptoFragment :
         private const val ARG_CRYPTO_ASSET = "CRYPTO"
         private const val ARG_PAYMENT_METHOD_ID = "PAYMENT_METHOD_ID"
         private const val ARG_AMOUNT = "AMOUNT"
+        private const val ARG_LINK_NEW_CARD = "LINK_NEW_CARD"
+        private const val ARG_LAUNCH_PAYMENT_METHOD_SELECTION = "LAUNCH_PAYMENT_METHOD_SELECTION"
 
         fun newInstance(
             asset: AssetInfo,
             preselectedMethodId: String? = null,
-            preselectedAmount: String? = null
+            preselectedAmount: String? = null,
+            launchLinkCard: Boolean = false,
+            launchPaymentMethodSelection: Boolean = false,
         ): SimpleBuyCryptoFragment {
             return SimpleBuyCryptoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_CRYPTO_ASSET, asset.networkTicker)
                     preselectedMethodId?.let { putString(ARG_PAYMENT_METHOD_ID, preselectedMethodId) }
                     preselectedAmount?.let { putString(ARG_AMOUNT, preselectedAmount) }
+                    putBoolean(ARG_LINK_NEW_CARD, launchLinkCard)
+                    putBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, launchPaymentMethodSelection)
                 }
             }
         }
@@ -987,7 +1022,8 @@ class SimpleBuyCryptoFragment :
                 R.string.not_enough_funds, state.fiatCurrency.displayTicker
             )
             TransactionErrorState.OVER_SILVER_TIER_LIMIT,
-            TransactionErrorState.OVER_GOLD_TIER_LIMIT -> resources.getString(
+            TransactionErrorState.OVER_GOLD_TIER_LIMIT,
+            -> resources.getString(
                 R.string.over_your_limit
             )
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT -> resources.getString(
@@ -1041,6 +1077,7 @@ fun RecurringBuyFrequency.toHumanReadableRecurringDate(context: Context, dateTim
             }
         }
         RecurringBuyFrequency.ONE_TIME,
-        RecurringBuyFrequency.UNKNOWN -> ""
+        RecurringBuyFrequency.UNKNOWN,
+        -> ""
     }
 }

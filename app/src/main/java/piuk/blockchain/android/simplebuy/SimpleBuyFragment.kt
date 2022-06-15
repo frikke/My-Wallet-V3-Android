@@ -1,6 +1,7 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.base.FlowFragment
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import info.blockchain.balance.AssetInfo
@@ -19,7 +20,9 @@ interface SimpleBuyNavigator :
         addToBackStack: Boolean = true,
         preselectedAsset: AssetInfo,
         preselectedPaymentMethodId: String?,
-        preselectedAmount: String?
+        preselectedAmount: String?,
+        launchLinkCard: Boolean = false,
+        launchPaymentMethodSelection: Boolean = false
     )
 
     fun goToCheckOutScreen(addToBackStack: Boolean = true)
@@ -43,7 +46,7 @@ interface ErrorBuyNavigator {
     fun showErrorInBottomSheet(
         title: String,
         description: String,
-        button: String? = null,
+        serverErrorHandling: List<ServerErrorAction> = emptyList(),
         error: String,
         errorDescription: String? = null,
         nabuApiException: NabuApiException? = null
