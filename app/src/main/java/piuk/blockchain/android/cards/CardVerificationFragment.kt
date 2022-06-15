@@ -148,10 +148,10 @@ class CardVerificationFragment :
             icon.visibility = View.VISIBLE
             primaryBtn.visibility = View.VISIBLE
 
-            if (error == CardError.CARD_CREATE_DEBIT_ONLY) {
-                renderCreditCardNotSupportedButtonsError()
-            } else {
-                renderButtonsError()
+            when (error) {
+                CardError.CARD_CREATE_DEBIT_ONLY,
+                CardError.CARD_CREATE_NO_TOKEN -> renderTryAnotherCardButtonsError()
+                else -> renderButtonsError()
             }
 
             title.text = getString(
@@ -199,7 +199,7 @@ class CardVerificationFragment :
         }
     }
 
-    private fun renderCreditCardNotSupportedButtonsError() {
+    private fun renderTryAnotherCardButtonsError() {
         with(binding) {
             with(primaryBtn) {
                 buttonState = ButtonState.Enabled

@@ -9,9 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
+import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -20,6 +22,8 @@ import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
@@ -39,6 +43,7 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val remoteLogger: RemoteLogger by inject()
     private val simpleBuyPrefs: SimpleBuyPrefs by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val appMaintenancePrefs: AppMaintenancePrefs by inject()
     private val appRatingPrefs: AppRatingPrefs by inject()
     private val walletModeService: WalletModeService by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
@@ -124,6 +129,37 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
             }
 
             brokerageErrorSwitch.isChecked = remoteConfigPrefs.brokerageErrorsEnabled
+
+            // app maintenance
+            ignoreAppMaintenanceRcSwitch.setOnCheckedChangeListener { _, isChecked ->
+                appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored = isChecked
+            }
+            ignoreAppMaintenanceRcSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceRemoteConfigIgnored
+
+            appMaintenanceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                appMaintenanceJson.visibleIf { isChecked }
+                btnSaveAppMaintenanceJson.visibleIf { isChecked }
+
+                if (isChecked.not()) {
+                    appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = false
+                }
+            }
+            appMaintenanceSwitch.isChecked = appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled
+
+            appMaintenanceJson.setText(appMaintenancePrefs.appMaintenanceDebugJson)
+
+            btnSaveAppMaintenanceJson.setOnClickListener {
+                appMaintenanceJson.getTextString().let { json ->
+                    try {
+                        Json.parseToJsonElement(json)
+                        appMaintenancePrefs.isAppMaintenanceDebugOverrideEnabled = true
+                        appMaintenancePrefs.appMaintenanceDebugJson = json
+                        BlockchainSnackbar.make(this@with.root, "Json saved", type = SnackbarType.Success).show()
+                    } catch (e: SerializationException) {
+                        BlockchainSnackbar.make(this@with.root, "Malformed Json!", type = SnackbarType.Error).show()
+                    }
+                }
+            }
         }
     }
 

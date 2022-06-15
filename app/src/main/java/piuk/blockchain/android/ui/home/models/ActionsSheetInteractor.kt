@@ -10,8 +10,8 @@ import io.reactivex.rxjava3.core.Single
 class ActionsSheetInteractor internal constructor(
     private val userIdentity: UserIdentity,
 ) {
-    fun getUserAccessToSimpleBuy(): Single<ActionsSheetIntent> =
-        userIdentity.userAccessForFeature(Feature.SimpleBuy).map { accessState ->
+    fun checkForPendingBuys(): Single<ActionsSheetIntent> =
+        userIdentity.userAccessForFeature(Feature.Buy).map { accessState ->
             val blockedState = accessState as? FeatureAccess.Blocked
             blockedState?.let {
                 when (val reason = it.reason) {

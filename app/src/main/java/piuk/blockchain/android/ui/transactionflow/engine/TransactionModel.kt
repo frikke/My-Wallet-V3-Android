@@ -519,7 +519,7 @@ class TransactionModel(
                 Maybe.empty()
             }
         AssetAction.Sell -> interactor.userAccessForFeature(Feature.Sell).toMaybe()
-        AssetAction.Withdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
+        AssetAction.FiatWithdraw -> interactor.userAccessForFeature(Feature.WithdrawFiat).toMaybe()
         AssetAction.FiatDeposit -> interactor.userAccessForFeature(Feature.DepositFiat).toMaybe()
         AssetAction.Buy,
         AssetAction.Receive,

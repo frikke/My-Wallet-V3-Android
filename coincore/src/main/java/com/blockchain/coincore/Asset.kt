@@ -47,7 +47,7 @@ enum class AssetAction(
     Buy(ActionOrigin.TO_TARGET),
 
     // Fiat to external
-    Withdraw(ActionOrigin.FROM_SOURCE),
+    FiatWithdraw(ActionOrigin.FROM_SOURCE),
 
     // Receive crypto to crypto
     Receive(ActionOrigin.TO_TARGET),

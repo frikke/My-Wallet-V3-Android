@@ -60,8 +60,6 @@ interface BlockchainAccount {
 
     val activity: Single<ActivitySummaryList>
 
-    val actions: Single<AvailableActions>
-
     val isFunded: Boolean
 
     val hasTransactions: Boolean

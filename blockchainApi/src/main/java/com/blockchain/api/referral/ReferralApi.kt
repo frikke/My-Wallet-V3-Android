@@ -1,6 +1,7 @@
 package com.blockchain.api.referral
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.referral.data.ReferralCode
 import com.blockchain.api.referral.data.ReferralResponse
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
@@ -27,6 +28,6 @@ interface ReferralApi {
     @POST("referral")
     suspend fun associateReferral(
         @Header("authorization") authorization: String,
-        @Body referralCode: String
+        @Body referralCode: ReferralCode
     ): Outcome<ApiError, Unit>
 }

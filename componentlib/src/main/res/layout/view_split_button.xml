@@ -12,8 +12,8 @@
         style="@style/SplitButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:iconGravity="textEnd"
+        app:iconGravity="textStart"
+        app:iconTint="@color/paletteBasePrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/centerGuideline"
         tools:text="Restore" />
@@ -23,9 +23,8 @@
         style="@style/SplitButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:iconGravity="textEnd"
-        app:iconPadding="4dp"
+        app:iconGravity="textStart"
+        app:iconTint="@color/paletteBasePrimary"
         app:layout_constraintStart_toStartOf="@id/centerGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="Log In" />

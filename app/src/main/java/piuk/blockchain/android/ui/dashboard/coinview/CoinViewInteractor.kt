@@ -90,18 +90,17 @@ class CoinViewInteractor(
         Single.zip(
             identity.getHighestApprovedKycTier(),
             identity.isEligibleFor(Feature.SimplifiedDueDiligence),
-            identity.userAccessForFeature(Feature.SimpleBuy),
             identity.userAccessForFeature(Feature.Buy),
             identity.userAccessForFeature(Feature.Sell),
             identity.userAccessForFeature(Feature.DepositCrypto),
             custodialWalletManager.isCurrencyAvailableForTrading(asset.assetInfo),
-        ) { tier, sddEligible, simpleBuyAccess, buyAccess,
+        ) { tier, sddEligible, buyAccess,
             sellAccess, depositCryptoAccess, isSupportedPair ->
             val custodialAccount = accountList.firstOrNull { it is CustodialTradingAccount }
             val ncAccount = accountList.firstOrNull { it is NonCustodialAccount }
 
             val isTradable = custodialAccount != null
-            val canBuy = simpleBuyAccess is FeatureAccess.Granted && buyAccess is FeatureAccess.Granted
+            val canBuy = buyAccess is FeatureAccess.Granted
 
             val quickActions = when {
                 isTradable && canBuy -> {
@@ -287,7 +286,7 @@ class CoinViewInteractor(
     }
 
     fun checkIfUserCanBuy(): Single<FeatureAccess> =
-        identity.userAccessForFeature(Feature.SimpleBuy)
+        identity.userAccessForFeature(Feature.Buy)
 
     private fun mapAccounts(
         nonCustodialAccounts: List<Details.DetailsItem>,

@@ -1,12 +1,13 @@
 package com.blockchain.componentlib
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.componentlib.databinding.ViewSplitButtonBinding
+import com.google.android.material.button.MaterialButton
 
 class SplitButton : ConstraintLayout {
     private val binding = ViewSplitButtonBinding.inflate(LayoutInflater.from(context), this)
@@ -18,6 +19,12 @@ class SplitButton : ConstraintLayout {
             field = value
         }
 
+    private var leftButtonIcon: Drawable? = null
+        set(value) {
+            binding.leftButton.icon = value
+            field = value
+        }
+
     private var rightButtonText: CharSequence? = null
         set(value) {
             binding.rightButton.text = value
@@ -25,8 +32,14 @@ class SplitButton : ConstraintLayout {
             field = value
         }
 
-    var leftButton: Button = binding.leftButton
-    var rightButton: Button = binding.rightButton
+    private var rightButtonIcon: Drawable? = null
+        set(value) {
+            binding.rightButton.icon = value
+            field = value
+        }
+
+    var leftButton: MaterialButton = binding.leftButton
+    var rightButton: MaterialButton = binding.rightButton
 
     constructor(context: Context) : super(context) {
         initWithAttributes(null)
@@ -47,7 +60,9 @@ class SplitButton : ConstraintLayout {
     private fun initWithAttributes(attrs: AttributeSet?) {
         context.obtainStyledAttributes(attrs, R.styleable.SplitButton).apply {
             leftButtonText = getText(R.styleable.SplitButton_leftButtonText)
+            leftButtonIcon = getDrawable(R.styleable.SplitButton_leftButtonIcon)
             rightButtonText = getText(R.styleable.SplitButton_rightButtonText)
+            rightButtonIcon = getDrawable(R.styleable.SplitButton_rightButtonIcon)
         }.recycle()
         setupUi()
     }

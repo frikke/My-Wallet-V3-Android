@@ -49,8 +49,7 @@ class CryptoAccountDetailsDelegate(
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
         items[position] as AssetDetailsItem.CryptoDetailsInfo,
-        isFirstItemOfCategory = items.indexOfFirstItemOfCategory(AssetFilter.NonCustodial) == position ||
-            items.indexOfFirstItemOfCategory(AssetFilter.Custodial) == position
+        items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo } == position
     )
 }
 
@@ -155,10 +154,7 @@ private class AssetWalletViewHolder(
 
             walletsLabel.apply {
                 visibleIf { isFirstItemOfCategory }
-                title = when (item.assetFilter) {
-                    AssetFilter.NonCustodial -> context.getString(R.string.coinview_nc_accounts_label)
-                    else -> context.getString(R.string.coinview_custodial_accounts_label)
-                }
+                title = context.getString(R.string.coinview_accounts_label)
             }
         }
     }

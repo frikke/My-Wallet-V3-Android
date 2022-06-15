@@ -32,8 +32,6 @@ sealed class Feature {
     data class TierLevel(val tier: Tier) : Feature()
     object SimplifiedDueDiligence : Feature()
     data class Interest(val currency: Currency) : Feature()
-    object SimpleBuy : Feature()
-    object CustodialAccounts : Feature()
     object Buy : Feature()
     object Swap : Feature()
     object Sell : Feature()
@@ -66,8 +64,6 @@ sealed class FeatureAccess {
         val transactionsLimit: TransactionsLimit = TransactionsLimit.Unlimited
     ) : FeatureAccess()
     data class Blocked(val reason: BlockedReason) : FeatureAccess()
-    object NotRequested : FeatureAccess()
-    object Unknown : FeatureAccess() // Used mostly for initialisation purposes
 
     fun isBlockedDueToEligibility(): Boolean =
         this is Blocked && reason == BlockedReason.NotEligible

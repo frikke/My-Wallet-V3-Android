@@ -394,7 +394,7 @@ class AccountActionsBottomSheet : BottomSheetDialogFragment() {
             ) {
                 processAction(AssetAction.Buy)
             }
-            AssetAction.Withdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
+            AssetAction.FiatWithdraw -> throw IllegalStateException("Cannot Withdraw a non-fiat currency")
             AssetAction.FiatDeposit -> throw IllegalStateException("Cannot Deposit a non-fiat currency to Fiat")
             AssetAction.Sign -> throw IllegalStateException("Sign action is not supported")
         }

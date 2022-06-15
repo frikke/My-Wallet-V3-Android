@@ -7,7 +7,7 @@ fun SingleAccountList.filterByAction(
     action: AssetAction
 ): Single<SingleAccountList> =
     Single.zip(
-        this.map { account -> account.actions.map { actions -> Pair(account, actions) } }
+        this.map { account -> account.stateAwareActions.map { actions -> Pair(account, actions) } }
     ) { result: Array<Any> ->
         result.filterIsInstance<Pair<SingleAccount, Set<AssetAction>>>()
             .filter { (account, actions) -> actions.contains(action) }

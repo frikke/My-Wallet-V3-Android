@@ -2,10 +2,10 @@ package com.blockchain.coincore.fiat
 
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.FiatActivitySummaryItem
@@ -34,15 +34,15 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val isDefault: Boolean = false,
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
-    bankService: BankService,
-    private val exchangesRates: ExchangeRatesDataManager
+    private val bankService: BankService,
+    private val exchangeRates: ExchangeRatesDataManager
 ) : FiatAccount, TradingAccount {
     private val hasFunds = AtomicBoolean(false)
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
             tradingBalanceDataManager.getBalanceForCurrency(currency),
-            exchangesRates.exchangeRateToUserFiat(currency)
+            exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance.from(balance, rate)
         }.doOnNext { hasFunds.set(it.total.isPositive) }
@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean
                 it.map { fiatTransaction ->
                     FiatActivitySummaryItem(
                         currency = currency,
-                        exchangeRates = exchangesRates,
+                        exchangeRates = exchangeRates,
                         txId = fiatTransaction.id,
                         timeStampMs = fiatTransaction.date.time,
                         value = fiatTransaction.amount,
@@ -77,23 +77,22 @@ import java.util.concurrent.atomic.AtomicBoolean
             it.isEmpty()
         }
 
-    override val actions: Single<AvailableActions> =
-        bankService.canTransactWithBankMethods(currency)
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = bankService.canTransactWithBankMethods(currency)
             .zipWith(balance.firstOrError().map { it.withdrawable.isPositive })
             .map { (canTransactWithBanks, hasActionableBalance) ->
                 if (canTransactWithBanks) {
                     setOfNotNull(
-                        AssetAction.ViewActivity,
-                        AssetAction.FiatDeposit,
-                        if (hasActionableBalance) AssetAction.Withdraw else null
+                        StateAwareAction(ActionState.Available, AssetAction.ViewActivity),
+                        StateAwareAction(ActionState.Available, AssetAction.FiatDeposit),
+                        if (hasActionableBalance) StateAwareAction(
+                            ActionState.Available, AssetAction.FiatWithdraw
+                        ) else null
                     )
                 } else {
-                    setOf(AssetAction.ViewActivity)
+                    setOf(StateAwareAction(ActionState.Available, AssetAction.ViewActivity))
                 }
             }
-
-    override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = Single.just(emptySet())
 
     override val isFunded: Boolean
         get() = hasFunds.get()
@@ -136,17 +135,6 @@ class FiatAccountGroup(
         }
 
     // The intersection of the actions for each account
-    override val actions: Single<AvailableActions>
-        get() = if (accounts.isEmpty()) {
-            Single.just(emptySet())
-        } else {
-            Single.zip(
-                accounts.map { it.actions }
-            ) { t: Array<Any> ->
-                t.filterIsInstance<AvailableActions>().flatten().toSet()
-            }
-        }
-
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = if (accounts.isEmpty()) {
             Single.just(emptySet())

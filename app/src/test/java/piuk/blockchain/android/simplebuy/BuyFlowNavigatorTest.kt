@@ -21,7 +21,6 @@ import org.junit.Test
 class BuyFlowNavigatorTest {
 
     private val userIdentity: UserIdentity = mock {
-        on { userAccessForFeature(Feature.SimpleBuy) }.thenReturn(Single.just(FeatureAccess.Granted()))
         on { userAccessForFeature(Feature.Buy) }.thenReturn(Single.just(FeatureAccess.Granted()))
     }
     private val currencyPrefs: CurrencyPrefs = mock()

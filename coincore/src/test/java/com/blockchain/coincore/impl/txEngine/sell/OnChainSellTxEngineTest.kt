@@ -231,7 +231,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             on { transferQuote }.thenReturn(txQuote)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
 
         subject.start(
             sourceAccount,
@@ -262,7 +262,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -291,7 +291,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             on { transferQuote }.thenReturn(txQuote)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
 
         subject.start(
             sourceAccount,
@@ -322,7 +322,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verifyQuotesEngineStarted()
         verifyOnChainEngineStarted(sourceAccount)
         verifyLimitsFetched()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verify(onChainEngine).doInitialiseTx()
         // todo fix once start engine returns completable
         // verify(onChainEngine).assertInputsValid()
@@ -343,7 +343,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
 
         subject.start(
             sourceAccount,
@@ -377,7 +377,7 @@ class OnChainSellTxEngineTest : CoincoreTestBase() {
         verify(sourceAccount, atLeastOnce()).currency
         verify(txTarget, atLeastOnce()).currency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
 
         noMoreInteractions(sourceAccount, txTarget)
     }

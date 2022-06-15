@@ -1760,6 +1760,7 @@
     <string name="tx_enter_amount_deposit_cta">Preview Deposit</string>
     <string name="tx_enter_amount_withdraw_cta">Preview Withdrawal</string>
     <string name="tx_enter_amount_orders_limit_info">%1$d Transaction Allowed, Verify Now -></string>
+    <string name="tx_confirmation_countdown">New quote in %1$s</string>
 
     <!--Tx Flow Info messaging-->
     <string name="not_enough_funds">Not Enough %1$s</string>
@@ -2916,13 +2917,15 @@
     <string name="app_rating_feedback_description">Let us know how we can improve the app.</string>
     <string name="app_rating_feedback_hint">Tell us more</string>
     <!-- Back up phrase-->
+    <string name="backup_phrase_title_secure_wallet">Secure Your Wallet</string>
+    <string name="backup_phrase_title_steps">Step %1$d of %2$d</string>
+
     <string name="backup_phrase_intro_title">Let’s Back Up Your Wallet</string>
-    <string name="back_up_splash_status_negative">Not Backed Up</string>
-    <string name="back_up_splash_status_positive">Backed Up</string>
+    <string name="back_up_status_negative">Not Backed Up</string>
+    <string name="back_up_status_positive">Backed Up</string>
     <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
     <string name="backup_phrase_intro_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>
     <string name="back_up_now">Back Up Now</string>
-    <string name="secure_defi_wallets">Secure Your DeFi Wallets</string>
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
@@ -2996,6 +2999,7 @@
     <string name="accessibility_asset_name">Asset Name</string>
     <string name="accessibility_current_market_price">Current Market Price</string>
     <string name="accessibility_24h_change">24 Hour Change</string>
+    <string name="accessibility_referral">Show Referral Code</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>

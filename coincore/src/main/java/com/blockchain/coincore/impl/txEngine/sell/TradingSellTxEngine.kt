@@ -39,7 +39,7 @@ class TradingSellTxEngine(
     }
 
     override fun doInitialiseTx(): Single<PendingTx> =
-        quotesEngine.pricedQuote.firstOrError()
+        quotesEngine.getPricedQuote().firstOrError()
             .zipWith(availableBalance)
             .flatMap { (quote, balance) ->
                 Single.just(

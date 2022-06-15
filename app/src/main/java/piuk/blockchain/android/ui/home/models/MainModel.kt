@@ -8,6 +8,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
@@ -45,7 +46,7 @@ class MainModel(
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
@@ -118,6 +119,17 @@ class MainModel(
                     .subscribeBy { show ->
                         if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
                     }
+            }
+            is MainIntent.CheckReferralCode -> {
+                interactor.checkReferral()
+                    .onErrorReturn { ReferralState(ReferralInfo.NotAvailable) }
+                    .subscribeBy {
+                        process(MainIntent.ReferralCodeIntent(it))
+                    }
+            }
+            is MainIntent.ReferralIconClicked -> {
+                interactor.storeReferralClicked()
+                null
             }
             is MainIntent.CheckForPendingLinks -> {
                 interactor.checkForDeepLinks(intent.appIntent)
@@ -199,6 +211,7 @@ class MainModel(
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
             is MainIntent.SaveDeeplinkIntent -> null
+            is MainIntent.ReferralCodeIntent -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

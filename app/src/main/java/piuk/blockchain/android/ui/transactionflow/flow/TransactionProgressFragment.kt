@@ -310,7 +310,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         resources.getString(
             when (action) {
                 AssetAction.Send -> R.string.common_send
-                AssetAction.Withdraw,
+                AssetAction.FiatWithdraw,
                 AssetAction.InterestWithdraw -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell

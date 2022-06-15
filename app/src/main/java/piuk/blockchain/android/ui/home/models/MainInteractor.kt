@@ -6,17 +6,20 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.core.Database
+import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import com.blockchain.outcome.fold
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -26,6 +29,7 @@ import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.deeplink.LinkState
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
@@ -49,7 +53,6 @@ class MainInteractor internal constructor(
     private val exchangeLinking: ExchangeLinking,
     private val assetCatalogue: AssetCatalogue,
     private val bankLinkingPrefs: BankLinkingPrefs,
-    private val custodialWalletManager: CustodialWalletManager,
     private val bankService: BankService,
     private val simpleBuySync: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
@@ -59,7 +62,9 @@ class MainInteractor internal constructor(
     private val qrScanResultProcessor: QrScanResultProcessor,
     private val secureChannelService: SecureChannelService,
     private val cancelOrderUseCase: CancelOrderUseCase,
-    private val onboardingPrefs: OnboardingPrefs
+    private val onboardingPrefs: OnboardingPrefs,
+    private val referralPrefs: ReferralPrefs,
+    private val referralRepository: ReferralRepository
 ) {
 
     fun checkForDeepLinks(intent: Intent): Single<LinkState> =
@@ -153,4 +158,15 @@ class MainInteractor internal constructor(
         Completable.fromAction {
             deepLinkPersistence.popDataFromSharedPrefs()
         }
+
+    fun checkReferral(): Single<ReferralState> = rxSingle {
+        referralRepository.fetchReferralData().fold(
+            onSuccess = { ReferralState(it, referralPrefs.hasReferralIconBeenClicked) },
+            onFailure = { ReferralState(ReferralInfo.NotAvailable, false) }
+        )
+    }
+
+    fun storeReferralClicked() {
+        referralPrefs.hasReferralIconBeenClicked = true
+    }
 }

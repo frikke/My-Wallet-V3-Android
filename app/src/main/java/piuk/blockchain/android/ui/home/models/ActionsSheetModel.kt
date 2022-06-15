@@ -23,7 +23,7 @@ class ActionsSheetModel(
 
     override fun performAction(previousState: ActionsSheetState, intent: ActionsSheetIntent): Disposable? =
         when (intent) {
-            is ActionsSheetIntent.CheckForPendingBuys -> interactor.getUserAccessToSimpleBuy()
+            is ActionsSheetIntent.CheckForPendingBuys -> interactor.checkForPendingBuys()
                 .subscribeBy(
                     onSuccess = { actionIntent ->
                         process(actionIntent)

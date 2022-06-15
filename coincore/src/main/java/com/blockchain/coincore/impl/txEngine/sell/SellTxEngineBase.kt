@@ -101,6 +101,10 @@ abstract class SellTxEngineBase(
     ): PendingTx =
         pendingTx.copy(
             confirmations = listOfNotNull(
+                // TODO (dserrano): Add in next story AND-6273
+//                TxConfirmationValue.QuoteCountDown(
+//                    pricedQuote
+//                ),
                 TxConfirmationValue.ExchangePriceConfirmation(pricedQuote.price, sourceAsset),
                 TxConfirmationValue.To(
                     txTarget,
@@ -125,7 +129,7 @@ abstract class SellTxEngineBase(
         )
 
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.pricedQuote
+        quotesEngine.getPricedQuote()
             .firstOrError()
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate(
@@ -142,6 +146,12 @@ abstract class SellTxEngineBase(
         latestQuoteExchangeRate: ExchangeRate
     ): PendingTx =
         pendingTx.apply {
+            // TODO (dserrano): Add in next story AND-6273
+//            addOrReplaceOption(
+//                TxConfirmationValue.QuoteCountDown(
+//                    pricedQuote
+//                )
+//            )
             addOrReplaceOption(
                 TxConfirmationValue.ExchangePriceConfirmation(pricedQuote.price, sourceAsset)
             )
@@ -158,7 +168,7 @@ abstract class SellTxEngineBase(
         }
 
     override fun doRefreshConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        quotesEngine.pricedQuote
+        quotesEngine.getPricedQuote()
             .firstOrError()
             .map { pricedQuote ->
                 val latestQuoteExchangeRate = ExchangeRate(
@@ -190,7 +200,7 @@ abstract class SellTxEngineBase(
         validateAmount(pendingTx).updateTxValidity(pendingTx)
 
     override fun userExchangeRate(): Observable<ExchangeRate> =
-        quotesEngine.pricedQuote.map {
+        quotesEngine.getPricedQuote().map {
             ExchangeRate(
                 from = sourceAsset,
                 to = target.currency,

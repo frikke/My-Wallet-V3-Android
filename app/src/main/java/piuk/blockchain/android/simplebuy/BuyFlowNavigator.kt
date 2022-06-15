@@ -9,7 +9,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 
@@ -94,27 +93,15 @@ class BuyFlowNavigator(
                     Single.just(BuyNavigation.CurrencyNotAvailable)
                 }
             } else {
-                checkForEligibilityOrPendingOrders().switchIfEmpty(
-                    stateCheck(
-                        startedFromKycResume,
-                        startedFromDashboard,
-                        startedFromApprovalDeepLink,
-                        cryptoCurrency
-                    )
+                stateCheck(
+                    startedFromKycResume,
+                    startedFromDashboard,
+                    startedFromApprovalDeepLink,
+                    cryptoCurrency
                 )
             }
         }
     }
-
-    private fun checkForEligibilityOrPendingOrders(): Maybe<BuyNavigation> =
-        userIdentity.userAccessForFeature(Feature.SimpleBuy).flatMapMaybe { access ->
-            when (access) {
-                FeatureAccess.NotRequested,
-                FeatureAccess.Unknown,
-                is FeatureAccess.Granted -> Maybe.empty()
-                is FeatureAccess.Blocked -> Maybe.just(BuyNavigation.BlockBuy(access.reason))
-            }
-        }
 
     private fun currencyCheck(): Single<Boolean> {
         return custodialWalletManager.isCurrencySupportedForSimpleBuy(currencyPrefs.tradingCurrency)

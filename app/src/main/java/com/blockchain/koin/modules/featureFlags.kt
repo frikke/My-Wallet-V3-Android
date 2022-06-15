@@ -8,8 +8,10 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
+import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.newAssetPriceStoreFeatureFlag
@@ -29,6 +31,15 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
+
+    single(googlePayFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_gpay",
+                "Google Pay"
+            )
+        )
+    }.bind(FeatureFlag::class)
 
     single(replaceGsonKtxFeatureFlag) {
         IntegratedFeatureFlag(
@@ -53,6 +64,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_deeplinking_v2",
                 "Deeplinking V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(coinWebSocketFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_coin_web_socket",
+                "Coin Web Socket"
             )
         )
     }.bind(FeatureFlag::class)

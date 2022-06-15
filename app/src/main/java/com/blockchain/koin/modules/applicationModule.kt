@@ -16,6 +16,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
+import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
 import com.blockchain.koin.explorerRetrofit
@@ -273,6 +274,7 @@ val applicationModule = module {
                 erc20DataManager = get(),
                 bchDataManager = get(),
                 stringUtils = get(),
+                featureFlag = get(coinWebSocketFeatureFlag),
                 gson = get(),
                 json = get(),
                 replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),

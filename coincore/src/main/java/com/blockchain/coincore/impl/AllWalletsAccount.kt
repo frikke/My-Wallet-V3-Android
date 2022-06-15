@@ -5,7 +5,6 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccount
@@ -39,9 +38,6 @@ class AllWalletsAccount(
 
     override val activity: Single<ActivitySummaryList>
         get() = allActivities()
-
-    override val actions: Single<AvailableActions>
-        get() = Single.just(setOf(AssetAction.ViewActivity))
 
     override val stateAwareActions: Single<Set<StateAwareAction>> = Single.just(
         setOf(

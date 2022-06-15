@@ -150,7 +150,9 @@ class CoinsWebSocketStrategyTest {
 
     private val mockWebSocket: WebSocket<String, String> = mock()
     private val webSocket = FakeWebSocket(mockWebSocket)
-
+    private val featureFlag: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(false))
+    }
     private val json = Json {
         explicitNulls = false
         ignoreUnknownKeys = true
@@ -172,6 +174,7 @@ class CoinsWebSocketStrategyTest {
         stringUtils = stringUtils,
         gson = Gson(),
         json = json,
+        featureFlag = featureFlag,
         replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,

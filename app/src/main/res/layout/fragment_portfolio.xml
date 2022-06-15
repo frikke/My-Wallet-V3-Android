@@ -96,7 +96,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buy_crypto_button"
             app:leftButtonText="@string/receive"
-            app:rightButtonText="@string/common_deposit" />
+            app:leftButtonIcon="@drawable/ic_qr_scan"
+            app:rightButtonText="@string/common_deposit"
+            app:rightButtonIcon="@drawable/ic_bank_details"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/receive_button"

@@ -383,7 +383,8 @@ class EnterAmountFragment :
         }
     }
 
-    private fun AssetAction.requiresDisplayLocks(): Boolean = this == AssetAction.Withdraw || this == AssetAction.Send
+    private fun AssetAction.requiresDisplayLocks(): Boolean =
+        this == AssetAction.FiatWithdraw || this == AssetAction.Send
 
     private fun onExtraAccountInfoClicked(action: AssetAction, locks: FundsLocks, availableBalance: Money) {
         val origin = if (action == AssetAction.Send) LocksInfoBottomSheet.OriginScreenLocks.ENTER_AMOUNT_SEND_SCREEN

@@ -16,10 +16,10 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
@@ -39,11 +39,6 @@ class NabuUserIdentity(
             is Feature.TierLevel -> nabuUserDataManager.tiers().map {
                 it.isNotInitialisedFor(feature.tier.toKycTierLevel())
             }
-            is Feature.SimpleBuy -> simpleBuyEligibilityProvider.isEligibleForSimpleBuy()
-            is Feature.CustodialAccounts -> Single.zip(
-                nabuDataProvider.getUser(),
-                simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
-            ) { nabuUser, sbEligibility -> nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible }
             is Feature.Interest -> interestEligibilityProvider.getEligibilityForCustodialAssets()
                 .map { assets -> assets.map { it.cryptoCurrency }.contains(feature.currency) }
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.isSimplifiedDueDiligenceEligible()
@@ -65,11 +60,6 @@ class NabuUserIdentity(
             is Feature.SimplifiedDueDiligence -> custodialWalletManager.fetchSimplifiedDueDiligenceUserState().map {
                 it.isVerified
             }
-            is Feature.CustodialAccounts -> Single.zip(
-                nabuDataProvider.getUser(),
-                simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
-            ) { nabuUser, sbEligibility -> nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible }
-            is Feature.SimpleBuy,
             is Feature.Interest,
             Feature.Buy,
             Feature.DepositCrypto,
@@ -148,31 +138,24 @@ class NabuUserIdentity(
 
     override fun userAccessForFeature(feature: Feature): Single<FeatureAccess> {
         return when (feature) {
-            Feature.SimpleBuy -> simpleBuyEligibilityProvider.simpleBuyTradingEligibility().zipWith(
-                isVerifiedFor(Feature.TierLevel(Tier.GOLD))
-            ).map { (eligibility, isGold) ->
-                simpleBuyAccessState(eligibility, isGold)
-            }
-            Feature.CustodialAccounts ->
-                Single.zip(
-                    nabuDataProvider.getUser(),
+            Feature.Buy ->
+                Singles.zip(
+                    rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) },
                     simpleBuyEligibilityProvider.simpleBuyTradingEligibility()
-                ) { nabuUser, sbEligibility ->
+                ) { buyEligibility, sbEligibility ->
+                    val buyFeatureAccess = buyEligibility.toFeatureAccess()
+
                     when {
-                        nabuUser.currentTier == Tier.GOLD.ordinal && sbEligibility.eligible -> {
+                        buyFeatureAccess !is FeatureAccess.Granted -> buyFeatureAccess
+                        sbEligibility.pendingDepositSimpleBuyTrades < sbEligibility.maxPendingDepositSimpleBuyTrades ->
                             FeatureAccess.Granted()
-                        }
-                        nabuUser.currentTier != Tier.GOLD.ordinal -> {
-                            FeatureAccess.NotRequested
-                        }
-                        else -> {
-                            FeatureAccess.Blocked(BlockedReason.NotEligible)
-                        }
+                        else -> FeatureAccess.Blocked(
+                            BlockedReason.TooManyInFlightTransactions(
+                                sbEligibility.maxPendingDepositSimpleBuyTrades
+                            )
+                        )
                     }
                 }
-            Feature.Buy ->
-                rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.BUY) }
-                    .map(ProductEligibility::toFeatureAccess)
             Feature.Swap ->
                 rxSingleOutcome { eligibilityService.getProductEligibility(EligibleProduct.SWAP) }
                     .map(ProductEligibility::toFeatureAccess)
@@ -199,19 +182,6 @@ class NabuUserIdentity(
 
     override fun majorProductsNotEligibleReasons(): Single<List<ProductNotEligibleReason>> =
         rxSingleOutcome { eligibilityService.getMajorProductsNotEligibleReasons() }
-
-    private fun simpleBuyAccessState(eligibility: SimpleBuyEligibility, gold: Boolean): FeatureAccess {
-        return when {
-            !eligibility.simpleBuyTradingEligible && gold -> FeatureAccess.Blocked(BlockedReason.NotEligible)
-            !eligibility.simpleBuyTradingEligible -> FeatureAccess.NotRequested
-            eligibility.canCreateOrder() -> FeatureAccess.Granted()
-            else -> FeatureAccess.Blocked(
-                BlockedReason.TooManyInFlightTransactions(
-                    eligibility.maxPendingDepositSimpleBuyTrades
-                )
-            )
-        }
-    }
 
     private fun NabuUser.toBasicProfileInfo() =
         BasicProfileInfo(
@@ -249,9 +219,6 @@ class NabuUserIdentity(
             KycTierLevel.GOLD -> Tier.GOLD
         }
 }
-
-private fun SimpleBuyEligibility.canCreateOrder(): Boolean =
-    pendingDepositSimpleBuyTrades < maxPendingDepositSimpleBuyTrades
 
 private fun ProductEligibility.toFeatureAccess(): FeatureAccess =
     if (canTransact) FeatureAccess.Granted(maxTransactionsCap)

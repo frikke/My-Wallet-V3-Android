@@ -71,7 +71,9 @@ class CardModel(
                 process(CardIntent.UpdateCardId(card.cardId))
             },
             onError = {
-                process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CREATION_FAILED)))
+                process(
+                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.CREATION_FAILED)))
+                )
             }
         )
 
@@ -90,59 +92,35 @@ class CardModel(
                 )
             },
             onError = {
-                if (it is NabuApiException) {
-                    when (it.getErrorCode()) {
-                        NabuErrorCodes.InsufficientCardFunds -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.INSUFFICIENT_CARD_BALANCE))
-                        )
-                        NabuErrorCodes.CardBankDeclined -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_BANK_DECLINED))
-                        )
-                        NabuErrorCodes.CardDuplicate -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_DUPLICATE))
-                        )
-                        NabuErrorCodes.CardBlockchainDecline -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_BLOCKCHAIN_DECLINED))
-                        )
-                        NabuErrorCodes.CardAcquirerDecline -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_ACQUIRER_DECLINED))
-                        )
-                        NabuErrorCodes.CardPaymentNotSupported -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_NOT_SUPPORTED))
-                        )
-                        NabuErrorCodes.CardCreateFailed -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_FAILED))
-                        )
-                        NabuErrorCodes.CardPaymentFailed -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_FAILED))
-                        )
-                        NabuErrorCodes.CardCreateAbandoned -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_ABANDONED))
-                        )
-                        NabuErrorCodes.CardCreateExpired -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATED_EXPIRED))
-                        )
-                        NabuErrorCodes.CardCreateBankDeclined -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_BANK_DECLINED))
-                        )
-                        NabuErrorCodes.CardCreateDebitOnly -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_DEBIT_ONLY))
-                        )
-                        NabuErrorCodes.CardPaymentDebitOnly -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_PAYMENT_DEBIT_ONLY))
-                        )
-                        NabuErrorCodes.CardCreateNoToken -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.CARD_CREATE_NO_TOKEN))
-                        )
-                        else -> process(
-                            CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL))
-                        )
-                    }
-                } else {
-                    process(CardIntent.UpdateRequestState(CardRequestStatus.Error(CardError.ACTIVATION_FAIL)))
-                }
+                process(
+                    CardIntent.UpdateRequestState(CardRequestStatus.Error(it.toCardError(CardError.ACTIVATION_FAIL)))
+                )
             }
         )
+
+    private fun Throwable.toCardError(defaultError: CardError): CardError {
+        return if (this is NabuApiException) {
+            when (this.getErrorCode()) {
+                NabuErrorCodes.InsufficientCardFunds -> CardError.INSUFFICIENT_CARD_BALANCE
+                NabuErrorCodes.CardBankDeclined -> CardError.CARD_BANK_DECLINED
+                NabuErrorCodes.CardDuplicate -> CardError.CARD_DUPLICATE
+                NabuErrorCodes.CardBlockchainDecline -> CardError.CARD_BLOCKCHAIN_DECLINED
+                NabuErrorCodes.CardAcquirerDecline -> CardError.CARD_ACQUIRER_DECLINED
+                NabuErrorCodes.CardPaymentNotSupported -> CardError.CARD_PAYMENT_NOT_SUPPORTED
+                NabuErrorCodes.CardCreateFailed -> CardError.CARD_CREATED_FAILED
+                NabuErrorCodes.CardPaymentFailed -> CardError.CARD_PAYMENT_FAILED
+                NabuErrorCodes.CardCreateAbandoned -> CardError.CARD_CREATED_ABANDONED
+                NabuErrorCodes.CardCreateExpired -> CardError.CARD_CREATED_EXPIRED
+                NabuErrorCodes.CardCreateBankDeclined -> CardError.CARD_CREATE_BANK_DECLINED
+                NabuErrorCodes.CardCreateDebitOnly -> CardError.CARD_CREATE_DEBIT_ONLY
+                NabuErrorCodes.CardPaymentDebitOnly -> CardError.CARD_PAYMENT_DEBIT_ONLY
+                NabuErrorCodes.CardCreateNoToken -> CardError.CARD_CREATE_NO_TOKEN
+                else -> defaultError
+            }
+        } else {
+            defaultError
+        }
+    }
 
     private fun checkCardStatus(previousState: CardState) = interactor.pollForCardStatus(
         previousState.cardId

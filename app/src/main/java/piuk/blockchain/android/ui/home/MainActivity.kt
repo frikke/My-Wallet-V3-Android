@@ -35,6 +35,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
@@ -46,6 +47,8 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import info.blockchain.balance.AssetInfo
@@ -54,6 +57,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.URLDecoder
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
@@ -82,6 +86,7 @@ import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellView
 import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.home.ui_tour.UiTourAnalytics
 import piuk.blockchain.android.ui.home.ui_tour.UiTourView
@@ -94,6 +99,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -134,6 +140,7 @@ class MainActivity :
         get() = binding.mainToolbar
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
+    private val walletModeService: WalletModeService by inject()
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -141,10 +148,11 @@ class MainActivity :
     @Deprecated("Use MVI loop instead")
     private val qrProcessor: QrScanResultProcessor by scopedInject()
 
-    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
-
     private val destinationArgs: DestinationArgs by scopedInject()
+
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
+
+    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
 
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -233,6 +241,7 @@ class MainActivity :
         }
         model.process(MainIntent.CheckForInitialDialogs(startUiTour))
         model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.CheckReferralCode)
     }
 
     override fun onResume() {
@@ -262,25 +271,48 @@ class MainActivity :
         }
     }
 
+    private val qrButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_qr_scan,
+        contentDescription = R.string.accessibility_qr_code_scanner
+    ) {
+        tryToLaunchQrScan()
+        analytics.logEvent(CameraAnalytics.QrCodeClicked())
+    }
+
+    private val settingsButton = NavigationBarButton.Icon(
+        drawable = R.drawable.ic_bank_user,
+        contentDescription = R.string.accessibility_user_settings
+    ) {
+        showLoading()
+        settingsResultContract.launch(SettingsActivity.newIntent(this))
+    }
+
     private fun setupToolbar() {
         updateToolbarMenuItems(
-            listOf(
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_qr_scan,
-                    contentDescription = R.string.accessibility_qr_code_scanner
-                ) {
-                    tryToLaunchQrScan()
-                    analytics.logEvent(CameraAnalytics.QrCodeClicked())
-                },
-                NavigationBarButton.Icon(
-                    drawable = R.drawable.ic_bank_user,
-                    contentDescription = R.string.accessibility_user_settings
-                ) {
-                    showLoading()
-                    settingsResultContract.launch(SettingsActivity.newIntent(this))
-                }
-            )
+            listOf(qrButton, settingsButton)
         )
+    }
+
+    private fun setupMenuWithPresentButton(referralState: ReferralState) {
+        val presentButton = if (referralState.referralInfo is ReferralInfo.Data) {
+            NavigationBarButton.Icon(
+                drawable = if (referralState.hasReferralBeenClicked) {
+                    R.drawable.ic_present
+                } else {
+                    R.drawable.ic_present_dot
+                },
+                contentDescription = R.string.accessibility_referral,
+                color = null
+            ) {
+                model.process(MainIntent.ReferralIconClicked)
+                showReferralBottomSheet(referralState.referralInfo)
+            }
+        } else {
+            null
+        }
+        if (presentButton != null) {
+            updateToolbarMenuItems(listOf(qrButton, presentButton, settingsButton))
+        }
     }
 
     private fun tryToLaunchQrScan() {
@@ -309,11 +341,20 @@ class MainActivity :
         showBottomSheet(ScanAndConnectBottomSheet.newInstance(showCta = true))
     }
 
+    private fun showReferralBottomSheet(info: ReferralInfo) {
+        if (info is ReferralInfo.Data) {
+            showBottomSheet(
+                ReferralSheet.newInstance(info)
+            )
+        }
+    }
+
     private fun setupNavigation() {
         binding.bottomNavigation.apply {
             if (!dashboardPrefs.hasTappedFabButton) {
                 isPulseAnimationEnabled = true
             }
+            hasMiddleButton = walletModeService.enabledWalletMode().custodialEnabled
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
@@ -329,6 +370,20 @@ class MainActivity :
                 isPulseAnimationEnabled = false
                 showBottomSheet(
                     RedesignActionsBottomSheet.newInstance()
+                )
+            }
+            navigationItems = when (walletModeService.enabledWalletMode()) {
+                WalletMode.CUSTODIAL_ONLY,
+                WalletMode.UNIVERSAL -> listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.BuyAndSell,
+                    NavigationItem.Activity
+                )
+                WalletMode.NON_CUSTODIAL_ONLY -> listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.Activity
                 )
             }
         }
@@ -414,7 +469,7 @@ class MainActivity :
             BANK_DEEP_LINK_WITHDRAW -> {
                 if (resultCode == RESULT_OK) {
                     launchPortfolio(
-                        AssetAction.Withdraw,
+                        AssetAction.FiatWithdraw,
                         data?.getStringExtra(
                             BankAuthActivity.LINKED_BANK_CURRENCY
                         )
@@ -644,6 +699,9 @@ class MainActivity :
         // ensure we reset the UI state to avoid duplication of screens on navigating back
         if (newState.viewToLaunch != ViewToLaunch.None) {
             model.process(MainIntent.ResetViewState)
+        }
+        if (newState.referral.referralInfo != ReferralInfo.NotAvailable) {
+            setupMenuWithPresentButton(newState.referral)
         }
     }
 

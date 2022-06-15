@@ -7,7 +7,6 @@ import com.blockchain.logging.RemoteLogger
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
@@ -51,12 +50,6 @@ class AccountModel(
                     }
                 )
             }
-            is AccountIntent.LoadReferralData -> {
-                rxSingle { interactor.getReferralData() }
-                    .subscribeBy(
-                        onSuccess = { process(AccountIntent.UpdateReferralInfo(it)) },
-                    )
-            }
             is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
                 .subscribeBy(
                     onSuccess = { list ->
@@ -91,7 +84,6 @@ class AccountModel(
             is AccountIntent.UpdateErrorState,
             is AccountIntent.ResetViewState,
             is AccountIntent.UpdateViewToLaunch,
-            is AccountIntent.UpdateReferralInfo,
             is AccountIntent.UpdateBlockchainCardOrderState -> null
         }.exhaustive
 }

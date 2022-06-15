@@ -585,6 +585,20 @@ class PrefsUtil(
             .also { setBrowserIdentityMapping(BrowserIdentityMapping(it)) }
     }
 
+    // app maintenance
+    override var isAppMaintenanceRemoteConfigIgnored: Boolean
+        get() = getValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, false)
+        set(value) = setValue(APP_MAINTENANCE_IGNORE_REMOTE_CONFIG, value)
+
+    override var isAppMaintenanceDebugOverrideEnabled: Boolean
+        get() = getValue(APP_MAINTENANCE_DEBUG_OVERRIDE, false)
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_OVERRIDE, value)
+
+    override var appMaintenanceDebugJson: String
+        get() = getValue(APP_MAINTENANCE_DEBUG_JSON, "")
+        set(value) = setValue(APP_MAINTENANCE_DEBUG_JSON, value)
+
+    // app rating
     override var completed: Boolean
         get() = getValue(APP_RATING_COMPLETED, false)
         set(value) = setValue(APP_RATING_COMPLETED, value)
@@ -605,6 +619,10 @@ class PrefsUtil(
     override var isJoinNftWaitlistSuccessful: Boolean
         get() = getValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, false)
         set(value) = setValue(NFT_ANNOUNCEMENT_JOIN_WAITLIST, value)
+
+    override var hasReferralIconBeenClicked: Boolean
+        get() = getValue(REFERRAL_ICON_CLICKED, false)
+        set(value) = setValue(REFERRAL_ICON_CLICKED, value)
 
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
@@ -714,6 +732,11 @@ class PrefsUtil(
 
         private const val KEY_DASHBOARD_ORDER = "dashboard_asset_order"
 
+        // App Maintenance
+        private const val APP_MAINTENANCE_IGNORE_REMOTE_CONFIG = "APP_MAINTENANCE_IGNORE_REMOTE_CONFIG"
+        private const val APP_MAINTENANCE_DEBUG_OVERRIDE = "APP_MAINTENANCE_DEBUG_OVERRIDE"
+        private const val APP_MAINTENANCE_DEBUG_JSON = "APP_MAINTENANCE_DEBUG_JSON"
+
         // App Rating
         private const val APP_RATING_COMPLETED = "APP_RATING_COMPLETED"
         private const val APP_RATING_PROMPT_DATE = "APP_RATING_PROMPT_DATE"
@@ -721,6 +744,9 @@ class PrefsUtil(
         // Nft Announcement
         private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
         private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
+
+        // Referral clicked
+        private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
     }
 }
 

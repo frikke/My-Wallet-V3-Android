@@ -28,7 +28,7 @@ class FiatFundsKycAnnouncement(
 
         // if eligible for simple buy balance then user is KYC gold
         return Singles.zip(
-            userIdentity.isEligibleFor(Feature.SimpleBuy),
+            userIdentity.isEligibleFor(Feature.DepositFiat),
             bankService.getLinkedBanks()
         ) { isEligible, linkedBanks ->
             isEligible && linkedBanks.isEmpty()

@@ -1,6 +1,7 @@
 package piuk.blockchain.androidcore.utils
 
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
@@ -9,6 +10,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -29,8 +31,10 @@ interface PersistentPrefs :
     AppInfoPrefs,
     RemoteConfigPrefs,
     OnboardingPrefs,
+    AppMaintenancePrefs,
     AppRatingPrefs,
-    NftAnnouncementPrefs {
+    NftAnnouncementPrefs,
+    ReferralPrefs {
 
     val deviceId: String // Pre-IDV device identifier
     var devicePreIDVCheckFailed: Boolean // Pre-IDV check has failed! Don't show 'gold' announce cards etc

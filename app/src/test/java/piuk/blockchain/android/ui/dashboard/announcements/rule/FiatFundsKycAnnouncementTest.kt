@@ -49,7 +49,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should show, when not already shown and user is kyc gold without linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
+        whenever(userIdentity.isEligibleFor(Feature.DepositFiat))
             .thenReturn(Single.just(true))
 
         whenever(bankService.getLinkedBanks()).thenReturn(Single.just(emptyList()))
@@ -64,7 +64,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is kyc gold but has linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
+        whenever(userIdentity.isEligibleFor(Feature.DepositFiat))
             .thenReturn(Single.just(true))
 
         whenever(bankService.getLinkedBanks()).thenReturn(
@@ -85,7 +85,7 @@ class FiatFundsKycAnnouncementTest {
     @Test
     fun `should not show, when not already shown and user is not kyc gold and has no linked banks`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(userIdentity.isEligibleFor(Feature.SimpleBuy))
+        whenever(userIdentity.isEligibleFor(Feature.DepositFiat))
             .thenReturn(Single.just(false))
 
         whenever(bankService.getLinkedBanks()).thenReturn(Single.just(emptyList()))

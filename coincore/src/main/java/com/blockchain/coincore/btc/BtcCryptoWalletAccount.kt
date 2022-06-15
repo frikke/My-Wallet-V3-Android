@@ -3,9 +3,9 @@ package com.blockchain.coincore.btc
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.AccountRefreshTrigger
@@ -125,11 +125,15 @@ import piuk.blockchain.androidcore.utils.extensions.then
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )
 
-    override val actions: Single<AvailableActions>
-        get() = super.actions.map {
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = super.stateAwareActions.map { actions ->
             if (!isHDAccount) {
-                it.toMutableSet().apply { remove(AssetAction.Receive) }.toSet()
-            } else it
+                actions.toMutableSet().apply {
+                    removeIf {
+                        it.action == AssetAction.Receive
+                    }
+                }.toSet()
+            } else actions
         }
 
     override fun updateLabel(newLabel: String): Completable {

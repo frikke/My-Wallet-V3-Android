@@ -74,7 +74,7 @@ class AccountInfoBank @JvmOverloads constructor(
     }
 
     private fun getFeeOrShowDefault(account: LinkedBankAccount, action: AssetAction?) {
-        if (action == AssetAction.Withdraw) {
+        if (action == AssetAction.FiatWithdraw) {
             getMinimumWithdrawalAndFee(account)
         } else {
             with(binding) {
@@ -152,7 +152,7 @@ class AccountInfoBank @JvmOverloads constructor(
                         }
                     }
                 }
-            AssetAction.Withdraw ->
+            AssetAction.FiatWithdraw ->
                 if (state.selectedTarget is LinkedBankAccount) {
                     updateAccount(false, state.selectedTarget, state.action) {
                         if (::model.isInitialized) {

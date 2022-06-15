@@ -17,6 +17,7 @@ internal object AppMaintenanceConfigMapper {
         currentOsVersion: Int
     ): AppMaintenanceConfig {
         return AppMaintenanceConfig(
+            isRemoteConfigIgnored = false,
             currentVersionCode = currentVersionCode,
             currentOsVersion = currentOsVersion,
             playStoreVersion = appUpdateInfo?.availableVersionCode() ?: maintenanceConfig.playStoreVersion,
@@ -34,4 +35,24 @@ internal object AppMaintenanceConfigMapper {
             websiteUrl = maintenanceConfig.websiteUrl
         )
     }
+
+    /**
+     * Creates a [AppMaintenanceConfig] object with default values
+     * and [AppMaintenanceConfig.isRemoteConfigIgnored] true
+     */
+    fun mapIgnored() = AppMaintenanceConfig(
+        isRemoteConfigIgnored = true,
+        currentOsVersion = 0,
+        currentVersionCode = 0,
+        playStoreVersion = 0,
+        bannedVersions = listOf(),
+        minimumAppVersion = 0,
+        softUpgradeVersion = 0,
+        minimumOSVersion = 0,
+        siteWideMaintenance = false,
+        redirectToWebsite = false,
+        statusUrl = "",
+        storeUrl = "",
+        websiteUrl = ""
+    )
 }

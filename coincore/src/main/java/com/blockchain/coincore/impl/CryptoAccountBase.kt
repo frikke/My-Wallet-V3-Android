@@ -7,7 +7,6 @@ import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.AddressResolver
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AvailableActions
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.ExchangeAccount
@@ -20,7 +19,6 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxSourceState
-import com.blockchain.coincore.takeEnabledIf
 import com.blockchain.coincore.toActionState
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -164,8 +162,6 @@ abstract class CryptoAccountBase : CryptoAccount {
     override val activity: Single<ActivitySummaryList>
         get() = Single.just(emptyList())
 
-    override val actions: Single<AvailableActions> = Single.just(emptySet())
-
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.just(emptySet())
 
@@ -203,43 +199,6 @@ abstract class CryptoNonCustodialAccount(
     protected abstract val addressResolver: AddressResolver
 
     protected abstract fun getOnChainBalance(): Observable<Money>
-
-    // The plan here is once we are caching the non custodial balances to remove this isFunded
-    override val actions: Single<AvailableActions>
-        get() = Single.zip(
-            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
-            identity.isEligibleFor(Feature.Interest(currency)),
-            identity.userAccessForFeature(Feature.Swap),
-            identity.userAccessForFeature(Feature.Sell),
-            identity.userAccessForFeature(Feature.DepositInterest),
-            identity.userAccessForFeature(Feature.DepositCrypto)
-        ) { fiatAccounts, isEligibleForInterest, swapEligibility,
-            sellEligibility, depositCryptoEligibility, depositInterestEligibility ->
-
-            val isActiveFunded = !isArchived && isFunded
-
-            val activity = AssetAction.ViewActivity.takeIf { hasTransactions }
-            val receive = AssetAction.Receive.takeEnabledIf(baseActions) {
-                !isArchived
-            }
-            val send = AssetAction.Send.takeEnabledIf(baseActions) {
-                isActiveFunded
-            }
-            val swap = AssetAction.Swap.takeEnabledIf(baseActions) {
-                isActiveFunded && swapEligibility is FeatureAccess.Granted
-            }
-            val sell = AssetAction.Sell.takeEnabledIf(baseActions) {
-                isActiveFunded && fiatAccounts.isNotEmpty() && sellEligibility is FeatureAccess.Granted
-            }
-            val interest = AssetAction.InterestDeposit.takeEnabledIf(baseActions) {
-                isActiveFunded && isEligibleForInterest && depositCryptoEligibility is FeatureAccess.Granted &&
-                    depositInterestEligibility is FeatureAccess.Granted
-            }
-
-            setOfNotNull(
-                activity, receive, send, swap, sell, interest
-            )
-        }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = Single.zip(
@@ -402,9 +361,6 @@ class CryptoAccountCustodialGroup(
     override val activity: Single<ActivitySummaryList>
         get() = account.activity
 
-    override val actions: Single<AvailableActions>
-        get() = account.actions
-
     override val stateAwareActions: Single<Set<StateAwareAction>>
         get() = account.stateAwareActions
 
@@ -451,16 +407,6 @@ class CryptoAccountNonCustodialGroup(
                 accounts.map { it.activity }
             ) { t: Array<Any> ->
                 t.filterIsInstance<List<ActivitySummaryItem>>().flatten()
-            }
-        }
-
-    // The intersection of the actions for each account
-    override val actions: Single<AvailableActions>
-        get() = if (accounts.isEmpty()) {
-            Single.just(emptySet())
-        } else {
-            Single.zip(accounts.map { it.actions }) { t: Array<Any> ->
-                t.filterIsInstance<AvailableActions>().flatten().toSet()
             }
         }
 

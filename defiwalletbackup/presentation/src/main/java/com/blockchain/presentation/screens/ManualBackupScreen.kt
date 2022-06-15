@@ -40,9 +40,12 @@ import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.R
+import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.extensions.copyToClipboard
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
+
+private const val STEP_INDEX = 1
 
 @Composable
 fun ManualBackup(viewModel: BackupPhraseViewModel) {
@@ -57,6 +60,7 @@ fun ManualBackup(viewModel: BackupPhraseViewModel) {
             mnemonic = state.mnemonic,
             copyState = state.copyState,
 
+            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
             mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
             nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartUserPhraseVerification) }
         )
@@ -68,6 +72,7 @@ fun ManualBackupScreen(
     mnemonic: List<String>,
     copyState: CopyState,
 
+    backOnClick: () -> Unit,
     mnemonicCopied: () -> Unit,
     nextOnClick: () -> Unit
 ) {
@@ -83,7 +88,10 @@ fun ManualBackupScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(title = stringResource(id = R.string.secure_defi_wallets), onBackButtonClick = { })
+        NavigationBar(
+            title = stringResource(R.string.backup_phrase_title_steps, STEP_INDEX, TOTAL_STEP_COUNT),
+            onBackButtonClick = backOnClick
+        )
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -194,6 +202,7 @@ fun PreviewManualBackupScreenCopy() {
         mnemonic = mnemonic,
         copyState = CopyState.IDLE,
 
+        backOnClick = {},
         mnemonicCopied = {},
         nextOnClick = {}
     )
@@ -206,6 +215,7 @@ fun PreviewManualBackupScreenCopied() {
         mnemonic = mnemonic,
         copyState = CopyState.COPIED,
 
+        backOnClick = {},
         mnemonicCopied = {},
         nextOnClick = {}
     )

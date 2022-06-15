@@ -28,7 +28,8 @@ class BuySellFlowNavigatorTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val userIdentity: UserIdentity = mock {
         on { isVerifiedFor(Feature.TierLevel(Tier.GOLD)) }.thenReturn(Single.just(true))
-        on { isEligibleFor(Feature.SimpleBuy) }.thenReturn(Single.just(true))
+        on { isEligibleFor(Feature.Buy) }.thenReturn(Single.just(true))
+        on { isEligibleFor(Feature.Sell) }.thenReturn(Single.just(true))
     }
     private lateinit var subject: BuySellFlowNavigator
 
@@ -44,14 +45,11 @@ class BuySellFlowNavigatorTest {
     }
 
     @Test
-    fun `when user is not eligible, corresponding state should be propagated to the UI`() {
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Blocked(
-                    BlockedReason.NotEligible
-                )
-            )
-        )
+    fun `when user is not eligible to neither buy nor sell, corresponding state should be propagated to the UI`() {
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible)))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible)))
 
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, GBP)))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(GBP))
@@ -64,11 +62,10 @@ class BuySellFlowNavigatorTest {
 
     @Test
     fun `whenBuyStateIsNotPendingCurrencyIsSupportedAndSellIsEnableNormalBuySellUiIsDisplayed`() {
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Granted()
-            )
-        )
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
             .thenReturn(Single.just(true))
@@ -87,11 +84,10 @@ class BuySellFlowNavigatorTest {
             )
         )
 
-        whenever(userIdentity.userAccessForFeature(Feature.SimpleBuy)).thenReturn(
-            Single.just(
-                FeatureAccess.Granted()
-            )
-        )
+        whenever(userIdentity.userAccessForFeature(Feature.Buy))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.userAccessForFeature(Feature.Sell))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
 
         whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
         whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))

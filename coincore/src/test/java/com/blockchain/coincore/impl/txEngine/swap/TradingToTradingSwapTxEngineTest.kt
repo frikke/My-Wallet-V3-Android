@@ -227,7 +227,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             on { price }.thenReturn(INITIAL_QUOTE_PRICE)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.just(pricedQuote))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.just(pricedQuote))
         whenever(quotesEngine.getLatestQuote()).thenReturn(pricedQuote)
 
         subject.start(
@@ -261,7 +261,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
         verifyLimitsFetched()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
         verify(quotesEngine, atLeastOnce()).getLatestQuote()
 
         noMoreInteractions(txTarget)
@@ -283,7 +283,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             on { getErrorCode() }.thenReturn(NabuErrorCodes.PendingOrdersLimitReached)
         }
 
-        whenever(quotesEngine.pricedQuote).thenReturn(Observable.error(error))
+        whenever(quotesEngine.getPricedQuote()).thenReturn(Observable.error(error))
 
         subject.start(
             sourceAccount,
@@ -314,7 +314,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         verify(txTarget, atLeastOnce()).currency
         verify(currencyPrefs).selectedFiatCurrency
         verifyQuotesEngineStarted()
-        verify(quotesEngine).pricedQuote
+        verify(quotesEngine).getPricedQuote()
 
         noMoreInteractions(txTarget)
     }

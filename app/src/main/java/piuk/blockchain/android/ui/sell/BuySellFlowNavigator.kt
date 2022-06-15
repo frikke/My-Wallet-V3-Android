@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.sell
 
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
@@ -42,17 +41,13 @@ class BuySellFlowNavigator(
         return selectedAsset?.let {
             Single.just(BuySellIntroAction.StartBuyWithSelectedAsset(it))
         } ?: run {
-            userIdentity.userAccessForFeature(Feature.SimpleBuy).map { access ->
-                when (access) {
-                    FeatureAccess.NotRequested,
-                    FeatureAccess.Unknown,
-                    is FeatureAccess.Granted -> BuySellIntroAction.DisplayBuySellIntro
-                    is FeatureAccess.Blocked -> {
-                        if (access.isBlockedDueToEligibility())
-                            BuySellIntroAction.UserNotEligible
-                        else BuySellIntroAction.DisplayBuySellIntro
-                    }
-                }
+            Single.zip(
+                userIdentity.userAccessForFeature(Feature.Buy),
+                userIdentity.userAccessForFeature(Feature.Sell)
+            ) { buyAccess, sellAccess ->
+                if (buyAccess.isBlockedDueToEligibility() && sellAccess.isBlockedDueToEligibility())
+                    BuySellIntroAction.UserNotEligible
+                else BuySellIntroAction.DisplayBuySellIntro
             }
         }
     }

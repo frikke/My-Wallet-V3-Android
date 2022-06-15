@@ -307,7 +307,7 @@ internal class PricesFragment :
                     AssetAction.FiatDeposit -> {
                         BankAuthSource.DEPOSIT
                     }
-                    AssetAction.Withdraw -> {
+                    AssetAction.FiatWithdraw -> {
                         BankAuthSource.WITHDRAW
                     }
                     else -> {
@@ -402,7 +402,7 @@ internal class PricesFragment :
             if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit) {
                 model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatDeposit, true))
             } else if (paymentMethodForAction is LinkablePaymentMethodsForAction.LinkablePaymentMethodsForWithdraw) {
-                model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.Withdraw, true))
+                model.process(DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, true))
             }
         }
     }
@@ -416,7 +416,7 @@ internal class PricesFragment :
     }
 
     override fun startBankTransferWithdrawal(fiatAccount: FiatAccount) {
-        model.process(DashboardIntent.LaunchBankTransferFlow(fiatAccount, AssetAction.Withdraw, false))
+        model.process(DashboardIntent.LaunchBankTransferFlow(fiatAccount, AssetAction.FiatWithdraw, false))
     }
 
     override fun startDepositFlow(fiatAccount: FiatAccount) {

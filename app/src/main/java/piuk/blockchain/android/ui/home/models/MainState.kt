@@ -8,6 +8,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.deeplinking.processor.DeepLinkResult
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -21,7 +22,8 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed,
-    val deeplinkIntent: Intent? = null
+    val deeplinkIntent: Intent? = null,
+    val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
 ) : MviState
 
 sealed class ViewToLaunch {

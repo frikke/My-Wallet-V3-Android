@@ -30,7 +30,7 @@ class SwapAnnouncement(
         queries.isTier1Or2Verified().flatMap {
             if (!it)
                 Single.just(AnnouncementType.PROMO)
-            else identity.isEligibleFor(Feature.SimpleBuy)
+            else identity.isEligibleFor(Feature.Swap)
                 .map { eligible ->
                     if (eligible) AnnouncementType.ELIGIBLE
                     else AnnouncementType.NOT_ELIGIBLE

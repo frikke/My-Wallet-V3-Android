@@ -47,6 +47,7 @@ import com.blockchain.logging.LastTxUpdateDateOnSettingsService
 import com.blockchain.logging.LastTxUpdater
 import com.blockchain.payload.PayloadDecrypt
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
@@ -55,6 +56,7 @@ import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
@@ -374,6 +376,7 @@ val coreModule = module {
                 environmentConfig = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
+                googlePayFeatureFlag = get(googlePayFeatureFlag),
                 plaidFeatureFlag = get(plaidFeatureFlag)
             )
         }.apply {
@@ -457,8 +460,10 @@ val coreModule = module {
         bind(BankLinkingPrefs::class)
         bind(SecureChannelPrefs::class)
         bind(OnboardingPrefs::class)
+        bind(AppMaintenancePrefs::class)
         bind(AppRatingPrefs::class)
         bind(NftAnnouncementPrefs::class)
+        bind(ReferralPrefs::class)
     }
 
     factory {

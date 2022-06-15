@@ -54,21 +54,19 @@ class AccountInfoCrypto @JvmOverloads constructor(
     fun updateAccount(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit = {},
-        cellDecorator: CellDecorator = DefaultCellDecorator(),
-        isSenderAccount: Boolean = false
+        cellDecorator: CellDecorator = DefaultCellDecorator()
     ) {
         compositeDisposable.clear()
-        updateView(account, onAccountClicked, cellDecorator, isSenderAccount)
+        updateView(account, onAccountClicked, cellDecorator)
     }
 
     private fun updateView(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
-        isSenderAccount: Boolean
+        cellDecorator: CellDecorator
     ) {
         val accountsAreTheSame = displayedAccount.isTheSameWith(account)
-        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator, isSenderAccount)
+        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator)
 
         (account as? InterestAccount)?.let { setInterestAccountDetails(account, accountsAreTheSame) }
 
@@ -109,8 +107,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         account: CryptoAccount,
         accountsAreTheSame: Boolean,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
-        isSenderAccount: Boolean
+        cellDecorator: CellDecorator
     ) {
 
         with(binding) {
@@ -201,7 +198,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     override fun update(state: TransactionState) {
-        updateAccount(state.sendingAccount as CryptoAccount, { }, isSenderAccount = true)
+        updateAccount(state.sendingAccount as CryptoAccount, { })
     }
 
     override fun setVisible(isVisible: Boolean) {

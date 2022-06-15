@@ -138,6 +138,7 @@ val coincoreModule = module {
                 defaultLabels = get(),
                 remoteLogger = get(),
                 bankService = get(),
+                walletModeService = get(),
                 currencyPrefs = get(),
                 disabledEvmAssets = ncAssetList.toList()
             )
@@ -238,8 +239,7 @@ val coincoreModule = module {
         factory {
             SwapTrendingPairsProvider(
                 coincore = get(),
-                assetCatalogue = get(),
-                identity = get()
+                assetCatalogue = get()
             )
         }.bind(TrendingPairsProvider::class)
     }

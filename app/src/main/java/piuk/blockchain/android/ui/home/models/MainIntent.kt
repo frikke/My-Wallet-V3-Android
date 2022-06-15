@@ -16,6 +16,23 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    object CheckReferralCode : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class ReferralCodeIntent(val referralInfo: ReferralState) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                referral = referralInfo
+            )
+    }
+
+    object ReferralIconClicked : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy(
+            referral = oldState.referral.copy(hasReferralBeenClicked = true)
+        )
+    }
+
     class CheckForPendingLinks(val appIntent: Intent) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }

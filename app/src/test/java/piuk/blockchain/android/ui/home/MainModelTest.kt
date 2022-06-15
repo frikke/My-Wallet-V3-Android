@@ -11,6 +11,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
+import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.nabu.datamanagers.OrderState
@@ -21,6 +22,7 @@ import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -45,6 +47,7 @@ import piuk.blockchain.android.ui.home.models.MainIntent
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.MainModel
 import piuk.blockchain.android.ui.home.models.MainState
+import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.home.models.ViewToLaunch
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -59,8 +62,9 @@ class MainModelTest {
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
-
-    private val interactor: MainInteractor = mock()
+    private val interactor: MainInteractor = mock {
+        on { checkReferral() }.thenReturn(Single.just(ReferralState(ReferralInfo.NotAvailable)))
+    }
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock {
         on { sessionEvents }.thenReturn(Observable.empty())
     }
@@ -1204,5 +1208,29 @@ class MainModelTest {
             .assertValues(
                 MainState()
             )
+    }
+
+    @Test
+    fun checkForReferralCode() {
+        model.process(MainIntent.CheckReferralCode)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(ReferralInfo.NotAvailable))
+        )
+    }
+
+    @Test
+    fun updateReferralClickedState() {
+        val mockReferralInfo: ReferralInfo = mock()
+        whenever(interactor.checkReferral()).doReturn(Single.just(ReferralState(mockReferralInfo, false)))
+
+        model.process(MainIntent.CheckReferralCode)
+        model.process(MainIntent.ReferralIconClicked)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(mockReferralInfo, true))
+        )
     }
 }

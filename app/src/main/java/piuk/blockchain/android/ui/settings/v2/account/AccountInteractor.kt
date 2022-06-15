@@ -4,11 +4,8 @@ import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.domain.referral.ReferralService
-import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
-import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
@@ -24,8 +21,7 @@ class AccountInteractor internal constructor(
     private val exchangeRates: ExchangeRatesDataManager,
     private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
-    private val exchangeLinkingState: ExchangeLinking,
-    private val referralService: ReferralService
+    private val exchangeLinkingState: ExchangeLinking
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
@@ -73,6 +69,4 @@ class AccountInteractor internal constructor(
                         }
                 }
             }
-
-    suspend fun getReferralData() = referralService.fetchReferralData().getOrDefault(ReferralInfo.NotAvailable)
 }

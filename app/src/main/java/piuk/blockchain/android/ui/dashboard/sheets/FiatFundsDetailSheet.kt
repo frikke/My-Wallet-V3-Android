@@ -4,10 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullFiatAccount
+import com.blockchain.coincore.StateAwareAction
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
@@ -71,21 +73,21 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
                         it.convert(balance) to balance
                     }
                 },
-                account.actions
+                account.stateAwareActions
             ).observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = { (accountBalance, actions) ->
+                    onSuccess = { (accountBalance, stateAwareActions) ->
                         val balanceInWalletCurrency = accountBalance.first
-                        val accountBalance = accountBalance.second
+                        val balance = accountBalance.second
                         fundDetails.fundsUserFiatBalance.visibleIf {
                             prefs.selectedFiatCurrency.networkTicker != account.currency.networkTicker
                         }
                         fundDetails.fundsUserFiatBalance.text = balanceInWalletCurrency.toStringWithSymbol()
-                        fundDetails.fundsBalance.text = accountBalance.toStringWithSymbol()
-                        fundDetails.fundsBalance.visibleIf { accountBalance.isZero || accountBalance.isPositive }
-                        fundsWithdrawHolder.visibleIf { actions.contains(AssetAction.Withdraw) }
-                        fundsDepositHolder.visibleIf { actions.contains(AssetAction.FiatDeposit) }
-                        fundsActivityHolder.visibleIf { actions.contains(AssetAction.ViewActivity) }
+                        fundDetails.fundsBalance.text = balance.toStringWithSymbol()
+                        fundDetails.fundsBalance.visibleIf { balance.isZero || balance.isPositive }
+                        fundsWithdrawHolder.visibleIf { stateAwareActions.hasAvailableAction(AssetAction.FiatWithdraw) }
+                        fundsDepositHolder.visibleIf { stateAwareActions.hasAvailableAction(AssetAction.FiatDeposit) }
+                        fundsActivityHolder.visibleIf { stateAwareActions.hasAvailableAction(AssetAction.ViewActivity) }
                     },
                     onError = {
                         Timber.e("Error getting fiat funds balances: $it")
@@ -118,6 +120,9 @@ class FiatFundsDetailSheet : SlidingModalBottomDialog<DialogSheetFiatFundsDetail
             }
         }
     }
+
+    private fun Set<StateAwareAction>.hasAvailableAction(action: AssetAction): Boolean =
+        firstOrNull { it.action == action && it.state == ActionState.Available } != null
 
     private fun handleWithdrawalChecks() {
         disposables += account.canWithdrawFunds()

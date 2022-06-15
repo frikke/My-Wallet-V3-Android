@@ -29,6 +29,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.security.ProviderInstaller
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
+import com.google.firebase.FirebaseApp
 import io.embrace.android.embracesdk.Embrace
 import io.intercom.android.sdk.Intercom
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -78,6 +79,7 @@ open class BlockchainApplication : Application() {
 
         super.onCreate()
 
+        FirebaseApp.initializeApp(this)
         Embrace.getInstance().start(this, BuildConfig.DEBUG)
         Embrace.getInstance().startEvent(MomentEvent.LAUNCHER_TO_SPLASH.value)
 

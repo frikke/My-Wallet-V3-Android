@@ -326,8 +326,13 @@ class DashboardActionInteractor(
             }
 
     fun launchBankTransferFlow(model: DashboardModel, currencyCode: String = "", action: AssetAction) =
-        userIdentity.isEligibleFor(Feature.SimpleBuy)
-            .zipWith(coincore.fiatAssets.accountGroup().toSingle())
+        userIdentity.isEligibleFor(
+            when (action) {
+                AssetAction.FiatWithdraw -> Feature.WithdrawFiat
+                AssetAction.FiatDeposit -> Feature.DepositFiat
+                else -> throw IllegalArgumentException("$action not supported")
+            }
+        ).zipWith(coincore.fiatAssets.accountGroup().toSingle())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
