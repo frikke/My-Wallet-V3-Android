@@ -47,9 +47,6 @@ class AccountInfoCrypto @JvmOverloads constructor(
     val binding: ViewAccountCryptoOverviewBinding =
         ViewAccountCryptoOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
-    /**
-     * @param isSenderAccount if true, cell title/subtitle are switched
-     */
     fun updateAccount(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit = {},

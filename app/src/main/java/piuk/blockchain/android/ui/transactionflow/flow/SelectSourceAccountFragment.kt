@@ -184,7 +184,7 @@ class SelectSourceAccountFragment : TransactionFlowFragment<FragmentTxAccountSel
             accountList.initialise(
                 source = Single.just(newState.availableSources.map { it }),
                 status = customiser.sourceAccountSelectionStatusDecorator(newState),
-                assetAction = newState.action,
+                assetAction = newState.action
             )
             if (customiser.selectSourceShouldShowSubtitle(newState)) {
                 accountListSubtitle.text = customiser.selectSourceAccountSubtitle(newState)

@@ -15,13 +15,12 @@ class SwapAccountSelectSheetFeeDecorator(
     private val walletMode: WalletMode
 ) : CellDecorator {
 
-    override fun view(context: Context): Maybe<View> {
+    override fun view(context: Context): Maybe<View> =
         // in trading mode - no need to show the fee decorator
-        return if (account is TradingAccount && walletMode != WalletMode.CUSTODIAL_ONLY) {
+        if (account is TradingAccount && walletMode != WalletMode.CUSTODIAL_ONLY) {
             Maybe.just(tradingAccountBadgesView(context))
         } else
             Maybe.empty()
-    }
 
     private fun tradingAccountBadgesView(context: Context) =
         LayoutInflater.from(context).inflate(
