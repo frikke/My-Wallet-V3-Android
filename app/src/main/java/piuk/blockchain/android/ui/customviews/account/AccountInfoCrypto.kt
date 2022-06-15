@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
-import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.toUserFiat
@@ -115,8 +114,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
             val crypto = account.currency
 
             assetTitle.text = crypto.name
-            assetSubtitle.text =  account.label
-
+            assetSubtitle.text = account.label
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {

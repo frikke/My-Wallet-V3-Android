@@ -28,6 +28,10 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
 import info.blockchain.balance.Money
+import java.math.RoundingMode
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.customviews.account.AccountInfoBank
 import piuk.blockchain.android.ui.customviews.account.AccountInfoCrypto
@@ -55,10 +59,6 @@ import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
-import java.math.RoundingMode
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 interface TransactionFlowCustomiser :
     EnterAmountCustomisations,
@@ -1128,9 +1128,9 @@ class TransactionFlowCustomiserImpl(
             TransactionStep.ENTER_ADDRESS -> BackNavigationState.ClearTransactionTarget
             TransactionStep.ENTER_AMOUNT -> {
                 if (state.sendingAccount is LinkedBankAccount || (
-                        state.selectedTarget is CryptoInterestAccount &&
-                            state.action == AssetAction.InterestDeposit
-                        )
+                    state.selectedTarget is CryptoInterestAccount &&
+                        state.action == AssetAction.InterestDeposit
+                    )
                 ) {
                     BackNavigationState.ResetPendingTransactionKeepingTarget
                 } else {
