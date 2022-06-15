@@ -6,13 +6,13 @@ import com.google.common.collect.HashBiMap
 import info.blockchain.wallet.bip44.HDAccount
 import info.blockchain.wallet.bip44.HDWallet
 import info.blockchain.wallet.bip44.HDWalletFactory
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.HDWalletsContainer
 import info.blockchain.wallet.payload.model.toBalanceMap
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
-import info.blockchain.wallet.stx.STXAccount
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.LinkedList
@@ -335,9 +335,7 @@ class WalletBody {
         return null
     }
 
-    fun getSTXAccount(): STXAccount? {
-        return HD.getStxAccount()
-    }
+    fun getDynamicHdAccount(coinConfiguration: CoinConfiguration) = HD.getDynamicAccount(coinConfiguration)
 
     fun updateDefaultIndex() {
         defaultAccountIdx = 0

@@ -7,10 +7,10 @@ import org.bitcoinj.crypto.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration;
+import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount;
 import info.blockchain.wallet.keys.MasterKey;
 import info.blockchain.wallet.keys.MasterKeyImpl;
-import info.blockchain.wallet.payload.data.Derivation;
-import info.blockchain.wallet.stx.STXAccount;
 import info.blockchain.wallet.util.HexUtils;
 
 /**
@@ -29,7 +29,6 @@ public class HDWallet {
     private final ArrayList<HDAccount> accounts;
 
     private String strPath = null;
-    private STXAccount stxAccount = null;
 
     private final NetworkParameters params;
 
@@ -67,9 +66,6 @@ public class HDWallet {
             accounts.add(new HDAccount(params, dkRoot, i));
         }
 
-        if (purpose == Derivation.LEGACY_PURPOSE) {
-            stxAccount = new STXAccount(params, dKey);
-        }
         strPath = dKey.getPathAsString();
     }
 
@@ -163,8 +159,11 @@ public class HDWallet {
         return strPath;
     }
 
-    public STXAccount getSTXAccount() {
-        return stxAccount;
+    public DynamicHDAccount getDynamicHdAccount(CoinConfiguration coinConfiguration) {
+        DeterministicKey dKey = HDKeyDerivation.deriveChildKey(
+            dkKey, coinConfiguration.getPurpose() | ChildNumber.HARDENED_BIT
+        );
+        return new DynamicHDAccount(params, dKey, coinConfiguration);
     }
 
     public MasterKey getMasterKey() {

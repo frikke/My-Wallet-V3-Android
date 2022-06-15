@@ -22,6 +22,7 @@ import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.payments.PaymentsApi
 import com.blockchain.api.referral.ReferralApi
+import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.AnalyticsService
 import com.blockchain.api.services.AssetDiscoveryApiService
@@ -30,6 +31,7 @@ import com.blockchain.api.services.AuthApiService
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
+import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.KycService
 import com.blockchain.api.services.NabuUserService
@@ -144,6 +146,13 @@ val blockchainApiModule = module {
         NonCustodialEvmService(
             api,
             getProperty("api-code")
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(blockchainApi).create(SelfCustodyApi::class.java)
+        DynamicSelfCustodyService(
+            api
         )
     }
 

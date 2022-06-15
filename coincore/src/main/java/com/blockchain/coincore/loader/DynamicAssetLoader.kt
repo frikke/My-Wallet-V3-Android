@@ -3,6 +3,7 @@ package com.blockchain.coincore.loader
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.IdentityAddressResolver
 import com.blockchain.coincore.NonCustodialSupport
 import com.blockchain.coincore.custodialonly.DynamicOnlyTradingAsset
 import com.blockchain.coincore.erc20.Erc20Asset
@@ -10,6 +11,7 @@ import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.selfcustody.DynamicSelfCustodyAsset
 import com.blockchain.coincore.selfcustody.StxAsset
 import com.blockchain.coincore.wrap.FormatUtilities
+import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -54,7 +56,9 @@ internal class DynamicAssetLoader(
     private val labels: DefaultLabels,
     private val remoteLogger: RemoteLogger,
     private val formatUtils: FormatUtilities,
+    private val identityAddressResolver: IdentityAddressResolver,
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
+    private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
     private val stxForAllFeatureFlag: FeatureFlag,
     private val stxForAirdropFeatureFlag: FeatureFlag
@@ -136,13 +140,13 @@ internal class DynamicAssetLoader(
             }
             // Those two sets should NOT overlap
             check(loadedErc20.intersect(custodialAssets.toSet()).isEmpty())
-            loadCustodialOnlyAssets(custodialAssets).map { custodialList ->
+            loadCustodialAssets(custodialAssets).map { custodialList ->
                 loadedErc20 + custodialList
             }
         }
     }
 
-    private fun loadCustodialOnlyAssets(
+    private fun loadCustodialAssets(
         custodialAssets: Iterable<AssetInfo>
     ): Single<List<CryptoAsset>> {
         if (walletModeService.enabledWalletMode().custodialEnabled.not()) {
@@ -155,7 +159,10 @@ internal class DynamicAssetLoader(
             activeInterest + activeTrading
         }.map { activeAssets ->
             custodialAssets.map { asset ->
-                val loadedAsset = loadCustodialOnlyAsset(asset)
+                val loadedAsset = when {
+                    asset.isNonCustodial -> loadSelfCustodialAsset(asset)
+                    else -> loadCustodialOnlyAsset(asset)
+                }
                 if (activeAssets.contains(asset)) {
                     activeAssetMap[asset] = loadedAsset
                 }
@@ -222,7 +229,10 @@ internal class DynamicAssetLoader(
         return if (assetInfo.networkTicker == "STX") {
             StxAsset(
                 assetInfo = assetInfo,
+                payloadManager = payloadManager,
                 addressValidation = defaultCustodialAddressValidation,
+                addressResolver = identityAddressResolver,
+                selfCustodyService = selfCustodyService,
                 stxForAllFeatureFlag = stxForAllFeatureFlag,
                 stxForAirdropFeatureFlag = stxForAirdropFeatureFlag
             )

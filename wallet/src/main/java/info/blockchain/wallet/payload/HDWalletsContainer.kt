@@ -3,13 +3,12 @@ package info.blockchain.wallet.payload
 import info.blockchain.wallet.bip44.HDAccount
 import info.blockchain.wallet.bip44.HDWallet
 import info.blockchain.wallet.bip44.HDWalletFactory
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.payload.data.Account
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.legacyXpubAddresses
 import info.blockchain.wallet.payload.data.segwitXpubAddresses
-import info.blockchain.wallet.stx.STXAccount
-import java.lang.IllegalStateException
 import java.security.SecureRandom
 
 class HDWalletsContainer {
@@ -141,6 +140,9 @@ class HDWalletsContainer {
         }
     }
 
-    fun getStxAccount(): STXAccount =
-        legacy?.stxAccount ?: throw IllegalStateException("Legacy account hasn't created/restored yet")
+    fun getDynamicAccount(coinConfiguration: CoinConfiguration) =
+        when (coinConfiguration.purpose) {
+            Derivation.SEGWIT_BECH32_PURPOSE -> segwitBech32?.getDynamicHdAccount(coinConfiguration)
+            else -> legacy?.getDynamicHdAccount(coinConfiguration)
+        }
 }

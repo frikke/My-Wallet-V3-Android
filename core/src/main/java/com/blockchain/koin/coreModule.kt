@@ -10,6 +10,8 @@ import com.blockchain.core.buy.BuyPairsCache
 import com.blockchain.core.chains.EvmNetworksService
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.chains.bitcoincash.BchDataStore
+import com.blockchain.core.chains.dynamicselfcustody.NonCustodialRepository
+import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
@@ -406,6 +408,13 @@ val coreModule = module {
             NftWailslitRepository(
                 nftWaitlistApiService = get(),
                 userIdentity = get()
+            )
+        }
+
+        scoped<NonCustodialService> {
+            NonCustodialRepository(
+                dynamicSelfCustodyService = get(),
+                payloadDataManager = get()
             )
         }
     }

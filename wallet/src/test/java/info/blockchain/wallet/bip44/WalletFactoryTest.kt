@@ -1,6 +1,7 @@
 package info.blockchain.wallet.bip44
 
 import info.blockchain.wallet.bip44.HDWalletFactory.Language
+import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.payload.data.Derivation
 import java.security.SecureRandom
 import org.bitcoinj.params.MainNetParams
@@ -101,13 +102,21 @@ class WalletFactoryTest {
                 Derivation.LEGACY_PURPOSE
             )
 
+        val stxCoinType = 5757
+        val coinConfiguration = CoinConfiguration(
+            coinType = stxCoinType,
+            purpose = Derivation.LEGACY_PURPOSE
+        )
+
+        val stxAccount = wallet.getDynamicHdAccount(coinConfiguration)
+
         assertEquals(
             "1LJepqGsKKLPxFumnzFndsWTWsaCfkSDTp",
-            wallet.stxAccount.bitcoinSerializedBase58Address
+            stxAccount.bitcoinSerializedBase58Address
         )
         assertEquals(
             "m/44H/5757H/0H/0/0",
-            wallet.stxAccount.address.path
+            stxAccount.address.path
         )
     }
 
