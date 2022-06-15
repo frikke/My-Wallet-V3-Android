@@ -24,7 +24,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
-import piuk.blockchain.android.ui.customviews.account.AccountInfoTitlePriority
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 
@@ -79,8 +78,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
                 source = accounts(),
                 status = statusDecorator,
                 introView = introHeaderView,
-                accountsLocks = showWithdrawalLocks(),
-                accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+                accountsLocks = showWithdrawalLocks()
             )
         }
     }

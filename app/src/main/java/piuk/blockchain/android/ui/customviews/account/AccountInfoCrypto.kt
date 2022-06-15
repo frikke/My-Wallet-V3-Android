@@ -54,21 +54,19 @@ class AccountInfoCrypto @JvmOverloads constructor(
     fun updateAccount(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit = {},
-        cellDecorator: CellDecorator = DefaultCellDecorator(),
-        accountInfoTitlePriority: AccountInfoTitlePriority = AccountInfoTitlePriority.ACCOUNT_NAME
+        cellDecorator: CellDecorator = DefaultCellDecorator()
     ) {
         compositeDisposable.clear()
-        updateView(account, onAccountClicked, cellDecorator, accountInfoTitlePriority)
+        updateView(account, onAccountClicked, cellDecorator)
     }
 
     private fun updateView(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
-        accountInfoTitlePriority: AccountInfoTitlePriority
+        cellDecorator: CellDecorator
     ) {
         val accountsAreTheSame = displayedAccount.isTheSameWith(account)
-        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator, accountInfoTitlePriority)
+        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator)
 
         (account as? InterestAccount)?.let { setInterestAccountDetails(account, accountsAreTheSame) }
 
@@ -84,7 +82,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean
     ) {
         with(binding) {
-            compositeDisposable += (coincore[account.currency] as CryptoAsset)
+            compositeDisposable += coincore[account.currency]
                 .interestRate()
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { assetSubtitle.text = resources.getString(R.string.empty) }
@@ -109,21 +107,16 @@ class AccountInfoCrypto @JvmOverloads constructor(
         account: CryptoAccount,
         accountsAreTheSame: Boolean,
         onAccountClicked: (CryptoAccount) -> Unit,
-        cellDecorator: CellDecorator,
-        accountInfoTitlePriority: AccountInfoTitlePriority
+        cellDecorator: CellDecorator
     ) {
 
         with(binding) {
             root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val crypto = account.currency
 
-            assetTitle.text =
-                if (accountInfoTitlePriority == AccountInfoTitlePriority.COIN_NAME) crypto.name
-                else account.label
+            assetTitle.text = crypto.name
+            assetSubtitle.text =  account.label
 
-            assetSubtitle.text =
-                if (accountInfoTitlePriority == AccountInfoTitlePriority.COIN_NAME) account.label
-                else crypto.name
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
@@ -207,8 +200,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
     override fun update(state: TransactionState) {
         updateAccount(
             account = state.sendingAccount as CryptoAccount,
-            onAccountClicked = { },
-            accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+            onAccountClicked = { }
         )
     }
 
@@ -235,8 +227,3 @@ private fun <T> Single<T>.startWithValueIfCondition(
             else -> this.toObservable()
         }
     }
-
-enum class AccountInfoTitlePriority {
-    COIN_NAME,
-    ACCOUNT_NAME
-}

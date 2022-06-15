@@ -84,8 +84,7 @@ class AccountSelectSheet(
 
         binding.accountList.initialise(
             source = accountList,
-            status = statusDecorator,
-            accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+            status = statusDecorator
         )
     }
 

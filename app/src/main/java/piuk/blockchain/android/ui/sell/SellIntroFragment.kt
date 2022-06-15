@@ -50,7 +50,6 @@ import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
-import piuk.blockchain.android.ui.customviews.account.AccountInfoTitlePriority
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -322,8 +321,7 @@ class SellIntroFragment : ViewPagerFragment() {
                             }
                         },
                         status = ::statusDecorator,
-                        introView = introHeaderView,
-                        accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+                        introView = introHeaderView
                     )
 
                     renderSellInfo()
