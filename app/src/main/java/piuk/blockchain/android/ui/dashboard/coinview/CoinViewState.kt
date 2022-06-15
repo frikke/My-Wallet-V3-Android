@@ -129,13 +129,10 @@ sealed class AssetDetailsItem {
     object AccountError : AssetDetailsItem()
 }
 
-internal sealed class Details {
-    class DetailsItem(
-        val isEnabled: Boolean,
-        val account: BlockchainAccount,
-        val balance: Money,
-        val pendingBalance: Money,
-        val actions: Set<StateAwareAction>,
-        val isDefault: Boolean = false
-    ) : Details()
-}
+class DetailsItem(
+    val account: BlockchainAccount,
+    val balance: Money,
+    val pendingBalance: Money,
+    val actions: Set<StateAwareAction>,
+    val isDefault: Boolean = false
+)

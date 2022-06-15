@@ -35,7 +35,7 @@ internal class SwapTrendingPairsProvider(
                 val accountGroups = assetList.map { asset ->
                     coincore[asset].accountGroup(filter)
                         .toSingle()
-                        .onErrorReturn { NullAccountGroup() }
+                        .onErrorReturn { NullAccountGroup }
                 }
 
                 Single.zip(

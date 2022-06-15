@@ -47,9 +47,6 @@ class NullCryptoAccount(
     override fun matches(other: CryptoAccount): Boolean =
         other is NullCryptoAccount
 
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 }
@@ -80,16 +77,13 @@ object NullFiatAccount : FiatAccount {
     override val isFunded: Boolean = false
     override val hasTransactions: Boolean = false
 
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 
     override fun canWithdrawFunds(): Single<Boolean> = Single.just(false)
 }
 
-class NullAccountGroup : AccountGroup {
+object NullAccountGroup : AccountGroup {
     override val accounts: SingleAccountList = emptyList()
 
     override fun includes(account: BlockchainAccount): Boolean = false

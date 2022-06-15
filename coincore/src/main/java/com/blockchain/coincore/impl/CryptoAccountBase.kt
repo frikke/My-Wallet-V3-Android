@@ -13,6 +13,7 @@ import com.blockchain.coincore.ExchangeAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.ReceiveAddress
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradeActivitySummaryItem
@@ -58,9 +59,6 @@ abstract class CryptoAccountBase : CryptoAccount {
 
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
 
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
@@ -349,9 +347,6 @@ class CryptoAccountCustodialGroup(
         account = accounts[0] as CryptoAccountBase
     }
 
-    override val isEnabled: Single<Boolean>
-        get() = account.isEnabled
-
     override val receiveAddress: Single<ReceiveAddress>
         get() = account.receiveAddress
 
@@ -369,6 +364,63 @@ class CryptoAccountCustodialGroup(
 
     override val hasTransactions: Boolean
         get() = account.hasTransactions
+
+    override fun includes(account: BlockchainAccount): Boolean =
+        accounts.contains(account)
+}
+
+class CryptoAccountCustodialPlusInterestGroup(
+    override val label: String,
+    override val accounts: SingleAccountList
+) : AccountGroup {
+
+    init {
+        require(accounts.size in 1..2)
+        require(accounts.map { it is CustodialTradingAccount || it is CryptoInterestAccount }.all { it })
+        if (accounts.size == 2) {
+            require(accounts[0].currency == accounts[1].currency)
+        }
+    }
+
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = throw IllegalStateException("ReceiveAddress is not supported")
+
+    override val balance: Observable<AccountBalance>
+        get() = allAccounts().flattenAsObservable { it.filterIsInstance<SingleAccount>() }.flatMapSingle {
+            it.balance.firstOrError()
+        }.reduce { a, v ->
+            AccountBalance.totalOf(a, v)
+        }.toObservable()
+
+    override val activity: Single<ActivitySummaryList>
+        get() = allActivities()
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.just(
+            setOf(
+                StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+            )
+        )
+
+    override val isFunded: Boolean
+        get() = true
+
+    override val hasTransactions: Boolean
+        get() = true
+
+    private fun allAccounts(): Single<List<BlockchainAccount>> =
+        Single.just(accounts)
+
+    private fun allActivities(): Single<ActivitySummaryList> =
+        allAccounts().flattenAsObservable { it }
+            .flatMapSingle { account ->
+                account.activity
+                    .onErrorResumeNext { Single.just(emptyList()) }
+            }
+            .reduce { a, l -> a + l }
+            .defaultIfEmpty(emptyList())
+            .map { it.distinct() }
+            .map { it.sorted() }
 
     override fun includes(account: BlockchainAccount): Boolean =
         accounts.contains(account)

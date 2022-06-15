@@ -46,6 +46,7 @@ val dashboardModule = module {
                 bankService = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
+                walletModeService = get(),
                 analytics = get(),
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
@@ -112,6 +113,7 @@ val dashboardModule = module {
                 custodialWalletManager = get(),
                 assetActionsComparator = get(),
                 assetsManager = get(),
+                walletModeService = get(),
                 watchlistDataManager = get(),
             )
         }

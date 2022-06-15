@@ -25,7 +25,6 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
@@ -35,7 +34,6 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import java.util.concurrent.atomic.AtomicBoolean
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -85,41 +83,12 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         )
 
     private fun loadAccounts(): Single<SingleAccountList> {
-        val walletModeService = get<WalletModeService>().enabledWalletMode()
-
-        val loadNonCustodialAccounts =
-            if (walletModeService.nonCustodialEnabled) {
-                loadNonCustodialAccounts(
-                    labels
-                )
-            } else {
-                Single.just(
-                    emptyList()
-                )
-            }
-
-        val loadCustodialAccounts =
-            if (walletModeService.custodialEnabled) {
-                loadCustodialAccounts()
-            } else {
-                Single.just(
-                    emptyList()
-                )
-            }
-
-        val loadInterestAccounts =
-            if (walletModeService.custodialEnabled) {
-                loadInterestAccounts()
-            } else {
-                Single.just(
-                    emptyList()
-                )
-            }
-
         return Single.zip(
-            loadNonCustodialAccounts,
-            loadCustodialAccounts,
-            loadInterestAccounts
+            loadNonCustodialAccounts(
+                labels
+            ),
+            loadCustodialAccounts(),
+            loadInterestAccounts()
         ) { nc, c, i ->
             nc + c + i
         }.doOnError {
@@ -199,8 +168,6 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
             it.forEach {
                 remoteLogger.logEvent("defaultAccount, account: ${it.label}")
             }
-            //
-
             it.first { a -> a.isDefault }
         }
     }

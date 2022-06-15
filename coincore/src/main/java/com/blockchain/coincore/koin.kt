@@ -13,10 +13,8 @@ import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
-import com.blockchain.coincore.loader.CustodialOnlyDynamicAssetsRepository
 import com.blockchain.coincore.loader.DynamicAssetLoader
 import com.blockchain.coincore.loader.DynamicAssetsService
-import com.blockchain.coincore.loader.NonCustodialDynamicAssetRepository
 import com.blockchain.coincore.loader.NonCustodialL2sDynamicAssetRepository
 import com.blockchain.coincore.loader.UniversalDynamicAssetRepository
 import com.blockchain.coincore.wrap.FormatUtilities
@@ -29,12 +27,9 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
-import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import org.koin.core.qualifier.StringQualifier
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -115,7 +110,6 @@ val coincoreModule = module {
             FiatAsset(
                 labels = get(),
                 tradingBalanceDataManager = get(),
-                walletModeService = get(),
                 exchangeRateDataManager = get(),
                 custodialWalletManager = get(),
                 bankService = get(),
@@ -146,12 +140,8 @@ val coincoreModule = module {
         }
 
         scoped {
-            val ncAssets: List<CryptoAsset> =
-                if (get<WalletModeService>().enabledWalletMode().nonCustodialEnabled) {
-                    payloadScope.getAll()
-                } else {
-                    emptyList()
-                }
+            val ncAssets: List<CryptoAsset> = payloadScope.getAll()
+
             // For some unknown reason `getAll()` adds the last element twice. Which means
             // that last element calls init() twice. So make it a set, to remove any duplicates.
             DynamicAssetLoader(
@@ -247,34 +237,15 @@ val coincoreModule = module {
     }
 
     single {
-        val assetsService = when (get<WalletModeService>().enabledWalletMode()) {
-            WalletMode.UNIVERSAL -> get(StringQualifier("Universal"))
-            WalletMode.NON_CUSTODIAL_ONLY -> get(StringQualifier("NonCustodialOnlyQualifier"))
-            WalletMode.CUSTODIAL_ONLY -> get<DynamicAssetsService>(StringQualifier("CustodialOnly"))
-        }
         AssetCatalogueImpl(
-            assetsService = assetsService,
+            assetsService = get(),
             assetsDataManager = get()
         )
     }.bind(AssetCatalogue::class)
 
-    single(StringQualifier("Universal")) {
+    single {
         UniversalDynamicAssetRepository(
             discoveryService = get(),
-            l2sDynamicAssetRepository = get()
-        )
-    }.bind(DynamicAssetsService::class)
-
-    single(StringQualifier("CustodialOnly")) {
-        CustodialOnlyDynamicAssetsRepository(
-            discoveryService = get()
-        )
-    }.bind(DynamicAssetsService::class)
-
-    single(StringQualifier("NonCustodialOnlyQualifier")) {
-        NonCustodialDynamicAssetRepository(
-            discoveryService = get(),
-            fixedAssets = nonCustodialAssetList(),
             l2sDynamicAssetRepository = get()
         )
     }.bind(DynamicAssetsService::class)

@@ -86,19 +86,22 @@ internal class DynamicAssetLoader(
                     experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
                 }
             }
+            if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
+                activeAssetMap.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
+            }
+
             assetCatalogue.initialise()
                 .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
                 .flatMap { supportedAssets ->
                     // We need to make sure than any l1 assets - notably ETH - is initialised before
                     // create any l2s. So that things like balance calls will work
-                    activeAssetMap.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
                     initNonCustodialAssets(enabledNonCustodialAssets)
                         // Do not load the non-custodial assets here otherwise they become DynamicOnlyTradingAsset
                         // and the non-custodial accounts won't show up.
                         .thenSingle {
                             doLoadAssets(
                                 supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                                    .minus(enabledNonCustodialAssets.map { it.assetInfo }.toSet())
+                                    .minus(activeAssetMap.values.map { it.assetInfo }.toSet())
                             )
                         }
                 }
@@ -141,8 +144,11 @@ internal class DynamicAssetLoader(
 
     private fun loadCustodialOnlyAssets(
         custodialAssets: Iterable<AssetInfo>
-    ): Single<List<CryptoAsset>> =
-        Single.zip(
+    ): Single<List<CryptoAsset>> {
+        if (walletModeService.enabledWalletMode().custodialEnabled.not()) {
+            return Single.just(emptyList())
+        }
+        return Single.zip(
             tradingBalances.getActiveAssets(),
             interestBalances.getActiveAssets()
         ) { activeTrading, activeInterest ->
@@ -156,55 +162,52 @@ internal class DynamicAssetLoader(
                 loadedAsset
             }
         }
+    }
 
     private fun loadErc20Assets(
         erc20Assets: Iterable<AssetInfo>
     ): Single<List<CryptoAsset>> {
-        val walletMode = walletModeService.enabledWalletMode()
-
-        val shouldLoadCustodial = walletMode == WalletMode.CUSTODIAL_ONLY || walletMode == WalletMode.UNIVERSAL
-        val shouldLoadNonCustodial = walletMode == WalletMode.NON_CUSTODIAL_ONLY || walletMode == WalletMode.UNIVERSAL
 
         val tradingBalancesAssets =
-            if (shouldLoadCustodial) tradingBalances.getActiveAssets() else Single.just(
-                emptySet()
-            )
+            tradingBalances.getActiveAssets()
         val interestBalancesAssets =
-            if (shouldLoadCustodial) interestBalances.getActiveAssets() else Single.just(
-                emptySet()
-            )
+            interestBalances.getActiveAssets()
 
         // Assets with non custodial balance
         val erc20ActiveAssets =
-            if (shouldLoadNonCustodial) erc20DataManager.getActiveAssets() else Single.just(
-                emptySet()
-            )
+            erc20DataManager.getActiveAssets()
 
         return Single.zip(
             tradingBalancesAssets,
             interestBalancesAssets,
             erc20ActiveAssets
         ) { activeTrading, activeInterest, activeNoncustodial ->
-
-            activeInterest + activeTrading + activeNoncustodial
-        }.doOnSuccess { activeAssets ->
-            activeAssets.filter { erc20Assets.contains(it) }.forEach { currency ->
-                activeAssetMap[currency] = loadErc20Asset(currency)
-            }
-        }.map { activeAssets ->
-            // Always load the fully supported ERC20s
-            val erc20WithFullSupport = erc20Assets.filter { dynamicAsset ->
-                dynamicAsset.isNonCustodial &&
-                    dynamicAsset.isCustodial
-            }
-            activeAssets + erc20WithFullSupport
-        }.map { activeAndFullSupportAssets ->
-            erc20Assets.filter { activeAndFullSupportAssets.contains(it) }
-        }.map { activeSupportedAssets ->
-            activeSupportedAssets.map { asset ->
-                loadErc20Asset(asset)
-            }
+            Triple(activeInterest, activeTrading, activeNoncustodial)
         }
+            .doOnSuccess { (activeTrading, activeInterest, activeNoncustodial) ->
+                val potentialActiveAssets = when (walletModeService.enabledWalletMode()) {
+                    WalletMode.NON_CUSTODIAL_ONLY -> activeNoncustodial
+                    WalletMode.CUSTODIAL_ONLY -> activeInterest + activeTrading
+                    WalletMode.UNIVERSAL -> activeTrading + activeInterest + activeNoncustodial
+                }
+                potentialActiveAssets.filter { erc20Assets.contains(it) }.forEach { currency ->
+                    activeAssetMap[currency] = loadErc20Asset(currency)
+                }
+            }.map { (activeTrading, activeInterest, activeNoncustodial) ->
+                val allAssets = activeTrading + activeInterest + activeNoncustodial
+                // Always load the fully supported ERC20s
+                val erc20WithFullSupport = erc20Assets.filter { dynamicAsset ->
+                    dynamicAsset.isNonCustodial &&
+                        dynamicAsset.isCustodial
+                }
+                allAssets + erc20WithFullSupport
+            }.map { activeAndFullSupportAssets ->
+                erc20Assets.filter { activeAndFullSupportAssets.contains(it) }
+            }.map { activeSupportedAssets ->
+                activeSupportedAssets.map { asset ->
+                    loadErc20Asset(asset)
+                }
+            }
     }
 
     private fun loadCustodialOnlyAsset(assetInfo: AssetInfo): CryptoAsset {
@@ -263,13 +266,6 @@ internal class DynamicAssetLoader(
                 AssetAction.Receive,
                 AssetAction.ViewActivity,
                 AssetAction.InterestDeposit
-            )
-
-        private val selfCustodyAssetActions =
-            setOf(
-                AssetAction.Send,
-                AssetAction.Receive,
-                AssetAction.ViewActivity
             )
     }
 }

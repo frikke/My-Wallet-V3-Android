@@ -23,6 +23,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.testutils.rxInit
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -74,34 +75,29 @@ class CoinViewInteractorTest {
         on { isDefault }.thenReturn(true)
         on { label }.thenReturn("default nc account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val secondNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val archivedNcAccount: CryptoNonCustodialAccount = mock {
         on { isDefault }.thenReturn(false)
         on { label }.thenReturn("second nc account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
         on { isArchived }.thenReturn(true)
     }
     private val custodialAccount: FiatCustodialAccount = mock {
         on { label }.thenReturn("default c account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val interestAccount: CryptoInterestAccount = mock {
         on { label }.thenReturn("default i account")
         on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        on { isEnabled }.thenReturn(Single.just(true))
         on { stateAwareActions }.thenReturn(Single.just(setOf()))
     }
     private val nonCustodialGroup: AccountGroup = mock {
@@ -138,7 +134,10 @@ class CoinViewInteractorTest {
             custodialWalletManager = custodialWalletManager,
             watchlistDataManager = watchlistDataManager,
             assetActionsComparator = actionsComparator,
-            assetsManager = assetManager
+            assetsManager = assetManager,
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
     }
 
@@ -437,30 +436,10 @@ class CoinViewInteractorTest {
     }
 
     @Test
-    fun `getting actions when interest account disabled but is funded should show withdraw`() {
-        val actions = setOf<StateAwareAction>()
-        whenever(dashboardPrefs.isRewardsIntroSeen).thenReturn(true)
-        val account: CryptoInterestAccount = mock {
-            on { isEnabled }.thenReturn(Single.just(false))
-            on { stateAwareActions }.thenReturn(Single.just(actions))
-            on { isFunded }.thenReturn(true)
-            on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
-        }
-
-        val test = subject.getAccountActions(account).test()
-        test.assertValue {
-            it is CoinViewViewState.ShowAccountActionSheet &&
-                it.actions.find { it.action == AssetAction.InterestWithdraw } != null &&
-                it.actions.find { it.action == AssetAction.InterestDeposit } == null
-        }
-    }
-
-    @Test
     fun `getting actions when account interest account is enabled or funded should show deposit`() {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isRewardsIntroSeen).thenReturn(true)
         val account: CryptoInterestAccount = mock {
-            on { isEnabled }.thenReturn(Single.just(true))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
@@ -478,7 +457,6 @@ class CoinViewInteractorTest {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(true)
         val account: CryptoNonCustodialAccount = mock {
-            on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))
@@ -497,7 +475,6 @@ class CoinViewInteractorTest {
         val actions = setOf<StateAwareAction>()
         whenever(dashboardPrefs.isPrivateKeyIntroSeen).thenReturn(false)
         val account: CryptoNonCustodialAccount = mock {
-            on { isEnabled }.thenReturn(Single.just(false))
             on { stateAwareActions }.thenReturn(Single.just(actions))
             on { isFunded }.thenReturn(true)
             on { balance }.thenReturn(Observable.just(AccountBalance.zero(assetInfo)))

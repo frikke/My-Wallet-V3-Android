@@ -67,7 +67,6 @@ import retrofit2.HttpException
 class SwapFragment :
     Fragment(),
     KycBenefitsBottomSheet.Host,
-    TradingWalletPromoBottomSheet.Host,
     KycUpgradeNowSheet.Host {
 
     interface Host {
@@ -120,12 +119,7 @@ class SwapFragment :
         binding.swapCta.apply {
             analytics.logEvent(SwapAnalyticsEvents.NewSwapClicked)
             setOnClickListener {
-                if (!walletPrefs.hasSeenTradingSwapPromo) {
-                    walletPrefs.setSeenTradingSwapPromo()
-                    showBottomSheet(TradingWalletPromoBottomSheet.newInstance())
-                } else {
-                    startSwap()
-                }
+                startSwap()
             }
             gone()
         }
@@ -173,10 +167,6 @@ class SwapFragment :
 
     override fun startKycClicked() {
         KycNavHostActivity.start(requireContext(), CampaignType.Swap)
-    }
-
-    override fun startNewSwap() {
-        startSwap()
     }
 
     private fun loadSwapOrKyc(showLoading: Boolean) {

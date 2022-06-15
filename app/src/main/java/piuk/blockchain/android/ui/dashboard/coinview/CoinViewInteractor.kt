@@ -32,6 +32,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -49,6 +50,7 @@ class CoinViewInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
+    private val walletModeService: WalletModeService,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetActionsComparator: StateAwareActionsComparator,
     private val assetsManager: DynamicAssetsDataManager,
@@ -172,29 +174,17 @@ class CoinViewInteractor(
             endAction = if (predicate(endAction)) endAction else QuickActionCta.None
         )
 
-    internal fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
+    fun getAccountActions(account: BlockchainAccount): Single<CoinViewViewState> = Singles.zip(
         account.stateAwareActions,
-        account.isEnabled,
         account.balance.firstOrError()
-    ).map { (actions, enabled, balance) ->
+    ).map { (actions, balance) ->
         assetActionsComparator.initAccount(account, balance)
         val sortedActions = when (account) {
             is InterestAccount -> {
-                when {
-                    !enabled && account.isFunded -> {
-                        val newActions = actions.minus { it.action == AssetAction.InterestDeposit }.toMutableSet()
-                        if (newActions.none { it.action == AssetAction.InterestWithdraw }) {
-                            newActions += StateAwareAction(ActionState.Available, AssetAction.InterestWithdraw)
-                        }
-                        newActions
-                    }
-                    else -> {
-                        if (actions.none { it.action == AssetAction.InterestDeposit }) {
-                            actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
-                        } else {
-                            actions
-                        }
-                    }
+                if (actions.none { it.action == AssetAction.InterestDeposit }) {
+                    actions + StateAwareAction(ActionState.Available, AssetAction.InterestDeposit)
+                } else {
+                    actions
                 }
             }
             else -> actions.minus { it.action == AssetAction.InterestDeposit }
@@ -240,14 +230,32 @@ class CoinViewInteractor(
         asset.getPricesWith24hDelta()
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
+        val pkAccounts = if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
+            splitAccountsInGroup(
+                asset, AssetFilter.NonCustodial
+            )
+        } else Single.just(emptyList())
+
+        val tradingAccounts = if (walletModeService.enabledWalletMode().custodialEnabled) {
+            splitAccountsInGroup(
+                asset, AssetFilter.Custodial
+            )
+        } else Single.just(emptyList())
+
+        val interestAccount = if (walletModeService.enabledWalletMode().custodialEnabled) {
+            splitAccountsInGroup(
+                asset, AssetFilter.Interest
+            )
+        } else Single.just(emptyList())
+
         return Single.zip(
-            splitAccountsInGroup(asset, AssetFilter.NonCustodial),
+            pkAccounts,
+            tradingAccounts,
+            interestAccount,
             load24hPriceDelta(asset),
-            splitAccountsInGroup(asset, AssetFilter.Custodial),
-            splitAccountsInGroup(asset, AssetFilter.Interest),
             asset.interestRate(),
             watchlistDataManager.isAssetInWatchlist(asset.assetInfo)
-        ) { nonCustodialAccounts, prices, custodialAccounts, interestAccounts, interestRate, isAddedToWatchlist ->
+        ) { nonCustodialAccounts, custodialAccounts, interestAccounts, prices, interestRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
             val tradeableAsset = nonCustodialAccounts.isNotEmpty() || custodialAccounts.isNotEmpty()
@@ -289,10 +297,10 @@ class CoinViewInteractor(
         identity.userAccessForFeature(Feature.Buy)
 
     private fun mapAccounts(
-        nonCustodialAccounts: List<Details.DetailsItem>,
+        nonCustodialAccounts: List<DetailsItem>,
         exchangeRate: ExchangeRate,
-        custodialAccounts: List<Details.DetailsItem>,
-        interestAccounts: List<Details.DetailsItem>,
+        custodialAccounts: List<DetailsItem>,
+        interestAccounts: List<DetailsItem>,
         interestRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
         val listOfAccounts = mutableListOf<AssetDisplayInfo>()
@@ -369,21 +377,15 @@ class CoinViewInteractor(
     }
 
     private fun splitAccountsInGroup(asset: CryptoAsset, filter: AssetFilter) =
-        asset.accountGroup(filter).defaultIfEmpty(NullAccountGroup()).flatMap { accountGroup ->
+        asset.accountGroup(filter).defaultIfEmpty(NullAccountGroup).flatMap { accountGroup ->
             accountGroup.accounts.filter {
-                if (filter == AssetFilter.NonCustodial) {
-                    !(it as CryptoNonCustodialAccount).isArchived
-                } else {
-                    true
-                }
+                (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
             }.map { account ->
                 Single.zip(
                     account.balance.firstOrError(),
-                    account.isEnabled,
                     account.stateAwareActions
-                ) { balance, enabled, actions ->
-                    Details.DetailsItem(
-                        isEnabled = enabled,
+                ) { balance, actions ->
+                    DetailsItem(
                         account = account,
                         balance = balance.total,
                         pendingBalance = balance.pending,

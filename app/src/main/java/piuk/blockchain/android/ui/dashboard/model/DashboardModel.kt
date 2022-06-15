@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.enviroment.EnvironmentConfig
@@ -53,7 +52,7 @@ class DashboardModel(
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
             is DashboardIntent.RefreshAllBalancesIntent ->
-                interactor.refreshBalances(this, AssetFilter.All, previousState)
+                interactor.refreshBalances(this, previousState)
             is DashboardIntent.BalanceUpdate -> {
                 process(DashboardIntent.CheckForCustodialBalanceIntent(intent.asset))
                 null

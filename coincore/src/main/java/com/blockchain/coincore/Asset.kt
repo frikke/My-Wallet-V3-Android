@@ -7,6 +7,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -17,8 +18,16 @@ enum class AssetFilter {
     All,
     NonCustodial,
     Custodial,
-    Interest
+    Interest,
+    CustodialPlusInterest
 }
+
+fun WalletMode.defaultFilter(): AssetFilter =
+    when (this) {
+        WalletMode.NON_CUSTODIAL_ONLY -> AssetFilter.NonCustodial
+        WalletMode.CUSTODIAL_ONLY -> AssetFilter.CustodialPlusInterest
+        WalletMode.UNIVERSAL -> AssetFilter.All
+    }
 
 enum class ActionOrigin {
     FROM_SOURCE,

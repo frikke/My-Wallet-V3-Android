@@ -28,9 +28,6 @@ interface WalletStatus {
 
     var email: String
 
-    val hasSeenTradingSwapPromo: Boolean
-    fun setSeenTradingSwapPromo()
-
     var isNewlyCreated: Boolean
     var isRestored: Boolean
     var isAppUnlocked: Boolean

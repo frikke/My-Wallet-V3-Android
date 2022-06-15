@@ -12,7 +12,6 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -35,7 +34,6 @@ class FiatAssetTransferTest {
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val bankService: BankService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
-    private val walletModeService: WalletModeService = mock()
 
     private val subject = FiatAsset(
         labels,
@@ -43,7 +41,6 @@ class FiatAssetTransferTest {
         tradingBalanceDataManager,
         custodialWalletManager,
         bankService,
-        walletModeService,
         currencyPrefs,
     )
 

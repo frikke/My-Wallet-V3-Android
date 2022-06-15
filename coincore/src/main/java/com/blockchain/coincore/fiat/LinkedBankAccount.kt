@@ -69,10 +69,6 @@ class LinkedBankAccount(
 
     override val hasTransactions: Boolean
         get() = false
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 

@@ -9,6 +9,7 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
@@ -29,6 +30,7 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -46,7 +48,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
@@ -74,14 +75,18 @@ class DashboardActionInteractor(
     private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
+    private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger
 ) {
+
+    private val defFilter: AssetFilter
+        get() = walletModeService.enabledWalletMode().defaultFilter()
+
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        coincore.fiatAssets.accountGroup()
+        coincore.fiatAssets.accountGroup(defFilter)
             .map { g -> g.accounts }
-            .switchIfEmpty(Maybe.just(emptyList()))
-            .toSingle()
+            .switchIfEmpty(Single.just(emptyList()))
             .subscribeBy(
                 onSuccess = { fiatAssets ->
                     val cryptoAssets = coincore.activeCryptoAssets().map { it.assetInfo }
@@ -138,21 +143,15 @@ class DashboardActionInteractor(
     // get a valid ETH balance, will try for a PX balance. Yeah, this is a nasty hack TODO: Fix this
     fun refreshBalances(
         model: DashboardModel,
-        balanceFilter: AssetFilter,
         state: DashboardState
     ): Disposable {
         val cd = CompositeDisposable()
 
-        state.assetMapKeys
-            .filter { !it.isErc20() }
-            .forEach { asset ->
-                cd += refreshAssetBalance(asset, model, balanceFilter)
-                    .ifEthLoadedGetErc20Balance(model, balanceFilter, cd, state)
-                    .ifEthFailedThenErc20Failed(asset, model, state)
-                    .subscribeBy(onError = {
-                        Timber.e(it)
-                    })
-            }
+        if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
+            loadBalancesWithNonCustodialStrategy(state.assetMapKeys, state.erc20Assets.toSet(), model, cd)
+        } else {
+            loadTradingBalancesStrategy(state.assetMapKeys, model, cd)
+        }
 
         state.fiatAssets.fiatAccounts
             .values.forEach {
@@ -160,6 +159,36 @@ class DashboardActionInteractor(
             }
 
         return cd
+    }
+
+    private fun loadTradingBalancesStrategy(
+        assets: Set<AssetInfo>,
+        model: DashboardModel,
+        cd: CompositeDisposable
+    ) {
+        assets.forEach { asset ->
+            cd += refreshAssetBalance(asset, model).subscribeBy(onError = {
+                Timber.e(it)
+            })
+        }
+    }
+
+    private fun loadBalancesWithNonCustodialStrategy(
+        assets: Set<AssetInfo>,
+        erc20Assets: Set<AssetInfo>,
+        model: DashboardModel,
+        cd: CompositeDisposable
+    ) {
+        assets
+            .filter { !it.isErc20() }
+            .forEach { asset ->
+                cd += refreshAssetBalance(asset, model)
+                    .ifEthLoadedGetErc20Balance(model, cd, erc20Assets)
+                    .ifEthFailedThenErc20Failed(asset, model, erc20Assets)
+                    .subscribeBy(onError = {
+                        Timber.e(it)
+                    })
+            }
     }
 
     fun refreshFiatBalances(
@@ -190,14 +219,13 @@ class DashboardActionInteractor(
 
     private fun refreshAssetBalance(
         asset: AssetInfo,
-        model: DashboardModel,
-        balanceFilter: AssetFilter
+        model: DashboardModel
     ): Single<CryptoValue> =
-        coincore[asset].accountGroup(balanceFilter)
-            .logGroupLoadError(asset, balanceFilter)
+        coincore[asset].accountGroup(defFilter)
+            .logGroupLoadError(asset, defFilter)
             .flatMapObservable { group ->
                 group.balance
-                    .logBalanceLoadError(asset, balanceFilter)
+                    .logBalanceLoadError(asset, defFilter)
             }
             .doOnError { e ->
                 Timber.e("Failed getting balance for ${asset.displayTicker}: $e")
@@ -207,27 +235,19 @@ class DashboardActionInteractor(
                 Timber.d("Got balance for ${asset.displayTicker}")
                 model.process(DashboardIntent.BalanceUpdate(asset, accountBalance))
             }
-            .retryOnError()
             .firstOrError()
             .map {
                 it.total as CryptoValue
             }
 
-    private fun <T> Observable<T>.retryOnError() =
-        this.retryWhen { f ->
-            f.take(RETRY_COUNT)
-                .delay(RETRY_INTERVAL_MS, TimeUnit.MILLISECONDS)
-        }
-
     private fun Single<CryptoValue>.ifEthLoadedGetErc20Balance(
         model: DashboardModel,
-        balanceFilter: AssetFilter,
         disposables: CompositeDisposable,
-        state: DashboardState
+        erc20Assets: Set<AssetInfo>
     ) = this.doOnSuccess { value ->
         if (value.currency == CryptoCurrency.ETHER) {
-            state.erc20Assets.forEach {
-                disposables += refreshAssetBalance(it, model, balanceFilter)
+            erc20Assets.forEach {
+                disposables += refreshAssetBalance(it, model)
                     .emptySubscribe()
             }
         }
@@ -236,10 +256,10 @@ class DashboardActionInteractor(
     private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
         asset: AssetInfo,
         model: DashboardModel,
-        state: DashboardState
+        erc20Assets: Set<AssetInfo>
     ) = this.doOnError {
         if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-            state.erc20Assets.forEach {
+            erc20Assets.forEach {
                 model.process(DashboardIntent.BalanceUpdateError(it))
             }
         }
@@ -670,8 +690,5 @@ class DashboardActionInteractor(
             HistoricalRate(rate = 1.0, timestamp = 0),
             HistoricalRate(rate = 1.0, timestamp = System.currentTimeMillis() / 1000)
         )
-
-        private const val RETRY_INTERVAL_MS = 1000L
-        private const val RETRY_COUNT = 2L
     }
 }

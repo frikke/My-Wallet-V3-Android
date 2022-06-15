@@ -20,6 +20,7 @@ import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.testutils.USD
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -69,6 +70,9 @@ class DashboardActionInteractorTest {
             currencyPrefs = currencyPrefs,
             onboardingPrefs = mock(),
             userIdentity = userIdentity,
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            },
             getDashboardOnboardingStepsUseCase = mock(),
             nftWaitlistService = nftWaitlistService,
             nftAnnouncementPrefs = nftAnnouncementPrefs,

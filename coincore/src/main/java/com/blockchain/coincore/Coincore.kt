@@ -9,6 +9,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -236,4 +237,11 @@ class Coincore internal constructor(
     fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
+
+    private fun WalletMode.defaultFilters(): Set<AssetFilter> =
+        when (this) {
+            WalletMode.UNIVERSAL -> setOf(AssetFilter.All)
+            WalletMode.NON_CUSTODIAL_ONLY -> setOf(AssetFilter.NonCustodial)
+            WalletMode.CUSTODIAL_ONLY -> setOf(AssetFilter.Custodial, AssetFilter.Interest)
+        }
 }

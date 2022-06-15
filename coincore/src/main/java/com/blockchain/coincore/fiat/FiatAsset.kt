@@ -13,7 +13,6 @@ import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -24,13 +23,13 @@ class FiatAsset(
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val bankService: BankService,
-    private val walletModeService: WalletModeService,
     private val currencyPrefs: CurrencyPrefs
 ) : Asset {
 
     override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         when (filter) {
             AssetFilter.All,
+            AssetFilter.CustodialPlusInterest,
             AssetFilter.Custodial -> fetchFiatWallets()
             AssetFilter.NonCustodial,
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
@@ -48,9 +47,6 @@ class FiatAsset(
     }
 
     private fun fetchFiatWallets(): Maybe<AccountGroup> {
-        if (!walletModeService.enabledWalletMode().custodialEnabled) {
-            return Maybe.empty()
-        }
         return custodialWalletManager.getSupportedFundsFiats(
             currencyPrefs.selectedFiatCurrency
         )

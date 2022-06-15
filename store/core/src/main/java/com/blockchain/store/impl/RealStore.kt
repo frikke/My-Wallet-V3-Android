@@ -44,7 +44,7 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
     }
 
-    private fun buildFreshFlow(request: KeyedStoreRequest.Fresh<K>) = channelFlow<StoreResponse<E, T>> {
+    private fun buildFreshFlow(request: KeyedStoreRequest.Fresh<K>) = channelFlow {
         send(StoreResponse.Loading)
         val result = fetcher.fetch(request.key)
         when (result) {

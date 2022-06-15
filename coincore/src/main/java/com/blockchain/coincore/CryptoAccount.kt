@@ -31,6 +31,17 @@ data class AccountBalance internal constructor(
                 exchangeRate = rate
             )
         }
+        internal fun totalOf(first: AccountBalance, second: AccountBalance): AccountBalance {
+            require(first.total.currency == second.total.currency) {
+                "total of different Account balances is not supported"
+            }
+            return AccountBalance(
+                total = first.total + second.total,
+                withdrawable = first.withdrawable + second.withdrawable,
+                pending = first.pending + second.pending,
+                exchangeRate = first.exchangeRate
+            )
+        }
 
         internal fun from(balance: InterestAccountBalance, rate: ExchangeRate): AccountBalance {
 
@@ -63,8 +74,6 @@ interface BlockchainAccount {
     val isFunded: Boolean
 
     val hasTransactions: Boolean
-
-    val isEnabled: Single<Boolean>
 
     val disabledReason: Single<IneligibilityReason>
 
@@ -127,9 +136,6 @@ interface FiatAccount : SingleAccount {
 
 interface AccountGroup : BlockchainAccount {
     val accounts: SingleAccountList
-
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
 
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)

@@ -69,14 +69,14 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
         configureActionTest(
             tier = Tier.GOLD,
             isInterestEnabled = false,
-            ineligibilityReason = IneligibilityReason.REGION,
+            userAccessForFeature = FeatureAccess.Blocked(BlockedReason.NotEligible),
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN)
         )
 
         subject.stateAwareActions
             .test().assertValue {
                 it.elementAt(0).action == AssetAction.InterestDeposit &&
-                    it.elementAt(0).state == ActionState.LockedDueToAvailability &&
+                    it.elementAt(0).state == ActionState.Unavailable &&
                     it.elementAt(1).action == AssetAction.InterestWithdraw &&
                     it.elementAt(1).state == ActionState.Available &&
                     it.elementAt(2).action == AssetAction.ViewStatement &&

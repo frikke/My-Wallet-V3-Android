@@ -107,9 +107,6 @@ import java.util.concurrent.atomic.AtomicBoolean
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.NOT_SUPPORTED)
 
-    override val isEnabled: Single<Boolean>
-        get() = Single.just(true)
-
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 }

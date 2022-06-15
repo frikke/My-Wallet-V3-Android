@@ -137,13 +137,6 @@ class CryptoInterestAccount(
     override val sourceState: Single<TxSourceState>
         get() = Single.just(TxSourceState.CAN_TRANSACT)
 
-    override val isEnabled: Single<Boolean>
-        get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
-            .onErrorReturn { Eligibility.notEligible() }
-            .map { (enabled, _) ->
-                enabled
-            }
-
     override val disabledReason: Single<IneligibilityReason>
         get() = custodialWalletManager.getInterestEligibilityForAsset(currency)
             .onErrorReturn { Eligibility.notEligible() }
@@ -155,18 +148,15 @@ class CryptoInterestAccount(
         get() = Single.zip(
             identity.getHighestApprovedKycTier(),
             balance.firstOrError(),
-            isEnabled,
             identity.userAccessForFeature(Feature.DepositInterest)
-        ) { tier, balance, enabled, depositInterestEligibility ->
+        ) { tier, balance, depositInterestEligibility ->
             return@zip when (tier) {
                 Tier.BRONZE,
                 Tier.SILVER -> emptySet()
                 Tier.GOLD -> setOf(
                     StateAwareAction(
-                        when {
-                            !enabled -> ActionState.LockedDueToAvailability
-                            depositInterestEligibility is FeatureAccess.Blocked ->
-                                depositInterestEligibility.toActionState()
+                        when (depositInterestEligibility) {
+                            is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
                             else -> ActionState.Available
                         },
                         AssetAction.InterestDeposit
