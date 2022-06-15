@@ -75,6 +75,7 @@ class CoinsWebSocketStrategy(
     private val erc20DataManager: Erc20DataManager,
     private val bchDataManager: BchDataManager,
     private val stringUtils: StringUtils,
+    private val featureFlag: FeatureFlag,
     private val gson: Gson,
     private val json: Json,
     private val replaceGsonKtxFF: FeatureFlag,
@@ -95,10 +96,16 @@ class CoinsWebSocketStrategy(
     }
 
     fun open(): Completable {
-        return Completable.fromCallable {
-            initInput()
-            subscribeToEvents()
-            coinsWebSocket.open()
+        return featureFlag.enabled.flatMapCompletable { enabled ->
+            if (enabled) {
+                Completable.complete()
+            } else {
+                Completable.fromCallable {
+                    initInput()
+                    subscribeToEvents()
+                    coinsWebSocket.open()
+                }
+            }
         }
     }
 

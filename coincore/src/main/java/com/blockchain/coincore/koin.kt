@@ -138,6 +138,7 @@ val coincoreModule = module {
                 defaultLabels = get(),
                 remoteLogger = get(),
                 bankService = get(),
+                walletModeService = get(),
                 currencyPrefs = get(),
                 disabledEvmAssets = ncAssetList.toList()
             )

@@ -32,6 +32,7 @@ fun BottomNavigationBarPreview() {
                         BottomNavigationState.Cancel -> BottomNavigationState.Add
                     }
                 },
+                hasMiddleButton = true,
                 bottomNavigationState = bottomNavigationState
             )
         }
@@ -59,6 +60,7 @@ fun BottomNavigationBarPulsePreview() {
                     }
                 },
                 bottomNavigationState = bottomNavigationState,
+                hasMiddleButton = true,
                 isPulseAnimationEnabled = true
             )
         }

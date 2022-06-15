@@ -59,6 +59,7 @@ fun BottomNavigationBar(
         NavigationItem.Activity
     ),
     onNavigationItemClick: (NavigationItem) -> Unit = {},
+    hasMiddleButton: Boolean,
     onMiddleButtonClick: () -> Unit = {},
     selectedNavigationItem: NavigationItem? = null,
     bottomNavigationState: BottomNavigationState = BottomNavigationState.Add,
@@ -84,7 +85,7 @@ fun BottomNavigationBar(
     val unselectedContentColor: Color = Grey400
     val selectedContentColor: Color = AppTheme.colors.primary
 
-    val middleIndex = navigationItems.size / 2
+    val middleIndex = if (hasMiddleButton) navigationItems.size / 2 else -1
 
     val textColor = if (!isSystemInDarkTheme()) {
         Dark400
@@ -225,7 +226,7 @@ enum class BottomNavigationState {
 @Composable
 fun BottomNavigationBarPreview() {
     AppTheme {
-        BottomNavigationBar(selectedNavigationItem = NavigationItem.Home)
+        BottomNavigationBar(selectedNavigationItem = NavigationItem.Home, hasMiddleButton = false)
     }
 }
 

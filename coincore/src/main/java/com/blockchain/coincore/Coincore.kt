@@ -9,6 +9,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
@@ -37,11 +38,13 @@ class Coincore internal constructor(
     private val currencyPrefs: CurrencyPrefs,
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
+    private val walletModeService: WalletModeService,
     private val disabledEvmAssets: List<AssetInfo>
 ) {
-
-    fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        bankService.getWithdrawalLocks(localCurrency)
+    fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
+        if (walletModeService.enabledWalletMode().custodialEnabled) {
+            bankService.getWithdrawalLocks(localCurrency).toMaybe()
+        } else Maybe.empty()
 
     operator fun get(asset: AssetInfo): CryptoAsset =
         assetLoader[asset]

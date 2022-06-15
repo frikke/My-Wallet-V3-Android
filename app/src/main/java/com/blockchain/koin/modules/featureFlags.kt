@@ -8,6 +8,7 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
@@ -63,6 +64,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_deeplinking_v2",
                 "Deeplinking V2"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(coinWebSocketFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_coin_web_socket",
+                "Coin Web Socket"
             )
         )
     }.bind(FeatureFlag::class)

@@ -47,6 +47,8 @@ import com.blockchain.walletconnect.domain.WalletConnectAnalytics
 import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletconnect.ui.sessionapproval.WCApproveSessionBottomSheet
 import com.blockchain.walletconnect.ui.sessionapproval.WCSessionUpdatedBottomSheet
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import info.blockchain.balance.AssetInfo
@@ -55,6 +57,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.net.URLDecoder
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityMainBinding
@@ -137,6 +140,7 @@ class MainActivity :
         get() = binding.mainToolbar
 
     private val dashboardPrefs: DashboardPrefs by scopedInject()
+    private val walletModeService: WalletModeService by inject()
 
     @Deprecated("Use MVI loop instead")
     private val compositeDisposable = CompositeDisposable()
@@ -350,6 +354,7 @@ class MainActivity :
             if (!dashboardPrefs.hasTappedFabButton) {
                 isPulseAnimationEnabled = true
             }
+            hasMiddleButton = walletModeService.enabledWalletMode().custodialEnabled
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
@@ -365,6 +370,20 @@ class MainActivity :
                 isPulseAnimationEnabled = false
                 showBottomSheet(
                     RedesignActionsBottomSheet.newInstance()
+                )
+            }
+            navigationItems = when (walletModeService.enabledWalletMode()) {
+                WalletMode.CUSTODIAL_ONLY,
+                WalletMode.UNIVERSAL -> listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.BuyAndSell,
+                    NavigationItem.Activity
+                )
+                WalletMode.NON_CUSTODIAL_ONLY -> listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.Activity
                 )
             }
         }
