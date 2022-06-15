@@ -49,7 +49,8 @@ val transactionModule = module {
         TransactionFlowCustomiserImpl(
             resources = get<Context>().resources,
             assetResources = get(),
-            stringUtils = get()
+            stringUtils = get(),
+            walletModeService = get()
         )
     }.apply {
         bind(TransactionFlowCustomiser::class)

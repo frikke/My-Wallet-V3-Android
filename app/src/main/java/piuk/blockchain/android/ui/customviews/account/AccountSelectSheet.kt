@@ -82,7 +82,11 @@ class AccountSelectSheet(
             binding.accountListBack.gone()
         }
 
-        binding.accountList.initialise(accountList, statusDecorator)
+        binding.accountList.initialise(
+            source = accountList,
+            status = statusDecorator,
+            accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+        )
     }
 
     private fun showBackArrow() {

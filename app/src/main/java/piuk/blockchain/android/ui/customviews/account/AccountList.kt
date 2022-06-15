@@ -25,7 +25,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
-import java.io.Serializable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemAccountSelectBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectCryptoBinding
@@ -37,6 +36,7 @@ import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.util.context
+import java.io.Serializable
 
 typealias StatusDecorator = (BlockchainAccount) -> CellDecorator
 
@@ -83,6 +83,7 @@ class AccountList @JvmOverloads constructor(
         accountsLocks: Single<List<AccountLocks>> = Single.just(emptyList()),
         introView: IntroHeaderView? = null,
         shouldShowSelectionStatus: Boolean = false,
+        accountInfoTitlePriority: AccountInfoTitlePriority = AccountInfoTitlePriority.ACCOUNT_NAME,
         assetAction: AssetAction? = null
     ) {
         removeAllHeaderDecorations()
@@ -101,6 +102,7 @@ class AccountList @JvmOverloads constructor(
                 statusDecorator = status,
                 onAccountClicked = { onAccountSelected(it) },
                 showSelectionStatus = shouldShowSelectionStatus,
+                accountInfoTitlePriority = accountInfoTitlePriority,
                 assetAction = assetAction,
                 onLockItemSelected = { onLockItemSelected(it) }
             )
@@ -193,6 +195,7 @@ private class AccountsDelegateAdapter(
     onAccountClicked: (BlockchainAccount) -> Unit,
     onLockItemSelected: (AccountLocks) -> Unit,
     showSelectionStatus: Boolean,
+    accountInfoTitlePriority: AccountInfoTitlePriority,
     assetAction: AssetAction? = null
 ) : DelegationAdapter<AccountsListItem>(AdapterDelegatesManager(), emptyList()) {
 
@@ -210,7 +213,8 @@ private class AccountsDelegateAdapter(
                 CryptoAccountDelegate(
                     statusDecorator,
                     onAccountClicked,
-                    showSelectionStatus
+                    showSelectionStatus,
+                    accountInfoTitlePriority
                 )
             )
             addAdapterDelegate(
@@ -252,7 +256,8 @@ private class AccountsDelegateAdapter(
 private class CryptoAccountDelegate(
     private val statusDecorator: StatusDecorator,
     private val onAccountClicked: (CryptoAccount) -> Unit,
-    private val showSelectionStatus: Boolean
+    private val showSelectionStatus: Boolean,
+    private val accountInfoTitlePriority: AccountInfoTitlePriority
 ) : AdapterDelegate<AccountsListItem> {
 
     override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
@@ -261,6 +266,7 @@ private class CryptoAccountDelegate(
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         CryptoSingleAccountViewHolder(
             showSelectionStatus,
+            accountInfoTitlePriority,
             ItemAccountSelectCryptoBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             )
@@ -279,6 +285,7 @@ private class CryptoAccountDelegate(
 
 private class CryptoSingleAccountViewHolder(
     private val showSelectionStatus: Boolean,
+    private val accountInfoTitlePriority: AccountInfoTitlePriority,
     private val binding: ItemAccountSelectCryptoBinding
 ) : RecyclerView.ViewHolder(binding.root), DisposableViewHolder {
 
@@ -298,7 +305,8 @@ private class CryptoSingleAccountViewHolder(
             cryptoAccount.updateAccount(
                 account = selectableAccountItem.account as CryptoAccount,
                 onAccountClicked = onAccountClicked,
-                cellDecorator = statusDecorator(selectableAccountItem.account)
+                cellDecorator = statusDecorator(selectableAccountItem.account),
+                accountInfoTitlePriority = accountInfoTitlePriority
             )
         }
     }

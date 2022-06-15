@@ -55,20 +55,20 @@ class AccountInfoCrypto @JvmOverloads constructor(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit = {},
         cellDecorator: CellDecorator = DefaultCellDecorator(),
-        isSenderAccount: Boolean = false
+        accountInfoTitlePriority: AccountInfoTitlePriority = AccountInfoTitlePriority.ACCOUNT_NAME
     ) {
         compositeDisposable.clear()
-        updateView(account, onAccountClicked, cellDecorator, isSenderAccount)
+        updateView(account, onAccountClicked, cellDecorator, accountInfoTitlePriority)
     }
 
     private fun updateView(
         account: CryptoAccount,
         onAccountClicked: (CryptoAccount) -> Unit,
         cellDecorator: CellDecorator,
-        isSenderAccount: Boolean
+        accountInfoTitlePriority: AccountInfoTitlePriority
     ) {
         val accountsAreTheSame = displayedAccount.isTheSameWith(account)
-        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator, isSenderAccount)
+        updateAccountDetails(account, accountsAreTheSame, onAccountClicked, cellDecorator, accountInfoTitlePriority)
 
         (account as? InterestAccount)?.let { setInterestAccountDetails(account, accountsAreTheSame) }
 
@@ -110,16 +110,20 @@ class AccountInfoCrypto @JvmOverloads constructor(
         accountsAreTheSame: Boolean,
         onAccountClicked: (CryptoAccount) -> Unit,
         cellDecorator: CellDecorator,
-        isSenderAccount: Boolean
+        accountInfoTitlePriority: AccountInfoTitlePriority
     ) {
 
         with(binding) {
             root.contentDescription = "$ACCOUNT_INFO_CRYPTO_VIEW_ID${account.currency.networkTicker}_${account.label}"
             val crypto = account.currency
 
+            assetTitle.text =
+                if (accountInfoTitlePriority == AccountInfoTitlePriority.COIN_NAME) crypto.name
+                else account.label
 
-            assetTitle.text = if (isSenderAccount) crypto.name else account.label
-            assetSubtitle.text = if (isSenderAccount) account.label else crypto.name
+            assetSubtitle.text =
+                if (accountInfoTitlePriority == AccountInfoTitlePriority.COIN_NAME) account.label
+                else crypto.name
 
             compositeDisposable += account.balance.firstOrError().map { it.total }
                 .doOnSuccess {
@@ -201,7 +205,11 @@ class AccountInfoCrypto @JvmOverloads constructor(
     }
 
     override fun update(state: TransactionState) {
-        updateAccount(state.sendingAccount as CryptoAccount, { }, isSenderAccount = true)
+        updateAccount(
+            account = state.sendingAccount as CryptoAccount,
+            onAccountClicked = { },
+            accountInfoTitlePriority = AccountInfoTitlePriority.COIN_NAME
+        )
     }
 
     override fun setVisible(isVisible: Boolean) {
@@ -227,3 +235,8 @@ private fun <T> Single<T>.startWithValueIfCondition(
             else -> this.toObservable()
         }
     }
+
+enum class AccountInfoTitlePriority {
+    COIN_NAME,
+    ACCOUNT_NAME
+}
