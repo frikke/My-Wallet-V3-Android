@@ -11,6 +11,7 @@ import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.outcome.getOrThrow
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -20,6 +21,8 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.rx3.rxSingle
+import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class DynamicNonCustodialAccount(
@@ -45,12 +48,19 @@ class DynamicNonCustodialAccount(
         get() = hasFunds.get()
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() = Single.just(
-            DynamicNonCustodialAddress(
-                address = internalAccount.address.formattedAddress,
-                asset = currency
-            )
-        )
+        get() {
+            return rxSingle {
+                nonCustodialService.getAddresses(listOf(currency.networkTicker))
+                    .getOrThrow().find {
+                        it.pubKey == String(Hex.encode(internalAccount.address.pubKey)) && it.default
+                    }?.let { nonCustodialDerivedAddress ->
+                        DynamicNonCustodialAddress(
+                            address = nonCustodialDerivedAddress.address,
+                            asset = currency
+                        )
+                    } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
+            }
+        }
 
     override fun getOnChainBalance(): Observable<Money> = Observable.just(Money.fromMajor(currency, BigDecimal.ZERO))
 

@@ -47,5 +47,25 @@ internal class NonCustodialRepository(
                 subscriptionsResponse.currencies.map { it.ticker }
             }
 
+    override suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>> =
+        dynamicSelfCustodyService.getAddresses(
+            guidHash = getHashedString(payloadDataManager.guid),
+            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
+            currencies = currencies
+        ).map { addressesResponse ->
+            addressesResponse.addressEntries.map { addressEntry ->
+                addressEntry.addresses.map { derivedAddress ->
+                    NonCustodialDerivedAddress(
+                        pubKey = derivedAddress.pubKey,
+                        address = derivedAddress.address,
+                        includesMemo = derivedAddress.includesMemo,
+                        format = derivedAddress.format,
+                        default = derivedAddress.default,
+                        accountIndex = addressEntry.accountInfo.index
+                    )
+                }
+            }.flatten()
+        }
+
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
 }

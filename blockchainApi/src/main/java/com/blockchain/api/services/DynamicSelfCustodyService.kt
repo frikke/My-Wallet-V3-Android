@@ -2,8 +2,10 @@ package com.blockchain.api.services
 
 import com.blockchain.api.selfcustody.AccountInfo
 import com.blockchain.api.selfcustody.AddSubscriptionRequest
+import com.blockchain.api.selfcustody.AddressesRequest
 import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.AuthRequest
+import com.blockchain.api.selfcustody.CurrencyAddressInfo
 import com.blockchain.api.selfcustody.GetSubscriptionsRequest
 import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.RemoveSubscriptionRequest
@@ -64,4 +66,19 @@ class DynamicSelfCustodyService(
             )
         )
     )
+
+    suspend fun getAddresses(guidHash: String, sharedKeyHash: String, currencies: List<String>) =
+        selfCustodyApi.getAddresses(
+            request = AddressesRequest(
+                auth = AuthInfo(
+                    guidHash = guidHash,
+                    sharedKeyHash = sharedKeyHash
+                ),
+                currencies = currencies.map {
+                    CurrencyAddressInfo(
+                        ticker = it
+                    )
+                }
+            )
+        )
 }

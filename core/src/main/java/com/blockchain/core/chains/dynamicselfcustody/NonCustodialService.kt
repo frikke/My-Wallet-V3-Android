@@ -12,4 +12,6 @@ interface NonCustodialService {
     suspend fun unsubscribe(currency: String): Outcome<ApiError, Boolean>
 
     suspend fun getSubscriptions(): Outcome<ApiError, List<String>>
+
+    suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>>
 }
