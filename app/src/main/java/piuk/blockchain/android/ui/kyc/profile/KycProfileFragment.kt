@@ -196,7 +196,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         this.afterTextChangeEvents()
             .debounce(300, TimeUnit.MILLISECONDS)
             .map { it.editable.toString() }
-            .skipFirstUnless { it.isNotEmpty() }
+            .skipFirstUnless { it.isNotEmpty() && it.length >= MIN_LENGTH_ALLOWED }
             .observeOn(AndroidSchedulers.mainThread())
             .map { mapToCompleted(it) }
             .doOnNext(presenterPropAssignment)
@@ -234,7 +234,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
             }
         }
 
-    private fun mapToCompleted(text: String): Boolean = !text.isEmpty()
+    private fun mapToCompleted(text: String): Boolean = text.isNotEmpty() && text.length >= MIN_LENGTH_ALLOWED
 
     override fun setButtonEnabled(enabled: Boolean) {
         binding.buttonKycProfileNext.isEnabled = enabled
@@ -248,4 +248,8 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
     override fun createPresenter(): KycProfilePresenter = presenter
 
     override fun getMvpView(): KycProfileView = this
+
+    companion object {
+        private const val MIN_LENGTH_ALLOWED = 2
+    }
 }
