@@ -109,6 +109,10 @@ class SellIntroFragment : ViewPagerFragment() {
             userIdentity.userAccessForFeature(Feature.Sell)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    binding.sellEmpty.gone()
+                    binding.customEmptyState.gone()
+                }
                 .subscribeBy(
                     onSuccess = { eligibility ->
                         when (val reason = (eligibility as? FeatureAccess.Blocked)?.reason) {
@@ -146,10 +150,6 @@ class SellIntroFragment : ViewPagerFragment() {
         compositeDisposable += tierService.tiers()
             .zipWith(eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true))
             .subscribeOn(Schedulers.io())
-            .doOnSubscribe {
-                binding.sellEmpty.gone()
-                binding.customEmptyState.gone()
-            }
             .observeOn(AndroidSchedulers.mainThread())
             .trackProgress(binding.accountsList.activityIndicator)
             .subscribeBy(onSuccess = { (kyc, eligible) ->
