@@ -42,7 +42,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTransferAccountSelectorBinding.inflate(inflater, container, false)
 
@@ -66,7 +66,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         onExtraAccountInfoClicked: (AccountLocks) -> Unit = {},
         @StringRes title: Int,
         @StringRes label: Int,
-        @DrawableRes icon: Int
+        @DrawableRes icon: Int,
     ) {
         introHeaderView.setDetails(title, label, icon)
 
@@ -105,7 +105,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             .map { listOf(AccountLocks(it)) }
 
     private fun accounts(): Single<List<BlockchainAccount>> =
-        coincore.allWalletsWithActions(setOf(fragmentAction), accountsSorting.sorter()).map {
+        coincore.walletsWithActions(actions = setOf(fragmentAction), sorter = accountsSorting.sorter()).map {
             it.map { account -> account }
         }
 
@@ -115,7 +115,7 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         @StringRes title: Int,
         @StringRes label: Int,
         @StringRes ctaText: Int,
-        action: () -> Unit
+        action: () -> Unit,
     ) {
         binding.accountSelectorEmptyView.setDetails(
             title = title, description = label, ctaText = ctaText

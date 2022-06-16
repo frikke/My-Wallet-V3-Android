@@ -91,7 +91,7 @@ class InterestSummarySheet : SlidingModalBottomDialog<DialogSheetInterestDetails
 
             interestDetailsAssetWithIcon.updateIcon(account as CryptoAccount)
 
-            disposables += coincore.allWalletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
+            disposables += coincore.walletsWithActions(setOf(AssetAction.InterestDeposit)).map { accounts ->
                 accounts.filter { account -> account is CryptoAccount && account.currency == asset }
             }
                 .onErrorReturn { emptyList() }

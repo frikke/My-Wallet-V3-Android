@@ -68,7 +68,7 @@ class TransactionInteractor(
     private val linkedBanksFactory: LinkedBanksFactory,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val dismissRecorder: DismissRecorder,
-    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag
+    private val showSendToDomainsAnnouncementFeatureFlag: IntegratedFeatureFlag,
 ) {
     private var transactionProcessor: TransactionProcessor? = null
     private val invalidate = PublishSubject.create<Unit>()
@@ -93,7 +93,7 @@ class TransactionInteractor(
     fun initialiseTransaction(
         sourceAccount: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Observable<PendingTx> =
         coincore.createTransactionProcessor(sourceAccount, target, action)
             .doOnSubscribe { Timber.d("!TRANSACTION!> SUBSCRIBE") }
@@ -163,11 +163,11 @@ class TransactionInteractor(
 
     fun getAvailableSourceAccounts(
         action: AssetAction,
-        targetAccount: TransactionTarget
+        targetAccount: TransactionTarget,
     ): Single<SingleAccountList> =
         when (action) {
             AssetAction.Swap -> {
-                coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter())
+                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter())
                     .zipWith(
                         custodialRepository.getSwapAvailablePairs()
                     ).map { (accounts, pairs) ->
@@ -181,7 +181,7 @@ class TransactionInteractor(
             AssetAction.InterestDeposit -> {
                 require(targetAccount is InterestAccount)
                 require(targetAccount is CryptoAccount)
-                coincore.allWalletsWithActions(setOf(action), accountsSorting.sorter()).map {
+                coincore.walletsWithActions(actions = setOf(action), sorter = accountsSorting.sorter()).map {
                     it.filter { acc ->
                         acc is CryptoAccount &&
                             acc.currency == targetAccount.currency &&

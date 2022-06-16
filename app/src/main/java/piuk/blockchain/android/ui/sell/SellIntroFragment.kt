@@ -43,7 +43,6 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.SellIntroFragmentBinding
 import piuk.blockchain.android.simplebuy.BuySellViewedEvent
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
-import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OOPS_ERROR
 import piuk.blockchain.android.support.SupportCentreActivity
 import piuk.blockchain.android.ui.base.ViewPagerFragment
@@ -93,7 +92,7 @@ class SellIntroFragment : ViewPagerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = SellIntroFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -120,7 +119,8 @@ class SellIntroFragment : ViewPagerFragment() {
                             BlockedReason.NotEligible -> renderRejectedKycedUserUi()
                             is BlockedReason.Sanctions -> renderBlockedDueToSanctions(reason)
                             is BlockedReason.TooManyInFlightTransactions,
-                            null -> loadSellDetails(showLoader)
+                            null,
+                            -> loadSellDetails(showLoader)
                         }
                     },
                     onError = {
@@ -314,9 +314,9 @@ class SellIntroFragment : ViewPagerFragment() {
                     )
 
                     accountsList.initialise(
-                        coincore.allWalletsWithActions(
-                            setOf(AssetAction.Sell),
-                            accountsSorting.sorter()
+                        coincore.walletsWithActions(
+                            actions = setOf(AssetAction.Sell),
+                            sorter = accountsSorting.sorter()
                         ).map {
                             it.filterIsInstance<CryptoAccount>().filter { account ->
                                 supportedCryptos.contains(account.currency)

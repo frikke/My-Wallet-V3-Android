@@ -29,19 +29,17 @@ interface NabuUserDataManager {
 class NabuUserDataManagerImpl(
     private val nabuUserService: NabuUserService,
     private val authenticator: AuthHeaderProvider,
-    private val tierService: TierService
+    private val tierService: TierService,
 ) : NabuUserDataManager {
 
     private val refresh: () -> Single<KycTiers> = {
         tierService.tiers()
     }
 
-    private val cacheRequest: TimedCacheRequest<KycTiers> by lazy {
-        TimedCacheRequest(
-            cacheLifetimeSeconds = TIERS_CACHING_LIFETIME_SECS,
-            refreshFn = refresh
-        )
-    }
+    private val cacheRequest: TimedCacheRequest<KycTiers> = TimedCacheRequest(
+        cacheLifetimeSeconds = TIERS_CACHING_LIFETIME_SECS,
+        refreshFn = refresh
+    )
 
     override fun tiers(): Single<KycTiers> = cacheRequest.getCachedSingle()
 

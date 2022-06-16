@@ -109,8 +109,18 @@ internal class DynamicAssetLoader(
                             )
                         }
                 }
-                .map { enabledNonCustodialAssets + it }
-                .doOnSuccess { assetList -> assetMap.putAll(assetList.associateBy { it.assetInfo }) }
+                .map { assets ->
+                    // Local are the dominants
+                    val onlyDynamicAssets = assets.toMutableList().apply {
+                        removeAll { asset ->
+                            enabledNonCustodialAssets.map { it.assetInfo }.contains(asset.assetInfo)
+                        }
+                    }
+                    enabledNonCustodialAssets + onlyDynamicAssets
+                }
+                .doOnSuccess { assetList ->
+                    assetMap.putAll(assetList.associateBy { it.assetInfo })
+                }
                 .doOnError { Timber.e("init failed") }
                 .ignoreElement()
         }

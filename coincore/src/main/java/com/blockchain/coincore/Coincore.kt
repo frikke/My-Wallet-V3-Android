@@ -66,15 +66,21 @@ class Coincore internal constructor(
     val fiatAssets: Asset
         get() = fiatAsset
 
+    /**
+     * TODO(antonis-bc) This should get removed from here. Nothing to do with coincore
+     */
     fun validateSecondPassword(secondPassword: String) =
         payloadManager.validateSecondPassword(secondPassword)
 
     private fun allLoadedAssets() = assetLoader.loadedAssets + fiatAsset
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
+        walletsWithFilter(includeArchived, AssetFilter.All)
+
+    private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<AccountGroup> =
         Maybe.concat(
             allLoadedAssets().map {
-                it.accountGroup().map { grp -> grp.accounts }
+                it.accountGroup(filter).map { grp -> grp.accounts }
                     .map { list ->
                         list.filter { account ->
                             (includeArchived || account !is CryptoAccount) || !account.isArchived
@@ -86,15 +92,16 @@ class Coincore internal constructor(
                 AllWalletsAccount(list, defaultLabels, currencyPrefs) as AccountGroup
             }.toSingle()
 
-    fun allWalletsWithActions(
+    fun walletsWithActions(
         actions: Set<AssetAction>,
+        filter: AssetFilter = walletModeService.enabledWalletMode().defaultFilter(),
         sorter: AccountsSorter = { Single.just(it) },
     ): Single<SingleAccountList> =
-        allWallets()
+        walletsWithFilter(filter = filter)
             .flattenAsObservable { it.accounts }
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
-                    val assetActions = availableActions.map { it.action }
+                    val assetActions = availableActions.filter { it.state == ActionState.Available }.map { it.action }
                     if (assetActions.containsAll(actions)) Maybe.just(account) else Maybe.empty()
                 }
             }
@@ -207,7 +214,7 @@ class Coincore internal constructor(
     fun createTransactionProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> =
         txProcessorFactory.createProcessor(
             source,

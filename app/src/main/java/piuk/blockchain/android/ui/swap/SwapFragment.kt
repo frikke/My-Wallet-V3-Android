@@ -176,7 +176,7 @@ class SwapFragment :
                 trendingPairsProvider.getTrendingPairs(),
                 walletManager.getProductTransferLimits(currencyPrefs.selectedFiatCurrency, Product.TRADE),
                 walletManager.getSwapTrades().onErrorReturn { emptyList() },
-                coincore.allWalletsWithActions(setOf(AssetAction.Swap))
+                coincore.walletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap)
             ) { tiers: KycTiers,
