@@ -340,7 +340,7 @@ class ActivityDetailsInteractor(
             }
             TransferDirection.INTERNAL,
             TransferDirection.FROM_USERKEY -> coincore[item.currencyPair.destination.asAssetInfoOrThrow()].accountGroup(
-                AssetFilter.Custodial
+                AssetFilter.Trading
             )
                 .toSingle()
                 .map {

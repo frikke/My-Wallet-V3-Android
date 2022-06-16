@@ -16,7 +16,7 @@ data class AccountBalance internal constructor(
     val total: Money,
     val withdrawable: Money,
     val pending: Money,
-    val exchangeRate: ExchangeRate
+    val exchangeRate: ExchangeRate,
 ) {
     val totalFiat: Money by lazy {
         exchangeRate.convert(total)
@@ -31,6 +31,7 @@ data class AccountBalance internal constructor(
                 exchangeRate = rate
             )
         }
+
         internal fun totalOf(first: AccountBalance, second: AccountBalance): AccountBalance {
             require(first.total.currency == second.total.currency) {
                 "total of different Account balances is not supported"

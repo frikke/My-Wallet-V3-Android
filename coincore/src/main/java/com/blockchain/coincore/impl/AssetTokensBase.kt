@@ -223,7 +223,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
         }
 
     private fun getCustodialTargets(): Maybe<SingleAccountList> =
-        accountGroup(AssetFilter.Custodial)
+        accountGroup(AssetFilter.Trading)
             .map { it.accounts }
             .onErrorComplete()
 

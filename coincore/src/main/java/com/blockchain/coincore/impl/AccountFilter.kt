@@ -18,11 +18,11 @@ fun SingleAccountList.makeAccountGroup(
             buildAssetMasterGroup(asset, labels, this)
         AssetFilter.NonCustodial ->
             buildNonCustodialGroup(asset, labels, this)
-        AssetFilter.Custodial ->
+        AssetFilter.Trading ->
             buildCustodialGroup(labels, this)
         AssetFilter.Interest ->
             buildInterestGroup(labels, this)
-        AssetFilter.CustodialPlusInterest -> buildCustodialPlusInterestGroup(labels, this)
+        AssetFilter.Custodial -> buildCustodialPlusInterestGroup(labels, this)
     }.exhaustive
 
 private fun buildCustodialPlusInterestGroup(
@@ -33,7 +33,7 @@ private fun buildCustodialPlusInterestGroup(
         accountList.filterIsInstance<CryptoInterestAccount>() + accountList.filterIsInstance<CustodialTradingAccount>()
 
     return if (grpAccounts.isNotEmpty())
-        CryptoAccountCustodialPlusInterestGroup(
+        CryptoAccountCustodialGroup(
             label = labels.getDefaultInterestWalletLabel(),
             accounts = grpAccounts
         )
@@ -47,7 +47,7 @@ private fun buildInterestGroup(
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CryptoInterestAccount>()
     return if (grpAccounts.isNotEmpty())
-        CryptoAccountCustodialGroup(
+        CryptoAccountTradingGroup(
             labels.getDefaultInterestWalletLabel(), grpAccounts
         )
     else
@@ -60,7 +60,7 @@ private fun buildCustodialGroup(
 ): AccountGroup? {
     val grpAccounts = accountList.filterIsInstance<CustodialTradingAccount>()
     return if (grpAccounts.isNotEmpty())
-        CryptoAccountCustodialGroup(
+        CryptoAccountTradingGroup(
             labels.getDefaultCustodialWalletLabel(), grpAccounts
         )
     else

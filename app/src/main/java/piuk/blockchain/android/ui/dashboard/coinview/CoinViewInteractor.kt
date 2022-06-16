@@ -109,7 +109,7 @@ class CoinViewInteractor(
                     require(custodialAccount != null)
                     if (isSupportedPair) {
                         if (tier == Tier.GOLD || sddEligible) {
-                            if (totalCryptoBalance[AssetFilter.Custodial]?.isPositive == true) {
+                            if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
                                 QuickActionData(QuickActionCta.Sell, QuickActionCta.Buy, custodialAccount)
                             } else {
                                 QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
@@ -118,7 +118,7 @@ class CoinViewInteractor(
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.Buy, custodialAccount)
                         }
                     } else {
-                        if (totalCryptoBalance[AssetFilter.Custodial]?.isPositive == true) {
+                        if (totalCryptoBalance[AssetFilter.Trading]?.isPositive == true) {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.Send, custodialAccount)
                         } else {
                             QuickActionData(QuickActionCta.Receive, QuickActionCta.None, custodialAccount)
@@ -238,7 +238,7 @@ class CoinViewInteractor(
 
         val tradingAccounts = if (walletModeService.enabledWalletMode().custodialEnabled) {
             splitAccountsInGroup(
-                asset, AssetFilter.Custodial
+                asset, AssetFilter.Trading
             )
         } else Single.just(emptyList())
 
@@ -309,7 +309,7 @@ class CoinViewInteractor(
             custodialAccounts.map {
                 AssetDisplayInfo(
                     account = it.account,
-                    filter = AssetFilter.Custodial,
+                    filter = AssetFilter.Trading,
                     amount = it.balance,
                     fiatValue = exchangeRate.convert(it.balance),
                     pendingAmount = it.pendingBalance,

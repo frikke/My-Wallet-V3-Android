@@ -183,7 +183,7 @@ class CoinViewModelTest {
         val list: List<AssetDisplayInfo> = listOf(
             AssetDisplayInfo(
                 account = mock<CustodialTradingAccount>(),
-                filter = AssetFilter.Custodial,
+                filter = AssetFilter.Trading,
                 amount = mock(),
                 pendingAmount = mock(),
                 fiatValue = mock(),
@@ -264,7 +264,7 @@ class CoinViewModelTest {
         val list: List<AssetDisplayInfo> = listOf(
             AssetDisplayInfo(
                 account = mock<CustodialTradingAccount>(),
-                filter = AssetFilter.Custodial,
+                filter = AssetFilter.Trading,
                 amount = mock(),
                 pendingAmount = mock(),
                 fiatValue = mock(),

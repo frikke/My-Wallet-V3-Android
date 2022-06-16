@@ -17,15 +17,15 @@ import kotlinx.parcelize.Parcelize
 enum class AssetFilter {
     All,
     NonCustodial,
-    Custodial,
+    Trading,
     Interest,
-    CustodialPlusInterest
+    Custodial // Trading + Interest (Whatever lives in our backend)
 }
 
 fun WalletMode.defaultFilter(): AssetFilter =
     when (this) {
         WalletMode.NON_CUSTODIAL_ONLY -> AssetFilter.NonCustodial
-        WalletMode.CUSTODIAL_ONLY -> AssetFilter.CustodialPlusInterest
+        WalletMode.CUSTODIAL_ONLY -> AssetFilter.Custodial
         WalletMode.UNIVERSAL -> AssetFilter.All
     }
 
@@ -35,7 +35,7 @@ enum class ActionOrigin {
 }
 
 enum class AssetAction(
-    val origin: ActionOrigin
+    val origin: ActionOrigin,
 ) {
     // Display account activity
     ViewActivity(ActionOrigin.FROM_SOURCE),
@@ -83,7 +83,7 @@ enum class AssetAction(
 @Parcelize
 data class StateAwareAction(
     val state: ActionState,
-    val action: AssetAction
+    val action: AssetAction,
 ) : java.io.Serializable, Parcelable
 
 sealed class ActionState : Parcelable {
@@ -110,7 +110,7 @@ typealias AvailableActions = Set<AssetAction>
 
 internal inline fun AssetAction.takeEnabledIf(
     baseActions: AvailableActions,
-    predicate: (AssetAction) -> Boolean = { true }
+    predicate: (AssetAction) -> Boolean = { true },
 ): AssetAction? =
     this.takeIf { it in baseActions && predicate(this) }
 
@@ -154,7 +154,7 @@ interface MultipleWalletsAsset {
         keyData: String,
         keyFormat: String,
         keyPassword: String? = null, // Required for BIP38 format keys
-        walletSecondPassword: String? = null
+        walletSecondPassword: String? = null,
     ): Single<out SingleAccount>
 }
 

@@ -29,8 +29,8 @@ class FiatAsset(
     override fun accountGroup(filter: AssetFilter): Maybe<AccountGroup> =
         when (filter) {
             AssetFilter.All,
-            AssetFilter.CustodialPlusInterest,
-            AssetFilter.Custodial -> fetchFiatWallets()
+            AssetFilter.Custodial,
+            AssetFilter.Trading -> fetchFiatWallets()
             AssetFilter.NonCustodial,
             AssetFilter.Interest -> Maybe.empty() // Only support single accounts
         }

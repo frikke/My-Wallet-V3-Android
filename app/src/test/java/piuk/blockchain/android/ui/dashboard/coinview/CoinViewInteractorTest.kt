@@ -117,7 +117,7 @@ class CoinViewInteractorTest {
     private val asset: CryptoAsset = mock {
         on { this.assetInfo }.thenReturn(assetInfo)
         on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
-        on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.just(custodialGroup))
+        on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
         on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
         on { interestRate() }.thenReturn(Single.just(5.0))
@@ -168,7 +168,7 @@ class CoinViewInteractorTest {
         val btcAsset = CryptoCurrency.BTC
         val account: CustodialTradingAccount = mock()
         val totalCryptoBalance =
-            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
+            hashMapOf<AssetFilter, Money>(AssetFilter.Trading to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
 
         val test = subject.loadQuickActions(totalCryptoBalance, listOf(account), asset).test()
@@ -205,7 +205,7 @@ class CoinViewInteractorTest {
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
 
         val totalCryptoBalance =
-            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.zero(btcAsset))
+            hashMapOf<AssetFilter, Money>(AssetFilter.Trading to CryptoValue.zero(btcAsset))
         val test = subject.loadQuickActions(totalCryptoBalance, listOf(account), asset).test()
 
         test.assertValue {
@@ -234,7 +234,7 @@ class CoinViewInteractorTest {
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
-            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
+            hashMapOf<AssetFilter, Money>(AssetFilter.Trading to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN))
 
         val account: CustodialTradingAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(true))
@@ -299,7 +299,7 @@ class CoinViewInteractorTest {
 
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
-            hashMapOf<AssetFilter, Money>(AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.ZERO))
+            hashMapOf<AssetFilter, Money>(AssetFilter.Trading to CryptoValue.fromMajor(btcAsset, BigDecimal.ZERO))
 
         val account: CryptoNonCustodialAccount = mock()
         whenever(custodialWalletManager.isCurrencyAvailableForTrading(btcAsset)).thenReturn(Single.just(false))
@@ -333,7 +333,7 @@ class CoinViewInteractorTest {
         val btcAsset = CryptoCurrency.BTC
         val totalCryptoBalance =
             hashMapOf<AssetFilter, Money>(
-                AssetFilter.Custodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN),
+                AssetFilter.Trading to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN),
                 AssetFilter.NonCustodial to CryptoValue.fromMajor(btcAsset, BigDecimal.TEN)
             )
 
@@ -363,7 +363,7 @@ class CoinViewInteractorTest {
         val asset: CryptoAsset = mock {
             on { this.assetInfo }.thenReturn(assetInfo)
             on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Custodial) }.thenReturn(Maybe.empty())
+            on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.empty())
             on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
@@ -401,7 +401,7 @@ class CoinViewInteractorTest {
                 AssetFilter.All to Money.fromMajor(testAsset, BigDecimal.ZERO),
                 AssetFilter.Interest to Money.fromMajor(testAsset, BigDecimal.ZERO),
                 AssetFilter.NonCustodial to Money.fromMajor(testAsset, BigDecimal.ZERO),
-                AssetFilter.Custodial to Money.fromMajor(testAsset, BigDecimal.ZERO)
+                AssetFilter.Trading to Money.fromMajor(testAsset, BigDecimal.ZERO)
             ) &&
                 it.totalFiatBalance == Money.fromMajor(FiatCurrency.Dollars, BigDecimal.ZERO) &&
                 it.accountsList.size == 4 &&

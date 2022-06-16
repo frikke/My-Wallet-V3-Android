@@ -30,12 +30,15 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.isCustodial
+import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Maybe
@@ -77,7 +80,7 @@ class DashboardActionInteractor(
     private val userIdentity: UserIdentity,
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
-    private val remoteLogger: RemoteLogger
+    private val remoteLogger: RemoteLogger,
 ) {
 
     private val defFilter: AssetFilter
@@ -105,7 +108,13 @@ class DashboardActionInteractor(
 
     fun fetchAvailableAssets(model: DashboardModel): Disposable =
         Single.fromCallable {
-            coincore.availableCryptoAssets()
+            coincore.availableCryptoAssets().filter {
+                when (walletModeService.enabledWalletMode()) {
+                    WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
+                    WalletMode.CUSTODIAL_ONLY -> it.isCustodial
+                    WalletMode.UNIVERSAL -> true
+                }
+            }
         }.subscribeBy(
             onSuccess = { assets ->
                 model.process(DashboardIntent.AssetListUpdate(assets))
@@ -143,7 +152,7 @@ class DashboardActionInteractor(
     // get a valid ETH balance, will try for a PX balance. Yeah, this is a nasty hack TODO: Fix this
     fun refreshBalances(
         model: DashboardModel,
-        state: DashboardState
+        state: DashboardState,
     ): Disposable {
         val cd = CompositeDisposable()
 
@@ -164,7 +173,7 @@ class DashboardActionInteractor(
     private fun loadTradingBalancesStrategy(
         assets: Set<AssetInfo>,
         model: DashboardModel,
-        cd: CompositeDisposable
+        cd: CompositeDisposable,
     ) {
         assets.forEach { asset ->
             cd += refreshAssetBalance(asset, model).subscribeBy(onError = {
@@ -177,7 +186,7 @@ class DashboardActionInteractor(
         assets: Set<AssetInfo>,
         erc20Assets: Set<AssetInfo>,
         model: DashboardModel,
-        cd: CompositeDisposable
+        cd: CompositeDisposable,
     ) {
         assets
             .filter { !it.isErc20() }
@@ -193,7 +202,7 @@ class DashboardActionInteractor(
 
     fun refreshFiatBalances(
         fiatAccounts: Map<Currency, FiatBalanceInfo>,
-        model: DashboardModel
+        model: DashboardModel,
     ): Disposable {
         val disposable = CompositeDisposable()
         fiatAccounts
@@ -219,7 +228,7 @@ class DashboardActionInteractor(
 
     private fun refreshAssetBalance(
         asset: AssetInfo,
-        model: DashboardModel
+        model: DashboardModel,
     ): Single<CryptoValue> =
         coincore[asset].accountGroup(defFilter)
             .logGroupLoadError(asset, defFilter)
@@ -243,7 +252,7 @@ class DashboardActionInteractor(
     private fun Single<CryptoValue>.ifEthLoadedGetErc20Balance(
         model: DashboardModel,
         disposables: CompositeDisposable,
-        erc20Assets: Set<AssetInfo>
+        erc20Assets: Set<AssetInfo>,
     ) = this.doOnSuccess { value ->
         if (value.currency == CryptoCurrency.ETHER) {
             erc20Assets.forEach {
@@ -256,7 +265,7 @@ class DashboardActionInteractor(
     private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
         asset: AssetInfo,
         model: DashboardModel,
-        erc20Assets: Set<AssetInfo>
+        erc20Assets: Set<AssetInfo>,
     ) = this.doOnError {
         if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
             erc20Assets.forEach {
@@ -267,7 +276,7 @@ class DashboardActionInteractor(
 
     private fun refreshFiatAssetBalance(
         account: FiatAccount,
-        model: DashboardModel
+        model: DashboardModel,
     ): Disposable =
         account.balance
             .firstOrError() // Ideally we shouldn't need this, but we need to kill existing subs on refresh first TODO
@@ -310,7 +319,7 @@ class DashboardActionInteractor(
             )
 
     fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
-        return coincore[crypto].accountGroup(AssetFilter.Custodial)
+        return coincore[crypto].accountGroup(AssetFilter.Trading)
             .flatMapObservable { it.balance }
             .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
@@ -389,7 +398,7 @@ class DashboardActionInteractor(
         model: DashboardModel,
         targetAccount: SingleAccount,
         action: AssetAction,
-        shouldLaunchBankLinkTransfer: Boolean
+        shouldLaunchBankLinkTransfer: Boolean,
     ): Disposable {
         require(targetAccount is FiatAccount)
         return handleFiatDeposit(targetAccount, shouldLaunchBankLinkTransfer, model, action)
@@ -399,7 +408,7 @@ class DashboardActionInteractor(
         targetAccount: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
         model: DashboardModel,
-        action: AssetAction
+        action: AssetAction,
     ) = Singles.zip(
         userIdentity.userAccessForFeature(Feature.DepositFiat),
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
@@ -465,7 +474,7 @@ class DashboardActionInteractor(
         fiatTxRequestResult: FiatTransactionRequestResult?,
         model: DashboardModel,
         fiatAccount: FiatAccount,
-        action: AssetAction
+        action: AssetAction,
     ) {
         when (fiatTxRequestResult) {
             is FiatTransactionRequestResult.LaunchDepositFlowWithMultipleAccounts -> {
@@ -548,7 +557,7 @@ class DashboardActionInteractor(
     private fun handleNoLinkedBanks(
         targetAccount: FiatAccount,
         action: AssetAction,
-        paymentMethodForAction: LinkablePaymentMethodsForAction
+        paymentMethodForAction: LinkablePaymentMethodsForAction,
     ) =
         when {
             paymentMethodForAction.linkablePaymentMethods.linkMethods.containsAll(
@@ -585,7 +594,7 @@ class DashboardActionInteractor(
         model: DashboardModel,
         sourceAccount: SingleAccount,
         action: AssetAction,
-        shouldLaunchBankLinkTransfer: Boolean
+        shouldLaunchBankLinkTransfer: Boolean,
     ): Disposable {
         require(sourceAccount is FiatAccount)
 

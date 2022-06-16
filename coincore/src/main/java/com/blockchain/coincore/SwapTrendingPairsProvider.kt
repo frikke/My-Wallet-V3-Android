@@ -25,11 +25,11 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Custodial).toSingle() }
+        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Trading).toSingle() }
             .zipSingles()
             .map { it.isNotEmpty() }
             .flatMap { useCustodial ->
-                val filter = if (useCustodial) AssetFilter.Custodial else AssetFilter.NonCustodial
+                val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
 
                 val assetList = makeRequiredAssetSet()
                 val accountGroups = assetList.map { asset ->

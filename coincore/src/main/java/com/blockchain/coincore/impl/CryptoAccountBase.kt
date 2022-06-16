@@ -334,7 +334,7 @@ abstract class CryptoNonCustodialAccount(
 // so all the methods on this can just delegate directly
 // to the (required) CryptoSingleAccountCustodialBase
 
-class CryptoAccountCustodialGroup(
+class CryptoAccountTradingGroup(
     override val label: String,
     override val accounts: SingleAccountList
 ) : AccountGroup {
@@ -369,7 +369,10 @@ class CryptoAccountCustodialGroup(
         accounts.contains(account)
 }
 
-class CryptoAccountCustodialPlusInterestGroup(
+/**
+ * Group for Trading and Interest accounts
+ */
+class CryptoAccountCustodialGroup(
     override val label: String,
     override val accounts: SingleAccountList
 ) : AccountGroup {

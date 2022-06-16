@@ -9,7 +9,6 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -25,7 +24,7 @@ internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e
 @Deprecated("Use result from ExchangeManager directly")
 data class ExchangePriceWithDelta(
     val price: Money,
-    val delta: Double
+    val delta: Double,
 )
 
 class Coincore internal constructor(
@@ -40,7 +39,7 @@ class Coincore internal constructor(
     private val remoteLogger: RemoteLogger,
     private val bankService: BankService,
     private val walletModeService: WalletModeService,
-    private val disabledEvmAssets: List<AssetInfo>
+    private val disabledEvmAssets: List<AssetInfo>,
 ) {
     fun getWithdrawalLocks(localCurrency: Currency): Maybe<FundsLocks> =
         if (walletModeService.enabledWalletMode().custodialEnabled) {
@@ -89,7 +88,7 @@ class Coincore internal constructor(
 
     fun allWalletsWithActions(
         actions: Set<AssetAction>,
-        sorter: AccountsSorter = { Single.just(it) }
+        sorter: AccountsSorter = { Single.just(it) },
     ): Single<SingleAccountList> =
         allWallets()
             .flattenAsObservable { it.accounts }
@@ -106,7 +105,7 @@ class Coincore internal constructor(
 
     fun getTransactionTargets(
         sourceAccount: CryptoAccount,
-        action: AssetAction
+        action: AssetAction,
     ): Single<SingleAccountList> {
         val sameCurrencyTransactionTargets =
             get(sourceAccount.currency).transactionTargets(sourceAccount)
@@ -136,7 +135,7 @@ class Coincore internal constructor(
 
     private fun getActionFilter(
         action: AssetAction,
-        sourceAccount: CryptoAccount
+        sourceAccount: CryptoAccount,
     ): (SingleAccount) -> Boolean =
         when (action) {
             AssetAction.Sell -> {
@@ -171,7 +170,7 @@ class Coincore internal constructor(
 
     fun findAccountByAddress(
         asset: AssetInfo,
-        address: String
+        address: String,
     ): Maybe<SingleAccount> =
         filterAccountsByAddress(
             this[asset].accountGroup(AssetFilter.All),
@@ -180,7 +179,7 @@ class Coincore internal constructor(
 
     private fun filterAccountsByAddress(
         accountGroup: Maybe<AccountGroup>,
-        address: String
+        address: String,
     ): Maybe<SingleAccount> =
         accountGroup.map {
             it.accounts
@@ -237,11 +236,4 @@ class Coincore internal constructor(
     fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
-
-    private fun WalletMode.defaultFilters(): Set<AssetFilter> =
-        when (this) {
-            WalletMode.UNIVERSAL -> setOf(AssetFilter.All)
-            WalletMode.NON_CUSTODIAL_ONLY -> setOf(AssetFilter.NonCustodial)
-            WalletMode.CUSTODIAL_ONLY -> setOf(AssetFilter.Custodial, AssetFilter.Interest)
-        }
 }

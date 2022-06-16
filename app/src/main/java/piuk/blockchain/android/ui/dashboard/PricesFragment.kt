@@ -62,7 +62,6 @@ import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 data class PricesItem(
     val asset: AssetInfo,
@@ -111,11 +110,7 @@ internal class PricesFragment :
 
     @UiThread
     override fun render(newState: DashboardState) {
-        try {
-            doRender(newState)
-        } catch (e: Throwable) {
-            Timber.e("Error rendering: $e")
-        }
+        doRender(newState)
     }
 
     @UiThread

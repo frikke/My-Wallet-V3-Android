@@ -61,7 +61,7 @@ internal class DynamicAssetLoader(
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
     private val stxForAllFeatureFlag: FeatureFlag,
-    private val stxForAirdropFeatureFlag: FeatureFlag
+    private val stxForAirdropFeatureFlag: FeatureFlag,
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -128,7 +128,7 @@ internal class DynamicAssetLoader(
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
 
     private fun doLoadAssets(
-        dynamicAssets: Set<AssetInfo>
+        dynamicAssets: Set<AssetInfo>,
     ): Single<List<CryptoAsset>> {
         val erc20assets = dynamicAssets.filter { it.isErc20() }
 
@@ -147,7 +147,7 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadCustodialAssets(
-        custodialAssets: Iterable<AssetInfo>
+        custodialAssets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
         if (walletModeService.enabledWalletMode().custodialEnabled.not()) {
             return Single.just(emptyList())
@@ -172,7 +172,7 @@ internal class DynamicAssetLoader(
     }
 
     private fun loadErc20Assets(
-        erc20Assets: Iterable<AssetInfo>
+        erc20Assets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
 
         val tradingBalancesAssets =
