@@ -79,7 +79,6 @@ class NotificationPreferencesViewModel(
     }
 
     private suspend fun fetchPreferences() {
-        updateState { NotificationPreferencesModelState.Loading }
         viewModelScope.launch(ioDispatcher) {
             interactor.getNotificationPreferences()
                 .map { NotificationPreferencesModelState.Data(it) }
