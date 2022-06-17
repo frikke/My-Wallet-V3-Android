@@ -15,13 +15,13 @@ import timber.log.Timber
 
 /*internal*/ data class NotificationAddresses(
     val assetTicker: String,
-    val addressList: List<String>
+    val addressList: List<String>,
 )
 
 @Serializable
 internal data class NotificationReceiveAddresses(
     private val coin: String,
-    private val addresses: List<String>
+    private val addresses: List<String>,
 )
 
 // Update the BE with the current address sets for assets, used to
@@ -30,7 +30,7 @@ internal data class NotificationReceiveAddresses(
     private val walletApi: WalletApi,
     private val prefs: AuthPrefs,
     private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag
+    private val replaceGsonKtxFF: FeatureFlag,
 ) {
 
     private val addressMap = mutableMapOf<String, NotificationAddresses>()
@@ -62,22 +62,16 @@ internal data class NotificationReceiveAddresses(
         ).ignoreElements()
 
     private fun coinReceiveAddresses(): String {
+        val addresses = REQUIRED_ASSETS.map { key ->
+            val addresses =
+                addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
+            NotificationReceiveAddresses(key, addresses)
+        }
+
         return if (replaceGsonKtxFF.isEnabled) {
-            json.encodeToString(
-                REQUIRED_ASSETS.map { key ->
-                    val addresses =
-                        addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
-                    NotificationReceiveAddresses(key, addresses)
-                }
-            )
+            json.encodeToString(addresses)
         } else {
-            Gson().toJson(
-                REQUIRED_ASSETS.map { key ->
-                    val addresses =
-                        addressMap[key]?.addressList ?: throw IllegalStateException("Required Asset missing")
-                    NotificationReceiveAddresses(key, addresses)
-                }
-            )
+            Gson().toJson(addresses)
         }
     }
 
