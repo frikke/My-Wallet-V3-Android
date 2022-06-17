@@ -4,8 +4,15 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.google.gson.Gson
 import java.io.Serializable
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.koin.core.context.GlobalContext
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 
 data class BankAuthState(
@@ -55,6 +62,7 @@ sealed class BankAuthError : Serializable {
     ) : BankAuthError()
 }
 
+@kotlinx.serialization.Serializable
 data class BankLinkingInfo(
     val linkingId: String,
     val bankAuthSource: BankAuthSource
@@ -67,21 +75,41 @@ enum class BankAuthSource {
     WITHDRAW
 }
 
+@kotlinx.serialization.Serializable
 data class BankAuthDeepLinkState(
     val bankAuthFlow: BankAuthFlowState = BankAuthFlowState.NONE,
     val bankPaymentData: BankPaymentApproval? = null,
     val bankLinkingInfo: BankLinkingInfo? = null
 )
 
-fun BankAuthDeepLinkState.toPreferencesValue(): String =
-    Gson().toJson(this, BankAuthDeepLinkState::class.java)
+@OptIn(ExperimentalSerializationApi::class)
+fun BankAuthDeepLinkState.toPreferencesValue(): String {
+    val koin = GlobalContext.get()
+    val replaceGsonKtxFF by koin.inject<FeatureFlag>(replaceGsonKtxFeatureFlag)
 
-internal fun String.fromPreferencesValue(): BankAuthDeepLinkState? =
-    if (this.isNotEmpty()) {
-        Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+    return if (replaceGsonKtxFF.isEnabled) {
+        val json by koin.inject<Json>()
+        json.encodeToString(this)
+    } else {
+        Gson().toJson(this, BankAuthDeepLinkState::class.java)
+    }
+}
+
+internal fun String.fromPreferencesValue(): BankAuthDeepLinkState? {
+    val koin = GlobalContext.get()
+    val replaceGsonKtxFF by koin.inject<FeatureFlag>(replaceGsonKtxFeatureFlag)
+
+    return if (this.isNotEmpty()) {
+        if (replaceGsonKtxFF.isEnabled) {
+            val json by koin.inject<Json>()
+            json.decodeFromString<BankAuthDeepLinkState>(this)
+        } else {
+            Gson().fromJson(this, BankAuthDeepLinkState::class.java)
+        }
     } else {
         null
     }
+}
 
 enum class BankAuthFlowState {
     BANK_LINK_PENDING,
