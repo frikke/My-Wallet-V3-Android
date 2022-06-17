@@ -35,7 +35,7 @@ class SwapActivityProviderImpl(
                 val apiFiat = Money.fromMinor(fiatCurrency, it.fiatValue.toBigInteger())
                 val receivingValue = Money.fromMinor(pair.destination, it.priceFunnel.outputMoney.toBigInteger())
                 // priceFunnel.price comes as Major Value
-                val price = Money.fromMajor(fiatCurrency, BigDecimal(it.priceFunnel.price))
+                val price = Money.fromMajor(pair.destination, BigDecimal(it.priceFunnel.price))
 
                 TradeTransactionItem(
                     txId = it.kind.depositTxHash ?: it.id,
