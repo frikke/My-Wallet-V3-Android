@@ -248,6 +248,7 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
         simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
+        redrawNavigation()
     }
 
     override fun onDestroy() {
@@ -355,7 +356,6 @@ class MainActivity :
             if (!dashboardPrefs.hasTappedFabButton) {
                 isPulseAnimationEnabled = true
             }
-            hasMiddleButton = walletModeService.enabledWalletMode().custodialEnabled
             onNavigationItemClick = {
                 selectedNavigationItem = it
                 when (it) {
@@ -373,9 +373,15 @@ class MainActivity :
                     RedesignActionsBottomSheet.newInstance()
                 )
             }
+        }
+    }
+
+    private fun redrawNavigation() {
+        binding.bottomNavigation.apply {
             navigationItems = when (walletModeService.enabledWalletMode()) {
                 WalletMode.CUSTODIAL_ONLY,
-                WalletMode.UNIVERSAL -> listOf(
+                WalletMode.UNIVERSAL,
+                -> listOf(
                     NavigationItem.Home,
                     NavigationItem.Prices,
                     NavigationItem.BuyAndSell,
@@ -387,6 +393,8 @@ class MainActivity :
                     NavigationItem.Activity
                 )
             }
+
+            hasMiddleButton = walletModeService.enabledWalletMode().custodialEnabled
         }
     }
 
