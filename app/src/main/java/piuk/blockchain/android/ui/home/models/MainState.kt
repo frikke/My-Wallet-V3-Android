@@ -63,4 +63,5 @@ sealed class ViewToLaunch {
     class ShowTargetScanError(val error: QrScanError) : ViewToLaunch()
     object ShowUiTour : ViewToLaunch()
     object ShowEntitySwitchSilverKycUpsell : ViewToLaunch()
+    object ShowReferralSheet : ViewToLaunch()
 }

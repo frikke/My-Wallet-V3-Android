@@ -1234,4 +1234,31 @@ class MainModelTest {
             MainState(referral = ReferralState(mockReferralInfo, true))
         )
     }
+
+    @Test
+    fun markReferralStateWhenLaunchedFromReferralDeeplink() {
+        model.process(MainIntent.ShowReferralWhenAvailable)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(referral = ReferralState(ReferralInfo.NotAvailable, referralDeeplink = true))
+        )
+    }
+
+    @Test
+    fun showReferralStateWhenLaunchedFromReferralDeeplink() {
+        val mockReferralInfo: ReferralInfo = mock()
+        whenever(interactor.checkReferral()).doReturn(Single.just(ReferralState(mockReferralInfo, false)))
+
+        model.process(MainIntent.ShowReferralWhenAvailable)
+        model.process(MainIntent.CheckReferralCode)
+
+        val testState = model.state.test()
+        testState.assertValue(
+            MainState(
+                referral = ReferralState(mockReferralInfo, referralDeeplink = false),
+                viewToLaunch = ViewToLaunch.ShowReferralSheet
+            )
+        )
+    }
 }

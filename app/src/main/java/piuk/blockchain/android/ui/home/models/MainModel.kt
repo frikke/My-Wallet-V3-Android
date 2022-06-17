@@ -123,10 +123,14 @@ class MainModel(
             is MainIntent.CheckReferralCode -> {
                 interactor.checkReferral()
                     .onErrorReturn { ReferralState(ReferralInfo.NotAvailable) }
-                    .subscribeBy {
-                        process(MainIntent.ReferralCodeIntent(it))
+                    .subscribeBy { referralState ->
+                        if (previousState.referral.referralDeeplink) {
+                            process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowReferralSheet))
+                        }
+                        process(MainIntent.ReferralCodeIntent(referralState))
                     }
             }
+
             is MainIntent.ReferralIconClicked -> {
                 interactor.storeReferralClicked()
                 null
@@ -212,6 +216,7 @@ class MainModel(
             is MainIntent.UpdateDeepLinkResult -> null
             is MainIntent.SaveDeeplinkIntent -> null
             is MainIntent.ReferralCodeIntent -> null
+            is MainIntent.ShowReferralWhenAvailable -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {

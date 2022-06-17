@@ -43,4 +43,7 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     object StartKyc : Destination()
+
+    @Parcelize
+    object ReferralDestination : Destination()
 }

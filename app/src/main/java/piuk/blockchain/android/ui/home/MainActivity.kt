@@ -694,6 +694,9 @@ class MainActivity :
                 binding.uiTour.host = this
                 showUiTour()
             }
+            is ViewToLaunch.ShowReferralSheet -> {
+                showReferralBottomSheet(newState.referral.referralInfo)
+            }
         }.exhaustive
 
         // once we've completed a loop of render with a view to launch
@@ -802,6 +805,9 @@ class MainActivity :
             }
             Destination.StartKyc -> {
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
+            }
+            Destination.ReferralDestination -> {
+                model.process(MainIntent.ShowReferralWhenAvailable)
             }
         }.exhaustive
 

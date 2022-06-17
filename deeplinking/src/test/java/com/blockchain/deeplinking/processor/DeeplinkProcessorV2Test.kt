@@ -127,4 +127,16 @@ class DeeplinkProcessorV2Test {
                 deeplinkResult.destination is Destination.CustomerSupportDestination
         }
     }
+
+    @Test
+    fun `test parse of referral code deeplink URI`() {
+        val assetCustomerSupportTestURL = Uri.parse(
+            "https://www.login.blockchain.com/app/referral"
+        )
+        val test = deeplinkProcessorV2Subject.process(assetCustomerSupportTestURL).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.ReferralDestination
+        }
+    }
 }

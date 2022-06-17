@@ -134,6 +134,11 @@ class DeeplinkProcessorV2 {
                     )
                 )
             }
+            REFERRAL_URL -> {
+                val destination = Destination.ReferralDestination
+                Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
+            }
+
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
     }
@@ -154,6 +159,7 @@ class DeeplinkProcessorV2 {
         const val CUSTOMER_SUPPORT_URL = "$APP_URL/contact/customer/support"
         const val KYC_URL = "$APP_URL/kyc"
         const val ACTIVITY_URL = "$APP_URL/activity"
+        const val REFERRAL_URL = "$APP_URL/referral"
 
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"
