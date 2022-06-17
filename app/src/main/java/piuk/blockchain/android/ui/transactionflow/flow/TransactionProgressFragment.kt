@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.blockchain.api.NabuApiException
 import com.blockchain.coincore.AssetAction
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import java.util.Locale
 import org.koin.android.ext.android.inject
@@ -297,6 +298,22 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
             is TransactionError.FiatDepositError -> Pair(
                 customiser.transactionProgressExceptionTitle(state),
                 error.errorCode
+            )
+            is TransactionError.SettlementRefreshRequired -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.REQUIRES_UPDATE.toString()
+            )
+            TransactionError.SettlementGenericError -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.GENERIC.toString()
+            )
+            TransactionError.SettlementInsufficientBalance -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.INSUFFICIENT_BALANCE.toString()
+            )
+            TransactionError.SettlementStaleBalance -> Pair(
+                customiser.transactionProgressExceptionTitle(state),
+                SettlementReason.STALE_BALANCE.toString()
             )
         }
 

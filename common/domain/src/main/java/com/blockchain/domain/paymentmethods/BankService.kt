@@ -6,6 +6,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.SettlementInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -36,6 +37,11 @@ interface BankService {
         accountId: String,
         publicToken: String
     ): Completable
+
+    fun checkSettlement(
+        accountId: String,
+        amount: Money
+    ): Single<SettlementInfo>
 
     fun startBankTransfer(
         id: String,

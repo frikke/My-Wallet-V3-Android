@@ -327,3 +327,81 @@ data class LinkPlaidAccountBody(
         val publicToken: String
     )
 }
+
+@Serializable
+data class SettlementBody(
+    @SerialName("attributes")
+    val attributes: Attributes
+) {
+    @Serializable
+    data class Attributes(
+        @SerialName("settlementRequest")
+        val settlementRequest: SettlementRequest
+    ) {
+        @Serializable
+        data class SettlementRequest(
+            @SerialName("product")
+            val product: String = "MERCURY",
+            @SerialName("amount")
+            val amount: String
+        )
+    }
+}
+
+@Serializable
+data class SettlementResponse(
+    @SerialName("id")
+    val id: String,
+    @SerialName("partner")
+    val partner: String,
+    @SerialName("state")
+    val state: String,
+    @SerialName("currency")
+    val currency: String,
+    @SerialName("details")
+    val details: Details,
+    @SerialName("attributes")
+    val attributes: Attributes,
+    @SerialName("addedAt")
+    val addedAt: String
+) {
+    @Serializable
+    data class Details(
+        @SerialName("bankAccountType")
+        val bankAccountType: String?,
+        @SerialName("routingNumber")
+        val routingNumber: String?,
+        @SerialName("accountNumber")
+        val accountNumber: String?,
+        @SerialName("accountName")
+        val accountName: String?,
+        @SerialName("bankName")
+        val bankName: String?
+    )
+
+    @Serializable
+    data class Attributes(
+        @SerialName("settlementResponse")
+        val settlementResponse: SettlementResponse
+    ) {
+        @Serializable
+        data class SettlementResponse(
+            @SerialName("amount")
+            val amount: String,
+            @SerialName("settlementType")
+            val settlementType: String,
+            @SerialName("reason")
+            val reason: String?,
+            @SerialName("balances")
+            val balances: Balances
+        ) {
+            @Serializable
+            data class Balances(
+                @SerialName("availableBalance")
+                val availableBalance: String,
+                @SerialName("lastUpdated")
+                val lastUpdated: String
+            )
+        }
+    }
+}

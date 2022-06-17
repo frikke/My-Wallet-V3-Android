@@ -25,6 +25,8 @@ import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.SettlementBody
+import com.blockchain.api.payments.data.SettlementResponse
 import com.blockchain.api.payments.data.YapilyCountryResponse
 import com.blockchain.api.payments.data.YapilyInstitutionResponse
 import com.blockchain.api.payments.data.YapilyMediaResponse
@@ -59,6 +61,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
+import com.blockchain.domain.paymentmethods.model.SettlementInfo
+import com.blockchain.domain.paymentmethods.model.SettlementReason
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
@@ -73,6 +78,7 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.testutils.MockKRule
+import com.blockchain.testutils.usd
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency
@@ -563,7 +569,6 @@ class PaymentsRepositoryTest {
     @Test
     fun `getBankTransferCharge() should return BankTransferDetails`() {
         // ARRANGE
-        val fiatCurrency: FiatCurrency = mockk()
         val response = BankTransferChargeResponse(
             beneficiaryId = ID,
             state = BankTransferChargeAttributes.PENDING,
@@ -593,6 +598,86 @@ class PaymentsRepositoryTest {
         // ASSERT
         subject.canTransactWithBankMethods(fiatCurrency).test()
             .assertValue(false)
+    }
+
+    @Test
+    fun `checkSettlement() - valid SettlementReason`() {
+        // ARRANGE
+        val amount = 10.usd()
+        val mockResponse = mockk<SettlementResponse.Attributes.SettlementResponse>(relaxed = true) {
+            every { settlementType } returns SettlementType.INSTANT.toString()
+            every { reason } returns SettlementReason.GENERIC.toString()
+        }
+        val mockAttributes = mockk<SettlementResponse.Attributes>(relaxed = true) {
+            every { settlementResponse } returns mockResponse
+        }
+        val settlementResponse = mockk<SettlementResponse>(relaxed = true) {
+            every { partner } returns PLAID_PARTNER
+            every { state } returns BankInfoResponse.ACTIVE
+            every { attributes } returns mockAttributes
+        }
+        every {
+            paymentMethodsService.checkSettlement(
+                AUTH,
+                ID,
+                SettlementBody(
+                    SettlementBody.Attributes(
+                        SettlementBody.Attributes.SettlementRequest(amount = amount.toNetworkString())
+                    )
+                )
+            )
+        } returns Single.just(settlementResponse)
+
+        // ASSERT
+        subject.checkSettlement(ID, amount).test()
+            .assertValue(
+                SettlementInfo(
+                    partner = BankPartner.PLAID,
+                    state = BankState.ACTIVE,
+                    settlementType = SettlementType.INSTANT,
+                    settlementReason = SettlementReason.GENERIC
+                )
+            )
+    }
+
+    @Test
+    fun `checkSettlement() - no SettlementReason`() {
+        // ARRANGE
+        val amount = 10.usd()
+        val mockResponse = mockk<SettlementResponse.Attributes.SettlementResponse>(relaxed = true) {
+            every { settlementType } returns SettlementType.INSTANT.toString()
+            every { reason } returns null
+        }
+        val mockAttributes = mockk<SettlementResponse.Attributes>(relaxed = true) {
+            every { settlementResponse } returns mockResponse
+        }
+        val settlementResponse = mockk<SettlementResponse>(relaxed = true) {
+            every { partner } returns PLAID_PARTNER
+            every { state } returns BankInfoResponse.ACTIVE
+            every { attributes } returns mockAttributes
+        }
+        every {
+            paymentMethodsService.checkSettlement(
+                AUTH,
+                ID,
+                SettlementBody(
+                    SettlementBody.Attributes(
+                        SettlementBody.Attributes.SettlementRequest(amount = amount.toNetworkString())
+                    )
+                )
+            )
+        } returns Single.just(settlementResponse)
+
+        // ASSERT
+        subject.checkSettlement(ID, amount).test()
+            .assertValue(
+                SettlementInfo(
+                    partner = BankPartner.PLAID,
+                    state = BankState.ACTIVE,
+                    settlementType = SettlementType.INSTANT,
+                    settlementReason = SettlementReason.NONE
+                )
+            )
     }
 
     // /////////////////////////////////////////

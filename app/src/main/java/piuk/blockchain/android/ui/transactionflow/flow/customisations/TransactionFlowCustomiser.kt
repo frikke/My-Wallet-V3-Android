@@ -992,6 +992,10 @@ class TransactionFlowCustomiserImpl(
             )
             TransactionError.TransactionDenied -> resources.getString(R.string.transaction_denied)
             is TransactionError.FiatDepositError -> getFiatDepositError(error.errorCode).title
+            TransactionError.SettlementInsufficientBalance,
+            TransactionError.SettlementStaleBalance,
+            TransactionError.SettlementGenericError,
+            is TransactionError.SettlementRefreshRequired -> resources.getString(R.string.trading_confirm_deposit)
         }
     }
 
@@ -1069,6 +1073,14 @@ class TransactionFlowCustomiserImpl(
                     ?: resources.getString(R.string.send_progress_error_subtitle)
             is TransactionError.FiatDepositError ->
                 getFiatDepositError(error.errorCode).message
+            is TransactionError.SettlementInsufficientBalance ->
+                resources.getString(R.string.trading_deposit_description_insufficient)
+            is TransactionError.SettlementStaleBalance ->
+                resources.getString(R.string.trading_deposit_description_stale)
+            is TransactionError.SettlementGenericError ->
+                resources.getString(R.string.trading_deposit_description_generic)
+            is TransactionError.SettlementRefreshRequired ->
+                resources.getString(R.string.trading_deposit_description_requires_update)
             else ->
                 resources.getString(R.string.send_progress_error_subtitle)
         }
