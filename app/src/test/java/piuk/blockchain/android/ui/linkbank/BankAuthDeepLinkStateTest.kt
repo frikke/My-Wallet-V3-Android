@@ -117,6 +117,15 @@ class BankAuthDeepLinkStateTest : KoinTest {
     }
 
     @Test
+    fun `GIVEN ktx enabled, WHEN fromPreferencesValue is called with gson data, THEN state should be returned`() {
+        every { replaceGsonKtxFF.isEnabled } returns false
+
+        val result = gsonString.fromPreferencesValue()
+
+        assertEquals(state, result)
+    }
+
+    @Test
     fun `GIVEN gson enabled, WHEN toPreferencesValue is called, THEN gsonString should be returned`() {
         every { replaceGsonKtxFF.isEnabled } returns false
 
