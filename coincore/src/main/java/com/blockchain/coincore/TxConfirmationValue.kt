@@ -15,7 +15,11 @@ data class FeeInfo(
 
 sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
 
-    data class ExchangePriceConfirmation(val money: Money, val asset: Currency) :
+    data class ExchangePriceConfirmation(
+        val money: Money,
+        val asset: Currency,
+        val isNewQuote: Boolean = false,
+    ) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SIMPLE_READ_ONLY)
 
     data class From(val sourceAccount: BlockchainAccount, val sourceAsset: Currency? = null) :
@@ -39,7 +43,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
     data class SignEthMessage(val message: String, val dAppName: String) :
         TxConfirmationValue(TxConfirmation.EXPANDABLE_SINGLE_VALUE_READ_ONLY)
 
-    data class Sale(val amount: Money, val exchange: Money) :
+    data class Sale(
+        val amount: Money,
+        val exchange: Money,
+        val isNewQuote: Boolean = false
+    ) :
         TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class To(
@@ -53,7 +61,11 @@ sealed class TxConfirmationValue(open val confirmation: TxConfirmation) {
         val label: String
     ) : TxConfirmationValue(TxConfirmation.COMPLEX_ELLIPSIZED_READ_ONLY)
 
-    data class Total(val totalWithFee: Money, val exchange: Money) :
+    data class Total(
+        val totalWithFee: Money,
+        val exchange: Money,
+        val isNewQuote: Boolean = false
+    ) :
         TxConfirmationValue(TxConfirmation.COMPLEX_READ_ONLY)
 
     data class Amount(val amount: Money, val isImportant: Boolean) :

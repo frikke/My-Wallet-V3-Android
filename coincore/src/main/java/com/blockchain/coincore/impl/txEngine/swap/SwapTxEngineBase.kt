@@ -158,21 +158,19 @@ abstract class SwapTxEngineBase(
         pricedQuote: PricedQuote,
         isNewQuote: Boolean
     ): PendingTx {
-        var ptx = pendingTx
-
-        ptx = ptx.addOrReplaceOption(
+        return pendingTx.copy(
+            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
+        ).addOrReplaceOption(
             TxConfirmationValue.QuoteCountDown(
                 pricedQuote
             )
-        )
-        ptx = ptx.addOrReplaceOption(
+        ).addOrReplaceOption(
             TxConfirmationValue.SwapExchange(
                 Money.fromMajor(sourceAsset, BigDecimal.ONE),
                 Money.fromMajor(target.currency, pricedQuote.price.toBigDecimal()),
                 isNewQuote
             )
-        )
-        ptx = ptx.addOrReplaceOption(
+        ).addOrReplaceOption(
             TxConfirmationValue.CompoundNetworkFee(
                 if (pendingTx.feeAmount.isZero) {
                     null
@@ -192,22 +190,19 @@ abstract class SwapTxEngineBase(
                     )
             )
         )
-        return ptx.copy(
-            limits = pendingTx.limits?.copy(min = TxLimit.Limited(minLimit(pricedQuote.price)))
-        )
     }
 
     override fun doRefreshConfirmations(pendingTx: PendingTx): Single<PendingTx> {
         val quote = quotesEngine.getLatestQuote()
-        var ptx = pendingTx.copy()
-        var isNewQuote = false
-        if (pendingTx.quoteId != quote.transferQuote.id) {
-            isNewQuote = true
-            ptx = ptx.copy(
-                engineState = ptx.engineState.copyAndPut(
+        val isNewQuote = pendingTx.quoteId != quote.transferQuote.id
+        val ptx = if (isNewQuote) {
+            pendingTx.copy(
+                engineState = pendingTx.engineState.copyAndPut(
                     LATEST_QUOTE_ID, quote.transferQuote.id
                 )
             )
+        } else {
+            pendingTx.copy()
         }
         return Single.just(addOrReplaceConfirmations(ptx, quote, isNewQuote))
     }
