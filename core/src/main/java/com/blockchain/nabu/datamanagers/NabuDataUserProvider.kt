@@ -16,7 +16,7 @@ internal class NabuDataUserProviderNabuDataManagerAdapter(
     private val userReporter: NabuUserReporter,
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
-    private val payloadDataManager: PayloadDataManager,
+    private val payloadDataManager: PayloadDataManager
 ) : NabuDataUserProvider {
 
     override fun getUser(): Single<NabuUser> =

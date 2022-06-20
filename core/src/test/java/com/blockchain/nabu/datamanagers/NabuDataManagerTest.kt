@@ -2,7 +2,6 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
@@ -41,7 +40,6 @@ class NabuDataManagerTest {
     private val walletReporter: WalletReporter = mock()
     private val digitalTrust: DigitalTrust = mock()
     private val prefs: PersistentPrefs = mock()
-    private val userCache: UserCache = mock()
     private val appVersion = "6.23.2"
     private val deviceId = "DEVICE_ID"
     private val email = "EMAIL"
@@ -200,28 +198,6 @@ class NabuDataManagerTest {
             sessionToken
         )
     }
-
-//    @Test
-//    fun getUser() {
-//        // Arrange
-//        val userObject: NabuUser = mock()
-//        val offlineToken = NabuOfflineToken(USER_ID, "")
-//        val sessionToken = FakeNabuSessionTokenFactory.any
-//        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-//        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-//        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-//        // Act
-//        val testObserver = subject.getUser(offlineToken).test()
-//        // Assert
-//        testObserver.assertComplete()
-//        testObserver.assertNoErrors()
-//        testObserver.assertValue(userObject)
-//        verify(userCache).cached(sessionToken)
-//        verify(walletReporter).reportWalletGuid(payloadDataManager.guid)
-//        verify(userReporter).reportUser(userObject)
-//        verify(userReporter).reportUserId(USER_ID)
-//        verify(digitalTrust).setUserId(USER_ID)
-//    }
 
     @Test
     fun addAddress() {
