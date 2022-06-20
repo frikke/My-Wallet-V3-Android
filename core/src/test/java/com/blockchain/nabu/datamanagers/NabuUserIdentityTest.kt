@@ -9,7 +9,6 @@ import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -19,7 +18,6 @@ import com.blockchain.nabu.models.responses.nabu.Limits
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -36,8 +34,7 @@ class NabuUserIdentityTest {
     private val nabuUserDataManager: NabuUserDataManager = mock()
     private val nabuDataProvider: NabuDataUserProvider = mock()
     private val eligibilityService: EligibilityService = mock()
-    private val nabuToken: NabuToken = mock()
-    private val nabuDataManager: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
 
     private val subject = NabuUserIdentity(
         custodialWalletManager = custodialWalletManager,
@@ -46,8 +43,7 @@ class NabuUserIdentityTest {
         nabuUserDataManager = nabuUserDataManager,
         nabuDataProvider = nabuDataProvider,
         eligibilityService = eligibilityService,
-        nabuToken = nabuToken,
-        nabu = nabuDataManager
+        nabuDataUserProvider = nabuDataUserProvider
     )
 
     @Test
@@ -252,14 +248,10 @@ class NabuUserIdentityTest {
 
     @Test
     fun `has received STX airdrop`() {
-        val userId = "user_id"
-        val userToken = "user_token"
-        val mockOfflineTokenResponse = NabuOfflineToken(userId, userToken)
         val mockNabuUser: NabuUser = mock {
             on { isStxAirdropRegistered }.thenReturn(true)
         }
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(mockOfflineTokenResponse))
-        whenever(nabuDataManager.getUser(mockOfflineTokenResponse)).thenReturn(Single.just(mockNabuUser))
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(mockNabuUser))
 
         subject.hasReceivedStxAirdrop()
             .test()
@@ -268,14 +260,10 @@ class NabuUserIdentityTest {
 
     @Test
     fun `has not received STX airdrop`() {
-        val userId = "user_id"
-        val userToken = "user_token"
-        val mockOfflineTokenResponse = NabuOfflineToken(userId, userToken)
         val mockNabuUser: NabuUser = mock {
             on { isStxAirdropRegistered }.thenReturn(false)
         }
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(mockOfflineTokenResponse))
-        whenever(nabuDataManager.getUser(mockOfflineTokenResponse)).thenReturn(Single.just(mockNabuUser))
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(mockNabuUser))
 
         subject.hasReceivedStxAirdrop()
             .test()

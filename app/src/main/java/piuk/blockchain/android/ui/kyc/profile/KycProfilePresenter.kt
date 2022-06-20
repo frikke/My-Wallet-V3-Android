@@ -4,6 +4,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
@@ -29,7 +30,8 @@ import timber.log.Timber
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val stringUtils: StringUtils
+    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val stringUtils: StringUtils,
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
     var firstNameSet by Delegates.observable(false) { _, _, _ -> enableButtonIfComplete() }
@@ -79,11 +81,8 @@ class KycProfilePresenter(
         // may have edited themselves
         if (!firstNameSet && !lastNameSet && !dateSet) {
             compositeDisposable +=
-                fetchOfflineToken
-                    .flatMap {
-                        nabuDataManager.getUser(it)
-                            .subscribeOn(Schedulers.io())
-                    }
+                nabuDataUserProvider.getUser()
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {

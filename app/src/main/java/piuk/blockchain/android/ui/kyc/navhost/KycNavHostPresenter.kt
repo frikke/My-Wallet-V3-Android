@@ -4,11 +4,10 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.nabu.service.TierUpdater
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -23,19 +22,17 @@ import timber.log.Timber
 
 class KycNavHostPresenter(
     nabuToken: NabuToken,
-    private val nabuDataManager: NabuDataManager,
+    private val nabuDataUserProvider: NabuDataUserProvider,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
-    private val tierUpdater: TierUpdater,
-    private val analytics: Analytics
+    private val analytics: Analytics,
 ) : BaseKycPresenter<KycNavHostView>(nabuToken) {
 
     override fun onViewReady() {
         compositeDisposable +=
-            fetchOfflineToken.flatMap {
-                nabuDataManager.getUser(it)
-                    .subscribeOn(Schedulers.io())
-            }.observeOn(AndroidSchedulers.mainThread())
+            nabuDataUserProvider.getUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.displayLoading(true) }
                 .subscribeBy(
                     onSuccess = {

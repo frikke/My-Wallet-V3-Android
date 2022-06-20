@@ -1,16 +1,14 @@
 package piuk.blockchain.android.ui.kyc.address
+
 import com.blockchain.nabu.CurrentTier
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import io.reactivex.rxjava3.core.Single
 
 internal class CurrentTierAdapter(
-    private val nabuToken: NabuToken,
-    private val nabuDataManager: NabuDataManager
+    private val nabuDataUserProvider: NabuDataUserProvider
 ) : CurrentTier {
 
     override fun usersCurrentTier(): Single<Int> =
-        nabuToken.fetchNabuToken()
-            .flatMap(nabuDataManager::getUser)
+        nabuDataUserProvider.getUser()
             .map { it.tiers?.current ?: 0 }
 }

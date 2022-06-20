@@ -5,7 +5,6 @@ import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
@@ -44,10 +43,6 @@ interface NabuDataManager {
     ): Completable
 
     fun requestJwt(): Single<String>
-
-    fun getUser(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<NabuUser>
 
     fun getAirdropCampaignStatus(
         offlineTokenResponse: NabuOfflineToken
@@ -99,8 +94,6 @@ interface NabuDataManager {
         campaignName: String
     ): Completable
 
-    fun getCampaignList(offlineTokenResponse: NabuOfflineToken): Single<List<String>>
-
     fun getAuthToken(jwt: String): Single<NabuOfflineTokenResponse>
 
     fun <T> authenticate(
@@ -137,7 +130,6 @@ internal class NabuDataManagerImpl(
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
     private val prefs: PersistentPrefs,
-    private val userCache: UserCache
 ) : NabuDataManager {
 
     private val guid
@@ -219,18 +211,6 @@ internal class NabuDataManagerImpl(
             ).toSingleDefault(Any())
         }.ignoreElement()
 
-    override fun getUser(
-        offlineTokenResponse: NabuOfflineToken
-    ): Single<NabuUser> =
-        authenticate(offlineTokenResponse) {
-            userCache.cached(it)
-        }.doOnSuccess {
-            userReporter.reportUserId(offlineTokenResponse.userId)
-            userReporter.reportUser(it)
-            trust.setUserId(offlineTokenResponse.userId)
-            walletReporter.reportWalletGuid(guid)
-        }
-
     override fun getAirdropCampaignStatus(
         offlineTokenResponse: NabuOfflineToken
     ): Single<AirdropStatusList> =
@@ -303,10 +283,6 @@ internal class NabuDataManagerImpl(
         nabuService.registerCampaign(it, campaignRequest, campaignName)
             .toSingleDefault(Any())
     }.ignoreElement()
-
-    override fun getCampaignList(offlineTokenResponse: NabuOfflineToken): Single<List<String>> =
-        getUser(offlineTokenResponse)
-            .map { it.tags?.keys?.toList() ?: emptyList() }
 
     /**
      * Invalidates the [NabuSessionTokenStore] so that on logging out or switching accounts, no data

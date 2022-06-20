@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Scope
@@ -18,6 +19,7 @@ import timber.log.Timber
 
 class KycStatusHelper(
     private val nabuDataManager: NabuDataManager,
+    private val nabuDataUserProvider: NabuDataUserProvider,
     private val nabuToken: NabuToken,
     private val settingsDataManager: SettingsDataManager,
     private val tierService: TierService
@@ -61,14 +63,12 @@ class KycStatusHelper(
             }
         }
 
-    fun getKycStatus(): Single<KycState> = fetchOfflineToken
-        .flatMap {
-            nabuDataManager.getUser(it)
-                .subscribeOn(Schedulers.io())
-        }
-        .map { it.kycState }
-        .doOnError { Timber.e(it) }
-        .onErrorReturn { KycState.None }
+    fun getKycStatus(): Single<KycState> =
+        nabuDataUserProvider.getUser()
+            .subscribeOn(Schedulers.io())
+            .map { it.kycState }
+            .doOnError { Timber.e(it) }
+            .onErrorReturn { KycState.None }
 
     fun getKycTierStatus(): Single<KycTiers> =
         tierService.tiers()
@@ -76,11 +76,8 @@ class KycStatusHelper(
             .doOnError { Timber.e(it) }
 
     fun getUserState(): Single<UserState> =
-        fetchOfflineToken
-            .flatMap {
-                nabuDataManager.getUser(it)
-                    .subscribeOn(Schedulers.io())
-            }
+        nabuDataUserProvider.getUser()
+            .subscribeOn(Schedulers.io())
             .map { it.state }
             .doOnError { Timber.e(it) }
             .onErrorReturn { UserState.None }

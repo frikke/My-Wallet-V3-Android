@@ -5,7 +5,6 @@ import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
@@ -68,8 +67,7 @@ class NabuDataManagerTest {
             walletReporter,
             digitalTrust,
             payloadDataManager,
-            prefs,
-            userCache
+            prefs
         )
     }
 
@@ -203,65 +201,27 @@ class NabuDataManagerTest {
         )
     }
 
-    @Test
-    fun getUser() {
-        // Arrange
-        val userObject: NabuUser = mock()
-        val offlineToken = NabuOfflineToken(USER_ID, "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getUser(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(userObject)
-        verify(userCache).cached(sessionToken)
-        verify(walletReporter).reportWalletGuid(payloadDataManager.guid)
-        verify(userReporter).reportUser(userObject)
-        verify(userReporter).reportUserId(USER_ID)
-        verify(digitalTrust).setUserId(USER_ID)
-    }
-
-    @Test
-    fun `get users tags with values`() {
-        // Arrange
-        val userObject: NabuUser = mock {
-            on { tags }.thenReturn(mapOf("campaign" to mapOf("some tag" to "some data")))
-        }
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getCampaignList(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(listOf("campaign"))
-        verify(userCache).cached(sessionToken)
-    }
-
-    @Test
-    fun `get users tags returns empty list`() {
-        // Arrange
-        val userObject: NabuUser = mock()
-        val offlineToken = NabuOfflineToken("", "")
-        val sessionToken = FakeNabuSessionTokenFactory.any
-        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
-        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
-        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
-        // Act
-        val testObserver = subject.getCampaignList(offlineToken).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(emptyList())
-        verify(userCache).cached(sessionToken)
-    }
+//    @Test
+//    fun getUser() {
+//        // Arrange
+//        val userObject: NabuUser = mock()
+//        val offlineToken = NabuOfflineToken(USER_ID, "")
+//        val sessionToken = FakeNabuSessionTokenFactory.any
+//        whenever(nabuTokenStore.requiresRefresh()).thenReturn(false)
+//        whenever(nabuTokenStore.getAccessToken()).thenReturn(Observable.just(Optional.Some(sessionToken)))
+//        whenever(userCache.cached(sessionToken)).thenReturn(Single.just(userObject))
+//        // Act
+//        val testObserver = subject.getUser(offlineToken).test()
+//        // Assert
+//        testObserver.assertComplete()
+//        testObserver.assertNoErrors()
+//        testObserver.assertValue(userObject)
+//        verify(userCache).cached(sessionToken)
+//        verify(walletReporter).reportWalletGuid(payloadDataManager.guid)
+//        verify(userReporter).reportUser(userObject)
+//        verify(userReporter).reportUserId(USER_ID)
+//        verify(digitalTrust).setUserId(USER_ID)
+//    }
 
     @Test
     fun addAddress() {

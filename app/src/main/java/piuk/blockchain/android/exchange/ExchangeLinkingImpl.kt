@@ -1,7 +1,6 @@
 package piuk.blockchain.android.exchange
 
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import exchange.ExchangeLinking
 import exchange.ExchangeLinkingState
@@ -16,8 +15,7 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 
 class ExchangeLinkingImpl(
-    private val nabu: NabuDataManager,
-    private val nabuToken: NabuToken,
+    private val nabuDataUserProvider: NabuDataUserProvider
 ) : ExchangeLinking {
 
     private val disposables = CompositeDisposable()
@@ -33,7 +31,7 @@ class ExchangeLinkingImpl(
 
     init {
         disposables += refreshEvents.switchMapSingle {
-            nabuToken.fetchNabuToken().flatMap { token -> nabu.getUser(token) }
+            nabuDataUserProvider.getUser()
         }.subscribeOn(Schedulers.computation())
             .map { it.toLinkingState() }
             .observeOn(AndroidSchedulers.mainThread())
