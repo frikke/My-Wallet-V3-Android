@@ -258,12 +258,10 @@ internal class DynamicAssetLoader(
         require(assetInfo.isErc20())
         return Erc20Asset(
             assetInfo = assetInfo,
-            payloadManager = payloadManager,
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             labels = labels,
             walletPreferences = walletPreferences,
-            availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
             layerTwoFeatureFlag = layerTwoFeatureFlag

@@ -25,6 +25,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletModeService
 import exchange.ExchangeLinking
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.isCustodial
@@ -51,6 +52,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     private val tradingBalances: TradingBalanceDataManager by scopedInject()
     private val exchangeLinking: ExchangeLinking by scopedInject()
     private val remoteLogger: RemoteLogger by inject()
+    private val walletModeService: WalletModeService by inject()
     protected val identity: UserIdentity by scopedInject()
 
     private val activeAccounts: ActiveAccountList by unsafeLazy {
@@ -116,7 +118,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     exchangeRates = exchangeRates,
                     custodialWalletManager = custodialManager,
                     tradingBalances = tradingBalances,
-                    identity = identity
+                    identity = identity,
+                    walletModeService = walletModeService
                 )
             )
         )
@@ -266,12 +269,9 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                     .map { ll -> ll.flatten() }
                     .onErrorReturnItem(emptyList())
             is InterestAccount -> {
-                Maybe.concat(
-                    getCustodialTargets(),
-                    getNonCustodialTargets()
-                ).toList()
-                    .map { ll -> ll.flatten() }
+                getCustodialTargets()
                     .onErrorReturnItem(emptyList())
+                    .defaultIfEmpty(emptyList())
             }
             else -> Single.just(emptyList())
         }
@@ -281,7 +281,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class ActiveAccountList(
     private val asset: AssetInfo,
-    private val custodialManager: CustodialWalletManager
+    private val custodialManager: CustodialWalletManager,
 ) {
     private val activeList = mutableSetOf<CryptoAccount>()
 
@@ -293,7 +293,7 @@ internal class ActiveAccountList(
     }
 
     fun fetchAccountList(
-        loader: () -> Single<SingleAccountList>
+        loader: () -> Single<SingleAccountList>,
     ): Single<SingleAccountList> =
         shouldRefresh().flatMap { refresh ->
             if (refresh) {
@@ -315,7 +315,7 @@ internal class ActiveAccountList(
 
     @Synchronized
     private fun updateWith(
-        accounts: List<SingleAccount>
+        accounts: List<SingleAccount>,
     ): List<CryptoAccount> {
         val newActives = mutableSetOf<CryptoAccount>()
         accounts.filterIsInstance<CryptoAccount>()

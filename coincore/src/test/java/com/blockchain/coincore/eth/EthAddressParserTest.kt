@@ -31,7 +31,6 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val addressResolver: EthHotWalletAddressResolver = mock()
 
     private val subject = EthAsset(
-        payloadManager = payloadManager,
         ethDataManager = ethDataManager,
         feeDataManager = feeDataManager,
         assetCatalogue = assetCatalogue,

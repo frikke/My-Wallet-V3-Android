@@ -10,7 +10,6 @@ import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
@@ -27,10 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 /*internal*/ class EthCryptoWalletAccount internal constructor(
-    payloadManager: PayloadDataManager,
     private val jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
     private val fees: FeeDataManager,
@@ -38,15 +35,11 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
     override val exchangeRates: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,
-    identity: UserIdentity,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork
 ) : MultiChainAccount, CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.ETHER, custodialWalletManager, identity
+    CryptoCurrency.ETHER
 ) {
-
-    override val baseActions: Set<AssetAction> = defaultActions
-
     internal val address: String
         get() = jsonAccount.address
 

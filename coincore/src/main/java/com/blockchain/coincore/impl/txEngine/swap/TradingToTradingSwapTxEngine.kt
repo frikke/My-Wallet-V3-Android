@@ -7,6 +7,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -19,10 +20,11 @@ class TradingToTradingSwapTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
+    swapTransactionsCache: SwapTransactionsCache,
     quotesEngine: TransferQuotesEngine,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val userIdentity: UserIdentity
-) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager) {
+    val userIdentity: UserIdentity,
+) : SwapTxEngineBase(quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache) {
 
     override val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map {
@@ -87,7 +89,7 @@ class TradingToTradingSwapTxEngine(
     override fun doUpdateFeeLevel(
         pendingTx: PendingTx,
         level: FeeLevel,
-        customFeeAmount: Long
+        customFeeAmount: Long,
     ): Single<PendingTx> {
         require(pendingTx.feeSelection.availableLevels.contains(level))
         // This engine only supports FeeLevel.None, so

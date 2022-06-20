@@ -8,6 +8,7 @@ import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.testutils.testValue
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -32,7 +33,9 @@ class CustodialTradingAccountBalanceTest : CoincoreTestBase() {
         custodialWalletManager = custodialManager,
         tradingBalances = tradingBalances,
         identity = identity,
-        baseActions = ACTIONS
+        walletModeService = mock {
+            on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+        }
     )
 
     @Before

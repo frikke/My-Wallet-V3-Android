@@ -6,6 +6,7 @@ import com.blockchain.coincore.FeeInfo
 import com.blockchain.coincore.NullAddress
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmationValue
+import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
@@ -14,6 +15,7 @@ import com.blockchain.coincore.impl.txEngine.QuotedEngine
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -42,7 +44,8 @@ abstract class SwapTxEngineBase(
     quotesEngine: TransferQuotesEngine,
     userIdentity: UserIdentity,
     private val walletManager: CustodialWalletManager,
-    limitsDataManager: LimitsDataManager
+    limitsDataManager: LimitsDataManager,
+    private val swapTransactionsCache: SwapTransactionsCache,
 ) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
 
     private lateinit var minApiLimit: Money
@@ -62,7 +65,7 @@ abstract class SwapTxEngineBase(
     override fun onLimitsForTierFetched(
         limits: TxLimits,
         pendingTx: PendingTx,
-        pricedQuote: PricedQuote
+        pricedQuote: PricedQuote,
     ): PendingTx {
         minApiLimit = limits.min.amount
 
@@ -226,6 +229,12 @@ abstract class SwapTxEngineBase(
 
     private fun TransferDirection.requireRefundAddress() =
         this == TransferDirection.ON_CHAIN || this == TransferDirection.FROM_USERKEY
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
+        return Completable.fromCallable {
+            swapTransactionsCache.invalidate()
+        }
+    }
 
     private fun minAmountToPayNetworkFees(price: Money, networkFee: Money): Money =
         Money.fromMajor(

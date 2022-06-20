@@ -36,7 +36,7 @@ class AccountSelectSheet(
     private val disposables = CompositeDisposable()
 
     private var accountList: Single<List<AccountListViewItem>> =
-        coincore.allWallets()
+        coincore.allWalletsInActiveMode()
             .map { listOf(it) + it.accounts }
             .map { it.filter(BlockchainAccount::hasTransactions).map(AccountListViewItem.Companion::create) }
 

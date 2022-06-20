@@ -13,7 +13,6 @@ import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import info.blockchain.balance.CryptoCurrency
@@ -34,7 +33,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.then
 
 /*internal*/ class BchCryptoWalletAccount private constructor(
-    payloadManager: PayloadDataManager,
+    private val payloadDataManager: PayloadDataManager,
     private val bchManager: BchDataManager,
     // Used to lookup the account in payloadDataManager to fetch receive address
     private val addressIndex: Int,
@@ -45,13 +44,10 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity,
-    override val addressResolver: AddressResolver
+    override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.BCH, custodialWalletManager, identity
+    CryptoCurrency.BCH
 ) {
-
-    override val baseActions: Set<AssetAction> = defaultActions
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -183,11 +179,10 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BchCryptoWalletAccount(
-            payloadManager = payloadManager,
             bchManager = bchManager,
+            payloadDataManager = payloadManager,
             addressIndex = addressIndex,
             exchangeRates = exchangeRates,
             feeDataManager = feeDataManager,
@@ -196,7 +191,6 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
     }

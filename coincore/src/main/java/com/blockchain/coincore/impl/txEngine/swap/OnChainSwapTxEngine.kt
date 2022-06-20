@@ -12,6 +12,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -25,12 +26,13 @@ class OnChainSwapTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     limitsDataManager: LimitsDataManager,
+    swapTransactionsCache: SwapTransactionsCache,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val userIdentity: UserIdentity,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: OnChainTxEngineBase
 ) : SwapTxEngineBase(
-    quotesEngine, userIdentity, walletManager, limitsDataManager
+    quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache
 ) {
     override val direction: TransferDirection by unsafeLazy {
         when (txTarget) {

@@ -48,7 +48,6 @@ internal class XlmAsset(
                     walletOptionsDataManager = walletOptionsDataManager,
                     walletPreferences = walletPreferences,
                     custodialWalletManager = custodialManager,
-                    identity = identity,
                     addressResolver = addressResolver
                 )
             }.map {

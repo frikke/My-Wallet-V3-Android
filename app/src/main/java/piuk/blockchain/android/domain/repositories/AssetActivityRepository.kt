@@ -137,7 +137,7 @@ class AssetActivityRepository(
     }
 
     override fun getFromNetwork(): Maybe<ActivitySummaryList> =
-        coincore.allWallets()
+        coincore.allWalletsInActiveMode()
             .flatMap { it.activity }
             .doOnSuccess { activityList ->
                 // on error of activity returns onSuccess with empty list

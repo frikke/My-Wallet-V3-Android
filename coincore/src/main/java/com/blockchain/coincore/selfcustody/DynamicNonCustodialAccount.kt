@@ -9,8 +9,6 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.getOrThrow
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
@@ -29,18 +27,14 @@ class DynamicNonCustodialAccount(
     payloadManager: PayloadDataManager,
     assetInfo: AssetInfo,
     coinConfiguration: CoinConfiguration,
-    custodialWalletManager: CustodialWalletManager,
-    identity: UserIdentity,
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
-    override val label: String
-) : CryptoNonCustodialAccount(payloadManager, assetInfo, custodialWalletManager, identity) {
+    override val label: String,
+) : CryptoNonCustodialAccount(assetInfo) {
 
-    private val internalAccount: DynamicHDAccount = payloadDataManager.getDynamicHdAccount(coinConfiguration)
+    private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinConfiguration)
         ?: throw IllegalStateException("Unsupported Coin Configuration!")
-
-    override val baseActions: Set<AssetAction> = defaultActions
 
     private val hasFunds = AtomicBoolean(false)
 

@@ -45,7 +45,7 @@ class BtcAccountActivityTest : CoincoreTestBase() {
 
     private val subject =
         BtcCryptoWalletAccount(
-            payloadManager = payloadDataManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = -1,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -55,7 +55,6 @@ class BtcAccountActivityTest : CoincoreTestBase() {
             walletPreferences = walletPrefs,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = mock(),
             addressResolver = mock()
         )
 

@@ -1,6 +1,7 @@
 package com.blockchain.coincore
 
 import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
 import com.blockchain.coincore.loader.AssetCatalogueImpl
 import com.blockchain.coincore.loader.AssetLoader
@@ -9,6 +10,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -75,9 +77,18 @@ class Coincore internal constructor(
     private fun allLoadedAssets() = assetLoader.loadedAssets + fiatAsset
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
-        walletsWithFilter(includeArchived, AssetFilter.All)
+        walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
+            AllWalletsAccount(list, defaultLabels, currencyPrefs)
+        }
 
-    private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<AccountGroup> =
+    fun allWalletsInActiveMode(): Single<AccountGroup> =
+        when (walletModeService.enabledWalletMode()) {
+            WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
+            WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
+            WalletMode.UNIVERSAL -> allWallets()
+        }
+
+    private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<List<SingleAccount>> =
         Maybe.concat(
             allLoadedAssets().map {
                 it.accountGroup(filter).map { grp -> grp.accounts }
@@ -88,9 +99,17 @@ class Coincore internal constructor(
                     }
             }
         ).reduce { a, l -> a + l }
-            .map { list ->
-                AllWalletsAccount(list, defaultLabels, currencyPrefs) as AccountGroup
-            }.toSingle()
+            .toSingle()
+
+    private fun allCustodialWallets(): Single<AccountGroup> =
+        walletsWithFilter(filter = AssetFilter.Custodial).map { list ->
+            AllWalletsAccount(list, defaultLabels, currencyPrefs)
+        }
+
+    private fun allNonCustodialWallets(): Single<AccountGroup> =
+        walletsWithFilter(filter = AssetFilter.NonCustodial).map { list ->
+            AllWalletsAccount(list, defaultLabels, currencyPrefs)
+        }
 
     fun walletsWithActions(
         actions: Set<AssetAction>,
@@ -98,7 +117,7 @@ class Coincore internal constructor(
         sorter: AccountsSorter = { Single.just(it) },
     ): Single<SingleAccountList> =
         walletsWithFilter(filter = filter)
-            .flattenAsObservable { it.accounts }
+            .flattenAsObservable { it }
             .flatMapMaybe { account ->
                 account.stateAwareActions.flatMapMaybe { availableActions ->
                     val assetActions = availableActions.filter { it.state == ActionState.Available }.map { it.action }
@@ -150,14 +169,12 @@ class Coincore internal constructor(
                     it is FiatAccount
                 }
             }
-
             AssetAction.Swap -> {
                 {
                     it is CryptoAccount &&
-                        it.currency != sourceAccount.currency &&
-                        it !is FiatAccount &&
                         it !is InterestAccount &&
-                        if (sourceAccount.isCustodial()) it.isCustodial() else true
+                        it.currency != sourceAccount.currency &&
+                        it.filterTargetsByWalletMode(it, walletModeService.enabledWalletMode())
                 }
             }
             AssetAction.Send -> {
@@ -167,13 +184,27 @@ class Coincore internal constructor(
             }
             AssetAction.InterestWithdraw -> {
                 {
-                    it is CryptoAccount && it.currency == sourceAccount.currency
+                    it is TradingAccount && it.currency == sourceAccount.currency
                 }
             }
             else -> {
                 { true }
             }
         }
+
+    /**
+     * When wallet is in Universal mode, you can swap from Trading to Trading, from PK to PK and from PK to Trading
+     * In any other case, swap is only allowed to same Type accounts
+     */
+    private fun SingleAccount.filterTargetsByWalletMode(
+        sourceAccount: CryptoAccount,
+        enabledWalletMode: WalletMode,
+    ): Boolean {
+        return if (enabledWalletMode == WalletMode.UNIVERSAL) {
+            if (sourceAccount.isTrading()) this.isTrading() else true
+        } else
+            sourceAccount.isSameType(this)
+    }
 
     fun findAccountByAddress(
         asset: AssetInfo,
@@ -243,4 +274,11 @@ class Coincore internal constructor(
     fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
+}
+
+private fun BlockchainAccount.isSameType(other: BlockchainAccount): Boolean {
+    if (this is CustodialTradingAccount && other is CustodialTradingAccount) return true
+    if (this is NonCustodialAccount && other is NonCustodialAccount) return true
+    if (this is InterestAccount && other is InterestAccount) return true
+    return false
 }

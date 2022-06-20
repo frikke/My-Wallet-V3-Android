@@ -80,6 +80,7 @@ class TxProcessorFactoryTest {
             bankService = bankService,
             ethDataManager = mock(),
             fees = mock(),
+            swapTransactionsCache = mock(),
             plaidFeatureFlag = plaidFeatureFlag
         )
     }

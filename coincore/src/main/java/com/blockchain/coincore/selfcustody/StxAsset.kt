@@ -41,8 +41,6 @@ internal class StxAsset(
                                 payloadManager,
                                 assetInfo,
                                 coinConfiguration,
-                                custodialManager,
-                                identity,
                                 addressResolver,
                                 selfCustodyService,
                                 exchangeRates,

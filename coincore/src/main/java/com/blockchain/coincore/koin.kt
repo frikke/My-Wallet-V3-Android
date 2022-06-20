@@ -75,7 +75,6 @@ val coincoreModule = module {
 
         scoped {
             EthAsset(
-                payloadManager = get(),
                 ethDataManager = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
@@ -89,16 +88,10 @@ val coincoreModule = module {
 
         scoped {
             MaticAsset(
-                availableNonCustodialActions = setOf(
-                    AssetAction.Send,
-                    AssetAction.Receive,
-                    AssetAction.ViewActivity,
-                ),
                 ethDataManager = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 walletPreferences = get(),
-                payloadManager = get(),
                 labels = get(),
                 formatUtils = get(),
                 addressResolver = get(),
@@ -200,7 +193,8 @@ val coincoreModule = module {
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 withdrawLocksRepository = get(),
-                plaidFeatureFlag = get(plaidFeatureFlag)
+                plaidFeatureFlag = get(plaidFeatureFlag),
+                swapTransactionsCache = get()
             )
         }
 

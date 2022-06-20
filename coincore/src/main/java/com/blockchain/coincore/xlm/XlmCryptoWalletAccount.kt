@@ -9,7 +9,6 @@ import com.blockchain.coincore.TransactionTarget
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.sunriver.BalanceAndMin
@@ -29,7 +28,7 @@ import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
 import piuk.blockchain.androidcore.utils.extensions.mapList
 
 internal class XlmCryptoWalletAccount(
-    payloadManager: PayloadDataManager,
+    private val payloadManager: PayloadDataManager,
     private var xlmAccountReference: XlmAccountReference,
     private val xlmManager: XlmDataManager,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -37,13 +36,11 @@ internal class XlmCryptoWalletAccount(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
-    identity: UserIdentity,
-    override val addressResolver: AddressResolver
+    override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.XLM, custodialWalletManager, identity
+    CryptoCurrency.XLM
 ) {
 
-    override val baseActions: Set<AssetAction> = defaultActions
     override val isDefault: Boolean = true // Only one account ever, so always default
 
     override val label: String
@@ -92,7 +89,7 @@ internal class XlmCryptoWalletAccount(
                     it,
                     exchangeRates,
                     account = this,
-                    payloadDataManager
+                    payloadManager
                 )
             }.flatMap {
                 appendTradeActivity(custodialWalletManager, currency, it)
@@ -112,7 +109,7 @@ internal class XlmCryptoWalletAccount(
             xlmDataManager = xlmManager,
             xlmFeesFetcher = xlmFeesFetcher,
             walletOptionsDataManager = walletOptionsDataManager,
-            requireSecondPassword = payloadDataManager.isDoubleEncrypted,
+            requireSecondPassword = payloadManager.isDoubleEncrypted,
             walletPreferences = walletPreferences,
             resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
         )

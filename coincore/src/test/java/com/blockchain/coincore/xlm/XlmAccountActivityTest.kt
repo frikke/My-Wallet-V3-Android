@@ -53,7 +53,6 @@ class XlmAccountActivityTest : CoincoreTestBase() {
             walletOptionsDataManager = walletOptionsDataManager,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
-            identity = mock(),
             addressResolver = mock()
         )
 

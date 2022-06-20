@@ -66,7 +66,6 @@ internal class BchAsset internal constructor(
                             walletPreferences = walletPreferences,
                             custodialWalletManager = custodialManager,
                             refreshTrigger = this@BchAsset,
-                            identity = identity,
                             addressResolver = addressResolver
                         )
                         if (bchAccount.isDefault) {

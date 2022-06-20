@@ -1,7 +1,6 @@
 package com.blockchain.coincore.evm
 
 import com.blockchain.annotations.CommonCode
-import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
@@ -23,19 +22,16 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class MaticAsset(
     private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
-    private val payloadManager: PayloadDataManager,
     private val labels: DefaultLabels,
-    private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
-    private val layerTwoFeatureFlag: FeatureFlag
+    private val layerTwoFeatureFlag: FeatureFlag,
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
@@ -65,7 +61,6 @@ internal class MaticAsset(
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): L1EvmNonCustodialAccount =
         L1EvmNonCustodialAccount(
-            payloadManager,
             assetInfo,
             ethDataManager,
             erc20DataManager,
@@ -75,8 +70,6 @@ internal class MaticAsset(
             exchangeRates,
             walletPreferences,
             custodialManager,
-            availableNonCustodialActions,
-            identity,
             addressResolver,
             evmNetwork
         )
@@ -117,7 +110,7 @@ internal class MaticAddress(
     override val isDomain: Boolean = false,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
     override val amount: CryptoValue? = null,
-    val isContract: Boolean = false
+    val isContract: Boolean = false,
 ) : CryptoAddress {
     override val asset: AssetInfo = CryptoCurrency.MATIC
 }

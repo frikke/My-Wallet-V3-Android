@@ -21,10 +21,8 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class EthAsset(
-    private val payloadManager: PayloadDataManager,
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
@@ -50,14 +48,12 @@ internal class EthAsset(
                 ethereumWallet.account?.let { ethereumAccount ->
                     Single.just(
                         EthCryptoWalletAccount(
-                            payloadManager = payloadManager,
                             ethDataManager = ethDataManager,
                             fees = feeDataManager,
                             jsonAccount = ethereumAccount,
                             walletPreferences = walletPrefs,
                             exchangeRates = exchangeRates,
                             custodialWalletManager = custodialManager,
-                            identity = identity,
                             assetCatalogue = assetCatalogue.value,
                             addressResolver = addressResolver,
                             l1Network = EthDataManager.ethChain

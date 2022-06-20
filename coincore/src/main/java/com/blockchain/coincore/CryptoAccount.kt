@@ -144,5 +144,8 @@ interface AccountGroup : BlockchainAccount {
     fun includes(account: BlockchainAccount): Boolean
 }
 
-internal fun BlockchainAccount.isCustodial(): Boolean =
+internal fun BlockchainAccount.isTrading(): Boolean =
     this is CustodialTradingAccount
+
+internal fun BlockchainAccount.isNonCustodial(): Boolean =
+    this is NonCustodialAccount

@@ -45,7 +45,6 @@ class EthAccountActivityTest : CoincoreTestBase() {
     private val subject =
         spy(
             EthCryptoWalletAccount(
-                payloadManager = payloadManager,
                 jsonAccount = ethAccount,
                 ethDataManager = ethDataManager,
                 fees = feeDataManager,
@@ -53,7 +52,6 @@ class EthAccountActivityTest : CoincoreTestBase() {
                 walletPreferences = walletPrefs,
                 custodialWalletManager = custodialWalletManager,
                 assetCatalogue = mock(),
-                identity = mock(),
                 addressResolver = mock(),
                 l1Network = EvmNetwork("DUMMY", "Dummy", 1, "")
             )
