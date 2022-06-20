@@ -29,7 +29,6 @@ import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -241,6 +240,7 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
+            l1EvmAssets = experimentalL1EvmAssetList(),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()
         )
@@ -258,11 +258,3 @@ val coincoreModule = module {
         FormatUtilities()
     }
 }
-
-fun nonCustodialAssetList() =
-    setOf(
-        CryptoCurrency.BTC,
-        CryptoCurrency.BCH,
-        CryptoCurrency.ETHER,
-        CryptoCurrency.XLM
-    ).plus(experimentalL1EvmAssetList())
