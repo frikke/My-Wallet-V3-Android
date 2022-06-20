@@ -35,10 +35,10 @@ class AccountSelectSheet(
     private val coincore: Coincore by scopedInject()
     private val disposables = CompositeDisposable()
 
-    private var accountList: Single<List<BlockchainAccount>> =
+    private var accountList: Single<List<AccountListViewItem>> =
         coincore.allWallets()
             .map { listOf(it) + it.accounts }
-            .map { it.filter { a -> a.hasTransactions } }
+            .map { it.filter(BlockchainAccount::hasTransactions).map(AccountListViewItem.Companion::create) }
 
     private var sheetTitle: Int = R.string.select_account_sheet_title
     private var sheetSubtitle: Int = R.string.empty
@@ -109,7 +109,9 @@ class AccountSelectSheet(
             @StringRes sheetTitle: Int,
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
-                this.accountList = accountList
+                this.accountList = accountList.map { accounts ->
+                    accounts.map(AccountListViewItem.Companion::create)
+                }
                 this.sheetTitle = sheetTitle
             }
 
@@ -121,7 +123,7 @@ class AccountSelectSheet(
             statusDecorator: StatusDecorator,
         ): AccountSelectSheet =
             AccountSelectSheet(host).apply {
-                this.accountList = accountList
+                this.accountList = accountList.map { list -> list.map(AccountListViewItem.Companion::create) }
                 this.sheetTitle = sheetTitle
                 this.sheetSubtitle = sheetSubtitle
                 this.statusDecorator = statusDecorator

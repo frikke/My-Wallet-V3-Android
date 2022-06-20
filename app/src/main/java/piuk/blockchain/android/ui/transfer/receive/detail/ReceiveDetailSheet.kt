@@ -31,6 +31,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogReceiveBinding
 import piuk.blockchain.android.databinding.ReceiveShareRowBinding
 import piuk.blockchain.android.scan.QRCodeEncoder
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
@@ -55,7 +56,7 @@ internal class ReceiveDetailSheet :
     override fun initControls(binding: DialogReceiveBinding) {
         account?.let {
             model.process(InitWithAccount(it))
-            binding.receiveAccountDetails.updateAccount(it)
+            binding.receiveAccountDetails.updateItem(AccountListViewItem.Crypto(it))
         } ?: dismiss()
 
         with(binding) {
