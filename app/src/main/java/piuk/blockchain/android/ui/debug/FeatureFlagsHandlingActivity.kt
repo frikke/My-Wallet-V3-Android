@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.demo.ComponentLibDemoActivity
@@ -28,11 +28,13 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.databinding.ActivityLocalFeatureFlagsBinding
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementList
 import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
+import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 
-class FeatureFlagsHandlingActivity : AppCompatActivity() {
+// todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
+class FeatureFlagsHandlingActivity : BlockchainActivity() {
 
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
     private val featureFlagHandler: FeatureFlagHandler by inject()
@@ -49,6 +51,8 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
 
     private val featuresAdapter: FeatureFlagAdapter = FeatureFlagAdapter()
+
+    override val alwaysDisableScreenshots = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,6 +79,8 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
                 adapter = featuresAdapter
             }
             val parent = nestedParent
+
+            btnShowReferralSheet.setOnClickListener { showInviteNow() }
             resetAppRating.setOnClickListener { resetAppRating() }
             btnRndDeviceId.setOnClickListener { onRndDeviceId() }
             btnResetWallet.setOnClickListener { onResetWallet() }
@@ -169,6 +175,12 @@ class FeatureFlagsHandlingActivity : AppCompatActivity() {
             text,
             duration = Snackbar.LENGTH_SHORT,
         ).show()
+    }
+
+    private fun showInviteNow() {
+        showBottomSheet(
+            ReferralInviteNowSheet()
+        )
     }
 
     private fun clearSimpleBuyState() {
