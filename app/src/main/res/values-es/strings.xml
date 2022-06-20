@@ -2487,7 +2487,7 @@ Compre hoy criptomonedas.</string>
     <string name="virtual_card">Tarjeta virtual</string>
     <string name="ready_to_use">Listo para usar</string>
     <string name="card_details">Detalles de tarjeta</string>
-    <string name="no_fee">Sin cargo</string>
+    <string name="no_fees">Sin cargo</string>
     <string name="processing">Procesando</string>
     <string name="spend_from">Gastar desde</string>
     <string name="accessibility_action_menu">Menú de acciones</string>

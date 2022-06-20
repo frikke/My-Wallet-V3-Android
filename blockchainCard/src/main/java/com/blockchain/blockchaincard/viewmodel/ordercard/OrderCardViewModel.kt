@@ -10,7 +10,6 @@ import com.blockchain.blockchaincard.viewmodel.BlockchainCardViewState
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
-import timber.log.Timber
 
 class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRepository) : BlockchainCardViewModel() {
 
@@ -36,14 +35,17 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
         intent: BlockchainCardIntent
     ) {
         when (intent) {
-            is BlockchainCardIntent.OrderCard -> {
-                navigate(BlockchainCardNavigationEvent.SelectCardForOrder)
+
+            is BlockchainCardIntent.RetryOrderCard -> {
+                navigate(BlockchainCardNavigationEvent.RetryOrderCard)
             }
 
             is BlockchainCardIntent.OnSeeProductDetails -> {
-                modelState.cardProduct?.let {
-                    navigate(BlockchainCardNavigationEvent.SeeProductDetails)
-                } ?: Timber.w("Unable to show product details, no product info")
+                navigate(BlockchainCardNavigationEvent.SeeProductDetails)
+            }
+
+            is BlockchainCardIntent.OnSeeProductLegalInfo -> {
+                navigate(BlockchainCardNavigationEvent.SeeProductLegalInfo)
             }
 
             is BlockchainCardIntent.CreateCard -> {
@@ -59,7 +61,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                     }
             }
 
-            is BlockchainCardIntent.HideProductDetailsBottomSheet -> {
+            is BlockchainCardIntent.HideBottomSheet -> {
                 navigate(BlockchainCardNavigationEvent.HideBottomSheet)
             }
 

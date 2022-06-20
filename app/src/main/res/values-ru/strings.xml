@@ -2541,7 +2541,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="virtual_card">Виртуальная карта</string>
     <string name="ready_to_use">Готов к использованию</string>
     <string name="card_details">Реквизиты карты</string>
-    <string name="no_fee">Без платы</string>
+    <string name="no_fees">Без платы</string>
     <string name="processing">Обработка</string>
     <string name="spend_from">Тратить с</string>
     <string name="accessibility_action_menu">Меню действий</string>
