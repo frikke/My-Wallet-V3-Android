@@ -24,14 +24,29 @@ import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import java.math.BigInteger
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20DataManagerTest {
+
+    private val testScheduler = TestScheduler()
+
+    @Before
+    fun setUp() {
+        RxJavaPlugins.reset()
+        RxJavaPlugins.setComputationSchedulerHandler { testScheduler }
+    }
+
+    @After
+    fun tearDown() = RxJavaPlugins.reset()
 
     @get:Rule
     val initSchedulers = rxInit {
