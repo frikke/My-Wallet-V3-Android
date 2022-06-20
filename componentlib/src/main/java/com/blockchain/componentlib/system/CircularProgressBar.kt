@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.theme.AppSurface
@@ -22,7 +25,7 @@ import com.blockchain.componentlib.theme.Grey600
 fun CircularProgressBar(
     modifier: Modifier = Modifier,
     text: String? = null,
-    progress: Float? = null
+    progress: Float? = null,
 ) {
     val color = Blue600
     val backgroundColor = Grey000
@@ -61,7 +64,11 @@ fun CircularProgressBar(
                 modifier = Modifier
                     .padding(start = 25.dp)
                     .align(Alignment.Bottom),
-                text = text,
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontFeatureSettings = "tnum")) {
+                        append(text)
+                    }
+                },
                 style = fontStyle,
                 color = Grey600
             )
@@ -77,6 +84,19 @@ fun CircularProgressBarPreview() {
             CircularProgressBar(
                 progress = 0.5f,
                 text = "Checking for Update..."
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CircularProgressBarNumberPreview() {
+    AppTheme {
+        AppSurface {
+            CircularProgressBar(
+                progress = 0.5f,
+                text = "15:00 mins remaining"
             )
         }
     }
