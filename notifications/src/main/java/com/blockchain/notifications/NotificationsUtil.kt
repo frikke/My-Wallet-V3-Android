@@ -15,6 +15,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.NotificationReceived
+import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
+import timber.log.Timber
 
 class NotificationsUtil(
     private val context: Context,
@@ -23,16 +25,30 @@ class NotificationsUtil(
 ) {
 
     fun triggerNotification(
-        title: String,
-        marquee: String,
-        text: String,
+        title: String?,
+        marquee: String?,
+        text: String?,
         @DrawableRes icon: Int = R.drawable.ic_notification,
         pendingIntent: PendingIntent,
         id: Int,
         @StringRes appName: Int,
         @ColorRes colorRes: Int,
-        channelId: String? = null
+        channelId: String? = null,
+        source: String
     ) {
+
+        if (title.isNullOrBlank() || text.isNullOrBlank()) {
+            Timber.e("Empty Notification: title and body were not passed!")
+            analytics.logEvent(
+                NotificationAnalyticsEvents.MissingNotificationData(
+                    source = source,
+                    title = title,
+                    text = text,
+                    marquee = marquee
+                )
+            )
+            return
+        }
 
         val builder = NotificationCompat.Builder(
             context,

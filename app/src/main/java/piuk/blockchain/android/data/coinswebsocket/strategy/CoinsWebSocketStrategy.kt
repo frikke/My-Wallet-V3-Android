@@ -280,7 +280,7 @@ class CoinsWebSocketStrategy(
                 var text = marquee
                 text += " ${stringUtils.getString(R.string.common_from).toLowerCase(Locale.US)} $inAddr"
                 messagesSocketHandler?.triggerNotification(
-                    title, marquee, text
+                    title, marquee, text, "BchTransaction"
                 )
             }
         }
@@ -319,13 +319,14 @@ class CoinsWebSocketStrategy(
                         .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
                         .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
                         .appendSpaced(CryptoCurrency.ETHER.displayTicker)
+                        .toString()
 
                     val textBuilder = StringBuilder()
                         .append(marqueeBuilder)
                         .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
                         .appendSpaced(transaction.from)
-
-                    messagesSocketHandler?.triggerNotification(title, marqueeBuilder.toString(), textBuilder.toString())
+                        .toString()
+                    messagesSocketHandler?.triggerNotification(title, marqueeBuilder, textBuilder, "Eth Transaction")
                 }
                 updateEthTransactions()
             }
@@ -363,7 +364,7 @@ class CoinsWebSocketStrategy(
 
         erc20DataManager.flushCaches(asset)
         messagesSocketHandler?.run {
-            triggerNotification(title, marquee, text)
+            triggerNotification(title, marquee, text, "ERC20 transaction")
             sendBroadcast(TransactionsUpdatedEvent())
         }
     }

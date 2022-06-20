@@ -199,7 +199,8 @@ class CoinsWebSocketStrategyTest {
         verify(messagesSocketHandler).triggerNotification(
             "Blockchain",
             "Received Ethereum 0.00604741 ETH",
-            "Received Ethereum 0.00604741 ETH from 0x4058a004dd718babab47e14dd0d744742e5b9903"
+            "Received Ethereum 0.00604741 ETH from 0x4058a004dd718babab47e14dd0d744742e5b9903",
+            "Eth Transaction"
         )
     }
 
@@ -208,7 +209,7 @@ class CoinsWebSocketStrategyTest {
         webSocket.send(pendingEthTransaction)
 
         verify(mockWebSocket).open()
-        verify(messagesSocketHandler, never()).triggerNotification(any(), any(), any())
+        verify(messagesSocketHandler, never()).triggerNotification(any(), any(), any(), any())
     }
 
     @Test
@@ -231,7 +232,8 @@ class CoinsWebSocketStrategyTest {
         verify(messagesSocketHandler).triggerNotification(
             "Blockchain",
             "Received Dummies 1.21 DUMMY",
-            "Received Dummies 1.21 DUMMY from 0x4058a004dd718babab47e14dd0d744742e5b9903"
+            "Received Dummies 1.21 DUMMY from 0x4058a004dd718babab47e14dd0d744742e5b9903",
+            "ERC20 transaction"
         )
         verify(messagesSocketHandler).sendBroadcast(any())
     }

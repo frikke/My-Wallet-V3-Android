@@ -83,21 +83,13 @@ class FcmCallbackService : FirebaseMessagingService() {
             )
         } else {
             // If there is no data field, provide this default behaviour
-            NotificationsUtil(
-                context = applicationContext,
-                notificationManager = notificationManager,
-                analytics = analytics
-            ).triggerNotification(
-                title = remoteMessage.notification?.title ?: "",
-                marquee = remoteMessage.notification?.title ?: "",
-                text = remoteMessage.notification?.body ?: "",
-                // Don't want to launch an activity
+            triggerNotification(
+                title = remoteMessage.notification?.title,
+                body = remoteMessage.notification?.body,
                 pendingIntent = PendingIntent.getActivity(
                     applicationContext, 0, Intent(), PendingIntent.FLAG_UPDATE_CURRENT
                 ),
-                id = ID_BACKGROUND_NOTIFICATION_2FA,
-                appName = R.string.app_name,
-                colorRes = R.color.primary_navy_medium
+                notificationId = ID_BACKGROUND_NOTIFICATION_2FA
             )
         }
     }
@@ -121,6 +113,8 @@ class FcmCallbackService : FirebaseMessagingService() {
      * Redirects the user to the [LauncherActivity] if [foreground] is set to true, otherwise to
      * the [MainActivity] unless it is a new device login, in which case [MainActivity] is
      * going to load the [piuk.blockchain.android.ui.auth.newlogin.AuthNewLoginSheet] .
+     *
+     * TODO verify if this is true.
      */
     private fun sendNotification(payload: NotificationPayload, foreground: Boolean) {
         compositeDisposable += createIntentForNotification(payload, foreground)
@@ -139,18 +133,11 @@ class FcmCallbackService : FirebaseMessagingService() {
                         if (foreground) {
                             startActivity(notifyIntent)
                         } else {
-                            NotificationsUtil(
-                                context = applicationContext,
-                                notificationManager = notificationManager,
-                                analytics = analytics
-                            ).triggerNotification(
+                            triggerNotification(
                                 title = getString(R.string.secure_channel_notif_title),
-                                marquee = getString(R.string.secure_channel_notif_title),
-                                text = getString(R.string.secure_channel_notif_summary),
+                                body = getString(R.string.secure_channel_notif_summary),
                                 pendingIntent = intent,
-                                id = notificationId,
-                                appName = R.string.app_name,
-                                colorRes = R.color.primary_navy_medium
+                                notificationId = notificationId,
                             )
                         }
                     } else if (payload.deeplinkURL != null) {
@@ -171,8 +158,9 @@ class FcmCallbackService : FirebaseMessagingService() {
                             }
                         )
                     } else {
-                        triggerHeadsUpNotification(
-                            payload,
+                        triggerNotification(
+                            payload.title,
+                            payload.body,
                             intent,
                             notificationId
                         )
@@ -229,33 +217,25 @@ class FcmCallbackService : FirebaseMessagingService() {
         )
     }
 
-    /**
-     * Triggers a notification with the "Heads Up" feature on >21, with the "beep" sound and a short
-     * vibration enabled.
-     *
-     * @param payload A [NotificationPayload] object from the Notification Service
-     * @param pendingIntent The [PendingIntent] that you wish to be called when the
-     * notification is selected
-     * @param notificationId The ID of the notification
-     */
-    private fun triggerHeadsUpNotification(
-        payload: NotificationPayload,
+    private fun triggerNotification(
+        title: String?,
+        body: String?,
         pendingIntent: PendingIntent,
         notificationId: Int
     ) {
-
         NotificationsUtil(
             context = applicationContext,
             notificationManager = notificationManager,
             analytics = analytics
         ).triggerNotification(
-            title = payload.title ?: "",
-            marquee = payload.title ?: "",
-            text = payload.body ?: "",
+            title = title,
+            marquee = title,
+            text = body,
             pendingIntent = pendingIntent,
             id = notificationId,
             appName = R.string.app_name,
-            colorRes = R.color.primary_navy_medium
+            colorRes = R.color.primary_navy_medium,
+            source = "FcmCallbackService"
         )
     }
 }
