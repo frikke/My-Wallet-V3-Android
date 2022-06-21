@@ -30,12 +30,49 @@ import com.blockchain.componentlib.theme.Red000
 import com.blockchain.componentlib.theme.Red900
 
 @Composable
+fun NoPaddingRadio(
+    modifier: Modifier = Modifier,
+    state: RadioButtonState,
+    onSelectedChanged: ((Boolean) -> Unit)? = null,
+    enabled: Boolean = true,
+    isDarkMode: Boolean = isSystemInDarkTheme(),
+) {
+    Radio(
+        state = state,
+        onSelectedChanged = onSelectedChanged,
+        modifier = modifier,
+        enabled = enabled,
+        isDarkMode = isDarkMode,
+        withPadding = false
+    )
+}
+
+@Composable
 fun Radio(
     state: RadioButtonState,
     onSelectedChanged: ((Boolean) -> Unit)? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isDarkMode: Boolean = isSystemInDarkTheme(),
+) {
+    Radio(
+        state = state,
+        onSelectedChanged = onSelectedChanged,
+        modifier = modifier,
+        enabled = enabled,
+        isDarkMode = isDarkMode,
+        withPadding = true
+    )
+}
+
+@Composable
+private fun Radio(
+    state: RadioButtonState,
+    onSelectedChanged: ((Boolean) -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isDarkMode: Boolean = isSystemInDarkTheme(),
+    withPadding: Boolean = true,
 ) {
 
     val selectedColor = AppTheme.colors.primary
@@ -116,7 +153,7 @@ fun Radio(
                     this
                 }
             }
-            .padding(dimensionResource(R.dimen.very_small_margin))
+            .padding(dimensionResource(if (withPadding) R.dimen.very_small_margin else R.dimen.zero_margin))
             .size(dimensionResource(R.dimen.standard_margin))
             .background(
                 color = animateColorAsState(targetValue = radioFillColor).value,
