@@ -36,7 +36,7 @@ val featureFlagsModule = module {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_interest",
-                "SpeedUp Login"
+                "SpeedUp Login - /accounts/savings"
             )
         )
     }.bind(FeatureFlag::class)
