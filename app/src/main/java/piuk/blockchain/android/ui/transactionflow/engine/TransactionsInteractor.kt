@@ -61,7 +61,7 @@ class TransactionInteractor(
     private val addressFactory: AddressFactory,
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
-    private val interestService: InterestStoreService,
+    private val interestStoreService: InterestStoreService,
     private val bankService: BankService,
     private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
@@ -200,7 +200,7 @@ class TransactionInteractor(
 
     fun verifyAndExecute(secondPassword: String): Completable =
         transactionProcessor?.execute(secondPassword)
-            ?.doOnComplete { interestService.invalidate() }
+            ?.doOnComplete { interestStoreService.invalidate() }
             ?: throw IllegalStateException("TxProcessor not initialised")
 
     fun cancelTransaction(): Completable =

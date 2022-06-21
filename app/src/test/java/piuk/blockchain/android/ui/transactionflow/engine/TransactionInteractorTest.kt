@@ -41,7 +41,7 @@ class TransactionInteractorTest {
     private val addressFactory: AddressFactory = mock()
     private val custodialRepository: CustodialRepository = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
-    private val interestService: InterestStoreService = mock()
+    private val interestStoreService: InterestStoreService = mock()
     private val bankService: BankService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
@@ -61,7 +61,7 @@ class TransactionInteractorTest {
             addressFactory,
             custodialRepository,
             custodialWalletManager,
-            interestService,
+            interestStoreService,
             bankService,
             paymentMethodService,
             currencyPrefs,

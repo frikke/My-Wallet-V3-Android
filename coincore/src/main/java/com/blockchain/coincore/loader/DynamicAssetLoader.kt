@@ -1,5 +1,6 @@
 package com.blockchain.coincore.loader
 
+import com.blockchain.cachetesssst.printTime
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
@@ -163,7 +164,7 @@ internal class DynamicAssetLoader(
         }
         return Single.zip(
             tradingBalances.getActiveAssets(),
-            interestBalances.getActiveAssets()
+            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
@@ -187,7 +188,7 @@ internal class DynamicAssetLoader(
         val tradingBalancesAssets =
             tradingBalances.getActiveAssets()
         val interestBalancesAssets =
-            interestBalances.getActiveAssets()
+            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
 
         // Assets with non custodial balance
         val erc20ActiveAssets =
