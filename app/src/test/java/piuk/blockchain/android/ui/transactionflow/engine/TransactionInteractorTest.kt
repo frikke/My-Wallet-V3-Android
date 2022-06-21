@@ -5,6 +5,7 @@ import com.blockchain.coincore.AddressFactory
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
@@ -40,6 +41,7 @@ class TransactionInteractorTest {
     private val addressFactory: AddressFactory = mock()
     private val custodialRepository: CustodialRepository = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
+    private val interestService: InterestStoreService = mock()
     private val bankService: BankService = mock()
     private val paymentMethodService: PaymentMethodService = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
@@ -59,6 +61,7 @@ class TransactionInteractorTest {
             addressFactory,
             custodialRepository,
             custodialWalletManager,
+            interestService,
             bankService,
             paymentMethodService,
             currencyPrefs,

@@ -28,6 +28,10 @@ import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.interest.data.InterestStoreRepository
+import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.store.InterestStore
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
@@ -182,6 +186,20 @@ val coreModule = module {
             )
         }
 
+        scoped<InterestDataSource> {
+            InterestStore(
+                interestService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped<InterestStoreService> {
+            InterestStoreRepository(
+                assetCatalogue = get(),
+                interestDataSource = get()
+            )
+        }
+
         scoped {
             BuyPairsCache(nabuService = get())
         }
@@ -205,7 +223,9 @@ val coreModule = module {
 
         scoped {
             InterestBalanceDataManagerImpl(
-                balanceCallCache = get()
+                balanceCallCache = get(),
+                interestStoreService = get(),
+                speedUpLoginFF = get(speedUpLoginFeatureFlag)
             )
         }.bind(InterestBalanceDataManager::class)
 

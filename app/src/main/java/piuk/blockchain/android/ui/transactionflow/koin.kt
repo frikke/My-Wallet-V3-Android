@@ -192,6 +192,7 @@ val transactionModule = module {
                 addressFactory = payloadScope.get(),
                 custodialRepository = payloadScope.get(),
                 custodialWalletManager = payloadScope.get(),
+                interestService = payloadScope.get(),
                 bankService = payloadScope.get(),
                 paymentMethodService = payloadScope.get(),
                 currencyPrefs = get(),
