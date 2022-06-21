@@ -141,21 +141,18 @@ class AccountList @JvmOverloads constructor(
     fun updatedSelectedAccount(selectedAccount: BlockchainAccount) {
         with(adapter as AccountsDelegateAdapter) {
             if (items.isNotEmpty()) {
-                val previouslySelectedPosition =
-                    items.filterIsInstance<SelectableAccountItem>().indexOfFirst { account ->
-                        account.isSelected
-                    }
-                if (previouslySelectedPosition != -1) {
-                    (items[previouslySelectedPosition] as? SelectableAccountItem)?.isSelected = false
-                    notifyItemChanged(previouslySelectedPosition)
-                }
+                items.forEachIndexed { index, accountsListItem ->
+                    (accountsListItem as? SelectableAccountItem)?.run {
+                        if (isSelected && item.account != selectedAccount) {
+                            isSelected = false
+                            notifyItemChanged(index)
+                        }
 
-                val positionToSelect = items.filterIsInstance<SelectableAccountItem>().indexOfFirst { account ->
-                    account.item == selectedAccount
-                }
-                if (positionToSelect != -1) {
-                    (items[positionToSelect] as? SelectableAccountItem)?.isSelected = true
-                    notifyItemChanged(positionToSelect)
+                        if (!isSelected && item.account == selectedAccount) {
+                            isSelected = true
+                            notifyItemChanged(index)
+                        }
+                    }
                 }
             } else {
                 // if list is empty, we're in a race condition between loading and selecting, so store value and check

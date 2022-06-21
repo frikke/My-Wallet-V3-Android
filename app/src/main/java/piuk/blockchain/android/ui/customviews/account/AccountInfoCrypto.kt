@@ -8,7 +8,6 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NullCryptoAccount
-import com.blockchain.coincore.impl.CryptoAccountBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -196,7 +195,7 @@ class AccountInfoCrypto @JvmOverloads constructor(
 
     override fun update(state: TransactionState) {
         updateItem(
-            item = AccountListViewItem.Crypto(state.sendingAccount as CryptoAccountBase), // check
+            item = AccountListViewItem.Crypto(state.sendingAccount as CryptoAccount),
             onAccountClicked = { }
         )
     }

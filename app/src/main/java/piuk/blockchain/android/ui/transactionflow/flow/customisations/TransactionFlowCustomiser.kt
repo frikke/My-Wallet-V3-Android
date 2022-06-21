@@ -709,22 +709,6 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
-    override fun enterTargetAddressSheetState(state: TransactionState): TargetAddressSheetState {
-        return if (state.selectedTarget == NullAddress) {
-            if (state.targetCount > MAX_ACCOUNTS_FOR_SHEET) {
-                TargetAddressSheetState.SelectAccountWhenOverMaxLimitSurpassed
-            } else {
-                TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(
-                    state.availableTargets.take(
-                        MAX_ACCOUNTS_FOR_SHEET
-                    ).map { it as BlockchainAccount }
-                )
-            }
-        } else {
-            TargetAddressSheetState.TargetAccountSelected(state.selectedTarget)
-        }
-    }
-
     override fun enterTargetAddressFragmentState(state: TransactionState): TargetAddressSheetState {
         return if (state.selectedTarget == NullAddress) {
             TargetAddressSheetState.SelectAccountWhenWithinMaxLimit(
@@ -1274,7 +1258,6 @@ class TransactionFlowCustomiserImpl(
         }
 
     companion object {
-        const val MAX_ACCOUNTS_FOR_SHEET = 3
         private const val FIVE_DAYS = 5
 
         fun getEstimatedTransactionCompletionTime(daysInFuture: Int = FIVE_DAYS): String {
@@ -1296,7 +1279,6 @@ enum class IssueType {
 }
 
 sealed class TargetAddressSheetState(val accounts: List<TransactionTarget>) {
-    object SelectAccountWhenOverMaxLimitSurpassed : TargetAddressSheetState(emptyList())
     class TargetAccountSelected(account: TransactionTarget) : TargetAddressSheetState(listOf(account))
     class SelectAccountWhenWithinMaxLimit(accounts: List<BlockchainAccount>) :
         TargetAddressSheetState(accounts.map { it as TransactionTarget })
