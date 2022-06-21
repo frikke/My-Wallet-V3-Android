@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.navhost
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Address
@@ -61,25 +60,12 @@ class KycNavHostPresenterTest {
     @Test
     fun `onViewReady exception thrown`() {
         // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
         // Assert
         verify(view).displayLoading(true)
         verify(view).showErrorSnackbarAndFinish(any())
-    }
-
-    @Test
-    fun `onViewReady no metadata found`() {
-        // Arrange
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { MetadataNotFoundException("") })
-
-        // Act
-        subject.onViewReady()
-
-        // Assert
-        verify(view).displayLoading(true)
-        verify(view).displayLoading(false)
     }
 
     @Test

@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
@@ -217,18 +216,6 @@ class KycProfilePresenterTest {
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
         verify(view).showErrorSnackbar(any())
-    }
-
-    @Test
-    fun `onViewReady no data to restore`() {
-        // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error(MetadataNotFoundException("Nabu Token not found")))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verifyZeroInteractions(view)
     }
 
     @Test

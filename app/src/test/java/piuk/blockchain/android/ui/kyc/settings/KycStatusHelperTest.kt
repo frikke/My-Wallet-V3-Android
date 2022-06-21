@@ -443,20 +443,6 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get user state fails but returns none`() {
-        // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error { Throwable() })
-        // Act
-        val testObserver = subject.getUserState().test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(UserState.None)
-    }
-
-    @Test
     fun `get user state successful, returns created`() {
         // Arrange
         whenever(nabuDataUserProvider.getUser())
