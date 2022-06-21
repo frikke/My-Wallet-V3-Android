@@ -45,6 +45,9 @@ import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import com.blockchain.utils.isNotLastIn
 
+/**
+ * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
+ */
 @Composable
 fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -202,10 +205,10 @@ fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allC
 
     Column {
         acknowledgementChecks.keys.forEachIndexed { index, acknowledgement ->
-            BackupPhraseIntroAcknowledgmentItem(stringResource(id = acknowledgement)) {
+            BackupPhraseIntroAcknowledgmentItem(stringResource(acknowledgement)) {
                 acknowledgementChecks[acknowledgement] = true
 
-                if (acknowledgementChecks.values.none { checked -> !checked }) {
+                if (acknowledgementChecks.values.none { checked -> checked.not() }) {
                     allChecked()
                 }
             }
