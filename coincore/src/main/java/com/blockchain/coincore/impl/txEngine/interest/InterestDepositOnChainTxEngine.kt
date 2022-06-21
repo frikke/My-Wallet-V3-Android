@@ -30,7 +30,7 @@ class InterestDepositOnChainTxEngine(
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
-) : InterestBaseEngine(walletManager ,interestStoreService) {
+) : InterestBaseEngine(walletManager, interestStoreService) {
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
