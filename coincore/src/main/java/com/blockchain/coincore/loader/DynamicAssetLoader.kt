@@ -60,8 +60,7 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag,
-    private val stxForAirdropFeatureFlag: FeatureFlag,
+    private val stxForAllFeatureFlag: FeatureFlag
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -243,8 +242,7 @@ internal class DynamicAssetLoader(
                 addressValidation = defaultCustodialAddressValidation,
                 addressResolver = identityAddressResolver,
                 selfCustodyService = selfCustodyService,
-                stxForAllFeatureFlag = stxForAllFeatureFlag,
-                stxForAirdropFeatureFlag = stxForAirdropFeatureFlag
+                stxForAllFeatureFlag = stxForAllFeatureFlag
             )
         } else {
             DynamicSelfCustodyAsset(

@@ -16,8 +16,11 @@ interface SelfCustodyApi {
     @POST("/wallet-pubkey/unsubscribe")
     suspend fun unsubscribe(@Body request: RemoveSubscriptionRequest): Outcome<ApiError, CommonResponse>
 
-    @POST("/wallet-pubkey/subcriptions")
+    @POST("/wallet-pubkey/subscriptions")
     suspend fun getSubscriptions(@Body request: GetSubscriptionsRequest): Outcome<ApiError, GetSubscriptionsResponse>
+
+    @POST("/wallet-pubkey/balance")
+    suspend fun getBalances(@Body request: BalancesRequest): Outcome<ApiError, BalancesResponse>
 
     @POST("/wallet-pubkey/addresses")
     suspend fun getAddresses(@Body request: AddressesRequest): Outcome<ApiError, AddressesResponse>

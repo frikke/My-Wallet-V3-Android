@@ -442,7 +442,8 @@ val coreModule = module {
         scoped<NonCustodialService> {
             NonCustodialRepository(
                 dynamicSelfCustodyService = get(),
-                payloadDataManager = get()
+                payloadDataManager = get(),
+                currencyPrefs = get()
             )
         }
     }
