@@ -31,10 +31,10 @@ interface InterestBalanceDataManager {
 internal class InterestBalanceDataManagerImpl(
     private val balanceCallCache: InterestBalanceCallCache,
     private val interestStoreService: InterestStoreService,
-    private val speedUpLoginFF: FeatureFlag,
+    private val speedUpLoginInterestFF: FeatureFlag,
 ) : InterestBalanceDataManager {
     override fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance> {
-        return speedUpLoginFF.enabled.flatMapObservable { isEnabled ->
+        return speedUpLoginInterestFF.enabled.flatMapObservable { isEnabled ->
             if (isEnabled) {
                 interestStoreService.getBalanceFor(asset = asset)
             } else {
@@ -46,7 +46,7 @@ internal class InterestBalanceDataManagerImpl(
     }
 
     override fun getActiveAssets(): Single<Set<AssetInfo>> {
-        return speedUpLoginFF.enabled.flatMap { isEnabled ->
+        return speedUpLoginInterestFF.enabled.flatMap { isEnabled ->
             if (isEnabled) {
                 interestStoreService.getActiveAssets()
             } else {
@@ -56,7 +56,7 @@ internal class InterestBalanceDataManagerImpl(
     }
 
     override fun flushCaches(asset: AssetInfo) {
-        speedUpLoginFF.enabled.subscribe { isEnabled ->
+        speedUpLoginInterestFF.enabled.subscribe { isEnabled ->
             if (isEnabled) {
                 interestStoreService.invalidate()
             } else {

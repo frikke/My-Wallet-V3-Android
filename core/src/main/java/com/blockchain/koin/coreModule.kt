@@ -225,7 +225,7 @@ val coreModule = module {
             InterestBalanceDataManagerImpl(
                 balanceCallCache = get(),
                 interestStoreService = get(),
-                speedUpLoginFF = get(speedUpLoginFeatureFlag)
+                speedUpLoginInterestFF = get(speedUpLoginInterestFeatureFlag)
             )
         }.bind(InterestBalanceDataManager::class)
 

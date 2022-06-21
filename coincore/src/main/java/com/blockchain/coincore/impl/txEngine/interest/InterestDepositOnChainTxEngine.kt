@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -27,7 +28,9 @@ class InterestDepositOnChainTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager
+    val walletManager: CustodialWalletManager,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val interestStoreService: InterestStoreService,
 ) : InterestBaseEngine(walletManager) {
 
     override fun assertInputsValid() {
@@ -140,6 +143,7 @@ class InterestDepositOnChainTxEngine(
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         onChainEngine.doPostExecute(pendingTx, txResult)
+            .doOnComplete { interestStoreService.invalidate() }
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)

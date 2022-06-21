@@ -28,7 +28,7 @@ internal class InterestStore(
             errorMapper = { it }
         ),
         dataSerializer = ListSerializer(InterestBalanceDetails.serializer()),
-        mediator = FreshnessMediator(Freshness.ofHours(24L))
+        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     InterestDataSource {
 

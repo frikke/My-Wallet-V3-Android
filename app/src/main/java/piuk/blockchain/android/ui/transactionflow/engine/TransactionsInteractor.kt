@@ -20,7 +20,6 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -61,7 +60,6 @@ class TransactionInteractor(
     private val addressFactory: AddressFactory,
     private val custodialRepository: CustodialRepository,
     private val custodialWalletManager: CustodialWalletManager,
-    private val interestStoreService: InterestStoreService,
     private val bankService: BankService,
     private val paymentMethodService: PaymentMethodService,
     private val currencyPrefs: CurrencyPrefs,
@@ -199,9 +197,7 @@ class TransactionInteractor(
         }
 
     fun verifyAndExecute(secondPassword: String): Completable =
-        transactionProcessor?.execute(secondPassword)
-            ?.doOnComplete { interestStoreService.invalidate() }
-            ?: throw IllegalStateException("TxProcessor not initialised")
+        transactionProcessor?.execute(secondPassword) ?: throw IllegalStateException("TxProcessor not initialised")
 
     fun cancelTransaction(): Completable =
         transactionProcessor?.cancel() ?: throw IllegalStateException("TxProcessor not initialised")

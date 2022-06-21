@@ -11,6 +11,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -19,6 +20,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -41,6 +43,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
+    private val interestStoreService: InterestStoreService = mock()
 
     private lateinit var subject: InterestWithdrawTradingTxEngine
 
@@ -67,7 +70,8 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             )
         subject = InterestWithdrawTradingTxEngine(
             walletManager = custodialWalletManager,
-            interestBalances = interestBalances
+            interestBalances = interestBalances,
+            interestStoreService = interestStoreService
         )
     }
 
@@ -276,6 +280,17 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             .assertComplete()
     }
 
+    @Test
+    fun `postExecute invalidates interestStore`() {
+        // Act
+        subject.doPostExecute(pendingTx = mock(), txResult = mock())
+            .test()
+            .await()
+
+        // Assert
+        verify(interestStoreService, times(1)).invalidate()
+    }
+
     private fun noMoreInteractions(sourceAccount: BlockchainAccount, txTarget: TransactionTarget) {
         verifyNoMoreInteractions(txTarget)
         verifyNoMoreInteractions(custodialWalletManager)
@@ -286,7 +301,7 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
 
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
+        availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<CryptoInterestAccount> {
         on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(

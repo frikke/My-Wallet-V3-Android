@@ -13,6 +13,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
@@ -21,6 +22,7 @@ import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -43,6 +45,7 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
+    private val interestStoreService: InterestStoreService = mock()
 
     private lateinit var subject: InterestWithdrawOnChainTxEngine
     val txResult: TxResult = mock()
@@ -71,7 +74,8 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
 
         subject = InterestWithdrawOnChainTxEngine(
             walletManager = custodialWalletManager,
-            interestBalances = interestBalances
+            interestBalances = interestBalances,
+            interestStoreService = interestStoreService
         )
     }
 
@@ -270,6 +274,17 @@ class InterestWithdrawOnChainTxEngineTest : CoincoreTestBase() {
             }
             .assertNoErrors()
             .assertComplete()
+    }
+
+    @Test
+    fun `postExecute invalidates interestStore`() {
+        // Act
+        subject.doPostExecute(pendingTx = mock(), txResult = mock())
+            .test()
+            .await()
+
+        // Assert
+        verify(interestStoreService, times(1)).invalidate()
     }
 
     private fun noMoreInteractions(sourceAccount: BlockchainAccount, txTarget: TransactionTarget) {

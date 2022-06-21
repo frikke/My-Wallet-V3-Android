@@ -16,6 +16,7 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -30,7 +31,9 @@ class InterestWithdrawTradingTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
+    val interestBalances: InterestBalanceDataManager,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val interestStoreService: InterestStoreService,
 ) : InterestBaseEngine(walletManager) {
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
@@ -126,4 +129,8 @@ class InterestWithdrawTradingTxEngine(
             }.toSingle {
                 TxResult.UnHashedTxResult(pendingTx.amount)
             }
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
+        super.doPostExecute(pendingTx, txResult)
+            .doOnComplete { interestStoreService.invalidate() }
 }

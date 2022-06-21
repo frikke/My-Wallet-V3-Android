@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -24,6 +25,7 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -31,6 +33,7 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
@@ -43,11 +46,13 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
+    private val interestStoreService: InterestStoreService = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
         walletManager = walletManager,
         interestBalances = interestBalances,
-        onChainEngine = onChainEngine
+        onChainEngine = onChainEngine,
+        interestStoreService = interestStoreService
     )
 
     @Before
@@ -491,9 +496,23 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         noMoreInteractions(sourceAccount, txTarget)
     }
 
+    @Test
+    fun `postExecute invalidates interestStore`() {
+        // Arrange
+        whenever(onChainEngine.doPostExecute(any(), any())).thenReturn(Completable.complete())
+
+        // Act
+        subject.doPostExecute(pendingTx = mock(), txResult = mock())
+            .test()
+            .await()
+
+        // Assert
+        verify(interestStoreService, times(1)).invalidate()
+    }
+
     private fun mockSourceAccount(
         totalBalance: Money = CryptoValue.zero(ASSET),
-        availableBalance: Money = CryptoValue.zero(ASSET)
+        availableBalance: Money = CryptoValue.zero(ASSET),
     ) = mock<BtcCryptoWalletAccount> {
         on { currency }.thenReturn(ASSET)
         on { balance }.thenReturn(

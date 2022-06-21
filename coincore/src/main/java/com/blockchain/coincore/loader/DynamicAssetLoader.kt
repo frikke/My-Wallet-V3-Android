@@ -1,6 +1,5 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.cachetesssst.printTime
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
@@ -21,6 +20,7 @@ import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.rx.printTime
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
