@@ -29,13 +29,12 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
+    interestStoreService: InterestStoreService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestStoreService: InterestStoreService,
-) : InterestBaseEngine(walletManager) {
+    val interestBalances: InterestBalanceDataManager
+) : InterestBaseEngine(walletManager, interestStoreService) {
 
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
@@ -169,8 +168,4 @@ class InterestWithdrawOnChainTxEngine(
                 ":$it"
             } ?: ""
             )
-
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        super.doPostExecute(pendingTx, txResult)
-            .doOnComplete { interestStoreService.invalidate() }
 }

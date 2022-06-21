@@ -64,9 +64,9 @@ class InterestDepositTradingEngineTest : CoincoreTestBase() {
             )
 
         subject = InterestDepositTradingEngine(
+            interestStoreService = interestStoreService,
             walletManager = custodialWalletManager,
-            interestBalances = interestBalances,
-            interestStoreService = interestStoreService
+            interestBalances = interestBalances
         )
     }
 

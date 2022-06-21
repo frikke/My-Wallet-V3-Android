@@ -28,13 +28,12 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 
 class InterestWithdrawTradingTxEngine(
+    interestStoreService: InterestStoreService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val interestBalances: InterestBalanceDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestStoreService: InterestStoreService,
-) : InterestBaseEngine(walletManager) {
+) : InterestBaseEngine(walletManager, interestStoreService) {
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
 
@@ -129,8 +128,4 @@ class InterestWithdrawTradingTxEngine(
             }.toSingle {
                 TxResult.UnHashedTxResult(pendingTx.amount)
             }
-
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        super.doPostExecute(pendingTx, txResult)
-            .doOnComplete { interestStoreService.invalidate() }
 }

@@ -23,15 +23,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
+    interestStoreService: InterestStoreService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val interestBalances: InterestBalanceDataManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletManager: CustodialWalletManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestStoreService: InterestStoreService,
-) : InterestBaseEngine(walletManager) {
+    val walletManager: CustodialWalletManager
+) : InterestBaseEngine(walletManager ,interestStoreService) {
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -142,8 +141,8 @@ class InterestDepositOnChainTxEngine(
             }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        onChainEngine.doPostExecute(pendingTx, txResult)
-            .doOnComplete { interestStoreService.invalidate() }
+        super.doPostExecute(pendingTx, txResult)
+            .andThen(onChainEngine.doPostExecute(pendingTx, txResult))
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)

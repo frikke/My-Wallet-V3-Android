@@ -8,6 +8,7 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -49,10 +50,10 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     private val interestStoreService: InterestStoreService = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
+        interestStoreService = interestStoreService,
         walletManager = walletManager,
         interestBalances = interestBalances,
-        onChainEngine = onChainEngine,
-        interestStoreService = interestStoreService
+        onChainEngine = onChainEngine
     )
 
     @Before
@@ -500,13 +501,15 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     fun `postExecute invalidates interestStore`() {
         // Arrange
         whenever(onChainEngine.doPostExecute(any(), any())).thenReturn(Completable.complete())
-
+        val pendingTx: PendingTx = mock()
+        val txResult: TxResult = mock()
         // Act
-        subject.doPostExecute(pendingTx = mock(), txResult = mock())
+        subject.doPostExecute(pendingTx = pendingTx, txResult = txResult)
             .test()
             .await()
 
         // Assert
+        verify(onChainEngine, times(1)).doPostExecute(pendingTx, txResult)
         verify(interestStoreService, times(1)).invalidate()
     }
 

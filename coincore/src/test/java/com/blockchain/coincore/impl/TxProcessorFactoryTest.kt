@@ -139,8 +139,7 @@ class TxProcessorFactoryTest {
                     (it.engine as InterestDepositOnChainTxEngine).run {
                         this.walletManager == walletManager &&
                             this.interestBalances == interestBalances &&
-                            this.onChainEngine == mockBaseEngine &&
-                            this.interestStoreService == interestStoreService
+                            this.onChainEngine == mockBaseEngine
                     }
             }
     }
@@ -323,8 +322,7 @@ class TxProcessorFactoryTest {
                     it.engine is InterestDepositTradingEngine &&
                     (it.engine as InterestDepositTradingEngine).run {
                         this.interestBalances == interestBalances &&
-                            this.walletManager == walletManager &&
-                            this.interestStoreService == interestStoreService
+                            this.walletManager == walletManager
                     }
             }
     }
@@ -459,8 +457,7 @@ class TxProcessorFactoryTest {
                     it.engine is InterestWithdrawTradingTxEngine &&
                     (it.engine as InterestWithdrawTradingTxEngine).run {
                         this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances &&
-                            this.interestStoreService == interestStoreService
+                            this.interestBalances == interestBalances
                     }
             }
     }
@@ -483,8 +480,7 @@ class TxProcessorFactoryTest {
                     it.engine is InterestWithdrawOnChainTxEngine &&
                     (it.engine as InterestWithdrawOnChainTxEngine).run {
                         this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances &&
-                            this.interestStoreService == interestStoreService
+                            this.interestBalances == interestBalances
                     }
             }
     }

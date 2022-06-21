@@ -26,13 +26,12 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
+    interestStoreService: InterestStoreService,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestStoreService: InterestStoreService,
-) : InterestBaseEngine(walletManager) {
+    val interestBalances: InterestBalanceDataManager
+) : InterestBaseEngine(walletManager, interestStoreService) {
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)
@@ -154,8 +153,4 @@ class InterestDepositTradingEngine(
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }
-
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        super.doPostExecute(pendingTx, txResult)
-            .doOnComplete { interestStoreService.invalidate() }
 }

@@ -69,9 +69,9 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
                 )
             )
         subject = InterestWithdrawTradingTxEngine(
+            interestStoreService = interestStoreService,
             walletManager = custodialWalletManager,
-            interestBalances = interestBalances,
-            interestStoreService = interestStoreService
+            interestBalances = interestBalances
         )
     }
 

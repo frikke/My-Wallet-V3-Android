@@ -98,9 +98,9 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
+                            interestStoreService = interestStoreService,
                             walletManager = walletManager,
-                            interestBalances = interestBalances,
-                            interestStoreService = interestStoreService
+                            interestBalances = interestBalances
                         )
                     )
                 )
@@ -112,9 +112,9 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawOnChainTxEngine(
+                            interestStoreService = interestStoreService,
                             walletManager = walletManager,
-                            interestBalances = interestBalances,
-                            interestStoreService = interestStoreService
+                            interestBalances = interestBalances
                         )
                     )
                 )
@@ -228,10 +228,10 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = it,
                             engine = InterestDepositOnChainTxEngine(
+                                interestStoreService = interestStoreService,
                                 walletManager = walletManager,
                                 interestBalances = interestBalances,
-                                onChainEngine = engine,
-                                interestStoreService = interestStoreService
+                                onChainEngine = engine
                             )
                         )
                     }
@@ -312,9 +312,9 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
+                        interestStoreService = interestStoreService,
                         walletManager = walletManager,
-                        interestBalances = interestBalances,
-                        interestStoreService = interestStoreService
+                        interestBalances = interestBalances
                     )
                 )
             )
