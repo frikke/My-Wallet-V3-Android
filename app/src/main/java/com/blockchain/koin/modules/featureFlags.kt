@@ -21,7 +21,6 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
-import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -190,15 +189,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_stx_all_users",
                 "Enable Stacks"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(stxForAirdropUsersFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_stx_airdrop_users",
-                "Enable STX For Airdrop Users"
             )
         )
     }.bind(FeatureFlag::class)

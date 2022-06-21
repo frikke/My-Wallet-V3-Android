@@ -9,7 +9,11 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.outcome.doOnFailure
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.getOrThrow
+import com.blockchain.outcome.map
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -22,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import timber.log.Timber
 
 class DynamicNonCustodialAccount(
     payloadManager: PayloadDataManager,
@@ -30,7 +35,7 @@ class DynamicNonCustodialAccount(
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
-    override val label: String,
+    override val label: String
 ) : CryptoNonCustodialAccount(assetInfo) {
 
     private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinConfiguration)
@@ -56,7 +61,49 @@ class DynamicNonCustodialAccount(
             }
         }
 
-    override fun getOnChainBalance(): Observable<Money> = Observable.just(Money.fromMajor(currency, BigDecimal.ZERO))
+    override fun getOnChainBalance(): Observable<Money> = rxSingle {
+        // Check if we are subscribed to the given currency.
+        val subscriptions = nonCustodialService.getSubscriptions().getOrDefault(emptyList())
+        if (subscriptions.contains(currency.networkTicker)) {
+            // Get the balance if we found the currency in the subscriptions
+            getBalance().getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
+        } else {
+            // If not, we need to subscribe. However if the list of subscriptions is empty then it's the first time
+            // we're calling this endpoint. In that case we also need to authenticate.
+            subscribeToBalance(authRequired = subscriptions.isEmpty()).flatMap {
+                getBalance()
+            }.getOrDefault(Money.fromMajor(currency, BigDecimal.ZERO))
+        }
+    }
+        .doOnSuccess { hasFunds.set(it.isPositive) }
+        .toObservable()
+
+    private suspend fun subscribeToBalance(authRequired: Boolean) =
+        if (authRequired) {
+            nonCustodialService.authenticate().flatMap {
+                nonCustodialService.subscribe(
+                    currency = currency.networkTicker,
+                    label = label,
+                    addresses = listOf(String(Hex.encode(internalAccount.address.pubKey)))
+                )
+            }
+        } else {
+            nonCustodialService.subscribe(
+                currency = currency.networkTicker,
+                label = label,
+                addresses = listOf(String(Hex.encode(internalAccount.address.pubKey)))
+            )
+        }
+            .doOnFailure {
+                Timber.e(it.throwable)
+            }
+
+    private suspend fun getBalance() = nonCustodialService.getBalances(listOf(currency.networkTicker))
+        .map { accountBalances ->
+            accountBalances.firstOrNull { it.networkTicker == currency.networkTicker }?.let { balance ->
+                Money.fromMinor(currency, balance.amount)
+            } ?: Money.fromMajor(currency, BigDecimal.ZERO)
+        }
 
     override val isArchived: Boolean = false
 

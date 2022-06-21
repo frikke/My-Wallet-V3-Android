@@ -25,7 +25,6 @@ import com.blockchain.koin.experimentalL1EvmAssetList
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -154,8 +153,7 @@ val coincoreModule = module {
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stxForAllFeatureFlag = get(stxForAllFeatureFlag),
-                stxForAirdropFeatureFlag = get(stxForAirdropUsersFeatureFlag)
+                stxForAllFeatureFlag = get(stxForAllFeatureFlag)
             )
         }.bind(AssetLoader::class)
 

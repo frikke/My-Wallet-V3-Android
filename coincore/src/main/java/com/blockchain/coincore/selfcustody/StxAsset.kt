@@ -12,7 +12,6 @@ import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.payload.data.Derivation
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
@@ -22,31 +21,24 @@ internal class StxAsset(
     private val addressResolver: IdentityAddressResolver,
     private val addressValidation: String? = null,
     private val selfCustodyService: NonCustodialService,
-    private val stxForAllFeatureFlag: FeatureFlag,
-    private val stxForAirdropFeatureFlag: FeatureFlag
+    private val stxForAllFeatureFlag: FeatureFlag
 ) : CryptoAssetBase() {
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
-        Singles.zip(
-            stxForAllFeatureFlag.enabled,
-            stxForAirdropFeatureFlag.enabled,
-            identity.hasReceivedStxAirdrop()
-        )
-            .map { (isEnabledForAll, isEnabledForAirdropUsers, hasReceivedAirdrop) ->
+        stxForAllFeatureFlag.enabled
+            .map { isEnabled ->
                 when {
-                    // TODO(dtverdota): AND-6168 STX | Balances
-                    isEnabledForAll || (isEnabledForAirdropUsers && hasReceivedAirdrop) ->
-                        listOf(
-                            DynamicNonCustodialAccount(
-                                payloadManager,
-                                assetInfo,
-                                coinConfiguration,
-                                addressResolver,
-                                selfCustodyService,
-                                exchangeRates,
-                                labels.getDefaultNonCustodialWalletLabel()
-                            )
+                    isEnabled -> listOf(
+                        DynamicNonCustodialAccount(
+                            payloadManager,
+                            assetInfo,
+                            coinConfiguration,
+                            addressResolver,
+                            selfCustodyService,
+                            exchangeRates,
+                            labels.getDefaultNonCustodialWalletLabel()
                         )
+                    )
                     else -> emptyList()
                 }
             }
