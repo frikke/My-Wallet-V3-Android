@@ -29,7 +29,10 @@ import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Red600
+import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.R
+import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import java.util.Locale
@@ -37,6 +40,7 @@ import java.util.Locale
 @Composable
 fun MnemonicVerification(
     mnemonic: List<SelectableMnemonicWord>,
+    mnemonicVerificationStatus: UserMnemonicVerificationStatus,
     wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit,
 ) {
     FlowRow(
@@ -44,7 +48,10 @@ fun MnemonicVerification(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = Grey100,
+                color = when (mnemonicVerificationStatus) {
+                    UserMnemonicVerificationStatus.IDLE -> Grey100
+                    UserMnemonicVerificationStatus.INCORRECT -> Red600
+                }.exhaustive,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall))
             )
             .background(color = Grey000, shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiSmall)))
@@ -142,10 +149,16 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12).map { SelectableMnemonicWord(1, it, false) }
 
-@Preview(name = "Mnemonic", showBackground = true)
+@Preview(name = "Mnemonic Idle", showBackground = true)
 @Composable
-fun PreviewMnemonicVerification() {
-    MnemonicVerification(mnemonic = mnemonic) {}
+fun PreviewMnemonicVerificationIdle() {
+    MnemonicVerification(mnemonic = mnemonic, mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) {}
+}
+
+@Preview(name = "Mnemonic Incorrect", showBackground = true)
+@Composable
+fun PreviewMnemonicVerificationIncorrect() {
+    MnemonicVerification(mnemonic = mnemonic, mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) {}
 }
 
 @Preview(name = "Mnemonic Selection", showBackground = true)

@@ -15,12 +15,12 @@ import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.FlowState
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
-    private val backupPhraseService: BackupPhraseService
+    private val backupPhraseService: BackupPhraseService,
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -79,6 +79,10 @@ class BackupPhraseViewModel(
                 verifyPhrase(intent.userMnemonic)
             }
 
+            BackupPhraseIntent.ResetVerificationStatus -> {
+                updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) }
+            }
+
             BackupPhraseIntent.GoToPreviousScreen -> {
                 navigate(BackupPhraseNavigationEvent.GoToPreviousScreen)
             }
@@ -125,9 +129,6 @@ class BackupPhraseViewModel(
             // todo(othman): check with ethan how to show phrase is incorrect
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
-            updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.VERIFIED) }
-
-            // todo(othman): check with ethan how to move from "verify" to "next"
             viewModelScope.launch {
                 updateState { it.copy(isLoading = true) }
 

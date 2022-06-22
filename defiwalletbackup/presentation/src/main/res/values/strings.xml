@@ -26,6 +26,8 @@
 
     <string name="verify_phrase_title" />
     <string name="verify_phrase_description" />
+    <string name="verify_phrase_incorrect_message" />
+    <string name="verify_phrase_incorrect_button" />
 
     <string name="phrase_confirmation_title" />
     <string name="phrase_confirmation_description" />
@@ -60,6 +62,8 @@
 
     <!--    <string name="verify_phrase_title">Verify Your Phrase</string>-->
     <!--    <string name="verify_phrase_description">Tap the words to put them in the correct order.\n</string>-->
+    <!--    <string name="verify_phrase_incorrect_message">Incorrect order. Reset or tap individual words to remove.</string>-->
+    <!--    <string name="verify_phrase_incorrect_button">Reset Words</string>-->
 
     <!--    <string name="phrase_confirmation_title">Your Recovery Phrase</string>-->
     <!--    <string name="phrase_confirmation_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>-->
