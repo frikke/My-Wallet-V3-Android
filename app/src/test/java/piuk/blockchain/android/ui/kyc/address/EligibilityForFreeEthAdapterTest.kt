@@ -1,8 +1,7 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -12,13 +11,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.getBlankNabuUser
-import piuk.blockchain.android.ui.validOfflineToken
 
 class EligibilityForFreeEthAdapterTest {
 
     private lateinit var eligibilityForFreeEthAdapter: EligibilityForFreeEthAdapter
-    private val nabuToken: NabuToken = mock()
-    private val nabuDataManager: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -27,16 +24,12 @@ class EligibilityForFreeEthAdapterTest {
 
     @Before
     fun setUp() {
-        eligibilityForFreeEthAdapter = EligibilityForFreeEthAdapter(nabuToken, nabuDataManager)
+        eligibilityForFreeEthAdapter = EligibilityForFreeEthAdapter(nabuDataUserProvider)
     }
 
     @Test
     fun `should not be eligible, if tier is lower than 2 and no tag contained`() {
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -56,11 +49,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should not be eligible, if tier is lower than 2 and tag contained`() {
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -78,11 +67,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should not be eligible, if tier is 2 and tag contained`() {
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -100,11 +85,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should be eligible, if tier is 2 and no tag contained`() {
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()

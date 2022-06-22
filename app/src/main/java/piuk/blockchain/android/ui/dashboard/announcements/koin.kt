@@ -64,6 +64,7 @@ val dashboardAnnouncementsModule = module {
                 nabuToken = get(),
                 settings = get(),
                 nabu = get(),
+                nabuDataUserProvider = get(),
                 tierService = get(),
                 sbStateFactory = get(),
                 userIdentity = get(),

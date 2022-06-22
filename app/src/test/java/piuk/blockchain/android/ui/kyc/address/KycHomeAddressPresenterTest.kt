@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
@@ -30,6 +31,7 @@ class KycHomeAddressPresenterTest {
     private lateinit var subject: KycHomeAddressPresenter
     private val view: KycHomeAddressView = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
@@ -49,6 +51,7 @@ class KycHomeAddressPresenterTest {
         subject = KycHomeAddressPresenter(
             nabuToken,
             nabuDataManager,
+            nabuDataUserProvider,
             kycNextStepDecision,
             custodialWalletManager,
             mock()
@@ -126,7 +129,7 @@ class KycHomeAddressPresenterTest {
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser()))
         // Act
         subject.onViewReady()
@@ -145,7 +148,7 @@ class KycHomeAddressPresenterTest {
         subject.onViewReady()
         // Assert
         verify(view, never()).restoreUiState(any(), any(), any(), any(), any(), any())
-        verify(nabuDataManager, never()).getUser(validOfflineToken)
+        verify(nabuDataUserProvider, never()).getUser()
     }
 
     @Test
@@ -169,7 +172,7 @@ class KycHomeAddressPresenterTest {
             postCode = postCode,
             countryCode = country
         )
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser().copy(address = address)))
         val countryList =
             listOf(NabuCountryResponse(country, countryName, emptyList(), emptyList()))
@@ -189,7 +192,7 @@ class KycHomeAddressPresenterTest {
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser().copy(address = null)))
         // Act
         subject.onViewReady()
@@ -205,7 +208,7 @@ class KycHomeAddressPresenterTest {
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()

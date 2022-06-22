@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -29,6 +30,7 @@ class KycStatusHelperTest {
 
     private lateinit var subject: KycStatusHelper
     private val nabuDataManager: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val nabuToken: NabuToken = mock()
     private val settingsDataManager: SettingsDataManager = mock()
     private val tierService: TierService = mock()
@@ -44,6 +46,7 @@ class KycStatusHelperTest {
     fun setUp() {
         subject = KycStatusHelper(
             nabuDataManager,
+            nabuDataUserProvider,
             nabuToken,
             settingsDataManager,
             tierService
@@ -119,10 +122,7 @@ class KycStatusHelperTest {
     @Test
     fun `get kyc status returns none as error fetching user object`() {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.error { Throwable() })
         // Act
         val testObserver = subject.getKycStatus().test()
@@ -136,10 +136,7 @@ class KycStatusHelperTest {
     fun `get kyc status returns user object status`() {
         // Arrange
         val kycState = KycState.Verified
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser(kycState)))
         // Act
         val testObserver = subject.getKycStatus().test()
@@ -446,26 +443,9 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get user state fails but returns none`() {
-        // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error { Throwable() })
-        // Act
-        val testObserver = subject.getUserState().test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(UserState.None)
-    }
-
-    @Test
     fun `get user state successful, returns created`() {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser().copy(state = UserState.Created)))
         // Act
         val testObserver = subject.getUserState().test()

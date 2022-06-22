@@ -43,8 +43,7 @@ val kycUiModule = module {
 
         factory {
             ReentryDecisionKycNavigator(
-                token = get(),
-                dataManager = get(),
+                nabuDataUserProvider = get(),
                 reentryDecision = get(),
                 analytics = get()
             )
@@ -67,6 +66,7 @@ val kycUiModule = module {
             KycProfilePresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                nabuDataUserProvider = get(),
                 stringUtils = get(),
             )
         }
@@ -75,6 +75,7 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                nabuDataUserProvider = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
                 analytics = get()
@@ -117,9 +118,8 @@ val kycUiModule = module {
         factory {
             KycNavHostPresenter(
                 nabuToken = get(),
-                nabuDataManager = get(),
+                nabuDataUserProvider = get(),
                 reentryDecision = get(),
-                tierUpdater = get(),
                 kycNavigator = get(),
                 analytics = get()
             )
@@ -155,23 +155,20 @@ val kycUiNabuModule = module {
 
         factory {
             KycHomeAddressNextStepDecision(
-                nabuToken = get(),
-                nabuDataManager = get(),
+                nabuDataUserProvider = get(),
                 kycDataManager = get()
             )
         }
 
         factory {
             CurrentTierAdapter(
-                nabuToken = get(),
-                nabuDataManager = get()
+                nabuDataUserProvider = get()
             )
         }.bind(CurrentTier::class)
 
         factory {
             EligibilityForFreeEthAdapter(
-                nabuToken = get(),
-                nabuDataManager = get()
+                nabuDataUserProvider = get()
             )
         }.bind(EthEligibility::class)
 

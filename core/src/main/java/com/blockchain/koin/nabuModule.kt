@@ -92,8 +92,7 @@ val nabuModule = module {
                 prefs = get(),
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
-                trust = get(),
-                userCache = get()
+                trust = get()
             )
         }.bind(NabuDataManager::class)
 
@@ -135,8 +134,7 @@ val nabuModule = module {
                 interestEligibilityProvider = get(),
                 nabuDataProvider = get(),
                 eligibilityService = get(),
-                nabuToken = get(),
-                nabu = get()
+                nabuDataUserProvider = get()
             )
         }.bind(UserIdentity::class)
 
@@ -230,9 +228,16 @@ val nabuModule = module {
             CreateNabuTokenAdapter(get())
         }.bind(CreateNabuToken::class)
 
-        factory { NabuDataUserProviderNabuDataManagerAdapter(get(), get()) }.bind(
-            NabuDataUserProvider::class
-        )
+        factory<NabuDataUserProvider> {
+            NabuDataUserProviderNabuDataManagerAdapter(
+                authenticator = get(),
+                userCache = get(),
+                userReporter = get(uniqueUserAnalytics),
+                trust = get(),
+                walletReporter = get(uniqueId),
+                payloadDataManager = get()
+            )
+        }
 
         factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
 

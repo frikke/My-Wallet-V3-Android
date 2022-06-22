@@ -2,9 +2,9 @@ package piuk.blockchain.android.ui.kyc.profile
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiExceptionFactory
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -40,6 +40,7 @@ class KycProfilePresenterTest {
     private lateinit var subject: KycProfilePresenter
     private val view: KycProfileView = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val stringUtils: StringUtils = mock()
     private val nabuToken: NabuToken = mock()
 
@@ -55,6 +56,7 @@ class KycProfilePresenterTest {
         subject = KycProfilePresenter(
             nabuToken,
             nabuDataManager,
+            nabuDataUserProvider,
             stringUtils,
         )
         whenever(stringUtils.getString(any())).thenReturn("")
@@ -217,23 +219,8 @@ class KycProfilePresenterTest {
     }
 
     @Test
-    fun `onViewReady no data to restore`() {
-        // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error(MetadataNotFoundException("Nabu Token not found")))
-        // Act
-        subject.onViewReady()
-        // Assert
-        verifyZeroInteractions(view)
-    }
-
-    @Test
     fun `onViewReady restores data to the UI`() {
         // Arrange
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
         val nabuUser = NabuUser(
             firstName = "FIRST_NAME",
             lastName = "LAST_NAME",
@@ -248,7 +235,7 @@ class KycProfilePresenterTest {
             updatedAt = "",
             insertedAt = ""
         )
-        whenever(nabuDataManager.getUser(validOfflineToken))
+        whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
