@@ -40,6 +40,9 @@ import java.util.Locale
 
 private const val STEP_INDEX = 2
 
+/**
+ * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17788
+ */
 @Composable
 fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
