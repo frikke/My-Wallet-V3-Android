@@ -159,8 +159,14 @@ fun BackupPhraseIntroAcknowledgmentItem(
     text: String,
     onAccepted: () -> Unit,
 ) {
+    var isChecked by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
+            .clickableNoEffect {
+                isChecked = true
+                onAccepted()
+            }
             .border(
                 width = 1.dp,
                 color = Grey100,
@@ -172,15 +178,8 @@ fun BackupPhraseIntroAcknowledgmentItem(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        var isChecked by remember { mutableStateOf(false) }
-
         Text(
-            modifier = Modifier
-                .weight(1F)
-                .clickableNoEffect {
-                    isChecked = true
-                    onAccepted()
-                },
+            modifier = Modifier.weight(1F),
             text = text,
             style = AppTheme.typography.caption1
         )

@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,7 +35,10 @@ import com.google.accompanist.flowlayout.FlowRow
 import java.util.Locale
 
 @Composable
-fun MnemonicVerification(mnemonic: List<String>, wordSelected: (word: String) -> Unit) {
+fun MnemonicVerification(
+    mnemonic: List<SelectableMnemonicWord>,
+    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit,
+) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,16 +54,19 @@ fun MnemonicVerification(mnemonic: List<String>, wordSelected: (word: String) ->
         mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
         crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
     ) {
-        mnemonic.forEachIndexed { index, word ->
-            MnemonicVerificationWord(index = index.inc(), word = word) {
-                wordSelected(word)
+        mnemonic.forEachIndexed { index, selectableWord ->
+            MnemonicVerificationWord(index = index.inc(), selectableWord = selectableWord) {
+                wordSelected(selectableWord)
             }
         }
     }
 }
 
 @Composable
-fun MnemonicSelection(mnemonic: List<String>, wordSelected: (word: String) -> Unit) {
+fun MnemonicSelection(
+    mnemonic: List<SelectableMnemonicWord>,
+    wordSelected: (selectableWord: SelectableMnemonicWord) -> Unit,
+) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth(),
@@ -67,17 +74,20 @@ fun MnemonicSelection(mnemonic: List<String>, wordSelected: (word: String) -> Un
         mainAxisSpacing = dimensionResource(R.dimen.tiny_margin),
         crossAxisSpacing = dimensionResource(R.dimen.tiny_margin)
     ) {
-        mnemonic.forEach { word ->
-            MnemonicVerificationWord(word = word) {
-                wordSelected(word)
+        mnemonic.forEach { selectableWord ->
+            MnemonicVerificationWord(selectableWord = selectableWord) {
+                if (selectableWord.selected.not()) wordSelected(selectableWord)
             }
         }
     }
 }
 
 @Composable
-fun MnemonicVerificationWord(index: Int? = null, word: String, onClick: () -> Unit) {
+fun MnemonicVerificationWord(index: Int? = null, selectableWord: SelectableMnemonicWord, onClick: () -> Unit) {
     Card(
+        modifier = Modifier
+            // if a word is selected it should still occupy the space but should be hidden
+            .alpha(if (selectableWord.selected) 0F else 1F),
         border = BorderStroke(
             width = 1.dp,
             color = Grey100,
@@ -110,7 +120,7 @@ fun MnemonicVerificationWord(index: Int? = null, word: String, onClick: () -> Un
             }
 
             Text(
-                text = word,
+                text = selectableWord.word,
                 style = AppTheme.typography.paragraphMono,
                 color = Grey900,
             )
@@ -118,13 +128,19 @@ fun MnemonicVerificationWord(index: Int? = null, word: String, onClick: () -> Un
     }
 }
 
+data class SelectableMnemonicWord(
+    val id: Int,
+    val word: String,
+    val selected: Boolean,
+)
+
 // ///////////////
 // PREVIEWS
 // ///////////////
 
 private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
-}.shuffled().subList(0, 12)
+}.shuffled().subList(0, 12).map { SelectableMnemonicWord(1, it, false) }
 
 @Preview(name = "Mnemonic", showBackground = true)
 @Composable
@@ -141,5 +157,5 @@ fun PreviewMnemonicSelection() {
 @Preview
 @Composable
 fun PreviewMnemonicVerificationWord() {
-    MnemonicVerificationWord(1, "blockchain") {}
+    MnemonicVerificationWord(1, SelectableMnemonicWord(1, "blockchain", false)) {}
 }

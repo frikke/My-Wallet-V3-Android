@@ -2,13 +2,14 @@ package com.blockchain.componentlib.utils
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 
-@Composable
-fun Modifier.clickableNoEffect(onClick: () -> Unit) = clickable(
-    indication = null,
-    interactionSource = remember { MutableInteractionSource() },
-    onClick = onClick
-)
+fun Modifier.clickableNoEffect(onClick: () -> Unit) = composed {
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() },
+        onClick = onClick
+    )
+}
