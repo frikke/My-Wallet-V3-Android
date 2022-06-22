@@ -50,7 +50,7 @@ class CoinsWebSocketService(
             }.onErrorComplete().emptySubscribe()
     }
 
-    override fun triggerNotification(title: String, marquee: String, text: String) {
+    override fun triggerNotification(title: String, marquee: String, text: String, transactionDescription: String) {
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
             0,
@@ -69,7 +69,8 @@ class CoinsWebSocketService(
             pendingIntent = pendingIntent,
             id = 1000,
             appName = R.string.app_name,
-            colorRes = R.color.primary_navy_medium
+            colorRes = R.color.primary_navy_medium,
+            source = "CoinsWebSocketService: $transactionDescription"
         )
     }
 

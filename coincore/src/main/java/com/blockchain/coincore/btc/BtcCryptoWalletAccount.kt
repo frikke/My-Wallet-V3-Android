@@ -13,7 +13,6 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatus
 import com.blockchain.serialization.JsonSerializableAccount
@@ -35,7 +34,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 import piuk.blockchain.androidcore.utils.extensions.then
 
 /*internal*/ class BtcCryptoWalletAccount internal constructor(
-    payloadManager: PayloadDataManager,
+    private val payloadDataManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeDataManager: FeeDataManager,
     // Used to lookup the account in payloadDataManager to fetch receive address
@@ -46,12 +45,10 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val walletPreferences: WalletStatus,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
-    identity: UserIdentity,
-    override val addressResolver: AddressResolver
+    override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(
-    payloadManager, CryptoCurrency.BTC, custodialWalletManager, identity
+    CryptoCurrency.BTC
 ) {
-    override val baseActions: Set<AssetAction> = defaultActions
     private val hasFunds = AtomicBoolean(false)
 
     override val label: String
@@ -266,7 +263,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     companion object {
         fun createHdAccount(
             jsonAccount: Account,
-            payloadManager: PayloadDataManager,
+            payloadDataManager: PayloadDataManager,
             hdAccountIndex: Int,
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
@@ -274,10 +271,9 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
-            payloadManager = payloadManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = hdAccountIndex,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -287,23 +283,21 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
 
         fun createImportedAccount(
             importedAccount: ImportedAddress,
-            payloadManager: PayloadDataManager,
+            payloadDataManager: PayloadDataManager,
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
             walletPreferences: WalletStatus,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
-            identity: UserIdentity,
-            addressResolver: AddressResolver
+            addressResolver: AddressResolver,
         ) = BtcCryptoWalletAccount(
-            payloadManager = payloadManager,
+            payloadDataManager = payloadDataManager,
             hdAccountIndex = IMPORTED_ACCOUNT_NO_INDEX,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
@@ -313,7 +307,6 @@ import piuk.blockchain.androidcore.utils.extensions.then
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialWalletManager,
             refreshTrigger = refreshTrigger,
-            identity = identity,
             addressResolver = addressResolver
         )
 

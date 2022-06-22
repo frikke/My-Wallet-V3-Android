@@ -19,16 +19,16 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
-            is BlockchainCardNavigationEvent.OrderOrLinkCard -> {
-                destination = BlockchainCardDestination.OrderOrLinkCardDestination
-            }
-
-            is BlockchainCardNavigationEvent.SelectCardForOrder -> {
-                destination = BlockchainCardDestination.SelectCardForOrderDestination
+            is BlockchainCardNavigationEvent.RetryOrderCard -> {
+                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
             }
 
             is BlockchainCardNavigationEvent.SeeProductDetails -> {
                 destination = BlockchainCardDestination.SeeProductDetailsDestination
+            }
+
+            is BlockchainCardNavigationEvent.SeeProductLegalInfo -> {
+                destination = BlockchainCardDestination.SeeProductLegalInfoDestination
             }
 
             is BlockchainCardNavigationEvent.HideBottomSheet -> {
@@ -40,12 +40,11 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             }
 
             is BlockchainCardNavigationEvent.CreateCardSuccess -> {
-                navController.popBackStack(BlockchainCardDestination.OrderOrLinkCardDestination.route, true)
+                navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, true)
                 destination = BlockchainCardDestination.CreateCardSuccessDestination
             }
 
             is BlockchainCardNavigationEvent.CreateCardFailed -> {
-                navController.popBackStack(BlockchainCardDestination.SelectCardForOrderDestination.route, false)
                 destination = BlockchainCardDestination.CreateCardFailedDestination
             }
 
@@ -100,7 +99,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
-    object OrderOrLinkCard : BlockchainCardNavigationEvent()
+    object RetryOrderCard : BlockchainCardNavigationEvent()
 
     object CreateCardInProgress : BlockchainCardNavigationEvent()
 
@@ -108,11 +107,11 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object CreateCardFailed : BlockchainCardNavigationEvent()
 
-    object SelectCardForOrder : BlockchainCardNavigationEvent()
-
     object HideBottomSheet : BlockchainCardNavigationEvent()
 
     object SeeProductDetails : BlockchainCardNavigationEvent()
+
+    object SeeProductLegalInfo : BlockchainCardNavigationEvent()
 
     // Manage Card
     data class ManageCard(val card: BlockchainCard) : BlockchainCardNavigationEvent()
@@ -132,7 +131,7 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object NoDestination : BlockchainCardDestination(route = "")
 
-    object OrderOrLinkCardDestination : BlockchainCardDestination(route = "order_or_link_card")
+    object OrderCardDestination : BlockchainCardDestination(route = "order_card")
 
     object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 
@@ -140,9 +139,9 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object CreateCardFailedDestination : BlockchainCardDestination(route = "create_card_failed")
 
-    object SelectCardForOrderDestination : BlockchainCardDestination(route = "select_card_for_order")
-
     object SeeProductDetailsDestination : BlockchainCardDestination(route = "product_details")
+
+    object SeeProductLegalInfoDestination : BlockchainCardDestination(route = "product_legal_info")
 
     object ManageCardDestination : BlockchainCardDestination(route = "manage_card")
 

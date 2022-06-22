@@ -34,6 +34,8 @@ import com.blockchain.nabu.datamanagers.TransactionState
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.OrderType
 import com.blockchain.nabu.datamanagers.toRecurringBuyFailureReason
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -45,6 +47,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.concurrent.atomic.AtomicBoolean
 import piuk.blockchain.androidcore.utils.extensions.mapList
+import piuk.blockchain.androidcore.utils.extensions.zipSingles
 
 class CustodialTradingAccount(
     override val currency: AssetInfo,
@@ -53,8 +56,15 @@ class CustodialTradingAccount(
     val custodialWalletManager: CustodialWalletManager,
     val tradingBalances: TradingBalanceDataManager,
     private val identity: UserIdentity,
-    override val baseActions: Set<AssetAction> = defaultActions
+    private val walletModeService: WalletModeService,
 ) : CryptoAccountBase(), TradingAccount {
+
+    override val baseActions: Set<AssetAction>
+        get() = when (walletModeService.enabledWalletMode()) {
+            WalletMode.NON_CUSTODIAL_ONLY -> emptySet()
+            WalletMode.CUSTODIAL_ONLY -> defaultCustodialActions
+            WalletMode.UNIVERSAL -> defaultActions
+        }
 
     private val hasFunds = AtomicBoolean(false)
 
@@ -130,115 +140,139 @@ class CustodialTradingAccount(
         }
 
     override val stateAwareActions: Single<Set<StateAwareAction>>
-        get() = Single.zip(
-            balance.firstOrError(),
-            identity.userAccessForFeatures(
-                listOf(
-                    Feature.Buy,
-                    Feature.Swap,
-                    Feature.Sell,
-                    Feature.DepositCrypto,
-                    Feature.DepositInterest
-                )
-            ),
-            identity.isEligibleFor(Feature.Interest(currency)),
-            custodialWalletManager.getSupportedBuySellCryptoCurrencies(),
-            custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() },
-            custodialWalletManager.isAssetSupportedForSwap(currency),
-            identity.getHighestApprovedKycTier()
-        ) { balance, accessToFeatures, isEligibleForInterest, supportedCurrencyPairs, fiatAccounts,
-            isAssetSupportedForSwap, highestTier ->
+        get() = balance.firstOrError().flatMap { balance ->
+            baseActions.map {
+                it.eligibility(balance)
+            }.zipSingles()
+                .map { it.toSet() }
+        }
 
-            val buyEligibility = accessToFeatures[Feature.Buy]!!
-            val swapEligibility = accessToFeatures[Feature.Swap]!!
-            val sellEligibility = accessToFeatures[Feature.Sell]!!
-            val depositCryptoEligibility = accessToFeatures[Feature.DepositCrypto]!!
-            val depositInterestEligibility = accessToFeatures[Feature.DepositInterest]!!
+    private fun AssetAction.eligibility(balance: AccountBalance): Single<StateAwareAction> {
+        return when (this) {
+            AssetAction.ViewActivity -> viewActivityEligibility()
+            AssetAction.Receive -> receiveEligibility()
+            AssetAction.Send -> sendEligibility(balance)
+            AssetAction.InterestDeposit -> interestDepositEligibility(balance)
+            AssetAction.Swap -> swapEligibility(balance)
+            AssetAction.Sell -> sellEligibility(balance)
+            AssetAction.Buy -> buyEligibility()
+            AssetAction.ViewStatement,
+            AssetAction.FiatWithdraw,
+            AssetAction.InterestWithdraw,
+            AssetAction.FiatDeposit,
+            AssetAction.Sign,
+            -> Single.just(StateAwareAction(ActionState.Unavailable, this))
+        }
+    }
 
-            val isActiveFunded = !isArchived && balance.total.isPositive
+    private fun buyEligibility(): Single<StateAwareAction> {
+        val supportedPairs = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
+        val buyEligibility = identity.userAccessForFeature(Feature.Buy)
 
-            val activity = StateAwareAction(
+        return supportedPairs.onErrorReturn { emptyList() }.zipWith(buyEligibility) { pairs, buyEligible ->
+            StateAwareAction(
                 when {
-                    highestTier == Tier.BRONZE -> ActionState.LockedForTier
-                    baseActions.contains(AssetAction.ViewActivity) -> ActionState.Available
-                    else -> ActionState.Unavailable
-                },
-                AssetAction.ViewActivity
-            )
-
-            val receive = StateAwareAction(
-                when {
-                    !baseActions.contains(AssetAction.Receive) -> ActionState.Unavailable
-                    depositCryptoEligibility is FeatureAccess.Blocked -> depositCryptoEligibility.toActionState()
-                    else -> ActionState.Available
-                },
-                AssetAction.Receive
-            )
-
-            val buy = StateAwareAction(
-                when {
-                    !baseActions.contains(AssetAction.Buy) -> ActionState.Unavailable
-                    supportedCurrencyPairs.none { it.source == currency } -> ActionState.Unavailable
-                    buyEligibility is FeatureAccess.Blocked -> buyEligibility.toActionState()
+                    pairs.none { it.source == currency } -> ActionState.Unavailable
+                    buyEligible is FeatureAccess.Blocked -> buyEligible.toActionState()
                     else -> ActionState.Available
                 },
                 AssetAction.Buy
             )
+        }
+    }
 
-            val send = StateAwareAction(
+    private fun sellEligibility(balance: AccountBalance): Single<StateAwareAction> {
+        val accountsFiat = custodialWalletManager.getSupportedFundsFiats().onErrorReturn { emptyList() }
+        val sellEligibility = identity.userAccessForFeature(Feature.Sell)
+        return sellEligibility.zipWith(accountsFiat) { sellEligible, fiatAccounts ->
+            StateAwareAction(
                 when {
-                    !baseActions.contains(AssetAction.Send) -> ActionState.Unavailable
-                    isActiveFunded && balance.withdrawable.isPositive -> ActionState.Available
-                    else -> ActionState.LockedForBalance
-                },
-                AssetAction.Send
-            )
-
-            val interest = StateAwareAction(
-                when {
-                    depositInterestEligibility is FeatureAccess.Blocked -> depositInterestEligibility.toActionState()
-                    !baseActions.contains(AssetAction.InterestDeposit) -> ActionState.Unavailable
-                    isActiveFunded && isEligibleForInterest -> ActionState.Available
-                    !isEligibleForInterest -> ActionState.LockedForTier
-                    !isActiveFunded -> ActionState.LockedForBalance
-                    else -> ActionState.Unavailable
-                },
-                AssetAction.InterestDeposit
-            )
-
-            val swap = StateAwareAction(
-                when {
-                    !baseActions.contains(AssetAction.Swap) -> ActionState.Unavailable
-                    !isAssetSupportedForSwap -> ActionState.Unavailable
-                    swapEligibility is FeatureAccess.Blocked -> swapEligibility.toActionState()
-                    !isActiveFunded || balance.withdrawable.isZero -> ActionState.LockedForBalance
-                    else -> ActionState.Available
-                },
-                AssetAction.Swap
-            )
-
-            val sell = StateAwareAction(
-                when {
-                    !baseActions.contains(AssetAction.Sell) -> ActionState.Unavailable
-                    sellEligibility is FeatureAccess.Blocked -> sellEligibility.toActionState()
+                    sellEligible is FeatureAccess.Blocked -> sellEligible.toActionState()
                     fiatAccounts.isEmpty() -> ActionState.LockedForTier
-                    !isActiveFunded -> ActionState.LockedForBalance
+                    balance.total.isPositive.not() -> ActionState.LockedForBalance
                     else -> ActionState.Available
                 },
                 AssetAction.Sell
             )
+        }
+    }
 
-            setOf(
-                buy, sell, swap, send, receive, interest, activity
+    private fun swapEligibility(balance: AccountBalance): Single<StateAwareAction> {
+        val assetAvailable = custodialWalletManager.isAssetSupportedForSwap(assetInfo = currency)
+        val swapEligibility = identity.userAccessForFeature(Feature.Swap)
+        return swapEligibility.zipWith(assetAvailable) { swapEligible, isAssetAvailable ->
+            StateAwareAction(
+                when {
+                    !isAssetAvailable -> ActionState.Unavailable
+                    swapEligible is FeatureAccess.Blocked -> swapEligible.toActionState()
+                    swapEligible is FeatureAccess.Blocked -> swapEligible.toActionState()
+                    balance.withdrawable.isZero -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.Swap
             )
         }
+    }
+
+    private fun interestDepositEligibility(balance: AccountBalance): Single<StateAwareAction> {
+        val depositInterestEligibility = identity.userAccessForFeature(Feature.DepositInterest)
+        val currencyInterestEligibility = identity.isEligibleFor(Feature.Interest(currency))
+
+        return depositInterestEligibility.zipWith(
+            currencyInterestEligibility
+        ) { depositInterestEligible, currencyInterestEligible ->
+            StateAwareAction(
+                when {
+                    depositInterestEligible is FeatureAccess.Blocked -> depositInterestEligible.toActionState()
+                    !currencyInterestEligible -> ActionState.LockedForTier
+                    balance.total.isPositive.not() -> ActionState.LockedForBalance
+                    else -> ActionState.Available
+                },
+                AssetAction.InterestDeposit
+            )
+        }
+    }
+
+    private fun sendEligibility(balance: AccountBalance): Single<StateAwareAction> {
+        return Single.just(
+            StateAwareAction(
+                if (balance.withdrawable.isPositive) ActionState.Available
+                else ActionState.LockedForBalance,
+                AssetAction.Send
+            )
+        )
+    }
+
+    private fun receiveEligibility(): Single<StateAwareAction> {
+        val depositCryptoEligibility = identity.userAccessForFeature(Feature.DepositCrypto)
+        return depositCryptoEligibility.map { access ->
+            StateAwareAction(
+                if (access is FeatureAccess.Blocked) access.toActionState()
+                else ActionState.Available,
+                AssetAction.Receive
+            )
+        }
+    }
+
+    private fun viewActivityEligibility(): Single<StateAwareAction> {
+        val tier = identity.getHighestApprovedKycTier()
+        return tier.map { highestTier ->
+            StateAwareAction(
+                when (highestTier) {
+                    Tier.BRONZE -> ActionState.LockedForTier
+                    else -> ActionState.Available
+                },
+                AssetAction.ViewActivity
+            )
+        }
+    }
 
     override val hasStaticAddress: Boolean = false
 
     private fun appendTransferActivity(
         custodialWalletManager: CustodialWalletManager,
         asset: AssetInfo,
-        summaryList: List<ActivitySummaryItem>
+        summaryList: List<ActivitySummaryItem>,
     ) = custodialWalletManager.getCustodialCryptoTransactions(asset, Product.BUY)
         .map { txs ->
             txs.map {
@@ -353,7 +387,7 @@ class CustodialTradingAccount(
     // Return a list containing both supplied list
     override fun reconcileSwaps(
         tradeItems: List<TradeActivitySummaryItem>,
-        activity: List<ActivitySummaryItem>
+        activity: List<ActivitySummaryItem>,
     ): List<ActivitySummaryItem> = activity + tradeItems
 
     companion object {

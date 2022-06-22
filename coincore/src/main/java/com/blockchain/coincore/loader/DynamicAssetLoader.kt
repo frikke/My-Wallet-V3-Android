@@ -20,6 +20,7 @@ import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.rx.printTime
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
@@ -60,8 +61,7 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag,
-    private val stxForAirdropFeatureFlag: FeatureFlag,
+    private val stxForAllFeatureFlag: FeatureFlag
 ) : AssetLoader {
 
     private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
@@ -164,7 +164,7 @@ internal class DynamicAssetLoader(
         }
         return Single.zip(
             tradingBalances.getActiveAssets(),
-            interestBalances.getActiveAssets()
+            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
@@ -188,7 +188,7 @@ internal class DynamicAssetLoader(
         val tradingBalancesAssets =
             tradingBalances.getActiveAssets()
         val interestBalancesAssets =
-            interestBalances.getActiveAssets()
+            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
 
         // Assets with non custodial balance
         val erc20ActiveAssets =
@@ -243,8 +243,7 @@ internal class DynamicAssetLoader(
                 addressValidation = defaultCustodialAddressValidation,
                 addressResolver = identityAddressResolver,
                 selfCustodyService = selfCustodyService,
-                stxForAllFeatureFlag = stxForAllFeatureFlag,
-                stxForAirdropFeatureFlag = stxForAirdropFeatureFlag
+                stxForAllFeatureFlag = stxForAllFeatureFlag
             )
         } else {
             DynamicSelfCustodyAsset(
@@ -258,12 +257,10 @@ internal class DynamicAssetLoader(
         require(assetInfo.isErc20())
         return Erc20Asset(
             assetInfo = assetInfo,
-            payloadManager = payloadManager,
             erc20DataManager = erc20DataManager,
             feeDataManager = feeDataManager,
             labels = labels,
             walletPreferences = walletPreferences,
-            availableNonCustodialActions = assetActions,
             formatUtils = formatUtils,
             addressResolver = ethHotWalletAddressResolver,
             layerTwoFeatureFlag = layerTwoFeatureFlag

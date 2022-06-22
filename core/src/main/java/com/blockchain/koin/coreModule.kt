@@ -4,6 +4,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import com.blockchain.common.util.AndroidDeviceIdGenerator
 import com.blockchain.core.Database
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
@@ -27,6 +28,10 @@ import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
+import com.blockchain.core.interest.data.InterestStoreRepository
+import com.blockchain.core.interest.data.store.InterestDataSource
+import com.blockchain.core.interest.data.store.InterestStore
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.LimitsDataManagerImpl
 import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
@@ -181,6 +186,20 @@ val coreModule = module {
             )
         }
 
+        scoped<InterestDataSource> {
+            InterestStore(
+                interestService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped<InterestStoreService> {
+            InterestStoreRepository(
+                assetCatalogue = get(),
+                interestDataSource = get()
+            )
+        }
+
         scoped {
             BuyPairsCache(nabuService = get())
         }
@@ -192,12 +211,21 @@ val coreModule = module {
         }
 
         scoped {
+            SwapTransactionsCache(
+                nabuService = get(),
+                authenticator = get()
+            )
+        }
+
+        scoped {
             BuyOrdersCache(authenticator = get(), nabuService = get())
         }
 
         scoped {
             InterestBalanceDataManagerImpl(
-                balanceCallCache = get()
+                balanceCallCache = get(),
+                interestStoreService = get(),
+                speedUpLoginInterestFF = get(speedUpLoginInterestFeatureFlag)
             )
         }.bind(InterestBalanceDataManager::class)
 
@@ -414,7 +442,8 @@ val coreModule = module {
         scoped<NonCustodialService> {
             NonCustodialRepository(
                 dynamicSelfCustodyService = get(),
-                payloadDataManager = get()
+                payloadDataManager = get(),
+                currencyPrefs = get()
             )
         }
     }

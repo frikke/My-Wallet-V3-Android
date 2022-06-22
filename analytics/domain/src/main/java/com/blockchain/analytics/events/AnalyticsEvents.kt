@@ -248,6 +248,7 @@ enum class AnalyticsNames(val eventName: String) {
     KYC_QUESTIONNAIRE_SUBMITTED("Account Info Submitted"),
     PUSH_NOTIFICATION_RECEIVED("Push Notification Received"),
     PUSH_NOTIFICATION_TAPPED("Push Notification Tapped"),
+    PUSH_NOTIFICATION_MISSING_DATA("Push Notification Missing Data"),
     CUSTOMER_SUPPORT_CLICKED("Customer Support Clicked"),
     CUSTOMER_SUPPORT_CONTACT_US_CLICKED("Contact Us Clicked"),
     CUSTOMER_SUPPORT_FAQ_CLICKED("View FAQs Clicked"),

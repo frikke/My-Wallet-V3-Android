@@ -1,6 +1,5 @@
 package com.blockchain.coincore.erc20
 
-import com.blockchain.coincore.impl.CryptoAccountBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.chains.EvmNetwork
@@ -24,11 +23,9 @@ import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 class Erc20AccountActivityTest : CoincoreTestBase() {
 
-    private val payloadManager: PayloadDataManager = mock()
     private val erc20DataManager: Erc20DataManager = mock()
 
     private val walletPreferences: WalletStatus = mock()
@@ -36,7 +33,6 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
     private val subject = Erc20NonCustodialAccount(
         asset = ERC20_TOKEN,
-        payloadManager = payloadManager,
         label = "Text Dgld Account",
         address = FROM_ADDRESS,
         fees = mock(),
@@ -44,8 +40,6 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
         exchangeRates = exchangeRates,
         walletPreferences = walletPreferences,
         custodialWalletManager = custodialWalletManager,
-        identity = mock(),
-        baseActions = CryptoAccountBase.defaultActions,
         addressResolver = mock(),
         l1Network = dummyEvmNetwork
     )

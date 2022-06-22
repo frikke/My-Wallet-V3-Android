@@ -4,19 +4,21 @@ import com.blockchain.api.HttpStatus
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.interest.data.InterestAccountBalanceDto
 import com.blockchain.api.wrapErrorMessage
-import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import retrofit2.HttpException
 
+@Serializable
 data class InterestBalanceDetails(
     val assetTicker: String,
-    val totalBalance: BigInteger,
-    val pendingInterest: BigInteger,
-    val pendingDeposit: BigInteger,
-    val totalInterest: BigInteger,
-    val pendingWithdrawal: BigInteger,
-    val lockedBalance: BigInteger
+    val totalBalance: @Contextual BigInteger,
+    val pendingInterest: @Contextual BigInteger,
+    val pendingDeposit: @Contextual BigInteger,
+    val totalInterest: @Contextual BigInteger,
+    val pendingWithdrawal: @Contextual BigInteger,
+    val lockedBalance: @Contextual BigInteger
 )
 
 typealias InterestBalanceDetailsList = List<InterestBalanceDetails>
@@ -24,23 +26,6 @@ typealias InterestBalanceDetailsList = List<InterestBalanceDetails>
 class InterestService internal constructor(
     private val api: InterestApiInterface
 ) {
-    fun getInterestAccountBalance(
-        authHeader: String,
-        assetTicker: String
-    ): Maybe<InterestBalanceDetails> =
-        api.getInterestAccountBalance(
-            authHeader,
-            assetTicker
-        ).flatMapMaybe { response ->
-            when (response.code()) {
-                HttpStatus.OK -> response.body()?.toBalanceDetails(assetTicker)?.let {
-                    Maybe.just(it)
-                } ?: Maybe.empty()
-                HttpStatus.NO_CONTENT -> Maybe.empty()
-                else -> Maybe.error(HttpException(response))
-            }
-        }.wrapErrorMessage()
-
     fun getAllInterestAccountBalances(
         authHeader: String
     ): Single<InterestBalanceDetailsList> =

@@ -7,6 +7,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Scope
@@ -29,19 +30,20 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 @Serializable
 data class RenamedAsset(
     val networkTicker: String,
-    val oldTicker: String
+    val oldTicker: String,
 )
 
 class AnnouncementQueries(
     private val nabuToken: NabuToken,
     private val settings: SettingsDataManager,
     private val nabu: NabuDataManager,
+    private val nabuDataUserProvider: NabuDataUserProvider,
     private val tierService: TierService,
     private val sbStateFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
     private val coincore: Coincore,
     private val remoteConfig: RemoteConfig,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.fiatAssets.accountGroup().toSingle().map {
@@ -64,8 +66,7 @@ class AnnouncementQueries(
 
     // Have we moved past kyc tier 1 - silver?
     fun isKycGoldStartedOrComplete(): Single<Boolean> {
-        return nabuToken.fetchNabuToken()
-            .flatMap { token -> nabu.getUser(token) }
+        return nabuDataUserProvider.getUser()
             .map { it.tierInProgressOrCurrentTier == 2 }
             .onErrorReturn { false }
     }
@@ -79,8 +80,7 @@ class AnnouncementQueries(
         tierService.tiers().map { it.isVerified() }
 
     fun isRegistedForStxAirdrop(): Single<Boolean> {
-        return nabuToken.fetchNabuToken()
-            .flatMap { token -> nabu.getUser(token) }
+        return nabuDataUserProvider.getUser()
             .map { it.isStxAirdropRegistered }
             .onErrorReturn { false }
     }

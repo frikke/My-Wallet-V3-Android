@@ -10,8 +10,7 @@ import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -31,15 +30,9 @@ class BillingAddressFragment :
     SlidingModalBottomDialog.Host {
 
     private var usSelected = false
-    private val nabuToken: NabuToken by scopedInject()
-    private val nabuDataManager: NabuDataManager by scopedInject()
+    private val userProvider: NabuDataUserProvider by scopedInject()
 
     private val compositeDisposable = CompositeDisposable()
-    private val nabuUser = nabuToken
-        .fetchNabuToken()
-        .flatMap {
-            nabuDataManager.getUser(it)
-        }
 
     override val cardDetailsPersistence: CardDetailsPersistence
         get() = (activity as? CardDetailsPersistence)
@@ -96,7 +89,7 @@ class BillingAddressFragment :
             state.addTextChangedListener(textWatcher)
             postcode.addTextChangedListener(textWatcher)
 
-            compositeDisposable += nabuUser
+            compositeDisposable += userProvider.getUser()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(onError = {}, onSuccess = { user ->
                     setupCountryDetails(user.address?.countryCode ?: "")

@@ -60,7 +60,7 @@ enum class FeeLevel {
 
 data class FeeLevelRates(
     val regularFee: Long,
-    val priorityFee: Long
+    val priorityFee: Long,
 )
 
 data class FeeSelection(
@@ -70,7 +70,7 @@ data class FeeSelection(
     val customLevelRates: FeeLevelRates? = null,
     val feeState: FeeState? = null,
     val asset: AssetInfo? = null,
-    val feesForLevels: Map<FeeLevel, Money> = emptyMap()
+    val feesForLevels: Map<FeeLevel, Money> = emptyMap(),
 )
 
 data class PendingTx(
@@ -86,7 +86,7 @@ data class PendingTx(
     val limits: TxLimits? = null,
     val transactionsLimit: TransactionsLimit? = null,
     val validationState: ValidationState = ValidationState.UNINITIALISED,
-    val engineState: Map<String, Any> = emptyMap()
+    val engineState: Map<String, Any> = emptyMap(),
 ) {
     fun hasOption(confirmation: TxConfirmation): Boolean =
         confirmations.find { it.confirmation == confirmation } != null
@@ -152,7 +152,7 @@ sealed class FeeState {
     object FeeOverRecommended : FeeState()
     object ValidCustomFee : FeeState()
     data class FeeDetails(
-        val absoluteFee: Money
+        val absoluteFee: Money,
     ) : FeeState()
 }
 
@@ -203,7 +203,7 @@ abstract class TxEngine : KoinComponent {
         exchangeRates: ExchangeRatesDataManager,
         refreshTrigger: RefreshTrigger = object : RefreshTrigger {
             override fun refreshConfirmations(revalidate: Boolean): Completable = Completable.complete()
-        }
+        },
     ) {
         this._sourceAccount = sourceAccount
         this._txTarget = txTarget
@@ -309,7 +309,7 @@ class TransactionProcessor(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val exchangeRates: ExchangeRatesDataManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val engine: TxEngine
+    val engine: TxEngine,
 ) : TxEngine.RefreshTrigger {
 
     init {
@@ -455,7 +455,8 @@ class TransactionProcessor(
             ValidationState.INVALID_DOMAIN -> Completable.error(TransactionError.InvalidDomainAddress)
             ValidationState.ADDRESS_IS_CONTRACT -> Completable.error(TransactionError.InvalidCryptoAddress)
             ValidationState.OPTION_INVALID,
-            ValidationState.MEMO_INVALID -> Completable.error(
+            ValidationState.MEMO_INVALID,
+            -> Completable.error(
                 IllegalStateException("Transaction cannot be executed with an invalid memo")
             )
             ValidationState.UNDER_MIN_LIMIT -> Completable.error(TransactionError.OrderBelowMin)
@@ -463,7 +464,8 @@ class TransactionProcessor(
                 Completable.error(TransactionError.OrderLimitReached)
             ValidationState.ABOVE_PAYMENT_METHOD_LIMIT,
             ValidationState.OVER_SILVER_TIER_LIMIT,
-            ValidationState.OVER_GOLD_TIER_LIMIT -> Completable.error(TransactionError.OrderAboveMax)
+            ValidationState.OVER_GOLD_TIER_LIMIT,
+            -> Completable.error(TransactionError.OrderAboveMax)
             ValidationState.INVOICE_EXPIRED -> Completable.error(TransactionError.InvalidOrExpiredQuote)
         }
 

@@ -7,6 +7,7 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -46,9 +47,10 @@ interface KycNextStepDecision {
 class KycHomeAddressPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
+    private val nabuDataUserProvider: NabuDataUserProvider,
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
-    private val analytics: Analytics
+    private val analytics: Analytics,
 ) : BaseKycPresenter<KycHomeAddressView>(nabuToken) {
 
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
@@ -88,17 +90,14 @@ class KycHomeAddressPresenter(
                     if (addressModel.containsData()) {
                         Maybe.empty()
                     } else {
-                        fetchOfflineToken
-                            .flatMapMaybe { tokenResponse ->
-                                nabuDataManager.getUser(tokenResponse)
-                                    .subscribeOn(Schedulers.io())
-                                    .flatMapMaybe { user ->
-                                        user.address?.let { address ->
-                                            Maybe.just(address)
-                                                .flatMap { getCountryName(address.countryCode!!) }
-                                                .map { it to address }
-                                        } ?: Maybe.empty()
-                                    }
+                        nabuDataUserProvider.getUser()
+                            .subscribeOn(Schedulers.io())
+                            .flatMapMaybe { user ->
+                                user.address?.let { address ->
+                                    Maybe.just(address)
+                                        .flatMap { getCountryName(address.countryCode!!) }
+                                        .map { it to address }
+                                } ?: Maybe.empty()
                             }
                             .observeOn(AndroidSchedulers.mainThread())
                     }
@@ -123,7 +122,7 @@ class KycHomeAddressPresenter(
 
     private data class State(
         val progressToKycNextStep: KycNextStepDecision.NextStep,
-        val countryCode: String
+        val countryCode: String,
     )
 
     internal fun onContinueClicked(campaignType: CampaignType? = null) {
@@ -202,7 +201,7 @@ class KycHomeAddressPresenter(
 
     private fun shouldNotContinueToNextKycTier(
         state: State,
-        campaignType: CampaignType
+        campaignType: CampaignType,
     ): Boolean {
         return state.progressToKycNextStep < KycNextStepDecision.NextStep.SDDComplete ||
             campaignType == CampaignType.SimpleBuy

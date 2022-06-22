@@ -11,6 +11,7 @@ import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NeedsApprovalException
 import com.blockchain.coincore.PendingTx
+import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
@@ -25,6 +26,7 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.extensions.withoutNullValues
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -55,7 +57,7 @@ class FiatDepositTxEngine(
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity,
     private val withdrawLocksRepository: WithdrawLocksRepository,
-    private val plaidFeatureFlag: FeatureFlag
+    private val plaidFeatureFlag: FeatureFlag,
 ) : TxEngine() {
 
     private val userIsGoldVerified: Single<Boolean>
@@ -194,25 +196,59 @@ class FiatDepositTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         sourceAccount.receiveAddress.flatMap {
-            bankService.startBankTransfer(
-                it.address, pendingTx.amount, pendingTx.amount.currencyCode,
-                if (isOpenBankingCurrency()) {
-                    bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
-                } else null
-            )
+            isPlaidAccount().zipWith(plaidFeatureFlag.enabled)
+                .flatMap { (isPlaidAccount, isPlaidEnabled) ->
+                    if (isPlaidAccount && isPlaidEnabled) {
+                        checkSettlementBeforeDeposit(it, pendingTx)
+                    } else {
+                        startBankTransfer(it, pendingTx)
+                    }
+                }
         }.map {
             TxResult.HashedTxResult(it, pendingTx.amount)
         }
 
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
+    private fun isPlaidAccount(): Single<Boolean> {
         val plaidBankAccount = if (sourceAccount is LinkedBankAccount) {
             bankService.getLinkedBank((sourceAccount as LinkedBankAccount).accountId)
                 .map { it.partner == BankPartner.PLAID }
         } else {
             Single.just(false)
         }
+        return plaidBankAccount
+    }
 
-        return plaidBankAccount.zipWith(plaidFeatureFlag.enabled)
+    private fun checkSettlementBeforeDeposit(it: ReceiveAddress, pendingTx: PendingTx) =
+        bankService.checkSettlement(it.address, pendingTx.amount).flatMap { settlement ->
+            when (settlement.settlementReason) {
+                SettlementReason.GENERIC,
+                SettlementReason.UNKNOWN ->
+                    Single.error(TransactionError.SettlementGenericError)
+                SettlementReason.INSUFFICIENT_BALANCE ->
+                    Single.error(TransactionError.SettlementInsufficientBalance)
+                SettlementReason.STALE_BALANCE ->
+                    Single.error(TransactionError.SettlementStaleBalance)
+                SettlementReason.REQUIRES_UPDATE ->
+                    Single.error(TransactionError.SettlementRefreshRequired(it.address))
+                SettlementReason.NONE ->
+                    startBankTransfer(it, pendingTx)
+            }
+        }
+
+    private fun startBankTransfer(receiveAddress: ReceiveAddress, pendingTx: PendingTx) =
+        bankService.startBankTransfer(
+            id = receiveAddress.address,
+            amount = pendingTx.amount,
+            currency = pendingTx.amount.currencyCode,
+            callback = if (isOpenBankingCurrency()) {
+                bankPartnerCallbackProvider.callback(BankPartner.YAPILY, BankTransferAction.PAY)
+            } else {
+                null
+            }
+        )
+
+    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
+        return isPlaidAccount().zipWith(plaidFeatureFlag.enabled)
             .flatMapCompletable { (isPlaidAccount, isPlaidEnabled) ->
                 if (isOpenBankingCurrency()) {
                     pollForOpenBanking(txResult)

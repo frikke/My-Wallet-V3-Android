@@ -6,12 +6,13 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
 sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     // Order Card
-    object OrderCard : BlockchainCardIntent()
+    object RetryOrderCard : BlockchainCardIntent()
     object LinkCard : BlockchainCardIntent()
     data class CreateCard(val productCode: String, val ssn: String) : BlockchainCardIntent()
     object OnSeeProductDetails : BlockchainCardIntent()
+    object OnSeeProductLegalInfo : BlockchainCardIntent()
     object ManageCard : BlockchainCardIntent()
-    object HideProductDetailsBottomSheet : BlockchainCardIntent()
+    object HideBottomSheet : BlockchainCardIntent()
 
     // ManageCard
     object DeleteCard : BlockchainCardIntent()

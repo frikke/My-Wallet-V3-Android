@@ -66,21 +66,19 @@ class ActivitiesModel(
             is AccountSelectedIntent -> {
                 fetchSubscription?.dispose()
 
-                fetchSubscription =
-
-                    interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
-                        .subscribeBy(
-                            onNext = { list ->
-                                process(ActivityListUpdatedIntent(list))
-                            },
-                            onComplete = {
-                                // do nothing
-                            },
-                            onError = {
-                                Timber.e(it)
-                                process(ActivityListUpdatedErrorIntent)
-                            }
-                        )
+                fetchSubscription = interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
+                    .subscribeBy(
+                        onNext = { list ->
+                            process(ActivityListUpdatedIntent(list))
+                        },
+                        onComplete = {
+                            // do nothing
+                        },
+                        onError = {
+                            Timber.e(it)
+                            process(ActivityListUpdatedErrorIntent)
+                        }
+                    )
 
                 fetchSubscription
             }

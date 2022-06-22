@@ -8,8 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.CryptoAddress
+import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.viewextensions.getTextString
@@ -29,6 +32,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -197,7 +201,15 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
         with(binding.walletSelect) {
             initialise(
-                source = Single.just(fragmentState.accounts.filterIsInstance<BlockchainAccount>()),
+                source = Single.just(
+                    fragmentState.accounts.filterIsInstance<BlockchainAccount>().map {
+                        if (state.action == AssetAction.Send && it is CryptoAccount) {
+                            mapToSendRecipientAccountItem(it)
+                        } else {
+                            AccountListViewItem.create(it)
+                        }
+                    }
+                ),
                 status = customiser.selectTargetStatusDecorator(state),
                 shouldShowSelectionStatus = true,
                 assetAction = state.action
@@ -223,6 +235,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
             }
         }
     }
+
+    private fun mapToSendRecipientAccountItem(it: CryptoAccount) = AccountListViewItem.Crypto(
+        title = it.label,
+        subTitle = it.currency.name,
+        showRewardsUpsell = it is InterestAccount,
+        account = it
+    )
 
     private fun hideTransferList() {
         binding.titlePick.gone()

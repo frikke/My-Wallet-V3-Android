@@ -23,6 +23,8 @@ import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementInfo
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
@@ -34,6 +36,7 @@ import com.blockchain.testutils.eur
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -44,6 +47,7 @@ import java.math.BigInteger
 import java.security.InvalidParameterException
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 
 class FiatDepositTxEngineTest : CoincoreTestBase() {
 
@@ -432,9 +436,13 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: LinkedBankAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
         }
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YAPILY)
         }
 
         subject.start(
@@ -465,6 +473,9 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         ).thenReturn(
             Single.just(txId)
         )
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
+
         subject.doExecute(
             pendingTx, ""
         ).test()
@@ -483,9 +494,13 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
         val sourceAccount: LinkedBankAccount = mock {
             on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
         }
         val txTarget: FiatAccount = mock {
             on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YAPILY)
         }
 
         subject.start(
@@ -516,6 +531,8 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
         ).thenReturn(
             Single.error(exception)
         )
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
 
         subject.doExecute(
             pendingTx, ""
@@ -525,6 +542,276 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
             }
 
         verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+    }
+
+    @Test
+    fun `doExecute() check Settlement for Plaid accounts with settlementReason NONE should start bank transfer`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementReason }.thenReturn(SettlementReason.NONE)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        val txId = "12234"
+        whenever(
+            bankService.startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+        ).thenReturn(
+            Single.just(txId)
+        )
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(
+            pendingTx, ""
+        ).test()
+            .assertComplete()
+            .assertNoErrors()
+            .assertValue {
+                it is TxResult.HashedTxResult &&
+                    it.txId == txId
+            }
+
+        verify(bankService).startBankTransfer(bankAccountAddress.address, amount, TGT_ASSET.networkTicker)
+    }
+
+    @Test
+    fun `doExecute() check Settlement for Plaid accounts with settlementReason GENERIC should throw error`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementReason }.thenReturn(SettlementReason.GENERIC)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(pendingTx, "")
+            .test()
+            .assertError {
+                it is TransactionError.SettlementGenericError
+            }
+
+        verify(bankService, times(0)).startBankTransfer(anyString(), any(), anyString(), any())
+    }
+
+    @Test
+    fun `doExecute() check Settlement for Plaid accounts with INSUFFICIENT_BALANCE should throw error`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementReason }.thenReturn(SettlementReason.INSUFFICIENT_BALANCE)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(pendingTx, "")
+            .test()
+            .assertError {
+                it is TransactionError.SettlementInsufficientBalance
+            }
+
+        verify(bankService, times(0)).startBankTransfer(anyString(), any(), anyString(), any())
+    }
+
+    @Test
+    fun `doExecute() check Settlement for Plaid accounts with STALE_BALANCE should throw error`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementReason }.thenReturn(SettlementReason.STALE_BALANCE)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(pendingTx, "")
+            .test()
+            .assertError {
+                it is TransactionError.SettlementStaleBalance
+            }
+
+        verify(bankService, times(0)).startBankTransfer(anyString(), any(), anyString(), any())
+    }
+
+    @Test
+    fun `doExecute() check Settlement for Plaid accounts with REQUIRES_UPDATE should throw error`() {
+        val bankAccountAddress = LinkedBankAccount.BankAccountAddress("address", "label")
+        val sourceAccount: LinkedBankAccount = mock {
+            on { receiveAddress }.thenReturn(Single.just(bankAccountAddress))
+            on { accountId }.thenReturn(ACCOUNT_ID)
+        }
+        val txTarget: FiatAccount = mock {
+            on { currency }.thenReturn(TGT_ASSET)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.PLAID)
+        }
+        val settlement: SettlementInfo = mock {
+            on { settlementReason }.thenReturn(SettlementReason.REQUIRES_UPDATE)
+        }
+
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+
+        val amount = FiatValue.fromMinor(TGT_ASSET, 3000L.toBigInteger())
+        val minLimit = FiatValue.fromMinor(TGT_ASSET, 2000L.toBigInteger())
+        val maxLimit = FiatValue.fromMinor(TGT_ASSET, 10000L.toBigInteger())
+
+        val zeroFiat = FiatValue.zero(TGT_ASSET)
+        val pendingTx = PendingTx(
+            amount = amount,
+            totalBalance = zeroFiat,
+            availableBalance = zeroFiat,
+            feeForFullAvailable = zeroFiat,
+            feeAmount = zeroFiat,
+            selectedFiat = TGT_ASSET,
+            feeSelection = FeeSelection(),
+            limits = TxLimits.fromAmounts(min = minLimit, max = maxLimit)
+        )
+
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(true))
+        whenever(bankService.checkSettlement(bankAccountAddress.address, amount)).thenReturn(Single.just(settlement))
+
+        subject.doExecute(pendingTx, "")
+            .test()
+            .assertError {
+                it is TransactionError.SettlementRefreshRequired
+            }
+
+        verify(bankService, times(0)).startBankTransfer(anyString(), any(), anyString(), any())
     }
 
     @Test

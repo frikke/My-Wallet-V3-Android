@@ -173,6 +173,8 @@ class SimpleBuyCheckoutFragment :
 
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)
+            binding.buttonGooglePay.hideLoading()
+            model.process(SimpleBuyIntent.ClearError)
             return
         }
 
@@ -666,16 +668,15 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun onGooglePayCancelled() {
-        binding.buttonGooglePay.isEnabled = true
+        binding.buttonGooglePay.hideLoading()
     }
 
     override fun onGooglePaySheetClosed() {
-        binding.buttonGooglePay.isEnabled = true
+        binding.buttonGooglePay.hideLoading()
     }
 
     override fun onGooglePayError(e: Throwable) {
-        // TODO Show error sheet here?
-        binding.buttonGooglePay.isEnabled = true
+        binding.buttonGooglePay.hideLoading()
     }
 
     private fun viewForPromo(buyFees: BuyFees): View? {

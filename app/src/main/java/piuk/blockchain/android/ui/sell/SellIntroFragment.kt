@@ -49,6 +49,7 @@ import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.ButtonOptions
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
 import piuk.blockchain.android.ui.customviews.VerifyIdentityNumericBenefitItem
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.CellDecorator
 import piuk.blockchain.android.ui.home.HomeNavigator
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
@@ -320,7 +321,7 @@ class SellIntroFragment : ViewPagerFragment() {
                         ).map {
                             it.filterIsInstance<CryptoAccount>().filter { account ->
                                 supportedCryptos.contains(account.currency)
-                            }
+                            }.map(AccountListViewItem.Companion::create)
                         },
                         status = ::statusDecorator,
                         introView = introHeaderView

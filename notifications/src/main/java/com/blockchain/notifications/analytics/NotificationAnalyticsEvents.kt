@@ -23,6 +23,21 @@ sealed class NotificationAnalyticsEvents(
         campaignData.mapKeys { "${KEY_CAMPAIGN}_$it" }
     )
 
+    data class MissingNotificationData(
+        val source: String,
+        val title: String?,
+        val text: String?,
+        val marquee: String?
+    ) : NotificationAnalyticsEvents(
+        AnalyticsNames.PUSH_NOTIFICATION_MISSING_DATA.eventName,
+        mapOf(
+            KEY_MISSING_DATA_SOURCE to source,
+            KEY_MISSING_DATA_TITLE to (title ?: "MISSING"),
+            KEY_MISSING_DATA_TEXT to (text ?: "MISSING"),
+            KEY_MISSING_DATA_MARQUEE to (marquee ?: "MISSING")
+        )
+    )
+
     companion object {
         private const val KEY_CAMPAIGN = "campaign"
 
@@ -31,6 +46,11 @@ sealed class NotificationAnalyticsEvents(
         private const val KEY_NAME = "name"
         private const val KEY_SOURCE = "source"
         private const val KEY_TEMPLATE = "template"
+
+        private const val KEY_MISSING_DATA_SOURCE = "missing_data_source"
+        private const val KEY_MISSING_DATA_TITLE = "missing_data_title"
+        private const val KEY_MISSING_DATA_TEXT = "missing_data_text"
+        private const val KEY_MISSING_DATA_MARQUEE = "missing_data_marquee"
 
         private val ANALYTICS_KEYS = listOf(KEY_CONTENT, KEY_MEDIUM, KEY_NAME, KEY_SOURCE, KEY_TEMPLATE)
 

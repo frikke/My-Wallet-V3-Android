@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="order_card_intro_primary"></string>
-    <string name="order_card_intro_secundary"></string>
+    <string name="order_card_intro"></string>
     <string name="order_my_card"></string>
     <string name="link_card_here"></string>
     <string name="virtual"></string>
@@ -24,7 +23,6 @@
     <string name="your_card_is_now_linked"></string>
     <string name="gpay_save_to_phone"></string>
     <string name="do_it_later"></string>
-    <string name="failed"></string>
     <string name="delete_card"></string>
     <string name="manage"></string>
     <string name="top_up"></string>
@@ -42,7 +40,17 @@
     <string name="virtual_card"></string>
     <string name="ready_to_use"></string>
     <string name="card_details"></string>
-    <string name="no_fee"></string>
+    <string name="no_fees"></string>
+    <string name="no_fees_description"></string>
     <string name="processing"></string>
     <string name="spend_from"></string>
+    <string name="terms_and_conditions_label"></string>
+    <string name="crypto_rewards"></string>
+    <string name="crypto_rewards_description"></string>
+    <string name="legal_info_title"></string>
+    <string name="continue_to_card_dashboard"></string>
+    <string name="go_to_dashboard"></string>
+    <string name="card_creation_failed"></string>
+    <string name="card_creation_failed_description"></string>
+    <string name="common_try_again"></string>
 </resources>

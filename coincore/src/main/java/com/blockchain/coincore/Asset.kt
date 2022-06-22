@@ -77,7 +77,7 @@ enum class AssetAction(
     FiatDeposit(ActionOrigin.FROM_SOURCE),
 
     // Receive crypto to crypto
-    Sign(ActionOrigin.FROM_SOURCE)
+    Sign(ActionOrigin.FROM_SOURCE);
 }
 
 @Parcelize

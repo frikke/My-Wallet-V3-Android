@@ -3,7 +3,7 @@ package com.blockchain.websocket
 import piuk.blockchain.androidcore.data.events.ActionEvent
 
 interface MessagesSocketHandler {
-    fun triggerNotification(title: String, marquee: String, text: String)
+    fun triggerNotification(title: String, marquee: String, text: String, transactionDescription: String)
     fun sendBroadcast(event: ActionEvent)
 }
 

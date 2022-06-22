@@ -16,6 +16,8 @@ import com.blockchain.api.payments.data.CreateLinkBankResponse
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.SettlementBody
+import com.blockchain.api.payments.data.SettlementResponse
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -115,6 +117,14 @@ interface PaymentMethodsApi {
         @Path("id") id: String,
         @Body body: LinkPlaidAccountBody
     ): Completable
+
+    @POST("payments/banktransfer/{id}/update")
+    fun checkSettlement(
+        @Header("authorization") authorization: String,
+        @Path("id") id: String,
+        @Body body: SettlementBody,
+        @Query("localisedError") localisedError: String?
+    ): Single<SettlementResponse>
 
     @POST("payments/banktransfer/{id}/payment")
     fun startBankTransferPayment(

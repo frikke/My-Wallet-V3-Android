@@ -539,6 +539,10 @@ sealed class TransactionError : Throwable() {
     object ExecutionFailed : TransactionError()
     object InternetConnectionError : TransactionError()
     class FiatDepositError(val errorCode: String) : TransactionError()
+    object SettlementInsufficientBalance : TransactionError()
+    object SettlementStaleBalance : TransactionError()
+    object SettlementGenericError : TransactionError()
+    class SettlementRefreshRequired(val accountId: String) : TransactionError()
     class HttpError(val nabuApiException: NabuApiException) : TransactionError()
 }
 

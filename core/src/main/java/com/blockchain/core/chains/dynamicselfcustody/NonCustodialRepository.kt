@@ -4,13 +4,15 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
+import com.blockchain.preferences.CurrencyPrefs
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class NonCustodialRepository(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
-    private val payloadDataManager: PayloadDataManager
+    private val payloadDataManager: PayloadDataManager,
+    private val currencyPrefs: CurrencyPrefs
 ) : NonCustodialService {
 
     override suspend fun authenticate(): Outcome<ApiError, Boolean> =
@@ -46,6 +48,23 @@ internal class NonCustodialRepository(
             .map { subscriptionsResponse ->
                 subscriptionsResponse.currencies.map { it.ticker }
             }
+
+    override suspend fun getBalances(currencies: List<String>) =
+        dynamicSelfCustodyService.getBalances(
+            guidHash = getHashedString(payloadDataManager.guid),
+            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
+            currencies = currencies,
+            fiatCurrency = currencyPrefs.selectedFiatCurrency.networkTicker
+        ).map { balancesResponse ->
+            balancesResponse.balances.map { balanceResponse ->
+                NonCustodialAccountBalance(
+                    networkTicker = balanceResponse.currency,
+                    amount = balanceResponse.balance.amount,
+                    pending = balanceResponse.pending.amount,
+                    price = balanceResponse.price
+                )
+            }
+        }
 
     override suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>> =
         dynamicSelfCustodyService.getAddresses(

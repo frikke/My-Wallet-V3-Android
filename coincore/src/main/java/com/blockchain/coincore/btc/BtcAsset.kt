@@ -165,29 +165,27 @@ internal class BtcAsset(
     private fun btcAccountFromPayloadAccount(index: Int, payloadAccount: Account): BtcCryptoWalletAccount =
         BtcCryptoWalletAccount.createHdAccount(
             jsonAccount = payloadAccount,
-            payloadManager = payloadManager,
             hdAccountIndex = index,
+            payloadDataManager = payloadManager,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity,
             addressResolver = addressResolver
         )
 
     private fun btcAccountFromImportedAccount(payloadAccount: ImportedAddress): BtcCryptoWalletAccount =
         BtcCryptoWalletAccount.createImportedAccount(
             importedAccount = payloadAccount,
-            payloadManager = payloadManager,
+            payloadDataManager = payloadManager,
             sendDataManager = sendDataManager,
             feeDataManager = feeDataManager,
             exchangeRates = exchangeRates,
             walletPreferences = walletPreferences,
             custodialWalletManager = custodialManager,
             refreshTrigger = this,
-            identity = identity,
             addressResolver = addressResolver
         )
 

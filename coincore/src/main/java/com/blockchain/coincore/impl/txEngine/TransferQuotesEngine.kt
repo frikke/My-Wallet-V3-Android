@@ -94,6 +94,8 @@ class TransferQuotesEngine(
 
     fun stop() {
         stop.onNext(Unit)
+        quoteRefreshTimes.clear()
+        pricedQuote = null
     }
 
     fun getLatestQuote(): PricedQuote = latestQuote

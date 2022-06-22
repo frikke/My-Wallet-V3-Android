@@ -2008,6 +2008,11 @@
     <string name="invalid_domain_address">Invalid domain Address</string>
     <string name="trading_ineligible_for_swap">Oops! This service isn’t currently available. Please contact support.</string>
     <string name="trading_invalid_destination_amount">Oops! Looks like that isn’t a valid amount, please try again.</string>
+    <string name="trading_confirm_deposit">Confirm Deposit</string>
+    <string name="trading_deposit_description_generic">We encountered a potential issue with this deposit. It may be subject to further review.</string>
+    <string name="trading_deposit_description_insufficient">The latest balance we fetched indicates you do not have enough funds in your bank account. You can still proceed with the deposit if you believe you have received this message in error.</string>
+    <string name="trading_deposit_description_requires_update">Please relink your bank account to ensure faster settlement.</string>
+    <string name="trading_deposit_description_stale">We could not obtain an updated balance for your bank account. You can still proceed with the deposit if you believe you have sufficient funds.</string>
     <string name="add_credit_or_debit_card_1">Credit or Debit Card</string>
     <string name="add_debit_card">Debit Card</string>
     <string name="first_name">First Name</string>
@@ -2204,6 +2209,7 @@
     <string name="checkout_item_price_note">Blockchain.com provides the best market price we receive and applies a spread.&#160;</string>
     <string name="checkout_item_network_fee_note">Pays for %1$s miners to confirm your transaction on the blockchain network.&#160;</string>
     <string name="swap_confirmation_disclaimer_1">Final amount may change due to market activity. By approving this Swap you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
+    <string name="sell_confirmation_disclaimer">Final amount may change due to market activity. By approving this Sell you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
     <string name="checkout_swap_exchange_note">The exchange rate is the best price available for %1$s in terms of 1 %2$s&#160;</string>
     <string name="upsell_message">Get lower fees and double the transaction speed when you Swap crypto to any Trading Account. Just look for these badges to reduce fees by up to 50%.</string>
     <string name="upsell_title">Reduce fees. Swap to Trading Account.</string>
@@ -2909,6 +2915,7 @@
     <string name="referral_code_title">Your referral code</string>
     <string name="referral_criteria_title">What my invited friends need to do?</string>
     <string name="referral_program">Referral Program</string>
+    <string name="referral_invite_now">Invite Now</string>
 
     <!-- App Rating-->
     <string name="app_rating_title">Do you like our app?</string>
@@ -2924,7 +2931,9 @@
     <string name="back_up_status_negative">Not Backed Up</string>
     <string name="back_up_status_positive">Backed Up</string>
     <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
-    <string name="backup_phrase_intro_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>
+    <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>
+    <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>
+    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>
     <string name="back_up_now">Back Up Now</string>
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
@@ -2941,9 +2950,8 @@
     <string name="phrase_confirmation_title">Your Recovery Phrase</string>
     <string name="phrase_confirmation_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
     <!-- Blockchain Card -->
-    <string name="order_card_intro_primary">Your Gateway To The Blockchain Debit Card</string>
-    <string name="order_card_intro_secundary">A card that lets you spend and earn in crypto right from your Blockchain account.</string>
     <string name="order_my_card">Order My Card</string>
+    <string name="order_card_intro">A digital card you can use instantly for online payments.</string>
     <string name="link_card_here">Already Have A Card? Link It Here"</string>
     <string name="virtual">Virtual</string>
     <string name="virtual_card_product_description">Our digital only card, use instantly for online payments.</string>
@@ -2960,11 +2968,12 @@
     <string name="blockchain_terms_and_conditions">Blockchain.com Terms &amp; Conditions</string>
     <string name="short_form_disclosure">Short Form Disclosure</string>
     <string name="terms_and_conditions">Terms &amp; Conditions</string>
-    <string name="card_created">Card Created!</string>
+    <string name="card_created">Card Successfully Created</string>
+    <string name="card_creation_failed">Failed To Successfully Create Your Card</string>
+    <string name="card_creation_failed_description">Sometimes this can happen when the systems are bogged down. You can try again by tapping ‘Try Again’ below</string>
     <string name="your_card_is_now_linked">Your card is now linked to your Blockchain.com Wallet.</string>
     <string name="gpay_save_to_phone">Google Pay Save to Phone</string>
     <string name="do_it_later">Do it later</string>
-    <string name="failed">FAILED</string>
     <string name="delete_card">Delete Card</string>
     <string name="manage">Manage</string>
     <string name="top_up">Top Up</string>
@@ -2981,10 +2990,17 @@
     <string name="virtual_card">Virtual Card</string>
     <string name="ready_to_use">Ready to Use</string>
     <string name="card_details">Card Details</string>
-    <string name="no_fee">No Fee</string>
+    <string name="no_fees">No Fees</string>
+    <string name="no_fees_description">No sign up fees. No annual fees. No transaction fees.</string>
     <string name="processing">Processing</string>
     <string name="spend_from">Spend From</string>
     <string name="account_restricted">Account Restricted</string>
+    <string name="terms_and_conditions_label">I agree to Blockchain.com’s Terms of Service</string>
+    <string name="crypto_rewards">Crypto Rewards</string>
+    <string name="crypto_rewards_description">Earn 1\% back in crypto rewards on all your purchases.</string>
+    <string name="legal_info_title">The Legal Stuff</string>
+    <string name="continue_to_card_dashboard">Continue to view your card dashboard.</string>
+    <string name="go_to_dashboard">Go To Dashboard</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

@@ -2,12 +2,15 @@ package com.blockchain.coincore.impl
 
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
-import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.coincore.testutil.CoinCoreFakeData
+import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_API_FIAT
+import com.blockchain.coincore.testutil.CoinCoreFakeData.TEST_USER_FIAT
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.custodial.TradingAccountBalance
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.extensions.minus
+import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
@@ -15,6 +18,8 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCategory
@@ -25,13 +30,29 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.KoinTestRule
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-class CustodialTradingAccountActionsTest : CoincoreTestBase() {
+class CustodialTradingAccountActionsTest : KoinTest {
 
     private val custodialManager: CustodialWalletManager = mock()
+    private val payloadDataManager: PayloadDataManager = mock()
     private val tradingBalances: TradingBalanceDataManager = mock()
-    private val identity: UserIdentity = mock()
+    private val userIdentity: UserIdentity = mock()
+
+    private val exchangeRates: ExchangeRatesDataManager = mock {
+        on { getLastFiatToUserFiatRate(TEST_USER_FIAT) }.thenReturn(
+            CoinCoreFakeData.userFiatToUserFiat
+        )
+        on { getLastFiatToUserFiatRate(TEST_API_FIAT) }.thenReturn(
+            CoinCoreFakeData.TEST_TO_USER_RATE
+        )
+    }
 
     @Before
     fun setup() {
@@ -39,33 +60,43 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             .thenReturn(Observable.just(TEST_TO_USER_RATE))
     }
 
-    @Test
-    fun `If no base Actions set then action set is unavailable`() {
-        // Arrange
-        val subject = configureActionSubject(emptySet())
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
-            interest = false,
-            supportedFiat = listOf(USD),
-            buySupported = false,
-            swapSupported = false,
-            userTier = Tier.GOLD
+    @get:Rule
+    val koinTestRule = KoinTestRule.create {
+        modules(
+            mockedDependenciesModule
         )
+    }
 
-        // Act
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                !it.any { it.state == ActionState.Available }
+    private val mockedDependenciesModule = module {
+        factory {
+            payloadDataManager
+        }
+
+        factory {
+            mock<RemoteLogger>()
+        }.bind(RemoteLogger::class)
+
+        factory {
+            tradingBalances
+        }
+
+        factory {
+            mock<WalletModeService> {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
             }
+        }
+        factory {
+            custodialManager
+        }
+        factory {
+            userIdentity
+        }
     }
 
     @Test
     fun `All actions are available`() {
         // Arrange
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, 1000.toBigInteger()),
@@ -80,20 +111,23 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         // Act
         subject.stateAwareActions
             .test()
-            .assertValue {
-                var allMatch = true
-                it.map { it.action }.map {
-                    if (!SUPPORTED_CUSTODIAL_ACTIONS.contains(it)) {
-                        allMatch = false
-                    }
-                }
-                allMatch
+            .assertValue { actions ->
+                actions.map { it.action } == listOf(
+                    AssetAction.ViewActivity,
+                    AssetAction.Send,
+                    AssetAction.InterestDeposit,
+                    AssetAction.Swap,
+                    AssetAction.Receive,
+                    AssetAction.Sell,
+                    AssetAction.Buy,
+                    AssetAction.InterestWithdraw
+                )
             }
     }
 
     @Test
     fun `If user is bronze then activity is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -113,7 +147,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If user is gold then activity is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -132,48 +166,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If base actions don't contain activity then activity is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.ViewActivity })
-
-        configureActionTest(
-            accountBalance = CryptoValue.zero(TEST_ASSET),
-            actionableBalance = CryptoValue.zero(TEST_ASSET),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.ViewActivity }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
-    fun `If base actions don't contain receive then receive is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.Receive })
-
-        configureActionTest(
-            accountBalance = CryptoValue.zero(TEST_ASSET),
-            actionableBalance = CryptoValue.zero(TEST_ASSET),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.Receive }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
     fun `If asset deposit eligibility is blocked then Receive is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -194,7 +188,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If all conditions met then receive is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -213,28 +207,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If base actions don't contain Buy then Buy is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.Buy })
-
-        configureActionTest(
-            accountBalance = CryptoValue.zero(TEST_ASSET),
-            actionableBalance = CryptoValue.zero(TEST_ASSET),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.Buy }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
     fun `If not a supported currency then Buy is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -254,7 +228,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If buy eligibility blocked then Buy is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -274,7 +248,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If all criteria met then Buy is available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.zero(TEST_ASSET),
@@ -293,28 +267,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If base actions don't contain Send, then Send is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.Send })
-
-        configureActionTest(
-            accountBalance = CryptoValue.zero(TEST_ASSET),
-            actionableBalance = CryptoValue.zero(TEST_ASSET),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.Send }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
     fun `If funded and has withdrawable balance, then Send is available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -334,7 +288,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If not funded or no withdrawable balance, then Send is locked for balance`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -354,28 +308,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If deposit to Interest is blocked then interest is not available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            interestDepositSupported = false,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.InterestDeposit }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
-    fun `If base actions don't contain InterestDeposit then interest is not available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.InterestDeposit })
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -396,7 +329,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If funded and eligible for interest then InterestDeposit is available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -416,7 +349,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If funded and not eligible for interest then InterestDeposit is locked for tier`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -436,7 +369,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If not funded and eligible for interest then InterestDeposit is locked for balance`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -455,28 +388,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If base actions don't contain Swap then Swap is not available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.Swap })
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.Swap }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
     fun `If asset not supported for swap then Swap is not available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -496,7 +409,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If swap eligibility is blocked then Swap is not available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -517,7 +430,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If account has no balance then Swap is locked for balance`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -537,7 +450,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If all criteria are met then Swap is available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -556,28 +469,8 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
     }
 
     @Test
-    fun `If base actions dont contain Sell then Sell is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS.minus { it == AssetAction.Sell })
-
-        configureActionTest(
-            accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
-            actionableBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
-            interest = true,
-            supportedFiat = listOf(USD),
-            buySupported = true,
-            swapSupported = true,
-            userTier = Tier.GOLD
-        )
-        subject.stateAwareActions
-            .test()
-            .assertValue {
-                it.find { it.action == AssetAction.Sell }?.state == ActionState.Unavailable
-            }
-    }
-
-    @Test
     fun `If Sell eligibility is allowed then Sell is unavailable`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -598,7 +491,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If no fiat accounts then Sell is locked for tier`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -618,7 +511,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
 
     @Test
     fun `If account is not funded then Sell is locked for balance`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.ZERO),
@@ -635,9 +528,10 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
                 it.find { it.action == AssetAction.Sell }?.state == ActionState.LockedForBalance
             }
     }
+
     @Test
     fun `If all criteria are met then Sell is available`() {
-        val subject = configureActionSubject(SUPPORTED_CUSTODIAL_ACTIONS)
+        val subject = configureActionSubject()
 
         configureActionTest(
             accountBalance = CryptoValue.fromMinor(TEST_ASSET, BigInteger.TEN),
@@ -655,15 +549,17 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
             }
     }
 
-    private fun configureActionSubject(actions: Set<AssetAction>): CustodialTradingAccount =
+    private fun configureActionSubject(): CustodialTradingAccount =
         CustodialTradingAccount(
             currency = TEST_ASSET,
             label = "Test Account",
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
             tradingBalances = tradingBalances,
-            identity = identity,
-            baseActions = actions
+            identity = userIdentity,
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
     private fun configureActionTest(
@@ -678,7 +574,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         swapAccessAvailable: Boolean = true,
         sellEligibilityAccess: Boolean = true,
         swapSupported: Boolean,
-        userTier: Tier
+        userTier: Tier,
     ) {
         mockActionsFeatureAccess { original ->
             var updated = original
@@ -724,7 +620,7 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         whenever(custodialManager.isCurrencyAvailableForTrading(TEST_ASSET)).thenReturn(Single.just(buySupported))
 
         val interestFeature = Feature.Interest(TEST_ASSET)
-        whenever(identity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
+        whenever(userIdentity.isEligibleFor(interestFeature)).thenReturn(Single.just(interest))
 
         val balance = TradingAccountBalance(
             total = accountBalance,
@@ -754,11 +650,11 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
                 )
             )
 
-        whenever(identity.getHighestApprovedKycTier()).thenReturn(Single.just(userTier))
+        whenever(userIdentity.getHighestApprovedKycTier()).thenReturn(Single.just(userTier))
     }
 
     private fun mockActionsFeatureAccess(
-        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>
+        block: (original: Map<Feature, FeatureAccess>) -> Map<Feature, FeatureAccess>,
     ) {
         val features = listOf(
             Feature.Buy,
@@ -770,20 +666,13 @@ class CustodialTradingAccountActionsTest : CoincoreTestBase() {
         val access = features.associateWith { FeatureAccess.Granted() }
 
         val updatedAccess = block(access)
-        whenever(identity.userAccessForFeatures(features))
-            .thenReturn(Single.just(updatedAccess))
+        features.forEach {
+            whenever(userIdentity.userAccessForFeature(it))
+                .thenReturn(Single.just(updatedAccess[it]!!))
+        }
     }
 
     companion object {
-        private val SUPPORTED_CUSTODIAL_ACTIONS = setOf(
-            AssetAction.ViewActivity,
-            AssetAction.Send,
-            AssetAction.InterestDeposit,
-            AssetAction.Swap,
-            AssetAction.Sell,
-            AssetAction.Receive,
-            AssetAction.Buy
-        )
 
         private val TEST_ASSET = object : CryptoCurrency(
             displayTicker = "NOPE",

@@ -14,9 +14,9 @@ import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
-import com.blockchain.blockchaincard.ui.composables.ordercard.OrderOrLinkCard
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
-import com.blockchain.blockchaincard.ui.composables.ordercard.SelectCardForOrder
+import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardDestination
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -40,7 +40,7 @@ fun BlockchainCardNavHost(
 
     val startDestination =
         if (modelArgs is BlockchainCardArgs.CardArgs) BlockchainCardDestination.ManageCardDestination
-        else BlockchainCardDestination.OrderOrLinkCardDestination
+        else BlockchainCardDestination.OrderCardDestination
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
@@ -57,27 +57,8 @@ fun BlockchainCardNavHost(
         startDestination = startDestination,
     ) {
 
-        composable(BlockchainCardDestination.OrderOrLinkCardDestination) {
-            OrderOrLinkCard(viewModel as OrderCardViewModel)
-        }
-
-        composable(BlockchainCardDestination.SelectCardForOrderDestination) {
-            SelectCardForOrder(
-                onCreateCard = {
-                    viewModel.onIntent(
-                        // TODO(labreu): once staging API is not harcoded, remove this
-                        BlockchainCardIntent.CreateCard(
-                            productCode = "VIRTUAL1",
-                            ssn = "111111110"
-                        )
-                    )
-                },
-                onSeeProductDetails = {
-                    viewModel.onIntent(
-                        BlockchainCardIntent.OnSeeProductDetails
-                    )
-                }
-            )
+        composable(BlockchainCardDestination.OrderCardDestination) {
+            OrderCard(viewModel as OrderCardViewModel)
         }
 
         composable(BlockchainCardDestination.CreateCardInProgressDestination) {
@@ -93,14 +74,28 @@ fun BlockchainCardNavHost(
         }
 
         composable(BlockchainCardDestination.CreateCardFailedDestination) {
-            CardCreationFailed()
+            CardCreationFailed(
+                onTryAgain = {
+                    viewModel.onIntent(BlockchainCardIntent.RetryOrderCard)
+                }
+            )
         }
 
         bottomSheet(BlockchainCardDestination.SeeProductDetailsDestination) {
             ProductDetails(
-                cardProduct = state?.cardProduct,
                 onCloseProductDetailsBottomSheet = {
-                    viewModel.onIntent(BlockchainCardIntent.HideProductDetailsBottomSheet)
+                    viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                },
+                onSeeProductLegalInfo = {
+                    viewModel.onIntent(BlockchainCardIntent.OnSeeProductLegalInfo)
+                }
+            )
+        }
+
+        bottomSheet(BlockchainCardDestination.SeeProductLegalInfoDestination) {
+            ProductLegalInfo(
+                onCloseProductLegalInfoBottomSheet = {
+                    viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                 }
             )
         }

@@ -173,6 +173,25 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="2dp"
             android:gravity="center"
+            android:text="Show invite now bottom sheet" />
+
+        <Button
+            android:id="@+id/btn_show_referral_sheet"
+            style="@style/CtaButton.Blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="Invite Now" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:gravity="center"
             android:text="Randomise device ID per installation, to avoid pre-IDV banning of test devices" />
 
         <Button

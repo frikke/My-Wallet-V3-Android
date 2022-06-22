@@ -24,6 +24,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentTransferAccountSelectorBinding
 import piuk.blockchain.android.ui.base.ViewPagerFragment
 import piuk.blockchain.android.ui.customviews.IntroHeaderView
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.customviews.account.AccountLocks
 import piuk.blockchain.android.ui.customviews.account.StatusDecorator
 
@@ -77,8 +78,8 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
             initialise(
                 source = accounts(),
                 status = statusDecorator,
-                introView = introHeaderView,
-                accountsLocks = showWithdrawalLocks()
+                accountsLocks = showWithdrawalLocks(),
+                introView = introHeaderView
             )
         }
     }
@@ -104,9 +105,9 @@ abstract class AccountSelectorFragment : ViewPagerFragment() {
         bankService.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency)
             .map { listOf(AccountLocks(it)) }
 
-    private fun accounts(): Single<List<BlockchainAccount>> =
+    private fun accounts(): Single<List<AccountListViewItem>> =
         coincore.walletsWithActions(actions = setOf(fragmentAction), sorter = accountsSorting.sorter()).map {
-            it.map { account -> account }
+            it.map(AccountListViewItem.Companion::create)
         }
 
     protected abstract val fragmentAction: AssetAction

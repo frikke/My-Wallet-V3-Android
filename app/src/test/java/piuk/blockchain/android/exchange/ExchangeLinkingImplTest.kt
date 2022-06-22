@@ -1,11 +1,8 @@
 package piuk.blockchain.android.exchange
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.annotations.CommonCode
-import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -15,14 +12,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@CommonCode("Also exists in nabu/test/TestHelper.kt")
-val validOfflineToken
-    get() = NabuOfflineToken("userId", "lifetimeToken")
-
 class ExchangeLinkingImplTest {
 
-    private val nabu: NabuDataManager = mock()
-    private val nabuToken: NabuToken = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val nabuUser: NabuUser = mock()
 
     private lateinit var subject: ExchangeLinkingImpl
@@ -36,11 +28,8 @@ class ExchangeLinkingImplTest {
 
     @Before
     fun setup() {
-        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-
         subject = ExchangeLinkingImpl(
-            nabu = nabu,
-            nabuToken = nabuToken
+            nabuDataUserProvider = nabuDataUserProvider
         )
     }
 
@@ -48,13 +37,13 @@ class ExchangeLinkingImplTest {
     fun `fetch user data on subscribe, user is linked`() {
         // Arrange
         whenever(nabuUser.exchangeEnabled).thenReturn(true)
-        whenever(nabu.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         val test = subject.state.test()
 
         // Assert
-        verify(nabu).getUser(validOfflineToken)
+        verify(nabuDataUserProvider).getUser()
 
         test.assertValue { it.isLinked }
         test.assertNoErrors()
@@ -66,13 +55,13 @@ class ExchangeLinkingImplTest {
         // Arrange
         whenever(nabuUser.userName).thenReturn(null)
         whenever(nabuUser.exchangeEnabled).thenReturn(false)
-        whenever(nabu.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         val test = subject.state.test()
 
         // Assert
-        verify(nabu).getUser(validOfflineToken)
+        verify(nabuDataUserProvider).getUser()
 
         test.assertValue { !it.isLinked }
         test.assertNoErrors()
@@ -83,14 +72,14 @@ class ExchangeLinkingImplTest {
     fun `two subscriptions with isExchangeLinked() helper function`() {
         // Arrange
         whenever(nabuUser.exchangeEnabled).thenReturn(true)
-        whenever(nabu.getUser(validOfflineToken)).thenReturn(Single.just(nabuUser))
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         val test1 = subject.state.test()
         val test2 = subject.isExchangeLinked().test()
 
         // Assert
-        verify(nabu, times(2)).getUser(validOfflineToken)
+        verify(nabuDataUserProvider, times(2)).getUser()
 
         with(test1) {
             assertValueAt(0) { it.isLinked }

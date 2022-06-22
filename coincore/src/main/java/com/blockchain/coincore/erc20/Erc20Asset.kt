@@ -1,7 +1,6 @@
 package com.blockchain.coincore.erc20
 
 import com.blockchain.annotations.CommonCode
-import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.coincore.SingleAccountList
@@ -25,7 +24,6 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class Erc20Asset(
     override val assetInfo: AssetInfo,
@@ -33,11 +31,9 @@ internal class Erc20Asset(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatus,
     private val labels: DefaultLabels,
-    private val payloadManager: PayloadDataManager,
-    private val availableNonCustodialActions: Set<AssetAction>,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,
-    private val layerTwoFeatureFlag: FeatureFlag
+    private val layerTwoFeatureFlag: FeatureFlag,
 ) : CryptoAssetBase() {
     private val erc20address
         get() = erc20DataManager.accountHash
@@ -73,7 +69,6 @@ internal class Erc20Asset(
 
     private fun getNonCustodialAccount(evmNetwork: EvmNetwork): Erc20NonCustodialAccount =
         Erc20NonCustodialAccount(
-            payloadManager,
             assetInfo,
             erc20DataManager,
             erc20address,
@@ -82,8 +77,6 @@ internal class Erc20Asset(
             exchangeRates,
             walletPreferences,
             custodialManager,
-            availableNonCustodialActions,
-            identity,
             addressResolver,
             evmNetwork
         )
@@ -185,7 +178,7 @@ internal class Erc20Address(
     override val isDomain: Boolean = false,
     override val amount: Money? = null,
     override val onTxCompleted: (TxResult) -> Completable = { Completable.complete() },
-    val isContract: Boolean = false
+    val isContract: Boolean = false,
 ) : CryptoAddress {
     init {
         require(asset.isErc20())

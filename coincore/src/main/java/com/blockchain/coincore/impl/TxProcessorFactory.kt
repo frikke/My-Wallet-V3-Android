@@ -35,12 +35,13 @@ import com.blockchain.coincore.impl.txEngine.swap.OnChainSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.swap.TradingToTradingSwapTxEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngine
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
@@ -57,6 +58,7 @@ class TxProcessorFactory(
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
+    private val interestStoreService: InterestStoreService,
     private val walletPrefs: WalletStatus,
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
@@ -66,12 +68,13 @@ class TxProcessorFactory(
     private val analytics: Analytics,
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val userIdentity: UserIdentity,
-    private val plaidFeatureFlag: FeatureFlag
+    private val swapTransactionsCache: SwapTransactionsCache,
+    private val plaidFeatureFlag: FeatureFlag,
 ) {
     fun createProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> =
         when (source) {
             is CryptoNonCustodialAccount -> createOnChainProcessor(source, target, action)
@@ -85,7 +88,7 @@ class TxProcessorFactory(
     private fun createInterestWithdrawalProcessor(
         source: CryptoInterestAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> =
         when (target) {
             is CustodialTradingAccount -> {
@@ -95,6 +98,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
+                            interestStoreService = interestStoreService,
                             walletManager = walletManager,
                             interestBalances = interestBalances
                         )
@@ -108,6 +112,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawOnChainTxEngine(
+                            interestStoreService = interestStoreService,
                             walletManager = walletManager,
                             interestBalances = interestBalances
                         )
@@ -120,7 +125,7 @@ class TxProcessorFactory(
     private fun createFiatDepositProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> =
         when (target) {
             is FiatAccount -> {
@@ -149,7 +154,7 @@ class TxProcessorFactory(
     private fun createFiatWithdrawalProcessor(
         source: BlockchainAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> =
         when (target) {
             is LinkedBankAccount -> {
@@ -174,7 +179,7 @@ class TxProcessorFactory(
     private fun createOnChainProcessor(
         source: CryptoNonCustodialAccount,
         target: TransactionTarget,
-        action: AssetAction
+        action: AssetAction,
     ): Single<TransactionProcessor> {
         val engine = source.createTxEngine(target, action) as OnChainTxEngineBase
 
@@ -223,6 +228,7 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = it,
                             engine = InterestDepositOnChainTxEngine(
+                                interestStoreService = interestStoreService,
                                 walletManager = walletManager,
                                 interestBalances = interestBalances,
                                 onChainEngine = engine
@@ -258,7 +264,8 @@ class TxProcessorFactory(
                                 walletManager = walletManager,
                                 limitsDataManager = limitsDataManager,
                                 userIdentity = userIdentity,
-                                engine = engine
+                                engine = engine,
+                                swapTransactionsCache = swapTransactionsCache
                             )
                         )
                     )
@@ -283,7 +290,7 @@ class TxProcessorFactory(
 
     private fun createTradingProcessor(
         source: CustodialTradingAccount,
-        target: TransactionTarget
+        target: TransactionTarget,
     ) = when (target) {
         is CryptoAddress ->
             Single.just(
@@ -305,6 +312,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
+                        interestStoreService = interestStoreService,
                         walletManager = walletManager,
                         interestBalances = interestBalances
                     )
@@ -334,7 +342,8 @@ class TxProcessorFactory(
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,
                         quotesEngine = quotesEngine,
-                        userIdentity = userIdentity
+                        userIdentity = userIdentity,
+                        swapTransactionsCache = swapTransactionsCache
                     )
                 )
             )

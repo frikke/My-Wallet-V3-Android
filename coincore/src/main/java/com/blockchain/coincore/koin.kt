@@ -26,11 +26,9 @@ import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
-import com.blockchain.koin.stxForAirdropUsersFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -76,7 +74,6 @@ val coincoreModule = module {
 
         scoped {
             EthAsset(
-                payloadManager = get(),
                 ethDataManager = get(),
                 feeDataManager = get(),
                 walletPrefs = get(),
@@ -90,16 +87,10 @@ val coincoreModule = module {
 
         scoped {
             MaticAsset(
-                availableNonCustodialActions = setOf(
-                    AssetAction.Send,
-                    AssetAction.Receive,
-                    AssetAction.ViewActivity,
-                ),
                 ethDataManager = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 walletPreferences = get(),
-                payloadManager = get(),
                 labels = get(),
                 formatUtils = get(),
                 addressResolver = get(),
@@ -163,8 +154,7 @@ val coincoreModule = module {
                 selfCustodyService = get(),
                 ethHotWalletAddressResolver = get(),
                 layerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
-                stxForAllFeatureFlag = get(stxForAllFeatureFlag),
-                stxForAirdropFeatureFlag = get(stxForAirdropUsersFeatureFlag)
+                stxForAllFeatureFlag = get(stxForAllFeatureFlag)
             )
         }.bind(AssetLoader::class)
 
@@ -189,6 +179,7 @@ val coincoreModule = module {
                 bitPayManager = get(),
                 exchangeRates = get(),
                 interestBalances = get(),
+                interestStoreService = get(),
                 walletManager = get(),
                 bankService = get(),
                 ethMessageSigner = get(),
@@ -201,7 +192,8 @@ val coincoreModule = module {
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
                 withdrawLocksRepository = get(),
-                plaidFeatureFlag = get(plaidFeatureFlag)
+                plaidFeatureFlag = get(plaidFeatureFlag),
+                swapTransactionsCache = get()
             )
         }
 
@@ -250,6 +242,7 @@ val coincoreModule = module {
 
     single {
         UniversalDynamicAssetRepository(
+            l1EvmAssets = experimentalL1EvmAssetList(),
             discoveryService = get(),
             l2sDynamicAssetRepository = get()
         )
@@ -267,11 +260,3 @@ val coincoreModule = module {
         FormatUtilities()
     }
 }
-
-fun nonCustodialAssetList() =
-    setOf(
-        CryptoCurrency.BTC,
-        CryptoCurrency.BCH,
-        CryptoCurrency.ETHER,
-        CryptoCurrency.XLM
-    ).plus(experimentalL1EvmAssetList())

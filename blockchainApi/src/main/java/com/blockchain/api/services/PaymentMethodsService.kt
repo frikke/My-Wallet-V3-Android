@@ -9,6 +9,7 @@ import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -117,6 +118,17 @@ class PaymentMethodsService internal constructor(
         authorization,
         id,
         body
+    )
+
+    fun checkSettlement(
+        authorization: String,
+        accountId: String,
+        body: SettlementBody
+    ) = api.checkSettlement(
+        authorization,
+        accountId,
+        body,
+        localisedError = getLocalisedErrorIfEnabled()
     )
 
     fun startBankTransferPayment(

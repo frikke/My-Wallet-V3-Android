@@ -7,7 +7,9 @@
 
     <string name="backup_phrase_intro_title" />
     <string name="backup_phrase_intro_description" />
-    <string name="backup_phrase_intro_warning" />
+    <string name="backup_phrase_intro_ack_1" />
+    <string name="backup_phrase_intro_ack_2" />
+    <string name="backup_phrase_intro_ack_3" />
     <string name="back_up_now" />
 
     <string name="recovery_phrase_title" />
@@ -21,9 +23,6 @@
     <string name="common_copy" />
     <string name="next" />
     <string name="verify" />
-    <!--    <string name="common_ok" />-->
-    <!--    <string name="ops" />-->
-    <!--    <string name="something_went_wrong_try_again" />-->
 
     <string name="verify_phrase_title" />
     <string name="verify_phrase_description" />
@@ -39,7 +38,9 @@
 
     <!--    <string name="backup_phrase_intro_title">Let’s Back Up Your Wallet</string>-->
     <!--    <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>-->
-    <!--    <string name="backup_phrase_intro_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>-->
+    <!--    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>-->
     <!--    <string name="back_up_now">Back Up Now</string>-->
 
     <!--    <string name="recovery_phrase_title">Your Recovery Phrase</string>-->

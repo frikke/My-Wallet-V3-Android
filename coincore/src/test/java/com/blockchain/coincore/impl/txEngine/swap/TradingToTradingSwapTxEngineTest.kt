@@ -14,6 +14,7 @@ import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -50,6 +51,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
+    private val swapTransactionsCache: SwapTransactionsCache = mock()
+
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -69,7 +72,8 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,
-        userIdentity = userIdentity
+        userIdentity = userIdentity,
+        swapTransactionsCache = swapTransactionsCache,
     )
 
     @Before
@@ -589,7 +593,7 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyFeeLevels(
-        feeSelection: FeeSelection
+        feeSelection: FeeSelection,
     ) = feeSelection.selectedLevel == FeeLevel.None &&
         feeSelection.availableLevels == setOf(FeeLevel.None) &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

@@ -5,6 +5,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.NabuDataManager
+import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
@@ -33,6 +34,7 @@ class AnnouncementQueriesTest {
     private val nabuToken: NabuToken = mock()
     private val settings: SettingsDataManager = mock()
     private val nabu: NabuDataManager = mock()
+    private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val tierService: TierService = mock()
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
@@ -51,6 +53,7 @@ class AnnouncementQueriesTest {
             nabuToken = nabuToken,
             settings = settings,
             nabu = nabu,
+            nabuDataUserProvider = nabuDataUserProvider,
             tierService = tierService,
             sbStateFactory = sbSync,
             userIdentity = userIdentity,

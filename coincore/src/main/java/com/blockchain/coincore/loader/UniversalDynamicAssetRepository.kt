@@ -6,6 +6,7 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class UniversalDynamicAssetRepository(
+    private val l1EvmAssets: Set<AssetInfo>,
     private val discoveryService: AssetDiscoveryApiService,
     private val l2sDynamicAssetRepository: NonCustodialL2sDynamicAssetRepository
 ) : DynamicAssetsService {
@@ -20,6 +21,8 @@ class UniversalDynamicAssetRepository(
                 .toSet() // Remove dups
                 .filter { it.supportsAnyCustodialOrNonCustodialProducts() }
                 .map { it.toAssetInfo() }
+                .filterNot { l1EvmAssets.contains(it) }
+                .plus(l1EvmAssets)
         }
     }
 }

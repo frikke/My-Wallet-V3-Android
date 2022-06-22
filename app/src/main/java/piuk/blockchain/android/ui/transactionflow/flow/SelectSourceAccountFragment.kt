@@ -26,6 +26,7 @@ import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
+import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
@@ -187,7 +188,7 @@ class SelectSourceAccountFragment :
     private fun updateSources(newState: TransactionState) {
         with(binding) {
             accountList.initialise(
-                source = Single.just(newState.availableSources.map { it }),
+                source = Single.just(newState.availableSources.map(AccountListViewItem.Companion::create)),
                 status = customiser.sourceAccountSelectionStatusDecorator(newState),
                 assetAction = newState.action
             )

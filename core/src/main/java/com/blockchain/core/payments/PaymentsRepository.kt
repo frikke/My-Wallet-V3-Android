@@ -18,7 +18,6 @@ import com.blockchain.api.payments.data.BankTransferChargeAttributes
 import com.blockchain.api.payments.data.BankTransferChargeResponse
 import com.blockchain.api.payments.data.BankTransferPaymentAttributes
 import com.blockchain.api.payments.data.BankTransferPaymentBody
-import com.blockchain.api.payments.data.CreateLinkBankResponse
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.PLAID_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YAPILY_PARTNER
 import com.blockchain.api.payments.data.CreateLinkBankResponse.Companion.YODLEE_PARTNER
@@ -27,6 +26,7 @@ import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.ProviderAccountAttrs
+import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import com.blockchain.api.payments.data.YapilyMediaResponse
 import com.blockchain.api.services.PaymentMethodsService
@@ -69,6 +69,9 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
+import com.blockchain.domain.paymentmethods.model.SettlementInfo
+import com.blockchain.domain.paymentmethods.model.SettlementReason
+import com.blockchain.domain.paymentmethods.model.SettlementType
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.domain.paymentmethods.model.YapilyInstitution
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
@@ -514,6 +517,29 @@ class PaymentsRepository(
         )
     }
 
+    override fun checkSettlement(accountId: String, amount: Money): Single<SettlementInfo> =
+        authenticator.getAuthHeader().flatMap { authToken ->
+            paymentMethodsService.checkSettlement(
+                authToken,
+                accountId,
+                SettlementBody(
+                    SettlementBody.Attributes(
+                        SettlementBody.Attributes.SettlementRequest(
+                            amount = amount.toNetworkString()
+                        )
+                    )
+                )
+            ).map {
+                SettlementInfo(
+                    partner = it.partner.toLinkingBankPartner(),
+                    state = it.state.toBankState(),
+                    settlementType = it.attributes.settlementResponse.settlementType.toSettlementType(),
+                    settlementReason = it.attributes.settlementResponse.reason?.toSettlementReason()
+                        ?: SettlementReason.NONE
+                )
+            }
+        }
+
     private fun BankProviderAccountAttributes.toProviderAttributes() =
         ProviderAccountAttrs(
             providerAccountId = providerAccountId,
@@ -668,15 +694,27 @@ class PaymentsRepository(
 
     private fun String.toLinkingBankPartner(): BankPartner? {
         val partner = when (this) {
-            CreateLinkBankResponse.YODLEE_PARTNER -> BankPartner.YODLEE
-            CreateLinkBankResponse.YAPILY_PARTNER -> BankPartner.YAPILY
-            CreateLinkBankResponse.PLAID_PARTNER -> BankPartner.PLAID
+            YODLEE_PARTNER -> BankPartner.YODLEE
+            YAPILY_PARTNER -> BankPartner.YAPILY
+            PLAID_PARTNER -> BankPartner.PLAID
             else -> null
         }
 
         return if (SUPPORTED_BANK_PARTNERS.contains(partner)) {
             partner
         } else null
+    }
+
+    private fun String.toSettlementReason(): SettlementReason = try {
+        SettlementReason.valueOf(this)
+    } catch (ex: Exception) {
+        SettlementReason.UNKNOWN
+    }
+
+    private fun String.toSettlementType(): SettlementType = try {
+        SettlementType.valueOf(this)
+    } catch (ex: Exception) {
+        SettlementType.UNKNOWN
     }
 
     private fun Limits.toPaymentLimits(currency: FiatCurrency): PaymentLimits = PaymentLimits(

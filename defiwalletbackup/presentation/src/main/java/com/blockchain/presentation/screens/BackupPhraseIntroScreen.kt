@@ -1,5 +1,7 @@
 package com.blockchain.presentation.screens
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,22 +24,30 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.control.PrimarySwitch
+import com.blockchain.componentlib.control.NoPaddingRadio
+import com.blockchain.componentlib.control.RadioButtonState
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.utils.clickableNoEffect
 import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.utils.isNotLastIn
 
+/**
+ * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17284
+ */
 @Composable
 fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -48,7 +59,6 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackupPhraseIntroScreen(
             backupStatus = state.backUpStatus,
-            showError = state.showError,
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = false)) },
             backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackupProcess) }
         )
@@ -58,12 +68,11 @@ fun BackupPhraseIntro(viewModel: BackupPhraseViewModel) {
 @Composable
 fun BackupPhraseIntroScreen(
     backupStatus: BackUpStatus,
-    // todo (othman) check with ethan what to show in case we can't get mnemonic
-    // most likely never going to happen
-    showError: Boolean,
     backOnClick: () -> Unit,
-    backUpNowOnClick: () -> Unit
+    backUpNowOnClick: () -> Unit,
 ) {
+    var allAcknowledgementsChecked by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -92,9 +101,26 @@ fun BackupPhraseIntroScreen(
 
             BackupPhraseIntroScreenDescription()
 
+            Spacer(modifier = Modifier.weight(1F))
+
+            BackupPhraseIntroAcknowledgments(
+                acknowledgments = listOf(
+                    R.string.backup_phrase_intro_ack_1,
+                    R.string.backup_phrase_intro_ack_2,
+                    R.string.backup_phrase_intro_ack_3,
+                )
+            ) {
+                allAcknowledgementsChecked = true
+            }
+
             Spacer(modifier = Modifier.weight(3F))
 
-            BackupPhraseIntroScreenCta(backUpNowOnClick = backUpNowOnClick)
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.back_up_now),
+                state = if (allAcknowledgementsChecked) ButtonState.Enabled else ButtonState.Disabled,
+                onClick = backUpNowOnClick
+            )
         }
     }
 }
@@ -129,34 +155,68 @@ fun BackupPhraseIntroScreenDescription() {
 }
 
 @Composable
-fun BackupPhraseIntroScreenCta(backUpNowOnClick: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+fun BackupPhraseIntroAcknowledgmentItem(
+    text: String,
+    onAccepted: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = Grey100,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
+            )
+            .padding(
+                horizontal = dimensionResource(R.dimen.very_small_margin),
+                vertical = dimensionResource(R.dimen.small_margin)
+            ),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         var isChecked by remember { mutableStateOf(false) }
 
-        Row {
-            PrimarySwitch(
-                isChecked = isChecked, onCheckChanged = { isChecked = it }
-            )
-
-            Spacer(Modifier.size(dimensionResource(R.dimen.very_small_margin)))
-
-            Text(
-                text = stringResource(id = R.string.backup_phrase_intro_warning),
-                style = AppTheme.typography.micro2
-            )
-        }
-
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
-
-        PrimaryButton(
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(id = R.string.back_up_now),
-            state = if (isChecked) ButtonState.Enabled else ButtonState.Disabled,
-            onClick = backUpNowOnClick
+        Text(
+            modifier = Modifier
+                .weight(1F)
+                .clickableNoEffect {
+                    isChecked = true
+                    onAccepted()
+                },
+            text = text,
+            style = AppTheme.typography.caption1
         )
+
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+        NoPaddingRadio(
+            state = if (isChecked) RadioButtonState.Selected else RadioButtonState.Unselected,
+            onSelectedChanged = {
+                isChecked = true
+                onAccepted()
+            }
+        )
+    }
+}
+
+@Composable
+fun BackupPhraseIntroAcknowledgments(@StringRes acknowledgments: List<Int>, allChecked: () -> Unit) {
+    val acknowledgementChecks = mutableMapOf<Int, Boolean>()
+
+    acknowledgments.associateWithTo(acknowledgementChecks) { false }
+
+    Column {
+        acknowledgementChecks.keys.forEachIndexed { index, acknowledgement ->
+            BackupPhraseIntroAcknowledgmentItem(stringResource(acknowledgement)) {
+                acknowledgementChecks[acknowledgement] = true
+
+                if (acknowledgementChecks.values.none { checked -> checked.not() }) {
+                    allChecked()
+                }
+            }
+
+            if (index isNotLastIn acknowledgments) {
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+            }
+        }
     }
 }
 
@@ -164,21 +224,21 @@ fun BackupPhraseIntroScreenCta(backUpNowOnClick: () -> Unit) {
 // PREVIEWS
 // ///////////////
 
-@Preview(name = "Backup Intro no backup", showBackground = true)
+@Preview(name = "no backup", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroScreenNoBackup() {
     BackupPhraseIntroScreen(
         BackUpStatus.NO_BACKUP,
-        showError = false, backOnClick = {}, backUpNowOnClick = { }
+        backOnClick = {}, backUpNowOnClick = { }
     )
 }
 
-@Preview(name = "Backup Intro backed up", showBackground = true)
+@Preview(name = "backed up", showBackground = true)
 @Composable
 fun PreviewBackupPhraseIntroScreenBackedUp() {
     BackupPhraseIntroScreen(
         BackUpStatus.BACKED_UP,
-        showError = false, backOnClick = {}, backUpNowOnClick = { }
+        backOnClick = {}, backUpNowOnClick = { }
     )
 }
 
@@ -188,8 +248,20 @@ fun PreviewBackupPhraseIntroScreenDescription() {
     BackupPhraseIntroScreenDescription()
 }
 
-@Preview(name = "Backup Intro CTA", showBackground = true)
+@Preview(name = "Acknowledgment Item", showBackground = true)
 @Composable
-fun PreviewBackupPhraseIntroScreenCta() {
-    BackupPhraseIntroScreenCta {}
+fun PreviewBackupPhraseIntroAcknowledgmentItem() {
+    BackupPhraseIntroAcknowledgmentItem(text = stringResource(id = R.string.backup_phrase_intro_ack_1)) {}
+}
+
+@Preview(name = "Acknowledgments", showBackground = true)
+@Composable
+fun PreviewBackupPhraseIntroAcknowledgments() {
+    BackupPhraseIntroAcknowledgments(
+        acknowledgments = listOf(
+            R.string.backup_phrase_intro_ack_1,
+            R.string.backup_phrase_intro_ack_2,
+            R.string.backup_phrase_intro_ack_3,
+        )
+    ) {}
 }

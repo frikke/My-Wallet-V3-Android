@@ -75,7 +75,7 @@ internal class SwapTrendingPairsProvider(
                 }
 
                 val isFunded = source.isFunded &&
-                    (source.isCustodial() || chain == null || chain.isFunded)
+                    (source.isTrading() || chain == null || chain.isFunded)
 
                 TrendingPair(source, target, isFunded)
             } else {

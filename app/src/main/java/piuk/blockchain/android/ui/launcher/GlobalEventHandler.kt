@@ -159,13 +159,14 @@ class GlobalEventHandler(
                         notificationManager = notificationManager,
                         analytics = analytics
                     ).triggerNotification(
-                        title = notificationPayload.title ?: "",
-                        marquee = notificationPayload.title ?: "",
-                        text = notificationPayload.body ?: "",
+                        title = notificationPayload.title,
+                        marquee = notificationPayload.title,
+                        text = notificationPayload.body,
                         pendingIntent = pendingIntentFinal,
                         id = NotificationsUtil.ID_BACKGROUND_NOTIFICATION,
                         appName = R.string.app_name,
-                        colorRes = R.color.primary_navy_medium
+                        colorRes = R.color.primary_navy_medium,
+                        source = "GlobalEventHandler: $destination"
                     )
                 }
             },

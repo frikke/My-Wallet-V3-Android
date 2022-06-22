@@ -233,6 +233,7 @@ val applicationModule = module {
         factory {
             KycStatusHelper(
                 nabuDataManager = get(),
+                nabuDataUserProvider = get(),
                 nabuToken = get(),
                 settingsDataManager = get(),
                 tierService = get()
@@ -610,8 +611,7 @@ val applicationModule = module {
 
         scoped {
             ExchangeLinkingImpl(
-                nabu = get(),
-                nabuToken = get()
+                nabuDataUserProvider = get()
             )
         }.bind(ExchangeLinking::class)
 

@@ -2,6 +2,7 @@ package com.blockchain.nabu.datamanagers.custodialwalletimpl
 
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
+import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
@@ -99,6 +100,7 @@ class LiveCustodialWalletManager(
     private val pairsCache: BuyPairsCache,
     private val transactionsCache: TransactionsCache,
     private val buyOrdersCache: BuyOrdersCache,
+    private val swapOrdersCache: SwapTransactionsCache,
     private val paymentMethodsEligibilityStore: PaymentMethodsEligibilityStore,
     private val paymentAccountMapperMappers: Map<String, PaymentAccountMapper>,
     private val interestRepository: InterestRepository,
@@ -740,9 +742,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun getSwapTrades(): Single<List<CustodialOrder>> =
-        authenticator.authenticate { sessionToken ->
-            nabuService.getSwapTrades(sessionToken)
-        }.map { response ->
+        swapOrdersCache.swapOrders().map { response ->
             response.mapNotNull { orderResp ->
                 orderResp.toSwapOrder()
             }
