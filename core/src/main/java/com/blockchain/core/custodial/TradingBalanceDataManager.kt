@@ -1,5 +1,7 @@
 package com.blockchain.core.custodial
 
+import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.featureflag.FeatureFlag
 import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -9,7 +11,7 @@ data class TradingAccountBalance(
     val total: Money,
     val withdrawable: Money,
     val pending: Money,
-    val hasTransactions: Boolean = false
+    val hasTransactions: Boolean = false,
 )
 
 interface TradingBalanceDataManager {
@@ -18,16 +20,32 @@ interface TradingBalanceDataManager {
 }
 
 internal class TradingBalanceDataManagerImpl(
-    private val balanceCallCache: TradingBalanceCallCache
+    private val balanceCallCache: TradingBalanceCallCache,
+    private val tradingStoreService: TradingStoreService,
+    private val speedUpLoginTradingFF: FeatureFlag,
 ) : TradingBalanceDataManager {
-    override fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance> =
-        balanceCallCache.getTradingBalances()
-            .map { it.balances.getOrDefault(currency, zeroBalance(currency)) }
-            .toObservable()
+    override fun getBalanceForCurrency(currency: Currency): Observable<TradingAccountBalance> {
+        return speedUpLoginTradingFF.enabled.flatMapObservable { isEnabled ->
+            if (isEnabled) {
+                tradingStoreService.getBalanceFor(asset = currency)
+            } else {
+                balanceCallCache.getTradingBalances()
+                    .map { it.balances.getOrDefault(currency, zeroBalance(currency)) }
+                    .toObservable()
+            }
+        }
+    }
 
-    override fun getActiveAssets(): Single<Set<Currency>> =
-        balanceCallCache.getTradingBalances()
-            .map { it.balances.keys }
+    override fun getActiveAssets(): Single<Set<Currency>> {
+        return speedUpLoginTradingFF.enabled.flatMap { isEnabled ->
+            if (isEnabled) {
+                tradingStoreService.getActiveAssets()
+            } else {
+                balanceCallCache.getTradingBalances()
+                    .map { it.balances.keys }
+            }
+        }
+    }
 }
 
 private fun zeroBalance(currency: Currency): TradingAccountBalance =
