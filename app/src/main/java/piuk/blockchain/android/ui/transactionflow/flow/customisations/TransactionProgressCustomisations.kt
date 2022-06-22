@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import androidx.annotation.DrawableRes
+import com.blockchain.api.ServerErrorAction
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 
 interface TransactionProgressCustomisations {
@@ -13,6 +14,7 @@ interface TransactionProgressCustomisations {
     fun transactionProgressExceptionTitle(state: TransactionState): String
     fun transactionProgressExceptionDescription(state: TransactionState): String
     fun transactionProgressExceptionIcon(state: TransactionState): ErrorStateIcon
+    fun transactionProgressExceptionActions(state: TransactionState): List<ServerErrorAction>
 }
 
 sealed class ErrorStateIcon {

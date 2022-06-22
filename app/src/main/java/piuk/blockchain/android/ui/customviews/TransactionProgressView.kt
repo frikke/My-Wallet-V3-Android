@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.customviews
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.AttributeSet
@@ -9,9 +10,14 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.blockchain.api.ServerErrorAction
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.koin.scopedInject
 import info.blockchain.balance.Currency
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import piuk.blockchain.android.R
@@ -19,11 +25,20 @@ import piuk.blockchain.android.databinding.ViewTransactionProgressBinding
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.loadRemoteErrorAndStatusIcons
 import piuk.blockchain.android.util.loadRemoteErrorIcon
+import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 
 class TransactionProgressView(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs), KoinComponent {
 
+    interface TransactionProgressActions {
+        fun onPrimaryButtonClicked()
+        fun onSecondaryButtonClicked()
+        fun onTertiaryButtonClicked()
+    }
+
     private val assetResources: AssetResources by inject()
+    private val compositeDisposable = CompositeDisposable()
+    private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
 
     private val binding: ViewTransactionProgressBinding =
         ViewTransactionProgressBinding.inflate(LayoutInflater.from(context), this, true)
@@ -36,19 +51,27 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         assetResources.loadAssetIcon(binding.txIcon, asset)
     }
 
-    fun onCtaClick(text: String, fn: () -> Unit) {
-        binding.txOkBtn.apply {
+    fun setupPrimaryCta(text: String, onClick: () -> Unit) {
+        binding.txPrimaryBtn.apply {
             visible()
             this.text = text
-            setOnClickListener { fn() }
+            this.onClick = { onClick() }
         }
     }
 
-    fun onSecondaryCtaClicked(text: String, fn: () -> Unit) {
-        binding.secondaryBtn.apply {
+    fun setupSecondaryCta(text: String, onClick: () -> Unit) {
+        binding.txSecondaryBtn.apply {
             visible()
             this.text = text
-            setOnClickListener { fn() }
+            this.onClick = { onClick() }
+        }
+    }
+
+    fun setupTertiaryCta(text: String, onClick: () -> Unit) {
+        binding.txTertiaryBtn.apply {
+            visible()
+            this.text = text
+            this.onClick = { onClick() }
         }
     }
 
@@ -56,7 +79,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         with(binding) {
             progress.visible()
             txStateIndicator.gone()
-            txOkBtn.gone()
+            txPrimaryBtn.gone()
         }
         setText(title, subtitle)
     }
@@ -65,7 +88,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         with(binding) {
             progress.gone()
             txStateIndicator.visible()
-            txOkBtn.visible()
+            txPrimaryBtn.visible()
             txStateIndicator.setImageResource(R.drawable.ic_pending_clock)
         }
         setText(title, subtitle)
@@ -268,6 +291,57 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         setText(title, subtitle)
     }
 
+    fun showServerSideActionErrorCtas(
+        list: List<ServerErrorAction>,
+        currencyCode: String,
+        onActionsClickedCallback: TransactionProgressActions
+    ) {
+        list.mapIndexed { index, item ->
+            when (index) {
+                0 -> {
+                    setupPrimaryCta(
+                        text = item.title
+                    ) {
+                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                        onActionsClickedCallback.onPrimaryButtonClicked()
+                    }
+                }
+                1 -> {
+                    setupSecondaryCta(
+                        text = item.title
+                    ) {
+                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                        onActionsClickedCallback.onSecondaryButtonClicked()
+                    }
+                }
+                2 -> {
+                    setupTertiaryCta(
+                        text = item.title
+                    ) {
+                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                        onActionsClickedCallback.onTertiaryButtonClicked()
+                    }
+                }
+                else -> {
+                    // do nothing - we only support 3 actions
+                }
+            }
+        }
+    }
+
+    private fun redirectToDeeplinkProcessor(link: String, currencyCode: String) {
+        compositeDisposable += deeplinkRedirector.processDeeplinkURL(
+            link.appendTickerToDeeplink(currencyCode)
+        ).emptySubscribe()
+    }
+
+    private fun String.appendTickerToDeeplink(currencyCode: String): Uri =
+        Uri.parse("$this?code=$currencyCode")
+
+    fun clearSubscriptions() {
+        compositeDisposable.clear()
+    }
+
     private fun setFiatAssetIcon(currency: String) =
         setAssetIcon(
             when (currency) {
@@ -280,7 +354,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun showEndStateUi() {
         with(binding) {
             progress.gone()
-            txOkBtn.visible()
+            txPrimaryBtn.visible()
         }
     }
 

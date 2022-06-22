@@ -37,6 +37,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.TRADING_
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.UNKNOWN_ERROR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW_ALREADY_PENDING
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW_BALANCE_LOCKED
+import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -55,9 +56,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.txProgressView.onCtaClick(
-            text = getString(R.string.common_ok)
-        ) { activity.finish() }
     }
 
     override fun render(newState: TransactionState) {
@@ -71,7 +69,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     }
 
     private fun handleStatusUpdates(
-        newState: TransactionState
+        newState: TransactionState,
     ) {
         when (newState.executionStatus) {
             is TxExecutionStatus.InProgress -> binding.txProgressView.showTxInProgress(
@@ -107,12 +105,13 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 customiser.transactionProgressExceptionIcon(newState).run {
                     with(binding.txProgressView) {
                         when (val iconResource = this@run) {
-                            is ErrorStateIcon.Local ->
+                            is ErrorStateIcon.Local -> {
                                 showTxError(
                                     customiser.transactionProgressExceptionTitle(newState),
                                     customiser.transactionProgressExceptionDescription(newState),
                                     iconResource.resourceId
                                 )
+                            }
                             is ErrorStateIcon.RemoteIcon ->
                                 showServerSideError(
                                     iconUrl = iconResource.iconUrl,
@@ -127,6 +126,31 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                                     description = customiser.transactionProgressExceptionDescription(newState),
                                 )
                         }
+
+                        val actions = customiser.transactionProgressExceptionActions(newState)
+                        if (actions.isEmpty()) {
+                            setupPrimaryCta(
+                                text = getString(R.string.common_ok)
+                            ) { activity.finish() }
+                        } else {
+                            showServerSideActionErrorCtas(
+                                list = actions,
+                                currencyCode = newState.sendingAccount.currency.networkTicker,
+                                onActionsClickedCallback = object : TransactionProgressView.TransactionProgressActions {
+                                    override fun onPrimaryButtonClicked() {
+                                        activity.finish()
+                                    }
+
+                                    override fun onSecondaryButtonClicked() {
+                                        activity.finish()
+                                    }
+
+                                    override fun onTertiaryButtonClicked() {
+                                        activity.finish()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -138,11 +162,16 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
         }
     }
 
+    override fun onPause() {
+        binding.txProgressView.clearSubscriptions()
+        super.onPause()
+    }
+
     private fun sendAnalyticsEvent(
         analyticsPair: Pair<String, String>,
         action: String,
         nabuApiException: NabuApiException?,
-        errorDescription: String?
+        errorDescription: String?,
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -331,12 +360,14 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
             when (action) {
                 AssetAction.Send -> R.string.common_send
                 AssetAction.FiatWithdraw,
-                AssetAction.InterestWithdraw -> R.string.common_withdraw
+                AssetAction.InterestWithdraw,
+                -> R.string.common_withdraw
                 AssetAction.Swap -> R.string.common_swap
                 AssetAction.Sell -> R.string.common_sell
                 AssetAction.Sign -> R.string.common_sign
                 AssetAction.InterestDeposit,
-                AssetAction.FiatDeposit -> R.string.common_deposit
+                AssetAction.FiatDeposit,
+                -> R.string.common_deposit
                 AssetAction.ViewActivity -> R.string.common_activity
                 AssetAction.Receive -> R.string.common_receive
                 AssetAction.ViewStatement -> R.string.common_summary

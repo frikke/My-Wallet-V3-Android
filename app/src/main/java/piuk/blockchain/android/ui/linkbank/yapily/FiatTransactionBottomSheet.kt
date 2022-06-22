@@ -42,7 +42,7 @@ class FiatTransactionBottomSheet : SlidingModalBottomDialog<DialogSheetFiatTrans
                     title, subtitle, fiatCurrency
                 )
             }
-            transactionProgressView.onCtaClick(
+            transactionProgressView.setupPrimaryCta(
                 text = getString(R.string.common_ok)
             ) { dismiss() }
         }
