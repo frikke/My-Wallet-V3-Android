@@ -21,6 +21,7 @@ import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.speedUpLoginInterestFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
@@ -30,6 +31,15 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
+
+    single(speedUpLoginInterestFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_interest",
+                "SpeedUp Login - /accounts/savings"
+            )
+        )
+    }.bind(FeatureFlag::class)
 
     single(googlePayFeatureFlag) {
         IntegratedFeatureFlag(
