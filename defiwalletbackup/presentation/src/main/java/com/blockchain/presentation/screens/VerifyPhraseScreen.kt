@@ -35,6 +35,7 @@ import com.blockchain.presentation.R
 import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.utils.replaceInList
 import java.util.Locale
 
 private const val STEP_INDEX = 2
@@ -68,8 +69,20 @@ fun VerifyPhraseScreen(
     backOnClick: () -> Unit,
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
-    val userMnemonic = remember { mutableStateListOf<String>() }
-    val randomizedMnemonic = remember { mnemonic.shuffled().toMutableStateList() }
+    // map to selectable word -> offers selection setting
+    val selectableMnemonic = remember {
+        mnemonic.mapIndexed { index, word ->
+            SelectableMnemonicWord(
+                id = index,
+                word = word,
+                selected = false
+            )
+        }
+    }
+    // mnemonic that user is selecting
+    val userMnemonic = remember { mutableStateListOf<SelectableMnemonicWord>() }
+    // create randomized mnemonic for user to verify with
+    val randomizedMnemonic = remember { selectableMnemonic.shuffled().toMutableStateList() }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -107,19 +120,29 @@ fun VerifyPhraseScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            MnemonicVerification(userMnemonic) { word ->
+            MnemonicVerification(userMnemonic) { selectableWord ->
                 if (isLoading.not() && mnemonicVerificationStatus != UserMnemonicVerificationStatus.VERIFIED) {
-                    userMnemonic.remove(word)
-                    randomizedMnemonic.add(word)
+                    // remove word from the final list
+                    userMnemonic.remove(selectableWord)
+                    // mark word as unselected to show it back in randomized list
+                    randomizedMnemonic.replaceInList(
+                        replacement = selectableWord.copy(selected = false),
+                        where = { it.id == selectableWord.id }
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-            MnemonicSelection(randomizedMnemonic) { word ->
+            MnemonicSelection(randomizedMnemonic) { selectableWord ->
                 if (isLoading.not() && mnemonicVerificationStatus != UserMnemonicVerificationStatus.VERIFIED) {
-                    userMnemonic.add(word)
-                    randomizedMnemonic.remove(word)
+                    // add word to the final list
+                    userMnemonic.add(selectableWord)
+                    // mark word as selected to hide it from randomized list
+                    randomizedMnemonic.replaceInList(
+                        replacement = selectableWord.copy(selected = true),
+                        where = { it.id == selectableWord.id }
+                    )
                 }
             }
 
@@ -130,7 +153,7 @@ fun VerifyPhraseScreen(
                 isLoading = isLoading,
                 mnemonicVerificationStatus = mnemonicVerificationStatus
             ) {
-                nextOnClick(userMnemonic)
+                nextOnClick(userMnemonic.map { it.word })
             }
         }
     }
@@ -141,7 +164,7 @@ fun VerifyPhraseCta(
     allWordsSelected: Boolean,
     isLoading: Boolean,
     mnemonicVerificationStatus: UserMnemonicVerificationStatus,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val state: ButtonState = when {
         allWordsSelected.not() -> ButtonState.Disabled
