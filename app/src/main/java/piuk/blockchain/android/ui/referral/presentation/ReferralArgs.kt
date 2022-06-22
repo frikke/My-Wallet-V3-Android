@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class ReferralArgs(
     val code: String,
     val criteria: List<String>,
+    val campaignId: String,
     val rewardSubtitle: String,
     val rewardTitle: String
 ) : ModelConfigArgs.ParcelableArgs {
@@ -20,6 +21,7 @@ data class ReferralArgs(
 fun ReferralInfo.Data.mapArgs() = ReferralArgs(
     code = code,
     criteria = criteria,
+    campaignId = campaignId,
     rewardSubtitle = rewardSubtitle,
     rewardTitle = rewardTitle
 )

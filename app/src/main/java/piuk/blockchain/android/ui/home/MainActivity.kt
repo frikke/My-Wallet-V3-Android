@@ -100,7 +100,9 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
+import piuk.blockchain.android.ui.referral.presentation.Source
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -308,6 +310,7 @@ class MainActivity :
             ) {
                 model.process(MainIntent.ReferralIconClicked)
                 showReferralBottomSheet(referralState.referralInfo)
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Source.Portfolio))
             }
         } else {
             null
@@ -703,6 +706,7 @@ class MainActivity :
                 showUiTour()
             }
             is ViewToLaunch.ShowReferralSheet -> {
+                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Source.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
         }.exhaustive

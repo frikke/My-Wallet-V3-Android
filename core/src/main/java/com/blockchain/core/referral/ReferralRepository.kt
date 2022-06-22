@@ -40,6 +40,7 @@ class ReferralRepository(
                                         rewardSubtitle = response.rewardSubtitle,
                                         criteria = response.criteria,
                                         code = response.code,
+                                        campaignId = response.campaignId
                                     )
                                 )
                             },

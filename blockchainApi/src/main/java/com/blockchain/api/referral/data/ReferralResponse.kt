@@ -11,6 +11,8 @@ data class ReferralResponse(
     val rewardSubtitle: String,
     @SerialName("code")
     val code: String,
+    @SerialName("campaignId")
+    val campaignId: String,
     @SerialName("criteria")
     val criteria: List<String>
 )
