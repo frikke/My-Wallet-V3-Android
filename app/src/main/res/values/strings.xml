@@ -2930,7 +2930,9 @@
     <string name="back_up_status_negative">Not Backed Up</string>
     <string name="back_up_status_positive">Backed Up</string>
     <string name="backup_phrase_intro_description">In the next few screens, you will get your 12 words to recover your wallets if ever needed in the future.</string>
-    <string name="backup_phrase_intro_warning">I understand that if I lose my recovery phrase, I will not be able to access my DeFi wallets.</string>
+    <string name="backup_phrase_intro_ack_1">If I lose my secret phrase, my funds will be lost forever.</string>
+    <string name="backup_phrase_intro_ack_2">If I expose or share my secret phrase to anybody, my funds can get stolen.</string>
+    <string name="backup_phrase_intro_ack_3">It is my full responsibility to keep my secret phrase secure.</string>
     <string name="back_up_now">Back Up Now</string>
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
