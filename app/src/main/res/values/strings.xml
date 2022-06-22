@@ -2209,6 +2209,7 @@
     <string name="checkout_item_price_note">Blockchain.com provides the best market price we receive and applies a spread.&#160;</string>
     <string name="checkout_item_network_fee_note">Pays for %1$s miners to confirm your transaction on the blockchain network.&#160;</string>
     <string name="swap_confirmation_disclaimer_1">Final amount may change due to market activity. By approving this Swap you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
+    <string name="sell_confirmation_disclaimer">Final amount may change due to market activity. By approving this Sell you agree to Blockchain.com’s\n<annotation link="refund_policy">Refund Policy</annotation></string>
     <string name="checkout_swap_exchange_note">The exchange rate is the best price available for %1$s in terms of 1 %2$s&#160;</string>
     <string name="upsell_message">Get lower fees and double the transaction speed when you Swap crypto to any Trading Account. Just look for these badges to reduce fees by up to 50%.</string>
     <string name="upsell_title">Reduce fees. Swap to Trading Account.</string>

@@ -59,6 +59,7 @@ import piuk.blockchain.android.ui.transactionflow.plugin.SwapInfoHeaderView
 import piuk.blockchain.android.ui.transactionflow.plugin.TxFlowWidget
 import piuk.blockchain.android.urllinks.CHECKOUT_REFUND_POLICY
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
+import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import timber.log.Timber
 
@@ -414,12 +415,19 @@ class TransactionFlowCustomiserImpl(
 
     override fun confirmDisclaimerBlurb(state: TransactionState, context: Context): CharSequence =
         when (state.action) {
-            AssetAction.Swap -> {
-                val map = mapOf("refund_policy" to Uri.parse(CHECKOUT_REFUND_POLICY))
-                stringUtils.getStringWithMappedAnnotations(
-                    R.string.swap_confirmation_disclaimer_1,
-                    map,
-                    context
+            AssetAction.Swap,
+            AssetAction.Sell -> {
+                val map = mapOf(
+                    "refund_policy" to StringAnnotationClickEvent.OpenUri(Uri.parse(CHECKOUT_REFUND_POLICY))
+                )
+                StringUtils.getStringWithMappedAnnotations(
+                    stringId = when (state.action) {
+                        AssetAction.Swap -> R.string.swap_confirmation_disclaimer_1
+                        AssetAction.Sell -> R.string.sell_confirmation_disclaimer
+                        else -> throw IllegalStateException("Invalid action for refund policy")
+                    },
+                    linksMap = map,
+                    context = context
                 )
             }
             AssetAction.InterestWithdraw -> resources.getString(
@@ -450,7 +458,7 @@ class TransactionFlowCustomiserImpl(
             AssetAction.Swap,
             AssetAction.FiatDeposit,
             AssetAction.InterestWithdraw,
-            -> true
+            AssetAction.Sell -> true
             else -> false
         }
 
