@@ -5,15 +5,12 @@ import com.blockchain.api.custodial.data.TradingBalanceResponseDto
 import com.blockchain.api.wrapErrorMessage
 import io.reactivex.rxjava3.core.Single
 import java.math.BigInteger
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class TradingBalance(
     val assetTicker: String,
-    val pending: @Contextual BigInteger,
-    val total: @Contextual BigInteger,
-    val withdrawable: @Contextual BigInteger
+    val pending: BigInteger,
+    val total: BigInteger,
+    val withdrawable: BigInteger
 )
 
 typealias TradingBalanceList = List<TradingBalance>

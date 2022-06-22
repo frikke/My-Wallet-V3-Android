@@ -9,31 +9,34 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
+import com.blockchain.store.mapListData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.builtins.ListSerializer
+import piuk.blockchain.androidcore.utils.extensions.mapList
 
 internal class TradingStore(
     private val balanceService: CustodialBalanceService,
-    private val authenticator: Authenticator
-) : Store<Throwable, List<TradingBalance>> by PersistedJsonSqlDelightStoreBuilder()
+    private val authenticator: Authenticator,
+) : Store<Throwable, List<TradingBalanceStoreModel>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.ofSingle(
             mapper = {
                 authenticator.authenticate {
                     balanceService.getTradingBalanceForAllAssets(it.authHeader)
+                        .mapList { it.toStore() }
                 }
             },
             errorMapper = { it }
         ),
-        dataSerializer = ListSerializer(TradingBalance.serializer()),
-        mediator = FreshnessMediator(Freshness.ofMinutes(60L)) // todo(othman) duration?
+        dataSerializer = ListSerializer(TradingBalanceStoreModel.serializer()),
+        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
     ),
     TradingDataSource {
 
     override fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, List<TradingBalance>>> =
-        stream(StoreRequest.Cached(refresh))
+        stream(StoreRequest.Cached(refresh)).mapListData { it.toDomain() }
 
     override fun invalidate() {
         markAsStale()
