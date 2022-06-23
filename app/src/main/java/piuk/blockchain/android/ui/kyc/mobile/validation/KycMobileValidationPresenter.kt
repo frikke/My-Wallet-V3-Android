@@ -5,10 +5,13 @@ import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.base.BasePresenter
 import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class KycMobileValidationPresenter(
@@ -28,7 +31,11 @@ class KycMobileValidationPresenter(
                 .flatMapSingle { (verificationModel, _) ->
                     phoneNumberUpdater.verifySms(verificationModel.verificationCode.code)
                         .flatMapCompletable { nabuUserSync.syncUser() }
-                        .andThen(kycDataManager.getQuestionnaireSingle())
+                        .andThen(
+                            rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+                                kycDataManager.getQuestionnaire()
+                            }
+                        )
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnSubscribe { view.showProgressDialog() }
                         .doOnTerminate {

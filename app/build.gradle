@@ -503,6 +503,7 @@ dependencies {
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
     testImplementation Libraries.mockk
+    testImplementation Libraries.coreTesting
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kotlinCoroutinesTest

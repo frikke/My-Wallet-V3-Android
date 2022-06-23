@@ -1,14 +1,16 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.GetRegionScope
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.datamanagers.SimplifiedDueDiligenceUserState
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.Scope
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -17,6 +19,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.`should be equal to`
 import org.junit.Before
 import org.junit.Rule
@@ -31,6 +34,7 @@ class KycHomeAddressPresenterTest {
     private lateinit var subject: KycHomeAddressPresenter
     private val view: KycHomeAddressView = mock()
     private val nabuDataManager: NabuDataManager = mock()
+    private val eligibilityService: EligibilityService = mock()
     private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
@@ -51,6 +55,7 @@ class KycHomeAddressPresenterTest {
         subject = KycHomeAddressPresenter(
             nabuToken,
             nabuDataManager,
+            eligibilityService,
             nabuDataUserProvider,
             kycNextStepDecision,
             custodialWalletManager,
@@ -152,7 +157,7 @@ class KycHomeAddressPresenterTest {
     }
 
     @Test
-    fun `onViewReady has address to restore`() {
+    fun `onViewReady has address to restore`() = runTest {
         // Arrange
         whenever(view.address)
             .thenReturn(Observable.just(addressModel()))
@@ -175,9 +180,9 @@ class KycHomeAddressPresenterTest {
         whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(getBlankNabuUser().copy(address = address)))
         val countryList =
-            listOf(NabuCountryResponse(country, countryName, emptyList(), emptyList()))
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country(country, countryName, true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(countryList))
         // Act
         subject.onViewReady()
         // Assert
@@ -385,18 +390,18 @@ class KycHomeAddressPresenterTest {
     }
 
     @Test
-    fun `countryCodeSingle should return sorted country map`() {
+    fun `countryCodeSingle should return sorted country map`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryList = listOf(
-            NabuCountryResponse("DE", "Germany", emptyList(), emptyList()),
-            NabuCountryResponse("UK", "United Kingdom", emptyList(), emptyList()),
-            NabuCountryResponse("FR", "France", emptyList(), emptyList())
+            Region.Country("DE", "Germany", true, emptyList()),
+            Region.Country("UK", "United Kingdom", true, emptyList()),
+            Region.Country("FR", "France", true, emptyList())
         )
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(countryList))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(countryList))
         // Act
         val testObserver = subject.countryCodeSingle.test()
         // Assert

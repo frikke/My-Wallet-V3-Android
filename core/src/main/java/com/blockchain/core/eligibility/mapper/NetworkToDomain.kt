@@ -3,16 +3,20 @@ package com.blockchain.core.eligibility.mapper
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.eligibility.data.BuyEligibilityResponse
+import com.blockchain.api.eligibility.data.CountryResponse
 import com.blockchain.api.eligibility.data.DefaultEligibilityResponse
 import com.blockchain.api.eligibility.data.ProductEligibilityResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleReasonResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleResponse
 import com.blockchain.api.eligibility.data.ReasonNotEligibleTypeResponse
+import com.blockchain.api.eligibility.data.StateResponse
 import com.blockchain.api.eligibility.data.SwapEligibilityResponse
 import com.blockchain.domain.eligibility.model.EligibilityError
 import com.blockchain.domain.eligibility.model.EligibleProduct
+import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.extensions.enumValueOfOrNull
 
@@ -72,6 +76,25 @@ fun ReasonNotEligibleResponse.toDomain(): ProductNotEligibleReason {
         }
         null -> ProductNotEligibleReason.Unknown(message)
     }
+}
+
+fun CountryResponse.toDomain(): Region.Country = Region.Country(
+    countryCode = code,
+    name = name,
+    isKycAllowed = scopes.any { it.toGetRegionScope() == GetRegionScope.Kyc },
+    states = states
+)
+
+fun StateResponse.toDomain(): Region.State = Region.State(
+    countryCode = countryCode,
+    name = name,
+    isKycAllowed = scopes.any { it.toGetRegionScope() == GetRegionScope.Kyc },
+    stateCode = code
+)
+
+fun String.toGetRegionScope(): GetRegionScope? = GetRegionScope.values().find {
+    val key = it.toNetwork()
+    this.equals(key, ignoreCase = true)
 }
 
 internal fun Throwable.toError(): EligibilityError =

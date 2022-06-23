@@ -12,7 +12,7 @@ import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
-import com.blockchain.api.eligibility.ProductEligibilityApi
+import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.interest.InterestApiInterface
@@ -32,6 +32,7 @@ import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DynamicSelfCustodyService
+import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.KycService
 import com.blockchain.api.services.NabuUserService
@@ -41,7 +42,6 @@ import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.api.services.PaymentsService
-import com.blockchain.api.services.ProductEligibilityApiService
 import com.blockchain.api.services.ReferralApiService
 import com.blockchain.api.services.TradeService
 import com.blockchain.api.services.TxLimitsService
@@ -217,8 +217,8 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(ProductEligibilityApi::class.java)
-        ProductEligibilityApiService(
+        val api = get<Retrofit>(nabuApi).create(EligibilityApi::class.java)
+        EligibilityApiService(
             api
         )
     }

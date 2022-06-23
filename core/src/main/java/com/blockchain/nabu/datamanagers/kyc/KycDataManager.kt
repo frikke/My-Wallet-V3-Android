@@ -9,19 +9,12 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
-import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class KycDataManager(
     private val authenticator: Authenticator,
     private val kycService: KycService
 ) {
-
-    // This is used for testing to we can use this directly rather than using on rxSingleOutcome on the model/presenter
-    // which can lead to some issues in tests, specifically on KycMobileValidationPresenterTest we were getting some flakiness
-    fun getQuestionnaireSingle(): Single<List<KycQuestionnaireNode>> =
-        rxSingleOutcome { getQuestionnaire() }
 
     suspend fun getQuestionnaire(): Outcome<KycError, List<KycQuestionnaireNode>> =
         authenticator.getAuthHeader().awaitOutcome()

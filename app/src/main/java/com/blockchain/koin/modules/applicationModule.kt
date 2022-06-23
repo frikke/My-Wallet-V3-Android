@@ -60,6 +60,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
@@ -122,8 +123,7 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
-import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
-import piuk.blockchain.android.ui.createwallet.ReferralInteractor
+import piuk.blockchain.android.ui.createwallet.CreateWalletViewModel
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
 import piuk.blockchain.android.ui.home.CredentialsWiper
@@ -233,6 +233,7 @@ val applicationModule = module {
         factory {
             KycStatusHelper(
                 nabuDataManager = get(),
+                eligibilityService = get(),
                 nabuDataUserProvider = get(),
                 nabuToken = get(),
                 settingsDataManager = get(),
@@ -312,23 +313,18 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            CreateWalletPresenter(
-                payloadDataManager = get(),
-                prefs = get(),
-                appUtil = get(),
-                analytics = get(),
+        viewModel {
+            CreateWalletViewModel(
                 environmentConfig = get(),
-                formatChecker = get(),
+                defaultLabels = get(),
+                prefs = get(),
+                analytics = get(),
                 specificAnalytics = get(),
+                appUtil = get(),
+                formatChecker = get(),
                 eligibilityService = get(),
-                referralInteractor = get()
-            )
-        }
-
-        factory {
-            ReferralInteractor(
-                referralService = get()
+                referralService = get(),
+                payloadDataManager = get(),
             )
         }
 

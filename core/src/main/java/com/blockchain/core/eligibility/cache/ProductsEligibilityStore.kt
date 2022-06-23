@@ -1,7 +1,7 @@
 package com.blockchain.core.eligibility.cache
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.services.ProductEligibilityApiService
+import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.core.eligibility.mapper.toDomain
 import com.blockchain.core.eligibility.mapper.toError
 import com.blockchain.domain.eligibility.model.EligibilityError
@@ -18,7 +18,7 @@ import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class ProductsEligibilityStore(
     private val authenticator: Authenticator,
-    private val productEligibilityApi: ProductEligibilityApiService
+    private val productEligibilityApi: EligibilityApiService
 ) : Store<
     EligibilityError,
     ProductsEligibilityData

@@ -148,7 +148,7 @@ object Versions {
     const val kluent = "1.66"
     const val coroutinesTest = "1.6.0"
     const val coreTesting = "2.1.0"
-    const val turbine = "0.7.0"
+    const val turbine = "0.8.0"
     const val mockk = "1.12.2"
     const val hamcrestJunit = "2.0.0.0"
     const val junit = "4.12"

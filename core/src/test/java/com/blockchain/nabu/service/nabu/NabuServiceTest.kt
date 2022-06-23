@@ -7,7 +7,6 @@ import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.nabu.SupportedDocumentsResponse
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -15,7 +14,6 @@ import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenReques
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
 import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeAddressFactory
-import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuCountryFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuUserFactory
 import com.blockchain.preferences.RemoteConfigPrefs
@@ -190,41 +188,6 @@ class NabuServiceTest {
             state,
             notifyWhenAvailable
         ).test().waitForCompletionWithoutErrors()
-    }
-
-    @Test
-    fun `get kyc countries`() {
-        val scope = Scope.Kyc
-        val expectedCountryList = FakeNabuCountryFactory.list
-
-        whenever(
-            nabu.getCountriesList(scope.value)
-        ).thenReturn(
-            Single.just(expectedCountryList)
-        )
-        subject.getCountriesList(scope).test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it == expectedCountryList
-            }
-    }
-
-    @Test
-    fun `get all countries with no scope`() {
-        val scope = Scope.None
-        val expectedCountryList = FakeNabuCountryFactory.list
-
-        whenever(
-            nabu.getCountriesList(scope.value)
-        ).thenReturn(
-            Single.just(expectedCountryList)
-        )
-
-        subject.getCountriesList(scope).test()
-            .waitForCompletionWithoutErrors()
-            .assertValue {
-                it == expectedCountryList
-            }
     }
 
     @Test

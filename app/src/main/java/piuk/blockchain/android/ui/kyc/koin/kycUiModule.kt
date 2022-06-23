@@ -58,7 +58,7 @@ val kycUiModule = module {
 
         factory {
             KycCountrySelectionPresenter(
-                nabuDataManager = get()
+                eligibilityService = get()
             )
         }
 
@@ -75,6 +75,7 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                eligibilityService = get(),
                 nabuDataUserProvider = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),

@@ -1,6 +1,9 @@
 package piuk.blockchain.android.ui.kyc.settings
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.GetRegionScope
+import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
@@ -9,15 +12,15 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +33,7 @@ class KycStatusHelperTest {
 
     private lateinit var subject: KycStatusHelper
     private val nabuDataManager: NabuDataManager = mock()
+    private val eligibilityService: EligibilityService = mock()
     private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val nabuToken: NabuToken = mock()
     private val settingsDataManager: SettingsDataManager = mock()
@@ -46,6 +50,7 @@ class KycStatusHelperTest {
     fun setUp() {
         subject = KycStatusHelper(
             nabuDataManager,
+            eligibilityService,
             nabuDataUserProvider,
             nabuToken,
             settingsDataManager,
@@ -82,13 +87,13 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `is in kyc region returns false as country code not found`() {
+    fun `is in kyc region returns false as country code not found`() = runTest {
         // Arrange
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -101,13 +106,13 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `is in kyc region returns true as country code is in list`() {
+    fun `is in kyc region returns true as country code is in list`() = runTest {
         // Arrange
         val countryCode = "UK"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -147,16 +152,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `should display kyc returns false as in wrong region and no account`() {
+    fun `should display kyc returns false as in wrong region and no account`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.error { Throwable() })
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -169,16 +174,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `should display kyc returns true as in correct region but no account`() {
+    fun `should display kyc returns true as in correct region but no account`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.error { Throwable() })
         val countryCode = "UK"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -191,16 +196,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `should display kyc returns true as in wrong region but has account`() {
+    fun `should display kyc returns true as in wrong region but has account`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -213,16 +218,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return hidden as no account and wrong country`() {
+    fun `get settings kyc state should return hidden as no account and wrong country`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.error { Throwable() })
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -235,16 +240,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return unverified`() {
+    fun `get settings kyc state should return unverified`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -261,16 +266,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return verified`() {
+    fun `get settings kyc state should return verified`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -287,16 +292,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return failed`() {
+    fun `get settings kyc state should return failed`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -314,16 +319,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return in progress`() {
+    fun `get settings kyc state should return in progress`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -340,16 +345,16 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return in review`() {
+    fun `get settings kyc state should return in review`() = runTest {
         // Arrange
         whenever(
             nabuToken.fetchNabuToken()
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))
@@ -381,7 +386,7 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `get settings kyc state should return state from tiers service`() {
+    fun `get settings kyc state should return state from tiers service`() = runTest {
         // Arrange
         whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
         whenever(
@@ -389,9 +394,9 @@ class KycStatusHelperTest {
         ).thenReturn(Single.just(validOfflineToken))
         val countryCode = "US"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", emptyList(), listOf("KYC")))
-        whenever(nabuDataManager.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.Kyc))
+            .thenReturn(Outcome.Success(countryList))
         val settings: Settings = mock()
         whenever(settings.countryCode).thenReturn(countryCode)
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settings))

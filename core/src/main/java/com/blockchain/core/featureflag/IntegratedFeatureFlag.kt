@@ -27,7 +27,7 @@ class IntegratedFeatureFlag(private val remoteFlag: FeatureFlag) : FeatureFlag b
             FeatureFlagState.REMOTE -> remoteFlag.isEnabled
         }
 
-    suspend fun isEnabled() = enabled.await()
+    override suspend fun coEnabled(): Boolean = enabled.await()
 }
 
 class LocalOnlyFeatureFlag(
@@ -48,4 +48,5 @@ class LocalOnlyFeatureFlag(
             FeatureFlagState.DISABLED -> false
             else -> defaultValue
         }
+    override suspend fun coEnabled(): Boolean = isEnabled
 }

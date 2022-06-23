@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
@@ -34,7 +35,7 @@ class KycMobileValidationPresenterTest {
         on { syncUser() }.thenReturn(Completable.complete())
     }
     private val kycDataManager: KycDataManager = mock {
-        on { getQuestionnaireSingle() }.thenReturn(Single.just(emptyList()))
+        onBlocking { getQuestionnaire() }.thenReturn(Outcome.Success(emptyList()))
     }
 
     @Suppress("unused")
@@ -70,7 +71,7 @@ class KycMobileValidationPresenterTest {
             KycQuestionnaireNode.Selection("s1", "text1", emptyList(), false),
             KycQuestionnaireNode.Selection("s2", "text2", emptyList(), false),
         )
-        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(nodes))
+        whenever(kycDataManager.getQuestionnaire()).thenReturn(Outcome.Success(nodes))
 
         // Act
         subject.onViewReady()
@@ -151,7 +152,7 @@ class KycMobileValidationPresenterTest {
         whenever(nabuUserSync.syncUser())
             .thenReturn(Completable.error { Throwable() })
             .thenReturn(Completable.complete())
-        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(emptyList())).thenReturn(Single.just(emptyList()))
+        whenever(kycDataManager.getQuestionnaire()).thenReturn(Outcome.Success(emptyList())).thenReturn(Outcome.Success(emptyList()))
         val verificationModel = PhoneVerificationModel(phoneNumberSanitized, verificationCode)
 
         // Act

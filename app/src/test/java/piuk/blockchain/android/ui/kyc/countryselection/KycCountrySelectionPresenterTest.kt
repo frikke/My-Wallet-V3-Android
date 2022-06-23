@@ -1,15 +1,16 @@
 package piuk.blockchain.android.ui.kyc.countryselection
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
-import com.blockchain.nabu.models.responses.nabu.Scope
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.EligibilityError
+import com.blockchain.domain.eligibility.model.GetRegionScope
+import com.blockchain.domain.eligibility.model.Region
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +21,7 @@ class KycCountrySelectionPresenterTest {
 
     private lateinit var subject: KycCountrySelectionPresenter
     private val view: KycCountrySelectionView = mock()
-    private val nabuDataManager: NabuDataManager = mock()
+    private val eligibilityService: EligibilityService = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -31,57 +32,57 @@ class KycCountrySelectionPresenterTest {
 
     @Before
     fun setUp() {
-        subject = KycCountrySelectionPresenter(nabuDataManager)
+        subject = KycCountrySelectionPresenter(eligibilityService)
         subject.initView(view)
     }
 
     @Test
-    fun `onViewReady error loading countries`() {
+    fun `onViewReady error loading countries`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
-        whenever(nabuDataManager.getCountriesList(Scope.None)).thenReturn(Single.error(Throwable()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None)).thenReturn(Outcome.Failure(EligibilityError.RequestFailed(null)))
         // Act
         subject.onViewReady()
         // Assert
-        verify(nabuDataManager).getCountriesList(Scope.None)
+        verify(eligibilityService).getCountriesList(GetRegionScope.None)
         verify(view).renderUiState(CountrySelectionState.Loading)
         verify(view).renderUiState(any<CountrySelectionState.Error>())
     }
 
     @Test
-    fun `onViewReady loading countries success`() {
+    fun `onViewReady loading countries success`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(emptyList()))
         // Act
         subject.onViewReady()
         // Assert
-        verify(nabuDataManager).getCountriesList(Scope.None)
+        verify(eligibilityService).getCountriesList(GetRegionScope.None)
         verify(view).renderUiState(CountrySelectionState.Loading)
         verify(view).renderUiState(CountrySelectionState.Data(emptyList()))
     }
 
     @Test
-    fun `onViewReady loading states success`() {
+    fun `onViewReady loading states success`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.State)
-        whenever(nabuDataManager.getStatesList("US", Scope.None))
-            .thenReturn(Single.just(emptyList()))
+        whenever(eligibilityService.getStatesList("US", GetRegionScope.None))
+            .thenReturn(Outcome.Success(emptyList()))
         // Act
         subject.onViewReady()
         // Assert
-        verify(nabuDataManager).getStatesList("US", Scope.None)
+        verify(eligibilityService).getStatesList("US", GetRegionScope.None)
         verify(view).renderUiState(CountrySelectionState.Loading)
         verify(view).renderUiState(CountrySelectionState.Data(emptyList()))
     }
 
     @Test
-    fun `onRegionSelected requires state selection`() {
+    fun `onRegionSelected requires state selection`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(emptyList()))
         val countryDisplayModel = CountryDisplayModel(
             name = "United States",
             countryCode = "US"
@@ -89,16 +90,16 @@ class KycCountrySelectionPresenterTest {
         // Act
         subject.onRegionSelected(countryDisplayModel)
         // Assert
-        verify(nabuDataManager).getCountriesList(Scope.None)
+        verify(eligibilityService).getCountriesList(GetRegionScope.None)
         verify(view).requiresStateSelection()
     }
 
     @Test
-    fun `onRegionSelected state not found, not in kyc region`() {
+    fun `onRegionSelected state not found, not in kyc region`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.State)
-        whenever(nabuDataManager.getStatesList("US", Scope.None))
-            .thenReturn(Single.just(emptyList()))
+        whenever(eligibilityService.getStatesList("US", GetRegionScope.None))
+            .thenReturn(Outcome.Success(emptyList()))
         val countryDisplayModel = CountryDisplayModel(
             name = "United States",
             countryCode = "US",
@@ -108,23 +109,23 @@ class KycCountrySelectionPresenterTest {
         // Act
         subject.onRegionSelected(countryDisplayModel)
         // Assert
-        verify(nabuDataManager).getStatesList("US", Scope.None)
+        verify(eligibilityService).getStatesList("US", GetRegionScope.None)
         verify(view).invalidCountry(countryDisplayModel)
     }
 
     @Test
-    fun `onRegionSelected state found, in kyc region`() {
+    fun `onRegionSelected state found, in kyc region`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.State)
         val countryCode = "US"
-        whenever(nabuDataManager.getStatesList("US", Scope.None))
+        whenever(eligibilityService.getStatesList("US", GetRegionScope.None))
             .thenReturn(
-                Single.just(
+                Outcome.Success(
                     listOf(
-                        NabuStateResponse(
-                            code = "US-AL",
+                        Region.State(
+                            stateCode = "US-AL",
                             name = "Alabama",
-                            scopes = listOf("KYC"),
+                            isKycAllowed = true,
                             countryCode = "US"
                         )
                     )
@@ -139,19 +140,19 @@ class KycCountrySelectionPresenterTest {
         // Act
         subject.onRegionSelected(countryDisplayModel)
         // Assert
-        verify(nabuDataManager).getStatesList("US", Scope.None)
+        verify(eligibilityService).getStatesList("US", GetRegionScope.None)
         verify(view).continueFlow(countryCode, "US-AL", "California")
     }
 
     @Test
-    fun `onRegionSelected country found`() {
+    fun `onRegionSelected country found`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
         val countryCode = "UK"
         val countryList =
-            listOf(NabuCountryResponse("UK", "United Kingdom", listOf("KYC"), emptyList()))
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("UK", "United Kingdom", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(countryList))
         val countryDisplayModel = CountryDisplayModel(
             name = "United Kingdom",
             countryCode = "UK"
@@ -159,18 +160,18 @@ class KycCountrySelectionPresenterTest {
         // Act
         subject.onRegionSelected(countryDisplayModel)
         // Assert
-        verify(nabuDataManager).getCountriesList(Scope.None)
+        verify(eligibilityService).getCountriesList(GetRegionScope.None)
         verify(view).continueFlow(countryCode, null, null)
     }
 
     @Test
-    fun `onRegionSelected country found but is US so requires state selection`() {
+    fun `onRegionSelected country found but is US so requires state selection`() = runTest {
         // Arrange
         whenever(view.regionType).thenReturn(RegionType.Country)
         val countryList =
-            listOf(NabuCountryResponse("US", "United States", listOf("KYC"), emptyList()))
-        whenever(nabuDataManager.getCountriesList(Scope.None))
-            .thenReturn(Single.just(countryList))
+            listOf(Region.Country("US", "United States", true, emptyList()))
+        whenever(eligibilityService.getCountriesList(GetRegionScope.None))
+            .thenReturn(Outcome.Success(countryList))
         val countryDisplayModel = CountryDisplayModel(
             name = "United States",
             countryCode = "US"
@@ -178,7 +179,7 @@ class KycCountrySelectionPresenterTest {
         // Act
         subject.onRegionSelected(countryDisplayModel)
         // Assert
-        verify(nabuDataManager).getCountriesList(Scope.None)
+        verify(eligibilityService).getCountriesList(GetRegionScope.None)
         verify(view).requiresStateSelection()
     }
 }
