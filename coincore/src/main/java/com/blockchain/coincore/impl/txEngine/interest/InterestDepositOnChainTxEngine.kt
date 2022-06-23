@@ -141,8 +141,7 @@ class InterestDepositOnChainTxEngine(
             }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        super.doPostExecute(pendingTx, txResult)
-            .andThen(onChainEngine.doPostExecute(pendingTx, txResult))
+        onChainEngine.doPostExecute(pendingTx, txResult)
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)
