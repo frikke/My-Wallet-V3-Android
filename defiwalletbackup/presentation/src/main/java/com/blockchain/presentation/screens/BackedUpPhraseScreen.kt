@@ -18,8 +18,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeGravities
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
@@ -63,29 +68,29 @@ fun BackedUpPhraseScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-//            SimpleText(
-//                text = stringResource(id = R.string.phrase_confirmation_title),
-//                style = ComposeTypographies.Title2,
-//                color = ComposeColors.Title,
-//                gravity = ComposeGravities.Centre
-//            )
-//
-//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
-//
-//            BackupStatus(BackUpStatus.BACKED_UP)
-//
-//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
-//
-//            HidableMnemonic(mnemonic = mnemonic)
-//
-//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
-//
-//            SimpleText(
-//                text = stringResource(id = R.string.phrase_confirmation_description),
-//                style = ComposeTypographies.Paragraph1,
-//                color = ComposeColors.Title,
-//                gravity = ComposeGravities.Centre
-//            )
+            SimpleText(
+                text = stringResource(id = R.string.recovery_phrase_title),
+                style = ComposeTypographies.Title2,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+
+            BackupStatus(BackUpStatus.BACKED_UP)
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+
+            HidableMnemonic(mnemonic = mnemonic)
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+
+            SimpleText(
+                text = stringResource(id = R.string.recovery_phrase_description),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Centre
+            )
 
             Spacer(modifier = Modifier.weight(1F))
 
