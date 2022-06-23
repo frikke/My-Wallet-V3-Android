@@ -9,8 +9,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
+import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
+import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
+import com.blockchain.blockchaincard.ui.composables.managecard.CloseCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.PersonalDetails
+import com.blockchain.blockchaincard.ui.composables.managecard.Support
+import com.blockchain.blockchaincard.ui.composables.managecard.TransactionControls
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
@@ -129,12 +135,15 @@ fun BlockchainCardNavHost(
         bottomSheet(BlockchainCardDestination.ManageCardDetailsDestination) {
             state?.card?.let { card ->
                 ManageCardDetails(
-                    onDeleteCard = { viewModel.onIntent(BlockchainCardIntent.DeleteCard) },
+                    last4digits = card.last4,
                     onToggleLockCard = { isChecked: Boolean ->
                         if (isChecked) viewModel.onIntent(BlockchainCardIntent.LockCard)
                         else viewModel.onIntent(BlockchainCardIntent.UnlockCard)
                     },
-                    cardStatus = card.status
+                    cardStatus = card.status,
+                    onSeePersonalDetails = { viewModel.onIntent(BlockchainCardIntent.SeePersonalDetails) },
+                    onSeeTransactionControls = { viewModel.onIntent(BlockchainCardIntent.SeeTransactionControls) },
+                    onSeeSupport = { viewModel.onIntent(BlockchainCardIntent.SeeSupport) }
                 )
             }
         }
@@ -148,6 +157,64 @@ fun BlockchainCardNavHost(
                         )
                     )
                 }
+            }
+        }
+
+        bottomSheet(BlockchainCardDestination.PersonalDetailsDestination) {
+            state?.let { state ->
+                PersonalDetails(
+                    firstAndLastName = state.userFirstAndLastName,
+                    shortAddress = state.residentialAddress?.getShortAddress(),
+                    onCheckBillingAddress = {
+                        viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress)
+                    }
+                )
+            }
+        }
+
+        bottomSheet(BlockchainCardDestination.BillingAddressDestination) {
+            state?.residentialAddress?.let { address ->
+                BillingAddress(
+                    address = address,
+                    onUpdateAddress = { newAddress ->
+                        viewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(newAddress = newAddress))
+                    }
+                )
+            }
+        }
+
+        bottomSheet(BlockchainCardDestination.BillingAddressUpdateSuccessDestination) {
+            BillingAddressUpdated(success = true, onDismiss = {
+                viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
+            })
+        }
+
+        bottomSheet(BlockchainCardDestination.BillingAddressUpdateFailedDestination) {
+            BillingAddressUpdated(success = false, onDismiss = {
+                viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
+            })
+        }
+
+        bottomSheet(BlockchainCardDestination.TransactionControlsDestination) {
+            TransactionControls()
+        }
+
+        bottomSheet(BlockchainCardDestination.SupportDestination) {
+            Support(
+                onCloseCard = {
+                    viewModel.onIntent(BlockchainCardIntent.CloseCard)
+                }
+            )
+        }
+
+        bottomSheet(BlockchainCardDestination.CloseCardDestination) {
+            state?.card?.last4?.let { last4 ->
+                CloseCard(
+                    last4digits = last4,
+                    onConfirmCloseCard = {
+                        viewModel.onIntent(BlockchainCardIntent.ConfirmCloseCard)
+                    }
+                )
             }
         }
     }

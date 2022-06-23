@@ -2486,6 +2486,7 @@ Compre hoy criptomonedas.</string>
     <string name="failed">ERROR</string>
     <string name="delete_card">Eliminar tarjeta</string>
     <string name="earn_crypto_on_purchases">Gane criptomonedas en compras</string>
+    <string name="add_funds">Completar</string>
     <string name="copy_card_number">Copiar número de tarjeta</string>
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
     <string name="lock_card">Bloquear tarjeta</string>

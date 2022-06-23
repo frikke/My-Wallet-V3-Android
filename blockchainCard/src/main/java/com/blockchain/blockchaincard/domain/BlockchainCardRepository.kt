@@ -72,4 +72,6 @@ interface BlockchainCardRepository {
     suspend fun updateResidentialAddress(
         address: BlockchainCardAddress
     ): Outcome<BlockchainCardError, BlockchainCardAddress>
+
+    suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
 }

@@ -7,8 +7,8 @@ import com.blockchain.api.blockchainCard.data.CardCreationRequestBodyDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.CardWidgetTokenDto
 import com.blockchain.api.blockchainCard.data.ProductDto
-import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressRequestDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressUpdateDto
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -87,6 +87,6 @@ internal interface BlockchainCardApi {
     @PUT("card-issuing/residential-address")
     suspend fun updateResidentialAddress(
         @Header("authorization") authorization: String,
-        @Body residentialAddress: ResidentialAddressDto
+        @Body residentialAddress: ResidentialAddressUpdateDto
     ): Outcome<ApiError, ResidentialAddressRequestDto>
 }
