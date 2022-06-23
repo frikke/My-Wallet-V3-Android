@@ -2540,6 +2540,7 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="failed">НЕ УДАЛОСЬ</string>
     <string name="delete_card">Удалить карту</string>
     <string name="earn_crypto_on_purchases">Зарабатывайте криптовалюту на покупках</string>
+    <string name="add_funds">Пополнить</string>
     <string name="copy_card_number">Копировать номер карты</string>
     <string name="copy_to_clipboard">Скопировать в буфер обмена</string>
     <string name="lock_card">Заблокировать карту</string>

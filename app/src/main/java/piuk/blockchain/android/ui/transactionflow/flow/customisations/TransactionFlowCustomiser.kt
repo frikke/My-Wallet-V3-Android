@@ -1130,6 +1130,20 @@ class TransactionFlowCustomiserImpl(
         }
     }
 
+    override fun transactionSettlementExceptionAction(state: TransactionState): SettlementErrorStateAction {
+        require(state.executionStatus is TxExecutionStatus.Error)
+        require(state.executionStatus.exception is TransactionError)
+
+        return when (val error = state.executionStatus.exception) {
+            is TransactionError.SettlementRefreshRequired ->
+                SettlementErrorStateAction.RelinkBank(
+                    resources.getString(R.string.trading_deposit_relink_bank_account), error.accountId
+                )
+            else ->
+                SettlementErrorStateAction.None
+        }
+    }
+
     override fun transactionProgressExceptionActions(state: TransactionState): List<ServerErrorAction> {
         require(state.executionStatus is TxExecutionStatus.Error)
         require(state.executionStatus.exception is TransactionError)

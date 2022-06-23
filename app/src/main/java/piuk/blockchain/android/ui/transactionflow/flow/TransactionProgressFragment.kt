@@ -39,15 +39,23 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.WITHDRAW_BALANCE_LOCKED
 import piuk.blockchain.android.ui.customviews.TransactionProgressView
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
+import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.engine.TxExecutionStatus
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.ErrorStateIcon
+import piuk.blockchain.android.ui.transactionflow.flow.customisations.SettlementErrorStateAction
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionProgressCustomisations
 import timber.log.Timber
 
 class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProgressBinding>() {
+
+    private val refreshBankResultLauncher = registerForActivityResult(BankAuthRefreshContract()) { refreshSuccess ->
+        if (refreshSuccess) {
+            activity.finish()
+        }
+    }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentTxFlowInProgressBinding =
         FragmentTxFlowInProgressBinding.inflate(inflater, container, false)
@@ -129,26 +137,31 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                                     description = customiser.transactionProgressExceptionDescription(newState),
                                 )
                         }
-
+                        val settlementActions = customiser.transactionSettlementExceptionAction(newState)
                         val actions = customiser.transactionProgressExceptionActions(newState)
-                        if (actions.isNotEmpty()) {
-                            showServerSideActionErrorCtas(
-                                list = actions,
-                                currencyCode = newState.sendingAccount.currency.networkTicker,
-                                onActionsClickedCallback = object : TransactionProgressView.TransactionProgressActions {
-                                    override fun onPrimaryButtonClicked() {
-                                        activity.finish()
-                                    }
+                        when {
+                            settlementActions != SettlementErrorStateAction.None ->
+                                handleActionForErrorState(settlementActions)
+                            else -> {
+                                showServerSideActionErrorCtas(
+                                    list = actions,
+                                    currencyCode = newState.sendingAccount.currency.networkTicker,
+                                    onActionsClickedCallback = object :
+                                        TransactionProgressView.TransactionProgressActions {
+                                        override fun onPrimaryButtonClicked() {
+                                            activity.finish()
+                                        }
 
-                                    override fun onSecondaryButtonClicked() {
-                                        activity.finish()
-                                    }
+                                        override fun onSecondaryButtonClicked() {
+                                            activity.finish()
+                                        }
 
-                                    override fun onTertiaryButtonClicked() {
-                                        activity.finish()
+                                        override fun onTertiaryButtonClicked() {
+                                            activity.finish()
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -373,6 +386,19 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                 AssetAction.Buy -> R.string.common_buy
             }
         )
+
+    private fun handleActionForErrorState(settlementErrorStateAction: SettlementErrorStateAction) {
+        when (settlementErrorStateAction) {
+            is SettlementErrorStateAction.RelinkBank -> {
+                binding.txProgressView.setupPrimaryCta(text = settlementErrorStateAction.message) {
+                    refreshBankResultLauncher.launch(
+                        Pair(settlementErrorStateAction.bankAccountId, BankAuthSource.DEPOSIT)
+                    )
+                }
+            }
+            SettlementErrorStateAction.None -> {}
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

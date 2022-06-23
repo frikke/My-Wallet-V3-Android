@@ -24,6 +24,7 @@ sealed class BlockchainCardError {
     object GetFiatAccountFailed : BlockchainCardError()
     object GetResidentialAddressFailed : BlockchainCardError()
     object UpdateResidentialAddressFailed : BlockchainCardError()
+    object GetUserProfileFailed : BlockchainCardError()
 }
 
 @Parcelize

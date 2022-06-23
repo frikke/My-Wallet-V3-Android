@@ -2522,6 +2522,7 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="failed">ÉCHEC</string>
     <string name="delete_card">Supprimer la carte</string>
     <string name="earn_crypto_on_purchases">Gagnez de la crypto sur vos achats</string>
+    <string name="add_funds">Recharger</string>
     <string name="copy_card_number">Copier le numéro de carte</string>
     <string name="copy_to_clipboard">Copier dans le presse-papiers</string>
     <string name="lock_card">Verrouiller la carte</string>

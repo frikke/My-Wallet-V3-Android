@@ -16,7 +16,8 @@ val blockchainCardModule = module {
                 blockchainCardService = get(),
                 authenticator = get(),
                 coincore = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                userIdentity = get()
             )
         }.bind(BlockchainCardRepository::class)
 

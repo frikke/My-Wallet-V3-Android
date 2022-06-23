@@ -65,6 +65,11 @@ class ResidentialAddressRequestDto(
 )
 
 @Serializable
+class ResidentialAddressUpdateDto(
+    val address: ResidentialAddressDto
+)
+
+@Serializable
 class ResidentialAddressDto(
     val line1: String,
     val line2: String = "",

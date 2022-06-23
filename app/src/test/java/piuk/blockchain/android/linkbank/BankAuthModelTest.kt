@@ -9,6 +9,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.YapilyAttributes
 import com.blockchain.network.PollResult
 import com.blockchain.testutils.GBP
@@ -818,6 +819,73 @@ class BankAuthModelTest {
                 linkBankAccountId = linkBankAccountId,
                 linkBankToken = linkBankToken,
                 errorState = BankAuthError.BankLinkingUpdateFailed,
+                bankLinkingProcessState = BankLinkingProcessState.NONE
+            )
+        )
+    }
+
+    @Test
+    fun `refreshPlaidAccount() - success`() {
+        // Arrange
+        val bankAccountId = "refreshBankAccountId"
+        val intent = BankAuthIntent.RefreshPlaidAccount(bankAccountId)
+        val refreshBankAccountInfo = RefreshBankInfo(
+            partner = BankPartner.PLAID,
+            id = bankAccountId,
+            linkToken = "linkToken",
+            linkUrl = "linkUrl",
+            tokenExpiresAt = "tokenExpiresAt"
+        )
+        whenever(bankService.refreshPlaidBankAccount(bankAccountId)).thenReturn(Single.just(refreshBankAccountInfo))
+
+        // Act
+        val test = model.state.test()
+        model.process(intent)
+
+        // Assert
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                refreshBankInfo = refreshBankAccountInfo,
+                bankLinkingProcessState = BankLinkingProcessState.IN_REFRESH_FLOW
+            )
+        )
+    }
+
+    @Test
+    fun `refreshPlaidAccount() - error`() {
+        // Arrange
+        val bankAccountId = "refreshBankAccountId"
+        val intent = BankAuthIntent.RefreshPlaidAccount(bankAccountId)
+        whenever(bankService.refreshPlaidBankAccount(bankAccountId)).thenReturn(Single.error(Throwable()))
+
+        // Act
+        val test = model.state.test()
+        model.process(intent)
+
+        // Assert
+        test.assertValueAt(0, defaultState)
+        test.assertValueAt(
+            1,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+        )
+        test.assertValueAt(
+            2,
+            defaultState.copy(
+                refreshBankAccountId = bankAccountId,
+                errorState = BankAuthError.LinkedBankFailure,
                 bankLinkingProcessState = BankLinkingProcessState.NONE
             )
         )

@@ -9,6 +9,7 @@ import com.blockchain.api.payments.data.BankTransferPaymentBody
 import com.blockchain.api.payments.data.CreateLinkBankRequestBody
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import com.blockchain.enviroment.EnvironmentConfig
@@ -138,6 +139,17 @@ class PaymentMethodsService internal constructor(
     ) = api.startBankTransferPayment(
         authorization = authorization,
         id = id,
+        body = body,
+        localisedError = getLocalisedErrorIfEnabled()
+    )
+
+    fun refreshPlaidAccount(
+        authorization: String,
+        bankAccountId: String,
+        body: RefreshPlaidRequestBody
+    ) = api.refreshPlaidAccount(
+        authorization = authorization,
+        id = bankAccountId,
         body = body,
         localisedError = getLocalisedErrorIfEnabled()
     )

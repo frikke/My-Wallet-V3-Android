@@ -20,6 +20,7 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.getOrNull
 import info.blockchain.balance.AssetCatalogue
@@ -47,11 +48,14 @@ class BlockchainCardRepositoryImplTest {
 
     private val assetCatalogue = mockk<AssetCatalogue>()
 
+    private val userIdentity = mockk<UserIdentity>()
+
     private val blockchainCardRepository = BlockchainCardRepositoryImpl(
         blockchainCardService = blockchainCardService,
         authenticator = authenticator,
         coincore = coincore,
-        assetCatalogue = assetCatalogue
+        assetCatalogue = assetCatalogue,
+        userIdentity = userIdentity
     )
 
     private val authToken = "authToken"

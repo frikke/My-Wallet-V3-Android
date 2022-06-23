@@ -15,10 +15,16 @@ interface TransactionProgressCustomisations {
     fun transactionProgressExceptionDescription(state: TransactionState): String
     fun transactionProgressExceptionIcon(state: TransactionState): ErrorStateIcon
     fun transactionProgressExceptionActions(state: TransactionState): List<ServerErrorAction>
+    fun transactionSettlementExceptionAction(state: TransactionState): SettlementErrorStateAction
 }
 
 sealed class ErrorStateIcon {
     class RemoteIconWithStatus(val iconUrl: String, val statusIconUrl: String) : ErrorStateIcon()
     class RemoteIcon(val iconUrl: String) : ErrorStateIcon()
     class Local(@DrawableRes val resourceId: Int) : ErrorStateIcon()
+}
+
+sealed class SettlementErrorStateAction {
+    object None : SettlementErrorStateAction()
+    class RelinkBank(val message: String, val bankAccountId: String) : SettlementErrorStateAction()
 }

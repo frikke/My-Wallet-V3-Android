@@ -36,7 +36,9 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         cardWidgetUrl = state.cardWidgetUrl,
         eligibleTradingAccountBalances = state.eligibleTradingAccountBalances,
         isLinkedAccountBalanceLoading = state.isLinkedAccountBalanceLoading,
-        linkedAccountBalance = state.linkedAccountBalance
+        linkedAccountBalance = state.linkedAccountBalance,
+        residentialAddress = state.residentialAddress,
+        userFirstAndLastName = state.userFirstAndLastName
     )
 
     override suspend fun handleIntent(
@@ -46,20 +48,6 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         when (intent) {
             is BlockchainCardIntent.ManageCardDetails -> {
                 navigate(BlockchainCardNavigationEvent.ManageCardDetails)
-            }
-
-            is BlockchainCardIntent.DeleteCard -> {
-                modelState.card?.let { card ->
-                    blockchainCardRepository.deleteCard(card.id).fold(
-                        onFailure = {
-                            Timber.d("Card delete failed: $it")
-                        },
-                        onSuccess = {
-                            Timber.d("Card deleted")
-                            navigate(BlockchainCardNavigationEvent.CardDeleted)
-                        }
-                    )
-                }
             }
 
             is BlockchainCardIntent.LockCard -> {
@@ -222,6 +210,83 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                         }
                     )
                 }
+            }
+
+            is BlockchainCardIntent.SeeTransactionControls -> {
+                navigate(BlockchainCardNavigationEvent.SeeTransactionControls)
+            }
+
+            is BlockchainCardIntent.SeePersonalDetails -> {
+                onIntent(BlockchainCardIntent.LoadResidentialAddress)
+                onIntent(BlockchainCardIntent.LoadUserFirstAndLastName)
+                navigate(BlockchainCardNavigationEvent.SeePersonalDetails)
+            }
+
+            is BlockchainCardIntent.LoadResidentialAddress -> {
+                blockchainCardRepository.getResidentialAddress().fold(
+                    onSuccess = { address ->
+                        updateState { it.copy(residentialAddress = address) }
+                    },
+                    onFailure = {
+                        Timber.e("Unable to get residential address: $it")
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.SeeBillingAddress -> {
+                navigate(BlockchainCardNavigationEvent.SeeBillingAddress)
+            }
+
+            is BlockchainCardIntent.UpdateBillingAddress -> {
+                blockchainCardRepository.updateResidentialAddress(
+                    intent.newAddress
+                ).fold(
+                    onSuccess = { newAddress ->
+                        updateState { it.copy(residentialAddress = newAddress) }
+                        navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
+                    },
+                    onFailure = {
+                        Timber.e("Unable to update residential address: $it")
+                        navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.DismissBillingAddressUpdateResult -> {
+                navigate(BlockchainCardNavigationEvent.DismissBillingAddressUpdateResult)
+            }
+
+            is BlockchainCardIntent.SeeSupport -> {
+                navigate(BlockchainCardNavigationEvent.SeeSupport)
+            }
+
+            is BlockchainCardIntent.CloseCard -> {
+                navigate(BlockchainCardNavigationEvent.CloseCard)
+            }
+
+            is BlockchainCardIntent.ConfirmCloseCard -> {
+                modelState.card?.let { card ->
+                    blockchainCardRepository.deleteCard(card.id).fold(
+                        onFailure = {
+                            Timber.d("Card delete failed: $it")
+                        },
+                        onSuccess = {
+                            Timber.d("Card deleted")
+                            navigate(BlockchainCardNavigationEvent.CardClosed)
+                        }
+                    )
+                }
+            }
+
+            is BlockchainCardIntent.LoadUserFirstAndLastName -> {
+                blockchainCardRepository.getUserFirstAndLastName().fold(
+                    onSuccess = { firstAndLastName ->
+                        updateState { it.copy(userFirstAndLastName = firstAndLastName) }
+                    },
+                    onFailure = {
+                        Timber.e("Unable to get user first and last name: $it")
+                    }
+                )
             }
         }
     }

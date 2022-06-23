@@ -26,6 +26,7 @@ import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
 import com.blockchain.api.payments.data.ProviderAccountAttrs
+import com.blockchain.api.payments.data.RefreshPlaidRequestBody
 import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
 import com.blockchain.api.payments.data.YapilyMediaResponse
@@ -69,6 +70,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodTypeWithEligibility
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
@@ -516,6 +518,23 @@ class PaymentsRepository(
             LinkPlaidAccountBody(LinkPlaidAccountBody.Attributes(accountId, publicToken))
         )
     }
+
+    override fun refreshPlaidBankAccount(refreshAccountId: String): Single<RefreshBankInfo> =
+        authenticator.getAuthHeader().flatMap { authToken ->
+            paymentMethodsService.refreshPlaidAccount(
+                authToken,
+                refreshAccountId,
+                RefreshPlaidRequestBody(packageName = environmentConfig.applicationId)
+            ).map {
+                RefreshBankInfo(
+                    id = it.id,
+                    partner = it.partner.toLinkingBankPartner(),
+                    linkToken = it.attributes.linkToken,
+                    linkUrl = it.attributes.linkUrl,
+                    tokenExpiresAt = it.attributes.tokenExpiresAt
+                )
+            }
+        }.wrapErrorMessage()
 
     override fun checkSettlement(accountId: String, amount: Money): Single<SettlementInfo> =
         authenticator.getAuthHeader().flatMap { authToken ->

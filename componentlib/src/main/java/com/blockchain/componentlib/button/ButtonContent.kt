@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -71,7 +72,8 @@ fun ButtonContent(
             Text(
                 text = text,
                 color = textColor,
-                style = AppTheme.typography.body2
+                style = AppTheme.typography.body2,
+                textAlign = TextAlign.Center
             )
         }
     }

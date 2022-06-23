@@ -4,6 +4,7 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.google.gson.Gson
 import java.io.Serializable
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
@@ -18,12 +19,15 @@ data class BankAuthState(
     val bankLinkingProcessState: BankLinkingProcessState = BankLinkingProcessState.NONE,
     val errorState: BankAuthError? = null,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
-    val callbackPathUrl: String = ""
+    val callbackPathUrl: String = "",
+    val refreshBankAccountId: String? = null,
+    val refreshBankInfo: RefreshBankInfo? = null
 ) : MviState
 
 enum class BankLinkingProcessState {
     LINKING,
     IN_EXTERNAL_FLOW,
+    IN_REFRESH_FLOW,
     APPROVAL,
     APPROVAL_WAIT,
     ACTIVATING,

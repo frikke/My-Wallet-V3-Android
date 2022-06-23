@@ -11,6 +11,7 @@ import com.blockchain.api.blockchainCard.data.CardWidgetTokenDto
 import com.blockchain.api.blockchainCard.data.ProductDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressRequestDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressUpdateDto
 import com.blockchain.outcome.Outcome
 
 class BlockchainCardService internal constructor(
@@ -116,6 +117,6 @@ class BlockchainCardService internal constructor(
         residentialAddress: ResidentialAddressDto
     ): Outcome<ApiError, ResidentialAddressRequestDto> = api.updateResidentialAddress(
         authorization = authHeader,
-        residentialAddress = residentialAddress
+        residentialAddress = ResidentialAddressUpdateDto(address = residentialAddress)
     )
 }

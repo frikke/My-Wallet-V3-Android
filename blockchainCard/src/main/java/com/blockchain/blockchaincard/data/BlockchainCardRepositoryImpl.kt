@@ -20,6 +20,7 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
@@ -35,7 +36,8 @@ internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val authenticator: Authenticator,
     private val coincore: Coincore,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val userIdentity: UserIdentity
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -301,6 +303,14 @@ internal class BlockchainCardRepositoryImpl(
                 }.map { response ->
                     response.address.toDomainModel()
                 }
+            }
+
+    override suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String> =
+        userIdentity.getBasicProfileInformation().awaitOutcome()
+            .mapError {
+                BlockchainCardError.GetUserProfileFailed
+            }.map { response ->
+                response.firstName + " " + response.lastName
             }
 
     //
