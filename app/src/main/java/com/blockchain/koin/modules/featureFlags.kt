@@ -18,6 +18,7 @@ import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
@@ -200,6 +201,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_referrals",
                 "Referrals"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(pricesFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_prices",
+                "Prices"
             )
         )
     }.bind(FeatureFlag::class)

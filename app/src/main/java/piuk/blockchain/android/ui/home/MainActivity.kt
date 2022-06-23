@@ -25,6 +25,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -39,6 +40,7 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
+import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
@@ -102,6 +104,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.prices.presentation.PricesNavigationEvent
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.referral.presentation.Source
@@ -134,12 +137,14 @@ class MainActivity :
     UiTourView.Host,
     WalletModeSelectionBottomSheet.Host,
     WalletModeChangeHost,
-    KycUpgradeNowSheet.Host {
+    KycUpgradeNowSheet.Host,
+    NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
     override val model: MainModel by scopedInject()
+    private val pricesFlag: FeatureFlag by inject(pricesFeatureFlag)
 
     override fun initBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -367,7 +372,13 @@ class MainActivity :
                 selectedNavigationItem = it
                 when (it) {
                     NavigationItem.Home -> launchPortfolio()
-                    NavigationItem.Prices -> launchPrices()
+                    NavigationItem.Prices -> {
+                        if (pricesFlag.isEnabled) {
+                            launchPrices2()
+                        } else {
+                            launchPrices()
+                        }
+                    }
                     NavigationItem.BuyAndSell -> launchBuySell()
                     NavigationItem.Activity -> startActivitiesFragment()
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
@@ -1102,6 +1113,14 @@ class MainActivity :
         )
     }
 
+    private fun launchPrices2(reload: Boolean = false) {
+        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        supportFragmentManager.showFragment(
+            fragment = piuk.blockchain.android.ui.prices.presentation.PricesFragment.newInstance(),
+            reloadFragment = reload
+        )
+    }
+
     override fun launchSimpleBuy(asset: AssetInfo) {
         startActivity(
             SimpleBuyActivity.newIntent(
@@ -1263,5 +1282,18 @@ class MainActivity :
 
             putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
         }
+    }
+
+    override fun route(navigationEvent: PricesNavigationEvent) {
+        when (navigationEvent) {
+            is PricesNavigationEvent.CoinView -> {
+                activityResultsContract.launch(
+                    CoinViewActivity.newIntent(
+                        context = this,
+                        asset = navigationEvent.assetInfo
+                    )
+                )
+            }
+        }.exhaustive
     }
 }

@@ -2393,6 +2393,8 @@
 
     <!-- Prices Screen -->
     <string name="search_coins_hint">Search Coins</string>
+    <string name="prices_error_title">Can’t load Assets Prices</string>
+    <string name="prices_error_desc">An error occurred while loading Assets Prices.\nPlease check your internet connection and try again or Contact Support if the issue persists.</string>
 
     <!-- Receive Screen -->
     <string name="search_wallets_hint">Search Wallets and Cryptos</string>
@@ -3019,6 +3021,7 @@
     <string name="accessibility_current_market_price">Current Market Price</string>
     <string name="accessibility_24h_change">24 Hour Change</string>
     <string name="accessibility_referral">Show Referral Code</string>
+    <string name="accessibility_price_not_available">Price not available</string>
 
     <!-- Bottom Nav Items -->
     <string name="bottom_nav_home">Home</string>

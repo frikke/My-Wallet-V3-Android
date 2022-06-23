@@ -65,6 +65,7 @@ private class PriceCardViewHolder(
             } else {
                 val rate = item.priceWithDelta.currentRate as ExchangeRate
                 price.text = rate.price.format(fiatCurrency)
+
                 priceDelta.asDeltaPercent(item.priceWithDelta.delta24h)
             }
         }
