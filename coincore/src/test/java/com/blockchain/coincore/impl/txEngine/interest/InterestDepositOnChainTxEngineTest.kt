@@ -44,10 +44,10 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
-    private val interestDataSource: FlushableDataSource = mock()
+    private val interestFlushableDataSource: FlushableDataSource = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
-        interestFlushableDataSource = interestDataSource,
+        interestFlushableDataSource = interestFlushableDataSource,
         walletManager = walletManager,
         interestBalances = interestBalances,
         onChainEngine = onChainEngine
