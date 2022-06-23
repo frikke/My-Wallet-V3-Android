@@ -20,7 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class BackupPhraseViewModel(
-    private val backupPhraseService: BackupPhraseService
+    private val backupPhraseService: BackupPhraseService,
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -79,6 +79,10 @@ class BackupPhraseViewModel(
                 verifyPhrase(intent.userMnemonic)
             }
 
+            BackupPhraseIntent.ResetVerificationStatus -> {
+                updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE) }
+            }
+
             BackupPhraseIntent.GoToPreviousScreen -> {
                 navigate(BackupPhraseNavigationEvent.GoToPreviousScreen)
             }
@@ -122,12 +126,8 @@ class BackupPhraseViewModel(
 
     private fun verifyPhrase(userMnemonic: List<String>) {
         if (userMnemonic != modelState.mnemonic) {
-            // todo(othman): check with ethan how to show phrase is incorrect
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
-            updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.VERIFIED) }
-
-            // todo(othman): check with ethan how to move from "verify" to "next"
             viewModelScope.launch {
                 updateState { it.copy(isLoading = true) }
 
@@ -138,6 +138,7 @@ class BackupPhraseViewModel(
                     }
                     .doOnFailure {
                         updateState { it.copy(isLoading = false) }
+                        // todo(othman) handle api error
                     }
             }
         }
