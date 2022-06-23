@@ -28,7 +28,7 @@ class ReferralRepository(
                 .flatMap { authToken ->
                     referralApi.getReferralCode(
                         authorization = authToken,
-                        currency = currencyPrefs.selectedFiatCurrency.symbol
+                        currency = currencyPrefs.selectedFiatCurrency.networkTicker
                     )
                         .fold(
                             onSuccess = { response ->

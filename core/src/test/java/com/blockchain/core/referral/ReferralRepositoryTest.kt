@@ -41,7 +41,7 @@ class ReferralRepositoryTest {
     }
 
     private val mockFiat: FiatCurrency = mock {
-        on { symbol } doReturn FIAT
+        on { networkTicker } doReturn FIAT
     }
 
     private val currencyPrefs: CurrencyPrefs = mock {
