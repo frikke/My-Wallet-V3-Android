@@ -24,14 +24,14 @@ import com.blockchain.presentation.R
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 
 @Composable
-fun BackedSuccess(viewModel: BackupPhraseViewModel) {
-    BackedSuccessScreen(
+fun BackupSuccess(viewModel: BackupPhraseViewModel) {
+    BackupSuccessScreen(
         doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
     )
 }
 
 @Composable
-fun BackedSuccessScreen(
+fun BackupSuccessScreen(
     doneOnClick: () -> Unit,
 ) {
 
@@ -86,6 +86,6 @@ fun BackedSuccessScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewBackedSuccessScreen() {
-    BackedSuccessScreen {}
+fun PreviewBackupSuccessScreen() {
+    BackupSuccessScreen {}
 }

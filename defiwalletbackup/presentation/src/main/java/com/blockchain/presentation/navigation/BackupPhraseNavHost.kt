@@ -11,7 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.screens.BackedSuccess
+import com.blockchain.presentation.screens.BackupSuccess
 import com.blockchain.presentation.screens.BackupPhraseIntro
 import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.RecoveryPhrase
@@ -78,6 +78,6 @@ private fun NavGraphBuilder.verifyPhraseDestination(viewModel: BackupPhraseViewM
 
 private fun NavGraphBuilder.backupSuccessDestination(viewModel: BackupPhraseViewModel) {
     composable(navigationEvent = BackPhraseDestination.BackupSuccess) {
-        BackedSuccess(viewModel)
+        BackupSuccess(viewModel)
     }
 }
