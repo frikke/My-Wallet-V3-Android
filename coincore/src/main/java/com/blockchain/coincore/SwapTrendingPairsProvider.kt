@@ -10,7 +10,7 @@ import piuk.blockchain.androidcore.utils.extensions.zipSingles
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
     val destinationAccount: CryptoAccount,
-    val isSourceFunded: Boolean
+    val isSourceFunded: Boolean,
 ) {
     val enabled = isSourceFunded
 }
@@ -21,34 +21,36 @@ interface TrendingPairsProvider {
 
 internal class SwapTrendingPairsProvider(
     private val coincore: Coincore,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Trading).toSingle() }
-            .zipSingles()
-            .map { it.isNotEmpty() }
-            .flatMap { useCustodial ->
-                val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
+        coincore.activeCryptoAssets.firstOrError().flatMap { activeAssets ->
+            activeAssets.map { it.accountGroup(AssetFilter.Trading).toSingle() }
+                .zipSingles()
+                .map { it.isNotEmpty() }
+                .flatMap { useCustodial ->
+                    val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
 
-                val assetList = makeRequiredAssetSet()
-                val accountGroups = assetList.map { asset ->
-                    coincore[asset].accountGroup(filter)
-                        .toSingle()
-                        .onErrorReturn { NullAccountGroup }
-                }
+                    val assetList = makeRequiredAssetSet()
+                    val accountGroups = assetList.map { asset ->
+                        coincore[asset].accountGroup(filter)
+                            .toSingle()
+                            .onErrorReturn { NullAccountGroup }
+                    }
 
-                Single.zip(
-                    accountGroups
-                ) { groups: Array<Any> ->
-                    getAccounts(groups)
+                    Single.zip(
+                        accountGroups
+                    ) { groups: Array<Any> ->
+                        getAccounts(groups)
+                    }
+                }.map { accountList ->
+                    val accountMap = accountList.associateBy { it.currency }
+                    buildPairs(accountMap)
+                }.onErrorReturn {
+                    emptyList()
                 }
-            }.map { accountList ->
-                val accountMap = accountList.associateBy { it.currency }
-                buildPairs(accountMap)
-            }.onErrorReturn {
-                emptyList()
-            }
+        }
 
     private fun makeRequiredAssetSet() =
         DEFAULT_SWAP_PAIRS.map { pair ->

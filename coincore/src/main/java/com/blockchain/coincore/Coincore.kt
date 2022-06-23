@@ -19,7 +19,10 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import timber.log.Timber
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
@@ -56,10 +59,24 @@ class Coincore internal constructor(
             assetLoader[it]
         }
 
+    init {
+        walletModeService.walletMode.flatMapCompletable {
+            assetLoader.initAndPreload(it)
+        }.subscribeBy(
+            onError = {
+                // TODO(antonis-bc) handle error case
+            },
+            onComplete = {
+                _activeAssets.onNext(assetLoader.activeAssets)
+            }
+        )
+    }
+
     fun init(): Completable =
-        assetLoader.initAndPreload()
+        assetLoader.initAndPreload(walletModeService.enabledWalletMode())
             .doOnComplete {
                 remoteLogger.logEvent("Coincore init complete")
+                _activeAssets.onNext(assetLoader.activeAssets)
             }
             .doOnError {
                 remoteLogger.logEvent("Coincore initialisation failed! $it")
@@ -271,7 +288,12 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
+    val activeCryptoAssets: Observable<List<CryptoAsset>>
+        get() = _activeAssets.doOnNext {
+            Timber.d("Active assets updated $it")
+        }
+
+    private val _activeAssets = BehaviorSubject.create<List<CryptoAsset>>()
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }

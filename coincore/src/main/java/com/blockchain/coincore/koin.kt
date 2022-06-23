@@ -140,7 +140,6 @@ val coincoreModule = module {
                 experimentalL1EvmAssets = experimentalL1EvmAssetList(), // Only Matic ATM
                 assetCatalogue = get(),
                 payloadManager = get(),
-                walletModeService = get(),
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 tradingBalances = get(),

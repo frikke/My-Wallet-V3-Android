@@ -79,6 +79,8 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
+import piuk.blockchain.android.ui.dashboard.WalletModeChangeHost
+import piuk.blockchain.android.ui.dashboard.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
@@ -130,6 +132,8 @@ class MainActivity :
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
+    WalletModeSelectionBottomSheet.Host,
+    WalletModeChangeHost,
     KycUpgradeNowSheet.Host {
 
     override val alwaysDisableScreenshots: Boolean
@@ -436,7 +440,8 @@ class MainActivity :
             }
             SETTINGS_EDIT,
             ACCOUNT_EDIT,
-            KYC_STARTED -> {
+            KYC_STARTED,
+            -> {
                 // Reset state in case of changing currency etc
                 launchPortfolio()
 
@@ -859,7 +864,7 @@ class MainActivity :
 
     private fun launchAssetAction(
         action: AssetAction,
-        account: BlockchainAccount?
+        account: BlockchainAccount?,
     ) = when (action) {
         AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
@@ -871,7 +876,7 @@ class MainActivity :
 
     private fun startActivitiesFragment(
         account: BlockchainAccount? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
@@ -982,7 +987,7 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
@@ -998,7 +1003,7 @@ class MainActivity :
 
     override fun launchSwap(
         sourceAccount: CryptoAccount?,
-        targetAccount: CryptoAccount?
+        targetAccount: CryptoAccount?,
     ) {
         if (sourceAccount == null && targetAccount == null) {
             actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
@@ -1066,7 +1071,7 @@ class MainActivity :
     override fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType,
         asset: AssetInfo?,
-        reload: Boolean
+        reload: Boolean,
     ) {
         updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
@@ -1134,6 +1139,12 @@ class MainActivity :
         )
     }
 
+    override fun onChangeActiveModeRequested() {
+        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+    }
+
+    override fun onActiveModeChanged(walletMode: WalletMode) {}
+
     override fun launchSimpleBuyFromDeepLinkApproval() {
         startActivity(SimpleBuyActivity.newIntent(this, launchFromApprovalDeepLink = true))
     }
@@ -1197,7 +1208,7 @@ class MainActivity :
             originLocation: String?,
             originBrowser: String?,
             forcePin: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
             putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
@@ -1215,7 +1226,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Map<String, String>? = null
+            notificationAnalyticsPayload: Map<String, String>? = null,
         ): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
@@ -1240,7 +1251,7 @@ class MainActivity :
             context: Context,
             intentData: String?,
             shouldLaunchUiTour: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
                 data = Uri.parse(intentData)

@@ -313,6 +313,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
+    <string name="brokerage" translatable="false">Brokerage</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>
@@ -3022,4 +3023,6 @@
     <string name="bottom_nav_prices">Prices</string>
     <string name="bottom_nav_buy_and_sell">Buy &amp; Sell</string>
     <string name="bottom_nav_activity">Activity</string>
+    <string name="defi_wallet">DeFi Wallet</string>
+    <string name="defi" translatable="false">DeFi</string>
 </resources>

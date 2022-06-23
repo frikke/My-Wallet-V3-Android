@@ -1,7 +1,10 @@
 package com.blockchain.walletmode
 
+import io.reactivex.rxjava3.core.Observable
+
 interface WalletModeService {
     fun enabledWalletMode(): WalletMode
+    val walletMode: Observable<WalletMode>
     fun updateEnabledWalletMode(type: WalletMode)
 }
 

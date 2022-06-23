@@ -25,6 +25,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -127,10 +128,13 @@ class PortfolioFragment :
         PortfolioDelegateAdapter(
             prefs = get(),
             onCardClicked = { onAssetClicked(it) },
+            onWalletModeChangeClicked = { onChangeActiveWalletModeRequested() },
             analytics = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
-            onHoldAmountClicked = { onHoldAmountClicked(it) }
+            walletModeService = get(),
+            onHoldAmountClicked = { onHoldAmountClicked(it) },
+            superAppFeatureFlag = get(superAppFeatureFlag)
         )
     }
 
@@ -183,7 +187,8 @@ class PortfolioFragment :
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
                 AssetAction.FiatDeposit,
-                AssetAction.FiatWithdraw -> model.process(
+                AssetAction.FiatWithdraw,
+                -> model.process(
                     DashboardIntent.StartBankTransferFlow(
                         action = AssetAction.FiatWithdraw
                     )
@@ -457,7 +462,7 @@ class PortfolioFragment :
             val newBalance = state.accountBalance?.total
             if (newBalance != null && newBalance != oldState?.activeAssets?.get(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
-                analyticsReporter.gotAssetBalance(asset, newBalance)
+                analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)
             }
         }
     }
@@ -617,7 +622,8 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+            MainActivity.ACCOUNT_EDIT,
+            -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))
@@ -650,6 +656,12 @@ class PortfolioFragment :
     private fun onHoldAmountClicked(locks: Locks) {
         require(locks.fundsLocks != null) { "funds are null" }
         LocksDetailsActivity.start(requireContext(), locks.fundsLocks)
+    }
+
+    private fun onChangeActiveWalletModeRequested() {
+        (activity as? WalletModeChangeHost)?.onChangeActiveModeRequested() ?: throw IllegalStateException(
+            "Host Activity $activity should be a WalletModeChangeHost"
+        )
     }
 
     private val announcementHost = object : AnnouncementHost {
@@ -822,7 +834,7 @@ class PortfolioFragment :
     companion object {
         fun newInstance(
             flowToLaunch: AssetAction? = null,
-            fiatCurrency: String? = null
+            fiatCurrency: String? = null,
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
                 if (flowToLaunch != null && fiatCurrency != null) {

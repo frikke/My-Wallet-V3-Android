@@ -1,11 +1,12 @@
 package com.blockchain.coincore.loader
 
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 
-interface AssetLoader {
-    fun initAndPreload(): Completable
+internal interface AssetLoader {
+    fun initAndPreload(walletMode: WalletMode): Completable
 
     // The assets which have balances and/or transaction history. This list is used for displaying content on the
     // Portfolio screen.

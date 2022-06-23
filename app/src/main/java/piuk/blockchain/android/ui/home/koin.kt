@@ -2,7 +2,9 @@ package piuk.blockchain.android.ui.home
 
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import piuk.blockchain.android.ui.dashboard.WalletModeSelectionViewModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
@@ -60,6 +62,12 @@ val mainModule = module {
         factory {
             ActionsSheetInteractor(
                 userIdentity = get()
+            )
+        }
+        viewModel {
+            WalletModeSelectionViewModel(
+                walletModeService = get(),
+                coincore = get()
             )
         }
     }

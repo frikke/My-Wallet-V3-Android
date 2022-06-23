@@ -9,6 +9,7 @@ val speedUpLoginInterestFeatureFlag = StringQualifier("android_ff_speedup_login_
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val newAssetPriceStoreFeatureFlag = StringQualifier("ff_new_asset_price_store")
+val superAppFeatureFlag = StringQualifier("ff_super_app")
 val intercomChatFeatureFlag = StringQualifier("ff_intercom_chat")
 val blockchainCardFeatureFlag = StringQualifier("ff_blockchain_card")
 val replaceGsonKtxFeatureFlag = StringQualifier("ff_replace_gson_ktx")

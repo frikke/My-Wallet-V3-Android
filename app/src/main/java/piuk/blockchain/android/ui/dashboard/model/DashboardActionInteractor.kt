@@ -90,9 +90,9 @@ class DashboardActionInteractor(
         coincore.fiatAssets.accountGroup(defFilter)
             .map { g -> g.accounts }
             .switchIfEmpty(Single.just(emptyList()))
+            .zipWith(coincore.activeCryptoAssets.firstOrError().map { it.map { asset -> asset.assetInfo } })
             .subscribeBy(
-                onSuccess = { fiatAssets ->
-                    val cryptoAssets = coincore.activeCryptoAssets().map { it.assetInfo }
+                onSuccess = { (fiatAssets, cryptoAssets) ->
                     model.process(
                         DashboardIntent.UpdateAllAssetsAndBalances(
                             cryptoAssets,

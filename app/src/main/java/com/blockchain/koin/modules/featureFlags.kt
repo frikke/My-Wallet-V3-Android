@@ -23,6 +23,7 @@ import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
+import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
@@ -128,6 +129,15 @@ val featureFlagsModule = module {
             readableName = "New AssetPriceStore with Store Cache",
             prefs = get(),
             defaultValue = get<EnvironmentConfig>().isRunningInDebugMode()
+        )
+    }.bind(FeatureFlag::class)
+
+    single(superAppFeatureFlag) {
+        LocalOnlyFeatureFlag(
+            key = "android_ff_new_super_app",
+            readableName = "SuperApp mode",
+            prefs = get(),
+            defaultValue = false
         )
     }.bind(FeatureFlag::class)
 
