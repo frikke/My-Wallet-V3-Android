@@ -2953,8 +2953,8 @@
     <string name="verify_phrase_incorrect_message">Incorrect order. Reset or tap individual words to remove.</string>
     <string name="verify_phrase_incorrect_button">Reset Words</string>
 
-    <string name="phrase_confirmation_title">Your Recovery Phrase</string>
-    <string name="phrase_confirmation_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
+    <string name="backup_success_title">Back Up Successful!</string>
+    <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">A digital card you can use instantly for online payments.</string>

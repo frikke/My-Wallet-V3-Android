@@ -32,7 +32,7 @@ import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun BackupConfirmation(viewModel: BackupPhraseViewModel) {
+fun BackedUpPhrase(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -40,7 +40,7 @@ fun BackupConfirmation(viewModel: BackupPhraseViewModel) {
     val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        PhraseConfirmationScreen(
+        BackedUpPhraseScreen(
             mnemonic = state.mnemonic,
             nextOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
         )
@@ -48,7 +48,7 @@ fun BackupConfirmation(viewModel: BackupPhraseViewModel) {
 }
 
 @Composable
-fun PhraseConfirmationScreen(
+fun BackedUpPhraseScreen(
     mnemonic: List<String>,
     nextOnClick: () -> Unit
 ) {
@@ -68,29 +68,29 @@ fun PhraseConfirmationScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            SimpleText(
-                text = stringResource(id = R.string.phrase_confirmation_title),
-                style = ComposeTypographies.Title2,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
-
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
-
-            BackupStatus(BackUpStatus.BACKED_UP)
-
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
-
-            HidableMnemonic(mnemonic = mnemonic)
-
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
-
-            SimpleText(
-                text = stringResource(id = R.string.phrase_confirmation_description),
-                style = ComposeTypographies.Paragraph1,
-                color = ComposeColors.Title,
-                gravity = ComposeGravities.Centre
-            )
+//            SimpleText(
+//                text = stringResource(id = R.string.phrase_confirmation_title),
+//                style = ComposeTypographies.Title2,
+//                color = ComposeColors.Title,
+//                gravity = ComposeGravities.Centre
+//            )
+//
+//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+//
+//            BackupStatus(BackUpStatus.BACKED_UP)
+//
+//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+//
+//            HidableMnemonic(mnemonic = mnemonic)
+//
+//            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+//
+//            SimpleText(
+//                text = stringResource(id = R.string.phrase_confirmation_description),
+//                style = ComposeTypographies.Paragraph1,
+//                color = ComposeColors.Title,
+//                gravity = ComposeGravities.Centre
+//            )
 
             Spacer(modifier = Modifier.weight(1F))
 
@@ -111,10 +111,10 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Phrase Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Backed Up Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewPhraseConfirmationScreen() {
-    PhraseConfirmationScreen(
+fun PreviewBackedUpPhraseScreen() {
+    BackedUpPhraseScreen(
         mnemonic = mnemonic,
         nextOnClick = {}
     )
