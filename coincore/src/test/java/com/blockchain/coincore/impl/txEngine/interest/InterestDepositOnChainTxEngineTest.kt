@@ -8,7 +8,6 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.FeeSelection
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TransactionTarget
-import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -34,7 +33,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.amshove.kluent.shouldEqual
@@ -495,22 +493,6 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
         verifyOnChainEngineStarted(sourceAccount)
 
         noMoreInteractions(sourceAccount, txTarget)
-    }
-
-    @Test
-    fun `postExecute invalidates interestStore`() {
-        // Arrange
-        whenever(onChainEngine.doPostExecute(any(), any())).thenReturn(Completable.complete())
-        val pendingTx: PendingTx = mock()
-        val txResult: TxResult = mock()
-        // Act
-        subject.doPostExecute(pendingTx = pendingTx, txResult = txResult)
-            .test()
-            .await()
-
-        // Assert
-        verify(onChainEngine, times(1)).doPostExecute(pendingTx, txResult)
-        verify(interestStoreService, times(1)).invalidate()
     }
 
     private fun mockSourceAccount(

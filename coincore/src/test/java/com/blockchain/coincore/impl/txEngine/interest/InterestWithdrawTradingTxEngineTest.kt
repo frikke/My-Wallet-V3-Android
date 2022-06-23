@@ -280,17 +280,6 @@ class InterestWithdrawTradingTxEngineTest : CoincoreTestBase() {
             .assertComplete()
     }
 
-    @Test
-    fun `postExecute invalidates interestStore`() {
-        // Act
-        subject.doPostExecute(pendingTx = mock(), txResult = mock())
-            .test()
-            .await()
-
-        // Assert
-        verify(interestStoreService, times(1)).invalidate()
-    }
-
     private fun noMoreInteractions(sourceAccount: BlockchainAccount, txTarget: TransactionTarget) {
         verifyNoMoreInteractions(txTarget)
         verifyNoMoreInteractions(custodialWalletManager)

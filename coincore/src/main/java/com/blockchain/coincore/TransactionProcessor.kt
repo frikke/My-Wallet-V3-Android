@@ -300,7 +300,7 @@ abstract class TxEngine : KoinComponent {
     open fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = Completable.complete()
 
     // Runs after transaction is fully complete
-    fun doTransactionComplete() {
+    fun doOnTransactionComplete() {
         flushableStoreServices.forEach { it.invalidate() }
     }
 
@@ -452,7 +452,7 @@ class TransactionProcessor(
                     val updatedPendingTransaction = pendingTx.copy(txResult = result)
                     updatePendingTx(updatedPendingTransaction)
                     engine.doPostExecute(updatedPendingTransaction, result)
-                        .doOnComplete { engine.doTransactionComplete() }
+                        .doOnComplete { engine.doOnTransactionComplete() }
                 }
             }
             ValidationState.UNINITIALISED -> Completable.error(IllegalStateException("Transaction is not initialised"))
