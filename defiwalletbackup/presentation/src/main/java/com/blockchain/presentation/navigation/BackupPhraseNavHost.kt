@@ -11,8 +11,8 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.screens.BackupSuccess
 import com.blockchain.presentation.screens.BackupPhraseIntro
+import com.blockchain.presentation.screens.BackupSuccess
 import com.blockchain.presentation.screens.ManualBackup
 import com.blockchain.presentation.screens.RecoveryPhrase
 import com.blockchain.presentation.screens.VerifyPhrase
