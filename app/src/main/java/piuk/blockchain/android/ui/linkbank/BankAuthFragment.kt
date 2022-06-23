@@ -83,6 +83,10 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         arguments?.getSerializable(LINK_BANK_TRANSFER) as? LinkBankTransfer
     }
 
+    private val refreshBankAccountId: String? by lazy {
+        arguments?.getString(REFRESH_BANK_ACCOUNT_ID)
+    }
+
     private var hasChosenExternalApp: Boolean = false
     private var hasExternalLinkingLaunched: Boolean = false
 
@@ -119,6 +123,9 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 }
                 isFromDeepLink -> {
                     model.process(BankAuthIntent.GetLinkedBankState(linkingBankId, isFromDeepLink))
+                }
+                refreshBankAccountId != null -> {
+                    model.process(BankAuthIntent.RefreshPlaidAccount(refreshBankAccountId))
                 }
                 else -> {
                     startBankAuthentication()
@@ -159,6 +166,19 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                     if (it is YapilyAttributes) {
                         showExternalFlow(it)
                     }
+                }
+            }
+            BankLinkingProcessState.IN_REFRESH_FLOW -> {
+                showLoading()
+                newState.refreshBankInfo?.let {
+                    navigator().launchPlaidLink(
+                        PlaidAttributes(
+                            linkToken = it.linkToken,
+                            linkUrl = it.linkUrl,
+                            tokenExpiresAt = it.tokenExpiresAt
+                        ),
+                        id = it.id
+                    )
                 }
             }
             BankLinkingProcessState.APPROVAL -> {
@@ -346,7 +366,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 }
             }
             BankAuthError.LinkedBankInvalid,
-            BankAuthError.LinkedBankAccountUnsupported -> {
+            BankAuthError.LinkedBankAccountUnsupported,
+            -> {
                 showGoBackButton(binding.mainCta) {
                     navigateBack(partner, linkBankTransferId)
                 }
@@ -355,7 +376,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankAuthError.LinkedBankInternalFailure,
             BankAuthError.LinkedBankFailure,
             BankAuthError.LinkedBankFraud,
-            BankAuthError.LinkedBankRejected -> {
+            BankAuthError.LinkedBankRejected,
+            -> {
                 binding.mainCta.apply {
                     text = getString(R.string.bank_linking_try_again)
                     visible()
@@ -425,7 +447,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankPartner.YODLEE ->
                 navigator().launchYodleeSplash(linkBankTransfer?.attributes as YodleeAttributes, bankId)
             BankPartner.PLAID ->
-                navigator().launchPlaidLink(linkBankTransfer?.attributes as PlaidAttributes, bankId, true)
+                navigator().launchPlaidLink(linkBankTransfer?.attributes as PlaidAttributes, bankId)
             null ->
                 navigator().bankAuthCancelled()
         }.exhaustive
@@ -443,7 +465,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
                 )
             }
             BankAuthError.LinkedBankInvalid,
-            BankAuthError.LinkedBankAccountUnsupported -> {
+            BankAuthError.LinkedBankAccountUnsupported,
+            -> {
                 logAnalytics(BankAuthAnalytics.INCORRECT_ACCOUNT, partner)
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
@@ -461,7 +484,8 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             BankAuthError.LinkedBankInfoNotFound,
             BankAuthError.LinkedBankInternalFailure,
             BankAuthError.LinkedBankFailure,
-            BankAuthError.LinkedBankFraud -> {
+            BankAuthError.LinkedBankFraud,
+            -> {
                 when (partner) {
                     BankPartner.YODLEE, BankPartner.PLAID ->
                         setTitleAndSubtitle(
@@ -554,7 +578,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
     }
 
     private fun setErrorIcons(
-        state: BankAuthError
+        state: BankAuthError,
     ) {
         with(binding) {
             linkBankProgress.gone()
@@ -752,6 +776,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         private const val FROM_DEEP_LINK = "FROM_DEEP_LINK"
         private const val FOR_APPROVAL = "FOR_APPROVAL"
         private const val APPROVAL_DATA = "APPROVAL_DATA"
+        private const val REFRESH_BANK_ACCOUNT_ID = "REFRESH_BANK_ACCOUNT_ID"
 
         fun newInstance(
             accountProviderId: String,
@@ -759,7 +784,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
             linkingBankId: String,
             linkingBankToken: String? = null,
             linkBankTransfer: LinkBankTransfer? = null,
-            authSource: BankAuthSource
+            authSource: BankAuthSource,
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putString(ACCOUNT_PROVIDER_ID, accountProviderId)
@@ -773,7 +798,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
         fun newInstance(
             errorState: BankAuthError,
-            authSource: BankAuthSource
+            authSource: BankAuthSource,
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(ERROR_STATE, errorState)
@@ -783,7 +808,7 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
 
         fun newInstance(
             approvalData: BankPaymentApproval,
-            authSource: BankAuthSource
+            authSource: BankAuthSource,
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(APPROVAL_DATA, approvalData)
@@ -795,12 +820,23 @@ class BankAuthFragment : MviFragment<BankAuthModel, BankAuthIntent, BankAuthStat
         fun newInstance(
             linkingId: String,
             authSource: BankAuthSource,
-            fromDeepLink: Boolean = true
+            fromDeepLink: Boolean = true,
         ) = BankAuthFragment().apply {
             arguments = Bundle().apply {
                 putBoolean(FROM_DEEP_LINK, fromDeepLink)
                 putString(LINKING_BANK_ID, linkingId)
                 putSerializable(LINK_BANK_SOURCE, authSource)
+            }
+        }
+
+        fun newInstance(
+            refreshBankAccountId: String?,
+            authSource: BankAuthSource,
+        ) = BankAuthFragment().apply {
+            arguments = Bundle().apply {
+                putString(REFRESH_BANK_ACCOUNT_ID, refreshBankAccountId)
+                putSerializable(LINK_BANK_SOURCE, authSource)
+                putBoolean(FROM_DEEP_LINK, false)
             }
         }
     }

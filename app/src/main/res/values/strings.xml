@@ -2014,6 +2014,7 @@
     <string name="trading_deposit_description_insufficient">The latest balance we fetched indicates you do not have enough funds in your bank account. You can still proceed with the deposit if you believe you have received this message in error.</string>
     <string name="trading_deposit_description_requires_update">Please relink your bank account to ensure faster settlement.</string>
     <string name="trading_deposit_description_stale">We could not obtain an updated balance for your bank account. You can still proceed with the deposit if you believe you have sufficient funds.</string>
+    <string name="trading_deposit_relink_bank_account">Relink Bank Account</string>
     <string name="add_credit_or_debit_card_1">Credit or Debit Card</string>
     <string name="add_debit_card">Debit Card</string>
     <string name="first_name">First Name</string>

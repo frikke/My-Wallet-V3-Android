@@ -25,6 +25,8 @@ import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferAttributesResponse
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.RefreshPlaidRequestBody
+import com.blockchain.api.payments.data.RefreshPlaidResponse
 import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.SettlementResponse
 import com.blockchain.api.payments.data.YapilyCountryResponse
@@ -61,6 +63,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodDetailsError
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
 import com.blockchain.domain.paymentmethods.model.PlaidAttributes
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
 import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.domain.paymentmethods.model.SettlementType
@@ -347,6 +350,24 @@ class PaymentsRepositoryTest {
         // ASSERT
         subject.linkPlaidBankAccount(ID, attrs.accountId, attrs.publicToken).test()
             .assertComplete()
+    }
+
+    @Test
+    fun `refreshPlaidBankAccount() should return RefreshBankInfo`() {
+        // ARRANGE
+        val requestBody = RefreshPlaidRequestBody(packageName = APPLICATION_ID)
+        val response = RefreshPlaidResponse(
+            PLAID_PARTNER,
+            ID,
+            RefreshPlaidResponse.Attributes("linkToken", "linkUrl", "tokenExpiresAt")
+        )
+        every { paymentMethodsService.refreshPlaidAccount(AUTH, ID, requestBody) } returns Single.just(response)
+
+        // ASSERT
+        subject.refreshPlaidBankAccount(ID).test()
+            .assertValue(
+                RefreshBankInfo(BankPartner.PLAID, ID, "linkToken", "linkUrl", "tokenExpiresAt")
+            )
     }
 
     @Test
