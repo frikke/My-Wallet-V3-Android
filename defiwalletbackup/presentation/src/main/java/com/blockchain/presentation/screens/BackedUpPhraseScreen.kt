@@ -18,13 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.blockchain.componentlib.basic.ComposeColors
-import com.blockchain.componentlib.basic.ComposeGravities
-import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R

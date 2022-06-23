@@ -87,5 +87,5 @@ fun BackedSuccessScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewBackedSuccessScreen() {
-    BackedSuccessScreen{}
+    BackedSuccessScreen {}
 }
