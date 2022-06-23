@@ -4,11 +4,15 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 // TODO(dtverdota): AND-6165 Send
 class DynamicOnChanTxEngine : TxEngine() {
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
+
     override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> {
         TODO("Not yet implemented")
     }

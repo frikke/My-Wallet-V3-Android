@@ -69,6 +69,7 @@ import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
@@ -187,17 +188,20 @@ val coreModule = module {
             )
         }
 
-        scoped<InterestDataSource> {
+        scoped(interestDataSource) {
             InterestStore(
                 interestService = get(),
                 authenticator = get()
             )
+        }.apply {
+            bind(InterestDataSource::class)
+            bind(FlushableDataSource::class)
         }
 
         scoped<InterestStoreService> {
             InterestStoreRepository(
                 assetCatalogue = get(),
-                interestDataSource = get()
+                interestDataSource = get(interestDataSource)
             )
         }
 
@@ -226,6 +230,7 @@ val coreModule = module {
             InterestBalanceDataManagerImpl(
                 balanceCallCache = get(),
                 interestStoreService = get(),
+                interestFlushableDataSource = get(interestDataSource),
                 speedUpLoginInterestFF = get(speedUpLoginInterestFeatureFlag)
             )
         }.bind(InterestBalanceDataManager::class)

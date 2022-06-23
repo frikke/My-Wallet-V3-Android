@@ -14,18 +14,17 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
+import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
@@ -45,10 +44,10 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
-    private val interestStoreService: InterestStoreService = mock()
+    private val interestDataSource: FlushableDataSource = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
-        interestStoreService = interestStoreService,
+        interestFlushableDataSource = interestDataSource,
         walletManager = walletManager,
         interestBalances = interestBalances,
         onChainEngine = onChainEngine

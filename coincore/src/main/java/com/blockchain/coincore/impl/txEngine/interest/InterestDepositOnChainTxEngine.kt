@@ -14,23 +14,23 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
-    interestStoreService: InterestStoreService,
+    interestFlushableDataSource: FlushableDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val interestBalances: InterestBalanceDataManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
-) : InterestBaseEngine(walletManager, interestStoreService) {
+) : InterestBaseEngine(walletManager, interestFlushableDataSource) {
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)

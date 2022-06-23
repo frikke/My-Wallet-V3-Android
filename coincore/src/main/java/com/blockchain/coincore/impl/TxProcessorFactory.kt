@@ -37,7 +37,6 @@ import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectSignEngi
 import com.blockchain.coincore.impl.txEngine.walletconnect.WalletConnectTransactionEngine
 import com.blockchain.core.SwapTransactionsCache
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
@@ -46,6 +45,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.storedatasource.FlushableDataSource
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
@@ -58,7 +58,7 @@ class TxProcessorFactory(
     private val bankService: BankService,
     private val limitsDataManager: LimitsDataManager,
     private val interestBalances: InterestBalanceDataManager,
-    private val interestStoreService: InterestStoreService,
+    private val interestFlushableDataSource: FlushableDataSource,
     private val walletPrefs: WalletStatus,
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
@@ -98,7 +98,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawTradingTxEngine(
-                            interestStoreService = interestStoreService,
+                            interestFlushableDataSource = interestFlushableDataSource,
                             walletManager = walletManager,
                             interestBalances = interestBalances
                         )
@@ -112,7 +112,7 @@ class TxProcessorFactory(
                         sourceAccount = source,
                         txTarget = target,
                         engine = InterestWithdrawOnChainTxEngine(
-                            interestStoreService = interestStoreService,
+                            interestFlushableDataSource = interestFlushableDataSource,
                             walletManager = walletManager,
                             interestBalances = interestBalances
                         )
@@ -228,7 +228,7 @@ class TxProcessorFactory(
                             sourceAccount = source,
                             txTarget = it,
                             engine = InterestDepositOnChainTxEngine(
-                                interestStoreService = interestStoreService,
+                                interestFlushableDataSource = interestFlushableDataSource,
                                 walletManager = walletManager,
                                 interestBalances = interestBalances,
                                 onChainEngine = engine
@@ -312,7 +312,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = InterestDepositTradingEngine(
-                        interestStoreService = interestStoreService,
+                        interestFlushableDataSource = interestFlushableDataSource,
                         walletManager = walletManager,
                         interestBalances = interestBalances
                     )

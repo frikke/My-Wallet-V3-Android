@@ -19,6 +19,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
@@ -30,6 +31,9 @@ class FiatWithdrawalTxEngine(
     private val limitsDataManager: LimitsDataManager,
     private val userIdentity: UserIdentity
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))

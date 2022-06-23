@@ -4,10 +4,9 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.storeservice.FlushableStoreService
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -15,11 +14,11 @@ import io.reactivex.rxjava3.core.Single
 
 abstract class InterestBaseEngine(
     private val walletManager: CustodialWalletManager,
-    private val interestStoreService: InterestStoreService,
+    private val interestFlushableDataSource: FlushableDataSource,
 ) : TxEngine() {
 
-    override val flushableStoreServices: List<FlushableStoreService>
-        get() = super.flushableStoreServices + interestStoreService
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestFlushableDataSource)
 
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()

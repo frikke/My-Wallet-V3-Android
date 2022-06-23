@@ -36,6 +36,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.network.PollService
+import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.utils.secondsToDays
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.FiatValue
@@ -59,6 +60,9 @@ class FiatDepositTxEngine(
     private val withdrawLocksRepository: WithdrawLocksRepository,
     private val plaidFeatureFlag: FeatureFlag,
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private val userIsGoldVerified: Single<Boolean>
         get() = userIdentity.isVerifiedFor(Feature.TierLevel(Tier.GOLD))

@@ -21,6 +21,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -60,6 +61,9 @@ class BitpayTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val analytics: Analytics
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     override fun assertInputsValid() {
         // Only support non-custodial BTC & BCH bitpay at this time
