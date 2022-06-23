@@ -56,6 +56,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.txProgressView.setupPrimaryCta(
+            text = getString(R.string.common_ok)
+        ) { activity.finish() }
     }
 
     override fun render(newState: TransactionState) {
@@ -128,11 +131,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                         }
 
                         val actions = customiser.transactionProgressExceptionActions(newState)
-                        if (actions.isEmpty()) {
-                            setupPrimaryCta(
-                                text = getString(R.string.common_ok)
-                            ) { activity.finish() }
-                        } else {
+                        if (actions.isNotEmpty()) {
                             showServerSideActionErrorCtas(
                                 list = actions,
                                 currencyCode = newState.sendingAccount.currency.networkTicker,
