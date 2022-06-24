@@ -4,9 +4,9 @@ import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
-import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.google.gson.Gson
 import java.io.Serializable
 import kotlinx.serialization.ExperimentalSerializationApi
