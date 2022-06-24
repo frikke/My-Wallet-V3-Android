@@ -28,6 +28,7 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransactionError
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -59,6 +60,9 @@ class TradingToOnChainTxEngine(
     private val userIdentity: UserIdentity,
     private val limitsDataManager: LimitsDataManager
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     override fun assertInputsValid() {
         check(txTarget is CryptoAddress)
