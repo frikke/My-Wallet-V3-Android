@@ -13,6 +13,7 @@ interface BankPartnerCallbackProvider {
     fun callback(partner: BankPartner, action: BankTransferAction): String
 }
 
+@kotlinx.serialization.Serializable
 data class BankPaymentApproval(
     val paymentId: String,
     val authorisationUrl: String,

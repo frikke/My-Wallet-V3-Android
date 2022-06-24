@@ -44,6 +44,7 @@ data class PlaidAttributes(
     val tokenExpiresAt: String
 ) : LinkBankAttributes, Serializable
 
+@kotlinx.serialization.Serializable
 data class LinkedBank(
     val id: String,
     val currency: FiatCurrency,

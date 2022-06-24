@@ -6,12 +6,15 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.referral.model.ReferralInfo
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.serializers.BigDecimalSerializer
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -25,10 +28,17 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import piuk.blockchain.android.deeplink.DeepLinkProcessor
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.scan.QrScanResultProcessor
@@ -39,6 +49,7 @@ import piuk.blockchain.android.ui.auth.newlogin.domain.service.SecureChannelServ
 import piuk.blockchain.android.ui.home.models.MainInteractor
 import piuk.blockchain.android.ui.home.models.ReferralState
 import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
+import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 
 class MainInteractorTest {
@@ -64,8 +75,36 @@ class MainInteractorTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val referralRepository: ReferralRepository = mock()
 
+    private val jsonSerializers = module {
+        single {
+            Json {
+                explicitNulls = false
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+                serializersModule = SerializersModule {
+                    contextual(BigDecimalSerializer)
+                }
+            }
+        }
+    }
+
+    private val replaceGsonKtxFF: FeatureFlag = mock()
+    private val featureFlagsModule = module {
+        single(replaceGsonKtxFeatureFlag) {
+            replaceGsonKtxFF
+        }
+    }
+
     @Before
     fun setup() {
+        GlobalContext.startKoin {
+            modules(
+                jsonSerializers,
+                featureFlagsModule
+            )
+        }
+
         interactor = MainInteractor(
             deepLinkProcessor = deepLinkProcessor,
             deeplinkRedirector = deeplinkRedirector,
@@ -86,6 +125,11 @@ class MainInteractorTest {
             referralPrefs = referralPrefs,
             referralRepository = referralRepository
         )
+    }
+
+    @After
+    fun cleanup() {
+        stopKoin()
     }
 
     @Test
@@ -152,9 +196,18 @@ class MainInteractorTest {
     }
 
     @Test
-    fun setLocalBankState() {
+    fun setLocalBankStateGson() {
+        whenever(replaceGsonKtxFF.isEnabled).thenReturn(false)
         doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
         interactor.updateBankLinkingState(mock())
+        verify(bankLinkingPrefs).setBankLinkingState(any())
+    }
+
+    @Test
+    fun setLocalBankStateKtx() {
+        whenever(replaceGsonKtxFF.isEnabled).thenReturn(true)
+        doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
+        interactor.updateBankLinkingState(BankAuthDeepLinkState())
         verify(bankLinkingPrefs).setBankLinkingState(any())
     }
 
