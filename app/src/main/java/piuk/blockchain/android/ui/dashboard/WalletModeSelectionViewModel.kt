@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
@@ -11,6 +13,8 @@ import com.blockchain.outcome.doOnSuccess
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
+import java.lang.IllegalArgumentException
+import piuk.blockchain.android.R
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class WalletModeSelectionViewModel(private val walletModeService: WalletModeService, private val coincore: Coincore) :
@@ -113,4 +117,18 @@ data class WalletModeSelectionModelState(
 sealed class BalanceState {
     object Loading : BalanceState()
     data class Data(val money: Money) : BalanceState()
+}
+
+@StringRes
+fun WalletMode.title(): Int = when (this) {
+    WalletMode.NON_CUSTODIAL_ONLY -> R.string.defi
+    WalletMode.CUSTODIAL_ONLY -> R.string.brokerage
+    else -> throw IllegalArgumentException("No title supported for mode")
+}
+
+@DrawableRes
+fun WalletMode.icon(): Int = when (this) {
+    WalletMode.NON_CUSTODIAL_ONLY -> R.drawable.ic_defi_wallet
+    WalletMode.CUSTODIAL_ONLY -> R.drawable.ic_portfolio
+    else -> throw IllegalArgumentException("No icon supported for mode")
 }

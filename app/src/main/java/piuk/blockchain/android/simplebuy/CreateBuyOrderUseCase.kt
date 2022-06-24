@@ -30,6 +30,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
+import timber.log.Timber
 
 class CreateBuyOrderUseCase(
     private val cancelOrderUseCase: CancelOrderUseCase,
@@ -43,9 +44,8 @@ class CreateBuyOrderUseCase(
     private val subject: PublishSubject<Outcome<Throwable, BuyOrderAndQuote>> = PublishSubject.create()
     val buyOrderAndQuote: Observable<Outcome<Throwable, BuyOrderAndQuote>>
         get() = subject.doOnNext {
-
             it.getOrNull()?.let { buyOrderAndQuote ->
-                println("LALALA ${buyOrderAndQuote.buyOrder.id} --- ${buyOrderAndQuote.quote.secondsToExpire}")
+                Timber.i("New quote ${buyOrderAndQuote.buyOrder.id} --- ${buyOrderAndQuote.quote.secondsToExpire}")
                 latestPendingOrder = buyOrderAndQuote.buyOrder
             }
         }

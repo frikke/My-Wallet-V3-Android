@@ -126,11 +126,9 @@ class PortfolioFragment :
         PortfolioDelegateAdapter(
             prefs = get(),
             onCardClicked = { onAssetClicked(it) },
-            onWalletModeChangeClicked = { onChangeActiveWalletModeRequested() },
             analytics = get(),
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
-            walletModeService = get(),
             onHoldAmountClicked = { onHoldAmountClicked(it) }
         )
     }
@@ -646,12 +644,6 @@ class PortfolioFragment :
     private fun onHoldAmountClicked(locks: Locks) {
         require(locks.fundsLocks != null) { "funds are null" }
         LocksDetailsActivity.start(requireContext(), locks.fundsLocks)
-    }
-
-    private fun onChangeActiveWalletModeRequested() {
-        (activity as? WalletModeChangeHost)?.onChangeActiveModeRequested() ?: throw IllegalStateException(
-            "Host Activity $activity should be a WalletModeChangeHost"
-        )
     }
 
     private val announcementHost = object : AnnouncementHost {

@@ -81,10 +81,11 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
-import piuk.blockchain.android.ui.dashboard.WalletModeChangeHost
 import piuk.blockchain.android.ui.dashboard.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.icon
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dashboard.title
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
@@ -134,7 +135,6 @@ class MainActivity :
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
     WalletModeSelectionBottomSheet.Host,
-    WalletModeChangeHost,
     KycUpgradeNowSheet.Host,
     NavigationRouter<PricesNavigationEvent> {
 
@@ -302,6 +302,16 @@ class MainActivity :
         updateToolbarMenuItems(
             listOf(qrButton, settingsButton)
         )
+        updateToolbarStartItem(
+            NavigationBarButton.DropdownIndicator(
+                dropDownClicked = {
+                    showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+                },
+                text = getString(walletModeService.enabledWalletMode().title()),
+                rightIcon = walletModeService.enabledWalletMode().icon(),
+                contentDescription = walletModeService.enabledWalletMode().name
+            )
+        )
     }
 
     private fun setupMenuWithPresentButton(referralState: ReferralState) {
@@ -393,7 +403,7 @@ class MainActivity :
 
     private fun redrawNavigation(walletMode: WalletMode) {
         binding.bottomNavigation.apply {
-            navigationItems = when (walletModeService.enabledWalletMode()) {
+            navigationItems = when (walletMode) {
                 WalletMode.CUSTODIAL_ONLY,
                 WalletMode.UNIVERSAL,
                 -> listOf(
@@ -885,7 +895,6 @@ class MainActivity :
         account: BlockchainAccount? = null,
         reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
@@ -996,7 +1005,7 @@ class MainActivity :
         fiatCurrency: String? = null,
         reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_home))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(action, fiatCurrency),
@@ -1080,7 +1089,7 @@ class MainActivity :
         asset: AssetInfo?,
         reload: Boolean,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_buy_sell))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
 
         val buySellFragment = BuySellFragment.newInstance(
@@ -1101,8 +1110,16 @@ class MainActivity :
         )
     }
 
+    private fun homeToolbarTitle(fragmentTitle: String) {
+        val title = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> fragmentTitle
+            else -> ""
+        }
+        updateToolbarTitle(title = title)
+    }
+
     private fun launchPrices(reload: Boolean = false) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),
             reloadFragment = reload
@@ -1110,7 +1127,7 @@ class MainActivity :
     }
 
     private fun launchPrices2(reload: Boolean = false) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = piuk.blockchain.android.ui.prices.presentation.PricesFragment.newInstance(),
             reloadFragment = reload
@@ -1154,12 +1171,16 @@ class MainActivity :
         )
     }
 
-    override fun onChangeActiveModeRequested() {
-        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
-    }
-
     override fun onActiveModeChanged(walletMode: WalletMode) {
         redrawNavigation(walletMode)
+        val updatedDropdownIndicator =
+            (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
+                text = getString(walletMode.title()),
+                rightIcon = walletMode.icon(),
+            )
+        updatedDropdownIndicator?.let {
+            updateToolbarStartItem(it)
+        }
     }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {

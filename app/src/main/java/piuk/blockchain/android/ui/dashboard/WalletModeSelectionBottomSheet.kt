@@ -40,7 +40,6 @@ import piuk.blockchain.android.R
 
 class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScopeComponent {
     interface Host {
-        fun onChangeActiveModeRequested()
         fun onActiveModeChanged(
             walletMode: WalletMode,
         )
@@ -183,8 +182,4 @@ private fun WalletModePreview() {
             )
         }
     }
-}
-
-interface WalletModeChangeHost {
-    fun onChangeActiveModeRequested()
 }
