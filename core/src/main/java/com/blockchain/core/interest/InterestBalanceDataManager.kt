@@ -1,5 +1,6 @@
 package com.blockchain.core.interest
 
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.interest.domain.InterestStoreService
 import com.blockchain.featureflag.FeatureFlag
 import info.blockchain.balance.AssetInfo
@@ -31,6 +32,7 @@ interface InterestBalanceDataManager {
 internal class InterestBalanceDataManagerImpl(
     private val balanceCallCache: InterestBalanceCallCache,
     private val interestStoreService: InterestStoreService,
+    private val interestDataSource: InterestDataSource,
     private val speedUpLoginInterestFF: FeatureFlag,
 ) : InterestBalanceDataManager {
     override fun getBalanceForAsset(asset: AssetInfo): Observable<InterestAccountBalance> {
@@ -58,7 +60,7 @@ internal class InterestBalanceDataManagerImpl(
     override fun flushCaches(asset: AssetInfo) {
         speedUpLoginInterestFF.enabled.subscribe { isEnabled ->
             if (isEnabled) {
-                interestStoreService.invalidate()
+                interestDataSource.invalidate()
             } else {
                 balanceCallCache.invalidate()
             }

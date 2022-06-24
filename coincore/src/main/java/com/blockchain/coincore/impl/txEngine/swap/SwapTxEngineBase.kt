@@ -25,6 +25,7 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -47,6 +48,9 @@ abstract class SwapTxEngineBase(
     limitsDataManager: LimitsDataManager,
     private val swapTransactionsCache: SwapTransactionsCache,
 ) : QuotedEngine(quotesEngine, userIdentity, walletManager, limitsDataManager, Product.TRADE) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private lateinit var minApiLimit: Money
 

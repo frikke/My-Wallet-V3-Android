@@ -2580,6 +2580,7 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="failed">BAŞARISIZ</string>
     <string name="delete_card">Kartı Sil</string>
     <string name="earn_crypto_on_purchases">Satın alımlar üzerinden kripto para kazanın</string>
+    <string name="add_funds">Doldur</string>
     <string name="copy_card_number">Kart Numarasını Kopyala</string>
     <string name="copy_to_clipboard">Panoya kopyala</string>
     <string name="lock_card">Kartı Kilitle</string>

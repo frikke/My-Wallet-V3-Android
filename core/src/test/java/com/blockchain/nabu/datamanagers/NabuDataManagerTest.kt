@@ -2,10 +2,7 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.api.ApiException
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
@@ -287,42 +284,6 @@ class NabuDataManagerTest {
             stateCode,
             notifyWhenAvailable
         )
-    }
-
-    @Test
-    fun getCountriesList() {
-        // Arrange
-        val countriesList = listOf(
-            NabuCountryResponse("GER", "Germany", listOf("EEA"), listOf("KYC")),
-            NabuCountryResponse("UK", "United Kingdom", listOf("EEA"), listOf("KYC"))
-        )
-        whenever(nabuService.getCountriesList(Scope.Kyc))
-            .thenReturn(Single.just(countriesList))
-        // Act
-        val testObserver = subject.getCountriesList(Scope.Kyc).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(countriesList)
-        verify(nabuService).getCountriesList(Scope.Kyc)
-    }
-
-    @Test
-    fun getStatesList() {
-        // Arrange
-        val statesList = listOf(
-            NabuStateResponse("US-AL", "Alabama", listOf("KYC"), "US"),
-            NabuStateResponse("US-AZ", "Arizona", listOf("KYC"), "US")
-        )
-        whenever(nabuService.getStatesList("US", Scope.Kyc))
-            .thenReturn(Single.just(statesList))
-        // Act
-        val testObserver = subject.getStatesList("US", Scope.Kyc).test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-        testObserver.assertValue(statesList)
-        verify(nabuService).getStatesList("US", Scope.Kyc)
     }
 
     @Test

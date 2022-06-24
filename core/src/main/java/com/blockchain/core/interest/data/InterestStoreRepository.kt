@@ -43,10 +43,6 @@ internal class InterestStoreRepository(
     override fun getActiveAssets(): Single<Set<AssetInfo>> {
         return getBalances(refresh = false).map { it.keys }.firstElement().toSingle()
     }
-
-    override fun invalidate() {
-        interestDataSource.invalidate()
-    }
 }
 
 private fun InterestBalanceDetails.toInterestBalance(asset: AssetInfo) =

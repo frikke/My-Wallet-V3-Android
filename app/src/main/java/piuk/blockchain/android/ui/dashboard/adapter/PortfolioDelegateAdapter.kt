@@ -17,7 +17,7 @@ class PortfolioDelegateAdapter(
     analytics: Analytics,
     onFundsItemClicked: (FiatAccount) -> Unit,
     onHoldAmountClicked: (Locks) -> Unit,
-    assetResources: AssetResources
+    assetResources: AssetResources,
 ) : DelegationAdapter<Any>(AdapterDelegatesManager(), emptyList()) {
 
     init {
@@ -26,7 +26,12 @@ class PortfolioDelegateAdapter(
             addAdapterDelegate(StdAnnouncementDelegate(analytics))
             addAdapterDelegate(FundsLockedDelegate(onHoldAmountClicked))
             addAdapterDelegate(MiniAnnouncementDelegate(analytics))
-            addAdapterDelegate(BalanceCardDelegate(prefs.selectedFiatCurrency, assetResources))
+            addAdapterDelegate(
+                BalanceCardDelegate(
+                    prefs.selectedFiatCurrency,
+                    assetResources,
+                )
+            )
             addAdapterDelegate(
                 FundsCardDelegate(
                     prefs.selectedFiatCurrency,

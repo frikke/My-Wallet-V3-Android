@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.blockchain.componentlib.navigation.NavigationBarView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/toolbar_redesign"
+    android:id="@+id/navigation_toolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" />

@@ -9,6 +9,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src/main/java'
+            }
+
+        }
+        test {
+            java {
+                srcDirs 'src/test'
+            }
+        }
+    }
 }
 
 dependencies {
@@ -35,4 +48,10 @@ dependencies {
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations
     implementation Libraries.accompanistNavigationMaterial
+
+    // test
+    testImplementation Libraries.junit
+    testImplementation Libraries.kotlinTest
+    testImplementation Libraries.mockk
+    testImplementation Libraries.kotlinCoroutinesTest
 }

@@ -17,6 +17,8 @@ class BrokerageQuoteResponse(
     val quoteId: String,
     val price: String,
     val quoteMarginPercent: Double,
+    val quoteCreatedAt: String,
+    val quoteExpiresAt: String,
     @SerialName("feeDetails")
     val feeDetails: FeeDetailsResponse,
     @SerialName("settlementDetails")

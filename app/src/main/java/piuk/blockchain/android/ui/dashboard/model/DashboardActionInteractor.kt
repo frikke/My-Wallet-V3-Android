@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.dashboard.model
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.AccountGroup
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
@@ -10,6 +11,7 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.defaultFilter
+import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
@@ -51,6 +53,8 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
@@ -87,16 +91,14 @@ class DashboardActionInteractor(
         get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun fetchActiveAssets(model: DashboardModel): Disposable =
-        coincore.fiatAssets.accountGroup(defFilter)
-            .map { g -> g.accounts }
-            .switchIfEmpty(Single.just(emptyList()))
+        walletModeService.walletMode.map {
+            coincore.activeAssets(it)
+        }.asObservable()
             .subscribeBy(
-                onSuccess = { fiatAssets ->
-                    val cryptoAssets = coincore.activeCryptoAssets().map { it.assetInfo }
+                onNext = { activeAssets ->
                     model.process(
-                        DashboardIntent.UpdateAllAssetsAndBalances(
-                            cryptoAssets,
-                            fiatAssets.filterIsInstance<FiatAccount>()
+                        DashboardIntent.UpdateActiveAssets(
+                            activeAssets
                         )
                     )
                 },
@@ -106,20 +108,40 @@ class DashboardActionInteractor(
                 }
             )
 
+    fun fetchAccounts(assets: List<Asset>, model: DashboardModel): Disposable {
+        val fiatAccounts = assets.filterIsInstance<FiatAsset>().firstOrNull()?.accountGroup(defFilter) ?: Maybe.empty()
+
+        return fiatAccounts.map { g -> g.accounts }
+            .switchIfEmpty(Single.just(emptyList())).subscribeBy(
+                onSuccess = { accounts ->
+                    model.process(
+                        DashboardIntent.UpdateAllAssetsAndBalances(
+                            assetList = assets.filterIsInstance<CryptoAsset>().map { it.assetInfo },
+                            fiatAssetList = accounts.map { it as FiatAccount }
+                        )
+                    )
+                }, onError = {
+                Timber.e("Error fetching fiat accounts - $it")
+                throw it
+            }
+            )
+    }
+
     fun fetchAvailableAssets(model: DashboardModel): Disposable =
-        Single.fromCallable {
+        walletModeService.walletMode.map { walletMode ->
             coincore.availableCryptoAssets().filter {
-                when (walletModeService.enabledWalletMode()) {
+                when (walletMode) {
                     WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
                     WalletMode.CUSTODIAL_ONLY -> it.isCustodial
                     WalletMode.UNIVERSAL -> true
                 }
             }
-        }.subscribeBy(
-            onSuccess = { assets ->
+        }.asObservable().subscribeBy(
+            onNext = { assets ->
                 model.process(DashboardIntent.AssetListUpdate(assets))
             },
-            onError = {
+            onError =
+            {
                 Timber.e("Error fetching available assets - $it")
                 throw it
             }
@@ -242,7 +264,7 @@ class DashboardActionInteractor(
             }
             .doOnNext { accountBalance ->
                 Timber.d("Got balance for ${asset.displayTicker}")
-                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance))
+                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance, defFilter == AssetFilter.All))
             }
             .firstOrError()
             .map {
@@ -660,7 +682,9 @@ class DashboardActionInteractor(
         coincore.getWithdrawalLocks(currencyPrefs.selectedFiatCurrency).subscribeBy(
             onSuccess = {
                 model.process(DashboardIntent.FundsLocksLoaded(it))
-            },
+            }, onComplete = {
+            model.process(DashboardIntent.FundsLocksLoaded(null))
+        },
             onError = {
                 Timber.e(it)
             }

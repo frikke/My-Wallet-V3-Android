@@ -4,20 +4,22 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxConfirmation
 import com.blockchain.coincore.TxConfirmationValue
 import com.blockchain.coincore.TxEngine
-import com.blockchain.coincore.TxResult
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.balance.asAssetInfoOrThrow
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 abstract class InterestBaseEngine(
     private val walletManager: CustodialWalletManager,
-    private val interestStoreService: InterestStoreService,
+    private val interestDataSource: InterestDataSource,
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestDataSource)
 
     protected val sourceAssetInfo: AssetInfo
         get() = sourceAsset.asAssetInfoOrThrow()
@@ -25,7 +27,7 @@ abstract class InterestBaseEngine(
     protected fun modifyEngineConfirmations(
         pendingTx: PendingTx,
         termsChecked: Boolean = getTermsOptionValue(pendingTx),
-        agreementChecked: Boolean = getTermsOptionValue(pendingTx)
+        agreementChecked: Boolean = getTermsOptionValue(pendingTx),
     ): PendingTx =
         pendingTx.removeOption(TxConfirmation.DESCRIPTION)
             .addOrReplaceOption(
@@ -65,9 +67,4 @@ abstract class InterestBaseEngine(
         TxConfirmation.AGREEMENT_INTEREST_T_AND_C,
         TxConfirmation.AGREEMENT_INTEREST_TRANSFER
     )
-
-    override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable {
-        return super.doPostExecute(pendingTx, txResult)
-            .doOnComplete { interestStoreService.invalidate() }
-    }
 }

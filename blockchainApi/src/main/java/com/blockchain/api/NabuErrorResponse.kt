@@ -3,6 +3,7 @@ package com.blockchain.api
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.serializers.KZonedDateTimeSerializer
 import java.io.IOException
 import java.net.SocketTimeoutException
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -159,6 +160,7 @@ object NabuApiExceptionFactory {
             contextual(BigDecimalSerializer)
             contextual(BigIntSerializer)
             contextual(IsoDateSerializer)
+            contextual(KZonedDateTimeSerializer)
         }
     }
 

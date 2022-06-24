@@ -3,33 +3,34 @@ package com.blockchain.api.services
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
-import com.blockchain.api.blockchainCard.data.CardAccount
-import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
-import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
-import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
-import com.blockchain.api.blockchainCard.data.CardLinkedAccountResponse
-import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
-import com.blockchain.api.blockchainCard.data.CardsResponse
-import com.blockchain.api.blockchainCard.data.ProductsResponse
+import com.blockchain.api.blockchainCard.data.CardAccountDto
+import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
+import com.blockchain.api.blockchainCard.data.CardCreationRequestBodyDto
+import com.blockchain.api.blockchainCard.data.CardDto
+import com.blockchain.api.blockchainCard.data.CardWidgetTokenDto
+import com.blockchain.api.blockchainCard.data.ProductDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressRequestDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressUpdateDto
 import com.blockchain.outcome.Outcome
 
 class BlockchainCardService internal constructor(
     private val api: BlockchainCardApi,
     private val walletHelperUrl: WalletHelperUrl
 ) {
-    suspend fun getProducts(authHeader: String): Outcome<ApiError, List<ProductsResponse>> =
+    suspend fun getProducts(authHeader: String): Outcome<ApiError, List<ProductDto>> =
         api.getProducts(authHeader)
 
-    suspend fun getCards(authHeader: String): Outcome<ApiError, List<CardsResponse>> =
+    suspend fun getCards(authHeader: String): Outcome<ApiError, List<CardDto>> =
         api.getCards(authHeader)
 
     suspend fun createCard(
         authHeader: String,
         productCode: String,
         ssn: String
-    ): Outcome<ApiError, CardsResponse> = api.createCard(
+    ): Outcome<ApiError, CardDto> = api.createCard(
         authorization = authHeader,
-        cardCreationRequest = CardCreationRequestBody(
+        cardCreationRequest = CardCreationRequestBodyDto(
             productCode = productCode,
             ssn = ssn
         )
@@ -38,7 +39,7 @@ class BlockchainCardService internal constructor(
     suspend fun deleteCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardsResponse> = api.deleteCard(
+    ): Outcome<ApiError, CardDto> = api.deleteCard(
         authorization = authHeader,
         cardId = cardId
     )
@@ -46,7 +47,7 @@ class BlockchainCardService internal constructor(
     suspend fun getCardWidgetToken(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardWidgetTokenResponse> = api.getCardWidgetToken(
+    ): Outcome<ApiError, CardWidgetTokenDto> = api.getCardWidgetToken(
         authorization = authHeader,
         cardId = cardId
     )
@@ -64,7 +65,7 @@ class BlockchainCardService internal constructor(
     suspend fun getEligibleAccounts(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, List<CardAccount>> = api.getEligibleAccounts(
+    ): Outcome<ApiError, List<CardAccountDto>> = api.getEligibleAccounts(
         authorization = authHeader,
         cardId = cardId
     )
@@ -73,10 +74,10 @@ class BlockchainCardService internal constructor(
         authHeader: String,
         cardId: String,
         accountCurrency: String
-    ): Outcome<ApiError, CardAccountLinkResponse> = api.linkCardAccount(
+    ): Outcome<ApiError, CardAccountLinkDto> = api.linkCardAccount(
         authorization = authHeader,
         cardId = cardId,
-        cardAccountLinkRequest = CardAccountLinkRequest(
+        cardAccountLinkDto = CardAccountLinkDto(
             accountCurrency = accountCurrency
         )
     )
@@ -84,7 +85,7 @@ class BlockchainCardService internal constructor(
     suspend fun getCardLinkedAccount(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardLinkedAccountResponse> = api.getCardLinkedAccount(
+    ): Outcome<ApiError, CardAccountLinkDto> = api.getCardLinkedAccount(
         authorization = authHeader,
         cardId = cardId
     )
@@ -92,7 +93,7 @@ class BlockchainCardService internal constructor(
     suspend fun lockCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardsResponse> = api.lockCard(
+    ): Outcome<ApiError, CardDto> = api.lockCard(
         authorization = authHeader,
         cardId = cardId
     )
@@ -100,8 +101,22 @@ class BlockchainCardService internal constructor(
     suspend fun unlockCard(
         authHeader: String,
         cardId: String
-    ): Outcome<ApiError, CardsResponse> = api.unlockCard(
+    ): Outcome<ApiError, CardDto> = api.unlockCard(
         authorization = authHeader,
         cardId = cardId
+    )
+
+    suspend fun getResidentialAddress(
+        authHeader: String,
+    ): Outcome<ApiError, ResidentialAddressRequestDto> = api.getResidentialAddress(
+        authorization = authHeader
+    )
+
+    suspend fun updateResidentialAddress(
+        authHeader: String,
+        residentialAddress: ResidentialAddressDto
+    ): Outcome<ApiError, ResidentialAddressRequestDto> = api.updateResidentialAddress(
+        authorization = authHeader,
+        residentialAddress = ResidentialAddressUpdateDto(address = residentialAddress)
     )
 }

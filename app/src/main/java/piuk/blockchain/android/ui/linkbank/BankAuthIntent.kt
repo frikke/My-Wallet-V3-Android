@@ -4,6 +4,7 @@ import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
 
 sealed class BankAuthIntent : MviIntent<BankAuthState> {
@@ -79,6 +80,24 @@ sealed class BankAuthIntent : MviIntent<BankAuthState> {
             linkBankAccountId = linkBankAccountId,
             bankLinkingProcessState = BankLinkingProcessState.LINKING
         )
+    }
+
+    class RefreshPlaidAccount(val refreshBankAccountId: String?) :
+        BankAuthIntent() {
+        override fun reduce(oldState: BankAuthState): BankAuthState =
+            oldState.copy(
+                refreshBankAccountId = refreshBankAccountId,
+                bankLinkingProcessState = BankLinkingProcessState.LINKING
+            )
+    }
+
+    class PlaidAccountRefreshInfoReceived(private val refreshBankInfo: RefreshBankInfo) :
+        BankAuthIntent() {
+        override fun reduce(oldState: BankAuthState): BankAuthState =
+            oldState.copy(
+                refreshBankInfo = refreshBankInfo,
+                bankLinkingProcessState = BankLinkingProcessState.IN_REFRESH_FLOW
+            )
     }
 
     object ClearBankLinkingUrl : BankAuthIntent() {

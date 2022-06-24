@@ -16,6 +16,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
+import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
@@ -60,6 +61,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.binds
 import org.koin.dsl.module
@@ -103,6 +105,7 @@ import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
+import piuk.blockchain.android.simplebuy.CreateBuyOrderUseCase
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
@@ -122,10 +125,11 @@ import piuk.blockchain.android.ui.backup.start.BackupWalletStartingModel
 import piuk.blockchain.android.ui.backup.start.BackupWalletStartingState
 import piuk.blockchain.android.ui.backup.verify.BackupVerifyPresenter
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListPresenter
-import piuk.blockchain.android.ui.createwallet.CreateWalletPresenter
-import piuk.blockchain.android.ui.createwallet.ReferralInteractor
+import piuk.blockchain.android.ui.createwallet.CreateWalletViewModel
 import piuk.blockchain.android.ui.customviews.SecondPasswordDialog
 import piuk.blockchain.android.ui.customviews.inputview.InputAmountKeyboard
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireModel
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireStateMachine
 import piuk.blockchain.android.ui.home.CredentialsWiper
 import piuk.blockchain.android.ui.kyc.autocomplete.PlacesClientProvider
 import piuk.blockchain.android.ui.kyc.email.entry.EmailVerificationInteractor
@@ -233,6 +237,7 @@ val applicationModule = module {
         factory {
             KycStatusHelper(
                 nabuDataManager = get(),
+                eligibilityService = get(),
                 nabuDataUserProvider = get(),
                 nabuToken = get(),
                 settingsDataManager = get(),
@@ -312,23 +317,26 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            CreateWalletPresenter(
-                payloadDataManager = get(),
-                prefs = get(),
-                appUtil = get(),
-                analytics = get(),
+        viewModel {
+            CreateWalletViewModel(
                 environmentConfig = get(),
-                formatChecker = get(),
+                defaultLabels = get(),
+                prefs = get(),
+                analytics = get(),
                 specificAnalytics = get(),
+                appUtil = get(),
+                formatChecker = get(),
                 eligibilityService = get(),
-                referralInteractor = get()
+                referralService = get(),
+                payloadDataManager = get(),
             )
         }
 
-        factory {
-            ReferralInteractor(
-                referralService = get()
+        viewModel {
+            QuestionnaireModel(
+                dataRemediationService = get(),
+                stateMachine = QuestionnaireStateMachine(),
+                analytics = get()
             )
         }
 
@@ -468,7 +476,7 @@ val applicationModule = module {
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 remoteLogger = get(),
-                isFirstTimeBuyerUseCase = get(),
+                createBuyOrderUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
@@ -542,12 +550,20 @@ val applicationModule = module {
             )
         }.bind(Mapper::class)
 
+        scoped {
+            CreateBuyOrderUseCase(
+                cancelOrderUseCase = get(),
+                brokerageDataManager = get(),
+                custodialWalletManager = get(),
+                buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag)
+            )
+        }
+
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
                 assetCatalogue = get(),
                 json = get(kotlinJsonAssetTicker),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 

@@ -96,7 +96,7 @@ abstract class BlockchainActivity : ToolBarActivity() {
     fun updateToolbar(
         toolbarTitle: String = "",
         menuItems: List<NavigationBarButton>? = null,
-        backAction: (() -> Unit)? = null
+        backAction: (() -> Unit)? = null,
     ) {
         updateToolbarTitle(toolbarTitle)
         menuItems?.let { items ->
@@ -108,15 +108,19 @@ abstract class BlockchainActivity : ToolBarActivity() {
     }
 
     fun updateToolbarTitle(title: String) {
-        toolbarBinding?.toolbarRedesign?.title = title
+        toolbarBinding?.navigationToolbar?.title = title
     }
 
     fun updateToolbarMenuItems(menuItems: List<NavigationBarButton>) {
-        toolbarBinding?.toolbarRedesign?.endNavigationBarButtons = menuItems
+        toolbarBinding?.navigationToolbar?.endNavigationBarButtons = menuItems
     }
 
     fun updateToolbarBackAction(backAction: (() -> Unit)?) {
-        toolbarBinding?.toolbarRedesign?.onBackButtonClick = backAction
+        toolbarBinding?.navigationToolbar?.onBackButtonClick = backAction
+    }
+
+    fun updateToolbarStartItem(startItem: NavigationBarButton) {
+        toolbarBinding?.navigationToolbar?.startNavigationButton = startItem
     }
 
     @CallSuper

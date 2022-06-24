@@ -23,7 +23,7 @@ enum class HistoricalTimeSpan(val value: Int) {
 
 data class HistoricalRate(
     val timestamp: Seconds,
-    val rate: Double
+    val rate: Double,
 )
 
 typealias HistoricalRateList = List<HistoricalRate>
@@ -59,18 +59,22 @@ interface ExchangeRatesDataManager : ExchangeRates {
     fun exchangeRateToUserFiat(fromAsset: Currency): Observable<ExchangeRate>
 
     fun getHistoricRate(fromAsset: Currency, secSinceEpoch: Long): Single<ExchangeRate>
-    fun getPricesWith24hDelta(fromAsset: Currency): Observable<Prices24HrWithDelta>
-    fun getPricesWith24hDelta(fromAsset: Currency, fiat: Currency): Observable<Prices24HrWithDelta>
+    fun getPricesWith24hDelta(fromAsset: Currency, isRefreshing: Boolean = false): Observable<Prices24HrWithDelta>
+    fun getPricesWith24hDelta(
+        fromAsset: Currency,
+        fiat: Currency,
+        isRefreshing: Boolean = false,
+    ): Observable<Prices24HrWithDelta>
 
     fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
-        now: Calendar = Calendar.getInstance()
+        now: Calendar = Calendar.getInstance(),
     ): Single<HistoricalRateList>
 
     // Specialised call to historic rates for sparkline caching
     fun get24hPriceSeries(
-        asset: Currency
+        asset: Currency,
     ): Single<HistoricalRateList>
 
     val fiatAvailableForRates: List<FiatCurrency>

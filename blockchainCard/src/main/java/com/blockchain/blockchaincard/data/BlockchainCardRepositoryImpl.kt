@@ -1,10 +1,12 @@
 package com.blockchain.blockchaincard.data
 
-import com.blockchain.api.blockchainCard.data.CardsResponse
-import com.blockchain.api.blockchainCard.data.ProductsResponse
+import com.blockchain.api.blockchainCard.data.CardDto
+import com.blockchain.api.blockchainCard.data.ProductDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
@@ -18,6 +20,7 @@ import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.nabu.Authenticator
+import com.blockchain.nabu.UserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
@@ -33,7 +36,8 @@ internal class BlockchainCardRepositoryImpl(
     private val blockchainCardService: BlockchainCardService,
     private val authenticator: Authenticator,
     private val coincore: Coincore,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
+    private val userIdentity: UserIdentity
 ) : BlockchainCardRepository {
 
     override suspend fun getProducts(): Outcome<BlockchainCardError, List<BlockchainCardProduct>> =
@@ -268,10 +272,51 @@ internal class BlockchainCardRepositoryImpl(
                 }
             }
 
+    override suspend fun getResidentialAddress(): Outcome<BlockchainCardError, BlockchainCardAddress> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapError {
+                BlockchainCardError.GetAuthFailed
+            }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getResidentialAddress(
+                    authHeader = tokenResponse
+                ).mapError {
+                    BlockchainCardError.GetResidentialAddressFailed
+                }.map { response ->
+                    response.address.toDomainModel()
+                }
+            }
+
+    override suspend fun updateResidentialAddress(
+        address: BlockchainCardAddress
+    ): Outcome<BlockchainCardError, BlockchainCardAddress> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapError {
+                BlockchainCardError.GetAuthFailed
+            }
+            .flatMap { tokenResponse ->
+                blockchainCardService.updateResidentialAddress(
+                    authHeader = tokenResponse,
+                    residentialAddress = address.toDto(address)
+                ).mapError {
+                    BlockchainCardError.UpdateResidentialAddressFailed
+                }.map { response ->
+                    response.address.toDomainModel()
+                }
+            }
+
+    override suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String> =
+        userIdentity.getBasicProfileInformation().awaitOutcome()
+            .mapError {
+                BlockchainCardError.GetUserProfileFailed
+            }.map { response ->
+                response.firstName + " " + response.lastName
+            }
+
     //
     // Domain Model Conversion
     //
-    private fun ProductsResponse.toDomainModel(): BlockchainCardProduct =
+    private fun ProductDto.toDomainModel(): BlockchainCardProduct =
         BlockchainCardProduct(
             productCode = productCode,
             price = FiatValue.fromMajor(
@@ -282,7 +327,7 @@ internal class BlockchainCardRepositoryImpl(
             type = BlockchainCardType.valueOf(type)
         )
 
-    private fun CardsResponse.toDomainModel(): BlockchainCard =
+    private fun CardDto.toDomainModel(): BlockchainCard =
         BlockchainCard(
             id = id,
             type = BlockchainCardType.valueOf(type),
@@ -291,5 +336,25 @@ internal class BlockchainCardRepositoryImpl(
             brand = BlockchainCardBrand.valueOf(brand),
             status = BlockchainCardStatus.valueOf(status),
             createdAt = createdAt
+        )
+
+    private fun ResidentialAddressDto.toDomainModel(): BlockchainCardAddress =
+        BlockchainCardAddress(
+            line1 = line1,
+            line2 = line2,
+            postCode = postCode,
+            city = city,
+            state = state,
+            country = country
+        )
+
+    private fun BlockchainCardAddress.toDto(address: BlockchainCardAddress): ResidentialAddressDto =
+        ResidentialAddressDto(
+            line1 = address.line1,
+            line2 = address.line2,
+            postCode = address.postCode,
+            city = address.city,
+            state = address.state,
+            country = address.country
         )
 }

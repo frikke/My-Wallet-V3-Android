@@ -6,6 +6,7 @@ import com.blockchain.domain.paymentmethods.model.FundsLocks
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -29,25 +30,29 @@ interface BankService {
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        attributes: BankProviderAccountAttributes
+        attributes: BankProviderAccountAttributes,
     ): Completable
 
     fun linkPlaidBankAccount(
         linkingId: String,
         accountId: String,
-        publicToken: String
+        publicToken: String,
     ): Completable
+
+    fun refreshPlaidBankAccount(
+        refreshAccountId: String
+    ): Single<RefreshBankInfo>
 
     fun checkSettlement(
         accountId: String,
-        amount: Money
+        amount: Money,
     ): Single<SettlementInfo>
 
     fun startBankTransfer(
         id: String,
         amount: Money,
         currency: String,
-        callback: String? = null
+        callback: String? = null,
     ): Single<String>
 
     fun updateOpenBankingConsent(url: String, token: String): Completable

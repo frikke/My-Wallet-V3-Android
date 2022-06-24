@@ -14,6 +14,7 @@ import com.blockchain.coincore.eth.EthSignMessage
 import com.blockchain.coincore.eth.EthereumSignMessageTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.core.price.ExchangeRatesDataManager
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.ethereum.util.EthUtils
@@ -25,6 +26,9 @@ class WalletConnectSignEngine(
     private val assetEngine: EthOnChainTxEngine,
     private val ethMessageSigner: EthMessageSigner
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private val ethSignMessageTarget: EthereumSignMessageTarget
         get() = txTarget as EthereumSignMessageTarget

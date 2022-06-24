@@ -9,5 +9,4 @@ interface InterestStoreService {
     fun getBalances(): Observable<Map<AssetInfo, InterestAccountBalance>>
     fun getBalanceFor(asset: AssetInfo): Observable<InterestAccountBalance>
     fun getActiveAssets(): Single<Set<AssetInfo>>
-    fun invalidate()
 }

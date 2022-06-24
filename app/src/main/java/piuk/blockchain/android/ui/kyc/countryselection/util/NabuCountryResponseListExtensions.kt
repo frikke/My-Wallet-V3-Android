@@ -1,20 +1,20 @@
 package piuk.blockchain.android.ui.kyc.countryselection.util
 
 import android.os.Parcelable
-import com.blockchain.nabu.models.responses.nabu.NabuRegion
+import com.blockchain.domain.eligibility.model.Region
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 private const val asciiOffset = 0x41
 private const val flagOffset = 0x1F1E6
 
-fun List<NabuRegion>.toDisplayList(): List<CountryDisplayModel> = this.map {
+fun List<Region>.toDisplayList(): List<CountryDisplayModel> = this.map {
     CountryDisplayModel(
         it.name,
-        if (it.isState) it.code else null,
-        it.parentCountryCode,
-        it.isState,
-        if (it.isState) null else getFlagEmojiFromCountryCode(it.code)
+        (it as? Region.State)?.stateCode,
+        it.countryCode,
+        it is Region.State,
+        if (it is Region.State) null else getFlagEmojiFromCountryCode(it.countryCode)
     )
 }.sortedWith(compareBy { it.name })
 

@@ -17,6 +17,7 @@ import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.extensions.exhaustive
+import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
@@ -31,6 +32,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -207,6 +209,7 @@ class SimpleBuyActivity :
         super.onDestroy()
         compositeDisposable.clear()
         googlePayResponseInterceptor.clear()
+        payloadScope.get<CreateBuyOrderUseCase>().stopQuoteFetching(true)
     }
 
     override fun exitSimpleBuyFlow() {

@@ -38,6 +38,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 class KycNavHostActivity :
     BaseMvpActivity<KycNavHostView, KycNavHostPresenter>(),
     KycProgressListener,
+    EmailEntryHost,
     KycNavHostView {
 
     private val binding: ActivityKycNavHostBinding by lazy {
@@ -244,7 +245,7 @@ private fun CampaignType.toLaunchOrigin(): LaunchOrigin =
         CampaignType.None -> LaunchOrigin.SETTINGS
     }
 
-interface KycProgressListener : EmailEntryHost {
+interface KycProgressListener {
 
     val campaignType: CampaignType
 

@@ -8,11 +8,8 @@ import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineTokenResponse
@@ -48,8 +45,6 @@ interface NabuDataManager {
         offlineTokenResponse: NabuOfflineToken
     ): Single<AirdropStatusList>
 
-    fun getCountriesList(scope: Scope): Single<List<NabuCountryResponse>>
-
     fun updateUserWalletInfo(
         offlineTokenResponse: NabuOfflineToken,
         jwt: String
@@ -80,8 +75,6 @@ interface NabuDataManager {
     fun submitVeriffVerification(
         offlineTokenResponse: NabuOfflineToken
     ): Completable
-
-    fun getStatesList(countryCode: String, scope: Scope): Single<List<NabuStateResponse>>
 
     fun getSupportedDocuments(
         offlineTokenResponse: NabuOfflineToken,
@@ -291,12 +284,6 @@ internal class NabuDataManagerImpl(
     override fun clearAccessToken() {
         nabuTokenStore.invalidate()
     }
-
-    override fun getCountriesList(scope: Scope): Single<List<NabuCountryResponse>> =
-        nabuService.getCountriesList(scope)
-
-    override fun getStatesList(countryCode: String, scope: Scope): Single<List<NabuStateResponse>> =
-        nabuService.getStatesList(countryCode, scope)
 
     override fun getSupportedDocuments(
         offlineTokenResponse: NabuOfflineToken,

@@ -27,12 +27,10 @@ import piuk.blockchain.android.simplebuy.SimpleBuyState
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementQueries.Companion.NEW_ASSET_TICKER
 import piuk.blockchain.android.ui.tiers
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 class AnnouncementQueriesTest {
 
     private val nabuToken: NabuToken = mock()
-    private val settings: SettingsDataManager = mock()
     private val nabu: NabuDataManager = mock()
     private val nabuDataUserProvider: NabuDataUserProvider = mock()
     private val tierService: TierService = mock()
@@ -51,7 +49,6 @@ class AnnouncementQueriesTest {
     fun setUp() {
         subject = AnnouncementQueries(
             nabuToken = nabuToken,
-            settings = settings,
             nabu = nabu,
             nabuDataUserProvider = nabuDataUserProvider,
             tierService = tierService,

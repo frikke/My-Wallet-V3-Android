@@ -15,6 +15,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.disableDragging
 import com.blockchain.commonarch.presentation.mvi_v2.withArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.koin.payloadScope
+import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
@@ -37,6 +38,8 @@ class ReferralSheet :
 
     private val viewModel: ReferralViewModel by viewModel()
 
+    private val analytics: Analytics by inject()
+
     override fun onStateUpdated(state: ReferralViewState) {
     }
 
@@ -44,6 +47,7 @@ class ReferralSheet :
         disableDragging()
 
         setupViewModel()
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralView(args.campaignId))
 
         return ComposeView(requireContext()).apply {
             setContent {
@@ -77,11 +81,13 @@ class ReferralSheet :
     }
 
     private fun copyToClipboard(code: String) {
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralCopyCode(code, args.campaignId))
         context?.copyToClipboard("referralCode", code)
         viewModel.onIntent(ReferralIntents.ConfirmCopiedToClipboard)
     }
 
     private fun shareCode(code: String) {
+        analytics.logEvent(ReferralAnalyticsEvents.ReferralShareCode(code, args.campaignId))
         context?.shareText(code)
     }
 

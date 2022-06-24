@@ -62,8 +62,7 @@ val dashboardModule = module {
 
         factory {
             BalanceAnalyticsReporter(
-                analytics = get(),
-                coincore = get()
+                analytics = get()
             )
         }
 

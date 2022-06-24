@@ -13,11 +13,12 @@ import com.blockchain.componentlib.utils.BaseAbstractComposeView
 class NavigationBarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var onBackButtonClick by mutableStateOf(null as? (() -> Unit)?)
-    var startNavigationBarButton by mutableStateOf(null as NavigationBarButton.Icon?)
+    var startNavigationButton by mutableStateOf(null as? NavigationBarButton?)
+
     var title by mutableStateOf("")
     var endNavigationBarButtons by mutableStateOf(listOf<NavigationBarButton>())
 
@@ -25,10 +26,10 @@ class NavigationBarView @JvmOverloads constructor(
     override fun Content() {
         AppTheme {
             AppSurface {
-                if (startNavigationBarButton != null) {
+                if (startNavigationButton != null) {
                     NavigationBar(
                         title = title,
-                        startNavigationBarButton = startNavigationBarButton,
+                        startNavigationBarButton = startNavigationButton,
                         endNavigationBarButtons = endNavigationBarButtons
                     )
                 } else {
@@ -44,7 +45,7 @@ class NavigationBarView @JvmOverloads constructor(
 
     fun clearState() {
         onBackButtonClick = null
-        startNavigationBarButton = null
+        startNavigationButton = null
         title = ""
         endNavigationBarButtons = listOf()
     }

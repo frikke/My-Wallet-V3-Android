@@ -77,6 +77,9 @@ fun <T, R> Maybe<T>.flatMapBy(
 fun <T> Completable.thenSingle(block: () -> Single<T>): Single<T> =
     andThen(Single.defer { block() })
 
+fun <T> Completable.thenObservable(block: () -> Observable<T>): Observable<T> =
+    andThen(Observable.defer { block() })
+
 fun Completable.then(block: () -> Completable): Completable =
     andThen(Completable.defer { block() })
 

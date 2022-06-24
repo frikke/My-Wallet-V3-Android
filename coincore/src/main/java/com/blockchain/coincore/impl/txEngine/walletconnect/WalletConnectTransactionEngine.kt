@@ -14,6 +14,7 @@ import com.blockchain.coincore.eth.EthereumSendTransactionTarget
 import com.blockchain.coincore.eth.WalletConnectTarget
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -33,6 +34,9 @@ class WalletConnectTransactionEngine(
     private val feeManager: FeeDataManager,
     private val ethDataManager: EthDataManager
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private val ethSignMessageTarget: EthereumSendTransactionTarget
         get() = txTarget as EthereumSendTransactionTarget

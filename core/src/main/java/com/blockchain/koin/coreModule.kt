@@ -21,6 +21,7 @@ import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.custodial.data.TradingStoreRepository
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.data.store.TradingStore
@@ -42,6 +43,7 @@ import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsRepository
+import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.referral.ReferralRepository
@@ -49,6 +51,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
+import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -139,6 +142,13 @@ val coreModule = module {
 
     scope(payloadScopeQualifier) {
 
+        factory<DataRemediationService> {
+            DataRemediationRepository(
+                authenticator = get(),
+                kycService = get(),
+            )
+        }
+
         factory {
             TradingBalanceCallCache(
                 balanceService = get(),
@@ -194,7 +204,8 @@ val coreModule = module {
 
         scoped {
             EligibilityRepository(
-                productsEligibilityStore = get()
+                productsEligibilityStore = get(),
+                eligibilityApiService = get()
             )
         }.bind(EligibilityService::class)
 
@@ -245,6 +256,7 @@ val coreModule = module {
             InterestBalanceDataManagerImpl(
                 balanceCallCache = get(),
                 interestStoreService = get(),
+                interestDataSource = get(),
                 speedUpLoginInterestFF = get(speedUpLoginInterestFeatureFlag)
             )
         }.bind(InterestBalanceDataManager::class)
@@ -416,6 +428,14 @@ val coreModule = module {
         }
 
         scoped {
+            WithdrawLocksCache(
+                authenticator = get(),
+                paymentsService = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped {
             PaymentsRepository(
                 paymentsService = get(),
                 paymentMethodsService = get(),
@@ -424,6 +444,7 @@ val coreModule = module {
                 authenticator = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
+                withdrawLocksCache = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),

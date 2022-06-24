@@ -37,7 +37,7 @@ internal class ExchangeRatesDataManagerImpl(
     private val sparklineCall: SparklineCallCache,
     private val assetPriceService: AssetPriceService,
     private val assetCatalogue: AssetCatalogue,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
 ) : ExchangeRatesDataManager {
 
     private val userFiat: Currency
@@ -121,7 +121,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency
+        targetFiat: FiatCurrency,
     ): ExchangeRate {
         return when (targetFiat) {
             userFiat -> getLastCryptoToUserFiatRate(sourceCrypto)
@@ -131,7 +131,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getLastFiatToCryptoRate(
         sourceFiat: FiatCurrency,
-        targetCrypto: AssetInfo
+        targetCrypto: AssetInfo,
     ): ExchangeRate {
         return when (sourceFiat) {
             userFiat -> getLastCryptoToUserFiatRate(targetCrypto).inverse()
@@ -141,7 +141,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     private fun getCryptoToFiatRate(
         sourceCrypto: AssetInfo,
-        targetFiat: FiatCurrency
+        targetFiat: FiatCurrency,
     ): ExchangeRate {
         val priceRate = if (isNewAssetPriceStoreFFEnabledCached) {
             priceStore2.getCachedAssetPrice(sourceCrypto, targetFiat).rate
@@ -192,7 +192,7 @@ internal class ExchangeRatesDataManagerImpl(
 
     override fun getHistoricRate(
         fromAsset: Currency,
-        secSinceEpoch: Long
+        secSinceEpoch: Long,
     ): Single<ExchangeRate> {
         return assetPriceService.getHistoricPrices(
             baseTickers = setOf(fromAsset.networkTicker),
@@ -207,11 +207,15 @@ internal class ExchangeRatesDataManagerImpl(
         }
     }
 
-    override fun getPricesWith24hDelta(fromAsset: Currency): Observable<Prices24HrWithDelta> =
-        getPricesWith24hDelta(fromAsset, userFiat)
+    override fun getPricesWith24hDelta(fromAsset: Currency, isRefreshing: Boolean): Observable<Prices24HrWithDelta> =
+        getPricesWith24hDelta(fromAsset, userFiat, isRefreshing)
 
-    override fun getPricesWith24hDelta(fromAsset: Currency, fiat: Currency): Observable<Prices24HrWithDelta> =
-        isNewAssetPriceStoreFFEnabled().flatMapObservable { enabled ->
+    override fun getPricesWith24hDelta(
+        fromAsset: Currency,
+        fiat: Currency,
+        isRefreshing: Boolean,
+    ): Observable<Prices24HrWithDelta> {
+        return isNewAssetPriceStoreFFEnabled().flatMapObservable { enabled ->
             if (enabled) {
                 Observable.combineLatest(
                     priceStore2.getCurrentPriceForAsset(fromAsset, fiat).asObservable(errorMapper = ::toRxThrowable),
@@ -254,11 +258,12 @@ internal class ExchangeRatesDataManagerImpl(
                 }
             }
         }
+    }
 
     override fun getHistoricPriceSeries(
         asset: Currency,
         span: HistoricalTimeSpan,
-        now: Calendar
+        now: Calendar,
     ): Single<HistoricalRateList> {
         require(asset.startDate != null)
 
@@ -284,7 +289,7 @@ internal class ExchangeRatesDataManagerImpl(
     }
 
     override fun get24hPriceSeries(
-        asset: Currency
+        asset: Currency,
     ): Single<HistoricalRateList> =
         isNewAssetPriceStoreFFEnabled().flatMap { enabled ->
             if (enabled) {

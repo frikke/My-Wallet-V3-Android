@@ -1,23 +1,26 @@
 package com.blockchain.presentation.screens
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -27,7 +30,10 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Red600
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.BackupPhraseViewState
@@ -35,10 +41,14 @@ import com.blockchain.presentation.R
 import com.blockchain.presentation.TOTAL_STEP_COUNT
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.utils.replaceInList
 import java.util.Locale
 
 private const val STEP_INDEX = 2
 
+/**
+ * figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A17788
+ */
 @Composable
 fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -53,6 +63,7 @@ fun VerifyPhrase(viewModel: BackupPhraseViewModel) {
             isLoading = state.showLoading,
             mnemonicVerificationStatus = state.mnemonicVerificationStatus,
 
+            resetVerificationStatus = { viewModel.onIntent(BackupPhraseIntent.ResetVerificationStatus) },
             backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
             nextOnClick = { userMnemonic -> viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic.toList())) }
         )
@@ -65,11 +76,35 @@ fun VerifyPhraseScreen(
     isLoading: Boolean,
     mnemonicVerificationStatus: UserMnemonicVerificationStatus,
 
+    resetVerificationStatus: () -> Unit,
     backOnClick: () -> Unit,
     nextOnClick: (userMnemonic: List<String>) -> Unit,
 ) {
-    val userMnemonic = remember { mutableStateListOf<String>() }
-    val randomizedMnemonic = remember { mnemonic.shuffled().toMutableStateList() }
+    // map to selectable word -> offers selection setting
+    val selectableMnemonic = remember {
+        mnemonic.mapIndexed { index, word ->
+            SelectableMnemonicWord(
+                id = index,
+                word = word,
+                selected = false
+            )
+        }
+    }
+    // mnemonic that user is selecting
+    val userMnemonic = remember { mutableStateListOf<SelectableMnemonicWord>() }
+    // create randomized mnemonic for user to verify with
+    val randomizedMnemonic = remember { selectableMnemonic.shuffled().toMutableStateList() }
+
+    // when the phrase is incorrect - reset the mnemonic lists
+    var resetWords by remember { mutableStateOf(false) }
+    if (resetWords) {
+        userMnemonic.clear()
+        randomizedMnemonic.apply {
+            clear()
+            addAll(selectableMnemonic.shuffled())
+        }
+        resetWords = false
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -107,32 +142,75 @@ fun VerifyPhraseScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            MnemonicVerification(userMnemonic) { word ->
-                if (isLoading.not() && mnemonicVerificationStatus != UserMnemonicVerificationStatus.VERIFIED) {
-                    userMnemonic.remove(word)
-                    randomizedMnemonic.add(word)
+            MnemonicVerification(userMnemonic, mnemonicVerificationStatus) { selectableWord ->
+                if (isLoading.not()) {
+                    // remove word from the final list
+                    userMnemonic.remove(selectableWord)
+                    // mark word as unselected to show it back in randomized list
+                    randomizedMnemonic.replaceInList(
+                        replacement = selectableWord.copy(selected = false),
+                        where = { it.id == selectableWord.id }
+                    )
+                    // reset verification status in case of previous failure
+                    resetVerificationStatus()
                 }
             }
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            if (mnemonicVerificationStatus == UserMnemonicVerificationStatus.IDLE) {
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-            MnemonicSelection(randomizedMnemonic) { word ->
-                if (isLoading.not() && mnemonicVerificationStatus != UserMnemonicVerificationStatus.VERIFIED) {
-                    userMnemonic.add(word)
-                    randomizedMnemonic.remove(word)
+                MnemonicSelection(randomizedMnemonic) { selectableWord ->
+                    if (isLoading.not()) {
+                        // add word to the final list
+                        userMnemonic.add(selectableWord)
+                        // mark word as selected to hide it from randomized list
+                        randomizedMnemonic.replaceInList(
+                            replacement = selectableWord.copy(selected = true),
+                            where = { it.id == selectableWord.id }
+                        )
+                    }
                 }
+            } else {
+                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+                VerifyPhraseIncorrect(resetOnClick = {
+                    resetWords = true
+                    resetVerificationStatus()
+                })
             }
 
             Spacer(modifier = Modifier.weight(1F))
 
             VerifyPhraseCta(
-                allWordsSelected = randomizedMnemonic.isEmpty(),
-                isLoading = isLoading,
-                mnemonicVerificationStatus = mnemonicVerificationStatus
+                allWordsSelected = randomizedMnemonic.all { it.selected },
+                isLoading = isLoading
             ) {
-                nextOnClick(userMnemonic)
+                nextOnClick(userMnemonic.map { it.word })
             }
         }
+    }
+}
+
+@Composable
+fun VerifyPhraseIncorrect(resetOnClick: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        TertiaryButton(
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.verify_phrase_incorrect_button),
+            onClick = resetOnClick
+        )
+
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+        Text(
+            text = stringResource(R.string.verify_phrase_incorrect_message),
+            style = AppTheme.typography.body1,
+            color = Red600,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -140,8 +218,7 @@ fun VerifyPhraseScreen(
 fun VerifyPhraseCta(
     allWordsSelected: Boolean,
     isLoading: Boolean,
-    mnemonicVerificationStatus: UserMnemonicVerificationStatus,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val state: ButtonState = when {
         allWordsSelected.not() -> ButtonState.Disabled
@@ -149,17 +226,9 @@ fun VerifyPhraseCta(
         else -> ButtonState.Enabled
     }.exhaustive
 
-    @StringRes
-    val text: Int = when (mnemonicVerificationStatus) {
-        UserMnemonicVerificationStatus.NO_STATUS,
-        UserMnemonicVerificationStatus.INCORRECT -> R.string.verify
-
-        UserMnemonicVerificationStatus.VERIFIED -> R.string.next
-    }.exhaustive
-
     PrimaryButton(
         modifier = Modifier.fillMaxWidth(),
-        text = stringResource(text),
+        text = stringResource(R.string.verify),
         state = state,
         onClick = onClick
     )
@@ -179,8 +248,9 @@ fun PreviewVerifyPhrase() {
     VerifyPhraseScreen(
         mnemonic = mnemonic,
         isLoading = false,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+        mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE,
 
+        resetVerificationStatus = {},
         backOnClick = {},
         nextOnClick = {}
     )
@@ -192,11 +262,32 @@ fun PreviewVerifyPhraseScreenLoading() {
     VerifyPhraseScreen(
         mnemonic = mnemonic,
         isLoading = true,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
+        mnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE,
 
+        resetVerificationStatus = {},
         backOnClick = {},
         nextOnClick = {}
     )
+}
+
+@Preview(name = "Verify Phrase Incorrect", backgroundColor = 0xFFFFFF, showBackground = true)
+@Composable
+fun PreviewVerifyPhraseScreenIncorrect() {
+    VerifyPhraseScreen(
+        mnemonic = mnemonic,
+        isLoading = false,
+        mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT,
+
+        resetVerificationStatus = {},
+        backOnClick = {},
+        nextOnClick = {}
+    )
+}
+
+@Preview(name = "Incorrect Phrase Message")
+@Composable
+fun PreviewVerifyPhraseIncorrect() {
+    VerifyPhraseIncorrect {}
 }
 
 @Preview(name = "Verify Phrase Cta - selected:false, loading:false, status:nostatus")
@@ -205,7 +296,6 @@ fun PreviewVerifyPhraseCta_SelectedFalse_LoadingFalse_StatusNoStatus() {
     VerifyPhraseCta(
         allWordsSelected = false,
         isLoading = false,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
         onClick = {}
     )
 }
@@ -216,7 +306,6 @@ fun PreviewVerifyPhraseCta_SelectedTrue_LoadingFalse_StatusIncorrect() {
     VerifyPhraseCta(
         allWordsSelected = true,
         isLoading = false,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
         onClick = {}
     )
 }
@@ -227,18 +316,6 @@ fun PreviewVerifyPhraseCta_SelectedTrue_LoadingTrue_StatusIncorrect() {
     VerifyPhraseCta(
         allWordsSelected = true,
         isLoading = true,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.NO_STATUS,
-        onClick = {}
-    )
-}
-
-@Preview(name = "Verify Phrase Cta - selected:true, loading:false, status:verified")
-@Composable
-fun PreviewVerifyPhraseCta_SelectedTrue_LoadingFalse_StatusVerified() {
-    VerifyPhraseCta(
-        allWordsSelected = true,
-        isLoading = false,
-        mnemonicVerificationStatus = UserMnemonicVerificationStatus.VERIFIED,
         onClick = {}
     )
 }

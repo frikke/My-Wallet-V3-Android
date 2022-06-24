@@ -10,7 +10,6 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
 import com.blockchain.remoteconfig.RemoteConfig
@@ -18,14 +17,12 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
-import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 
 @Serializable
 data class RenamedAsset(
@@ -35,7 +32,6 @@ data class RenamedAsset(
 
 class AnnouncementQueries(
     private val nabuToken: NabuToken,
-    private val settings: SettingsDataManager,
     private val nabu: NabuDataManager,
     private val nabuDataUserProvider: NabuDataUserProvider,
     private val tierService: TierService,
@@ -51,18 +47,6 @@ class AnnouncementQueries(
                 acc.isFunded
             }
         }
-
-    // Attempt to figure out if KYC/swap etc is allowed based on location...
-    fun canKyc(): Single<Boolean> {
-        return Singles.zip(
-            settings.getSettings()
-                .map { it.countryCode }
-                .singleOrError(),
-            nabu.getCountriesList(Scope.None)
-        ).map { (country, list) ->
-            list.any { it.code == country && it.isKycAllowed }
-        }.onErrorReturn { false }
-    }
 
     // Have we moved past kyc tier 1 - silver?
     fun isKycGoldStartedOrComplete(): Single<Boolean> {

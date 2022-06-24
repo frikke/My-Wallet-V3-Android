@@ -484,7 +484,6 @@ dependencies {
     implementation Libraries.constraintLayoutCompose
     implementation Libraries.accompanistNavigationMaterial
 
-
     // Stripe
     implementation(Libraries.stripe) {
         exclude group: 'com.github.stephenc.jcip', module: 'jcip-annotations'
@@ -503,6 +502,7 @@ dependencies {
     testImplementation Libraries.junit
     testImplementation Libraries.mockito
     testImplementation Libraries.mockk
+    testImplementation Libraries.coreTesting
     testImplementation Libraries.hamcrestJunit
     testImplementation Libraries.kotlinJunit
     testImplementation Libraries.kotlinCoroutinesTest

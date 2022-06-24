@@ -23,16 +23,12 @@ import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
 import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
-import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.BuySellOrder
-import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.nabu.datamanagers.OrderInput
-import com.blockchain.nabu.datamanagers.OrderOutput
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.datamanagers.PaymentCardAcquirer
 import com.blockchain.nabu.datamanagers.Product
@@ -42,7 +38,6 @@ import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.simplebuy.CustodialWalletOrder
 import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyRequestBody
 import com.blockchain.nabu.service.TierService
 import com.blockchain.network.PollResult
@@ -59,7 +54,6 @@ import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
@@ -154,52 +148,6 @@ class SimpleBuyInteractor(
             .map { SimpleBuyIntent.SupportedCurrenciesUpdated(it) }
 
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
-
-    fun createOrder(
-        cryptoAsset: AssetInfo,
-        amount: Money,
-        paymentMethodId: String? = null,
-        paymentMethod: PaymentMethodType,
-        isPending: Boolean,
-        recurringBuyFrequency: RecurringBuyFrequency?
-    ): Single<SimpleBuyIntent.OrderCreated> =
-        brokerageDataManager.quoteForTransaction(
-            pair = CurrencyPair(amount.currency, cryptoAsset),
-            amount = amount,
-            paymentMethodType = getPaymentMethodType(paymentMethod),
-            paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
-            product = Product.BUY
-        ).flatMap { quote ->
-            custodialWalletManager.createOrder(
-                custodialWalletOrder = CustodialWalletOrder(
-                    quoteId = quote.id,
-                    pair = "${cryptoAsset.networkTicker}-${amount.currencyCode}",
-                    action = Product.BUY.name,
-                    input = OrderInput(
-                        amount.currencyCode, amount.toBigInteger().toString()
-                    ),
-                    output = OrderOutput(
-                        cryptoAsset.networkTicker, null
-                    ),
-                    paymentMethodId = getPaymentMethodId(paymentMethodId, paymentMethod),
-                    paymentType = getPaymentMethodType(paymentMethod).name,
-                    period = recurringBuyFrequency?.name
-                ),
-                stateAction = if (isPending) PENDING else null
-            ).map {
-                SimpleBuyIntent.OrderCreated(buyOrder = it, quote = quote)
-            }
-        }
-
-    private fun getPaymentMethodType(paymentMethod: PaymentMethodType) =
-        // The API cannot handle GOOGLE_PAY as a payment method, so we're treating this as a card
-        if (paymentMethod == PaymentMethodType.GOOGLE_PAY) PaymentMethodType.PAYMENT_CARD else paymentMethod
-
-    private fun getPaymentMethodId(paymentMethodId: String? = null, paymentMethod: PaymentMethodType) =
-        // The API cannot handle GOOGLE_PAY as a payment method, so we're sending a null paymentMethodId
-        if (paymentMethod == PaymentMethodType.GOOGLE_PAY || paymentMethodId == PaymentMethod.GOOGLE_PAY_PAYMENT_ID)
-            null
-        else paymentMethodId
 
     fun createRecurringBuyOrder(
         asset: AssetInfo?,
@@ -338,7 +286,9 @@ class SimpleBuyInteractor(
 
         return tierService.tiers().flatMap {
             when {
-                it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(forceRefresh = true)
+                it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
+                    forceRefresh = true
+                )
                     .map { eligible ->
                         if (eligible) {
                             SimpleBuyIntent.KycStateUpdated(KycState.VERIFIED_AND_ELIGIBLE)
@@ -347,7 +297,9 @@ class SimpleBuyInteractor(
                         }
                     }
                 it.isRejectedFor(KycTierLevel.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.FAILED))
-                it.isPendingFor(KycTierLevel.GOLD) -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW))
+                it.isPendingFor(KycTierLevel.GOLD) -> Single.just(
+                    SimpleBuyIntent.KycStateUpdated(KycState.IN_REVIEW)
+                )
                 else -> Single.just(SimpleBuyIntent.KycStateUpdated(KycState.PENDING))
             }
         }.onErrorReturn { SimpleBuyIntent.KycStateUpdated(KycState.PENDING) }
@@ -405,12 +357,14 @@ class SimpleBuyInteractor(
         paymentMethodId: String?,
         attributes: SimpleBuyConfirmationAttributes?,
         isBankPartner: Boolean?
-    ): Single<BuySellOrder> = custodialWalletManager.confirmOrder(
-        orderId,
-        attributes,
-        paymentMethodId,
-        isBankPartner
-    )
+    ): Single<BuySellOrder> {
+        return custodialWalletManager.confirmOrder(
+            orderId,
+            attributes,
+            paymentMethodId,
+            isBankPartner
+        )
+    }
 
     fun pollForOrderStatus(orderId: String): Single<PollResult<BuySellOrder>> =
         PollService(custodialWalletManager.getBuyOrder(orderId)) {
@@ -560,6 +514,7 @@ class SimpleBuyInteractor(
         private const val RETRIES_SHORT = 6
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
-        private const val PENDING = "pending"
+        const val PENDING = "pending"
+        private const val QUOTE_SECONDS = 1L
     }
 }

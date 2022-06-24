@@ -3,15 +3,15 @@ package com.blockchain.api.blockchainCard.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProductsResponse(
+data class ProductDto(
     val productCode: String,
-    val price: Price,
+    val price: PriceDto,
     val brand: String,
     val type: String
 )
 
 @Serializable
-data class CardsResponse(
+data class CardDto(
     val id: String,
     val type: String,
     val last4: String,
@@ -22,48 +22,59 @@ data class CardsResponse(
 )
 
 @Serializable
-data class Price(
+data class PriceDto(
     val symbol: String,
     val value: String,
 )
 
 @Serializable
-class CardCreationRequestBody(
+class CardCreationRequestBodyDto(
     val productCode: String,
     val ssn: String
 )
 
 @Serializable
-class CardWidgetTokenResponse(
+class CardWidgetTokenDto(
     val token: String
 )
 
 @Serializable
-class CardAccount(
-    val balance: Price
+class CardAccountDto(
+    val balance: PriceDto
 )
 
 @Serializable
-class EligibleAccountsResponse(
-    val accounts: List<CardAccount>
+class EligibleAccountsDto(
+    val accounts: List<CardAccountDto>
 )
 
 @Serializable
-class LinkedAccountsResponse(
-    val accounts: List<CardAccount>
+class LinkedAccountsDto(
+    val accounts: List<CardAccountDto>
 )
 
 @Serializable
-class CardAccountLinkRequest(
+class CardAccountLinkDto(
     val accountCurrency: String
 )
 
 @Serializable
-class CardAccountLinkResponse(
-    val accountCurrency: String
+class ResidentialAddressRequestDto(
+    val userId: String,
+    val address: ResidentialAddressDto
 )
 
 @Serializable
-class CardLinkedAccountResponse(
-    val accountCurrency: String
+class ResidentialAddressUpdateDto(
+    val address: ResidentialAddressDto
+)
+
+@Serializable
+class ResidentialAddressDto(
+    val line1: String,
+    val line2: String = "",
+    val postCode: String,
+    val city: String,
+    val state: String,
+    val country: String
 )

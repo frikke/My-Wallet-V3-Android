@@ -6,7 +6,6 @@ import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.nabu.CurrentTier
 import com.blockchain.nabu.EthEligibility
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.android.ui.kyc.address.CurrentTierAdapter
@@ -21,8 +20,6 @@ import piuk.blockchain.android.ui.kyc.mobile.entry.KycMobileEntryPresenter
 import piuk.blockchain.android.ui.kyc.mobile.validation.KycMobileValidationPresenter
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostPresenter
 import piuk.blockchain.android.ui.kyc.profile.KycProfilePresenter
-import piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireModel
-import piuk.blockchain.android.ui.kyc.questionnaire.KycQuestionnaireStateMachine
 import piuk.blockchain.android.ui.kyc.reentry.KycNavigator
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecision
 import piuk.blockchain.android.ui.kyc.reentry.ReentryDecisionKycNavigator
@@ -37,7 +34,7 @@ val kycUiModule = module {
 
         factory {
             TiersReentryDecision(
-                kycDataManager = get()
+                dataRemediationService = get()
             )
         }.bind(ReentryDecision::class)
 
@@ -58,7 +55,7 @@ val kycUiModule = module {
 
         factory {
             KycCountrySelectionPresenter(
-                nabuDataManager = get()
+                eligibilityService = get()
             )
         }
 
@@ -75,6 +72,7 @@ val kycUiModule = module {
             KycHomeAddressPresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
+                eligibilityService = get(),
                 nabuDataUserProvider = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
@@ -93,8 +91,7 @@ val kycUiModule = module {
             KycMobileValidationPresenter(
                 nabuUserSync = get(),
                 phoneNumberUpdater = get(),
-                kycDataManager = get(),
-                analytics = get()
+                dataRemediationService = get()
             )
         }
 
@@ -156,7 +153,7 @@ val kycUiNabuModule = module {
         factory {
             KycHomeAddressNextStepDecision(
                 nabuDataUserProvider = get(),
-                kycDataManager = get()
+                dataRemediationService = get()
             )
         }
 
@@ -171,13 +168,5 @@ val kycUiNabuModule = module {
                 nabuDataUserProvider = get()
             )
         }.bind(EthEligibility::class)
-
-        viewModel {
-            KycQuestionnaireModel(
-                kycDataManager = get(),
-                stateMachine = KycQuestionnaireStateMachine(),
-                analytics = get()
-            )
-        }
     }
 }

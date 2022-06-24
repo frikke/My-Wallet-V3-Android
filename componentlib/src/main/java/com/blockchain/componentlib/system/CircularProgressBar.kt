@@ -1,5 +1,6 @@
 package com.blockchain.componentlib.system
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -41,7 +42,7 @@ fun CircularProgressBar(
         boxModifier = modifier.size(textHeight)
     }
 
-    Row {
+    Row(horizontalArrangement = Arrangement.Center) {
         Box(modifier = boxModifier) {
             CircularProgressIndicator(
                 color = backgroundColor,
@@ -82,7 +83,7 @@ fun CircularProgressBarPreview() {
     AppTheme {
         AppSurface {
             CircularProgressBar(
-                progress = 0.5f,
+                progress = 0.7f,
                 text = "Checking for Update..."
             )
         }

@@ -10,15 +10,12 @@ import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressRequest
 import com.blockchain.nabu.models.responses.nabu.SendToExchangeAddressResponse
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
@@ -110,20 +107,6 @@ class NabuService internal constructor(
     ): Single<NabuUser> = nabu.updateWalletInformation(
         NabuJwt(jwt),
         sessionToken.authHeader
-    ).wrapErrorMessage()
-
-    internal fun getCountriesList(
-        scope: Scope
-    ): Single<List<NabuCountryResponse>> = nabu.getCountriesList(
-        scope.value
-    ).wrapErrorMessage()
-
-    internal fun getStatesList(
-        countryCode: String,
-        scope: Scope
-    ): Single<List<NabuStateResponse>> = nabu.getStatesList(
-        countryCode,
-        scope.value
     ).wrapErrorMessage()
 
     internal fun getSupportedDocuments(

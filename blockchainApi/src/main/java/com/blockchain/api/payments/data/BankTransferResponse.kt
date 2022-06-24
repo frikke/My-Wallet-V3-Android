@@ -37,6 +37,34 @@ data class Attributes(
 )
 
 @Serializable
+data class RefreshPlaidRequestBody(
+    @SerialName("redirect_uri")
+    private val redirectUri: String? = "",
+    @SerialName("android_package_name")
+    private val packageName: String
+)
+
+@Serializable
+data class RefreshPlaidResponse(
+    @SerialName("partner")
+    val partner: String,
+    @SerialName("id")
+    val id: String,
+    @SerialName("attributes")
+    val attributes: Attributes
+) {
+    @Serializable
+    data class Attributes(
+        @SerialName("link_token")
+        val linkToken: String,
+        @SerialName("linkUrl")
+        val linkUrl: String,
+        @SerialName("tokenExpiresAt")
+        val tokenExpiresAt: String
+    )
+}
+
+@Serializable
 data class LinkBankAttrsResponse(
     @SerialName("token")
     val token: String?,

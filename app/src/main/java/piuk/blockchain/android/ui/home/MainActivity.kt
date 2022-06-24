@@ -25,6 +25,7 @@ import com.blockchain.coincore.CryptoTarget
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.mvi.MviActivity
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
@@ -39,6 +40,7 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
+import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
@@ -79,8 +81,11 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
+import piuk.blockchain.android.ui.dashboard.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
+import piuk.blockchain.android.ui.dashboard.icon
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dashboard.title
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
@@ -100,6 +105,7 @@ import piuk.blockchain.android.ui.linkbank.BankLinkingInfo
 import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
+import piuk.blockchain.android.ui.prices.presentation.PricesNavigationEvent
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
@@ -128,12 +134,15 @@ class MainActivity :
     BuyPendingOrdersBottomSheet.Host,
     ScanAndConnectBottomSheet.Host,
     UiTourView.Host,
-    KycUpgradeNowSheet.Host {
+    WalletModeSelectionBottomSheet.Host,
+    KycUpgradeNowSheet.Host,
+    NavigationRouter<PricesNavigationEvent> {
 
     override val alwaysDisableScreenshots: Boolean
         get() = false
 
     override val model: MainModel by scopedInject()
+    private val pricesFlag: FeatureFlag by inject(pricesFeatureFlag)
 
     override fun initBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -248,7 +257,7 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
         simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
-        redrawNavigation()
+        redrawNavigation(walletModeService.enabledWalletMode())
     }
 
     override fun onDestroy() {
@@ -292,6 +301,16 @@ class MainActivity :
     private fun setupToolbar() {
         updateToolbarMenuItems(
             listOf(qrButton, settingsButton)
+        )
+        updateToolbarStartItem(
+            NavigationBarButton.DropdownIndicator(
+                dropDownClicked = {
+                    showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+                },
+                text = getString(walletModeService.enabledWalletMode().title()),
+                rightIcon = walletModeService.enabledWalletMode().icon(),
+                contentDescription = walletModeService.enabledWalletMode().name
+            )
         )
     }
 
@@ -360,7 +379,13 @@ class MainActivity :
                 selectedNavigationItem = it
                 when (it) {
                     NavigationItem.Home -> launchPortfolio()
-                    NavigationItem.Prices -> launchPrices()
+                    NavigationItem.Prices -> {
+                        if (pricesFlag.isEnabled) {
+                            launchPrices2()
+                        } else {
+                            launchPrices()
+                        }
+                    }
                     NavigationItem.BuyAndSell -> launchBuySell()
                     NavigationItem.Activity -> startActivitiesFragment()
                     else -> throw IllegalStateException("Illegal navigation state - unknown item $it")
@@ -376,9 +401,9 @@ class MainActivity :
         }
     }
 
-    private fun redrawNavigation() {
+    private fun redrawNavigation(walletMode: WalletMode) {
         binding.bottomNavigation.apply {
-            navigationItems = when (walletModeService.enabledWalletMode()) {
+            navigationItems = when (walletMode) {
                 WalletMode.CUSTODIAL_ONLY,
                 WalletMode.UNIVERSAL,
                 -> listOf(
@@ -433,7 +458,8 @@ class MainActivity :
             }
             SETTINGS_EDIT,
             ACCOUNT_EDIT,
-            KYC_STARTED -> {
+            KYC_STARTED,
+            -> {
                 // Reset state in case of changing currency etc
                 launchPortfolio()
 
@@ -855,7 +881,7 @@ class MainActivity :
 
     private fun launchAssetAction(
         action: AssetAction,
-        account: BlockchainAccount?
+        account: BlockchainAccount?,
     ) = when (action) {
         AssetAction.Receive -> replaceBottomSheet(ReceiveDetailSheet.newInstance(account as CryptoAccount))
         AssetAction.Swap -> launchSwap(sourceAccount = account as CryptoAccount)
@@ -867,9 +893,8 @@ class MainActivity :
 
     private fun startActivitiesFragment(
         account: BlockchainAccount? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_activity))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Activity
         supportFragmentManager.showFragment(
             fragment = ActivitiesFragment.newInstance(account),
@@ -978,9 +1003,9 @@ class MainActivity :
     private fun launchPortfolio(
         action: AssetAction? = null,
         fiatCurrency: String? = null,
-        reload: Boolean = false
+        reload: Boolean = false,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_home))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_home))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.Home
         supportFragmentManager.showFragment(
             fragment = PortfolioFragment.newInstance(action, fiatCurrency),
@@ -994,7 +1019,7 @@ class MainActivity :
 
     override fun launchSwap(
         sourceAccount: CryptoAccount?,
-        targetAccount: CryptoAccount?
+        targetAccount: CryptoAccount?,
     ) {
         if (sourceAccount == null && targetAccount == null) {
             actionsResultContract.launch(ActionActivity.ActivityArgs(AssetAction.Swap))
@@ -1062,9 +1087,9 @@ class MainActivity :
     override fun launchBuySell(
         viewType: BuySellFragment.BuySellViewType,
         asset: AssetInfo?,
-        reload: Boolean
+        reload: Boolean,
     ) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_buy_sell))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_buy_sell))
         binding.bottomNavigation.selectedNavigationItem = NavigationItem.BuyAndSell
 
         val buySellFragment = BuySellFragment.newInstance(
@@ -1085,10 +1110,26 @@ class MainActivity :
         )
     }
 
+    private fun homeToolbarTitle(fragmentTitle: String) {
+        val title = when (walletModeService.enabledWalletMode()) {
+            WalletMode.UNIVERSAL -> fragmentTitle
+            else -> ""
+        }
+        updateToolbarTitle(title = title)
+    }
+
     private fun launchPrices(reload: Boolean = false) {
-        updateToolbarTitle(title = getString(R.string.main_toolbar_prices))
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
         supportFragmentManager.showFragment(
             fragment = PricesFragment.newInstance(),
+            reloadFragment = reload
+        )
+    }
+
+    private fun launchPrices2(reload: Boolean = false) {
+        homeToolbarTitle(fragmentTitle = getString(R.string.main_toolbar_prices))
+        supportFragmentManager.showFragment(
+            fragment = piuk.blockchain.android.ui.prices.presentation.PricesFragment.newInstance(),
             reloadFragment = reload
         )
     }
@@ -1128,6 +1169,18 @@ class MainActivity :
                 BankAuthSource.WITHDRAW -> BANK_DEEP_LINK_WITHDRAW
             }.exhaustive
         )
+    }
+
+    override fun onActiveModeChanged(walletMode: WalletMode) {
+        redrawNavigation(walletMode)
+        val updatedDropdownIndicator =
+            (toolbarBinding.navigationToolbar.startNavigationButton as? NavigationBarButton.DropdownIndicator)?.copy(
+                text = getString(walletMode.title()),
+                rightIcon = walletMode.icon(),
+            )
+        updatedDropdownIndicator?.let {
+            updateToolbarStartItem(it)
+        }
     }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {
@@ -1193,7 +1246,7 @@ class MainActivity :
             originLocation: String?,
             originBrowser: String?,
             forcePin: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             putExtra(LAUNCH_AUTH_FLOW, launchAuthFlow)
             putExtra(AuthNewLoginSheet.PUB_KEY_HASH, pubKeyHash)
@@ -1211,7 +1264,7 @@ class MainActivity :
         fun newIntent(
             context: Context,
             intentFromNotification: Boolean,
-            notificationAnalyticsPayload: Map<String, String>? = null
+            notificationAnalyticsPayload: Map<String, String>? = null,
         ): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(INTENT_FROM_NOTIFICATION, intentFromNotification)
@@ -1236,7 +1289,7 @@ class MainActivity :
             context: Context,
             intentData: String?,
             shouldLaunchUiTour: Boolean,
-            shouldBeNewTask: Boolean
+            shouldBeNewTask: Boolean,
         ): Intent = Intent(context, MainActivity::class.java).apply {
             if (intentData != null) {
                 data = Uri.parse(intentData)
@@ -1248,5 +1301,18 @@ class MainActivity :
 
             putExtra(START_UI_TOUR_KEY, shouldLaunchUiTour)
         }
+    }
+
+    override fun route(navigationEvent: PricesNavigationEvent) {
+        when (navigationEvent) {
+            is PricesNavigationEvent.CoinView -> {
+                activityResultsContract.launch(
+                    CoinViewActivity.newIntent(
+                        context = this,
+                        asset = navigationEvent.assetInfo
+                    )
+                )
+            }
+        }.exhaustive
     }
 }

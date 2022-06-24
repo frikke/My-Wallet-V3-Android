@@ -18,6 +18,7 @@ private val json = Json {
         contextual(BigDecimalSerializer)
         contextual(BigIntSerializer)
         contextual(IsoDateSerializer)
+        contextual(KZonedDateTimeSerializer)
     }
 }
 val jsonSerializers = module {
@@ -31,6 +32,7 @@ val jsonSerializers = module {
                 contextual(BigDecimalSerializer)
                 contextual(BigIntSerializer)
                 contextual(IsoDateSerializer)
+                contextual(KZonedDateTimeSerializer)
                 contextual(AssetInfoKSerializer(assetCatalogue = get()))
             }
         }

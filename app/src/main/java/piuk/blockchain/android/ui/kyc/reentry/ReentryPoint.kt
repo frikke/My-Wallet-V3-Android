@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
+import piuk.blockchain.android.ui.dataremediation.TreeNode
 
 sealed class ReentryPoint(val entryPoint: String) {
     object EmailEntry : ReentryPoint("Email Entry")

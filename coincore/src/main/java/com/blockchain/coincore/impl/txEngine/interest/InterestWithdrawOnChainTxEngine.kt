@@ -17,7 +17,7 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
@@ -29,12 +29,12 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestWithdrawOnChainTxEngine(
-    interestStoreService: InterestStoreService,
+    interestDataSource: InterestDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
-) : InterestBaseEngine(walletManager, interestStoreService) {
+    val interestBalances: InterestBalanceDataManager,
+) : InterestBaseEngine(walletManager, interestDataSource) {
 
     private val availableBalance: Single<Money>
         get() = sourceAccount.balance.firstOrError().map { it.withdrawable }
@@ -153,7 +153,7 @@ class InterestWithdrawOnChainTxEngine(
         sourceAsset: AssetInfo,
         amount: Money,
         receiveAddress: String,
-        memo: String? = null
+        memo: String? = null,
     ) = walletManager.startInterestWithdrawal(
         asset = sourceAsset,
         amount = amount,

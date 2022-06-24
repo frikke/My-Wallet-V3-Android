@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,24 +54,136 @@ import com.blockchain.componentlib.theme.Dark800
 fun OrderCard(
     viewModel: OrderCardViewModel
 ) {
-    OrderCardContent(
-        onCreateCard = {
+    OrderCardIntro(
+        onOrderCard = {
             viewModel.onIntent(
-                // TODO(labreu): once staging API is not harcoded, remove this
-                BlockchainCardIntent.CreateCard(
-                    productCode = "VIRTUAL1",
-                    ssn = "111111110"
-                )
+                BlockchainCardIntent.OrderCardKYCAddress
             )
-        },
-        onSeeProductDetails = {
-            viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
-        },
+        }
     )
 }
 
 @Composable
-private fun OrderCardContent(
+fun OrderCardIntro(onOrderCard: () -> Unit) {
+    Column(
+        horizontalAlignment = CenterHorizontally,
+        modifier = Modifier.padding(AppTheme.dimensions.xPaddingLarge)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.card_intro),
+            contentDescription = stringResource(id = R.string.blockchain_card),
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth
+        )
+
+        Spacer(Modifier.size(AppTheme.dimensions.paddingLarge))
+
+        SimpleText(
+            text = stringResource(R.string.card_intro_title),
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(Modifier.size(AppTheme.dimensions.paddingSmall))
+
+        SimpleText(
+            text = stringResource(id = R.string.order_card_intro),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Muted,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(Modifier.size(AppTheme.dimensions.xxxPaddingLarge))
+
+        PrimaryButton(
+            text = stringResource(id = R.string.order_my_card),
+            onClick = onOrderCard,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OrderCardIntroPreview() {
+    OrderCardIntro { }
+}
+
+@Composable
+fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Unit, shortAddress: String?) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!shortAddress.isNullOrEmpty()) {
+            Column(
+                horizontalAlignment = CenterHorizontally,
+                modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.verify_your_address),
+                    style = ComposeTypographies.Title3,
+                    color = ComposeColors.Title,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+                )
+
+                SimpleText(
+                    text = stringResource(R.string.verify_your_address_description),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = AppTheme.dimensions.paddingLarge)
+                )
+
+                DefaultTableRow(
+                    primaryText = stringResource(R.string.residential_address),
+                    secondaryText = shortAddress,
+                    onClick = onCheckBillingAddress,
+                )
+            }
+
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(AppTheme.dimensions.paddingLarge)
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = CenterHorizontally
+            ) {
+                PrimaryButton(
+                    text = stringResource(R.string.next),
+                    onClick = onContinue,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.padding(
+                    horizontal = AppTheme.dimensions.paddingMedium,
+                    vertical = AppTheme.dimensions.xxxPaddingLarge
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OrderCardAddressKYCPreview() {
+    OrderCardAddressKYC(
+        onContinue = {},
+        onCheckBillingAddress = {},
+        shortAddress = "123 Main St, New York, NY 10001"
+    )
+}
+
+@Composable
+fun OrderCardContent(
     onCreateCard: () -> Unit,
     onSeeProductDetails: () -> Unit
 ) {

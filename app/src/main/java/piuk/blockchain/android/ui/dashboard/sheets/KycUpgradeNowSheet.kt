@@ -69,7 +69,7 @@ class KycUpgradeNowSheet : SlidingModalBottomDialog<DialogSheetKycUpgradeNowBind
             toolbar.gone()
         } else {
             toolbar.apply {
-                startNavigationBarButton = null
+                startNavigationButton = null
                 endNavigationBarButtons = listOf(
                     NavigationBarButton.Icon(
                         drawable = R.drawable.ic_close_circle_v2,

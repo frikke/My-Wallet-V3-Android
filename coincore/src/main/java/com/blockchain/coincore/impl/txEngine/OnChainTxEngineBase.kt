@@ -8,6 +8,7 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.WalletStatus
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.wallet.api.data.FeeOptions
@@ -22,6 +23,9 @@ abstract class OnChainTxEngineBase(
     private val walletPreferences: WalletStatus,
     protected val resolvedHotWalletAddress: Single<String>
 ) : TxEngine() {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
 
     private val settingsDataManager: SettingsDataManager by scopedInject()
     private val prefs: PersistentPrefs by inject()

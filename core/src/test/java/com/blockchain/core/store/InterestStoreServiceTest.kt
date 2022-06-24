@@ -1,4 +1,4 @@
-package com.blockchain.core.interest.store
+package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
 import com.blockchain.core.interest.InterestAccountBalance
@@ -101,11 +101,5 @@ class InterestStoreServiceTest {
             }
         verify(exactly = 1) { interestDataSource.stream(false) }
         verify(exactly = 1) { assetCatalogue.fromNetworkTicker("CRYPTO1") }
-    }
-
-    @Test
-    fun testInvalidate() {
-        interestStoreService.invalidate()
-        verify(exactly = 1) { interestDataSource.invalidate() }
     }
 }

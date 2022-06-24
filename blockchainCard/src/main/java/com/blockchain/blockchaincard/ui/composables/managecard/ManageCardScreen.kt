@@ -3,33 +3,52 @@ package com.blockchain.blockchaincard.ui.composables.managecard
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,6 +56,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
+import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
@@ -45,8 +65,9 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
-import com.blockchain.componentlib.button.DestructiveMinimalButton
+import com.blockchain.componentlib.button.DestructivePrimaryButton
 import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -57,6 +78,8 @@ import com.blockchain.componentlib.tablerow.ToggleTableRow
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
+import com.blockchain.componentlib.theme.Grey100
+import com.blockchain.componentlib.theme.UltraLight
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
 
@@ -90,6 +113,7 @@ fun ManageCard(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
+            .padding(top = AppTheme.dimensions.paddingLarge)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -100,7 +124,32 @@ fun ManageCard(
                 )
         ) {
 
-            if (cardWidgetUrl != null)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SimpleText(
+                    text = stringResource(R.string.my_cards),
+                    style = ComposeTypographies.Body2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                MinimalButton(
+                    text = stringResource(id = R.string.manage_card),
+                    onClick = onManageCardDetails,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .weight(1.4f)
+                )
+            }
+
+            if (!cardWidgetUrl.isNullOrEmpty()) {
                 AndroidView(
                     factory = {
                         WebView(it).apply {
@@ -120,75 +169,92 @@ fun ManageCard(
                             end = AppTheme.dimensions.paddingMedium
                         ),
                 )
-            else CircularProgressIndicator(
-                modifier = Modifier.padding(
-                    horizontal = AppTheme.dimensions.paddingMedium,
-                    vertical = AppTheme.dimensions.xxxPaddingLarge
-                )
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = AppTheme.dimensions.paddingMedium,
-                        end = AppTheme.dimensions.paddingMedium,
-                        bottom = AppTheme.dimensions.paddingMedium
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(
+                        horizontal = AppTheme.dimensions.paddingMedium,
+                        vertical = AppTheme.dimensions.xxxPaddingLarge
                     )
+                )
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(1.dp, Grey000),
+                elevation = 0.dp,
+                shape = RoundedCornerShape(20.dp)
             ) {
-                MinimalButton(
-                    text = stringResource(R.string.manage),
-                    onClick = onManageCardDetails,
-                    icon = ImageResource.Local(R.drawable.ic_nav_settings),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = AppTheme.dimensions.paddingSmall)
-                )
-                MinimalButton(
-                    text = stringResource(R.string.top_up),
-                    state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
-                    onClick = onTopUp,
-                    icon = ImageResource.Local(R.drawable.ic_bottom_nav_plus),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = AppTheme.dimensions.paddingSmall)
-                )
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    if (linkedAccountBalance != null)
+                        AccountItem(
+                            accountBalance = linkedAccountBalance,
+                            onAccountSelected = { }
+                        )
+                    else if (isBalanceLoading)
+                        ShimmerLoadingTableRow()
+
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(AppTheme.dimensions.paddingMedium),
+                    ) {
+
+                        PrimaryButton(
+                            text = stringResource(R.string.add_funds),
+                            state = if (isBalanceLoading) ButtonState.Disabled else ButtonState.Enabled,
+                            onClick = onTopUp,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+
+                        Spacer(modifier = Modifier.padding(4.dp))
+
+                        MinimalButton(
+                            text = stringResource(R.string.change_source),
+                            onClick = onChoosePaymentMethod,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+                    }
+                }
             }
         }
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
 
-        if (linkedAccountBalance != null)
-            AccountItem(
-                accountBalance = linkedAccountBalance,
-                onAccountSelected = { onChoosePaymentMethod() }
-            )
-        else if (isBalanceLoading)
-            ShimmerLoadingTableRow()
-        else
-            DefaultTableRow(
-                primaryText = stringResource(R.string.choose_payment_method),
-                secondaryText = stringResource(R.string.fund_your_card_purchases),
-                onClick = onChoosePaymentMethod,
-                startImageResource = ImageResource.Local(
-                    id = R.drawable.ic_question,
-                    contentDescription = null
-                )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppTheme.dimensions.paddingMedium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            SimpleText(
+                text = stringResource(R.string.recent_transactions),
+                style = ComposeTypographies.Body2,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.weight(2f)
             )
 
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.weight(1f))
 
-        DefaultTableRow(
-            primaryText = stringResource(R.string.cashback_rewards),
-            secondaryText = stringResource(R.string.earn_crypto_on_purchases),
-            onClick = {},
-            startImageResource = ImageResource.Local(
-                id = R.drawable.ic_question,
-                contentDescription = null
+            MinimalButton(
+                text = stringResource(R.string.see_all),
+                onClick = { },
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .weight(1f)
             )
-        )
+        }
 
-        SmallSectionHeader(text = stringResource(R.string.card_benefits), modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
 
         SimpleText(
             text = stringResource(R.string.recent_purchases_here),
@@ -202,23 +268,41 @@ fun ManageCard(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard(null, "", null, false, {}, {}, {}, {})
+    ManageCard(null, null, null, false, {}, {}, {}, {})
 }
 
 @Composable
-fun ManageCardDetails(onDeleteCard: () -> Unit, onToggleLockCard: (Boolean) -> Unit, cardStatus: BlockchainCardStatus) {
+fun ManageCardDetails(
+    last4digits: String,
+    onToggleLockCard: (Boolean) -> Unit,
+    cardStatus: BlockchainCardStatus,
+    onSeePersonalDetails: () -> Unit,
+    onSeeTransactionControls: () -> Unit,
+    onSeeSupport: () -> Unit,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
     ) {
+
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(R.string.manage_card),
+            shouldShowDivider = false
+        )
+
+        // Card details
         CardDetailsBottomSheetElement(
-            Modifier.padding(
+            last4digits = last4digits,
+            modifier = Modifier.padding(
                 AppTheme.dimensions.paddingLarge,
                 AppTheme.dimensions.paddingMedium
             )
         )
 
+        // Add to GPay
         // TODO (labreu): GPay save to phone button should be its own composable
         Button(
             onClick = { /*TODO*/ },
@@ -238,69 +322,650 @@ fun ManageCardDetails(onDeleteCard: () -> Unit, onToggleLockCard: (Boolean) -> U
                 contentScale = ContentScale.Crop
             )
         }
-
-        DefaultTableRow(
-            primaryText = stringResource(R.string.copy_card_number),
-            secondaryText = stringResource(R.string.copy_to_clipboard),
-            onClick = {},
-            endImageResource = ImageResource.Local(
-                id = R.drawable.ic_copy,
-                contentDescription = null
-            )
-        )
-
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
+        // Lock card
         ToggleTableRow(
             onCheckedChange = onToggleLockCard,
             isChecked = cardStatus == BlockchainCardStatus.LOCKED,
             primaryText = stringResource(R.string.lock_card),
             secondaryText = stringResource(R.string.temporarily_lock_card)
         )
-
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
+        // Personal Details
+        DefaultTableRow(
+            primaryText = stringResource(R.string.personal_details),
+            secondaryText = stringResource(R.string.view_account_information),
+            onClick = onSeePersonalDetails
+        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        // Transaction Controls
+        DefaultTableRow(
+            primaryText = stringResource(R.string.transaction_controls),
+            secondaryText = stringResource(R.string.settings_features_for_card_transactions),
+            onClick = onSeeTransactionControls
+        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        // Support
         DefaultTableRow(
             primaryText = stringResource(R.string.support),
             secondaryText = stringResource(R.string.get_help_with_card_issues),
-            onClick = {}
+            onClick = onSeeSupport
         )
-
-        DestructiveMinimalButton(
-            text = stringResource(R.string.delete_card),
-            onClick = onDeleteCard,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(AppTheme.dimensions.paddingLarge)
-        ) // Todo(labreu): add trashcan icon
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails({}, {}, BlockchainCardStatus.ACTIVE)
+    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {})
 }
 
 @Composable
-private fun CardDetailsBottomSheetElement(modifier: Modifier = Modifier) {
+fun TransactionControls() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(R.string.transaction_controls),
+            shouldShowDivider = false
+        )
+
+        // Pin Settings
+        SmallSectionHeader(text = stringResource(R.string.pin_settings), modifier = Modifier.fillMaxWidth())
+        DefaultTableRow(
+            primaryText = stringResource(R.string.manage_pin),
+            secondaryText = stringResource(R.string.manage_pin_description),
+            onClick = {}
+        )
+
+        // Security Settings
+        SmallSectionHeader(text = stringResource(R.string.security_settings), modifier = Modifier.fillMaxWidth())
+        ToggleTableRow(
+            primaryText = stringResource(R.string.swipe_payments),
+            secondaryText = stringResource(R.string.swipe_payments_description),
+            onCheckedChange = {}
+        )
+        ToggleTableRow(
+            primaryText = stringResource(R.string.contactless_payments),
+            secondaryText = stringResource(R.string.contactless_payments_description),
+            onCheckedChange = {}
+        )
+        DefaultTableRow(
+            primaryText = stringResource(R.string.transaction_amount_limit),
+            secondaryText = stringResource(R.string.transaction_amount_limit_description),
+            onClick = {}
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewTransactionControls() {
+    TransactionControls()
+}
+
+@Composable
+fun PersonalDetails(firstAndLastName: String?, shortAddress: String?, onCheckBillingAddress: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(id = R.string.personal_details),
+            shouldShowDivider = false
+        )
+
+        if (!firstAndLastName.isNullOrEmpty() && !shortAddress.isNullOrEmpty()) {
+            // Name
+            DefaultTableRow(
+                primaryText = stringResource(R.string.name),
+                secondaryText = firstAndLastName,
+                onClick = {},
+                endImageResource = ImageResource.None
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            // Address
+            DefaultTableRow(
+                primaryText = stringResource(R.string.billing_address),
+                secondaryText = shortAddress,
+                onClick = onCheckBillingAddress
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.padding(
+                    horizontal = AppTheme.dimensions.paddingMedium,
+                    vertical = AppTheme.dimensions.xxxPaddingLarge
+                )
+            )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewPersonalDetails() {
+    PersonalDetails("John Smith", "614 Lorimer Street, Sacramento CA", {})
+}
+
+@Composable
+fun BillingAddress(address: BlockchainCardAddress, onUpdateAddress: (BlockchainCardAddress) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.paddingMedium)
+    ) {
+        var addressLine1 by remember {
+            mutableStateOf(address.line1)
+        }
+        var addressLine2 by remember {
+            mutableStateOf(address.line2)
+        }
+        var city by remember {
+            mutableStateOf(address.city)
+        }
+        var state by remember {
+            mutableStateOf(address.state)
+        }
+        var postalCode by remember {
+            mutableStateOf(address.postCode)
+        }
+        var country by remember {
+            mutableStateOf("US") // TODO(labreu): design doesn't support other countries yet
+        }
+
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(R.string.billing_address),
+            shouldShowDivider = false
+        )
+
+        // Address line 1
+        SimpleText(
+            modifier = Modifier.padding(vertical = 4.dp),
+            text = stringResource(R.string.address_line_1),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = addressLine1,
+            onValueChange = {
+                addressLine1 = it
+            },
+            placeholder = { Text(stringResource(R.string.address_placeholder_1)) },
+            singleLine = true,
+            textStyle = AppTheme.typography.body1,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Grey000,
+                unfocusedBorderColor = Grey000
+            )
+        )
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        // Address line 2
+        SimpleText(
+            modifier = Modifier.padding(vertical = 4.dp),
+            text = stringResource(R.string.address_line_2),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = addressLine2,
+            onValueChange = {
+                addressLine2 = it
+            },
+            placeholder = { Text(stringResource(R.string.address_placeholder_2)) },
+            singleLine = true,
+            textStyle = AppTheme.typography.body1,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Grey000,
+                unfocusedBorderColor = Grey000
+            )
+        )
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        // City
+        SimpleText(
+            modifier = Modifier.padding(vertical = 4.dp),
+            text = stringResource(R.string.address_city),
+            style = ComposeTypographies.Paragraph2,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Start
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = city,
+            onValueChange = {
+                city = it
+            },
+            placeholder = { Text(stringResource(R.string.address_city_placeholder)) },
+            singleLine = true,
+            textStyle = AppTheme.typography.body1,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Grey000,
+                unfocusedBorderColor = Grey000
+            )
+        )
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        // State & Zip
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            // State
+            Column(modifier = Modifier.weight(1f)) {
+                SimpleText(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    text = stringResource(R.string.address_state),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+                OutlinedTextField(
+                    value = state,
+                    onValueChange = {
+                        state = it
+                    },
+                    placeholder = { Text(stringResource(R.string.address_state_placeholder)) },
+                    singleLine = true,
+                    textStyle = AppTheme.typography.body1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Grey000,
+                        unfocusedBorderColor = Grey000
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+            // Postal code
+            Column(modifier = Modifier.weight(1f)) {
+                SimpleText(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    text = stringResource(R.string.address_zip),
+                    style = ComposeTypographies.Paragraph2,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+                OutlinedTextField(
+                    value = postalCode,
+                    onValueChange = {
+                        postalCode = it
+                    },
+                    placeholder = { Text(stringResource(R.string.address_zip_placeholder)) },
+                    singleLine = true,
+                    textStyle = AppTheme.typography.body1,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = Grey000,
+                        unfocusedBorderColor = Grey000
+                    )
+                )
+            }
+        }
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        // Save
+        PrimaryButton(
+            text = stringResource(R.string.save),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.standard_margin),
+                    top = AppTheme.dimensions.paddingSmall,
+                    end = dimensionResource(id = R.dimen.standard_margin),
+                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                ),
+            onClick = {
+                onUpdateAddress(
+                    BlockchainCardAddress(
+                        line1 = addressLine1,
+                        line2 = addressLine2,
+                        postCode = postalCode,
+                        city = city,
+                        state = state,
+                        country = country
+                    )
+                )
+            },
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewBillingAddress() {
+    BillingAddress(
+        address = BlockchainCardAddress(
+            line1 = "1242 Johnnyappleseed Ln.",
+            line2 = "1234 Road Street",
+            postCode = "94592",
+            city = "Walnut Creek",
+            state = "CA",
+            country = "USA"
+        ),
+        onUpdateAddress = {}
+    )
+}
+
+@Composable
+fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(R.string.billing_address),
+            shouldShowDivider = false
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+
+        if (success) BillingAddressUpdatedSuccess()
+        else BillingAddressUpdatedFailed()
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+
+        PrimaryButton(
+            text = stringResource(id = R.string.common_confirm),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.standard_margin),
+                    top = AppTheme.dimensions.paddingSmall,
+                    end = dimensionResource(id = R.dimen.standard_margin),
+                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                ),
+            onClick = onDismiss,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewBillingAddressUpdated() {
+    BillingAddressUpdated(success = true, onDismiss = {})
+}
+
+@Composable
+fun BillingAddressUpdatedSuccess() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(id = R.drawable.address_updated_success),
+            contentDescription = stringResource(R.string.address_updated),
+            modifier = Modifier.wrapContentWidth(),
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        SimpleText(
+            text = stringResource(R.string.address_update_success),
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        SimpleText(
+            text = stringResource(R.string.address_update_success_description),
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewBillingAddressUpdatedSuccess() {
+    BillingAddressUpdatedSuccess()
+}
+
+@Composable
+fun BillingAddressUpdatedFailed() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_error),
+            contentDescription = stringResource(R.string.address_updated),
+            modifier = Modifier
+                .wrapContentWidth()
+                .size(74.dp),
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        SimpleText(
+            text = stringResource(R.string.address_update_failed),
+            style = ComposeTypographies.Title3,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
+
+        SimpleText(
+            text = stringResource(R.string.address_update_description),
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewBillingAddressUpdatedError() {
+    BillingAddressUpdatedFailed()
+}
+
+@Composable
+fun Support(onCloseCard: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(id = R.string.support),
+            shouldShowDivider = false
+        )
+
+        // Support
+        SmallSectionHeader(text = stringResource(R.string.support_title), modifier = Modifier.fillMaxWidth())
+
+        // Card Lost
+        DefaultTableRow(
+            primaryText = stringResource(R.string.card_lost),
+            secondaryText = stringResource(R.string.card_lost_description),
+            onClick = {}
+        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        // FAQ
+        DefaultTableRow(
+            primaryText = stringResource(R.string.visit_faq),
+            secondaryText = stringResource(R.string.visit_faq_description),
+            onClick = {}
+        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        // Contact Support
+        DefaultTableRow(
+            primaryText = stringResource(R.string.contact_support),
+            secondaryText = stringResource(R.string.contact_support_description),
+            onClick = {}
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+
+        // Close card
+        DestructivePrimaryButton(
+            text = stringResource(id = R.string.close_card),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.standard_margin),
+                    top = AppTheme.dimensions.paddingSmall,
+                    end = dimensionResource(id = R.dimen.standard_margin),
+                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                ),
+            onClick = onCloseCard,
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewSupport() {
+    Support({})
+}
+
+@Composable
+fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = AppTheme.dimensions.paddingMedium),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(id = R.string.close_card),
+            shouldShowDivider = false
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+
+        Image(
+            painter = painterResource(id = R.drawable.credit_card_failed),
+            contentDescription = stringResource(R.string.card_created),
+            modifier = Modifier.wrapContentWidth(),
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+
+        SimpleText(
+            text = stringResource(id = R.string.close_card_number, last4digits),
+            style = ComposeTypographies.Body1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
+
+        SimpleText(
+            text = stringResource(R.string.close_card_warning),
+            style = ComposeTypographies.Caption1,
+            color = ComposeColors.Muted,
+            gravity = ComposeGravities.Centre
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
+
+        var closeCardConfirmationText by remember { mutableStateOf("") }
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                SimpleText(
+                    text = stringResource(R.string.close_card_confirm_description),
+                    style = ComposeTypographies.Caption1,
+                    color = ComposeColors.Body,
+                    gravity = ComposeGravities.Start
+                )
+            },
+            value = closeCardConfirmationText,
+            onValueChange = {
+                closeCardConfirmationText = it
+            },
+            placeholder = {
+                SimpleText(
+                    text = stringResource(R.string.delete),
+                    style = ComposeTypographies.Body1,
+                    color = ComposeColors.Muted,
+                    gravity = ComposeGravities.Start
+                )
+            },
+            singleLine = true,
+            textStyle = AppTheme.typography.body1,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Grey000,
+                unfocusedBorderColor = Grey000
+            )
+        )
+
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
+
+        // Close card
+        DestructivePrimaryButton(
+            text = stringResource(id = R.string.close_card),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = dimensionResource(id = R.dimen.standard_margin),
+                    top = AppTheme.dimensions.paddingSmall,
+                    end = dimensionResource(id = R.dimen.standard_margin),
+                    bottom = dimensionResource(id = R.dimen.standard_margin)
+                ),
+            onClick = onConfirmCloseCard,
+            state = if (closeCardConfirmationText == stringResource(R.string.delete_card_confirmation_text))
+                ButtonState.Enabled
+            else
+                ButtonState.Disabled
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewCloseCard() {
+    CloseCard("1234", {})
+}
+
+@Composable
+private fun CardDetailsBottomSheetElement(last4digits: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(Grey000)
+            .border(1.dp, Grey100, RoundedCornerShape(8.dp))
+            .background(UltraLight)
     ) {
         Row(
             modifier = Modifier.padding(AppTheme.dimensions.paddingMedium),
             verticalAlignment = Alignment.Top
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.card_icon),
-                contentDescription = stringResource(R.string.blockchain_card),
-                alignment = Alignment.CenterStart,
-                contentScale = ContentScale.FillHeight
-            )
-
             Column(modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingSmall)) {
                 SimpleText(
                     text = stringResource(R.string.virtual_card),
@@ -312,14 +977,14 @@ private fun CardDetailsBottomSheetElement(modifier: Modifier = Modifier) {
                 SimpleText(
                     text = stringResource(R.string.ready_to_use),
                     style = ComposeTypographies.Caption2,
-                    color = ComposeColors.Dark,
+                    color = ComposeColors.Success,
                     gravity = ComposeGravities.Start
                 )
             }
         }
 
         SimpleText(
-            text = "***3458", // TODO(labreu): remove place holder
+            text = "***$last4digits",
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.End,
@@ -331,7 +996,7 @@ private fun CardDetailsBottomSheetElement(modifier: Modifier = Modifier) {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCardDetailsBottomSheetElement() {
-    CardDetailsBottomSheetElement()
+    CardDetailsBottomSheetElement("***3458")
 }
 
 @Composable
@@ -351,7 +1016,7 @@ fun AccountPicker(
             .fillMaxWidth()
             .background(backgroundColor)
     ) {
-        SheetHeader(onClosePress = { /*TODO*/ }, title = stringResource(R.string.spend_from))
+        SheetHeader(onClosePress = { /*TODO*/ }, title = stringResource(R.string.spend_from), shouldShowDivider = false)
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
     }
 }
@@ -377,7 +1042,7 @@ fun AccountsContent(
         }
     } else {
         SimpleText(
-            text = "No accounts eligible for linking",
+            text = stringResource(R.string.no_accounts_eligible_for_linking),
             style = ComposeTypographies.Caption1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
@@ -392,7 +1057,7 @@ fun AccountItem(accountBalance: AccountBalance, onAccountSelected: (String) -> U
             FiatAccountItem(
                 currencyName = accountBalance.totalFiat.currency.name,
                 currencyTicker = accountBalance.totalFiat.currency.networkTicker,
-                currentBalance = accountBalance.totalFiat.toStringWithSymbol() ?: "",
+                currentBalance = accountBalance.totalFiat.toStringWithSymbol(),
                 currencyLogo = accountBalance.totalFiat.currency.logo,
                 onClick = { onAccountSelected(accountBalance.totalFiat.currency.networkTicker) }
             )
@@ -401,8 +1066,8 @@ fun AccountItem(accountBalance: AccountBalance, onAccountSelected: (String) -> U
             CryptoAccountItem(
                 currencyName = accountBalance.total.currency.name,
                 currencyTicker = accountBalance.total.currency.networkTicker,
-                currentBalance = accountBalance.total.toStringWithSymbol() ?: "",
-                currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol() ?: "",
+                currentBalance = accountBalance.total.toStringWithSymbol(),
+                currentBalanceInFiat = accountBalance.totalFiat.toStringWithSymbol(),
                 currencyLogo = accountBalance.total.currency.logo,
                 onClick = { onAccountSelected(accountBalance.total.currency.networkTicker) }
             )
