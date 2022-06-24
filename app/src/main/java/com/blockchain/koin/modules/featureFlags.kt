@@ -8,6 +8,7 @@ import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
+import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
@@ -18,11 +19,13 @@ import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
+import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
@@ -131,6 +134,15 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(superAppFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_new_super_app",
+                "Super App mode"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(metadataMigrationFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -194,6 +206,15 @@ val featureFlagsModule = module {
         )
     }.bind(FeatureFlag::class)
 
+    single(pricesFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_prices",
+                "Prices"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(stxForAllFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
@@ -208,6 +229,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(buyRefreshQuoteFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_buy_refresh_quote",
+                "Buy Quote refreshing on checkout screen"
             )
         )
     }.bind(FeatureFlag::class)

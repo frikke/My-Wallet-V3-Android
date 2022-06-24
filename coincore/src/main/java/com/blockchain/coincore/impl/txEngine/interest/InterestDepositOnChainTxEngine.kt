@@ -14,7 +14,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
 import com.blockchain.core.interest.InterestBalanceDataManager
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -23,14 +23,14 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
-    interestStoreService: InterestStoreService,
+    interestDataSource: InterestDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val interestBalances: InterestBalanceDataManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager
-) : InterestBaseEngine(walletManager, interestStoreService) {
+) : InterestBaseEngine(walletManager, interestDataSource) {
 
     override fun assertInputsValid() {
         check(sourceAccount is CryptoNonCustodialAccount)
@@ -141,8 +141,7 @@ class InterestDepositOnChainTxEngine(
             }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
-        super.doPostExecute(pendingTx, txResult)
-            .andThen(onChainEngine.doPostExecute(pendingTx, txResult))
+        onChainEngine.doPostExecute(pendingTx, txResult)
 
     companion object {
         private val AVAILABLE_FEE_LEVELS = setOf(FeeLevel.Regular)

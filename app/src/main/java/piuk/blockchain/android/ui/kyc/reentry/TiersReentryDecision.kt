@@ -1,13 +1,13 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
+import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
+import piuk.blockchain.android.ui.dataremediation.toMutableNode
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class TiersReentryDecision(
-    private val kycDataManager: KycDataManager
+    private val dataRemediationService: DataRemediationService
 ) : ReentryDecision {
 
     private lateinit var nabuUser: NabuUser
@@ -23,7 +23,7 @@ class TiersReentryDecision(
             tier0ProfileIncompleteOrResubmitAllowed() &&
                 !tier0UnselectedCountry() -> ReentryPoint.Profile
             tier0AndCanAdvance() && tier0MissingAddress() -> ReentryPoint.Address
-            else -> return rxSingleOutcome { kycDataManager.getQuestionnaire() }.map { questionnaire ->
+            else -> return rxSingleOutcome { dataRemediationService.getQuestionnaire() }.map { questionnaire ->
                 when {
                     !hasMobileVerified() -> ReentryPoint.MobileEntry
                     questionnaire.isNotEmpty() ->

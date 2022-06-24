@@ -16,7 +16,6 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
-import com.blockchain.commonarch.presentation.base.updateTitleToolbar
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.koin.payloadScope
@@ -89,7 +88,6 @@ class BuySellFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateTitleToolbar(getString(R.string.buy_and_sell))
         analytics.logEvent(WalletClientAnalytics.WalletBuySellViewed)
     }
 

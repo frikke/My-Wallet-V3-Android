@@ -31,7 +31,8 @@ class BalanceUpdateTest {
                 on { withdrawable }.thenReturn(1.bitcoinCash())
                 on { pending }.thenReturn(1.bitcoinCash())
                 on { exchangeRate }.thenReturn(mock())
-            }
+            },
+            true
         )
 
         subject.reduce(initialState)
@@ -55,7 +56,8 @@ class BalanceUpdateTest {
                 on { withdrawable }.thenReturn(1.bitcoin())
                 on { pending }.thenReturn(1.bitcoin())
                 on { exchangeRate }.thenReturn(mock())
-            }
+            },
+            true
         )
 
         val result = subject.reduce(initialState)
@@ -86,7 +88,8 @@ class BalanceUpdateTest {
                 on { withdrawable }.thenReturn(1.ether())
                 on { pending }.thenReturn(1.ether())
                 on { exchangeRate }.thenReturn(mock())
-            }
+            },
+            true
         )
 
         val result = subject.reduce(initialState)

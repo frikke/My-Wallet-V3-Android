@@ -11,11 +11,9 @@ import com.blockchain.nabu.models.responses.nabu.AddAddressRequest
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
 import com.blockchain.nabu.models.responses.nabu.ApplicantIdRequest
 import com.blockchain.nabu.models.responses.nabu.NabuBasicUser
-import com.blockchain.nabu.models.responses.nabu.NabuCountryResponse
 import com.blockchain.nabu.models.responses.nabu.NabuJwt
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountRequest
 import com.blockchain.nabu.models.responses.nabu.NabuRecoverAccountResponse
-import com.blockchain.nabu.models.responses.nabu.NabuStateResponse
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RecordCountryRequest
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
@@ -40,7 +38,6 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
@@ -110,17 +107,6 @@ internal interface Nabu {
         @Body jwt: NabuJwt,
         @Header("authorization") authorization: String
     ): Single<NabuUser>
-
-    @GET(NABU_COUNTRIES)
-    fun getCountriesList(
-        @Query("scope") scope: String?
-    ): Single<List<NabuCountryResponse>>
-
-    @GET("$NABU_COUNTRIES/{regionCode}/$NABU_STATES")
-    fun getStatesList(
-        @Path("regionCode") countryCode: String,
-        @Query("scope") scope: String?
-    ): Single<List<NabuStateResponse>>
 
     @GET("$NABU_SUPPORTED_DOCUMENTS/{countryCode}")
     fun getSupportedDocuments(
@@ -218,15 +204,6 @@ internal interface Nabu {
         @Query("product") product: String,
         @Query("type") type: String?
     ): Single<TransactionsResponse>
-
-    @GET(NABU_SIMPLE_QUOTE)
-    fun getSimpleBuyQuote(
-        @Header("authorization") authorization: String,
-        @Query("currencyPair") currencyPair: String,
-        @Query("action") action: String,
-        @Query("amount") amount: String,
-        @Query("currency") currency: String
-    ): Single<SimpleBuyQuoteResponse>
 
     @PUT(NABU_SIMPLE_BUY_ACCOUNT_DETAILS)
     fun getSimpleBuyBankAccountDetails(

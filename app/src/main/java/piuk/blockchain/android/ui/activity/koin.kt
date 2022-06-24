@@ -21,6 +21,7 @@ val activitiesModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
+                walletModeService = get(),
                 remoteLogger = get()
             )
         }

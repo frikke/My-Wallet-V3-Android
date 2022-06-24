@@ -3,12 +3,13 @@ package piuk.blockchain.android.ui.kyc.address
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
-import com.blockchain.nabu.models.responses.nabu.Scope
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -19,12 +20,14 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.SortedMap
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
+import piuk.blockchain.android.ui.dataremediation.TreeNode
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
-import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
@@ -47,6 +50,7 @@ interface KycNextStepDecision {
 class KycHomeAddressPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
+    private val eligibilityService: EligibilityService,
     private val nabuDataUserProvider: NabuDataUserProvider,
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
@@ -56,11 +60,12 @@ class KycHomeAddressPresenter(
     val countryCodeSingle: Single<SortedMap<String, String>> by unsafeLazy {
         fetchOfflineToken
             .flatMap {
-                nabuDataManager.getCountriesList(Scope.None)
-                    .subscribeOn(Schedulers.io())
+                rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+                    eligibilityService.getCountriesList(GetRegionScope.None)
+                }.subscribeOn(Schedulers.io())
             }
             .map { list ->
-                list.associateBy({ it.name }, { it.code })
+                list.associateBy({ it.name }, { it.countryCode })
                     .toSortedMap()
             }
             .observeOn(AndroidSchedulers.mainThread())

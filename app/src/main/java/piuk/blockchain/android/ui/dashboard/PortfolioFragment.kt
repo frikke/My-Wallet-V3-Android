@@ -97,7 +97,6 @@ import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class EmptyDashboardItem : DashboardItem
 
@@ -175,30 +174,20 @@ class PortfolioFragment :
         analytics.logEvent(WalletClientAnalytics.WalletHomeViewed)
 
         model.process(DashboardIntent.UpdateDepositButton)
-        model.process(DashboardIntent.LoadFundsLocked)
-
         setupSwipeRefresh()
         setupRecycler()
 
         if (flowToLaunch != null && flowCurrency != null) {
             when (flowToLaunch) {
                 AssetAction.FiatDeposit,
-                AssetAction.FiatWithdraw -> model.process(
+                AssetAction.FiatWithdraw,
+                -> model.process(
                     DashboardIntent.StartBankTransferFlow(
                         action = AssetAction.FiatWithdraw
                     )
                 )
                 else -> throw IllegalStateException("Unsupported flow launch for action $flowToLaunch")
             }
-        }
-    }
-
-    @UiThread
-    override fun render(newState: DashboardState) {
-        try {
-            doRender(newState)
-        } catch (e: Throwable) {
-            Timber.e(e)
         }
     }
 
@@ -209,7 +198,7 @@ class PortfolioFragment :
     }
 
     @UiThread
-    private fun doRender(newState: DashboardState) {
+    override fun render(newState: DashboardState) {
         binding.swipe.isRefreshing = false
         updateDisplayList(newState)
         verifyAppRating(newState)
@@ -237,18 +226,22 @@ class PortfolioFragment :
                 mapOf(
                     IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_WITHDRAWAL_LOCKS to EmptyDashboardItem(),
                     IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
                 )
             } else {
                 mapOf(
                     IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_WITHDRAWAL_LOCKS to (
+                        newState.locks.fundsLocks?.let {
+                            newState.locks
+                        } ?: EmptyDashboardItem()
+                        ),
                     IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                         newState.fiatAssets
                     } else {
-                        get(IDX_FUNDS_BALANCE)
+                        EmptyDashboardItem()
                     }
                 )
             }
@@ -457,7 +450,7 @@ class PortfolioFragment :
             val newBalance = state.accountBalance?.total
             if (newBalance != null && newBalance != oldState?.activeAssets?.get(asset)?.accountBalance?.total) {
                 // If we have the full set, this will fire
-                analyticsReporter.gotAssetBalance(asset, newBalance)
+                analyticsReporter.gotAssetBalance(asset, newBalance, newState.activeAssets.size)
             }
         }
     }
@@ -617,7 +610,8 @@ class PortfolioFragment :
 
         when (requestCode) {
             MainActivity.SETTINGS_EDIT,
-            MainActivity.ACCOUNT_EDIT -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
+            MainActivity.ACCOUNT_EDIT,
+            -> model.process(DashboardIntent.RefreshAllBalancesIntent(false))
             BACKUP_FUNDS_REQUEST_CODE -> {
                 state?.backupSheetDetails?.let {
                     model.process(DashboardIntent.CheckBackupStatus(it.account, it.action))
@@ -822,7 +816,7 @@ class PortfolioFragment :
     companion object {
         fun newInstance(
             flowToLaunch: AssetAction? = null,
-            fiatCurrency: String? = null
+            fiatCurrency: String? = null,
         ) = PortfolioFragment().apply {
             arguments = Bundle().apply {
                 if (flowToLaunch != null && fiatCurrency != null) {

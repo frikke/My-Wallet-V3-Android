@@ -6,10 +6,12 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.asObservable
 import timber.log.Timber
 
 enum class ActivitiesSheet {
@@ -38,15 +40,16 @@ data class ActivitiesState(
     val isError: Boolean = false,
     val selectedTxId: String = "",
     val selectedCurrency: Currency? = null,
-    val activityType: ActivityType = ActivityType.UNKNOWN
+    val activityType: ActivityType = ActivityType.UNKNOWN,
 ) : MviState
 
 class ActivitiesModel(
     initialState: ActivitiesState,
     uiScheduler: Scheduler,
     private val interactor: ActivitiesInteractor,
+    private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
-    remoteLogger: RemoteLogger
+    remoteLogger: RemoteLogger,
 ) : MviModel<ActivitiesState, ActivitiesIntent>(
     initialState,
     uiScheduler,
@@ -58,7 +61,7 @@ class ActivitiesModel(
 
     override fun performAction(
         previousState: ActivitiesState,
-        intent: ActivitiesIntent
+        intent: ActivitiesIntent,
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
 
@@ -83,9 +86,9 @@ class ActivitiesModel(
                 fetchSubscription
             }
             is SelectDefaultAccountIntent ->
-                interactor.getDefaultAccount()
+                walletModeService.walletMode.asObservable().flatMapSingle { interactor.getDefaultAccount(it) }
                     .subscribeBy(
-                        onSuccess = { account ->
+                        onNext = { account ->
                             process(AccountSelectedIntent(account, false))
                         },
                         onError = { process(ActivityListUpdatedErrorIntent) }

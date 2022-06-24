@@ -47,7 +47,7 @@ enum class CopyState {
 }
 
 enum class UserMnemonicVerificationStatus {
-    NO_STATUS, VERIFIED, INCORRECT
+    IDLE, INCORRECT
 }
 
 sealed interface FlowState {

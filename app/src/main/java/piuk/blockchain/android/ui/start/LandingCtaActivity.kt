@@ -29,7 +29,7 @@ class LandingCtaActivity : BlockchainActivity() {
         setContentView(binding.root)
 
         binding.toolbar.apply {
-            startNavigationBarButton = NavigationBarButton.Icon(
+            startNavigationButton = NavigationBarButton.Icon(
                 drawable = R.drawable.ic_close_circle_v2,
                 contentDescription = R.string.accessibility_close,
                 color = null,

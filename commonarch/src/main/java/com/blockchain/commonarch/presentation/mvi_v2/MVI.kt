@@ -134,5 +134,5 @@ abstract class MviViewModel<TIntent : Intent<TModelState>,
      * @param intent The processed intent
      * @param modelState The latest model internal state
      */
-    abstract suspend fun handleIntent(modelState: TModelState, intent: TIntent)
+    protected abstract suspend fun handleIntent(modelState: TModelState, intent: TIntent)
 }

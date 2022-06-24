@@ -1,6 +1,5 @@
 package com.blockchain.coincore.loader
 
-import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CoincoreInitFailure
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.IdentityAddressResolver
@@ -23,7 +22,6 @@ import com.blockchain.preferences.WalletStatus
 import com.blockchain.rx.printTime
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
-import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Currency
@@ -47,7 +45,6 @@ internal class DynamicAssetLoader(
     private val nonCustodialAssets: Set<CryptoAsset>,
     private val experimentalL1EvmAssets: Set<CryptoCurrency>,
     private val assetCatalogue: AssetCatalogueImpl,
-    private val walletModeService: WalletModeService,
     private val payloadManager: PayloadDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
@@ -61,12 +58,16 @@ internal class DynamicAssetLoader(
     private val ethHotWalletAddressResolver: EthHotWalletAddressResolver,
     private val selfCustodyService: NonCustodialService,
     private val layerTwoFeatureFlag: FeatureFlag,
-    private val stxForAllFeatureFlag: FeatureFlag
+    private val stxForAllFeatureFlag: FeatureFlag,
 ) : AssetLoader {
 
-    private val activeAssetMap = mutableMapOf<Currency, CryptoAsset>()
-    private val assetMap = mutableMapOf<Currency, CryptoAsset>()
+    private val custodialActiveAssets = mutableMapOf<Currency, CryptoAsset>()
+    private val nonCustodialActiveAssets = mutableMapOf<Currency, CryptoAsset>()
 
+    private val allActive: Map<Currency, CryptoAsset>
+        get() = custodialActiveAssets + nonCustodialActiveAssets
+
+    private val assetMap = mutableMapOf<Currency, CryptoAsset>()
     override operator fun get(asset: AssetInfo): CryptoAsset =
         assetMap[asset] ?: attemptLoadAsset(asset)
 
@@ -90,9 +91,7 @@ internal class DynamicAssetLoader(
                     experimentalL1EvmAssets.contains(cryptoAsset.assetInfo)
                 }
             }
-            if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
-                activeAssetMap.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
-            }
+            nonCustodialActiveAssets.putAll(enabledNonCustodialAssets.associateBy { it.assetInfo })
 
             assetCatalogue.initialise()
                 .doOnSubscribe { remoteLogger.logEvent("Coincore init started") }
@@ -104,8 +103,7 @@ internal class DynamicAssetLoader(
                         // and the non-custodial accounts won't show up.
                         .thenSingle {
                             doLoadAssets(
-                                supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                                    .minus(activeAssetMap.values.map { it.assetInfo }.toSet())
+                                dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
                             )
                         }
                 }
@@ -142,7 +140,7 @@ internal class DynamicAssetLoader(
     ): Single<List<CryptoAsset>> {
         val erc20assets = dynamicAssets.filter { it.isErc20() }
 
-        return loadErc20Assets(erc20assets).flatMap { loadedErc20 ->
+        return loadErc20Assets(erc20Assets = erc20assets).flatMap { loadedErc20 ->
             // Loading Custodial ERC20s even without a balance is necessary so they show up for swap
             val custodialAssets = dynamicAssets.filter { dynamicAsset ->
                 dynamicAsset.isCustodial &&
@@ -150,7 +148,9 @@ internal class DynamicAssetLoader(
             }
             // Those two sets should NOT overlap
             check(loadedErc20.intersect(custodialAssets.toSet()).isEmpty())
-            loadCustodialAssets(custodialAssets).map { custodialList ->
+            loadCustodialAssets(
+                custodialAssets = custodialAssets
+            ).map { custodialList ->
                 loadedErc20 + custodialList
             }
         }
@@ -159,9 +159,6 @@ internal class DynamicAssetLoader(
     private fun loadCustodialAssets(
         custodialAssets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
-        if (walletModeService.enabledWalletMode().custodialEnabled.not()) {
-            return Single.just(emptyList())
-        }
         return Single.zip(
             tradingBalances.getActiveAssets(),
             interestBalances.getActiveAssets().printTime("----- ::interestBalances")
@@ -174,7 +171,7 @@ internal class DynamicAssetLoader(
                     else -> loadCustodialOnlyAsset(asset)
                 }
                 if (activeAssets.contains(asset)) {
-                    activeAssetMap[asset] = loadedAsset
+                    custodialActiveAssets[asset] = loadedAsset
                 }
                 loadedAsset
             }
@@ -185,10 +182,8 @@ internal class DynamicAssetLoader(
         erc20Assets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
 
-        val tradingBalancesAssets =
-            tradingBalances.getActiveAssets()
-        val interestBalancesAssets =
-            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
+        val tradingBalancesAssets = tradingBalances.getActiveAssets()
+        val interestBalancesAssets = interestBalances.getActiveAssets().printTime("----- ::interestBalances")
 
         // Assets with non custodial balance
         val erc20ActiveAssets =
@@ -202,13 +197,11 @@ internal class DynamicAssetLoader(
             Triple(activeInterest, activeTrading, activeNoncustodial)
         }
             .doOnSuccess { (activeTrading, activeInterest, activeNoncustodial) ->
-                val potentialActiveAssets = when (walletModeService.enabledWalletMode()) {
-                    WalletMode.NON_CUSTODIAL_ONLY -> activeNoncustodial
-                    WalletMode.CUSTODIAL_ONLY -> activeInterest + activeTrading
-                    WalletMode.UNIVERSAL -> activeTrading + activeInterest + activeNoncustodial
+                (activeInterest + activeTrading).filter { erc20Assets.contains(it) }.forEach { currency ->
+                    custodialActiveAssets[currency] = loadErc20Asset(currency)
                 }
-                potentialActiveAssets.filter { erc20Assets.contains(it) }.forEach { currency ->
-                    activeAssetMap[currency] = loadErc20Asset(currency)
+                activeNoncustodial.filter { erc20Assets.contains(it) }.forEach { currency ->
+                    nonCustodialActiveAssets[currency] = loadErc20Asset(currency)
                 }
             }.map { (activeTrading, activeInterest, activeNoncustodial) ->
                 val allAssets = activeTrading + activeInterest + activeNoncustodial
@@ -267,22 +260,12 @@ internal class DynamicAssetLoader(
         )
     }
 
-    override val activeAssets: List<CryptoAsset>
-        get() = activeAssetMap.values.toList()
+    override fun activeAssets(walletMode: WalletMode): List<CryptoAsset> = when (walletMode) {
+        WalletMode.CUSTODIAL_ONLY -> custodialActiveAssets
+        WalletMode.NON_CUSTODIAL_ONLY -> nonCustodialActiveAssets
+        WalletMode.UNIVERSAL -> allActive
+    }.values.toList()
 
     override val loadedAssets: List<CryptoAsset>
         get() = assetMap.values.toList()
-
-    companion object {
-        private val assetActions =
-            setOf(
-                AssetAction.Buy,
-                AssetAction.Sell,
-                AssetAction.Swap,
-                AssetAction.Send,
-                AssetAction.Receive,
-                AssetAction.ViewActivity,
-                AssetAction.InterestDeposit
-            )
-    }
 }

@@ -10,6 +10,7 @@ import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
 import com.blockchain.testutils.CoroutineTestRule
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -95,21 +96,6 @@ class BackupPhraseViewModelTest {
         }
 
     @Test
-    fun `GIVEN mnemonic unavailable, WHEN loadData is called, THEN getMnemonic should be called and state should be updated`() =
-        runTest {
-            every { backupPhraseService.getMnemonic(any()) } returns Outcome.Success(mnemonic)
-
-            viewModel.viewState.test {
-                viewModel.onIntent(BackupPhraseIntent.LoadData)
-
-                verify(exactly = 1) { backupPhraseService.getMnemonic(any()) }
-                val state = expectMostRecentItem()
-
-                // todo
-            }
-        }
-
-    @Test
     fun `WHEN StartBackupProcess is called, THEN RecoveryPhrase should be called`() =
         runTest {
             viewModel.navigationEventFlow.test {
@@ -186,16 +172,16 @@ class BackupPhraseViewModelTest {
     @Test
     fun `GIVEN correct mnemonic, WHEN VerifyPhrase is called, THEN status should be VERIFIED`() =
         runTest {
-            viewModel.viewState.test {
+            coEvery { backupPhraseService.confirmRecoveryPhraseBackedUp() } returns Outcome.Success(Unit)
+
+            viewModel.navigationEventFlow.test {
                 viewModel.onIntent(BackupPhraseIntent.LoadData)
 
                 viewModel.onIntent(BackupPhraseIntent.VerifyPhrase(userMnemonic = mnemonic))
 
-                val state = expectMostRecentItem()
+                val navigation = expectMostRecentItem()
 
-                assertEquals(UserMnemonicVerificationStatus.VERIFIED, state.mnemonicVerificationStatus)
-
-                // todo
+                assertEquals(BackupPhraseNavigationEvent.BackupConfirmation, navigation)
             }
         }
 }

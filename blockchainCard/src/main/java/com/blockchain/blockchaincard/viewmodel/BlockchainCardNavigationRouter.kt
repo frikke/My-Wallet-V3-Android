@@ -19,6 +19,15 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
+
+            is BlockchainCardNavigationEvent.OrderCardKycAddress -> {
+                destination = BlockchainCardDestination.OrderCardKycAddressDestination
+            }
+
+            is BlockchainCardNavigationEvent.OrderCardConfirm -> {
+                destination = BlockchainCardDestination.OrderCardConfirmDestination
+            }
+
             is BlockchainCardNavigationEvent.RetryOrderCard -> {
                 navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
             }
@@ -74,7 +83,7 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 destination = BlockchainCardDestination.ChoosePaymentMethodDestination
             }
 
-            is BlockchainCardNavigationEvent.CardDeleted -> {
+            is BlockchainCardNavigationEvent.CardClosed -> {
                 finishHostFragment()
             }
 
@@ -89,6 +98,38 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
                 val fragmentOld = fragmentManager?.fragments?.first { it is BlockchainCardHostFragment }
                 (fragmentOld as BlockchainCardHostFragment).startDeposit(navigationEvent.account)
             }
+
+            is BlockchainCardNavigationEvent.SeeTransactionControls -> {
+                destination = BlockchainCardDestination.TransactionControlsDestination
+            }
+
+            is BlockchainCardNavigationEvent.SeePersonalDetails -> {
+                destination = BlockchainCardDestination.PersonalDetailsDestination
+            }
+
+            is BlockchainCardNavigationEvent.SeeBillingAddress -> {
+                destination = BlockchainCardDestination.BillingAddressDestination
+            }
+
+            is BlockchainCardNavigationEvent.SeeSupport -> {
+                destination = BlockchainCardDestination.SupportDestination
+            }
+
+            is BlockchainCardNavigationEvent.CloseCard -> {
+                destination = BlockchainCardDestination.CloseCardDestination
+            }
+
+            is BlockchainCardNavigationEvent.BillingAddressUpdated -> {
+                navController.popBackStack(BlockchainCardDestination.BillingAddressDestination.route, true)
+                if (navigationEvent.success)
+                    destination = BlockchainCardDestination.BillingAddressUpdateSuccessDestination
+                else
+                    destination = BlockchainCardDestination.BillingAddressUpdateFailedDestination
+            }
+
+            is BlockchainCardNavigationEvent.DismissBillingAddressUpdateResult -> {
+                navController.popBackStack()
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -99,6 +140,11 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
+
+    object OrderCardKycAddress : BlockchainCardNavigationEvent()
+
+    object OrderCardConfirm : BlockchainCardNavigationEvent()
+
     object RetryOrderCard : BlockchainCardNavigationEvent()
 
     object CreateCardInProgress : BlockchainCardNavigationEvent()
@@ -120,11 +166,25 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     object ChoosePaymentMethod : BlockchainCardNavigationEvent()
 
-    object CardDeleted : BlockchainCardNavigationEvent()
-
     data class TopUpCrypto(val asset: AssetInfo) : BlockchainCardNavigationEvent()
 
     data class TopUpFiat(val account: FiatAccount) : BlockchainCardNavigationEvent()
+
+    object SeeTransactionControls : BlockchainCardNavigationEvent()
+
+    object SeePersonalDetails : BlockchainCardNavigationEvent()
+
+    object SeeBillingAddress : BlockchainCardNavigationEvent()
+
+    object SeeSupport : BlockchainCardNavigationEvent()
+
+    object CloseCard : BlockchainCardNavigationEvent()
+
+    object CardClosed : BlockchainCardNavigationEvent()
+
+    data class BillingAddressUpdated(val success: Boolean) : BlockchainCardNavigationEvent()
+
+    object DismissBillingAddressUpdateResult : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -132,6 +192,10 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object NoDestination : BlockchainCardDestination(route = "")
 
     object OrderCardDestination : BlockchainCardDestination(route = "order_card")
+
+    object OrderCardKycAddressDestination : BlockchainCardDestination(route = "order_card_kyc_address")
+
+    object OrderCardConfirmDestination : BlockchainCardDestination(route = "order_card_confirm")
 
     object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 
@@ -148,4 +212,20 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object ManageCardDetailsDestination : BlockchainCardDestination(route = "manage_card_details")
 
     object ChoosePaymentMethodDestination : BlockchainCardDestination(route = "choose_payment_method")
+
+    object TransactionControlsDestination : BlockchainCardDestination(route = "transaction_controls")
+
+    object PersonalDetailsDestination : BlockchainCardDestination(route = "personal_details")
+
+    object BillingAddressDestination : BlockchainCardDestination(route = "billing_address")
+
+    object SupportDestination : BlockchainCardDestination(route = "support")
+
+    object CloseCardDestination : BlockchainCardDestination(route = "close_card")
+
+    object BillingAddressUpdateSuccessDestination :
+        BlockchainCardDestination(route = "billing_address_update_success")
+
+    object BillingAddressUpdateFailedDestination :
+        BlockchainCardDestination(route = "billing_address_update_failed")
 }

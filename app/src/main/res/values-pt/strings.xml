@@ -2580,6 +2580,7 @@ Se já o tiver feito, por favor <annotation link="contact_support">contacte o ap
     <string name="failed">FRACASSADO</string>
     <string name="delete_card">Excluir cartão</string>
     <string name="earn_crypto_on_purchases">Ganhe criptomoedas em compras</string>
+    <string name="add_funds">Completar</string>
     <string name="copy_card_number">Copiar número do cartão</string>
     <string name="copy_to_clipboard">Copiar para a área de transferência</string>
     <string name="lock_card">Bloqueio de cartão</string>

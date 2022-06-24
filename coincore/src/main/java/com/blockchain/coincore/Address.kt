@@ -2,12 +2,14 @@ package com.blockchain.coincore
 
 import com.blockchain.api.services.AddressMappingService
 import com.blockchain.api.services.DomainAddressNotFound
+import com.blockchain.coincore.NullCryptoAddress.asset
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import java.lang.IllegalStateException
+import java.util.stream.Collectors.toSet
 import timber.log.Timber
 
 interface TransactionTarget {
@@ -50,7 +52,7 @@ interface AddressFactory {
 
 class AddressFactoryImpl(
     private val coincore: Coincore,
-    private val addressResolver: AddressMappingService
+    private val addressResolver: AddressMappingService,
 ) : AddressFactory {
 
     /** Build the set of possible address for a given input string.

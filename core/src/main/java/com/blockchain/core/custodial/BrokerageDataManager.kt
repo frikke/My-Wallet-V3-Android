@@ -14,11 +14,13 @@ import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.Product
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
+import java.time.ZonedDateTime
 
 class BrokerageDataManager(
     private val authenticator: Authenticator,
     private val brokerageService: BrokerageService
 ) {
+
     fun quoteForTransaction(
         pair: CurrencyPair,
         amount: Money,
@@ -34,16 +36,19 @@ class BrokerageDataManager(
                 paymentMethodId = paymentMethodId,
                 pair = listOf(pair.source.networkTicker, pair.destination.networkTicker).joinToString("-"),
                 profile = product.toProfileRequestString()
-            ).map { response ->
+            )
+        }
+            .map { response ->
                 response.toDomainModel(pair)
             }
-        }
 }
 
 private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQuote =
     BrokerageQuote(
         id = quoteId,
         price = Money.fromMinor(pair.destination, price.toBigInteger()),
+        createdAt = ZonedDateTime.parse(quoteCreatedAt),
+        expiresAt = ZonedDateTime.parse(quoteExpiresAt),
         quoteMargin = quoteMarginPercent,
         availability = settlementDetails.availability?.toAvailability() ?: Availability.UNAVAILABLE,
         feeDetails = QuoteFee(

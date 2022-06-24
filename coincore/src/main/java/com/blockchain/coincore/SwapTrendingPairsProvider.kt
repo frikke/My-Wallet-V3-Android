@@ -10,7 +10,7 @@ import piuk.blockchain.androidcore.utils.extensions.zipSingles
 data class TrendingPair(
     val sourceAccount: CryptoAccount,
     val destinationAccount: CryptoAccount,
-    val isSourceFunded: Boolean
+    val isSourceFunded: Boolean,
 ) {
     val enabled = isSourceFunded
 }
@@ -21,7 +21,7 @@ interface TrendingPairsProvider {
 
 internal class SwapTrendingPairsProvider(
     private val coincore: Coincore,
-    private val assetCatalogue: AssetCatalogue
+    private val assetCatalogue: AssetCatalogue,
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =

@@ -11,6 +11,7 @@ import com.blockchain.extensions.replace
 import com.blockchain.koin.payloadScope
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
@@ -182,6 +183,8 @@ abstract class TxEngine : KoinComponent {
     protected val exchangeRates: ExchangeRatesDataManager
         get() = _exchangeRates
 
+    abstract val flushableDataSources: List<FlushableDataSource>
+
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     fun refreshConfirmations(revalidate: Boolean = false) =
         _refresh.refreshConfirmations(revalidate).emptySubscribe()
@@ -295,6 +298,11 @@ abstract class TxEngine : KoinComponent {
     // Action to be executed once the transaction has been executed, it will have been validated before this is called, so the expectation
     // is that it will succeed.
     open fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable = Completable.complete()
+
+    // Runs after transaction is fully complete
+    fun doOnTransactionComplete() {
+        flushableDataSources.forEach { it.invalidate() }
+    }
 
     // Action to be executed when confirmations have been built and we want to start checking for updates on them
     open fun startConfirmationsUpdate(pendingTx: PendingTx): Single<PendingTx> =
@@ -444,6 +452,7 @@ class TransactionProcessor(
                     val updatedPendingTransaction = pendingTx.copy(txResult = result)
                     updatePendingTx(updatedPendingTransaction)
                     engine.doPostExecute(updatedPendingTransaction, result)
+                        .doOnComplete { engine.doOnTransactionComplete() }
                 }
             }
             ValidationState.UNINITIALISED -> Completable.error(IllegalStateException("Transaction is not initialised"))

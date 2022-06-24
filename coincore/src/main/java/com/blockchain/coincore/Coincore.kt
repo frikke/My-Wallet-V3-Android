@@ -59,7 +59,7 @@ class Coincore internal constructor(
     fun init(): Completable =
         assetLoader.initAndPreload()
             .doOnComplete {
-                remoteLogger.logEvent("Coincore init complete")
+                remoteLogger.logEvent("Coincore initialisation complete!")
             }
             .doOnError {
                 remoteLogger.logEvent("Coincore initialisation failed! $it")
@@ -83,6 +83,13 @@ class Coincore internal constructor(
 
     fun allWalletsInActiveMode(): Single<AccountGroup> =
         when (walletModeService.enabledWalletMode()) {
+            WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
+            WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
+            WalletMode.UNIVERSAL -> allWallets()
+        }
+
+    fun allWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
+        when (walletMode) {
             WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
             WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
             WalletMode.UNIVERSAL -> allWallets()
@@ -271,7 +278,15 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    fun activeCryptoAssets(): List<CryptoAsset> = assetLoader.activeAssets
+    /**
+     * We provide here the default value so we dont have to change all the places in the code and
+     * at the same time make our code to work reactively.
+     */
+    fun activeCryptoAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<CryptoAsset> =
+        activeAssets(walletMode).filterIsInstance<CryptoAsset>()
+
+    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<Asset> =
+        assetLoader.activeAssets(walletMode) + fiatAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }

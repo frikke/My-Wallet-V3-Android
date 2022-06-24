@@ -28,7 +28,7 @@ fun NavigationBarPreview_TitleBack() {
         AppSurface {
             NavigationBar("Activity", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
-            }, listOf(
+            }, null, listOf(
                 NavigationBarButton.Icon(
                     drawable = R.drawable.ic_bottom_nav_buy,
                     contentDescription = R.string.accessibility_back
@@ -54,7 +54,7 @@ fun NavigationBarPreview3() {
         AppSurface {
             NavigationBar("Test", {
                 Toast.makeText(context, "Back Button Clicked", Toast.LENGTH_SHORT).show()
-            }, listOf(
+            }, null, listOf(
                 NavigationBarButton.Text(
                     text = "Cancel"
                 ) {

@@ -1,14 +1,14 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.blockchainCard.data.CardAccount
-import com.blockchain.api.blockchainCard.data.CardAccountLinkRequest
-import com.blockchain.api.blockchainCard.data.CardAccountLinkResponse
-import com.blockchain.api.blockchainCard.data.CardCreationRequestBody
-import com.blockchain.api.blockchainCard.data.CardLinkedAccountResponse
-import com.blockchain.api.blockchainCard.data.CardWidgetTokenResponse
-import com.blockchain.api.blockchainCard.data.CardsResponse
-import com.blockchain.api.blockchainCard.data.ProductsResponse
+import com.blockchain.api.blockchainCard.data.CardAccountDto
+import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
+import com.blockchain.api.blockchainCard.data.CardCreationRequestBodyDto
+import com.blockchain.api.blockchainCard.data.CardDto
+import com.blockchain.api.blockchainCard.data.CardWidgetTokenDto
+import com.blockchain.api.blockchainCard.data.ProductDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressRequestDto
+import com.blockchain.api.blockchainCard.data.ResidentialAddressUpdateDto
 import com.blockchain.outcome.Outcome
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -23,59 +23,70 @@ internal interface BlockchainCardApi {
     @GET("card-issuing/products")
     suspend fun getProducts(
         @Header("authorization") authorization: String,
-    ): Outcome<ApiError, List<ProductsResponse>>
+    ): Outcome<ApiError, List<ProductDto>>
 
     @GET("card-issuing/cards")
     suspend fun getCards(
         @Header("authorization") authorization: String,
-    ): Outcome<ApiError, List<CardsResponse>>
+    ): Outcome<ApiError, List<CardDto>>
 
     @POST("card-issuing/cards")
     suspend fun createCard(
         @Header("authorization") authorization: String,
-        @Body cardCreationRequest: CardCreationRequestBody
-    ): Outcome<ApiError, CardsResponse>
+        @Body cardCreationRequest: CardCreationRequestBodyDto
+    ): Outcome<ApiError, CardDto>
 
     @DELETE("card-issuing/cards/{cardId}")
     suspend fun deleteCard(
         @Path("cardId") cardId: String,
         @Header("authorization") authorization: String
-    ): Outcome<ApiError, CardsResponse>
+    ): Outcome<ApiError, CardDto>
 
     @POST("card-issuing/cards/{cardId}/marqeta-card-widget-token")
     suspend fun getCardWidgetToken(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-    ): Outcome<ApiError, CardWidgetTokenResponse>
+    ): Outcome<ApiError, CardWidgetTokenDto>
 
     @GET("card-issuing/cards/{cardId}/eligible-accounts")
     suspend fun getEligibleAccounts(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-    ): Outcome<ApiError, List<CardAccount>>
+    ): Outcome<ApiError, List<CardAccountDto>>
 
     @PUT("card-issuing/cards/{cardId}/account")
     suspend fun linkCardAccount(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-        @Body cardAccountLinkRequest: CardAccountLinkRequest
-    ): Outcome<ApiError, CardAccountLinkResponse>
+        @Body cardAccountLinkDto: CardAccountLinkDto
+    ): Outcome<ApiError, CardAccountLinkDto>
 
     @GET("card-issuing/cards/{cardId}/account")
     suspend fun getCardLinkedAccount(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-    ): Outcome<ApiError, CardLinkedAccountResponse>
+    ): Outcome<ApiError, CardAccountLinkDto>
 
     @PUT("card-issuing/cards/{cardId}/lock")
     suspend fun lockCard(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-    ): Outcome<ApiError, CardsResponse>
+    ): Outcome<ApiError, CardDto>
 
     @PUT("card-issuing/cards/{cardId}/unlock")
     suspend fun unlockCard(
         @Header("authorization") authorization: String,
         @Path("cardId") cardId: String,
-    ): Outcome<ApiError, CardsResponse>
+    ): Outcome<ApiError, CardDto>
+
+    @GET("card-issuing/residential-address")
+    suspend fun getResidentialAddress(
+        @Header("authorization") authorization: String,
+    ): Outcome<ApiError, ResidentialAddressRequestDto>
+
+    @PUT("card-issuing/residential-address")
+    suspend fun updateResidentialAddress(
+        @Header("authorization") authorization: String,
+        @Body residentialAddress: ResidentialAddressUpdateDto
+    ): Outcome<ApiError, ResidentialAddressRequestDto>
 }

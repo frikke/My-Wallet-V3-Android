@@ -20,6 +20,7 @@ import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
+import timber.log.Timber
 
 data class ExpandableCryptoItem(
     val assetInfo: AssetInfo,
@@ -105,15 +106,23 @@ class ExpandableAssetViewHolder(
             accountsAdapter.items = listOf(ExpandedCryptoItem.Loading)
             compositeDisposable += expandableItem.loadAccountsForAsset(assetInfo)
                 .observeOn(uiScheduler)
-                .subscribeBy { accounts ->
-                    val items = accounts.map { cryptoAccount ->
-                        ExpandedCryptoItem.Loaded(
-                            account = cryptoAccount,
-                            onAccountClicked = expandableItem.onAccountClicked
-                        )
+                .subscribeBy(
+                    onSuccess = { accounts ->
+                        val items = accounts.map { cryptoAccount ->
+                            ExpandedCryptoItem.Loaded(
+                                account = cryptoAccount,
+                                onAccountClicked = expandableItem.onAccountClicked
+                            )
+                        }
+                        accountsAdapter.items = items
+                    },
+                    onError = {
+                        Timber.e(it)
+                        accountsAdapter.items = listOf()
+                        expandableItem.isExpanded = false
+                        binding.updateUI(expandableItem.isExpanded)
                     }
-                    accountsAdapter.items = items
-                }
+                )
         }
         binding.updateUI(expandableItem.isExpanded)
     }

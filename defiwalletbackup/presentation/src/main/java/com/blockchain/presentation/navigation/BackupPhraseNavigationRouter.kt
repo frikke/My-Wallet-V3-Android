@@ -25,7 +25,7 @@ class BackupPhraseNavigationRouter(
             }
 
             BackupPhraseNavigationEvent.BackupConfirmation -> {
-                navController.navigate(BackPhraseDestination.BackupConfirmation.route) {
+                navController.navigate(BackPhraseDestination.BackupSuccess.route) {
                     popUpTo(BackPhraseDestination.BackupPhraseIntro.route) {
                         inclusive = true
                     }

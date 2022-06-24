@@ -1,9 +1,10 @@
 package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireNode
 import com.blockchain.nabu.NabuUserSync
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
-import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
+import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.mock
@@ -19,9 +20,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import piuk.blockchain.android.ui.dataremediation.toMutableNode
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
-import piuk.blockchain.android.ui.kyc.questionnaire.toMutableNode
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
 import piuk.blockchain.androidcore.data.settings.PhoneNumberUpdater
 
@@ -33,8 +34,8 @@ class KycMobileValidationPresenterTest {
     private val nabuUserSync: NabuUserSync = mock {
         on { syncUser() }.thenReturn(Completable.complete())
     }
-    private val kycDataManager: KycDataManager = mock {
-        on { getQuestionnaireSingle() }.thenReturn(Single.just(emptyList()))
+    private val dataRemediationService: DataRemediationService = mock {
+        onBlocking { getQuestionnaire() }.thenReturn(Outcome.Success(emptyList()))
     }
 
     @Suppress("unused")
@@ -50,8 +51,7 @@ class KycMobileValidationPresenterTest {
         subject = KycMobileValidationPresenter(
             nabuUserSync,
             phoneNumberUpdater,
-            kycDataManager,
-            mock()
+            dataRemediationService
         )
         subject.initView(view)
     }
@@ -67,10 +67,10 @@ class KycMobileValidationPresenterTest {
         whenever(phoneNumberUpdater.verifySms(verificationCode.code))
             .thenReturn(Single.just(phoneNumberSanitized))
         val nodes = listOf(
-            KycQuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-            KycQuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+            QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+            QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
         )
-        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(nodes))
+        whenever(dataRemediationService.getQuestionnaire()).thenReturn(Outcome.Success(nodes))
 
         // Act
         subject.onViewReady()
@@ -151,7 +151,7 @@ class KycMobileValidationPresenterTest {
         whenever(nabuUserSync.syncUser())
             .thenReturn(Completable.error { Throwable() })
             .thenReturn(Completable.complete())
-        whenever(kycDataManager.getQuestionnaireSingle()).thenReturn(Single.just(emptyList())).thenReturn(Single.just(emptyList()))
+        whenever(dataRemediationService.getQuestionnaire()).thenReturn(Outcome.Success(emptyList())).thenReturn(Outcome.Success(emptyList()))
         val verificationModel = PhoneVerificationModel(phoneNumberSanitized, verificationCode)
 
         // Act

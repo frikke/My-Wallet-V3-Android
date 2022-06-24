@@ -6,6 +6,7 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.rx3.await
 
 interface ABTestExperiment {
     fun getABVariant(key: String): Single<String>
@@ -99,4 +100,5 @@ fun RemoteConfig.featureFlag(key: String, name: String): FeatureFlag = object : 
     override val isEnabled: Boolean by lazy {
         isFeatureEnabled(key)
     }
+    override suspend fun coEnabled(): Boolean = enabled.await()
 }

@@ -60,6 +60,8 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
+import piuk.blockchain.android.ui.referral.presentation.Source
 import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
 import piuk.blockchain.android.util.AndroidUtils
 
@@ -182,6 +184,7 @@ class SettingsFragment :
             if (newState.referralInfo is ReferralInfo.Data) {
                 text = newState.referralInfo.rewardTitle
                 onClick = {
+                    analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Source.Profile))
                     navigator().goToReferralCode(newState.referralInfo)
                 }
             }

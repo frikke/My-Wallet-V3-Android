@@ -144,6 +144,7 @@ class SimpleBuyCryptoFragment :
         super.onResume()
         model.process(SimpleBuyIntent.UpdateExchangeRate(fiatCurrency, asset))
         model.process(SimpleBuyIntent.FlowCurrentScreen(FlowScreen.ENTER_AMOUNT))
+        model.process(SimpleBuyIntent.StopQuotesUpdate(false))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

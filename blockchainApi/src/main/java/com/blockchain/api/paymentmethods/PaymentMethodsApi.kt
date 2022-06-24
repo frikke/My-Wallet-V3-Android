@@ -16,6 +16,8 @@ import com.blockchain.api.payments.data.CreateLinkBankResponse
 import com.blockchain.api.payments.data.LinkPlaidAccountBody
 import com.blockchain.api.payments.data.LinkedBankTransferResponse
 import com.blockchain.api.payments.data.OpenBankingTokenBody
+import com.blockchain.api.payments.data.RefreshPlaidRequestBody
+import com.blockchain.api.payments.data.RefreshPlaidResponse
 import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.SettlementResponse
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
@@ -133,6 +135,14 @@ interface PaymentMethodsApi {
         @Body body: BankTransferPaymentBody,
         @Query("localisedError") localisedError: String?
     ): Single<BankTransferPaymentResponse>
+
+    @POST("payments/banktransfer/{id}/refresh")
+    fun refreshPlaidAccount(
+        @Header("authorization") authorization: String,
+        @Path("id") id: String,
+        @Body body: RefreshPlaidRequestBody,
+        @Query("localisedError") localisedError: String?
+    ): Single<RefreshPlaidResponse>
 
     @POST
     fun updateOpenBankingToken(

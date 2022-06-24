@@ -30,6 +30,8 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
+import java.time.Duration
+import java.time.ZonedDateTime
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
@@ -53,6 +55,7 @@ data class SimpleBuyState constructor(
     val currentScreen: FlowScreen = FlowScreen.ENTER_AMOUNT,
     val selectedPaymentMethod: SelectedPaymentMethod? = null,
     val quote: BuyQuote? = null,
+    val hasQuoteChanged: Boolean = false,
     val orderValue: CryptoValue? = null,
     val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
@@ -103,6 +106,13 @@ data class SimpleBuyState constructor(
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }
+
+/*    @delegate:Transient
+    val canShowTimer: Boolean by lazy {
+        quote?.timeToShow != null &&
+            quote.timeToShow >= 0 &&
+            quote.totalDuration != null
+    }*/
 
     @delegate:Transient
     val selectedPaymentMethodDetails: PaymentMethod? by unsafeLazy {
@@ -247,11 +257,11 @@ sealed class ErrorState : Serializable {
 
 data class SimpleBuyOrder(
     val orderState: OrderState = OrderState.UNINITIALISED,
-    val amount: FiatValue? = null
+    val amount: FiatValue? = null,
 )
 
 data class PaymentOptions(
-    val availablePaymentMethods: List<PaymentMethod> = emptyList()
+    val availablePaymentMethods: List<PaymentMethod> = emptyList(),
 ) {
     val canAddCard: Boolean
         get() = availablePaymentMethods.filterIsInstance<PaymentMethod.UndefinedCard>()
@@ -270,8 +280,19 @@ data class BuyQuote(
     val price: FiatValue,
     val availability: Availability? = null,
     val quoteMargin: Double? = null,
-    val feeDetails: BuyFees
+    val feeDetails: BuyFees,
+    val createdAt: @Contextual ZonedDateTime,
+    val expiresAt: @Contextual ZonedDateTime,
+    val remainingTime: Long,
+    val totalDuration: Float? = null,
 ) {
+
+    fun getProgressQuote(): Float {
+        require(true)
+        require(totalDuration != null)
+        return remainingTime / totalDuration.toFloat()
+    }
+
     companion object {
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
             BuyQuote(
@@ -284,7 +305,14 @@ data class BuyQuote(
                     fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee as FiatValue),
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
-                )
+                ),
+                remainingTime = brokerageQuote.secondsToExpire.toLong(),
+                createdAt = brokerageQuote.createdAt,
+                expiresAt = brokerageQuote.expiresAt,
+                totalDuration = Duration.between(
+                    brokerageQuote.createdAt,
+                    brokerageQuote.expiresAt
+                ).seconds.toFloat(),
             )
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
@@ -310,7 +338,7 @@ data class BuyQuote(
 data class BuyFees(
     val feeBeforePromo: FiatValue,
     val fee: FiatValue,
-    val promo: Promo
+    val promo: Promo,
 )
 
 @kotlinx.serialization.Serializable
@@ -319,7 +347,7 @@ data class SelectedPaymentMethod(
     val partner: Partner? = null,
     val label: String? = "",
     val paymentMethodType: PaymentMethodType,
-    val isEligible: Boolean
+    val isEligible: Boolean,
 ) {
     fun isCard() = paymentMethodType == PaymentMethodType.PAYMENT_CARD
     fun isBank() = paymentMethodType == PaymentMethodType.BANK_TRANSFER

@@ -5,6 +5,7 @@ sealed class ReferralInfo {
         val rewardTitle: String,
         val rewardSubtitle: String,
         val code: String,
+        val campaignId: String,
         val criteria: List<String>
     ) : ReferralInfo()
     object NotAvailable : ReferralInfo()

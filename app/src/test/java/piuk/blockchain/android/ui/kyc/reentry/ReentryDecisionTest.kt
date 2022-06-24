@@ -1,8 +1,8 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireNode
 import com.blockchain.nabu.models.responses.nabu.Address
-import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.TierLevels
@@ -13,11 +13,11 @@ import io.mockk.mockk
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.junit.Test
-import piuk.blockchain.android.ui.kyc.questionnaire.TreeNode
+import piuk.blockchain.android.ui.dataremediation.TreeNode
 
 class ReentryDecisionTest {
 
-    private val kycDataManager: KycDataManager = mockk {
+    private val dataRemediationService: DataRemediationService = mockk {
         coEvery { getQuestionnaire() } returns Outcome.Success(emptyList())
     }
 
@@ -176,10 +176,10 @@ class ReentryDecisionTest {
     @Test
     fun `if user is tier 1, has questionnaire then go to questionnaire entry`() {
         val nodes = listOf(
-            KycQuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-            KycQuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+            QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+            QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
         )
-        coEvery { kycDataManager.getQuestionnaire() } returns Outcome.Success(nodes)
+        coEvery { dataRemediationService.getQuestionnaire() } returns Outcome.Success(nodes)
         val root = TreeNode.Root(
             listOf(
                 TreeNode.Selection("s1", "text1", emptyList(), false),
@@ -228,7 +228,7 @@ class ReentryDecisionTest {
     }
 
     private fun whereNext(user: NabuUser) =
-        TiersReentryDecision(kycDataManager).findReentryPoint(user).blockingGet()
+        TiersReentryDecision(dataRemediationService).findReentryPoint(user).blockingGet()
 
     private fun createdNabuUser(
         selected: Int = 1,

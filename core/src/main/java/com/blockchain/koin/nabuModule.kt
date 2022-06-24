@@ -28,7 +28,6 @@ import com.blockchain.nabu.datamanagers.UniqueAnalyticsNabuUserReporter
 import com.blockchain.nabu.datamanagers.UniqueAnalyticsWalletReporter
 import com.blockchain.nabu.datamanagers.WalletReporter
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.LiveCustodialWalletManager
-import com.blockchain.nabu.datamanagers.kyc.KycDataManager
 import com.blockchain.nabu.datamanagers.repositories.QuotesProvider
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestAvailabilityProvider
@@ -58,13 +57,6 @@ import retrofit2.Retrofit
 val nabuModule = module {
 
     scope(payloadScopeQualifier) {
-
-        factory {
-            KycDataManager(
-                authenticator = get(),
-                kycService = get()
-            )
-        }
 
         scoped {
             MetadataRepositoryNabuTokenAdapter(

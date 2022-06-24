@@ -22,7 +22,7 @@ import piuk.blockchain.android.util.getResolvedColor
 
 class BalanceCardDelegate<in T>(
     private val selectedFiat: FiatCurrency,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
 ) : AdapterDelegate<T> {
 
     override fun isForViewType(items: List<T>, position: Int): Boolean =
@@ -30,22 +30,24 @@ class BalanceCardDelegate<in T>(
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         BalanceCardViewHolder(
-            ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            selectedFiat,
-            assetResources
+            binding = ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            selectedFiat = selectedFiat,
+            assetResources = assetResources,
         )
 
     override fun onBindViewHolder(
         items: List<T>,
         position: Int,
-        holder: RecyclerView.ViewHolder
-    ) = (holder as BalanceCardViewHolder).bind(items[position] as BalanceState)
+        holder: RecyclerView.ViewHolder,
+    ) = (holder as BalanceCardViewHolder).bind(
+        items[position] as BalanceState,
+    )
 }
 
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
     private val selectedFiat: FiatCurrency,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var isFirstLoad = true
@@ -77,6 +79,7 @@ private class BalanceCardViewHolder(
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
+            label.text = context.getString(R.string.dashboard_total_balance)
 
             if (state.delta == null) {
                 balanceDeltaValue.text = ""

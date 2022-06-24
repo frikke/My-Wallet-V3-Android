@@ -155,23 +155,24 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
         listAdapter.items = listOf(
             if (paymentMethodType == PaymentMethodType.FUNDS) {
                 SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                    getString(R.string.payment_method),
-                    getString(R.string.recurring_buy_funds_label, amount.currencyCode)
+                    label = getString(R.string.payment_method),
+                    title = getString(R.string.recurring_buy_funds_label, amount.currencyCode),
+                    hasChanged = false
                 )
             } else {
                 if (paymentMethodType == PaymentMethodType.PAYMENT_CARD) {
                     val paymentDetails = (paymentDetails as PaymentMethod.Card)
                     SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        getString(R.string.payment_method),
-                        paymentDetails.uiLabel(),
-                        paymentDetails.endDigits
+                        label = getString(R.string.payment_method),
+                        title = paymentDetails.uiLabel(),
+                        subtitle = paymentDetails.endDigits
                     )
                 } else {
                     val paymentDetails = (paymentDetails as PaymentMethod.Bank)
                     SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                        getString(R.string.payment_method),
-                        paymentDetails.bankName,
-                        paymentDetails.accountEnding
+                        label = getString(R.string.payment_method),
+                        title = paymentDetails.bankName,
+                        subtitle = paymentDetails.accountEnding
                     )
                 }
             },
@@ -185,12 +186,15 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.recurring_buy_info_purchase_label_1),
-                nextPaymentDate.toFormattedDateWithoutYear()
+                nextPaymentDate.toFormattedDateWithoutYear(),
+                isImportant = false,
+                hasChanged = false
             ),
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
                 amount.toStringWithSymbol(),
-                true
+                isImportant = true,
+                hasChanged = false
             )
         )
         listAdapter.notifyDataSetChanged()
