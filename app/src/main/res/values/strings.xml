@@ -3052,6 +3052,10 @@
     <string name="address_update_success_description">Your billing address has been successfully changed and will take effect immediately.</string>
     <string name="address_update_failed">Address Update Failed</string>
     <string name="address_update_description">Your billing address could not be updated. Please try again.</string>
+    <string name="verify_your_address">Verify Your Address</string>
+    <string name="verify_your_address_description">Confirm your residential address below to avoid delays. You will be able to specify a different shipping address later.</string>
+    <string name="residential_address">Residential Address</string>
+    <string name="card_intro_title">Get the Blockchain.com Visa Card</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

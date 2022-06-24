@@ -21,6 +21,8 @@ import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationFailed
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationInProgress
 import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSuccess
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
@@ -65,6 +67,33 @@ fun BlockchainCardNavHost(
 
         composable(BlockchainCardDestination.OrderCardDestination) {
             OrderCard(viewModel as OrderCardViewModel)
+        }
+
+        composable(BlockchainCardDestination.OrderCardKycAddressDestination) {
+            state?.let { state ->
+                OrderCardAddressKYC(
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete) },
+                    onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
+                    shortAddress = state.residentialAddress?.getShortAddress()
+                )
+            }
+        }
+
+        composable(BlockchainCardDestination.OrderCardConfirmDestination) {
+            OrderCardContent(
+                onCreateCard = {
+                    viewModel.onIntent(
+                        // TODO(labreu): once staging API is not harcoded, remove this
+                        BlockchainCardIntent.CreateCard(
+                            productCode = "VIRTUAL1",
+                            ssn = "111111110"
+                        )
+                    )
+                },
+                onSeeProductDetails = {
+                    viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
+                },
+            )
         }
 
         composable(BlockchainCardDestination.CreateCardInProgressDestination) {

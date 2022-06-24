@@ -19,6 +19,15 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 
         @Suppress("IMPLICIT_CAST_TO_ANY")
         when (navigationEvent) {
+
+            is BlockchainCardNavigationEvent.OrderCardKycAddress -> {
+                destination = BlockchainCardDestination.OrderCardKycAddressDestination
+            }
+
+            is BlockchainCardNavigationEvent.OrderCardConfirm -> {
+                destination = BlockchainCardDestination.OrderCardConfirmDestination
+            }
+
             is BlockchainCardNavigationEvent.RetryOrderCard -> {
                 navController.popBackStack(BlockchainCardDestination.OrderCardDestination.route, false)
             }
@@ -131,6 +140,11 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
 sealed class BlockchainCardNavigationEvent : NavigationEvent {
 
     // Order Card
+
+    object OrderCardKycAddress : BlockchainCardNavigationEvent()
+
+    object OrderCardConfirm : BlockchainCardNavigationEvent()
+
     object RetryOrderCard : BlockchainCardNavigationEvent()
 
     object CreateCardInProgress : BlockchainCardNavigationEvent()
@@ -178,6 +192,10 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
     object NoDestination : BlockchainCardDestination(route = "")
 
     object OrderCardDestination : BlockchainCardDestination(route = "order_card")
+
+    object OrderCardKycAddressDestination : BlockchainCardDestination(route = "order_card_kyc_address")
+
+    object OrderCardConfirmDestination : BlockchainCardDestination(route = "order_card_confirm")
 
     object CreateCardInProgressDestination : BlockchainCardDestination(route = "create_card_in_progress")
 

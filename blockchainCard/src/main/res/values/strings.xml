@@ -104,4 +104,9 @@
     <string name="address_update_success_description"></string>>
     <string name="address_update_failed"></string>>
     <string name="address_update_description"></string>>
+    <string name="verify_your_address"></string>
+    <string name="verify_your_address_description"></string>
+    <string name="residential_address"></string>
+    <string name="card_intro_title"></string>
+    <string name="next"></string>
 </resources>
