@@ -29,6 +29,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TES
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
@@ -37,7 +38,6 @@ import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
 import com.blockchain.preferences.WalletStatus
-import com.blockchain.storedatasource.FlushableDataSource
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
@@ -50,7 +50,7 @@ class TxProcessorFactoryTest {
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
-    private val interestFlushableDataSource: FlushableDataSource = mock()
+    private val interestDataSource: InterestDataSource = mock()
     private val walletPrefs: WalletStatus = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
@@ -70,7 +70,7 @@ class TxProcessorFactoryTest {
             exchangeRates = exchangeRates,
             walletManager = walletManager,
             interestBalances = interestBalances,
-            interestFlushableDataSource = interestFlushableDataSource,
+            interestDataSource = interestDataSource,
             walletPrefs = walletPrefs,
             limitsDataManager = limitsDataManager,
             bankPartnerCallbackProvider = bankPartnerCallbackProvider,

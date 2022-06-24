@@ -52,6 +52,3 @@ val walletAnalytics = StringQualifier("wallet_analytics")
 val embraceLogger = StringQualifier("embrace_logger")
 val payloadScopeQualifier = named("Payload")
 val ioDispatcher = named("io_dispatcher")
-
-// flushable stores
-val interestDataSource = StringQualifier("interestDataSource")

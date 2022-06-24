@@ -14,11 +14,11 @@ import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestLimits
-import com.blockchain.storedatasource.FlushableDataSource
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -44,10 +44,10 @@ class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
     private val walletManager: CustodialWalletManager = mock()
     private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
-    private val interestFlushableDataSource: FlushableDataSource = mock()
+    private val interestDataSource: InterestDataSource = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
-        interestFlushableDataSource = interestFlushableDataSource,
+        interestDataSource = interestDataSource,
         walletManager = walletManager,
         interestBalances = interestBalances,
         onChainEngine = onChainEngine

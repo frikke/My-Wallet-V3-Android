@@ -22,7 +22,6 @@ import com.blockchain.coincore.xlm.XlmAsset
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.experimentalL1EvmAssetList
-import com.blockchain.koin.interestDataSource
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.plaidFeatureFlag
@@ -178,7 +177,7 @@ val coincoreModule = module {
                 bitPayManager = get(),
                 exchangeRates = get(),
                 interestBalances = get(),
-                interestFlushableDataSource = get(interestDataSource),
+                interestDataSource = get(),
                 walletManager = get(),
                 bankService = get(),
                 ethMessageSigner = get(),
