@@ -21,6 +21,7 @@ import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
+import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
@@ -46,6 +47,7 @@ import com.blockchain.core.user.NabuUserDataManager
 import com.blockchain.core.user.NabuUserDataManagerImpl
 import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
+import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
@@ -135,6 +137,13 @@ val coreModule = module {
     factory { PrivateKeyFactory() }
 
     scope(payloadScopeQualifier) {
+
+        factory<DataRemediationService> {
+            DataRemediationRepository(
+                authenticator = get(),
+                kycService = get(),
+            )
+        }
 
         factory {
             TradingBalanceCallCache(

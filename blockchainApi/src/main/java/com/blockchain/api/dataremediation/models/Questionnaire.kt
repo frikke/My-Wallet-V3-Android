@@ -1,18 +1,18 @@
-package com.blockchain.api.kyc.models
+package com.blockchain.api.dataremediation.models
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KycQuestionnaireResponse(
-    val nodes: List<KycQuestionnaireNodeResponse>
+data class QuestionnaireResponse(
+    val nodes: List<QuestionnaireNodeResponse>
 )
 
 @Serializable
-data class KycQuestionnaireNodeResponse(
+data class QuestionnaireNodeResponse(
     val id: String,
     val type: String,
     val text: String,
-    val children: List<KycQuestionnaireNodeResponse>?,
+    val children: List<QuestionnaireNodeResponse>?,
 
     /* node type specific fields */
     // SINGLE_SELECTION

@@ -1,28 +1,33 @@
-package com.blockchain.nabu.datamanagers.kyc
+package com.blockchain.core.dataremediation
 
 import com.blockchain.api.adapters.ApiError
-import com.blockchain.api.services.KycService
+import com.blockchain.api.services.DataRemediationApiService
+import com.blockchain.core.dataremediation.mapper.toDomain
+import com.blockchain.core.dataremediation.mapper.toNetwork
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.DataRemediationError
+import com.blockchain.domain.dataremediation.model.NodeId
+import com.blockchain.domain.dataremediation.model.QuestionnaireNode
+import com.blockchain.domain.dataremediation.model.SubmitQuestionnaireError
 import com.blockchain.nabu.Authenticator
-import com.blockchain.nabu.models.responses.nabu.KycQuestionnaireNode
-import com.blockchain.nabu.models.responses.nabu.NodeId
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
-class KycDataManager(
+class DataRemediationRepository(
     private val authenticator: Authenticator,
-    private val kycService: KycService
-) {
+    private val kycService: DataRemediationApiService
+) : DataRemediationService {
 
-    suspend fun getQuestionnaire(): Outcome<KycError, List<KycQuestionnaireNode>> =
+    override suspend fun getQuestionnaire(): Outcome<DataRemediationError, List<QuestionnaireNode>> =
         authenticator.getAuthHeader().awaitOutcome()
             .flatMap { authToken -> kycService.getQuestionnaire(authToken) }
-            .mapError { KycError.REQUEST_FAILED }
+            .mapError { DataRemediationError.REQUEST_FAILED }
             .map { it?.toDomain() ?: emptyList() }
 
-    suspend fun submitQuestionnaire(nodes: List<KycQuestionnaireNode>): Outcome<SubmitQuestionnaireError, Unit> =
+    override suspend fun submitQuestionnaire(nodes: List<QuestionnaireNode>): Outcome<SubmitQuestionnaireError, Unit> =
         authenticator.getAuthHeader().awaitOutcome()
             .mapError { SubmitQuestionnaireError.RequestFailed }
             .flatMap { authToken ->

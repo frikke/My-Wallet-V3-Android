@@ -1,10 +1,10 @@
-package piuk.blockchain.android.ui.kyc.questionnaire
+package piuk.blockchain.android.ui.dataremediation
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.nabu.datamanagers.kyc.SubmitQuestionnaireError
-import com.blockchain.nabu.models.responses.nabu.NodeId
+import com.blockchain.domain.dataremediation.model.NodeId
+import com.blockchain.domain.dataremediation.model.SubmitQuestionnaireError
 
-data class KycQuestionnaireState(
+data class QuestionnaireState(
     val nodes: List<FlatNode> = emptyList(),
     val isContinueEnabled: Boolean = true,
     val isUploadingNodes: Boolean = false,

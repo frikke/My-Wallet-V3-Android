@@ -1,42 +1,42 @@
-package com.blockchain.nabu.models.responses.nabu
+package com.blockchain.domain.dataremediation.model
 
 typealias NodeId = String
 
-sealed class KycQuestionnaireNode(
+sealed class QuestionnaireNode(
     open val id: NodeId,
     open val text: String,
-    open val children: List<KycQuestionnaireNode>
+    open val children: List<QuestionnaireNode>
 ) {
 
     data class SingleSelection(
         override val id: NodeId,
         override val text: String,
-        override val children: List<KycQuestionnaireNode>,
+        override val children: List<QuestionnaireNode>,
         val instructions: String,
         val isDropdown: Boolean
-    ) : KycQuestionnaireNode(id, text, children)
+    ) : QuestionnaireNode(id, text, children)
 
     data class MultipleSelection(
         override val id: NodeId,
         override val text: String,
-        override val children: List<KycQuestionnaireNode>,
+        override val children: List<QuestionnaireNode>,
         val instructions: String
-    ) : KycQuestionnaireNode(id, text, children)
+    ) : QuestionnaireNode(id, text, children)
 
     data class OpenEnded(
         override val id: NodeId,
         override val text: String,
-        override val children: List<KycQuestionnaireNode>,
+        override val children: List<QuestionnaireNode>,
         val input: String,
         val hint: String
-    ) : KycQuestionnaireNode(id, text, children)
+    ) : QuestionnaireNode(id, text, children)
 
     data class Selection(
         override val id: NodeId,
         override val text: String,
-        override val children: List<KycQuestionnaireNode>,
+        override val children: List<QuestionnaireNode>,
         val isChecked: Boolean
-    ) : KycQuestionnaireNode(id, text, children)
+    ) : QuestionnaireNode(id, text, children)
 }
 
 enum class NodeType {

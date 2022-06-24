@@ -1,11 +1,11 @@
-package piuk.blockchain.android.ui.kyc.questionnaire
+package piuk.blockchain.android.ui.dataremediation
 
 import android.os.Looper
 import android.os.Parcelable
-import com.blockchain.nabu.models.responses.nabu.NodeId
+import com.blockchain.domain.dataremediation.model.NodeId
 import kotlinx.parcelize.Parcelize
 
-class KycQuestionnaireStateMachine {
+class QuestionnaireStateMachine {
 
     private val presentable = mutableListOf<FlatNode>()
 

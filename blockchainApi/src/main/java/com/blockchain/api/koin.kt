@@ -12,11 +12,11 @@ import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
 import com.blockchain.api.brokerage.BrokerageApi
 import com.blockchain.api.custodial.CustodialBalanceApi
+import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
 import com.blockchain.api.interest.InterestApiInterface
-import com.blockchain.api.kyc.KycApi
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
@@ -31,10 +31,10 @@ import com.blockchain.api.services.AuthApiService
 import com.blockchain.api.services.BlockchainCardService
 import com.blockchain.api.services.BrokerageService
 import com.blockchain.api.services.CustodialBalanceService
+import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.InterestService
-import com.blockchain.api.services.KycService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.api.services.NonCustodialBitcoinService
@@ -233,8 +233,8 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(nabuApi).create(KycApi::class.java)
-        KycService(api)
+        val api = get<Retrofit>(nabuApi).create(DataRemediationApi::class.java)
+        DataRemediationApiService(api)
     }
 
     factory {

@@ -1,8 +1,6 @@
-package com.blockchain.nabu.datamanagers.kyc
+package com.blockchain.domain.dataremediation.model
 
-import com.blockchain.nabu.models.responses.nabu.NodeId
-
-enum class KycError {
+enum class DataRemediationError {
     REQUEST_FAILED
 }
 

@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.questionnaire
+package piuk.blockchain.android.ui.dataremediation
 
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames

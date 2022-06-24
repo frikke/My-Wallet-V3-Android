@@ -1,4 +1,4 @@
-package piuk.blockchain.android.ui.kyc.questionnaire
+package piuk.blockchain.android.ui.dataremediation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,12 +52,12 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
-import com.blockchain.nabu.models.responses.nabu.NodeId
+import com.blockchain.domain.dataremediation.model.NodeId
 import piuk.blockchain.android.R
 
 @Composable
-fun KycQuestionnaireScreen(
-    state: KycQuestionnaireState,
+fun QuestionnaireScreen(
+    state: QuestionnaireState,
     onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
     onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
@@ -488,7 +488,7 @@ private val previewNodes = listOf(
 @Preview
 @Composable
 private fun ScreenPreview() {
-    val state = KycQuestionnaireState(
+    val state = QuestionnaireState(
         nodes = previewNodes,
         isContinueEnabled = false,
         isUploadingNodes = false,
@@ -496,7 +496,7 @@ private fun ScreenPreview() {
         error = null
     )
 
-    KycQuestionnaireScreen(
+    QuestionnaireScreen(
         state = state,
         onDropdownChoiceChanged = { _, _ -> },
         onSelectionClicked = {},
