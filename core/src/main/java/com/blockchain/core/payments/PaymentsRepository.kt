@@ -118,11 +118,12 @@ class PaymentsRepository(
     private val tradingBalanceDataManager: TradingBalanceDataManager,
     private val assetCatalogue: AssetCatalogue,
     private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val withdrawLocksCache: WithdrawLocksCache,
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
     private val googlePayFeatureFlag: FeatureFlag,
-    private val plaidFeatureFlag: FeatureFlag
+    private val plaidFeatureFlag: FeatureFlag,
 ) : BankService, CardService, PaymentMethodService {
 
     private val googlePayEnabled: Single<Boolean> by lazy {
@@ -130,7 +131,7 @@ class PaymentsRepository(
     }
 
     override suspend fun getPaymentMethodDetailsForId(
-        paymentId: String
+        paymentId: String,
     ): Outcome<PaymentMethodDetailsError, PaymentMethodDetails> {
         // TODO Turn getAuthHeader() into a suspension function
         val auth = authenticator.getAuthHeader().await()
@@ -145,25 +146,23 @@ class PaymentsRepository(
     }
 
     override fun getWithdrawalLocks(localCurrency: Currency): Single<FundsLocks> =
-        authenticator.getAuthHeader().flatMap {
-            paymentsService.getWithdrawalLocks(it, localCurrency.networkTicker)
-                .map { locks ->
-                    FundsLocks(
-                        onHoldTotalAmount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
-                        locks = locks.locks.map { lock ->
-                            FundsLock(
-                                amount = Money.fromMinor(localCurrency, lock.value.toBigInteger()),
-                                date = lock.date.toZonedDateTime()
-                            )
-                        }
-                    )
-                }
-        }
+        withdrawLocksCache.withdrawLocks()
+            .map { locks ->
+                FundsLocks(
+                    onHoldTotalAmount = Money.fromMinor(localCurrency, locks.value.toBigInteger()),
+                    locks = locks.locks.map { lock ->
+                        FundsLock(
+                            amount = Money.fromMinor(localCurrency, lock.value.toBigInteger()),
+                            date = lock.date.toZonedDateTime()
+                        )
+                    }
+                )
+            }
 
     override fun getAvailablePaymentMethodsTypes(
         fiatCurrency: FiatCurrency,
         fetchSddLimits: Boolean,
-        onlyEligible: Boolean
+        onlyEligible: Boolean,
     ): Single<List<PaymentMethodTypeWithEligibility>> = authenticator.getAuthHeader().flatMap { authToken ->
         Single.zip(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
@@ -220,7 +219,8 @@ class PaymentsRepository(
                     PaymentMethodType.BANK_TRANSFER,
                     PaymentMethodType.PAYMENT_CARD,
                     PaymentMethodType.GOOGLE_PAY,
-                    PaymentMethodType.UNKNOWN -> true
+                    PaymentMethodType.UNKNOWN,
+                    -> true
                 }
             }
 
@@ -249,7 +249,7 @@ class PaymentsRepository(
     }
 
     override fun getLinkedPaymentMethods(
-        currency: FiatCurrency
+        currency: FiatCurrency,
     ): Single<List<LinkedPaymentMethod>> =
         authenticator.getAuthHeader().flatMap { authToken ->
             Single.zip(
@@ -266,7 +266,7 @@ class PaymentsRepository(
 
     override fun getLinkedCards(
         request: StoreRequest,
-        vararg states: CardStatus
+        vararg states: CardStatus,
     ): Flow<StoreResponse<PaymentMethodsError, List<LinkedPaymentMethod.Card>>> =
         linkedCardsStore.stream(request)
             .mapData {
@@ -275,7 +275,7 @@ class PaymentsRepository(
             }
 
     override fun getLinkedCards(
-        vararg states: CardStatus
+        vararg states: CardStatus,
     ): Single<List<LinkedPaymentMethod.Card>> =
         rxSingleOutcome {
             getLinkedCards(StoreRequest.Fresh, *states).firstOutcome()
@@ -304,7 +304,7 @@ class PaymentsRepository(
     override fun addNewCard(
         fiatCurrency: FiatCurrency,
         billingAddress: BillingAddress,
-        paymentMethodTokens: Map<String, String>?
+        paymentMethodTokens: Map<String, String>?,
     ): Single<CardToBeActivated> =
         authenticator.getAuthHeader().flatMap { authToken ->
             paymentMethodsService.addNewCard(
@@ -475,7 +475,7 @@ class PaymentsRepository(
         id: String,
         amount: Money,
         currency: String,
-        callback: String?
+        callback: String?,
     ): Single<String> =
         authenticator.getAuthHeader().flatMap { authToken ->
             paymentMethodsService.startBankTransferPayment(
@@ -498,7 +498,7 @@ class PaymentsRepository(
         linkingId: String,
         providerAccountId: String,
         accountId: String,
-        attributes: BankProviderAccountAttributes
+        attributes: BankProviderAccountAttributes,
     ): Completable = authenticator.getAuthHeader().flatMapCompletable { authToken ->
         paymentMethodsService.updateAccountProviderId(
             authToken,
@@ -510,7 +510,7 @@ class PaymentsRepository(
     override fun linkPlaidBankAccount(
         linkingId: String,
         accountId: String,
-        publicToken: String
+        publicToken: String,
     ): Completable = authenticator.getAuthHeader().flatMapCompletable { authToken ->
         paymentMethodsService.linkPLaidAccount(
             authToken,
@@ -569,7 +569,7 @@ class PaymentsRepository(
 
     override fun updateOpenBankingConsent(
         url: String,
-        token: String
+        token: String,
     ): Completable =
         authenticator.getAuthHeader().flatMapCompletable { authToken ->
             paymentMethodsService.updateOpenBankingToken(
@@ -691,7 +691,8 @@ class PaymentsRepository(
             LinkedBankTransferResponse.ACTIVE -> LinkedBankState.ACTIVE
             LinkedBankTransferResponse.PENDING,
             LinkedBankTransferResponse.FRAUD_REVIEW,
-            LinkedBankTransferResponse.MANUAL_REVIEW -> LinkedBankState.PENDING
+            LinkedBankTransferResponse.MANUAL_REVIEW,
+            -> LinkedBankState.PENDING
             LinkedBankTransferResponse.BLOCKED -> LinkedBankState.BLOCKED
             else -> LinkedBankState.UNKNOWN
         }
@@ -773,7 +774,7 @@ class PaymentsRepository(
     }
 
     private fun PaymentMethodResponse.toAvailablePaymentMethodType(
-        currency: FiatCurrency
+        currency: FiatCurrency,
     ): PaymentMethodTypeWithEligibility =
         PaymentMethodTypeWithEligibility(
             eligible = eligible,
@@ -806,13 +807,16 @@ class PaymentsRepository(
             BankTransferChargeAttributes.AWAITING_AUTHORIZATION,
             BankTransferChargeAttributes.PENDING,
             BankTransferChargeAttributes.AUTHORIZED,
-            BankTransferChargeAttributes.CREDITED -> BankTransferStatus.Pending
+            BankTransferChargeAttributes.CREDITED,
+            -> BankTransferStatus.Pending
             BankTransferChargeAttributes.FAILED,
             BankTransferChargeAttributes.FRAUD_REVIEW,
             BankTransferChargeAttributes.MANUAL_REVIEW,
-            BankTransferChargeAttributes.REJECTED -> BankTransferStatus.Error(error)
+            BankTransferChargeAttributes.REJECTED,
+            -> BankTransferStatus.Error(error)
             BankTransferChargeAttributes.CLEARED,
-            BankTransferChargeAttributes.COMPLETE -> BankTransferStatus.Complete
+            BankTransferChargeAttributes.COMPLETE,
+            -> BankTransferStatus.Complete
             else -> BankTransferStatus.Unknown
         }
 

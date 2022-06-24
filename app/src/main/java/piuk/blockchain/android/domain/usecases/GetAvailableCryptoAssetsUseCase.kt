@@ -6,12 +6,12 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Single
 
 class GetAvailableCryptoAssetsUseCase(
-    private val coincore: Coincore,
+    private val coincore: Coincore
 ) : UseCase<Unit, Single<List<AssetInfo>>>() {
 
     override fun execute(parameter: Unit): Single<List<AssetInfo>> =
-        coincore.activeCryptoAssets.firstOrError().map { activeAssets ->
-            activeAssets.map { cryptoAsset -> cryptoAsset.assetInfo }.toSet().plus(
+        Single.fromCallable {
+            coincore.activeCryptoAssets().map { cryptoAsset -> cryptoAsset.assetInfo }.toSet().plus(
                 coincore.availableCryptoAssets().sortedBy { assetInfo: AssetInfo -> assetInfo.displayTicker }
             ).toList()
         }

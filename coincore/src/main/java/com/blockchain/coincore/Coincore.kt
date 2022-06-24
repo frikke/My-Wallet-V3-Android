@@ -19,10 +19,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.subjects.BehaviorSubject
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import timber.log.Timber
 
 internal class CoincoreInitFailure(msg: String, e: Throwable) : Exception(msg, e)
 
@@ -59,24 +56,10 @@ class Coincore internal constructor(
             assetLoader[it]
         }
 
-    init {
-        walletModeService.walletMode.flatMapCompletable {
-            assetLoader.initAndPreload(it)
-        }.subscribeBy(
-            onError = {
-                // TODO(antonis-bc) handle error case
-            },
-            onComplete = {
-                _activeAssets.onNext(assetLoader.activeAssets)
-            }
-        )
-    }
-
     fun init(): Completable =
-        assetLoader.initAndPreload(walletModeService.enabledWalletMode())
+        assetLoader.initAndPreload()
             .doOnComplete {
-                remoteLogger.logEvent("Coincore init complete")
-                _activeAssets.onNext(assetLoader.activeAssets)
+                remoteLogger.logEvent("Coincore initialisation complete!")
             }
             .doOnError {
                 remoteLogger.logEvent("Coincore initialisation failed! $it")
@@ -100,6 +83,13 @@ class Coincore internal constructor(
 
     fun allWalletsInActiveMode(): Single<AccountGroup> =
         when (walletModeService.enabledWalletMode()) {
+            WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
+            WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
+            WalletMode.UNIVERSAL -> allWallets()
+        }
+
+    fun allWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
+        when (walletMode) {
             WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
             WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
             WalletMode.UNIVERSAL -> allWallets()
@@ -288,12 +278,15 @@ class Coincore internal constructor(
             .toList()
             .map { it.isEmpty() }
 
-    val activeCryptoAssets: Observable<List<CryptoAsset>>
-        get() = _activeAssets.doOnNext {
-            Timber.d("Active assets updated $it")
-        }
+    /**
+     * We provide here the default value so we dont have to change all the places in the code and
+     * at the same time make our code to work reactively.
+     */
+    fun activeCryptoAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<CryptoAsset> =
+        activeAssets(walletMode).filterIsInstance<CryptoAsset>()
 
-    private val _activeAssets = BehaviorSubject.create<List<CryptoAsset>>()
+    fun activeAssets(walletMode: WalletMode = walletModeService.enabledWalletMode()): List<Asset> =
+        assetLoader.activeAssets(walletMode) + fiatAssets
 
     fun availableCryptoAssets(): List<AssetInfo> = assetCatalogue.supportedCryptoAssets.minus(disabledEvmAssets.toSet())
 }

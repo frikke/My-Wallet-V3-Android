@@ -48,7 +48,7 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
 
     val host: Host by lazy {
         activity as? Host
-            ?: throw IllegalStateException("Host activity is not a AccountActionsBottomSheet.Host")
+            ?: throw IllegalStateException("Host activity is not a WalletModeSelectionBottomSheet.Host")
     }
 
     private val viewModel: WalletModeSelectionViewModel by viewModel()
@@ -73,6 +73,8 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
                 }
             }
         )
+
+        viewModel.onIntent(WalletModeSelectionIntent.LoadAvailableModesAndBalances)
         return dialog
     }
 
@@ -91,11 +93,13 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
         viewState?.let { state ->
             WalletModesDialogContent(
                 totalBalance = state.totalBalance,
-                portfolioBalanceState = state.portfolioBalance,
+                portfolioBalanceState = state.brokerageBalance,
                 defiWalletBalance = state.defiWalletBalance,
                 selectedMode = state.enabledWalletMode,
                 onItemClicked = {
                     viewModel.onIntent(WalletModeSelectionIntent.UpdateActiveWalletMode(it))
+                    host.onActiveModeChanged(it)
+                    dismiss()
                 }
             )
         }
@@ -132,7 +136,7 @@ fun WalletModesDialogContent(
                     )
                     Text(
                         text = (totalBalance as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty(),
-                        style = AppTheme.typography.body2,
+                        style = AppTheme.typography.title2,
                         color = AppTheme.colors.title
                     )
                 }

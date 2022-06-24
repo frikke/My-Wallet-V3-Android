@@ -134,11 +134,11 @@ val featureFlagsModule = module {
     }.bind(FeatureFlag::class)
 
     single(superAppFeatureFlag) {
-        LocalOnlyFeatureFlag(
-            key = "android_ff_new_super_app",
-            readableName = "SuperApp mode",
-            prefs = get(),
-            defaultValue = false
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_new_super_app",
+                "Super App mode"
+            )
         )
     }.bind(FeatureFlag::class)
 

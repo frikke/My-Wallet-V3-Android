@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.model
 
 import com.blockchain.coincore.AccountBalance
+import com.blockchain.coincore.Asset
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
@@ -62,9 +63,17 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
+    class UpdateActiveAssets(
+        val assetList: List<Asset>,
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            return oldState
+        }
+    }
+
     class UpdateAllAssetsAndBalances(
         private val assetList: List<AssetInfo>,
-        private val fiatAssetList: List<FiatAccount>
+        private val fiatAssetList: List<FiatAccount>,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val fiatState = FiatAssetState(
@@ -86,7 +95,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class AssetListUpdate(
-        private val assetList: List<AssetInfo>
+        private val assetList: List<AssetInfo>,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
@@ -103,7 +112,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         val asset: AssetInfo,
         private val prices24HrWithDelta: Prices24HrWithDelta,
         // Only fetch day historical prices for active assets, the ones with balance, to draw the small graph
-        val shouldFetchDayHistoricalPrices: Boolean
+        val shouldFetchDayHistoricalPrices: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
@@ -128,7 +137,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
         private fun updateAsset(
             old: CryptoAssetState,
-            prices24HrWithDelta: Prices24HrWithDelta
+            prices24HrWithDelta: Prices24HrWithDelta,
         ): CryptoAssetState {
             return old.copy(
                 accountBalance = old.accountBalance?.copy(
@@ -140,7 +149,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateNavigationAction(
-        val action: DashboardNavigationAction
+        val action: DashboardNavigationAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
             dashboardNavigationAction = action
@@ -157,7 +166,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     class FiatBalanceUpdate(
         private val balance: Money,
         private val fiatBalance: Money,
-        private val balanceAvailable: Money
+        private val balanceAvailable: Money,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldFiatValues = oldState.fiatAssets
@@ -195,7 +204,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class BalanceUpdate(
         val asset: AssetInfo,
-        private val newBalance: AccountBalance
+        private val newBalance: AccountBalance,
+        // todo(antonis-bc) Remove this when universal is no longer support it and default it to false
+        val shouldFetchCustodial: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val balance = newBalance.total as CryptoValue
@@ -212,7 +223,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class BalanceUpdateError(
-        val asset: AssetInfo
+        val asset: AssetInfo,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
@@ -227,7 +238,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class CheckForCustodialBalanceIntent(
-        val asset: AssetInfo
+        val asset: AssetInfo,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
@@ -241,7 +252,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class UpdateHasCustodialBalanceIntent(
         val asset: AssetInfo,
-        private val hasCustodial: Boolean
+        private val hasCustodial: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
@@ -254,14 +265,14 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class RefreshPrices(
-        val asset: AssetInfo
+        val asset: AssetInfo,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
     class PriceHistoryUpdate(
         val asset: AssetInfo,
-        private val historicPrices: HistoricalRateList
+        private val historicPrices: HistoricalRateList,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return if (oldState.activeAssets.contains(asset)) {
@@ -276,7 +287,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
         private fun updateAsset(
             old: CryptoAssetState,
-            historicPrices: HistoricalRateList
+            historicPrices: HistoricalRateList,
         ): CryptoAssetState {
             val trend = historicPrices.map { it.rate.toFloat() }
             return old.copy(priceTrend = trend)
@@ -300,7 +311,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class ShowFiatAssetDetails(
-        private val fiatAccount: FiatAccount
+        private val fiatAccount: FiatAccount,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -309,7 +320,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     data class ShowBankLinkingSheet(
-        private val fiatAccount: FiatAccount? = null
+        private val fiatAccount: FiatAccount? = null,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -331,7 +342,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     data class ShowLinkablePaymentMethodsSheet(
         private val fiatAccount: FiatAccount,
-        private val paymentMethodsForAction: LinkablePaymentMethodsForAction
+        private val paymentMethodsForAction: LinkablePaymentMethodsForAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -341,7 +352,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class ShowPortfolioSheet(
-        private val dashboardNavigationAction: DashboardNavigationAction
+        private val dashboardNavigationAction: DashboardNavigationAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             // Custody sheet isn't displayed via this intent, so filter it out
@@ -352,21 +363,21 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class CancelSimpleBuyOrder(
-        val orderId: String
+        val orderId: String,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
     class CheckBackupStatus(
         val account: SingleAccount,
-        val action: AssetAction
+        val action: AssetAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
 
     class ShowBackupSheet(
         private val account: SingleAccount,
-        private val action: AssetAction
+        private val action: AssetAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -375,7 +386,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateSelectedCryptoAccount(
-        private val cryptoAccount: CryptoAccount
+        private val cryptoAccount: CryptoAccount,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -395,7 +406,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     class LaunchBankTransferFlow(
         val account: SingleAccount,
         val action: AssetAction,
-        val shouldLaunchBankLinkTransfer: Boolean
+        val shouldLaunchBankLinkTransfer: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -421,7 +432,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     data class LaunchBankLinkFlow(
         val linkBankTransfer: LinkBankTransfer,
         val fiatAccount: FiatAccount,
-        val assetAction: AssetAction
+        val assetAction: AssetAction,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -439,7 +450,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class FundsLocksLoaded(
-        private val fundsLocks: FundsLocks
+        private val fundsLocks: FundsLocks?,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -452,7 +463,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class FetchOnboardingStepsSuccess(
-        private val onboardingState: DashboardOnboardingState
+        private val onboardingState: DashboardOnboardingState,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
             onboardingState = onboardingState

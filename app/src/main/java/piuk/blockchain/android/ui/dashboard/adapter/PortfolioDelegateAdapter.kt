@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.adapter
 
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.FiatAccount
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
@@ -21,8 +20,7 @@ class PortfolioDelegateAdapter(
     onFundsItemClicked: (FiatAccount) -> Unit,
     onHoldAmountClicked: (Locks) -> Unit,
     assetResources: AssetResources,
-    walletModeService: WalletModeService,
-    superAppFeatureFlag: FeatureFlag,
+    walletModeService: WalletModeService
 ) : DelegationAdapter<Any>(AdapterDelegatesManager(), emptyList()) {
 
     init {
@@ -36,7 +34,6 @@ class PortfolioDelegateAdapter(
                     prefs.selectedFiatCurrency,
                     assetResources,
                     walletModeService,
-                    superAppFeatureFlag,
                     onWalletModeChangeClicked
                 )
             )

@@ -6,6 +6,7 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.walletmode.WalletMode
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
@@ -19,16 +20,16 @@ class ActivitiesInteractor(
     private val activityRepository: AssetActivityRepository,
     private val custodialWalletManager: CustodialWalletManager,
     private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val analytics: Analytics
+    private val analytics: Analytics,
 ) {
     fun getActivityForAccount(
         account: BlockchainAccount,
-        isRefreshRequested: Boolean
+        isRefreshRequested: Boolean,
     ): Observable<ActivitySummaryList> =
         activityRepository.fetch(account, isRefreshRequested)
 
-    fun getDefaultAccount(): Single<BlockchainAccount> =
-        coincore.allWalletsInActiveMode().map { it }
+    fun getDefaultAccount(walletMode: WalletMode): Single<BlockchainAccount> =
+        coincore.allWalletsInMode(walletMode).map { it }
 
     fun cancelSimpleBuyOrder(orderId: String): Disposable? {
         return custodialWalletManager.deleteBuyOrder(orderId)

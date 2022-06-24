@@ -10,6 +10,7 @@ dependencies {
     implementation Libraries.commonsLang
     implementation Libraries.rxKotlin
     implementation Libraries.koin
+    implementation Libraries.androidCoroutines
 
     // Testing
     testImplementation project(':testutils')

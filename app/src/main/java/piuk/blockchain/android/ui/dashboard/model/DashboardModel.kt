@@ -20,7 +20,7 @@ class DashboardModel(
     private val interactor: DashboardActionInteractor,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
-    private val appRatingService: AppRatingService
+    private val appRatingService: AppRatingService,
 ) : MviModel<DashboardState, DashboardIntent>(
     initialState,
     mainScheduler,
@@ -29,7 +29,7 @@ class DashboardModel(
 ) {
     override fun performAction(
         previousState: DashboardState,
-        intent: DashboardIntent
+        intent: DashboardIntent,
     ): Disposable? {
         Timber.d("***> performAction: ${intent.javaClass.simpleName}")
         return when (intent) {
@@ -45,8 +45,13 @@ class DashboardModel(
             }
 
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
+            is DashboardIntent.UpdateActiveAssets -> interactor.fetchAccounts(
+                intent.assetList,
+                this
+            )
             is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
+                process(DashboardIntent.LoadFundsLocked)
                 process(DashboardIntent.RefreshAllBalancesIntent(false))
                 null
             }
@@ -54,13 +59,19 @@ class DashboardModel(
             is DashboardIntent.RefreshAllBalancesIntent ->
                 interactor.refreshBalances(this, previousState)
             is DashboardIntent.BalanceUpdate -> {
-                process(DashboardIntent.CheckForCustodialBalanceIntent(intent.asset))
+                if (intent.shouldFetchCustodial) {
+                    process(DashboardIntent.CheckForCustodialBalanceIntent(intent.asset))
+                } else {
+                    process(DashboardIntent.UpdateHasCustodialBalanceIntent(intent.asset, false))
+                }
                 null
             }
-            is DashboardIntent.CheckForCustodialBalanceIntent -> interactor.checkForCustodialBalance(
-                this,
-                intent.asset
-            )
+            is DashboardIntent.CheckForCustodialBalanceIntent ->
+                interactor.checkForCustodialBalance(
+                    this,
+                    intent.asset
+                )
+
             is DashboardIntent.UpdateHasCustodialBalanceIntent -> {
                 process(DashboardIntent.RefreshPrices(intent.asset))
                 null
@@ -101,7 +112,8 @@ class DashboardModel(
             is DashboardIntent.LaunchDashboardOnboarding,
             is DashboardIntent.SetDepositVisibility,
             DashboardIntent.ResetDashboardAssets,
-            is DashboardIntent.UpdateNavigationAction -> null
+            is DashboardIntent.UpdateNavigationAction,
+            -> null
         }.exhaustive
     }
 

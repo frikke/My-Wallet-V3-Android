@@ -27,8 +27,6 @@ import com.blockchain.koin.scopedInject
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Locale
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -40,7 +38,7 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class ExpandableCurrencyHeader @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
+    attrs: AttributeSet? = null
 ) : RelativeLayout(context, attrs), KoinComponent {
 
     private lateinit var selectionListener: (AssetInfo) -> Unit
@@ -72,15 +70,14 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     init {
         // Inflate layout
-        compositeDisposable += coincore.activeCryptoAssets.subscribeBy(onNext = { activeAssets ->
-            activeAssets.filterIsInstance<MultipleWalletsAsset>()
-                .map { it.assetInfo }
-                .forEach { asset ->
-                    redesignTextView(asset)?.apply {
-                        setOnClickListener { closeLayout(asset) }
-                    }
+        coincore.activeCryptoAssets()
+            .filterIsInstance<MultipleWalletsAsset>()
+            .map { it.assetInfo }
+            .forEach { asset ->
+                redesignTextView(asset)?.apply {
+                    setOnClickListener { closeLayout(asset) }
                 }
-        })
+            }
 
         binding.textviewSelectedCurrency.apply {
             // Hide selector on first load
@@ -243,7 +240,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
 
     private inner class CustomOutline constructor(
         var width: Int,
-        var height: Int,
+        var height: Int
     ) : ViewOutlineProvider() {
 
         override fun getOutline(view: View, outline: Outline) {
@@ -254,7 +251,7 @@ class ExpandableCurrencyHeader @JvmOverloads constructor(
     private inner class ExpandAnimation(
         private
         val startHeight: Int,
-        endHeight: Int,
+        endHeight: Int
     ) :
         Animation() {
 

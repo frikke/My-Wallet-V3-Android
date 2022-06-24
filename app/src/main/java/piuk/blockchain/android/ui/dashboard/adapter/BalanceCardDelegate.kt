@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.PieData
@@ -28,7 +27,6 @@ class BalanceCardDelegate<in T>(
     private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources,
     private val enabledWalletModeService: WalletModeService,
-    private val superAppFeatureFlag: FeatureFlag,
     private val onWalletModeChangeClicked: () -> Unit,
 ) : AdapterDelegate<T> {
 
@@ -43,32 +41,31 @@ class BalanceCardDelegate<in T>(
             binding = ItemDashboardBalanceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false),
             selectedFiat = selectedFiat,
             assetResources = assetResources,
-            enabledWalletMode = enabledWalletMode,
             onWalletModeChangeClicked = onWalletModeChangeClicked,
-            superAppFeatureFlag = superAppFeatureFlag
         )
 
     override fun onBindViewHolder(
         items: List<T>,
         position: Int,
         holder: RecyclerView.ViewHolder,
-    ) = (holder as BalanceCardViewHolder).bind(items[position] as BalanceState)
+    ) = (holder as BalanceCardViewHolder).bind(
+        items[position] as BalanceState,
+        enabledWalletMode
+    )
 }
 
 private class BalanceCardViewHolder(
     private val binding: ItemDashboardBalanceCardBinding,
     private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources,
-    private val enabledWalletMode: WalletMode,
     private val onWalletModeChangeClicked: () -> Unit,
-    private val superAppFeatureFlag: FeatureFlag,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private var isFirstLoad = true
 
-    fun bind(state: BalanceState) {
+    fun bind(state: BalanceState, activeWalletMode: WalletMode) {
         configurePieChart()
-        configureActiveWalletMode(enabledWalletMode)
+        configureActiveWalletMode(activeWalletMode)
 
         if (state.isLoading) {
             renderLoading()
@@ -79,7 +76,7 @@ private class BalanceCardViewHolder(
 
     private fun configureActiveWalletMode(walletMode: WalletMode) {
         with(binding) {
-            modeSelectorUi.visibleIf { walletMode != WalletMode.UNIVERSAL && superAppFeatureFlag.isEnabled }
+            modeSelectorUi.visibleIf { walletMode != WalletMode.UNIVERSAL }
             modeSelectorUi.setOnClickListener { onWalletModeChangeClicked() }
             walletModeIcon.setImageResource(
                 if (walletMode == WalletMode.CUSTODIAL_ONLY) {
@@ -111,11 +108,7 @@ private class BalanceCardViewHolder(
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
-            label.text = when (enabledWalletMode) {
-                WalletMode.NON_CUSTODIAL_ONLY -> context.getString(R.string.defi)
-                WalletMode.CUSTODIAL_ONLY -> context.getString(R.string.brokerage)
-                WalletMode.UNIVERSAL -> context.getString(R.string.dashboard_total_balance)
-            }
+            label.text = context.getString(R.string.dashboard_total_balance)
 
             if (state.delta == null) {
                 balanceDeltaValue.text = ""

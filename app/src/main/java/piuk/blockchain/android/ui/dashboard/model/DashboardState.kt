@@ -25,21 +25,16 @@ import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 data class AssetPriceState(
     val assetInfo: AssetInfo,
-    val prices: Prices24HrWithDelta? = null
+    val prices: Prices24HrWithDelta? = null,
 )
 
 class AssetMap(private val map: Map<AssetInfo, CryptoAssetState>) :
     Map<AssetInfo, CryptoAssetState> by map {
+
     override operator fun get(key: AssetInfo): CryptoAssetState {
         return map.getOrElse(key) {
-            throw IllegalArgumentException("$key is not a known CryptoCurrency")
+            throw IllegalArgumentException("${key.networkTicker} is not a known CryptoCurrency")
         }
-    }
-
-    // TODO: This is horrendously inefficient. Fix it!
-    fun copy(): AssetMap {
-        val assets = toMutableMap()
-        return AssetMap(assets)
     }
 
     fun copy(patchBalance: AccountBalance): AssetMap {
@@ -84,18 +79,18 @@ data class FiatBalanceInfo(
     val account: FiatAccount,
     val balance: Money = Money.zero(account.currency),
     val userFiat: Money? = null,
-    val availableBalance: Money? = null
+    val availableBalance: Money? = null,
 )
 
 data class FiatAssetState(
-    val fiatAccounts: Map<Currency, FiatBalanceInfo> = emptyMap()
+    val fiatAccounts: Map<Currency, FiatBalanceInfo> = emptyMap(),
 ) : DashboardItem {
 
     fun updateWith(
         currency: Currency,
         balance: FiatValue,
         userFiatBalance: FiatValue,
-        availableBalance: Money
+        availableBalance: Money,
     ): FiatAssetState {
         val newBalanceInfo = fiatAccounts[currency]?.copy(
             balance = balance,
@@ -156,7 +151,7 @@ data class CryptoAssetState(
 }
 
 data class Locks(
-    val fundsLocks: FundsLocks? = null
+    val fundsLocks: FundsLocks? = null,
 ) : DashboardItem, Serializable
 
 sealed class DashboardOnboardingState {
@@ -181,7 +176,7 @@ data class DashboardState(
     val locks: Locks = Locks(),
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
     val canPotentiallyTransactWithBanks: Boolean = true,
-    val showedAppRating: Boolean = false
+    val showedAppRating: Boolean = false,
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

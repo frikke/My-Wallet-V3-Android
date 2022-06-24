@@ -1,10 +1,9 @@
 package com.blockchain.walletmode
 
-import io.reactivex.rxjava3.core.Observable
-
+import kotlinx.coroutines.flow.Flow
 interface WalletModeService {
     fun enabledWalletMode(): WalletMode
-    val walletMode: Observable<WalletMode>
+    val walletMode: Flow<WalletMode>
     fun updateEnabledWalletMode(type: WalletMode)
 }
 

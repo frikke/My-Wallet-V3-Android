@@ -60,15 +60,13 @@ class AddressFactoryImpl(
      * an empty set
      **/
     override fun parse(address: String): Single<Set<ReceiveAddress>> =
-        coincore.activeCryptoAssets.firstOrError().flatMap { cryptoAsets ->
-            Maybe.merge(
-                cryptoAsets.map { asset ->
-                    asset.parseAddress(address)
-                        .doOnError { Timber.e("**** ERROR: ${NullCryptoAddress.asset}") }
-                        .onErrorComplete()
-                }
-            ).toList().map { it.toSet() }
-        }
+        Maybe.merge(
+            coincore.activeCryptoAssets().map { asset ->
+                asset.parseAddress(address)
+                    .doOnError { Timber.e("**** ERROR: $asset") }
+                    .onErrorComplete()
+            }
+        ).toList().map { it.toSet() }
 
     override fun parse(address: String, ccy: AssetInfo): Maybe<ReceiveAddress> =
         isDomainAddress(address)

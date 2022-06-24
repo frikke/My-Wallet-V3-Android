@@ -313,7 +313,7 @@
     <string name="received_bitcoin_cash">Received Bitcoin Cash</string>
 
     <string name="portfolio">Portfolio</string>
-    <string name="brokerage" translatable="false">Brokerage</string>
+    <string name="brokerage">Brokerage</string>
     <string name="prices">Prices</string>
     <string name="send">Send</string>
     <string name="receive_share">Share Address</string>

@@ -6,11 +6,11 @@ import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Completable
 
 internal interface AssetLoader {
-    fun initAndPreload(walletMode: WalletMode): Completable
+    fun initAndPreload(): Completable
 
     // The assets which have balances and/or transaction history. This list is used for displaying content on the
     // Portfolio screen.
-    val activeAssets: List<CryptoAsset>
+    fun activeAssets(walletMode: WalletMode): List<CryptoAsset>
 
     // The assets which have been loaded so far. On startup we load the L1s, the assets with Custodial support and
     // the active assets. This list is used for Swap targets.

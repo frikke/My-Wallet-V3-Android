@@ -25,32 +25,30 @@ internal class SwapTrendingPairsProvider(
 ) : TrendingPairsProvider {
 
     override fun getTrendingPairs(): Single<List<TrendingPair>> =
-        coincore.activeCryptoAssets.firstOrError().flatMap { activeAssets ->
-            activeAssets.map { it.accountGroup(AssetFilter.Trading).toSingle() }
-                .zipSingles()
-                .map { it.isNotEmpty() }
-                .flatMap { useCustodial ->
-                    val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
+        coincore.activeCryptoAssets().map { it.accountGroup(AssetFilter.Trading).toSingle() }
+            .zipSingles()
+            .map { it.isNotEmpty() }
+            .flatMap { useCustodial ->
+                val filter = if (useCustodial) AssetFilter.Trading else AssetFilter.NonCustodial
 
-                    val assetList = makeRequiredAssetSet()
-                    val accountGroups = assetList.map { asset ->
-                        coincore[asset].accountGroup(filter)
-                            .toSingle()
-                            .onErrorReturn { NullAccountGroup }
-                    }
-
-                    Single.zip(
-                        accountGroups
-                    ) { groups: Array<Any> ->
-                        getAccounts(groups)
-                    }
-                }.map { accountList ->
-                    val accountMap = accountList.associateBy { it.currency }
-                    buildPairs(accountMap)
-                }.onErrorReturn {
-                    emptyList()
+                val assetList = makeRequiredAssetSet()
+                val accountGroups = assetList.map { asset ->
+                    coincore[asset].accountGroup(filter)
+                        .toSingle()
+                        .onErrorReturn { NullAccountGroup }
                 }
-        }
+
+                Single.zip(
+                    accountGroups
+                ) { groups: Array<Any> ->
+                    getAccounts(groups)
+                }
+            }.map { accountList ->
+                val accountMap = accountList.associateBy { it.currency }
+                buildPairs(accountMap)
+            }.onErrorReturn {
+                emptyList()
+            }
 
     private fun makeRequiredAssetSet() =
         DEFAULT_SWAP_PAIRS.map { pair ->

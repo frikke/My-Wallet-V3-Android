@@ -25,7 +25,6 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
-import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.logging.MomentEvent
 import com.blockchain.logging.MomentLogger
 import com.blockchain.preferences.CurrencyPrefs
@@ -98,7 +97,6 @@ import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class EmptyDashboardItem : DashboardItem
 
@@ -133,8 +131,7 @@ class PortfolioFragment :
             onFundsItemClicked = { onFundsClicked(it) },
             assetResources = assetResources,
             walletModeService = get(),
-            onHoldAmountClicked = { onHoldAmountClicked(it) },
-            superAppFeatureFlag = get(superAppFeatureFlag)
+            onHoldAmountClicked = { onHoldAmountClicked(it) }
         )
     }
 
@@ -179,8 +176,6 @@ class PortfolioFragment :
         analytics.logEvent(WalletClientAnalytics.WalletHomeViewed)
 
         model.process(DashboardIntent.UpdateDepositButton)
-        model.process(DashboardIntent.LoadFundsLocked)
-
         setupSwipeRefresh()
         setupRecycler()
 
@@ -198,15 +193,6 @@ class PortfolioFragment :
         }
     }
 
-    @UiThread
-    override fun render(newState: DashboardState) {
-        try {
-            doRender(newState)
-        } catch (e: Throwable) {
-            Timber.e(e)
-        }
-    }
-
     private fun isDashboardLoading(state: DashboardState): Boolean {
         val atLeastOneAssetIsLoading = state.activeAssets.values.any { it.isLoading }
         val dashboardLoading = state.isLoadingAssets
@@ -214,7 +200,7 @@ class PortfolioFragment :
     }
 
     @UiThread
-    private fun doRender(newState: DashboardState) {
+    override fun render(newState: DashboardState) {
         binding.swipe.isRefreshing = false
         updateDisplayList(newState)
         verifyAppRating(newState)
@@ -242,18 +228,22 @@ class PortfolioFragment :
                 mapOf(
                     IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_WITHDRAWAL_LOCKS to EmptyDashboardItem(),
                     IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
                 )
             } else {
                 mapOf(
                     IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
                     IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to newState.locks,
+                    IDX_WITHDRAWAL_LOCKS to (
+                        newState.locks.fundsLocks?.let {
+                            newState.locks
+                        } ?: EmptyDashboardItem()
+                        ),
                     IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
                         newState.fiatAssets
                     } else {
-                        get(IDX_FUNDS_BALANCE)
+                        EmptyDashboardItem()
                     }
                 )
             }

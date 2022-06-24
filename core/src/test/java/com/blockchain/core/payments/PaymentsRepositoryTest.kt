@@ -149,6 +149,7 @@ class PaymentsRepositoryTest {
         every { enabled } returns Single.just(true)
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
+    private val withdrawLocksCache: WithdrawLocksCache = mockk()
 
     private lateinit var subject: PaymentsRepository
 
@@ -161,6 +162,7 @@ class PaymentsRepositoryTest {
             tradingBalanceDataManager,
             assetCatalogue,
             simpleBuyPrefs,
+            withdrawLocksCache,
             authenticator,
             googlePayManager,
             environmentConfig,
@@ -237,7 +239,7 @@ class PaymentsRepositoryTest {
         )
         val localCurrency =
             mockk<FiatCurrency>(relaxed = true).apply { every { networkTicker } returns (NETWORK_TICKER) }
-        every { paymentsService.getWithdrawalLocks(AUTH, NETWORK_TICKER) } returns Single.just(locks)
+        every { withdrawLocksCache.withdrawLocks() } returns Single.just(locks)
 
         // ASSERT
         subject.getWithdrawalLocks(localCurrency).test()

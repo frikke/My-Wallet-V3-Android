@@ -105,9 +105,7 @@ import piuk.blockchain.android.ui.linkbank.FiatTransactionState
 import piuk.blockchain.android.ui.linkbank.yapily.FiatTransactionBottomSheet
 import piuk.blockchain.android.ui.onboarding.OnboardingActivity
 import piuk.blockchain.android.ui.prices.presentation.PricesNavigationEvent
-import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.referral.presentation.ReferralSheet
-import piuk.blockchain.android.ui.referral.presentation.Source
 import piuk.blockchain.android.ui.scan.CameraAnalytics
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
@@ -259,7 +257,7 @@ class MainActivity :
     override fun onResume() {
         super.onResume()
         simpleBuySyncFactory.cancelAnyPendingConfirmationBuy()
-        redrawNavigation()
+        redrawNavigation(walletModeService.enabledWalletMode())
     }
 
     override fun onDestroy() {
@@ -319,7 +317,6 @@ class MainActivity :
             ) {
                 model.process(MainIntent.ReferralIconClicked)
                 showReferralBottomSheet(referralState.referralInfo)
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Source.Portfolio))
             }
         } else {
             null
@@ -394,7 +391,7 @@ class MainActivity :
         }
     }
 
-    private fun redrawNavigation() {
+    private fun redrawNavigation(walletMode: WalletMode) {
         binding.bottomNavigation.apply {
             navigationItems = when (walletModeService.enabledWalletMode()) {
                 WalletMode.CUSTODIAL_ONLY,
@@ -722,7 +719,6 @@ class MainActivity :
                 showUiTour()
             }
             is ViewToLaunch.ShowReferralSheet -> {
-                analytics.logEvent(ReferralAnalyticsEvents.ReferralCtaClicked(Source.Deeplink))
                 showReferralBottomSheet(newState.referral.referralInfo)
             }
         }.exhaustive
@@ -1162,7 +1158,9 @@ class MainActivity :
         showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
     }
 
-    override fun onActiveModeChanged(walletMode: WalletMode) {}
+    override fun onActiveModeChanged(walletMode: WalletMode) {
+        redrawNavigation(walletMode)
+    }
 
     override fun launchSimpleBuyFromDeepLinkApproval() {
         startActivity(SimpleBuyActivity.newIntent(this, launchFromApprovalDeepLink = true))

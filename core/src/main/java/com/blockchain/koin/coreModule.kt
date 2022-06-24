@@ -38,6 +38,7 @@ import com.blockchain.core.nftwaitlist.data.NftWailslitRepository
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.payload.DataManagerPayloadDecrypt
 import com.blockchain.core.payments.PaymentsRepository
+import com.blockchain.core.payments.WithdrawLocksCache
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.core.referral.ReferralRepository
@@ -397,6 +398,14 @@ val coreModule = module {
         }
 
         scoped {
+            WithdrawLocksCache(
+                authenticator = get(),
+                paymentsService = get(),
+                currencyPrefs = get()
+            )
+        }
+
+        scoped {
             PaymentsRepository(
                 paymentsService = get(),
                 paymentMethodsService = get(),
@@ -405,6 +414,7 @@ val coreModule = module {
                 authenticator = get(),
                 googlePayManager = get(),
                 environmentConfig = get(),
+                withdrawLocksCache = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
