@@ -16,4 +16,9 @@ interface NonCustodialService {
     suspend fun getBalances(currencies: List<String>): Outcome<ApiError, List<NonCustodialAccountBalance>>
 
     suspend fun getAddresses(currencies: List<String>): Outcome<ApiError, List<NonCustodialDerivedAddress>>
+
+    suspend fun getTransactionHistory(
+        currency: String,
+        contractAddress: String?
+    ): Outcome<ApiError, List<NonCustodialTxHistoryItem>>
 }

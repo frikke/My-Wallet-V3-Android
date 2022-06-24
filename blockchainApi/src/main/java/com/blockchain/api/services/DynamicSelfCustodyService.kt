@@ -13,6 +13,7 @@ import com.blockchain.api.selfcustody.PubKeyInfo
 import com.blockchain.api.selfcustody.RemoveSubscriptionRequest
 import com.blockchain.api.selfcustody.SelfCustodyApi
 import com.blockchain.api.selfcustody.SubscriptionInfo
+import com.blockchain.api.selfcustody.TransactionHistoryRequest
 
 class DynamicSelfCustodyService(
     private val selfCustodyApi: SelfCustodyApi
@@ -95,4 +96,20 @@ class DynamicSelfCustodyService(
                 }
             )
         )
+
+    suspend fun getTransactionHistory(
+        guidHash: String,
+        sharedKeyHash: String,
+        currency: String,
+        contractAddress: String?
+    ) = selfCustodyApi.getTransactionHistory(
+        request = TransactionHistoryRequest(
+            auth = AuthInfo(
+                guidHash = guidHash,
+                sharedKeyHash = sharedKeyHash
+            ),
+            currency = currency,
+            contractAddress = contractAddress
+        )
+    )
 }

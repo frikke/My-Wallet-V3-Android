@@ -1,6 +1,9 @@
 package com.blockchain.core.chains.dynamicselfcustody
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.selfcustody.Status
+import com.blockchain.api.selfcustody.TransactionDirection
+import com.blockchain.api.selfcustody.TransactionResponse
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
@@ -86,5 +89,39 @@ internal class NonCustodialRepository(
             }.flatten()
         }
 
+    override suspend fun getTransactionHistory(
+        currency: String,
+        contractAddress: String?
+    ): Outcome<ApiError, List<NonCustodialTxHistoryItem>> =
+        dynamicSelfCustodyService.getTransactionHistory(
+            guidHash = getHashedString(payloadDataManager.guid),
+            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
+            currency = currency,
+            contractAddress = contractAddress
+        ).map { response ->
+            response.history.map { historyItem ->
+                historyItem.toHistoryEvent()
+            }
+        }
+
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
+}
+
+private fun TransactionResponse.toHistoryEvent(): NonCustodialTxHistoryItem {
+    val sourceAddress = movements.firstOrNull { transactionMovement ->
+        transactionMovement.type == TransactionDirection.SENT
+    }?.address ?: ""
+    val targetAddress = movements.firstOrNull { transactionMovement ->
+        transactionMovement.type == TransactionDirection.RECEIVED
+    }?.address ?: ""
+
+    return NonCustodialTxHistoryItem(
+        txId = txId,
+        value = movements.first().amount,
+        from = sourceAddress,
+        to = targetAddress,
+        timestamp = timestamp,
+        fee = fee,
+        status = status ?: Status.PENDING
+    )
 }

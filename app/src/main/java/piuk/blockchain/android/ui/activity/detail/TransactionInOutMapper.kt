@@ -4,7 +4,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.core.chains.bitcoincash.BchDataManager
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.sunriver.XlmDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -29,14 +28,11 @@ class TransactionInOutMapper(
     fun transformInputAndOutputs(
         item: NonCustodialActivitySummaryItem
     ): Single<TransactionInOutDetails> =
-        when {
-            item.asset == CryptoCurrency.BTC -> handleBtcToAndFrom(item)
-            item.asset == CryptoCurrency.BCH -> handleBchToAndFrom(item)
-            item.asset == CryptoCurrency.XLM -> handleXlmToAndFrom(item)
-            item.asset == CryptoCurrency.MATIC ||
-                item.asset == CryptoCurrency.ETHER ||
-                item.asset.isErc20() -> handleEvmAndErc20ToAndFrom(item)
-            else -> throw IllegalArgumentException("${item.asset} is not currently supported")
+        when (item.asset) {
+            CryptoCurrency.BTC -> handleBtcToAndFrom(item)
+            CryptoCurrency.BCH -> handleBchToAndFrom(item)
+            CryptoCurrency.XLM -> handleXlmToAndFrom(item)
+            else -> handleDynamicAssetsToAndFrom(item)
         }
 
     private fun handleXlmToAndFrom(activitySummaryItem: NonCustodialActivitySummaryItem) =
@@ -65,7 +61,7 @@ class TransactionInOutMapper(
                 )
             }
 
-    private fun handleEvmAndErc20ToAndFrom(
+    private fun handleDynamicAssetsToAndFrom(
         activitySummaryItem: NonCustodialActivitySummaryItem
     ): Single<TransactionInOutDetails> {
 

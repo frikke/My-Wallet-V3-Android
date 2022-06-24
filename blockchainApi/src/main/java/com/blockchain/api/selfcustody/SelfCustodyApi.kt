@@ -24,4 +24,9 @@ interface SelfCustodyApi {
 
     @POST("/wallet-pubkey/addresses")
     suspend fun getAddresses(@Body request: AddressesRequest): Outcome<ApiError, AddressesResponse>
+
+    @POST("/wallet-pubkey/tx-history")
+    suspend fun getTransactionHistory(
+        @Body request: TransactionHistoryRequest
+    ): Outcome<ApiError, TransactionHistoryResponse>
 }

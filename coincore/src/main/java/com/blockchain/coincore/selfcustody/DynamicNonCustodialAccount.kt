@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.rx3.rxSingle
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class DynamicNonCustodialAccount(
@@ -47,19 +48,17 @@ class DynamicNonCustodialAccount(
         get() = hasFunds.get()
 
     override val receiveAddress: Single<ReceiveAddress>
-        get() {
-            return rxSingle {
-                nonCustodialService.getAddresses(listOf(currency.networkTicker))
-                    .getOrThrow().find {
-                        it.pubKey == String(Hex.encode(internalAccount.address.pubKey)) && it.default
-                    }?.let { nonCustodialDerivedAddress ->
-                        DynamicNonCustodialAddress(
-                            address = nonCustodialDerivedAddress.address,
-                            asset = currency
-                        )
-                    } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
-            }
-        }
+        get() = rxSingle { getReceiveAddress() }
+
+    private suspend fun getReceiveAddress() = nonCustodialService.getAddresses(listOf(currency.networkTicker))
+        .getOrThrow().find {
+            it.pubKey == String(Hex.encode(internalAccount.address.pubKey)) && it.default
+        }?.let { nonCustodialDerivedAddress ->
+            DynamicNonCustodialAddress(
+                address = nonCustodialDerivedAddress.address,
+                asset = currency
+            )
+        } ?: throw IllegalStateException("Couldn't derive receive address for ${currency.networkTicker}")
 
     override fun getOnChainBalance(): Observable<Money> = rxSingle {
         // Check if we are subscribed to the given currency.
@@ -109,7 +108,24 @@ class DynamicNonCustodialAccount(
 
     override val isDefault: Boolean = true
 
-    override val activity: Single<ActivitySummaryList> = Single.just(listOf())
+    override val activity: Single<ActivitySummaryList> = rxSingleOutcome {
+        val accountAddress = getReceiveAddress()
+        nonCustodialService.getTransactionHistory(
+            currency = currency.networkTicker,
+            contractAddress = currency.l2identifier
+        )
+            .map { history ->
+                history.map { item ->
+                    DynamicActivitySummaryItem(
+                        asset = currency,
+                        event = item,
+                        accountAddress = accountAddress.address,
+                        exchangeRates = exchangeRates,
+                        account = this@DynamicNonCustodialAccount
+                    )
+                }
+            }
+    }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
         DynamicOnChanTxEngine()
