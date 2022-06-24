@@ -38,7 +38,6 @@ import com.blockchain.nabu.models.responses.simplebuy.RecurringBuyResponse
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyCurrency
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyPairsResp
-import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyQuoteResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransactionsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferFundsResponse
 import com.blockchain.nabu.models.responses.simplebuy.TransferRequest
@@ -205,15 +204,6 @@ internal interface Nabu {
         @Query("product") product: String,
         @Query("type") type: String?
     ): Single<TransactionsResponse>
-
-    @GET(NABU_SIMPLE_QUOTE)
-    fun getSimpleBuyQuote(
-        @Header("authorization") authorization: String,
-        @Query("currencyPair") currencyPair: String,
-        @Query("action") action: String,
-        @Query("amount") amount: String,
-        @Query("currency") currency: String
-    ): Single<SimpleBuyQuoteResponse>
 
     @PUT(NABU_SIMPLE_BUY_ACCOUNT_DETAILS)
     fun getSimpleBuyBankAccountDetails(

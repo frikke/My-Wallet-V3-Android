@@ -27,12 +27,15 @@ class BuyCryptoCurrenciesAdapter(
             diffResult.dispatchUpdatesTo(this)
         }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int {
+        return items.size
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(
             BuyCryptoItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false), assetResources
         )
+    }
 
     class ViewHolder(binding: BuyCryptoItemLayoutBinding, val assetResources: AssetResources) :
         RecyclerView.ViewHolder(binding.root) {

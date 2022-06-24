@@ -6,6 +6,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
+import android.text.format.DateUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
@@ -17,7 +18,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
@@ -25,6 +28,8 @@ import com.blockchain.core.custodial.models.Promo
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -38,7 +43,10 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import info.blockchain.balance.isCustodialOnly
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import java.time.ZonedDateTime
+import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentSimplebuyCheckoutBinding
@@ -57,6 +65,7 @@ import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class SimpleBuyCheckoutFragment :
@@ -79,11 +88,22 @@ class SimpleBuyCheckoutFragment :
         arguments?.getBoolean(SHOW_ONLY_ORDER_DATA, false) ?: false
     }
 
+    private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
+    private val compositeDisposable = CompositeDisposable()
+
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        compositeDisposable += buyQuoteRefreshFF.enabled.onErrorReturn { false }
+            .subscribe { enabled ->
+                if (enabled) {
+                    binding.quoteExpiration.visible()
+                    model.process(SimpleBuyIntent.ListenToQuotesUpdate)
+                }
+            }
 
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(activity)
@@ -94,9 +114,7 @@ class SimpleBuyCheckoutFragment :
         if (!showOnlyOrderData) {
             setupToolbar()
         }
-
         model.process(SimpleBuyIntent.FetchWithdrawLockTime)
-
         model.process(SimpleBuyIntent.GetSafeConnectTermsOfServiceLink)
     }
 
@@ -121,6 +139,33 @@ class SimpleBuyCheckoutFragment :
     override fun onBackPressed(): Boolean = true
 
     override fun render(newState: SimpleBuyState) {
+
+        val formattedTime = DateUtils.formatElapsedTime(max(0, newState.quote?.remainingTime ?: 0))
+        binding.quoteExpiration.apply {
+            setContent {
+                CircularProgressBar(
+                    text = getString(
+                        R.string.simple_buy_quote_message,
+                        formattedTime
+                    ),
+                    progress = newState.quote?.getProgressQuote()
+                )
+            }
+        }
+
+        binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
+
+        showAmountForMethod(newState)
+
+        if (newState.hasQuoteChanged) {
+            binding.amount.animateChange {
+                binding.amount.setTextColor(
+                    ContextCompat.getColor(binding.amount.context, R.color.grey_800)
+                )
+            }
+            checkoutAdapterDelegate.items = getCheckoutFields(newState)
+        }
+
         // Event should be triggered only the first time a state is rendered
         if (lastState == null) {
             analytics.logEvent(
@@ -129,8 +174,10 @@ class SimpleBuyCheckoutFragment :
                     newState.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
                 )
             )
-            lastState = newState
+            checkoutAdapterDelegate.items = getCheckoutFields(newState)
         }
+
+        lastState = newState
 
         newState.selectedCryptoAsset?.let { renderPrivateKeyLabel(it) }
         val payment = newState.selectedPaymentMethod
@@ -178,8 +225,6 @@ class SimpleBuyCheckoutFragment :
             return
         }
 
-        showAmountForMethod(newState)
-
         updateStatusPill(newState)
 
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
@@ -188,15 +233,14 @@ class SimpleBuyCheckoutFragment :
                     newState.fiatCurrency, newState.selectedPaymentMethod?.id.orEmpty()
                 )
             )
-        } else {
-            checkoutAdapterDelegate.items = getCheckoutFields(newState)
         }
 
         configureButtons(newState)
 
         when (newState.order.orderState) {
             OrderState.FINISHED, // Funds orders are getting finished right after confirmation
-            OrderState.AWAITING_FUNDS -> {
+            OrderState.AWAITING_FUNDS,
+            -> {
                 if (newState.confirmationActionRequested) {
                     navigator().goToPaymentScreen()
                 }
@@ -326,24 +370,27 @@ class SimpleBuyCheckoutFragment :
 
         return listOfNotNull(
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
-                getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
-                state.exchangeRate?.toStringWithSymbol().orEmpty(),
-                priceExplanation
+                label = getString(R.string.quote_price, state.selectedCryptoAsset.displayTicker),
+                title = state.exchangeRate?.toStringWithSymbol().orEmpty(),
+                expandableContent = priceExplanation,
+                hasChanged = state.hasQuoteChanged
             ),
             buildPaymentMethodItem(state),
             if (state.recurringBuyFrequency != RecurringBuyFrequency.ONE_TIME) {
                 SimpleBuyCheckoutItem.ComplexCheckoutItem(
-                    getString(R.string.recurring_buy_frequency_label_1),
-                    state.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
-                    state.recurringBuyFrequency.toHumanReadableRecurringDate(
+                    label = getString(R.string.recurring_buy_frequency_label_1),
+                    title = state.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext()),
+                    subtitle = state.recurringBuyFrequency.toHumanReadableRecurringDate(
                         requireContext(), ZonedDateTime.now()
                     )
                 )
             } else null,
 
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                getString(R.string.purchase),
-                state.purchasedAmount().toStringWithSymbol()
+                label = getString(R.string.purchase),
+                title = state.purchasedAmount().toStringWithSymbol(),
+                isImportant = state.purchasedAmount() != lastState?.purchasedAmount(),
+                hasChanged = false
             ),
             buildPaymentFee(
                 state,
@@ -352,7 +399,8 @@ class SimpleBuyCheckoutFragment :
             SimpleBuyCheckoutItem.SimpleCheckoutItem(
                 getString(R.string.common_total),
                 state.amount.toStringWithSymbol(),
-                true
+                isImportant = true,
+                hasChanged = false
             )
         )
     }
@@ -364,12 +412,14 @@ class SimpleBuyCheckoutFragment :
 
             when (paymentMethodType) {
                 PaymentMethodType.FUNDS -> SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                    getString(R.string.payment_method),
-                    getString(R.string.fiat_currency_funds_wallet_name_1, state.fiatCurrency)
+                    label = getString(R.string.payment_method),
+                    title = getString(R.string.fiat_currency_funds_wallet_name_1, state.fiatCurrency),
+                    hasChanged = false
                 )
                 PaymentMethodType.BANK_TRANSFER,
                 PaymentMethodType.BANK_ACCOUNT,
-                PaymentMethodType.PAYMENT_CARD -> {
+                PaymentMethodType.PAYMENT_CARD,
+                -> {
                     state.selectedPaymentMethodDetails?.let { details ->
                         SimpleBuyCheckoutItem.ComplexCheckoutItem(
                             getString(R.string.payment_method),
@@ -381,8 +431,10 @@ class SimpleBuyCheckoutFragment :
                 PaymentMethodType.GOOGLE_PAY -> {
                     state.selectedPaymentMethodDetails?.let { details ->
                         SimpleBuyCheckoutItem.SimpleCheckoutItem(
-                            getString(R.string.payment_method),
-                            details.methodDetails()
+                            label = getString(R.string.payment_method),
+                            title = details.methodDetails(),
+                            isImportant = false,
+                            hasChanged = false
                         )
                     }
                 }
@@ -393,10 +445,11 @@ class SimpleBuyCheckoutFragment :
     private fun buildPaymentFee(state: SimpleBuyState, feeExplanation: CharSequence): SimpleBuyCheckoutItem? =
         state.quote?.feeDetails?.let { feeDetails ->
             SimpleBuyCheckoutItem.ExpandableCheckoutItem(
-                getString(R.string.blockchain_fee),
-                feeDetails.fee.toStringWithSymbol(),
-                feeExplanation,
-                viewForPromo(feeDetails)
+                label = getString(R.string.blockchain_fee),
+                title = feeDetails.fee.toStringWithSymbol(),
+                expandableContent = feeExplanation,
+                promoLayout = viewForPromo(feeDetails),
+                hasChanged = state.hasQuoteChanged
             )
         }
 
@@ -413,6 +466,7 @@ class SimpleBuyCheckoutFragment :
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
                     text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
+                        binding.quoteExpiration.invisible()
                         model.process(SimpleBuyIntent.ConfirmOrder)
                         analytics.logEvent(
                             eventWithPaymentMethod(
@@ -628,7 +682,8 @@ class SimpleBuyCheckoutFragment :
             ErrorState.ProviderIsNotSupported,
             ErrorState.Card3DsFailed,
             ErrorState.LinkedBankNotSupported,
-            ErrorState.BuyPaymentMethodsUnavailable -> throw IllegalStateException(
+            ErrorState.BuyPaymentMethodsUnavailable,
+            -> throw IllegalStateException(
                 "Error $errorState should not be presented in the checkout screen"
             )
         }.exhaustive
@@ -656,6 +711,11 @@ class SimpleBuyCheckoutFragment :
     override fun onPause() {
         super.onPause()
         model.process(SimpleBuyIntent.NavigationHandled)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
     }
 
     override fun onSheetClosed() {
@@ -709,7 +769,7 @@ class SimpleBuyCheckoutFragment :
 
         fun newInstance(
             isForPending: Boolean = false,
-            showOnlyOrderData: Boolean = false
+            showOnlyOrderData: Boolean = false,
         ): SimpleBuyCheckoutFragment {
             val fragment = SimpleBuyCheckoutFragment()
             fragment.arguments = Bundle().apply {

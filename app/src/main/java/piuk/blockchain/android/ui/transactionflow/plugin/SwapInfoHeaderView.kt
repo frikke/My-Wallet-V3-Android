@@ -3,8 +3,6 @@ package piuk.blockchain.android.ui.transactionflow.plugin
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.blockchain.coincore.CryptoAccount
@@ -23,6 +21,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionModel
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionConfirmationCustomisations
+import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.android.util.setAssetIconColoursNoTint
 
 class SwapInfoHeaderView @JvmOverloads constructor(
@@ -112,28 +111,5 @@ class SwapInfoHeaderView @JvmOverloads constructor(
 
     override fun setVisible(isVisible: Boolean) {
         binding.root.visibleIf { isVisible }
-    }
-
-    private fun TextView.animateChange(onAnimationEnd: () -> Unit) {
-        pivotX = this.measuredWidth * 0.5f
-        pivotY = this.measuredHeight * 0.5f
-
-        setTextColor(ContextCompat.getColor(context, R.color.blue_600))
-
-        animate()
-            .scaleX(1.1f)
-            .scaleY(1.1f)
-            .setDuration(300)
-            .setInterpolator(AccelerateDecelerateInterpolator())
-            .withEndAction {
-                this.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(300)
-                    .setInterpolator(AccelerateDecelerateInterpolator())
-                    .withEndAction {
-                        onAnimationEnd()
-                    }
-            }
     }
 }

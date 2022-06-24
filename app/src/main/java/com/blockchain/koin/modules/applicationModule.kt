@@ -16,6 +16,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
+import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
@@ -104,6 +105,7 @@ import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
+import piuk.blockchain.android.simplebuy.CreateBuyOrderUseCase
 import piuk.blockchain.android.simplebuy.EURPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.GBPPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
@@ -464,7 +466,7 @@ val applicationModule = module {
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },
                 environmentConfig = get(),
                 remoteLogger = get(),
-                isFirstTimeBuyerUseCase = get(),
+                createBuyOrderUseCase = get(),
                 getEligibilityAndNextPaymentDateUseCase = get(),
                 bankPartnerCallbackProvider = get(),
                 userIdentity = get(),
@@ -538,12 +540,20 @@ val applicationModule = module {
             )
         }.bind(Mapper::class)
 
+        scoped {
+            CreateBuyOrderUseCase(
+                cancelOrderUseCase = get(),
+                brokerageDataManager = get(),
+                custodialWalletManager = get(),
+                buyQuoteRefreshFF = get(buyRefreshQuoteFeatureFlag)
+            )
+        }
+
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
                 assetCatalogue = get(),
                 json = get(kotlinJsonAssetTicker),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
 

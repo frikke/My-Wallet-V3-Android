@@ -38,6 +38,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyOrder
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
+import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -57,13 +58,11 @@ import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
-import piuk.blockchain.android.domain.usecases.IsFirstTimeBuyerUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
-import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
 
@@ -78,14 +77,14 @@ class SimpleBuyModel(
     private val cardActivator: CardActivator,
     private val interactor: SimpleBuyInteractor,
     private val _activityIndicator: Lazy<ActivityIndicator?>,
-    private val isFirstTimeBuyerUseCase: IsFirstTimeBuyerUseCase,
     private val getEligibilityAndNextPaymentDateUseCase: GetEligibilityAndNextPaymentDateUseCase,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,
+    private val createBuyOrderUseCase: CreateBuyOrderUseCase,
     private val userIdentity: UserIdentity,
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
-    private val appRatingService: AppRatingService
+    private val appRatingService: AppRatingService,
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
     initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
         prefs.tradingCurrency
@@ -139,7 +138,8 @@ class SimpleBuyModel(
                         onError = { processOrderErrors(it) }
                     )
             is SimpleBuyIntent.CancelOrder,
-            is SimpleBuyIntent.CancelOrderAndResetAuthorisation -> (
+            is SimpleBuyIntent.CancelOrderAndResetAuthorisation,
+            -> (
                 previousState.id?.let {
                     interactor.cancelOrder(it)
                 } ?: Completable.complete()
@@ -148,30 +148,49 @@ class SimpleBuyModel(
                     onComplete = { process(SimpleBuyIntent.OrderCanceled) },
                     onError = { processOrderErrors(it) }
                 )
-            is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> (
-                previousState.id?.let {
-                    interactor.cancelOrder(it)
-                } ?: Completable.complete()
-                ).thenSingle {
-                processCreateOrder(
+
+            is SimpleBuyIntent.ListenToOrderCreation -> createBuyOrderUseCase.buyOrderAndQuote.firstOrError()
+                .trackProgress(activityIndicator)
+                .map { it.getOrThrow() }
+                .subscribeBy(
+                    onSuccess = {
+                        process(SimpleBuyIntent.OrderCreated(buyOrder = it.buyOrder, quote = it.quote))
+                    },
+                    onError = { processOrderErrors(it) }
+                )
+
+            is SimpleBuyIntent.ListenToQuotesUpdate ->
+                createBuyOrderUseCase.buyOrderAndQuote
+                    .map { it.getOrThrow() }
+                    .subscribeBy(
+                        onNext = {
+                            process(SimpleBuyIntent.OrderCreated(buyOrder = it.buyOrder, quote = it.quote))
+                        },
+                        onError = { processOrderErrors(it) }
+                    )
+
+            is SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne -> {
+                createBuyOrderUseCase.createOrderAndStartsQuotesFetching(
+                    previousState.id,
                     previousState.selectedCryptoAsset,
                     previousState.selectedPaymentMethod,
                     previousState.order,
                     previousState.recurringBuyFrequency
                 )
-            }.subscribeBy(
-                onSuccess = {
-                    process(it)
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
+                process(SimpleBuyIntent.ListenToOrderCreation)
+                null
+            }
 
+            is SimpleBuyIntent.StopQuotesUpdate -> {
+                createBuyOrderUseCase.stopQuoteFetching(intent.shouldResetOrder)
+                null
+            }
             is SimpleBuyIntent.FetchKycState -> interactor.pollForKycState()
                 .subscribeBy(
-                    onSuccess = { process(it) },
-                    onError = { /*never fails. will return SimpleBuyIntent.KycStateUpdated(KycState.FAILED)*/ }
+                    onSuccess =
+                    { process(it) },
+                    onError =
+                    { /*never fails. will return SimpleBuyIntent.KycStateUpdated(KycState.FAILED)*/ }
                 )
 
             is SimpleBuyIntent.LinkBankTransferRequested -> interactor.linkNewBank(previousState.fiatCurrency)
@@ -218,8 +237,10 @@ class SimpleBuyModel(
             }
             is SimpleBuyIntent.BuyButtonClicked -> interactor.checkTierLevel()
                 .subscribeBy(
-                    onSuccess = { process(it) },
-                    onError = { processOrderErrors(it) }
+                    onSuccess =
+                    { process(it) },
+                    onError =
+                    { processOrderErrors(it) }
                 )
 
             is SimpleBuyIntent.FetchPaymentDetails ->
@@ -255,10 +276,12 @@ class SimpleBuyModel(
             is SimpleBuyIntent.MakePayment ->
                 interactor.fetchOrder(intent.orderId)
                     .subscribeBy(
-                        onError = {
+                        onError =
+                        {
                             processOrderErrors(it)
                         },
-                        onSuccess = {
+                        onSuccess =
+                        {
                             if (it.attributes != null) {
                                 handleOrderAttrs(it)
                             } else {
@@ -269,7 +292,8 @@ class SimpleBuyModel(
             is SimpleBuyIntent.GetAuthorisationUrl ->
                 interactor.pollForAuthorisationUrl(intent.orderId)
                     .subscribeBy(
-                        onSuccess = {
+                        onSuccess =
+                        {
                             when (it) {
                                 is PollResult.FinalResult -> {
                                     it.value.attributes?.authorisationUrl?.let { url ->
@@ -285,14 +309,16 @@ class SimpleBuyModel(
                                 }
                             }
                         },
-                        onError = {
+                        onError =
+                        {
                             processOrderErrors(it)
                         }
                     )
             is SimpleBuyIntent.UpdatePaymentMethodsAndAddTheFirstEligible -> fetchEligiblePaymentMethods(
                 intent.fiatCurrency
             ).trackProgress(activityIndicator).subscribeBy(
-                onSuccess = {
+                onSuccess =
+                {
                     process(
                         updateSelectedAndAvailablePaymentMethodMethodsIntent(
                             previousSelectedId = previousState.selectedPaymentMethod?.id,
@@ -306,7 +332,8 @@ class SimpleBuyModel(
                             process(SimpleBuyIntent.AddNewPaymentMethodRequested(paymentMethod))
                         }
                 },
-                onError = {
+                onError =
+                {
                     processOrderErrors(it)
                 }
             )
@@ -324,10 +351,12 @@ class SimpleBuyModel(
             is SimpleBuyIntent.CheckOrderStatus -> interactor.pollForOrderStatus(
                 previousState.id ?: throw IllegalStateException("Order Id not available")
             ).subscribeBy(
-                onSuccess = { buySellOrder ->
+                onSuccess =
+                { buySellOrder ->
                     processOrderStatus(buySellOrder.value)
                 },
-                onError = {
+                onError =
+                {
                     processOrderErrors(it)
                 }
             )
@@ -349,10 +378,12 @@ class SimpleBuyModel(
                     previousState.selectedPaymentMethod,
                     intent.recurringBuyFrequency
                 ).subscribeBy(
-                    onSuccess = {
+                    onSuccess =
+                    {
                         process(SimpleBuyIntent.RecurringBuyCreatedFirstTimeFlow)
                     },
-                    onError = {
+                    onError =
+                    {
                         processOrderErrors(it)
                     }
                 )
@@ -362,10 +393,12 @@ class SimpleBuyModel(
                 buyLimits = previousState.buyOrderLimits,
                 paymentMethodLimits = previousState.selectedPaymentMethodLimits
             ).subscribeBy(
-                onSuccess = {
+                onSuccess =
+                {
                     process(SimpleBuyIntent.UpdateErrorState(it))
                 },
-                onError = {
+                onError =
+                {
                     processOrderErrors(it)
                 }
             )
@@ -373,23 +406,27 @@ class SimpleBuyModel(
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
                 previousState.fiatCurrency
             ).subscribeBy(
-                onSuccess = {
+                onSuccess =
+                {
                     process(it)
                 },
-                onError = {
+                onError =
+                {
                     processOrderErrors(it)
                 }
             )
             is SimpleBuyIntent.FetchEligibility -> userIdentity.userAccessForFeature(Feature.Buy)
                 .subscribeBy(
-                    onSuccess = { buyEligibility ->
+                    onSuccess =
+                    { buyEligibility ->
                         if (buyEligibility is FeatureAccess.Granted) {
                             process(
                                 SimpleBuyIntent.UpgradeEligibilityTransactionsLimit(buyEligibility.transactionsLimit)
                             )
                         }
                     },
-                    onError = {
+                    onError =
+                    {
                         processOrderErrors(it)
                     }
                 )
@@ -447,7 +484,7 @@ class SimpleBuyModel(
         asset: AssetInfo,
         fiatCurrency: FiatCurrency,
         selectedPaymentMethod: SelectedPaymentMethod,
-        availablePaymentMethods: List<PaymentMethod>
+        availablePaymentMethods: List<PaymentMethod>,
     ): Disposable {
         return interactor.fetchBuyLimits(
             fiat = fiatCurrency,
@@ -523,7 +560,7 @@ class SimpleBuyModel(
 
     private fun validateAmountAndUpdatePaymentMethod(
         paymentMethod: PaymentMethod,
-        state: SimpleBuyState
+        state: SimpleBuyState,
     ): Disposable {
         val balance = paymentMethod.availableBalance
         require(state.selectedCryptoAsset != null)
@@ -561,7 +598,7 @@ class SimpleBuyModel(
         amount: Money,
         balance: Money?,
         buyLimits: TxLimits,
-        paymentMethodLimits: TxLimits
+        paymentMethodLimits: TxLimits,
     ): Single<TransactionErrorState> =
         Single.defer {
             when {
@@ -671,7 +708,8 @@ class SimpleBuyModel(
             CardPaymentState.SETTLED,
             CardPaymentState.VOIDED,
             CardPaymentState.ABANDONED,
-            CardPaymentState.FAILED -> {
+            CardPaymentState.FAILED,
+            -> {
                 // Continue polling
             }
         }
@@ -680,7 +718,7 @@ class SimpleBuyModel(
     private fun processGetPaymentMethod(
         fiatCurrency: FiatCurrency,
         preselectedId: String?,
-        previousSelectedId: String?
+        previousSelectedId: String?,
     ) =
         fetchEligiblePaymentMethods(fiatCurrency)
             .flatMap { paymentMethods ->
@@ -713,7 +751,7 @@ class SimpleBuyModel(
     private fun updateSelectedAndAvailablePaymentMethodMethodsIntent(
         preselectedId: String?,
         previousSelectedId: String?,
-        availablePaymentMethods: List<PaymentMethod>
+        availablePaymentMethods: List<PaymentMethod>,
     ): SimpleBuyIntent.PaymentMethodsUpdated {
         val paymentOptions = PaymentOptions(
             availablePaymentMethods = availablePaymentMethods
@@ -747,7 +785,7 @@ class SimpleBuyModel(
     private fun selectedMethodId(
         preselectedId: String?,
         previousSelectedId: String?,
-        availablePaymentMethods: List<PaymentMethod>
+        availablePaymentMethods: List<PaymentMethod>,
     ): String? =
         preselectedId?.let { availablePaymentMethods.firstOrNull { it.id == preselectedId }?.id }
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
@@ -771,45 +809,11 @@ class SimpleBuyModel(
         }
     }
 
-    private fun processCreateOrder(
-        selectedCryptoAsset: AssetInfo?,
-        selectedPaymentMethod: SelectedPaymentMethod?,
-        order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency
-    ): Single<SimpleBuyIntent.OrderCreated> {
-        return isFirstTimeBuyer(recurringBuyFrequency)
-            .trackProgress(activityIndicator)
-            .flatMap { isFirstTimeBuyer ->
-                createOrder(
-                    selectedCryptoAsset,
-                    selectedPaymentMethod,
-                    order,
-                    recurringBuyFrequency.takeIf { it != RecurringBuyFrequency.ONE_TIME }
-                )
-                    .map { isFirstTimeBuyer to it }
-            }.map { (isFirstTimeBuyer, buySellOrder) ->
-                if (isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
-                    simpleBuyPrefs.isFirstTimeBuyer = false
-                    process(SimpleBuyIntent.FinishedFirstBuy)
-                }
-                buySellOrder
-            }
-    }
-
-    private fun isFirstTimeBuyer(recurringBuyFrequency: RecurringBuyFrequency): Single<Boolean> {
-        return if (simpleBuyPrefs.isFirstTimeBuyer && recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME) {
-            isFirstTimeBuyerUseCase(Unit)
-                .onErrorReturn { false }
-        } else {
-            Single.just(false)
-        }
-    }
-
     private fun createRecurringBuy(
         selectedCryptoAsset: AssetInfo?,
         order: SimpleBuyOrder,
         selectedPaymentMethod: SelectedPaymentMethod?,
-        recurringBuyFrequency: RecurringBuyFrequency
+        recurringBuyFrequency: RecurringBuyFrequency,
     ): Single<RecurringBuyOrder> =
         interactor.createRecurringBuyOrder(
             selectedCryptoAsset,
@@ -821,30 +825,11 @@ class SimpleBuyModel(
                 RecurringBuyOrder(RecurringBuyState.INACTIVE)
             }
 
-    private fun createOrder(
-        selectedCryptoAsset: AssetInfo?,
-        selectedPaymentMethod: SelectedPaymentMethod?,
-        order: SimpleBuyOrder,
-        recurringBuyFrequency: RecurringBuyFrequency?
-    ): Single<SimpleBuyIntent.OrderCreated> {
-        require(selectedCryptoAsset != null) { "Missing Cryptocurrency" }
-        require(order.amount != null) { "Missing amount" }
-        require(selectedPaymentMethod != null) { "Missing selectedPaymentMethod" }
-        return interactor.createOrder(
-            cryptoAsset = selectedCryptoAsset,
-            amount = order.amount,
-            paymentMethodId = selectedPaymentMethod.concreteId(),
-            paymentMethod = selectedPaymentMethod.paymentMethodType,
-            isPending = true,
-            recurringBuyFrequency = recurringBuyFrequency
-        ).trackProgress(activityIndicator)
-    }
-
     private fun confirmOrder(
         id: String?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         googlePayPayload: String?,
-        googlePayBeneficiaryId: String?
+        googlePayBeneficiaryId: String?,
     ): Single<BuySellOrder> {
         require(id != null) { "Order Id not available" }
         require(selectedPaymentMethod != null) { "selectedPaymentMethod missing" }
@@ -876,7 +861,7 @@ class SimpleBuyModel(
         id: String?,
         selectedPaymentMethod: SelectedPaymentMethod?,
         googlePayPayload: String? = null,
-        googlePayBeneficiaryId: String? = null
+        googlePayBeneficiaryId: String? = null,
     ): Disposable {
 
         return confirmOrder(id, selectedPaymentMethod, googlePayPayload, googlePayBeneficiaryId).map { it }
@@ -889,7 +874,7 @@ class SimpleBuyModel(
                     if (orderCreatedSuccessfully) {
                         updatePersistingCountersForCompletedOrders()
                     }
-
+                    process(SimpleBuyIntent.StopQuotesUpdate(true))
                     process(
                         SimpleBuyIntent.OrderConfirmed(buyOrder = buySellOrder)
                     )
@@ -1018,7 +1003,7 @@ class SimpleBuyModel(
 
     private fun createIntentForCardProvider(
         paymentAttributes: CardAttributes.Provider,
-        orderState: OrderState
+        orderState: OrderState,
     ): SimpleBuyIntent {
         return if (orderState == OrderState.AWAITING_FUNDS) {
             when (CardAcquirer.fromString(paymentAttributes.cardAcquirerName)) {
@@ -1056,7 +1041,7 @@ class SimpleBuyModel(
 
     private fun handleBankAuthorisationPayment(
         paymentMethodId: String,
-        authorisationUrl: String
+        authorisationUrl: String,
     ) {
         disposables += interactor.getLinkedBankInfo(paymentMethodId).subscribeBy(
             onSuccess = { linkedBank ->
@@ -1069,7 +1054,7 @@ class SimpleBuyModel(
     }
 
     private fun requestGooglePayInfo(
-        currency: FiatCurrency?
+        currency: FiatCurrency?,
     ): Single<SimpleBuyIntent.GooglePayInfoReceived> {
         require(currency != null) { "Missing Currency" }
         return interactor.getGooglePayInfo(currency)
@@ -1080,7 +1065,7 @@ class SimpleBuyModel(
     }
 
     private fun SimpleBuyInteractor.PaymentMethods.toPaymentMethods(
-        fiatCurrency: FiatCurrency
+        fiatCurrency: FiatCurrency,
     ): List<PaymentMethod> {
         val availableMap = available.associateBy { it.type }
         val limitsMap = available.associate { it.type to it.limits }
@@ -1158,7 +1143,8 @@ class SimpleBuyModel(
                             )
                         } else null
                     PaymentMethodType.FUNDS,
-                    PaymentMethodType.UNKNOWN -> null
+                    PaymentMethodType.UNKNOWN,
+                    -> null
                 }
             }
 

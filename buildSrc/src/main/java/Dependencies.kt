@@ -27,7 +27,7 @@ object Versions {
 
     // Androidx Libraries
     const val appCompat = "1.3.1"
-    const val recyclerview = "1.1.0"
+    const val recyclerview = "1.2.1"
     const val cardview = "1.0.0"
     const val gridlayout = "1.0.0"
     const val design = "1.1.0"

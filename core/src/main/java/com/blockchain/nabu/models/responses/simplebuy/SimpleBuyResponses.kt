@@ -4,8 +4,6 @@ import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.nabu.datamanagers.OrderInput
 import com.blockchain.nabu.datamanagers.OrderOutput
-import java.util.Date
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -31,17 +29,6 @@ data class SimpleBuyEligibility(
 
 @Serializable
 data class SimpleBuyCurrency(val currency: String)
-
-@Serializable
-data class SimpleBuyQuoteResponse(
-    val time: @Contextual Date,
-    val rate: Long,
-    val rateWithoutFee: Long,
-    /* the  fee value is more of a feeRate (ie it is the fee per 1 unit of crypto) to get the actual
-     "fee" you'll need to multiply by amount of crypto
-     */
-    val fee: Long
-)
 
 @Serializable
 data class BankAccountResponse(
