@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
@@ -66,6 +67,7 @@ fun BackupSuccessScreen(
             Text(
                 text = stringResource(R.string.backup_success_description),
                 style = AppTheme.typography.body1,
+                textAlign = TextAlign.Center,
                 color = Grey900,
             )
 

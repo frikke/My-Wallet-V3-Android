@@ -3,6 +3,8 @@ package com.blockchain.presentation
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 
 sealed class BackPhraseDestination(override val route: String) : ComposeNavigationDestination {
+    object LoadingBackupStatus : BackPhraseDestination("LoadingBackupStatus")
+    object BackedUpPhrase : BackPhraseDestination("BackedUpPhrase")
     object BackupPhraseIntro : BackPhraseDestination("BackupPhraseIntro")
     object RecoveryPhrase : BackPhraseDestination("RecoveryPhrase")
     object ManualBackup : BackPhraseDestination("ManualBackup")

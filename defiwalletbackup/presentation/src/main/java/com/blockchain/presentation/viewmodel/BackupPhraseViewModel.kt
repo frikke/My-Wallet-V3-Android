@@ -15,9 +15,9 @@ import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.FlowState
 import com.blockchain.presentation.UserMnemonicVerificationStatus
 import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
@@ -50,6 +50,10 @@ class BackupPhraseViewModel(
 
     override suspend fun handleIntent(modelState: BackupPhraseModelState, intent: BackupPhraseIntent) {
         when (intent) {
+            BackupPhraseIntent.StartBackup -> {
+                navigate(BackupPhraseNavigationEvent.BackupPhraseIntro)
+            }
+
             BackupPhraseIntent.LoadData -> {
                 loadData()
             }
@@ -99,7 +103,14 @@ class BackupPhraseViewModel(
     }
 
     private fun loadBackupStatus() {
+        val isBackedUp = backupPhraseService.isBackedUp()
+
         updateState { modelState.copy(hasBackup = backupPhraseService.isBackedUp()) }
+
+        navigate(
+            if (isBackedUp) BackupPhraseNavigationEvent.BackedUp
+            else BackupPhraseNavigationEvent.BackupPhraseIntro
+        )
     }
 
     /**

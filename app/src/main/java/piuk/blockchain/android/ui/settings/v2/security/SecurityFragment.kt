@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.settings.v2.security
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -22,7 +23,12 @@ import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.scopedInject
+import com.blockchain.presentation.BackupPhraseActivity
+import com.blockchain.ui.password.SecondPasswordHandler
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.data.biometrics.BiometricPromptUtil
 import piuk.blockchain.android.data.biometrics.BiometricsController
@@ -33,11 +39,13 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.settings.SettingsAnalytics
 import piuk.blockchain.android.ui.settings.v2.SettingsNavigator
 import piuk.blockchain.android.ui.settings.v2.SettingsScreen
+import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
 import piuk.blockchain.android.ui.settings.v2.sheets.BackupPhraseInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.BiometricsInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.TwoFactorInfoSheet
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSPhoneVerificationBottomSheet
 import piuk.blockchain.android.urllinks.WEB_WALLET_LOGIN_URI
+import piuk.blockchain.android.util.scopedInjectActivity
 
 class SecurityFragment :
     MviFragment<SecurityModel, SecurityIntent, SecurityState, FragmentSecurityBinding>(),
@@ -66,6 +74,18 @@ class SecurityFragment :
         ActivityResultContracts.StartActivityForResult()
     ) {
         model.process(SecurityIntent.ToggleBiometrics)
+    }
+
+    private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
+
+    private val backupFeatureFlag: FeatureFlag by inject(backupPhraseFeatureFlag)
+
+    private val onVerifyPinResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            pinCodeVerified()
+        }
     }
 
     private val onBackupResult = registerForActivityResult(
@@ -206,6 +226,12 @@ class SecurityFragment :
             }
             SecurityViewState.ShowMustBackWalletUp -> {
                 showBottomSheet(BackupPhraseInfoSheet.newInstance())
+            }
+            is SecurityViewState.LaunchPhraseRecovery -> {
+                launchPhraseRecovery(
+                    isBackedUp = viewState.isBackedUp,
+                    secondPassword = viewState.secondPassword
+                )
             }
             SecurityViewState.None -> {
                 // do nothing
@@ -387,7 +413,42 @@ class SecurityFragment :
     }
 
     private fun startBackupPhraseFlow() {
-        onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
+        backupFeatureFlag.enabled.subscribe { isEnabled ->
+            if (isEnabled) {
+                onVerifyPinResult.launch(
+                    PinActivity.newIntent(
+                        context = requireContext(),
+                        startForResult = true,
+                        originScreen = PinActivity.Companion.OriginScreenToPin.BACKUP_PHRASE,
+                        addFlagsToClear = false
+                    )
+                )
+            } else {
+                onBackupResult.launch(BackupWalletActivity.newIntent(requireContext()))
+            }
+        }
+    }
+
+    private fun pinCodeVerified() {
+        model.process(SecurityIntent.TriggerEmailAlert)
+        secondPasswordHandler.validate(
+            requireContext(),
+            object : SecondPasswordHandler.ResultListener {
+                override fun onNoSecondPassword() {
+                    model.process(SecurityIntent.BackupPhrase())
+                }
+
+                override fun onSecondPasswordValidated(validatedSecondPassword: String) {
+                    model.process(SecurityIntent.BackupPhrase(secondPassword = validatedSecondPassword))
+                }
+            }
+        )
+    }
+
+    private fun launchPhraseRecovery(isBackedUp: Boolean, secondPassword: String? = null) {
+        BackupPhraseActivity.newIntent(context = activity, isBackedUp = isBackedUp, secondPassword = secondPassword)
+            .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            .also { intent -> startActivity(intent) }
     }
 
     override fun onSheetClosed() {

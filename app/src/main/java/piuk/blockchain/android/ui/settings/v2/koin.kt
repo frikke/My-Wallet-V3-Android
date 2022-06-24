@@ -221,7 +221,8 @@ val redesignSettingsModule = module {
                 payloadManager = get(),
                 backupPrefs = get(),
                 authPrefs = get(),
-                securityPrefs = get()
+                securityPrefs = get(),
+                persistentPrefs = get()
             )
         }
 

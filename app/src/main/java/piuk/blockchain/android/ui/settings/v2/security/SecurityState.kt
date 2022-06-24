@@ -19,6 +19,7 @@ sealed class SecurityViewState {
     object ShowConfirmTwoFaEnabling : SecurityViewState()
     object LaunchPasswordChange : SecurityViewState()
     object ShowMustBackWalletUp : SecurityViewState()
+    data class LaunchPhraseRecovery(val secondPassword: String?, val isBackedUp: Boolean) : SecurityViewState()
 }
 
 enum class SecurityError {

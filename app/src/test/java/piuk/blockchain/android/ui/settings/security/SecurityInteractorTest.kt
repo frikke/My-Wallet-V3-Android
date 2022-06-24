@@ -9,6 +9,8 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
+import io.mockk.mockk
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import org.junit.Assert
 import org.junit.Before
@@ -22,6 +24,7 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
+import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class SecurityInteractorTest {
 
@@ -31,6 +34,7 @@ class SecurityInteractorTest {
     private val biometricsController: BiometricsController = mock()
     private val securityPrefs: SecurityPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
+    private val persistentPrefs: PersistentPrefs = mock()
     private val pinRepository: PinRepository = mock()
     private val payloadManager: PayloadDataManager = mock()
     private val encryptedPrefs: EncryptedPrefs = mock()
@@ -44,7 +48,8 @@ class SecurityInteractorTest {
             pinRepository = pinRepository,
             payloadManager = payloadManager,
             backupPrefs = encryptedPrefs,
-            authPrefs = authPrefs
+            authPrefs = authPrefs,
+            persistentPrefs = persistentPrefs
         )
     }
 
@@ -281,5 +286,19 @@ class SecurityInteractorTest {
 
         verify(encryptedPrefs).backupEnabled = false
         verifyNoMoreInteractions(encryptedPrefs)
+    }
+
+    @Test
+    fun `WHEN triggerSeedPhraseAlert is called, THEN triggerEmailAlert should be called`() {
+        val walletGuid = "walletGuid"
+        val sharedKey = "sharedKey"
+
+        whenever(persistentPrefs.walletGuid).thenReturn(walletGuid)
+        whenever(persistentPrefs.sharedKey).thenReturn(sharedKey)
+        whenever(settingsDataManager.triggerEmailAlert(any(), any())).thenReturn(mockk())
+
+        interactor.triggerSeedPhraseAlert()
+
+        verify(settingsDataManager).triggerEmailAlert(guid = walletGuid, sharedKey = sharedKey)
     }
 }

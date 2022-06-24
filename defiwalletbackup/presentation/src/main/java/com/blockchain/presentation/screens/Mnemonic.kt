@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.res.dimensionResource
@@ -31,12 +31,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.White600
 import com.blockchain.presentation.R
 import java.util.Locale
 
@@ -73,11 +76,6 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
                 .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.tiny_margin)))
                 .run {
                     if (hidable) {
-                        blur(if (hidden) 8.dp else 0.dp)
-                    } else this
-                }
-                .run {
-                    if (hidable) {
                         pointerInteropFilter {
                             when (it.action) {
                                 MotionEvent.ACTION_DOWN -> hidden = false
@@ -103,21 +101,20 @@ private fun Mnemonic(mnemonic: List<String>, hidable: Boolean) {
             )
         }
 
-        // todo(othman): what to do when blur is not supported @ethan
-        //        Box(
-        //            modifier = Modifier
-        //                .constrainAs(mask) {
-        //                    start.linkTo(grid.start)
-        //                    top.linkTo(grid.top)
-        //                    end.linkTo(grid.end)
-        //                    bottom.linkTo(grid.bottom)
-        //                    width = Dimension.fillToConstraints
-        //                    height = Dimension.fillToConstraints
-        //                }
-        //            // .background(White600)
-        //        )
-
         if (hidable && hidden) {
+            Box(
+                modifier = Modifier
+                    .constrainAs(mask) {
+                        start.linkTo(grid.start)
+                        top.linkTo(grid.top)
+                        end.linkTo(grid.end)
+                        bottom.linkTo(grid.bottom)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }
+                    .background(Grey000)
+            )
+
             Image(
                 modifier = Modifier
                     .constrainAs(icon) {
