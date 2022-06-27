@@ -94,7 +94,7 @@ class KycStoreRepositoryTest {
     }
 
     @Test
-    fun a() {
+    fun `WHEN getKycTiers is called, THEN kycTiers should be returned`() {
         kycStoreService.getKycTiers()
             .test()
             .await()
