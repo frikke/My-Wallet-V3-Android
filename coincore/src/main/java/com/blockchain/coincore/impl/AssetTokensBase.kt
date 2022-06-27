@@ -296,7 +296,7 @@ internal class ActiveAccountList(
         loader: () -> Single<SingleAccountList>,
     ): Single<SingleAccountList> =
         shouldRefresh().flatMap { refresh ->
-            if (refresh) {
+            if (refresh || activeList.isEmpty()) {
                 loader().map { updateWith(it) }
             } else {
                 Single.just(activeList.toList())

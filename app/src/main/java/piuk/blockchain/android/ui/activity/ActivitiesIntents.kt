@@ -66,7 +66,7 @@ object ShowAccountSelectionIntent : ActivitiesIntent() {
 }
 
 class CancelSimpleBuyOrderIntent(
-    val orderId: String
+    val orderId: String,
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState = oldState
 }
@@ -74,7 +74,7 @@ class CancelSimpleBuyOrderIntent(
 class ShowActivityDetailsIntent(
     private val currency: Currency,
     private val txHash: String,
-    private val type: ActivityType
+    private val type: ActivityType,
 ) : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(

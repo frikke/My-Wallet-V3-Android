@@ -48,6 +48,7 @@ val dashboardModule = module {
                 userIdentity = get(),
                 walletModeService = get(),
                 analytics = get(),
+                walletModeBalanceCache = get(),
                 remoteLogger = get(),
                 linkedBanksFactory = get(),
                 getDashboardOnboardingStepsUseCase = get(),
@@ -134,5 +135,7 @@ val dashboardModule = module {
                 cardService = get()
             )
         }
+
+        scoped { WalletModeBalanceCache(coincore = get()) }
     }
 }

@@ -71,7 +71,7 @@ val mainModule = module {
         viewModel {
             WalletModeSelectionViewModel(
                 walletModeService = get(),
-                coincore = get()
+                cache = get()
             )
         }
     }

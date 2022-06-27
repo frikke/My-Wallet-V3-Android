@@ -23,7 +23,7 @@ class InMemoryCacheStoreBuilder {
         mediator: Mediator<Unit, T>,
         scope: CoroutineScope = GlobalScope
     ): Store<E, T> = object : Store<E, T> {
-        private val backingStore = buildKeyed<Unit, E, T>(
+        private val backingStore = buildKeyed(
             storeId = storeId,
             fetcher = fetcher,
             mediator = mediator,

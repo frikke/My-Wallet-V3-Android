@@ -77,6 +77,7 @@ class DashboardActionInteractorTest {
             nftWaitlistService = nftWaitlistService,
             nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
+            walletModeBalanceCache = mock(),
             bankService = bankService
         )
     }

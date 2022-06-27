@@ -272,7 +272,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class PriceHistoryUpdate(
         val asset: AssetInfo,
-        private val historicPrices: HistoricalRateList,
+        private val historicPrices: HistoricalRateList
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return if (oldState.activeAssets.contains(asset)) {
@@ -287,7 +287,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
         private fun updateAsset(
             old: CryptoAssetState,
-            historicPrices: HistoricalRateList,
+            historicPrices: HistoricalRateList
         ): CryptoAssetState {
             val trend = historicPrices.map { it.rate.toFloat() }
             return old.copy(priceTrend = trend)

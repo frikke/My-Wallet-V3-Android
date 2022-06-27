@@ -191,21 +191,6 @@ class ActiveAccountListTest {
         verifyNoMoreInteractions(custodialManager)
     }
 
-    @Test
-    fun noRefreshIfWalletManagerFails() {
-
-        whenever(custodialManager.getInterestAvailabilityForAsset(TEST_ASSET))
-            .thenReturn(Single.error<Boolean>(Throwable("Not today, chum")))
-
-        subject.fetchAccountList(::loadOneAccountList)
-            .test()
-            .assertComplete()
-            .assertValue { it.isEmpty() }
-
-        verify(custodialManager).getInterestAvailabilityForAsset(TEST_ASSET)
-        verifyNoMoreInteractions(custodialManager)
-    }
-
     private val mockAccountA: CryptoAccount = mock()
     private val mockAccountB: CryptoAccount = mock()
     private val mockAccountC: CryptoAccount = mock()

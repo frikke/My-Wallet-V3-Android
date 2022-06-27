@@ -2,22 +2,27 @@ package piuk.blockchain.android.ui.dashboard
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import com.blockchain.outcome.doOnSuccess
+import com.blockchain.store.KeyedStoreRequest
+import com.blockchain.store.StoreResponse
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Money
 import java.lang.IllegalArgumentException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import piuk.blockchain.android.R
-import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
-class WalletModeSelectionViewModel(private val walletModeService: WalletModeService, private val coincore: Coincore) :
+class WalletModeSelectionViewModel(
+    private val walletModeService: WalletModeService,
+    private val cache: WalletModeBalanceCache,
+) :
     MviViewModel<
         WalletModeSelectionIntent,
         WalletModeSelectionViewState,
@@ -55,30 +60,54 @@ class WalletModeSelectionViewModel(private val walletModeService: WalletModeServ
     }
 
     override suspend fun handleIntent(modelState: WalletModeSelectionModelState, intent: WalletModeSelectionIntent) {
+
         when (intent) {
             WalletModeSelectionIntent.LoadAvailableModesAndBalances -> {
                 updateState {
                     it.copy(brokerageBalance = null, defiBalance = null)
                 }
 
-                coincore.allWalletsInMode(WalletMode.CUSTODIAL_ONLY).flatMap { it.balance.firstOrError() }
-                    .awaitOutcome()
-                    .doOnSuccess { balance ->
-                        updateState {
+                val nonCustodialBalance = cache.stream(
+                    KeyedStoreRequest.Cached(
+                        key = WalletMode.NON_CUSTODIAL_ONLY,
+                        forceRefresh = false
+                    )
+                ).map { response ->
+                    when (response) {
+                        is StoreResponse.Data -> updateState {
                             it.copy(
-                                brokerageBalance = balance.total
+                                defiBalance = response.data.total
                             )
                         }
-                    }
-                coincore.allWalletsInMode(WalletMode.NON_CUSTODIAL_ONLY).flatMap { it.balance.firstOrError() }
-                    .awaitOutcome()
-                    .doOnSuccess { balance ->
-                        updateState {
-                            it.copy(
-                                defiBalance = balance.total
-                            )
+                        is StoreResponse.Error,
+                        StoreResponse.Loading,
+                        -> {
+                            // Do nothing
                         }
                     }
+                }
+
+                val custodialBalance = cache.stream(
+                    KeyedStoreRequest.Cached(
+                        key = WalletMode.CUSTODIAL_ONLY,
+                        forceRefresh = false
+                    )
+                ).map { response ->
+                    when (response) {
+                        is StoreResponse.Data -> updateState {
+                            it.copy(
+                                brokerageBalance = response.data.total
+                            )
+                        }
+                        is StoreResponse.Error,
+                        StoreResponse.Loading,
+                        -> {
+                            // Do nothing
+                        }
+                    }
+                }
+
+                merge(nonCustodialBalance, custodialBalance).collect()
             }
 
             is WalletModeSelectionIntent.UpdateActiveWalletMode -> {

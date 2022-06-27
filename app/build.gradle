@@ -357,6 +357,7 @@ dependencies {
     implementation project(':analytics:data')
     implementation project(':store:core')
     implementation project(':store:caches:persistedjsonsqldelight')
+    implementation project(':store:caches:inmemory')
     implementation project(':blockchainCard')
 
     implementation project(':appMaintenance:data')

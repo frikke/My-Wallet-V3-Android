@@ -13,7 +13,6 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.fiat.FiatAsset
 import com.blockchain.coincore.fiat.LinkedBanksFactory
-import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -32,10 +31,10 @@ import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -59,6 +58,7 @@ import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -82,6 +82,7 @@ class DashboardActionInteractor(
     private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
+    private val walletModeBalanceCache: WalletModeBalanceCache,
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
@@ -178,21 +179,37 @@ class DashboardActionInteractor(
     ): Disposable {
         val cd = CompositeDisposable()
 
-        if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
-            loadBalancesWithNonCustodialStrategy(state.assetMapKeys, state.erc20Assets.toSet(), model, cd)
-        } else {
-            loadTradingBalancesStrategy(state.assetMapKeys, model, cd)
-        }
+        loadBalances(state.assetMapKeys, model, cd)
 
         state.fiatAssets.fiatAccounts
             .values.forEach {
                 cd += refreshFiatAssetBalance(it.account, model)
             }
 
+        cd += warmWalletModeBalanceCache(cd)
+
         return cd
     }
 
-    private fun loadTradingBalancesStrategy(
+    private fun warmWalletModeBalanceCache(cd: CompositeDisposable): Disposable {
+        cd += walletModeBalanceCache.stream(
+            request = KeyedStoreRequest.Cached(
+                key = WalletMode.NON_CUSTODIAL_ONLY,
+                forceRefresh = true
+            )
+        ).asObservable().emptySubscribe()
+
+        cd += walletModeBalanceCache.stream(
+            request = KeyedStoreRequest.Cached(
+                key = WalletMode.CUSTODIAL_ONLY,
+                forceRefresh = true
+            )
+        ).asObservable().emptySubscribe()
+
+        return cd
+    }
+
+    private fun loadBalances(
         assets: Set<AssetInfo>,
         model: DashboardModel,
         cd: CompositeDisposable,
@@ -202,24 +219,6 @@ class DashboardActionInteractor(
                 Timber.e(it)
             })
         }
-    }
-
-    private fun loadBalancesWithNonCustodialStrategy(
-        assets: Set<AssetInfo>,
-        erc20Assets: Set<AssetInfo>,
-        model: DashboardModel,
-        cd: CompositeDisposable,
-    ) {
-        assets
-            .filter { !it.isErc20() }
-            .forEach { asset ->
-                cd += refreshAssetBalance(asset, model)
-                    .ifEthLoadedGetErc20Balance(model, cd, erc20Assets)
-                    .ifEthFailedThenErc20Failed(asset, model, erc20Assets)
-                    .subscribeBy(onError = {
-                        Timber.e(it)
-                    })
-            }
     }
 
     fun refreshFiatBalances(
@@ -271,31 +270,6 @@ class DashboardActionInteractor(
                 it.total as CryptoValue
             }
 
-    private fun Single<CryptoValue>.ifEthLoadedGetErc20Balance(
-        model: DashboardModel,
-        disposables: CompositeDisposable,
-        erc20Assets: Set<AssetInfo>,
-    ) = this.doOnSuccess { value ->
-        if (value.currency == CryptoCurrency.ETHER) {
-            erc20Assets.forEach {
-                disposables += refreshAssetBalance(it, model)
-                    .emptySubscribe()
-            }
-        }
-    }
-
-    private fun Single<CryptoValue>.ifEthFailedThenErc20Failed(
-        asset: AssetInfo,
-        model: DashboardModel,
-        erc20Assets: Set<AssetInfo>,
-    ) = this.doOnError {
-        if (asset.networkTicker == CryptoCurrency.ETHER.networkTicker) {
-            erc20Assets.forEach {
-                model.process(DashboardIntent.BalanceUpdateError(it))
-            }
-        }
-    }
-
     private fun refreshFiatAssetBalance(
         account: FiatAccount,
         model: DashboardModel,
@@ -331,10 +305,12 @@ class DashboardActionInteractor(
 
     fun refreshPriceHistory(model: DashboardModel, asset: AssetInfo): Disposable =
         if (asset.startDate != null) {
-            (coincore[asset] as CryptoAsset).lastDayTrend()
+            coincore[asset].lastDayTrend()
         } else {
             Single.just(FLATLINE_CHART)
-        }.map { DashboardIntent.PriceHistoryUpdate(asset, it) }
+        }.map { lastDayTrend ->
+            DashboardIntent.PriceHistoryUpdate(asset, lastDayTrend)
+        }
             .subscribeBy(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
