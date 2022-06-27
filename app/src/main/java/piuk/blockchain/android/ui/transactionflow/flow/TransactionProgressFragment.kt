@@ -64,6 +64,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.txProgressView.setupPrimaryCta(
+            text = getString(R.string.common_ok)
+        ) { activity.finish() }
     }
 
     override fun render(newState: TransactionState) {
@@ -139,10 +142,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                         when {
                             settlementActions != SettlementErrorStateAction.None ->
                                 handleActionForErrorState(settlementActions)
-                            actions.isEmpty() ->
-                                setupPrimaryCta(
-                                    text = getString(R.string.common_ok)
-                                ) { activity.finish() }
                             else -> {
                                 showServerSideActionErrorCtas(
                                     list = actions,
