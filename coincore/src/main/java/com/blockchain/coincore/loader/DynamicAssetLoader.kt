@@ -182,8 +182,10 @@ internal class DynamicAssetLoader(
         erc20Assets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
 
-        val tradingBalancesAssets = tradingBalances.getActiveAssets().printTime("----- ::Erc20Assets - tradingBalances")
-        val interestBalancesAssets = interestBalances.getActiveAssets().printTime("----- ::Erc20Assets - interestBalances")
+        val tradingBalancesAssets = tradingBalances.getActiveAssets()
+            .printTime("----- ::Erc20Assets - tradingBalances")
+        val interestBalancesAssets = interestBalances.getActiveAssets()
+            .printTime("----- ::Erc20Assets - interestBalances")
 
         // Assets with non custodial balance
         val erc20ActiveAssets =
