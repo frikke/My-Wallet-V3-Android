@@ -10,6 +10,7 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import kotlinx.parcelize.Parcelize
+import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ErrorSlidingBottomDialogBinding
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.ACTION_UNKNOWN
@@ -43,7 +44,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             description.text = errorDialogData.description
             errorDialogData.errorButtonCopies?.primaryButtonText?.let { primaryButtonText ->
                 primaryCtaButton.apply {
-                    text = primaryButtonText
+                    text = primaryButtonText.ifEmpty { getString(R.string.common_ok) }
                     onClick = {
                         dismiss()
                         host.onErrorPrimaryCta()
@@ -51,24 +52,33 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                     visible()
                 }
             } ?: primaryCtaButton.gone()
+
             errorDialogData.errorButtonCopies?.secondaryButtonText?.let { secondaryButtonText ->
-                secondaryCtaButton.apply {
-                    text = secondaryButtonText
-                    onClick = {
-                        dismiss()
-                        host.onErrorSecondaryCta()
+                if (secondaryButtonText.isNotEmpty()) {
+                    secondaryCtaButton.apply {
+                        text = secondaryButtonText
+                        onClick = {
+                            dismiss()
+                            host.onErrorSecondaryCta()
+                        }
+                        visible()
                     }
-                    visible()
+                } else {
+                    secondaryCtaButton.gone()
                 }
             } ?: secondaryCtaButton.gone()
             errorDialogData.errorButtonCopies?.tertiaryButtonText?.let { tertiaryButtonText ->
-                tertiaryCtaButton.apply {
-                    text = tertiaryButtonText
-                    onClick = {
-                        dismiss()
-                        host.onErrorTertiaryCta()
+                if (tertiaryButtonText.isNotEmpty()) {
+                    tertiaryCtaButton.apply {
+                        text = tertiaryButtonText
+                        onClick = {
+                            dismiss()
+                            host.onErrorTertiaryCta()
+                        }
+                        visible()
                     }
-                    visible()
+                } else {
+                    tertiaryCtaButton.gone()
                 }
             } ?: tertiaryCtaButton.gone()
         }

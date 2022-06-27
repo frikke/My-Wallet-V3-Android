@@ -300,7 +300,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
             when (index) {
                 0 -> {
                     setupPrimaryCta(
-                        text = item.title
+                        text = item.title.asButtonCopyOrDefault()
                     ) {
                         redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
                         onActionsClickedCallback.onPrimaryButtonClicked()
@@ -308,7 +308,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
                 }
                 1 -> {
                     setupSecondaryCta(
-                        text = item.title
+                        text = item.title.asButtonCopyOrDefault()
                     ) {
                         redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
                         onActionsClickedCallback.onSecondaryButtonClicked()
@@ -316,7 +316,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
                 }
                 2 -> {
                     setupTertiaryCta(
-                        text = item.title
+                        text = item.title.asButtonCopyOrDefault()
                     ) {
                         redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
                         onActionsClickedCallback.onTertiaryButtonClicked()
@@ -328,6 +328,9 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
             }
         }
     }
+
+    private fun String.asButtonCopyOrDefault() =
+        this.ifEmpty { context.getString(R.string.common_ok) }
 
     private fun redirectToDeeplinkProcessor(link: String, currencyCode: String) {
         compositeDisposable += deeplinkRedirector.processDeeplinkURL(
