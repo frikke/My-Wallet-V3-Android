@@ -8,11 +8,11 @@ sealed class ReferralAnalyticsEvents(
     override val params: Map<String, String> = emptyMap(),
 ) : AnalyticsEvent {
 
-    data class ReferralCtaClicked(val source: Source) : ReferralAnalyticsEvents(
+    data class ReferralCtaClicked(val launchOrigin: Origin) : ReferralAnalyticsEvents(
         event = AnalyticsNames.REFERRAL_CTA_CLICKED.eventName,
         params = mapOf(
             KEY_PLATFORM to WALLET,
-            KEY_SOURCE to source.name
+            KEY_ORIGIN to launchOrigin.name
         )
     )
 
@@ -47,10 +47,10 @@ sealed class ReferralAnalyticsEvents(
         private const val KEY_PLATFORM = "platform"
         private const val KEY_CAMPAIGN_ID = "campaign_id"
         private const val KEY_CODE = "code"
-        private const val KEY_SOURCE = "source"
+        private const val KEY_ORIGIN = "origin"
     }
 }
 
-enum class Source {
+enum class Origin {
     Profile, Portfolio, PopupSheet, Deeplink
 }
