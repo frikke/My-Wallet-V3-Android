@@ -304,16 +304,17 @@ class MainActivity :
         updateToolbarMenuItems(
             listOf(qrButton, settingsButton)
         )
-        updateToolbarStartItem(
-            NavigationBarButton.DropdownIndicator(
-                dropDownClicked = {
-                    showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
-                },
-                text = getString(walletModeService.enabledWalletMode().title()),
-                rightIcon = walletModeService.enabledWalletMode().icon(),
-                contentDescription = walletModeService.enabledWalletMode().name
+        if (walletModeService.enabledWalletMode() != WalletMode.UNIVERSAL)
+            updateToolbarStartItem(
+                NavigationBarButton.DropdownIndicator(
+                    dropDownClicked = {
+                        showBottomSheet(WalletModeSelectionBottomSheet.newInstance())
+                    },
+                    text = getString(walletModeService.enabledWalletMode().title()),
+                    rightIcon = walletModeService.enabledWalletMode().icon(),
+                    contentDescription = walletModeService.enabledWalletMode().name
+                )
             )
-        )
     }
 
     private fun setupMenuWithPresentButton(referralState: ReferralState) {
