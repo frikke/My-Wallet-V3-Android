@@ -4,6 +4,8 @@ import com.blockchain.api.assetprice.data.AssetPriceDto
 import com.blockchain.api.assetprice.data.AvailableSymbolsDto
 import com.blockchain.api.assetprice.data.PriceRequestPairDto
 import com.blockchain.api.assetprice.data.PriceResponseMapDto
+import com.blockchain.network.interceptor.Cacheable
+import com.blockchain.network.interceptor.Cacheable.Companion.MAX_AGE_1_DAY
 import com.blockchain.network.interceptor.DoNotLogResponseBody
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
@@ -13,6 +15,7 @@ import retrofit2.http.Query
 
 internal interface AssetPriceApiInterface {
 
+    @Cacheable(maxAge = MAX_AGE_1_DAY)
     @GET("price/symbols")
     @DoNotLogResponseBody
     fun getAvailableSymbols(
