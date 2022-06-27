@@ -97,7 +97,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxSuccess(
         title: String,
         subtitle: String,
-        icon: Int = R.drawable.ic_check_circle
+        icon: Int = R.drawable.ic_check_circle,
     ) {
         with(binding) {
             txStateIndicator.setImageResource(icon)
@@ -110,7 +110,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showPendingTx(
         title: String,
         subtitle: String,
-        locksNote: SpannableStringBuilder
+        locksNote: SpannableStringBuilder,
     ) {
         with(binding) {
             txStateIndicator.setImageResource(R.drawable.ic_check_circle)
@@ -128,7 +128,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showTxError(
         title: String,
         subtitle: CharSequence,
-        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd
+        @DrawableRes statusIcon: Int = R.drawable.ic_alert_white_bkgd,
     ) {
         with(binding) {
             txStateIndicator.setImageResource(statusIcon)
@@ -143,7 +143,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         statusIconUrl: String = "", // not all server side errors will have a status icon
         title: String,
         description: String,
-        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd
+        @DrawableRes defaultErrorStatusIcon: Int = R.drawable.ic_alert_white_bkgd,
     ) {
         when {
             // we have been provided both icon and status
@@ -179,7 +179,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         statusIconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultStatusIcon: Int
+        @DrawableRes defaultStatusIcon: Int,
     ) {
         context.loadRemoteErrorAndStatusIcons(
             iconUrl,
@@ -219,7 +219,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
         iconUrl: String,
         title: String,
         description: String,
-        @DrawableRes defaultStatusIcon: Int
+        @DrawableRes defaultStatusIcon: Int,
     ) {
         context.loadRemoteErrorIcon(
             iconUrl,
@@ -243,7 +243,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun updateStatusIcon(
         title: String,
         subtitle: CharSequence,
-        statusIcon: Drawable
+        statusIcon: Drawable,
     ) {
         with(binding) {
             txStateIndicator.setImageDrawable(statusIcon)
@@ -256,7 +256,7 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     private fun updateErrorIcon(
         title: String,
         subtitle: CharSequence,
-        icon: Drawable
+        icon: Drawable,
     ) {
         with(binding) {
             txIcon.setImageDrawable(icon)
@@ -294,33 +294,36 @@ class TransactionProgressView(context: Context, attrs: AttributeSet) :
     fun showServerSideActionErrorCtas(
         list: List<ServerErrorAction>,
         currencyCode: String,
-        onActionsClickedCallback: TransactionProgressActions
+        onActionsClickedCallback: TransactionProgressActions,
     ) {
         list.mapIndexed { index, item ->
             when (index) {
                 0 -> {
                     setupPrimaryCta(
-                        text = item.title.asButtonCopyOrDefault()
-                    ) {
-                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
-                        onActionsClickedCallback.onPrimaryButtonClicked()
-                    }
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onPrimaryButtonClicked()
+                        }
+                    )
                 }
                 1 -> {
                     setupSecondaryCta(
-                        text = item.title.asButtonCopyOrDefault()
-                    ) {
-                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
-                        onActionsClickedCallback.onSecondaryButtonClicked()
-                    }
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onSecondaryButtonClicked()
+                        }
+                    )
                 }
                 2 -> {
                     setupTertiaryCta(
-                        text = item.title.asButtonCopyOrDefault()
-                    ) {
-                        redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
-                        onActionsClickedCallback.onTertiaryButtonClicked()
-                    }
+                        text = item.title.asButtonCopyOrDefault(),
+                        onClick = {
+                            redirectToDeeplinkProcessor(item.deeplinkPath, currencyCode)
+                            onActionsClickedCallback.onTertiaryButtonClicked()
+                        }
+                    )
                 }
                 else -> {
                     // do nothing - we only support 3 actions

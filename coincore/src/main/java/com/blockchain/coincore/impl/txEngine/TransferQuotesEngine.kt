@@ -88,6 +88,7 @@ class TransferQuotesEngine(
         direction: TransferDirection,
         pair: CurrencyPair
     ) {
+        stop()
         this.direction = direction
         this.pair = pair
     }

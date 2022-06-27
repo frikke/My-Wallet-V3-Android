@@ -65,8 +65,9 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.txProgressView.setupPrimaryCta(
-            text = getString(R.string.common_ok)
-        ) { activity.finish() }
+            text = getString(R.string.common_ok),
+            onClick = { activity.finish() }
+        )
     }
 
     override fun render(newState: TransactionState) {
@@ -107,7 +108,6 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                     ),
                     PAYMENT_APPROVAL
                 )
-                // dismiss()
             }
             is TxExecutionStatus.Error -> {
                 analyticsHooks.onTransactionFailure(
@@ -390,11 +390,14 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
     private fun handleActionForErrorState(settlementErrorStateAction: SettlementErrorStateAction) {
         when (settlementErrorStateAction) {
             is SettlementErrorStateAction.RelinkBank -> {
-                binding.txProgressView.setupPrimaryCta(text = settlementErrorStateAction.message) {
-                    refreshBankResultLauncher.launch(
-                        Pair(settlementErrorStateAction.bankAccountId, BankAuthSource.DEPOSIT)
-                    )
-                }
+                binding.txProgressView.setupPrimaryCta(
+                    text = settlementErrorStateAction.message,
+                    onClick = {
+                        refreshBankResultLauncher.launch(
+                            Pair(settlementErrorStateAction.bankAccountId, BankAuthSource.DEPOSIT)
+                        )
+                    }
+                )
             }
             SettlementErrorStateAction.None -> {}
         }

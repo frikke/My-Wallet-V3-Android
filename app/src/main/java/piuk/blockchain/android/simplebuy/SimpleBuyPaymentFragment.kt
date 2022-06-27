@@ -560,15 +560,21 @@ class SimpleBuyPaymentFragment :
 
     private fun TransactionProgressView.setupErrorButtons(list: List<ServerErrorAction>, currencyCode: String) {
         if (list.isEmpty()) {
-            setupPrimaryCta(text = getString(R.string.common_try_again)) {
-                navigator().popFragmentsInStackUntilFind(
-                    fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
-                    popInclusive = true
-                )
-            }
-            setupSecondaryCta(getString(R.string.bank_transfer_transfer_go_back)) {
-                navigator().exitSimpleBuyFlow()
-            }
+            setupPrimaryCta(
+                text = getString(R.string.common_try_again),
+                onClick = {
+                    navigator().popFragmentsInStackUntilFind(
+                        fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                        popInclusive = true
+                    )
+                }
+            )
+            setupSecondaryCta(
+                text = getString(R.string.bank_transfer_transfer_go_back),
+                onClick = {
+                    navigator().exitSimpleBuyFlow()
+                }
+            )
         } else {
             showServerSideActionErrorCtas(
                 list = list,
