@@ -15,23 +15,29 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
+import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class InterestDepositTradingEngine(
-    interestDataSource: InterestDataSource,
+    private val interestDataSource: InterestDataSource,
+    private val tradingDataSource: TradingDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager
-) : InterestBaseEngine(walletManager, interestDataSource) {
+    val interestBalances: InterestBalanceDataManager,
+) : InterestBaseEngine(walletManager) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf(interestDataSource, tradingDataSource)
 
     override fun assertInputsValid() {
         check(sourceAccount is TradingAccount)

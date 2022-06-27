@@ -21,11 +21,11 @@ import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.custodial.TradingBalanceDataManagerImpl
-import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.custodial.data.TradingStoreRepository
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.custodial.data.store.TradingStore
 import com.blockchain.core.custodial.domain.TradingStoreService
+import com.blockchain.core.dataremediation.DataRemediationRepository
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
