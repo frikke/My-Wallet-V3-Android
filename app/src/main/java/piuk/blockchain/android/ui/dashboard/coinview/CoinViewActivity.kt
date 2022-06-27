@@ -339,10 +339,10 @@ class CoinViewActivity :
         when (newState.error) {
             CoinViewError.UnknownAsset -> binding.noAssetError.visible()
             CoinViewError.WalletLoadError -> {
-                if (!listItems.contains(AssetDetailsItem.AccountError)) {
-                    listItems.add(AssetDetailsItem.AccountError)
-                    updateList()
-                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.AccountError) &&
+                    listItems.none { it is AssetDetailsItem.CryptoDetailsInfo }
+                ) {
+                    addListError(AssetDetailsItem.AccountError)
                 }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_wallet_load_error), type = SnackbarType.Error
@@ -355,10 +355,10 @@ class CoinViewActivity :
                 ).show()
             }
             CoinViewError.RecurringBuysLoadError -> {
-                if (!listItems.contains(AssetDetailsItem.AccountError)) {
-                    listItems.add(AssetDetailsItem.AccountError)
-                    updateList()
-                    binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+                if (!listItems.contains(AssetDetailsItem.RecurringBuyError) &&
+                    listItems.none { it is AssetDetailsItem.RecurringBuyInfo }
+                ) {
+                    addListError(AssetDetailsItem.RecurringBuyError)
                 }
                 BlockchainSnackbar.make(
                     binding.root, getString(R.string.coinview_recurring_buy_load_error), type = SnackbarType.Warning
@@ -395,10 +395,17 @@ class CoinViewActivity :
             CoinViewError.AssetDetailsLoadError -> binding.assetInformationSwitcher.gone()
         }
 
+    private fun addListError(errorType: AssetDetailsItem) {
+        listItems.add(errorType)
+        updateList()
+        binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
+    }
+
     private fun renderUiState(newState: CoinViewState) {
         when (val state = newState.viewState) {
             CoinViewViewState.LoadingWallets,
-            CoinViewViewState.LoadingRecurringBuys -> {
+            CoinViewViewState.LoadingRecurringBuys,
+            -> {
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LOADING
             }
             CoinViewViewState.LoadingChart -> binding.assetChartViewSwitcher.displayedChild = CHART_LOADING
@@ -607,7 +614,7 @@ class CoinViewActivity :
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
         startAction: QuickActionCta,
-        endAction: QuickActionCta
+        endAction: QuickActionCta,
     ) {
         with(binding) {
             when {
@@ -636,7 +643,7 @@ class CoinViewActivity :
     private fun ActivityCoinviewBinding.updatePrimaryCta(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
-        endAction: QuickActionCta
+        endAction: QuickActionCta,
     ) {
         val endButtonResources = getQuickActionUi(asset, highestBalanceWallet, endAction)
         primaryCta.apply {
@@ -652,7 +659,7 @@ class CoinViewActivity :
     private fun ActivityCoinviewBinding.updateSecondaryCta(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
-        startAction: QuickActionCta
+        startAction: QuickActionCta,
     ) {
         val startButtonResources = getQuickActionUi(asset, highestBalanceWallet, startAction)
         secondaryCta.apply {
@@ -759,7 +766,7 @@ class CoinViewActivity :
     private fun getQuickActionUi(
         asset: AssetInfo,
         highestBalanceWallet: BlockchainAccount,
-        action: QuickActionCta
+        action: QuickActionCta,
     ): QuickAction =
         when (action) {
             QuickActionCta.Buy -> QuickAction(
@@ -874,7 +881,7 @@ class CoinViewActivity :
     private fun renderPriceInformation(
         prices: Prices24HrWithDelta,
         historicalRateList: HistoricalRateList,
-        selectedFiat: FiatCurrency
+        selectedFiat: FiatCurrency,
     ) {
         prices24Hr = prices
         historicalGraphData = historicalRateList
@@ -917,7 +924,7 @@ class CoinViewActivity :
     }
 
     private fun renderAccountsDetails(
-        assetDetails: List<AssetDisplayInfo>
+        assetDetails: List<AssetDisplayInfo>,
     ) {
         val itemList = mutableListOf<AssetDetailsItem>()
 
@@ -942,7 +949,7 @@ class CoinViewActivity :
     }
 
     private fun onAccountSelected(
-        accountDetails: AssetDetailsItem.CryptoDetailsInfo
+        accountDetails: AssetDetailsItem.CryptoDetailsInfo,
     ) {
         if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
             analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
@@ -1012,7 +1019,7 @@ class CoinViewActivity :
     override fun navigateToAction(
         action: AssetAction,
         selectedAccount: BlockchainAccount,
-        assetInfo: AssetInfo
+        assetInfo: AssetInfo,
     ) {
         when (action) {
             AssetAction.Send -> startSend(selectedAccount)
@@ -1102,12 +1109,13 @@ class CoinViewActivity :
             HistoricalTimeSpan.WEEK -> PATTERN_DAY_HOUR
             HistoricalTimeSpan.MONTH -> PATTERN_DAY_HOUR_MONTH
             HistoricalTimeSpan.YEAR,
-            HistoricalTimeSpan.ALL_TIME -> PATTERN_DAY_MONTH_YEAR
+            HistoricalTimeSpan.ALL_TIME,
+            -> PATTERN_DAY_MONTH_YEAR
         }
 }
 
 private data class QuickAction(
     val name: String,
     val icon: ImageResource,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
