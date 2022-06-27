@@ -3,6 +3,7 @@ package com.blockchain.api.services
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.blockchainCard.BlockchainCardApi
 import com.blockchain.api.blockchainCard.WalletHelperUrl
+import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBodyDto
@@ -118,5 +119,25 @@ class BlockchainCardService internal constructor(
     ): Outcome<ApiError, ResidentialAddressRequestDto> = api.updateResidentialAddress(
         authorization = authHeader,
         residentialAddress = ResidentialAddressUpdateDto(address = residentialAddress)
+    )
+
+    suspend fun getTransactions(
+        authHeader: String,
+        cardId: String? = null,
+        types: List<String>? = null,
+        from: String? = null,
+        to: String? = null,
+        toId: String? = null,
+        fromId: String? = null,
+        limit: Int? = null,
+    ): Outcome<ApiError, List<BlockchainCardTransactionDto>> = api.getTransactions(
+        authorization = authHeader,
+        cardId = cardId,
+        types = types,
+        from = from,
+        to = to,
+        toId = toId,
+        fromId = fromId,
+        limit = limit
     )
 }

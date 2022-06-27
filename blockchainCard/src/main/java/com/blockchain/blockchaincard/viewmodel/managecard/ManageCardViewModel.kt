@@ -22,6 +22,7 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 updateState { it.copy(card = args.card) }
                 onIntent(BlockchainCardIntent.LoadCardWidget)
                 onIntent(BlockchainCardIntent.LoadLinkedAccount)
+                onIntent(BlockchainCardIntent.LoadTransactions)
             }
 
             is BlockchainCardArgs.ProductArgs -> {
@@ -285,6 +286,17 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                     },
                     onFailure = {
                         Timber.e("Unable to get user first and last name: $it")
+                    }
+                )
+            }
+
+            is BlockchainCardIntent.LoadTransactions -> {
+                blockchainCardRepository.getTransactions().fold(
+                    onSuccess = { transactions ->
+                        Timber.d("Transactions loaded: $transactions")
+                    },
+                    onFailure = {
+                        Timber.e("Unable to get transactions: $it")
                     }
                 )
             }

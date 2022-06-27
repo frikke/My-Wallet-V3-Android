@@ -1,6 +1,7 @@
 package com.blockchain.api.blockchainCard
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardAccountDto
 import com.blockchain.api.blockchainCard.data.CardAccountLinkDto
 import com.blockchain.api.blockchainCard.data.CardCreationRequestBodyDto
@@ -17,6 +18,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 internal interface BlockchainCardApi {
 
@@ -89,4 +91,16 @@ internal interface BlockchainCardApi {
         @Header("authorization") authorization: String,
         @Body residentialAddress: ResidentialAddressUpdateDto
     ): Outcome<ApiError, ResidentialAddressRequestDto>
+
+    @GET("card-issuing/transactions")
+    suspend fun getTransactions(
+        @Header("authorization") authorization: String,
+        @Query("cardId") cardId: String?,
+        @Query("types") types: List<String>?,
+        @Query("from") from: String?,
+        @Query("to") to: String?,
+        @Query("toId") toId: String?,
+        @Query("fromId") fromId: String?,
+        @Query("limit") limit: Int?
+    ): Outcome<ApiError, List<BlockchainCardTransactionDto>>
 }

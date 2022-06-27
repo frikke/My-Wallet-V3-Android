@@ -25,6 +25,7 @@ sealed class BlockchainCardError {
     object GetResidentialAddressFailed : BlockchainCardError()
     object UpdateResidentialAddressFailed : BlockchainCardError()
     object GetUserProfileFailed : BlockchainCardError()
+    object GetTransactionsFailed : BlockchainCardError()
 }
 
 @Parcelize
@@ -64,6 +65,24 @@ data class BlockchainCardAddress(
         return "$line1, $city"
     }
 }
+
+@Parcelize
+data class BlockchainCardTransaction(
+    val id: String,
+    val cardId: String,
+    val type: String,
+    val state: String,
+    val originalAmount: FiatValue,
+    val fundingAmount: FiatValue,
+    val reversedAmount: FiatValue,
+    val counterAmount: FiatValue?,
+    val clearedFundingAmount: FiatValue,
+    val userTransactionTime: String,
+    val merchantName: String,
+    val networkConversionRate: Int?,
+    val declineReason: String?,
+    val fee: FiatValue,
+) : Parcelable
 
 enum class BlockchainCardBrand {
     VISA,

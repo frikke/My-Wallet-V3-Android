@@ -1,5 +1,6 @@
 package com.blockchain.blockchaincard.data
 
+import com.blockchain.api.blockchainCard.data.BlockchainCardTransactionDto
 import com.blockchain.api.blockchainCard.data.CardDto
 import com.blockchain.api.blockchainCard.data.ProductDto
 import com.blockchain.api.blockchainCard.data.ResidentialAddressDto
@@ -11,6 +12,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardBrand
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
@@ -313,6 +315,19 @@ internal class BlockchainCardRepositoryImpl(
                 response.firstName + " " + response.lastName
             }
 
+    override suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapError {
+                BlockchainCardError.GetAuthFailed
+            }
+            .flatMap { tokenResponse ->
+                blockchainCardService.getTransactions(tokenResponse).mapError {
+                    BlockchainCardError.GetTransactionsFailed
+                }.map { response ->
+                    response.map { it.toDomainModel() }
+                }
+            }
+
     //
     // Domain Model Conversion
     //
@@ -356,5 +371,43 @@ internal class BlockchainCardRepositoryImpl(
             city = address.city,
             state = address.state,
             country = address.country
+        )
+
+    private fun BlockchainCardTransactionDto.toDomainModel(): BlockchainCardTransaction =
+        BlockchainCardTransaction(
+            id = id,
+            cardId = cardId,
+            type = type,
+            state = state,
+            originalAmount = FiatValue.fromMajor(
+                fiatCurrency = FiatCurrency.fromCurrencyCode(originalAmount.symbol),
+                major = BigDecimal(originalAmount.value)
+            ),
+            fundingAmount = FiatValue.fromMajor(
+                fiatCurrency = FiatCurrency.fromCurrencyCode(fundingAmount.symbol),
+                major = BigDecimal(fundingAmount.value)
+            ),
+            reversedAmount = FiatValue.fromMajor(
+                fiatCurrency = FiatCurrency.fromCurrencyCode(reversedAmount.symbol),
+                major = BigDecimal(reversedAmount.value)
+            ),
+            counterAmount = counterAmount?.let {
+                FiatValue.fromMajor(
+                    fiatCurrency = FiatCurrency.fromCurrencyCode(it.symbol),
+                    major = BigDecimal(it.value)
+                )
+            },
+            clearedFundingAmount = FiatValue.fromMajor(
+                fiatCurrency = FiatCurrency.fromCurrencyCode(clearedFundingAmount.symbol),
+                major = BigDecimal(clearedFundingAmount.value)
+            ),
+            userTransactionTime = userTransactionTime,
+            merchantName = merchantName,
+            networkConversionRate = networkConversionRate,
+            declineReason = declineReason,
+            fee = FiatValue.fromMajor(
+                fiatCurrency = FiatCurrency.fromCurrencyCode(fee.symbol),
+                major = BigDecimal(fee.value)
+            ),
         )
 }

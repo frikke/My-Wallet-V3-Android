@@ -38,4 +38,5 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object CloseCard : BlockchainCardIntent()
     object ConfirmCloseCard : BlockchainCardIntent()
     object LoadUserFirstAndLastName : BlockchainCardIntent()
+    object LoadTransactions : BlockchainCardIntent()
 }

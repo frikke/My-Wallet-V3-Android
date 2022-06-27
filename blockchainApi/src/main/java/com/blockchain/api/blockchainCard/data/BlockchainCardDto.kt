@@ -78,3 +78,21 @@ class ResidentialAddressDto(
     val state: String,
     val country: String
 )
+
+@Serializable
+class BlockchainCardTransactionDto(
+    val id: String,
+    val cardId: String,
+    val type: String,
+    val state: String,
+    val originalAmount: PriceDto,
+    val fundingAmount: PriceDto,
+    val reversedAmount: PriceDto,
+    val counterAmount: PriceDto?,
+    val clearedFundingAmount: PriceDto,
+    val userTransactionTime: String,
+    val merchantName: String,
+    val networkConversionRate: Int?,
+    val declineReason: String?,
+    val fee: PriceDto,
+)

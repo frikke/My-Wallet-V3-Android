@@ -4,6 +4,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.FiatAccount
@@ -74,4 +75,6 @@ interface BlockchainCardRepository {
     ): Outcome<BlockchainCardError, BlockchainCardAddress>
 
     suspend fun getUserFirstAndLastName(): Outcome<BlockchainCardError, String>
+
+    suspend fun getTransactions(): Outcome<BlockchainCardError, List<BlockchainCardTransaction>>
 }
