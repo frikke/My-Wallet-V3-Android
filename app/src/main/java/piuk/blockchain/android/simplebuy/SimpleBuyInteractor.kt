@@ -5,10 +5,10 @@ import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.banking.BankPartnerCallbackProvider
 import com.blockchain.banking.BankTransferAction
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.core.payments.PaymentsRepository
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.domain.paymentmethods.BankService
@@ -87,7 +87,6 @@ class SimpleBuyInteractor(
     private val exchangeRatesDataManager: ExchangeRatesDataManager,
     private val coincore: Coincore,
     private val userIdentity: UserIdentity,
-    private val brokerageDataManager: BrokerageDataManager,
     private val bankLinkingPrefs: BankLinkingPrefs,
     private val cardProcessors: Map<CardAcquirer, CardProcessor>,
     private val cancelOrderUseCase: CancelOrderUseCase,
@@ -95,6 +94,7 @@ class SimpleBuyInteractor(
     private val bankService: BankService,
     private val cardService: CardService,
     private val paymentMethodService: PaymentMethodService,
+    private val paymentsRepository: PaymentsRepository,
 ) {
 
     // Hack until we have a proper limits api.
@@ -484,6 +484,12 @@ class SimpleBuyInteractor(
                 allowCreditCards = it.allowCreditCards ?: true
             )
         }
+
+    fun loadLinkedCards(): Single<List<LinkedPaymentMethod.Card>> =
+        paymentsRepository.getLinkedCards(
+            CardStatus.PENDING,
+            CardStatus.ACTIVE
+        )
 
     data class PaymentMethods(
         val available: List<AvailablePaymentMethodType>,

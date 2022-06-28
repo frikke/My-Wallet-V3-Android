@@ -943,8 +943,6 @@ Intenta otra vez más tarde.</string>
         <item quantity="other">Tienes %1$d envíos sin respaldar restantes</item>
     </plurals>
     <string name="backup_before_send_now_label">Debes realizar una copia de seguridad antes de enviar</string>
-    <string name="card_info_title">No se aceptan tarjetas virtuales</string>
-    <string name="card_info_description">En este momento, no admitimos la compra de criptomonedas con tarjetas de crédito y débito virtuales. Debes usar un número de tarjeta física, fecha y código de seguridad.</string>
     <string name="send_confirmation_insufficient_fee">No hay fondos suficientes para el nivel de comisiones actual. Configura tu monto de envío.</string>
     <string name="send_state_locked_funds_1">Tienes transacciones pendientes.</string>
     <string name="sell_info_title">¿Deseas vender desde tus otras Wallet?</string>

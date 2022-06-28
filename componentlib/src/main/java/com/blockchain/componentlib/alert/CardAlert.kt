@@ -8,6 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,6 +24,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
+import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.SmallSecondaryButton
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark600
@@ -42,7 +46,9 @@ fun CardAlert(
     isBordered: Boolean = true,
     isDarkTheme: Boolean = isSystemInDarkTheme(),
     isDismissable: Boolean = true,
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    primaryCta: CardButton? = null,
+    secondaryCta: CardButton? = null,
 ) {
 
     val typeColor = when (alertType) {
@@ -100,11 +106,38 @@ fun CardAlert(
                 Text(
                     modifier = Modifier
                         .background(AppTheme.colors.light)
-                        .padding(top = 8.dp),
+                        .padding(top = dimensionResource(id = R.dimen.tiny_margin)),
                     text = subtitle,
                     style = AppTheme.typography.paragraph1,
                     color = AppTheme.colors.title
                 )
+
+                if (primaryCta != null) {
+                    Row(
+                        modifier = Modifier
+                            .padding(top = dimensionResource(id = R.dimen.small_margin))
+                    ) {
+                        SmallSecondaryButton(
+                            text = primaryCta.text,
+                            onClick = primaryCta.onClick,
+                            state = ButtonState.Enabled
+                        )
+
+                        if (secondaryCta != null) {
+                            Spacer(
+                                modifier = Modifier.size(
+                                    size = dimensionResource(id = R.dimen.tiny_margin)
+                                )
+                            )
+
+                            SmallSecondaryButton(
+                                text = secondaryCta.text,
+                                onClick = secondaryCta.onClick,
+                                state = ButtonState.Enabled
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -113,7 +146,7 @@ fun CardAlert(
 @Composable
 fun CardCloseButton(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
 
     val backgroundColor = if (!isDarkTheme) {
@@ -154,6 +187,46 @@ fun SuccessCardAlert_Basic() {
     AppTheme {
         AppSurface {
             CardAlert(title = "Title", subtitle = "Subtitle", alertType = AlertType.Success)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SuccessCardAlert_OneButton() {
+    AppTheme {
+        AppSurface {
+            CardAlert(
+                title = "Title",
+                subtitle = "Subtitle",
+                alertType = AlertType.Default,
+                primaryCta = CardButton(
+                    text = "Primary button",
+                    onClick = {}
+                )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SuccessCardAlert_TwoButtons() {
+    AppTheme {
+        AppSurface {
+            CardAlert(
+                title = "Title",
+                subtitle = "Subtitle",
+                alertType = AlertType.Success,
+                primaryCta = CardButton(
+                    text = "Primary button",
+                    onClick = {}
+                ),
+                secondaryCta = CardButton(
+                    text = "Secondary button",
+                    onClick = {}
+                )
+            )
         }
     }
 }

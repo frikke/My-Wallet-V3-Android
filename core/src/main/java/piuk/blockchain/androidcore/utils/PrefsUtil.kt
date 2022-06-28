@@ -217,10 +217,6 @@ class PrefsUtil(
 
     override fun clearBuyState() = removeValue(KEY_SIMPLE_BUY_STATE)
 
-    override var addCardInfoDismissed: Boolean
-        get() = getValue(KEY_ADD_CARD_INFO, false)
-        set(dismissed) = setValue(KEY_ADD_CARD_INFO, dismissed)
-
     override var isFirstTimeBuyer: Boolean
         get() = getValue(KEY_FIRST_TIME_BUYER, true)
         set(value) {
@@ -650,7 +646,6 @@ class PrefsUtil(
 
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
-        private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"

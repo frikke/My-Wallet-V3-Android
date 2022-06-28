@@ -11,6 +11,5 @@ interface SimpleBuyPrefs {
     fun getSupportedCardTypes(): String?
     var hasCompletedAtLeastOneBuy: Boolean
     var buysCompletedCount: Int
-    var addCardInfoDismissed: Boolean
     var isFirstTimeBuyer: Boolean
 }

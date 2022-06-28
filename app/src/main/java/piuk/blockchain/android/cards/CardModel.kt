@@ -19,6 +19,7 @@ import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
+import timber.log.Timber
 
 class CardModel(
     uiScheduler: Scheduler,
@@ -46,8 +47,19 @@ class CardModel(
             is CardIntent.AddNewCard -> handleAddNewCard(intent, previousState)
             is CardIntent.ActivateCard -> activateCard(intent)
             is CardIntent.CheckCardStatus -> checkCardStatus(previousState)
+            CardIntent.LoadLinkedCards -> loadLinkedCards()
             else -> null
         }
+
+    private fun loadLinkedCards() =
+        interactor.loadLinkedCards().subscribeBy(
+            onSuccess = {
+                process(CardIntent.LinkedCardsLoaded(it))
+            },
+            onError = {
+                Timber.e("Error loading linked cards ${it.message}")
+            }
+        )
 
     private fun handleAddNewCard(
         intent: CardIntent.AddNewCard,

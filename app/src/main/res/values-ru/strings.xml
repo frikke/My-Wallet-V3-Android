@@ -1029,8 +1029,6 @@ Blockchain Wallet:
         <item quantity="other">У вас осталось %1$d отправок без резервного копирования</item>
     </plurals>
     <string name="backup_before_send_now_label">Перед отправкой необходимо сделать резервную копию</string>
-    <string name="card_info_title">Виртуальные карты не принимаются</string>
-    <string name="card_info_description">В настоящее время мы не поддерживаем покупку криптовалюты с помощью виртуальных кредитных и дебетовых карт. Вы должны использовать номер, дату и код безопасности физической карты.</string>
     <string name="send_confirmation_insufficient_fee">Недостаточно средств для оплаты приоритетной комиссии. Пожалуйста, измените сумму отправки.</string>
     <string name="send_state_locked_funds_1">У вас есть транзакции в ожидании.</string>
     <string name="sell_info_title">Хотите продавать из других своих кошельков?</string>

@@ -452,13 +452,13 @@ val applicationModule = module {
                 analytics = get(),
                 exchangeRatesDataManager = get(),
                 bankPartnerCallbackProvider = get(),
-                brokerageDataManager = get(),
                 cardProcessors = getCardProcessors().associateBy { it.acquirer },
                 cancelOrderUseCase = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 bankService = get(),
                 cardService = get(),
-                paymentMethodService = get()
+                paymentMethodService = get(),
+                paymentsRepository = get()
             )
         }
 

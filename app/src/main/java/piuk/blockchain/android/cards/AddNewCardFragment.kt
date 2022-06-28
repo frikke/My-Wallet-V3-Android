@@ -1,5 +1,7 @@
 package piuk.blockchain.android.cards
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -7,23 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.domain.paymentmethods.CardService
-import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.SimpleBuyPrefs
 import com.braintreepayments.cardform.utils.CardType
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.util.Calendar
 import java.util.Date
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
 
 class AddNewCardFragment :
@@ -32,9 +30,6 @@ class AddNewCardFragment :
     override val model: CardModel by scopedInject()
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
-    private val compositeDisposable = CompositeDisposable()
-    private val cardService: CardService by scopedInject()
-    private val simpleBuyPrefs: SimpleBuyPrefs by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
         FragmentAddNewCardBinding.inflate(inflater, container, false)
@@ -83,6 +78,8 @@ class AddNewCardFragment :
         super.onViewCreated(view, savedInstanceState)
         activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+        model.process(CardIntent.LoadLinkedCards)
+
         with(binding) {
             cardName.addTextChangedListener(textWatcher)
             cardNumber.apply {
@@ -114,28 +111,26 @@ class AddNewCardFragment :
                 }
             }
 
-            compositeDisposable += cardService.getLinkedCards(
-                CardStatus.PENDING,
-                CardStatus.ACTIVE
-            ).subscribeBy(onSuccess = {
-                availableCards = it
-            })
             cardNumber.displayCardTypeIcon(false)
+
+            setupCardInfo()
         }
         activity.updateToolbarTitle(getString(R.string.add_card_title))
         analytics.logEvent(SimpleBuyAnalytics.ADD_CARD)
-
-        setupCardInfo()
     }
 
-    private fun setupCardInfo() {
-        if (simpleBuyPrefs.addCardInfoDismissed) {
-            binding.cardInfoGroup.gone()
-        } else {
-            binding.cardInfoClose.setOnClickListener {
-                simpleBuyPrefs.addCardInfoDismissed = true
-                binding.cardInfoGroup.gone()
-            }
+    private fun FragmentAddNewCardBinding.setupCardInfo() {
+        creditCardDisclaimer.apply {
+            title = getString(R.string.card_info_title)
+            subtitle = getString(R.string.card_info_description)
+            isDismissable = false
+            primaryCta = CardButton(
+                text = getString(R.string.learn_more),
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(URL_CREDIT_CARD_FAILURES))
+                    requireContext().startActivity(intent)
+                }
+            )
         }
     }
 
@@ -159,7 +154,11 @@ class AddNewCardFragment :
         binding.sameCardError.visible()
     }
 
-    override fun render(newState: CardState) {}
+    override fun render(newState: CardState) {
+        newState.linkedCards?.let {
+            availableCards = it
+        }
+    }
 
     override fun onBackPressed(): Boolean = true
 
@@ -168,11 +167,6 @@ class AddNewCardFragment :
         calendar.time = this
         // calendar api returns months 0-11
         return calendar.get(Calendar.YEAR) == year && calendar.get(Calendar.MONTH) == month - 1
-    }
-
-    override fun onPause() {
-        compositeDisposable.clear()
-        super.onPause()
     }
 
     private fun Int.asCalendarYear(): Int =

@@ -975,8 +975,6 @@ Puedes seguir utilizando la billetera para gestionar tus criptomonedas.</string>
         <item quantity="other">Le quedan %1$d envíos sin copia de seguridad</item>
     </plurals>
     <string name="backup_before_send_now_label">Debe hacer una copia de seguridad antes de enviar</string>
-    <string name="card_info_title">Tarjetas virtuales no aceptadas</string>
-    <string name="card_info_description">En este momento, no admitimos la compra de criptomonedas con tarjetas de crédito y débito virtuales. Debe utilizar el número, la fecha y el código de seguridad de una tarjeta física.</string>
     <string name="send_confirmation_insufficient_fee">No hay fondos suficientes para la tarifa de prioridad, ajuste la cantidad de envío.</string>
     <string name="send_state_locked_funds_1">Tiene transacciones pendientes.</string>
     <string name="sell_info_title">¿Quiere vender desde sus otras carteras?</string>
