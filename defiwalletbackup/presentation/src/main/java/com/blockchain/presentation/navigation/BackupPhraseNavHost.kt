@@ -30,21 +30,19 @@ fun BackupPhraseNavHost(
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
 
+    viewModel.viewCreated(backupPhraseArgs)
+
     MviFragmentNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = BackupPhraseNavigationRouter(
             navController = rememberNavController()
         ),
-        startDestination = if (backupPhraseArgs.isBackedUp) {
+        startDestination = if (viewModel.isBackedUp()) {
             BackPhraseDestination.BackedUpPhrase
         } else {
             BackPhraseDestination.BackupPhraseIntro
         }
     ) {
-        // todo (othman) tbd status
-//        composable(navigationEvent = BackPhraseDestination.LoadingBackupStatus) {
-//        }
-
         // Backed Up Phrase (initial screen when phrase is already backed up)
         backedUpPhraseDestination(viewModel)
 
@@ -63,8 +61,6 @@ fun BackupPhraseNavHost(
         // Backup Successful
         backupSuccessDestination(viewModel)
     }
-
-    viewModel.viewCreated(backupPhraseArgs)
 }
 
 private fun NavGraphBuilder.backedUpPhraseDestination(viewModel: BackupPhraseViewModel) {

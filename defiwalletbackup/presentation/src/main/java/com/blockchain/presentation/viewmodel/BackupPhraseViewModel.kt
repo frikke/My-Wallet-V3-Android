@@ -97,20 +97,15 @@ class BackupPhraseViewModel(
         }.exhaustive
     }
 
+    fun isBackedUp() = backupPhraseService.isBackedUp()
+
     private fun loadData() {
         loadBackupStatus()
         loadRecoveryPhrase()
     }
 
     private fun loadBackupStatus() {
-        val isBackedUp = backupPhraseService.isBackedUp()
-
         updateState { modelState.copy(hasBackup = backupPhraseService.isBackedUp()) }
-
-        navigate(
-            if (isBackedUp) BackupPhraseNavigationEvent.BackedUp
-            else BackupPhraseNavigationEvent.BackupPhraseIntro
-        )
     }
 
     /**
