@@ -5,7 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class BackupPhraseArgs(
-    val isBackedUp: Boolean,
     val secondPassword: String?
 ) : ModelConfigArgs.ParcelableArgs {
     companion object {

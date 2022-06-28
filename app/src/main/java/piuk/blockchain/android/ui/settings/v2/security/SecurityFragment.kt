@@ -227,12 +227,6 @@ class SecurityFragment :
             SecurityViewState.ShowMustBackWalletUp -> {
                 showBottomSheet(BackupPhraseInfoSheet.newInstance())
             }
-            is SecurityViewState.LaunchPhraseRecovery -> {
-                launchPhraseRecovery(
-                    isBackedUp = viewState.isBackedUp,
-                    secondPassword = viewState.secondPassword
-                )
-            }
             SecurityViewState.None -> {
                 // do nothing
             }
@@ -435,18 +429,18 @@ class SecurityFragment :
             requireContext(),
             object : SecondPasswordHandler.ResultListener {
                 override fun onNoSecondPassword() {
-                    model.process(SecurityIntent.BackupPhrase())
+                    launchPhraseRecovery()
                 }
 
                 override fun onSecondPasswordValidated(validatedSecondPassword: String) {
-                    model.process(SecurityIntent.BackupPhrase(secondPassword = validatedSecondPassword))
+                    launchPhraseRecovery(secondPassword = validatedSecondPassword)
                 }
             }
         )
     }
 
-    private fun launchPhraseRecovery(isBackedUp: Boolean, secondPassword: String? = null) {
-        BackupPhraseActivity.newIntent(context = activity, isBackedUp = isBackedUp, secondPassword = secondPassword)
+    private fun launchPhraseRecovery(secondPassword: String? = null) {
+        BackupPhraseActivity.newIntent(context = activity, secondPassword = secondPassword)
             .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             .also { intent -> startActivity(intent) }
     }

@@ -100,17 +100,6 @@ sealed class SecurityIntent : MviIntent<SecurityState> {
         override fun reduce(oldState: SecurityState): SecurityState = oldState
     }
 
-    data class BackupPhrase(val secondPassword: String? = null) : SecurityIntent() {
-        override fun isValidFor(oldState: SecurityState): Boolean = oldState.securityInfo != null
-
-        override fun reduce(oldState: SecurityState): SecurityState = oldState.copy(
-            securityViewState = SecurityViewState.LaunchPhraseRecovery(
-                secondPassword = secondPassword,
-                isBackedUp = oldState.securityInfo!!.isWalletBackedUp // nullability is verified in isValidFor
-            )
-        )
-    }
-
     object TriggerEmailAlert : SecurityIntent() {
         override fun reduce(oldState: SecurityState): SecurityState = oldState
     }

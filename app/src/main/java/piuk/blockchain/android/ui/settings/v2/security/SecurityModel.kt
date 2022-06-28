@@ -142,7 +142,6 @@ class SecurityModel(
             is SecurityIntent.UpdateTorFiltering,
             is SecurityIntent.UpdateScreenshotsEnabled,
             is SecurityIntent.UpdateCloudBackup,
-            is SecurityIntent.BackupPhrase,
             -> null
         }.exhaustive
 }
