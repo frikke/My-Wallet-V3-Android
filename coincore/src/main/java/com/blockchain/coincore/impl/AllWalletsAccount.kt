@@ -19,7 +19,7 @@ import io.reactivex.rxjava3.core.Single
 class AllWalletsAccount(
     override val accounts: SingleAccountList,
     labels: DefaultLabels,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
 ) : AccountGroup {
 
     override val label: String = labels.getAllWalletLabel()
@@ -54,7 +54,7 @@ class AllWalletsAccount(
     override val receiveAddress: Single<ReceiveAddress>
         get() = Single.error(NotImplementedError("No receive address for All Wallets meta account"))
 
-    override fun includes(account: BlockchainAccount): Boolean = true
+    override fun includes(account: BlockchainAccount): Boolean = accounts.contains(account)
 
     private fun allAccounts(): Single<List<BlockchainAccount>> =
         Single.just(accounts)

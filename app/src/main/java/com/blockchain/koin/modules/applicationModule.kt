@@ -752,9 +752,7 @@ val applicationModule = module {
         }
 
         scoped {
-            AssetActivityRepository(
-                coincore = get()
-            )
+            AssetActivityRepository()
         }
 
         scoped {

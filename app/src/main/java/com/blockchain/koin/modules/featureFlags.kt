@@ -81,7 +81,7 @@ val featureFlagsModule = module {
     single(coinWebSocketFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_coin_web_socket",
+                "android_disable_ff_coin_web_socket",
                 "Coin Web Socket"
             )
         )
