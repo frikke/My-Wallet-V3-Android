@@ -693,8 +693,8 @@ class PortfolioFragment :
             navigator().resumeSimpleBuyKyc()
         }
 
-        override fun startSimpleBuy(asset: AssetInfo) {
-            navigator().launchSimpleBuy(asset)
+        override fun startSimpleBuy(asset: AssetInfo, paymentMethodId: String?) {
+            navigator().launchSimpleBuy(asset, paymentMethodId)
         }
 
         override fun startBuy() {

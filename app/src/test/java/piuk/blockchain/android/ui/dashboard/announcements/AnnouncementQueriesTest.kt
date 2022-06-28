@@ -1,6 +1,10 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
+import com.blockchain.api.services.PaymentMethodsService
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
@@ -10,16 +14,19 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits
-import com.blockchain.nabu.models.responses.nabu.LimitsJson
 import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.service.TierService
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
+import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import org.junit.Before
 import org.junit.Test
@@ -38,25 +45,35 @@ class AnnouncementQueriesTest {
     private val coincore: Coincore = mock()
     private val assetCatalogue: AssetCatalogue = mock()
     private val remoteConfig: RemoteConfig = mock()
+    private val googlePayManager: GooglePayManager = mock()
+    private val googlePayEnabledFlag: FeatureFlag = mock()
+    private val paymentMethodsService: PaymentMethodsService = mock()
+    private val authenticator: AuthHeaderProvider = mock()
+    private val currencyPrefs: CurrencyPrefs = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
-
-    private val sampleLimits = LimitsJson("", 0.toBigDecimal(), 0.toBigDecimal())
 
     private lateinit var subject: AnnouncementQueries
 
     @Before
     fun setUp() {
-        subject = AnnouncementQueries(
-            nabuToken = nabuToken,
-            nabu = nabu,
-            nabuDataUserProvider = nabuDataUserProvider,
-            tierService = tierService,
-            sbStateFactory = sbSync,
-            userIdentity = userIdentity,
-            coincore = coincore,
-            assetCatalogue = assetCatalogue,
-            remoteConfig = remoteConfig
+        subject = spy(
+            AnnouncementQueries(
+                nabuToken = nabuToken,
+                nabu = nabu,
+                nabuDataUserProvider = nabuDataUserProvider,
+                tierService = tierService,
+                sbStateFactory = sbSync,
+                userIdentity = userIdentity,
+                coincore = coincore,
+                assetCatalogue = assetCatalogue,
+                remoteConfig = remoteConfig,
+                googlePayManager = googlePayManager,
+                googlePayEnabledFlag = googlePayEnabledFlag,
+                paymentMethodsService = paymentMethodsService,
+                authenticator = authenticator,
+                currencyPrefs = currencyPrefs
+            )
         )
     }
 
@@ -312,7 +329,7 @@ class AnnouncementQueriesTest {
     }
 
     @Test
-    fun `user  SddEligible and not verified`() {
+    fun `user SddEligible and not verified`() {
         whenever(userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(true))
         whenever(userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)).thenReturn(Single.just(false))
 
@@ -321,7 +338,121 @@ class AnnouncementQueriesTest {
             .assertValue { it }
     }
 
+    @Test
+    fun `when google pay feature flag disabled then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when goggle pay not a supported payment method then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(Single.just(emptyList()))
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when google pay not supported by device then return false`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            !it
+        }
+    }
+
+    @Test
+    fun `when google pay flag enabled and a supported payment method and supported by device then return true`() {
+        val authToken = "1234"
+        whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
+        whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
+        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
+        whenever(
+            paymentMethodsService.getAvailablePaymentMethodsTypes(
+                authToken, FiatCurrency.Dollars.networkTicker, null, true
+            )
+        ).thenReturn(
+            Single.just(
+                listOf(
+                    PaymentMethodResponse(
+                        type = GOOGLE_PAY,
+                        eligible = true,
+                        visible = true,
+                        limits = mock(),
+                        subTypes = mock(),
+                        currency = FiatCurrency.Dollars.networkTicker,
+                        mobilePayment = listOf(GOOGLE_PAY)
+                    )
+                )
+            )
+        )
+
+        subject.isGooglePayAvailable().test().assertValue {
+            it
+        }
+    }
+
     companion object {
-        private const val BUY_ORDER_ID = "1234567890"
+        private const val GOOGLE_PAY = "GOOGLE_PAY"
     }
 }

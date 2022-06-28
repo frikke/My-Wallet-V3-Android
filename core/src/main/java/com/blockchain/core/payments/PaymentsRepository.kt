@@ -759,9 +759,6 @@ class PaymentsRepository(
             else -> BankState.UNKNOWN
         }
 
-    private fun String.isActive(): Boolean =
-        toCardStatus() == CardStatus.ACTIVE
-
     private fun String.toCardStatus(): CardStatus =
         when (this) {
             CardResponse.ACTIVE -> CardStatus.ACTIVE

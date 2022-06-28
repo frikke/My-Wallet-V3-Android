@@ -1139,11 +1139,12 @@ class MainActivity :
         )
     }
 
-    override fun launchSimpleBuy(asset: AssetInfo) {
+    override fun launchSimpleBuy(asset: AssetInfo, paymentMethodId: String?) {
         startActivity(
             SimpleBuyActivity.newIntent(
                 context = this,
                 launchFromNavigationBar = true,
+                preselectedPaymentMethodId = paymentMethodId,
                 asset = asset
             )
         )

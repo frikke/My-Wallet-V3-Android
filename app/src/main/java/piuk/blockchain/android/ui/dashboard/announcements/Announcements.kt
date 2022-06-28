@@ -32,7 +32,7 @@ interface AnnouncementHost {
 
     fun startStxReceivedDetail()
     fun finishSimpleBuySignup()
-    fun startSimpleBuy(asset: AssetInfo)
+    fun startSimpleBuy(asset: AssetInfo, paymentMethodId: String? = null)
     fun startInterestDashboard()
     fun startBuy()
     fun startSell()

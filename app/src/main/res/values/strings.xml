@@ -953,6 +953,11 @@
     <string name="nft_announcement_description">Soon you will be able to view your NFTs right from the comfort of your wallet.</string>
     <string name="nft_announcement_action">Join Waitlist</string>
 
+    <!-- GooglePay announcement -->
+    <string name="gpay_announcement_title">New: Google Pay</string>
+    <string name="gpay_announcement_description">Enjoy frictionless crypto purchases with Google Pay.</string>
+    <string name="gpay_announcement_action">Buy Crypto</string>
+
     <!-- Airdrop Status bottom sheet -->
     <string name="airdrop_received_sheet_heading">Airdrop</string>
     <string name="airdrop_received_sheet_status_label">Status</string>
