@@ -65,6 +65,7 @@ class KycNavHostPresenterTest {
         // Arrange - throw an exception just to have definitions,
         // won't be checked in this test
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
         // Assert
