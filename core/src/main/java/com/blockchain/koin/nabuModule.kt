@@ -100,7 +100,7 @@ val nabuModule = module {
                 nabuService = get(),
                 authenticator = get(),
                 paymentAccountMapperMappers = mapOf(
-                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd)
+                    "EUR" to get(eur), "GBP" to get(gbp), "USD" to get(usd), "ARS" to get(ars)
                 ),
                 transactionsCache = get(),
                 interestRepository = get(),
@@ -110,7 +110,8 @@ val nabuModule = module {
                 buyOrdersCache = get(),
                 pairsCache = get(),
                 swapOrdersCache = get(),
-                paymentMethodsEligibilityStore = get()
+                paymentMethodsEligibilityStore = get(),
+                getSupportedCurrenciesUseCase = get()
             )
         }.bind(CustodialWalletManager::class)
 

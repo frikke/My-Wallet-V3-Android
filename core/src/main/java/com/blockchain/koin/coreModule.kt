@@ -427,6 +427,7 @@ val coreModule = module {
                 withdrawLocksCache = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
+                getSupportedCurrenciesUseCase = get(),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 plaidFeatureFlag = get(plaidFeatureFlag)
             )

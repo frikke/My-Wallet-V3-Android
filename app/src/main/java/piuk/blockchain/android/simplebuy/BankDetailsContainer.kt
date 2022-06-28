@@ -22,6 +22,7 @@ class BankDetailsContainer @JvmOverloads constructor(
                         context = context,
                         title = it.title,
                         value = it.value,
+                        tooltip = it.tooltip,
                         isCopyable = it.isCopyable,
                         onCopy = { field -> copyFieldListener?.onFieldCopied(field) }
                     ),
@@ -35,7 +36,7 @@ class BankDetailsContainer @JvmOverloads constructor(
     }
 }
 
-data class BankDetailField(val title: String, val value: String, val isCopyable: Boolean)
+data class BankDetailField(val title: String, val value: String, val isCopyable: Boolean, val tooltip: String? = null)
 
 interface CopyFieldListener {
     fun onFieldCopied(field: String)

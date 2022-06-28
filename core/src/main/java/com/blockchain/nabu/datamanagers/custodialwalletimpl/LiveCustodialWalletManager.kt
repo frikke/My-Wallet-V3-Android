@@ -7,6 +7,7 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
+import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
@@ -106,7 +107,8 @@ class LiveCustodialWalletManager(
     private val interestRepository: InterestRepository,
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
-    private val transactionErrorMapper: TransactionErrorMapper
+    private val transactionErrorMapper: TransactionErrorMapper,
+    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -114,7 +116,7 @@ class LiveCustodialWalletManager(
 
     override fun createOrder(
         custodialWalletOrder: CustodialWalletOrder,
-        stateAction: String?
+        stateAction: String?,
     ): Single<BuySellOrder> =
         authenticator.authenticate {
             nabuService.createOrder(
@@ -127,7 +129,7 @@ class LiveCustodialWalletManager(
         }
 
     override fun createRecurringBuyOrder(
-        recurringBuyRequestBody: RecurringBuyRequestBody
+        recurringBuyRequestBody: RecurringBuyRequestBody,
     ): Single<RecurringBuyOrder> =
         authenticator.authenticate {
             nabuService.createRecurringBuyOrder(
@@ -149,7 +151,7 @@ class LiveCustodialWalletManager(
     override fun fetchFiatWithdrawFeeAndMinLimit(
         fiatCurrency: FiatCurrency,
         product: Product,
-        paymentMethodType: PaymentMethodType
+        paymentMethodType: PaymentMethodType,
     ): Single<FiatWithdrawalFeeAndLimit> =
         authenticator.authenticate {
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), paymentMethodType.mapToRequest())
@@ -174,7 +176,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchCryptoWithdrawFeeAndMinLimit(
         asset: AssetInfo,
-        product: Product
+        product: Product,
     ): Single<CryptoWithdrawalFeeAndLimit> =
         authenticator.authenticate {
             nabuService.fetchWithdrawFeesAndLimits(it, product.toRequestString(), WithdrawFeeRequest.DEFAULT)
@@ -192,7 +194,7 @@ class LiveCustodialWalletManager(
 
     override fun fetchWithdrawLocksTime(
         paymentMethodType: PaymentMethodType,
-        fiatCurrency: FiatCurrency
+        fiatCurrency: FiatCurrency,
     ): Single<BigInteger> =
         authenticator.authenticate {
             nabuService.fetchWithdrawLocksRules(
@@ -247,7 +249,7 @@ class LiveCustodialWalletManager(
     override fun getCustodialFiatTransactions(
         fiatCurrency: FiatCurrency,
         product: Product,
-        type: String?
+        type: String?,
     ): Single<List<FiatTransaction>> =
         transactionsCache.transactions(
             TransactionsRequest(
@@ -276,7 +278,7 @@ class LiveCustodialWalletManager(
     override fun getCustodialCryptoTransactions(
         asset: AssetInfo,
         product: Product,
-        type: String?
+        type: String?,
     ): Single<List<CryptoTransaction>> =
 
         transactionsCache.transactions(
@@ -482,7 +484,7 @@ class LiveCustodialWalletManager(
         orderId: String,
         attributes: SimpleBuyConfirmationAttributes?,
         paymentMethodId: String?,
-        isBankPartner: Boolean?
+        isBankPartner: Boolean?,
     ): Single<BuySellOrder> =
         authenticator.authenticate {
             nabuService.confirmOrder(
@@ -559,10 +561,14 @@ class LiveCustodialWalletManager(
         }
 
     override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
-        return paymentMethods(fiatCurrency, true).map { methods ->
+        return Single.zip(
+            paymentMethods(fiatCurrency, true),
+            getSupportedCurrenciesUseCase.invoke(Unit)
+        ) { methods, supportedCurrencies ->
             methods.filter {
                 it.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
-                    SUPPORTED_FUNDS_CURRENCIES.contains(it.currency) && it.eligible
+                    supportedCurrencies.fundsCurrencies.contains(it.currency) &&
+                    it.eligible
             }.mapNotNull {
                 it.currency?.let { currency ->
                     assetCatalogue.fromNetworkTicker(currency) as? FiatCurrency
@@ -581,7 +587,7 @@ class LiveCustodialWalletManager(
     private fun paymentMethods(
         currency: Currency,
         eligibleOnly: Boolean,
-        shouldFetchSddLimits: Boolean = false
+        shouldFetchSddLimits: Boolean = false,
     ) = paymentMethodsEligibilityStore.stream(
         KeyedStoreRequest.Cached(
             key = PaymentMethodsEligibilityStore.Key(
@@ -634,7 +640,7 @@ class LiveCustodialWalletManager(
         quoteId: String,
         volume: Money,
         destinationAddress: String?,
-        refundAddress: String?
+        refundAddress: String?,
     ): Single<CustodialOrder> =
         authenticator.authenticate { sessionToken ->
             nabuService.createCustodialOrder(
@@ -656,7 +662,7 @@ class LiveCustodialWalletManager(
     override fun getProductTransferLimits(
         currency: FiatCurrency,
         product: Product,
-        orderDirection: TransferDirection?
+        orderDirection: TransferDirection?,
     ): Single<TransferLimits> =
         authenticator.authenticate {
             val side = when (product) {
@@ -693,7 +699,7 @@ class LiveCustodialWalletManager(
 
     override fun getCustodialActivityForAsset(
         cryptoCurrency: AssetInfo,
-        directions: Set<TransferDirection>
+        directions: Set<TransferDirection>,
     ): Single<List<TradeTransactionItem>> =
         custodialRepository.getCustodialActivityForAsset(cryptoCurrency, directions)
 
@@ -706,15 +712,12 @@ class LiveCustodialWalletManager(
             )
         }
 
-    override fun isFiatCurrencySupported(destination: String): Boolean =
-        SUPPORTED_FUNDS_CURRENCIES.contains(destination)
-
     override fun createPendingDeposit(
         crypto: AssetInfo,
         address: String,
         hash: String,
         amount: Money,
-        product: Product
+        product: Product,
     ): Completable =
         authenticator.authenticateCompletable { sessionToken ->
             nabuService.createDepositTransaction(
@@ -791,10 +794,6 @@ class LiveCustodialWalletManager(
     }
 
     companion object {
-        internal val SUPPORTED_FUNDS_CURRENCIES = listOf(
-            "GBP", "EUR", "USD"
-        )
-
         private const val ACH_CURRENCY = "USD"
 
         private const val SDD_ELIGIBLE_TIER = 3
@@ -824,7 +823,8 @@ fun String.toTransactionState(): TransactionState? =
     when (this) {
         TransactionResponse.COMPLETE -> TransactionState.COMPLETED
         TransactionResponse.REJECTED,
-        TransactionResponse.FAILED -> TransactionState.FAILED
+        TransactionResponse.FAILED,
+        -> TransactionState.FAILED
         TransactionResponse.PENDING,
         TransactionResponse.CLEARED,
         TransactionResponse.FRAUD_REVIEW,
@@ -862,7 +862,8 @@ private fun String.toLocalState(): OrderState =
         BuySellOrderResponse.FINISHED -> OrderState.FINISHED
         BuySellOrderResponse.PENDING_CONFIRMATION -> OrderState.PENDING_CONFIRMATION
         BuySellOrderResponse.PENDING_EXECUTION,
-        BuySellOrderResponse.DEPOSIT_MATCHED -> OrderState.PENDING_EXECUTION
+        BuySellOrderResponse.DEPOSIT_MATCHED,
+        -> OrderState.PENDING_EXECUTION
         BuySellOrderResponse.FAILED,
         BuySellOrderResponse.EXPIRED -> OrderState.FAILED
         BuySellOrderResponse.CANCELED -> OrderState.CANCELED
@@ -1030,5 +1031,5 @@ interface PaymentAccountMapper {
 private data class CustodialFiatBalance(
     val currency: FiatCurrency,
     val available: Boolean,
-    val balance: Money
+    val balance: Money,
 )

@@ -7,6 +7,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
+import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
@@ -229,6 +230,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(bindFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_bind",
+                "Enable BIND For LatAm Users"
             )
         )
     }.bind(FeatureFlag::class)

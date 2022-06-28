@@ -58,7 +58,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                 onSuccess = { bankAccount ->
                     binding.bankDetails.initWithBankDetailsAndAmount(
                         bankAccount.details.map {
-                            BankDetailField(it.title, it.value, it.isCopyable)
+                            BankDetailField(it.title, it.value, it.isCopyable, it.tooltip)
                         },
                         copyListener
                     )
@@ -119,14 +119,20 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                 when (fiatCurrency.networkTicker) {
                     "GBP" -> getString(R.string.processing_time_subtitle_gbp)
                     "USD" -> getString(R.string.processing_time_subtitle_usd)
+                    "ARS" -> getString(R.string.processing_time_subtitle_ars)
                     else -> getString(R.string.processing_time_subtitle_eur)
                 }
             )
-            title.text = if (isForLink) getString(R.string.add_bank_with_currency, fiatCurrency) else
+            title.text = if (isForLink) {
+                getString(R.string.add_bank_with_currency, fiatCurrency)
+            } else {
                 getString(R.string.deposit_currency, fiatCurrency)
-            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) getString(R.string.wire_transfer) else
+            }
+            subtitle.text = if (fiatCurrency == FiatCurrency.Dollars) {
+                getString(R.string.wire_transfer)
+            } else {
                 getString(R.string.bank_transfer)
-
+            }
             bankTransferOnly.visible()
             processingTime.visible()
         }
@@ -141,8 +147,12 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
         override fun onFieldCopied(field: String) {
             analytics.logEvent(linkBankFieldCopied(field, fiatCurrency.networkTicker))
             BlockchainSnackbar.make(
-                dialog?.window?.decorView ?: binding.root,
-                getString(R.string.simple_buy_copied_to_clipboard),
+                view = dialog?.window?.decorView ?: binding.root,
+                message = if (field.isNotEmpty()) {
+                    String.format(getString(R.string.simple_buy_copied_to_clipboard), field)
+                } else {
+                    getString(R.string.copied_to_clipboard)
+                },
                 duration = Snackbar.LENGTH_SHORT,
                 type = SnackbarType.Success
             ).show()

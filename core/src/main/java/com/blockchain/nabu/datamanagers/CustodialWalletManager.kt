@@ -210,8 +210,6 @@ interface CustodialWalletManager {
         success: Boolean
     ): Completable
 
-    fun isFiatCurrencySupported(destination: String): Boolean
-
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
     val selectedFiatcurrency: FiatCurrency
@@ -497,7 +495,12 @@ enum class TransferDirection {
 
 data class BankAccount(val details: List<BankDetail>)
 
-data class BankDetail(val title: String, val value: String, val isCopyable: Boolean = false)
+data class BankDetail(
+    val title: String,
+    val value: String,
+    val isCopyable: Boolean = false,
+    val tooltip: String? = null
+)
 
 data class PaymentCardAcquirer(
     val cardAcquirerName: String,

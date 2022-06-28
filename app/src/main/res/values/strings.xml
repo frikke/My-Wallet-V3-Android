@@ -1381,6 +1381,9 @@
     <string name="bank_address">Bank Address</string>
     <string name="recipient_address">Recipient Address</string>
     <string name="iban">IBAN</string>
+    <string name="alias">Alias</string>
+    <string name="account_holder">Account Holder</string>
+    <string name="cuit" translatable="false">CUIT</string>
     <string name="estonia">Estonia</string>
     <string name="lets_setup_wallet">Let’s get your wallet set up. You can quickly buy crypto now or do this later.</string>
     <string name="buy_now">Buy Now</string>
@@ -1389,6 +1392,7 @@
     <string name="simple_buy_transfer_details_error">Something went wrong while loading the transfer details.\n\nPlease try again later.</string>
     <string name="payment_methods_bank_transfer">If you\'d prefer to deposit funds directly from your bank account first, follow the instructions on the next screen. Once your deposit arrives in your Blockchain.com account you can come back here to buy crypto.</string>
     <string name="payment_methods_make_deposit">Make A Deposit -></string>
+    <string name="alias_tooltip">The banking alias allows you to identify your bank account much easier than with the 22 CBU digits.</string>
 
     <string name="default_crypto_non_custodial_wallet_label">Private Key Wallet</string>
     <string name="old_default_non_custodial_wallet_label">My %1s Wallet</string>
@@ -1548,6 +1552,7 @@
     <string name="processing_time_subtitle_eur">Funds will be credited to your EUR Account as soon as we receive them. SEPA transfers usually take around 1 business day to reach us.</string>
     <string name="processing_time_subtitle_gbp">Funds will be credited to your GBP Account as soon as we receive them. In the UK Faster Payments Network, this can take a couple of hours.</string>
     <string name="processing_time_subtitle_usd">Funds will be credited to your USD Account as soon as we receive them. Funds are generally available within one business day.</string>
+    <string name="processing_time_subtitle_ars">Funds will be credited to your ARS wallet as soon as we receive them. Funds are generally available within one business day.</string>
     <string name="unable_to_load_bank_details">We were unable to load our bank deposit details.</string>
     <string name="most_popular">Most Popular</string>
 

@@ -11,11 +11,14 @@ import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.core.Database
+import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
+import com.blockchain.koin.ars
+import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
@@ -103,6 +106,7 @@ import piuk.blockchain.android.scan.QRCodeEncoder
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.scan.data.QrCodeDataRepository
 import piuk.blockchain.android.scan.domain.QrCodeDataService
+import piuk.blockchain.android.simplebuy.ARSPaymentAccountMapper
 import piuk.blockchain.android.simplebuy.BankPartnerCallbackProviderImpl
 import piuk.blockchain.android.simplebuy.BuyFlowNavigator
 import piuk.blockchain.android.simplebuy.CreateBuyOrderUseCase
@@ -271,6 +275,10 @@ val applicationModule = module {
 
         factory(usd) {
             USDPaymentAccountMapper(resources = get())
+        }.bind(PaymentAccountMapper::class)
+
+        factory(ars) {
+            ARSPaymentAccountMapper(resources = get())
         }.bind(PaymentAccountMapper::class)
 
         scoped {
@@ -531,6 +539,13 @@ val applicationModule = module {
                 bankService = get(),
                 cardService = get(),
                 tradeDataService = get()
+            )
+        }
+
+        factory {
+            GetSupportedCurrenciesUseCase(
+                nabuDataUserProvider = get(),
+                bindFeatureFlag = get(bindFeatureFlag)
             )
         }
 
