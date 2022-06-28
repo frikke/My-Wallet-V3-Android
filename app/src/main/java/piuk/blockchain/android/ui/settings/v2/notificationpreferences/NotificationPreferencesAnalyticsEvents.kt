@@ -14,7 +14,7 @@ sealed class NotificationPreferencesAnalyticsEvents(
     )
 
     object NotificationViewed : NotificationPreferencesAnalyticsEvents(
-        AnalyticsNames.NOTIFICATION_PREFERENCES_CLICKED.eventName, emptyMap()
+        AnalyticsNames.NOTIFICATION_PREFERENCES_VIEWED.eventName, emptyMap()
     )
 
     data class NotificationPreferencesTapped(val option: String) :
