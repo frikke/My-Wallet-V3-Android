@@ -279,6 +279,7 @@ class TxProcessorFactory(
                     sourceAccount = source,
                     txTarget = target,
                     engine = OnChainSellTxEngine(
+                        tradingDataSource = tradingDataSource,
                         quotesEngine = quotesEngine,
                         walletManager = walletManager,
                         limitsDataManager = limitsDataManager,

@@ -12,6 +12,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.isErc20
+import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -21,6 +22,7 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 
 class OnChainSellTxEngine(
+    private val tradingDataSource: TradingDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val engine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -34,7 +36,7 @@ class OnChainSellTxEngine(
 ) {
 
     override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
+        get() = listOf(tradingDataSource)
 
     override val direction: TransferDirection
         get() = TransferDirection.FROM_USERKEY
