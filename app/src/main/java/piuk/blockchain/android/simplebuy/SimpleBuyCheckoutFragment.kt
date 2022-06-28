@@ -67,6 +67,7 @@ import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
+import timber.log.Timber
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
@@ -140,7 +141,10 @@ class SimpleBuyCheckoutFragment :
 
     override fun render(newState: SimpleBuyState) {
 
-        val formattedTime = DateUtils.formatElapsedTime(max(0, newState.quote?.remainingTime ?: 0))
+        val refreshTime = newState.quote?.remainingTimeUI ?: 0L
+        Timber.e("quotes remainingTime UI " + newState.quote?.remainingTimeUI)
+
+        val formattedTime = DateUtils.formatElapsedTime(max(0, refreshTime))
         binding.quoteExpiration.apply {
             setContent {
                 CircularProgressBar(
@@ -153,7 +157,7 @@ class SimpleBuyCheckoutFragment :
             }
         }
 
-        binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
+        binding.buttonAction.isEnabled = (newState.quote?.remainingTimeUI ?: 0) > 0
 
         showAmountForMethod(newState)
 
@@ -714,8 +718,8 @@ class SimpleBuyCheckoutFragment :
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         compositeDisposable.clear()
+        super.onDestroy()
     }
 
     override fun onSheetClosed() {

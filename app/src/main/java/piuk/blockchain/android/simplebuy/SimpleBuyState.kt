@@ -30,7 +30,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
-import java.time.Duration
 import java.time.ZonedDateTime
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
@@ -106,13 +105,6 @@ data class SimpleBuyState constructor(
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }
-
-/*    @delegate:Transient
-    val canShowTimer: Boolean by lazy {
-        quote?.timeToShow != null &&
-            quote.timeToShow >= 0 &&
-            quote.totalDuration != null
-    }*/
 
     @delegate:Transient
     val selectedPaymentMethodDetails: PaymentMethod? by unsafeLazy {
@@ -283,14 +275,12 @@ data class BuyQuote(
     val feeDetails: BuyFees,
     val createdAt: @Contextual ZonedDateTime,
     val expiresAt: @Contextual ZonedDateTime,
-    val remainingTime: Long,
-    val totalDuration: Float? = null,
+    val remainingTimeUI: Long,
+    val totalDurationUI: Long,
 ) {
 
     fun getProgressQuote(): Float {
-        require(true)
-        require(totalDuration != null)
-        return remainingTime / totalDuration.toFloat()
+        return remainingTimeUI / totalDurationUI.toFloat()
     }
 
     companion object {
@@ -306,13 +296,10 @@ data class BuyQuote(
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
                 ),
-                remainingTime = brokerageQuote.secondsToExpire.toLong(),
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
-                totalDuration = Duration.between(
-                    brokerageQuote.createdAt,
-                    brokerageQuote.expiresAt
-                ).seconds.toFloat(),
+                remainingTimeUI = brokerageQuote.secondsToExpireUI(),
+                totalDurationUI = brokerageQuote.totalDurationUI,
             )
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
