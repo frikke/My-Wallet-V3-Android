@@ -3,7 +3,7 @@ package com.blockchain.core.price.impl.assetpricestore
 import app.cash.turbine.test
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.model.AssetPriceError
-import com.blockchain.core.price.model.AssetPriceRecord2
+import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.outcome.Outcome
 import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.store.StoreResponse
@@ -20,13 +20,13 @@ import org.junit.Test
 
 class AssetPriceStoreTest {
 
-    private val cacheFlow = MutableSharedFlow<StoreResponse<AssetPriceError, List<AssetPriceRecord2>>>(replay = 1)
+    private val cacheFlow = MutableSharedFlow<StoreResponse<AssetPriceError, List<AssetPriceRecord>>>(replay = 1)
     private val cache: AssetPriceStoreCache = mockk {
         every { stream(any()) } returns cacheFlow
     }
     private val supportedTickersStore: SupportedTickersStore = mockk()
 
-    private val subject = AssetPriceStore2(
+    private val subject = AssetPriceStore(
         cache = cache,
         supportedTickersStore = supportedTickersStore
     )
@@ -150,28 +150,28 @@ class AssetPriceStoreTest {
 
         private val BTC = CryptoCurrency.BTC
         private val ETH = CryptoCurrency.ETHER
-        private val RECORD_BTC_USD = AssetPriceRecord2(
+        private val RECORD_BTC_USD = AssetPriceRecord(
             base = "BTC",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
             marketCap = 0.0,
         )
-        private val RECORD_ETH_USD = AssetPriceRecord2(
+        private val RECORD_ETH_USD = AssetPriceRecord(
             base = "ETH",
             quote = "USD",
             rate = 2.0.toBigDecimal(),
             fetchedAt = 1L,
             marketCap = 0.0,
         )
-        private val RECORD_BTC_EUR = AssetPriceRecord2(
+        private val RECORD_BTC_EUR = AssetPriceRecord(
             base = "BTC",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
             fetchedAt = 2L,
             marketCap = 0.0,
         )
-        private val RECORD_ETH_EUR = AssetPriceRecord2(
+        private val RECORD_ETH_EUR = AssetPriceRecord(
             base = "ETH",
             quote = "EUR",
             rate = 1.5.toBigDecimal(),
@@ -185,21 +185,21 @@ class AssetPriceStoreTest {
             RECORD_BTC_USD
         )
         private val RECORDS_HISTORICAL = listOf(
-            AssetPriceRecord2(
+            AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 2.0.toBigDecimal(),
                 fetchedAt = 10L,
                 marketCap = 0.0,
             ),
-            AssetPriceRecord2(
+            AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.8.toBigDecimal(),
                 fetchedAt = 20L,
                 marketCap = 0.0,
             ),
-            AssetPriceRecord2(
+            AssetPriceRecord(
                 base = "BTC",
                 quote = "USD",
                 rate = 1.6.toBigDecimal(),

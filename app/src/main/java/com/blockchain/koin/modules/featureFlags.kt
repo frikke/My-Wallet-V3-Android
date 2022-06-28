@@ -1,8 +1,6 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.featureflag.LocalOnlyFeatureFlag
-import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
@@ -16,7 +14,6 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
-import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -123,15 +120,6 @@ val featureFlagsModule = module {
                 "android_ff_notification_preferences_rework",
                 "Notification Preferences Rework"
             )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(newAssetPriceStoreFeatureFlag) {
-        LocalOnlyFeatureFlag(
-            key = "android_ff_new_asset_price_store",
-            readableName = "New AssetPriceStore with Store Cache",
-            prefs = get(),
-            defaultValue = get<EnvironmentConfig>().isRunningInDebugMode()
         )
     }.bind(FeatureFlag::class)
 

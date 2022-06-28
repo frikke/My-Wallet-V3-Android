@@ -6,7 +6,7 @@ import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.impl.getStartTimeForTimeSpan
 import com.blockchain.core.price.impl.suggestTimescaleInterval
 import com.blockchain.core.price.model.AssetPriceError
-import com.blockchain.core.price.model.AssetPriceRecord2
+import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.domain.common.model.toMillis
 import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
@@ -25,7 +25,7 @@ internal class AssetPriceStoreCache(
 ) : KeyedStore<
     AssetPriceStoreCache.Key,
     AssetPriceError,
-    List<AssetPriceRecord2>
+    List<AssetPriceRecord>
     > by InMemoryCacheStoreBuilder().buildKeyed(
     storeId = STORE_ID,
     fetcher = Fetcher.Keyed.ofOutcome { key ->
@@ -76,8 +76,8 @@ internal class AssetPriceStoreCache(
     companion object {
         private const val STORE_ID = "AssetPriceStoreCache"
 
-        private fun AssetPrice.toAssetPriceRecord(): AssetPriceRecord2 =
-            AssetPriceRecord2(
+        private fun AssetPrice.toAssetPriceRecord(): AssetPriceRecord =
+            AssetPriceRecord(
                 base = this.base,
                 quote = this.quote,
                 rate = if (this.price.isNaN()) null else this.price.toBigDecimal(),
