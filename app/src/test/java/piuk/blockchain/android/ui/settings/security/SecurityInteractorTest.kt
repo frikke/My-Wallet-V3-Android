@@ -10,7 +10,6 @@ import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
 import io.mockk.mockk
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import org.junit.Assert
 import org.junit.Before

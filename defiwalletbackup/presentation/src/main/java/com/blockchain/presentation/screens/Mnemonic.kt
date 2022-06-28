@@ -39,7 +39,6 @@ import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.componentlib.theme.Grey900
-import com.blockchain.componentlib.theme.White600
 import com.blockchain.presentation.R
 import java.util.Locale
 
