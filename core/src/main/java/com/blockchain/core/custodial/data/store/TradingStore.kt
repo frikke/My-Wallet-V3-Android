@@ -31,7 +31,7 @@ internal class TradingStore(
             errorMapper = { it }
         ),
         dataSerializer = ListSerializer(TradingBalanceStoreModel.serializer()),
-        mediator = FreshnessMediator(Freshness.DURATION_24_HOURS)
+        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),
     TradingDataSource {
 
