@@ -179,6 +179,7 @@ val coincoreModule = module {
                 exchangeRates = get(),
                 interestBalances = get(),
                 interestDataSource = get(),
+                tradingDataSource = get(),
                 walletManager = get(),
                 bankService = get(),
                 ethMessageSigner = get(),

@@ -17,6 +17,7 @@ import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
+import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -34,6 +35,10 @@ class OnChainSwapTxEngine(
 ) : SwapTxEngineBase(
     quotesEngine, userIdentity, walletManager, limitsDataManager, swapTransactionsCache
 ) {
+
+    override val flushableDataSources: List<FlushableDataSource>
+        get() = listOf()
+
     override val direction: TransferDirection by unsafeLazy {
         when (txTarget) {
             is CustodialTradingAccount -> TransferDirection.FROM_USERKEY

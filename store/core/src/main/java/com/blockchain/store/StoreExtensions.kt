@@ -25,7 +25,7 @@ suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
     }.first()
 
 fun <E, T : Any> Flow<StoreResponse<E, T>>.asSingle(
-    errorMapper: (E) -> Throwable
+    errorMapper: (E) -> Throwable,
 ): Single<T> = rxSingle {
     when (val result = this@asSingle.firstOutcome()) {
         is Outcome.Success -> result.value
@@ -34,7 +34,7 @@ fun <E, T : Any> Flow<StoreResponse<E, T>>.asSingle(
 }
 
 fun <E, T : Any> Flow<StoreResponse<E, T>>.asObservable(
-    errorMapper: (E) -> Throwable
+    errorMapper: (E) -> Throwable,
 ): Observable<T> = filterNot { it is StoreResponse.Loading }
     .asObservable()
     .map { storeResponse ->
@@ -49,6 +49,15 @@ fun <E, T, R> Flow<StoreResponse<E, T>>.mapData(mapper: (T) -> R): Flow<StoreRes
     map {
         when (it) {
             is StoreResponse.Data -> StoreResponse.Data(mapper(it.data))
+            is StoreResponse.Error -> it
+            is StoreResponse.Loading -> it
+        }
+    }
+
+fun <E, T, R> Flow<StoreResponse<E, List<T>>>.mapListData(mapper: (T) -> R): Flow<StoreResponse<E, List<R>>> =
+    map {
+        when (it) {
+            is StoreResponse.Data -> StoreResponse.Data(it.data.map(mapper))
             is StoreResponse.Error -> it
             is StoreResponse.Loading -> it
         }

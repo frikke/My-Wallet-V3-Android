@@ -6,6 +6,7 @@ import org.koin.core.qualifier.named
 val applicationScope = StringQualifier("applicationScope")
 val featureFlagsPrefs = StringQualifier("FeatureFlagsPrefs")
 val speedUpLoginInterestFeatureFlag = StringQualifier("android_ff_speedup_login_interest")
+val speedUpLoginTradingFeatureFlag = StringQualifier("android_ff_speedup_login_trading")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val superAppFeatureFlag = StringQualifier("ff_super_app")
