@@ -60,11 +60,6 @@ class CreateBuyOrderUseCase(
         recurringBuyFrequency: RecurringBuyFrequency,
     ) {
         compositeDisposable.clear()
-        val timer = featureFlag.flatMapObservable { enabled ->
-            Observable.interval(
-                1, TimeUnit.SECONDS
-            ).takeUntil { !enabled }
-        }
 
         val newOrder: (oldId: String?) -> Single<BuyOrderAndQuote> =
             { oldId ->
@@ -99,17 +94,9 @@ class CreateBuyOrderUseCase(
                 }
             }
 
-        compositeDisposable += Observable.combineLatest(updateOrder, timer) { buySellOrder, _ ->
-            buySellOrder
-        }.takeUntil(stop).subscribeBy(
-            onError =
-            {
-                subject.onNext(Outcome.Failure(it))
-            },
-            onNext =
-            {
-                subject.onNext(Outcome.Success(it))
-            }
+        compositeDisposable += updateOrder.takeUntil(stop).subscribeBy(
+            onError = { subject.onNext(Outcome.Failure(it)) },
+            onNext = { subject.onNext(Outcome.Success(it)) }
         )
     }
 

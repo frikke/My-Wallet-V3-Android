@@ -2,6 +2,7 @@ package piuk.blockchain.android.simplebuy
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -15,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -46,6 +48,7 @@ import info.blockchain.balance.isCustodialOnly
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import java.time.ZonedDateTime
+import kotlin.math.floor
 import kotlin.math.max
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -80,6 +83,8 @@ class SimpleBuyCheckoutFragment :
 
     private var lastState: SimpleBuyState? = null
     private val checkoutAdapterDelegate = CheckoutAdapterDelegate()
+    private lateinit var countDownTimer: CountDownTimer
+    private var chunksCounter = mutableListOf<Int>()
 
     private val isForPendingPayment: Boolean by unsafeLazy {
         arguments?.getBoolean(PENDING_PAYMENT_ORDER_KEY, false) ?: false
@@ -139,25 +144,57 @@ class SimpleBuyCheckoutFragment :
 
     override fun onBackPressed(): Boolean = true
 
-    override fun render(newState: SimpleBuyState) {
+    private fun getListOfTotalTimes(remainingTime: Double): MutableList<Int> {
+        val chunks = MutableList(floor(remainingTime / MIN_QUOTE_REFRESH).toInt()) { MIN_QUOTE_REFRESH.toInt() }
 
-        val refreshTime = newState.quote?.remainingTimeUI ?: 0L
-        Timber.e("quotes remainingTime UI " + newState.quote?.remainingTimeUI)
+        val remainder = remainingTime % MIN_QUOTE_REFRESH
+        if (remainder > 0) {
+            chunks.add(remainder.toInt())
+        }
+        return chunks
+    }
 
-        val formattedTime = DateUtils.formatElapsedTime(max(0, refreshTime))
-        binding.quoteExpiration.apply {
-            setContent {
-                CircularProgressBar(
-                    text = getString(
-                        R.string.simple_buy_quote_message,
-                        formattedTime
-                    ),
-                    progress = newState.quote?.getProgressQuote()
-                )
+    private fun startCounter(quote: BuyQuote, remainingTime: Int) {
+        binding.buttonAction.isEnabled = true
+        countDownTimer = object : CountDownTimer(remainingTime * 1000L, COUNT_DOWN_INTERVAL_TIMER) {
+            override fun onTick(millisUntilFinished: Long) {
+                if (millisUntilFinished > 0) {
+                    val formattedTime = DateUtils.formatElapsedTime(max(0, millisUntilFinished / 1000))
+
+                    binding.quoteExpiration.apply {
+                        setContent {
+                            CircularProgressBar(
+                                text = getString(
+                                    R.string.simple_buy_quote_message,
+                                    formattedTime
+                                ),
+                                progress = (millisUntilFinished / 1000L) / remainingTime.toFloat()
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun onFinish() {
+                if (chunksCounter.isNotEmpty()) chunksCounter.removeAt(0)
+                if (chunksCounter.size > 0) {
+                    startCounter(quote, chunksCounter.first())
+                }
             }
         }
+        countDownTimer.start()
+    }
 
-        binding.buttonAction.isEnabled = (newState.quote?.remainingTimeUI ?: 0) > 0
+    override fun render(newState: SimpleBuyState) {
+        if ((lastState == null || newState.hasQuoteChanged) &&
+            newState.quote != null && binding.quoteExpiration.isVisible
+        ) {
+            chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
+            startCounter(newState.quote, chunksCounter.first())
+            Timber.e("quotes start")
+        }
+
+        binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
 
         showAmountForMethod(newState)
 
@@ -719,6 +756,7 @@ class SimpleBuyCheckoutFragment :
 
     override fun onDestroy() {
         compositeDisposable.clear()
+        countDownTimer.cancel()
         super.onDestroy()
     }
 
@@ -768,6 +806,8 @@ class SimpleBuyCheckoutFragment :
         if (isPositive) toStringWithSymbol() else getString(R.string.common_free)
 
     companion object {
+        private const val MIN_QUOTE_REFRESH = 30L
+        private const val COUNT_DOWN_INTERVAL_TIMER = 1000L
         private const val PENDING_PAYMENT_ORDER_KEY = "PENDING_PAYMENT_KEY"
         private const val SHOW_ONLY_ORDER_DATA = "SHOW_ONLY_ORDER_DATA"
 

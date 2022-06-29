@@ -275,13 +275,8 @@ data class BuyQuote(
     val feeDetails: BuyFees,
     val createdAt: @Contextual ZonedDateTime,
     val expiresAt: @Contextual ZonedDateTime,
-    val remainingTimeUI: Long,
-    val totalDurationUI: Long,
+    val remainingTime: Long,
 ) {
-
-    fun getProgressQuote(): Float {
-        return remainingTimeUI / totalDurationUI.toFloat()
-    }
 
     companion object {
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
@@ -298,8 +293,7 @@ data class BuyQuote(
                 ),
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
-                remainingTimeUI = brokerageQuote.secondsToExpireUI(),
-                totalDurationUI = brokerageQuote.totalDurationUI,
+                remainingTime = brokerageQuote.secondsToExpire.toLong(),
             )
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
