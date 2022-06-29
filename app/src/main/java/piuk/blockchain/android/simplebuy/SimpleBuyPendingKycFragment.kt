@@ -140,6 +140,7 @@ class SimpleBuyPendingKycFragment :
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
+                categories = emptyList()
             )
         )
     }

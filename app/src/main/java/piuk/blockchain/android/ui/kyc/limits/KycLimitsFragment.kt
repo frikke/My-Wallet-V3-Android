@@ -97,19 +97,25 @@ class KycLimitsFragment :
 
     private fun handleErrorState(errorState: KycLimitsError) = when (errorState) {
         is KycLimitsError.SheetError -> {
-            // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
+            val nabuException = (errorState.exception as? HttpException)?.let {
+                NabuApiExceptionFactory.fromResponseBody(errorState.exception)
+            }
+
             showBottomSheet(
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
-                        title = getString(R.string.ops),
-                        description = getString(R.string.something_went_wrong_try_again),
+                        title = nabuException?.getServerSideErrorInfo()?.title ?: getString(R.string.ops),
+                        description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
+                            R.string.something_went_wrong_try_again
+                        ),
                         errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
                         error = errorState.toString(),
                         nabuApiException = (errorState.exception as? HttpException)?.let {
                             NabuApiExceptionFactory.fromResponseBody(errorState.exception)
                         },
                         errorDescription = errorState.exception.message,
-                        action = "KYC_LIMITS"
+                        action = "KYC_LIMITS",
+                        analyticsCategories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                     )
                 )
             )

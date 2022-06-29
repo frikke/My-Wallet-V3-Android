@@ -67,6 +67,7 @@ class SimpleBuyBlockedFragment : Fragment() {
                 source = ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
+                categories = emptyList()
             )
         )
     }
@@ -74,7 +75,10 @@ class SimpleBuyBlockedFragment : Fragment() {
     companion object {
         private const val BLOCKED_DATA_KEY = "BLOCKED_DATA_KEY"
 
-        fun newInstance(access: FeatureAccess.Blocked, resources: Resources): SimpleBuyBlockedFragment {
+        fun newInstance(
+            access: FeatureAccess.Blocked,
+            resources: Resources
+        ): SimpleBuyBlockedFragment {
             val data = when (val reason = access.reason) {
                 BlockedReason.NotEligible -> {
                     BlockedBuyData(
@@ -110,5 +114,5 @@ private data class BlockedBuyData(
     val title: String,
     val description: String,
     @DrawableRes val icon: Int,
-    val error: String,
+    val error: String
 ) : Parcelable

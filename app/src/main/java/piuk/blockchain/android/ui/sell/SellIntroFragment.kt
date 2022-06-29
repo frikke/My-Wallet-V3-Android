@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
@@ -126,23 +127,42 @@ class SellIntroFragment : ViewPagerFragment() {
                     },
                     onError = {
                         renderSellError()
-                        analytics.logEvent(
-                            ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = if (it is HttpException) {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                } else null,
-                                error = ClientErrorAnalytics.OOPS_ERROR,
-                                source = if (it is HttpException) {
-                                    ClientErrorAnalytics.Companion.Source.NABU
-                                } else {
-                                    ClientErrorAnalytics.Companion.Source.CLIENT
-                                },
-                                title = ClientErrorAnalytics.OOPS_ERROR,
-                                action = ClientErrorAnalytics.ACTION_SELL,
-                            )
+                        logErrorAnalytics(
+                            nabuApiException = if (it is HttpException) {
+                                NabuApiExceptionFactory.fromResponseBody(it)
+                            } else null,
+                            error = OOPS_ERROR,
+                            source = if (it is HttpException) {
+                                ClientErrorAnalytics.Companion.Source.NABU
+                            } else {
+                                ClientErrorAnalytics.Companion.Source.CLIENT
+                            },
+                            title = OOPS_ERROR,
+                            action = ClientErrorAnalytics.ACTION_SELL
                         )
                     }
                 )
+    }
+
+    private fun logErrorAnalytics(
+        title: String,
+        error: String,
+        source: ClientErrorAnalytics.Companion.Source,
+        action: String,
+        nabuApiException: NabuApiException? = null,
+        errorDescription: String? = null,
+    ) {
+        analytics.logEvent(
+            ClientErrorAnalytics.ClientLogError(
+                nabuApiException = nabuApiException,
+                error = error,
+                source = source,
+                title = title,
+                action = action,
+                errorDescription = errorDescription,
+                categories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
+            )
+        )
     }
 
     private fun loadSellDetails(showLoader: Boolean) {
@@ -170,23 +190,21 @@ class SellIntroFragment : ViewPagerFragment() {
                 }
             }, onError = {
                 renderSellError()
-                analytics.logEvent(
-                    ClientErrorAnalytics.ClientLogError(
-                        nabuApiException = (it as? HttpException)?.let {
-                            NabuApiExceptionFactory.fromResponseBody(it)
-                        },
-                        errorDescription = it.message,
-                        error = if (it is HttpException) {
-                            ClientErrorAnalytics.NABU_ERROR
-                        } else ClientErrorAnalytics.UNKNOWN_ERROR,
-                        source = if (it is HttpException) {
-                            ClientErrorAnalytics.Companion.Source.NABU
-                        } else {
-                            ClientErrorAnalytics.Companion.Source.CLIENT
-                        },
-                        title = ClientErrorAnalytics.OOPS_ERROR,
-                        action = ClientErrorAnalytics.ACTION_SELL,
-                    )
+                logErrorAnalytics(
+                    nabuApiException = (it as? HttpException)?.let {
+                        NabuApiExceptionFactory.fromResponseBody(it)
+                    },
+                    errorDescription = it.message,
+                    error = if (it is HttpException) {
+                        ClientErrorAnalytics.NABU_ERROR
+                    } else ClientErrorAnalytics.UNKNOWN_ERROR,
+                    source = if (it is HttpException) {
+                        ClientErrorAnalytics.Companion.Source.NABU
+                    } else {
+                        ClientErrorAnalytics.Companion.Source.CLIENT
+                    },
+                    title = OOPS_ERROR,
+                    action = ClientErrorAnalytics.ACTION_SELL
                 )
             })
     }
@@ -340,23 +358,21 @@ class SellIntroFragment : ViewPagerFragment() {
                     }
                 }, onError = {
                     renderSellError()
-                    analytics.logEvent(
-                        ClientErrorAnalytics.ClientLogError(
-                            nabuApiException = (it as? HttpException)?.let {
-                                NabuApiExceptionFactory.fromResponseBody(it)
-                            },
-                            errorDescription = it.message,
-                            error = if (it is HttpException) {
-                                ClientErrorAnalytics.NABU_ERROR
-                            } else ClientErrorAnalytics.UNKNOWN_ERROR,
-                            source = if (it is HttpException) {
-                                ClientErrorAnalytics.Companion.Source.NABU
-                            } else {
-                                ClientErrorAnalytics.Companion.Source.CLIENT
-                            },
-                            title = OOPS_ERROR,
-                            action = ClientErrorAnalytics.ACTION_SELL,
-                        )
+                    logErrorAnalytics(
+                        nabuApiException = (it as? HttpException)?.let {
+                            NabuApiExceptionFactory.fromResponseBody(it)
+                        },
+                        errorDescription = it.message,
+                        error = if (it is HttpException) {
+                            ClientErrorAnalytics.NABU_ERROR
+                        } else ClientErrorAnalytics.UNKNOWN_ERROR,
+                        source = if (it is HttpException) {
+                            ClientErrorAnalytics.Companion.Source.NABU
+                        } else {
+                            ClientErrorAnalytics.Companion.Source.CLIENT
+                        },
+                        title = OOPS_ERROR,
+                        action = ClientErrorAnalytics.ACTION_SELL
                     )
                 })
         }

@@ -247,7 +247,8 @@ class SettingsFragment :
                             nabuApiException = errorState.error,
                             errorButtonCopies = ErrorButtonCopies(
                                 primaryButtonText = getString(R.string.common_ok)
-                            )
+                            ),
+                            analyticsCategories = emptyList()
                         )
                     )
                 )
@@ -262,7 +263,8 @@ class SettingsFragment :
                             nabuApiException = errorState.error,
                             errorButtonCopies = ErrorButtonCopies(
                                 primaryButtonText = getString(R.string.common_ok)
-                            )
+                            ),
+                            analyticsCategories = emptyList()
                         )
                     )
                 )

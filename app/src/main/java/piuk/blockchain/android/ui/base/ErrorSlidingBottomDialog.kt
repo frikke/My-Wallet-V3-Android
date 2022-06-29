@@ -87,7 +87,8 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
             error = errorDialogData.error.orEmpty(),
             nabuApiException = errorDialogData.nabuApiException,
             action = errorDialogData.action,
-            description = errorDialogData.description
+            description = errorDialogData.description,
+            analyticsCategories = errorDialogData.analyticsCategories
         )
     }
 
@@ -97,6 +98,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
         nabuApiException: NabuApiException?,
         description: String,
         action: String?,
+        analyticsCategories: List<String>
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
@@ -107,6 +109,7 @@ class ErrorSlidingBottomDialog : SlidingModalBottomDialog<ErrorSlidingBottomDial
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = action,
+                categories = analyticsCategories
             )
         )
     }
@@ -129,6 +132,7 @@ data class ErrorDialogData(
     val errorDescription: String? = null,
     val action: String? = ACTION_UNKNOWN,
     val errorButtonCopies: ErrorButtonCopies?,
+    val analyticsCategories: List<String>
 ) : Parcelable
 
 fun List<ServerErrorAction>.mapToErrorCopies(): ErrorButtonCopies {

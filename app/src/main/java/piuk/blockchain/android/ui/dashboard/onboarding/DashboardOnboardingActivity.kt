@@ -116,19 +116,25 @@ class DashboardOnboardingActivity :
             DashboardOnboardingError.None -> {
             }
             is DashboardOnboardingError.Error -> {
-                // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
+                val nabuException = (error.throwable as? HttpException)?.let {
+                    NabuApiExceptionFactory.fromResponseBody(error.throwable)
+                }
+
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
-                            title = getString(R.string.ops),
-                            description = getString(R.string.something_went_wrong_try_again),
+                            title = nabuException?.getServerSideErrorInfo()?.title ?: getString(R.string.ops),
+                            description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
+                                R.string.something_went_wrong_try_again
+                            ),
                             errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
                             error = error.throwable.message,
                             nabuApiException = (error.throwable as? HttpException)?.let {
                                 NabuApiExceptionFactory.fromResponseBody(error.throwable)
                             },
                             errorDescription = error.throwable.message,
-                            action = "DASHBOARD"
+                            action = "DASHBOARD",
+                            analyticsCategories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                         )
                     )
                 )
@@ -294,7 +300,7 @@ class DashboardOnboardingActivity :
 
         private fun newIntent(
             context: Context,
-            initialSteps: List<CompletableDashboardOnboardingStep>
+            initialSteps: List<CompletableDashboardOnboardingStep>,
         ): Intent = Intent(context, DashboardOnboardingActivity::class.java).apply {
             if (initialSteps.isNotEmpty()) {
                 putExtra(ARG_INITIAL_STEPS_STATES, initialSteps.map { it.state.name }.toTypedArray())
@@ -303,7 +309,7 @@ class DashboardOnboardingActivity :
     }
 
     data class ActivityArgs(
-        val initialSteps: List<CompletableDashboardOnboardingStep>
+        val initialSteps: List<CompletableDashboardOnboardingStep>,
     )
 
     sealed class ActivityResult {
