@@ -11,7 +11,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class SecurityInteractor internal constructor(
     private val settingsDataManager: SettingsDataManager,
@@ -20,8 +19,7 @@ class SecurityInteractor internal constructor(
     private val payloadManager: PayloadDataManager,
     private val securityPrefs: SecurityPrefs,
     private val authPrefs: AuthPrefs,
-    private val backupPrefs: EncryptedPrefs,
-    private val persistentPrefs: PersistentPrefs,
+    private val backupPrefs: EncryptedPrefs
 ) {
 
     fun pinCodeValidatedForChange() {
@@ -109,7 +107,7 @@ class SecurityInteractor internal constructor(
 
     fun triggerSeedPhraseAlert(): Completable =
         settingsDataManager.triggerEmailAlert(
-            guid = persistentPrefs.walletGuid,
-            sharedKey = persistentPrefs.sharedKey
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey
         )
 }

@@ -23,7 +23,6 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class SecurityInteractorTest {
 
@@ -33,7 +32,6 @@ class SecurityInteractorTest {
     private val biometricsController: BiometricsController = mock()
     private val securityPrefs: SecurityPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
-    private val persistentPrefs: PersistentPrefs = mock()
     private val pinRepository: PinRepository = mock()
     private val payloadManager: PayloadDataManager = mock()
     private val encryptedPrefs: EncryptedPrefs = mock()
@@ -47,8 +45,7 @@ class SecurityInteractorTest {
             pinRepository = pinRepository,
             payloadManager = payloadManager,
             backupPrefs = encryptedPrefs,
-            authPrefs = authPrefs,
-            persistentPrefs = persistentPrefs
+            authPrefs = authPrefs
         )
     }
 
@@ -292,8 +289,8 @@ class SecurityInteractorTest {
         val walletGuid = "walletGuid"
         val sharedKey = "sharedKey"
 
-        whenever(persistentPrefs.walletGuid).thenReturn(walletGuid)
-        whenever(persistentPrefs.sharedKey).thenReturn(sharedKey)
+        whenever(authPrefs.walletGuid).thenReturn(walletGuid)
+        whenever(authPrefs.sharedKey).thenReturn(sharedKey)
         whenever(settingsDataManager.triggerEmailAlert(any(), any())).thenReturn(mockk())
 
         interactor.triggerSeedPhraseAlert()
