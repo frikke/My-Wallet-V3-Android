@@ -615,6 +615,13 @@ class PrefsUtil(
         get() = getValue(REFERRAL_ICON_CLICKED, false)
         set(value) = setValue(REFERRAL_ICON_CLICKED, value)
 
+    override var referralSuccessTitle: String
+        get() = getValue(REFERRAL_SUCCESS_TITLE, "")
+        set(value) = setValue(REFERRAL_SUCCESS_TITLE, value)
+
+    override var referralSuccessBody: String
+        get() = getValue(REFERRAL_SUCCESS_BODY, "")
+        set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -734,8 +741,10 @@ class PrefsUtil(
         private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
         private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
 
-        // Referral clicked
+        // Referral
         private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
+        private const val REFERRAL_SUCCESS_TITLE = "REFERRAL_SUCCESS_TITLE"
+        private const val REFERRAL_SUCCESS_BODY = "REFERRAL_SUCCESS_BODY"
     }
 }
 

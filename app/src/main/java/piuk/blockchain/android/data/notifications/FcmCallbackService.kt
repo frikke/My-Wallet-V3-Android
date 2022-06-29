@@ -19,6 +19,7 @@ import com.blockchain.notifications.NotificationsUtil.Companion.ID_FOREGROUND_NO
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
 import com.blockchain.notifications.models.NotificationPayload
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.WalletStatus
 import com.google.firebase.messaging.FirebaseMessaging
@@ -50,6 +51,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private var isAppOnForegrounded = true
     private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
+    private val referralPrefs: ReferralPrefs by inject()
 
     init {
         compositeDisposable += lifecycleObservable.onStateUpdated.subscribe {
@@ -77,6 +79,15 @@ class FcmCallbackService : FirebaseMessagingService() {
                 remoteConfigPrefs.updateRemoteConfigStaleStatus(isStale = true)
                 return
             }
+
+            // Store of we need to display referral success on main screen
+            val referralSuccessTitle = payload.referralSuccessTitle
+            val referralSuccessBody = payload.referralSuccessBody
+            if (referralSuccessTitle != null && referralSuccessBody != null) {
+                referralPrefs.referralSuccessTitle = referralSuccessTitle
+                referralPrefs.referralSuccessBody = referralSuccessBody
+            }
+
             sendNotification(
                 payload = payload,
                 foreground = isAppOnForegrounded && walletPrefs.isAppUnlocked

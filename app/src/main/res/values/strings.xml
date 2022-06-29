@@ -2927,7 +2927,7 @@
 
     <!--  Referral -->
     <string name="referral_code_title">Your referral code</string>
-    <string name="referral_criteria_title">What my invited friends need to do?</string>
+    <string name="referral_criteria_title">To qualify, your friends must:</string>
     <string name="referral_program">Referral Program</string>
     <string name="referral_invite_now">Invite Now</string>
 
