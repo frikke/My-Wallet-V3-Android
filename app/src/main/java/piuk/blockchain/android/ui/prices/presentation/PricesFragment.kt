@@ -50,6 +50,7 @@ class PricesFragment :
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
+        loadAssetsAvailable()
     }
 
     private fun setupViewModel() {
@@ -76,10 +77,6 @@ class PricesFragment :
 
     private fun loadAssetsAvailable() {
         viewModel.onIntent(PricesIntents.LoadAssetsAvailable)
-    }
-
-    private fun loadPrice(assetInfo: AssetInfo) {
-        viewModel.onIntent(PricesIntents.LoadPrice(assetInfo))
     }
 
     private fun pricesItemClicked(cryptoCurrency: AssetInfo) {
