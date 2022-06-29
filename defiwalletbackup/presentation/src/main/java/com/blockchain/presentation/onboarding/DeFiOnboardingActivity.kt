@@ -50,11 +50,12 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
             /**
              * IMPORTANT
              *
-             * mandatory Dispatchers.IO otherwise the nav event is not caught
+             * mandatory Dispatchers.IO otherwise the nav event is not caught as we're coming back from another activity
              * has to do with running things serially in main thread where [Lifecycle.repeatOnLifecycle]
              * is supposed to start collecting
              *
-             * [Lifecycle.repeatOnLifecycle] with [Lifecycle.State.RESUMED] should've been enough
+             * With the navigation flow being lifecycle aware and tied to [Lifecycle.State.STARTED],
+             * [Lifecycle.repeatOnLifecycle] with [Lifecycle.State.RESUMED] ↓ should've been enough
              * so not sure if it's a lifecycle edge case
              */
             var job: Job? = null
@@ -83,7 +84,7 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
                 viewModel.viewState.collect { viewState ->
                     with(viewState) {
                         when {
-                            shouldVerifyPin -> {
+                            shouldLaunchPinVerification -> {
                                 launchPinVerification()
                                 viewModel.onIntent(DeFiOnboardingIntent.PinVerificationRequested)
                             }

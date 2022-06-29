@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.ComposeColors
@@ -22,10 +21,14 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.onboarding.DeFiOnboardingIntent
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 
+/**
+ * Figma: https://www.figma.com/file/VTMHbEoX0QDNOLKKdrgwdE/AND---Super-App?node-id=260%3A18073
+ */
 @Composable
 fun DeFiOnboardingComplete(viewModel: DeFiOnboardingViewModel) {
     DeFiOnboardingCompleteScreen(
@@ -44,8 +47,6 @@ fun DeFiOnboardingCompleteScreen(
     ) {
         NavigationBar(title = stringResource(R.string.defi_onboarding_nav_title))
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
-
         Box {
             Image(
                 modifier = Modifier
@@ -58,7 +59,7 @@ fun DeFiOnboardingCompleteScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(dimensionResource(id = R.dimen.standard_margin)),
+                    .padding(AppTheme.dimensions.paddingMedium),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.weight(1F))
@@ -67,7 +68,7 @@ fun DeFiOnboardingCompleteScreen(
                     imageResource = ImageResource.Local(R.drawable.ic_defi_onboarding)
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingLarge))
 
                 SimpleText(
                     text = stringResource(R.string.defi_onboarding_complete_title),
@@ -76,7 +77,7 @@ fun DeFiOnboardingCompleteScreen(
                     gravity = ComposeGravities.Centre
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
                 SimpleText(
                     text = stringResource(R.string.defi_onboarding_complete_description),

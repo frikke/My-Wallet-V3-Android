@@ -62,8 +62,6 @@ fun DeFiOnboardingIntroScreen(
             title = stringResource(R.string.defi_onboarding_nav_title)
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
-
         Box {
             Image(
                 modifier = Modifier
@@ -76,11 +74,7 @@ fun DeFiOnboardingIntroScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        start = dimensionResource(id = R.dimen.standard_margin),
-                        end = dimensionResource(id = R.dimen.standard_margin),
-                        bottom = dimensionResource(id = R.dimen.standard_margin)
-                    ),
+                    .padding(AppTheme.dimensions.paddingMedium),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -88,7 +82,7 @@ fun DeFiOnboardingIntroScreen(
 
                 Image(ImageResource.Local(R.drawable.ic_defi_onboarding))
 
-                Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.standard_margin)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingMedium))
 
                 SimpleText(
                     text = stringResource(R.string.defi_onboarding_intro_title),
@@ -97,7 +91,7 @@ fun DeFiOnboardingIntroScreen(
                     gravity = ComposeGravities.Centre
                 )
 
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
 
                 SimpleText(
                     text = stringResource(R.string.defi_onboarding_intro_description),
@@ -149,12 +143,12 @@ fun DeFiOnboardingPropertyItem(
             .border(
                 width = 1.dp,
                 color = Grey100,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium))
+                shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium)
             )
-            .background(color = Color.White, shape = RoundedCornerShape(dimensionResource(R.dimen.borderRadiiMedium)))
+            .background(color = Color.White, shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiMedium))
             .padding(
-                horizontal = dimensionResource(R.dimen.small_margin),
-                vertical = dimensionResource(R.dimen.very_small_margin)
+                horizontal = AppTheme.dimensions.paddingMedium,
+                vertical = dimensionResource(R.dimen.very_small_margin) // todo (othman) use AppTheme.dimensions
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -177,7 +171,7 @@ fun DeFiOnboardingPropertyItem(
                 gravity = ComposeGravities.Start
             )
 
-            Spacer(modifier = Modifier.size(2.dp))
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.xxPaddingSmall))
 
             SimpleText(
                 text = subtitle,
@@ -200,7 +194,7 @@ fun DeFiOnboardingProperties(properties: List<DeFiProperty>) {
             )
 
             if (index isNotLastIn properties) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
+                Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
             }
         }
     }

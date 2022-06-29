@@ -22,7 +22,7 @@ class DeFiOnboardingViewModel : MviViewModel<DeFiOnboardingIntent,
         return with(state) {
             DeFiOnboardingViewState(
                 flowState = flowState,
-                shouldVerifyPin = requiresPinVerification
+                shouldLaunchPinVerification = requiresPinVerification
             )
         }
     }

@@ -121,7 +121,7 @@ class WalletModeSelectionViewModel(
                 if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && payloadManager.isBackedUp.not()) {
                     updateState { it.copy(requiresDeFiOnboarding = true) }
                 } else {
-                    onIntent(WalletModeSelectionIntent.UpdateActiveWalletMode(intent.walletMode))
+                    updateActiveWalletMode(intent.walletMode)
                 }
             }
 
@@ -131,21 +131,21 @@ class WalletModeSelectionViewModel(
 
             // defi (NON_CUSTODIAL_ONLY) specific
             WalletModeSelectionIntent.DeFiOnboardingComplete -> {
-                onIntent(WalletModeSelectionIntent.UpdateActiveWalletMode(WalletMode.NON_CUSTODIAL_ONLY))
-            }
-
-            is WalletModeSelectionIntent.UpdateActiveWalletMode -> {
-                updateState {
-                    it.copy(
-                        brokerageBalance = null,
-                        defiBalance = null,
-                        enabledWalletMode = intent.walletMode
-                    )
-                }
-                walletModeService.updateEnabledWalletMode(intent.walletMode)
-                updateState { it.copy(newSelectedWalletMode = intent.walletMode) }
+                updateActiveWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
             }
         }.exhaustive
+    }
+
+    private fun updateActiveWalletMode(walletMode: WalletMode) {
+        updateState {
+            it.copy(
+                brokerageBalance = null,
+                defiBalance = null,
+                enabledWalletMode = walletMode
+            )
+        }
+        walletModeService.updateEnabledWalletMode(walletMode)
+        updateState { it.copy(newSelectedWalletMode = walletMode) }
     }
 }
 
@@ -160,12 +160,6 @@ sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
     object DeFiOnboardingRequested : WalletModeSelectionIntent()
 
     object DeFiOnboardingComplete : WalletModeSelectionIntent()
-
-    data class UpdateActiveWalletMode(val walletMode: WalletMode) : WalletModeSelectionIntent() {
-        override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
-            return modelState.enabledWalletMode != walletMode
-        }
-    }
 }
 
 data class WalletModeSelectionViewState(

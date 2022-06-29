@@ -43,6 +43,9 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
             ?: throw IllegalStateException("Host activity is not a WalletModeSelectionBottomSheet.Host")
     }
 
+    override val scope: Scope
+        get() = payloadScope
+
     private val viewModel: WalletModeSelectionViewModel by viewModel()
 
     private val onDeFiOnboardingResult = registerForActivityResult(
@@ -54,6 +57,8 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        collectViewState()
+
         viewModel.onIntent(WalletModeSelectionIntent.LoadAvailableModesAndBalances)
 
         return ComposeView(requireContext()).apply {
@@ -72,11 +77,6 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        collectViewState()
     }
 
     private fun collectViewState() {
@@ -112,7 +112,4 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
     companion object {
         fun newInstance(): WalletModeSelectionBottomSheet = WalletModeSelectionBottomSheet()
     }
-
-    override val scope: Scope
-        get() = payloadScope
 }
