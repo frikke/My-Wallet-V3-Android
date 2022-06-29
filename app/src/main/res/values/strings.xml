@@ -2952,7 +2952,6 @@
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
-    <string name="recovery_phrase_backup_again">Back Up Again</string>
     <string name="recovery_phrase_backup_manual">Back Up Manually</string>
     <string name="recovery_phrase_backup_cloud">Back Up to Cloud</string>
 
