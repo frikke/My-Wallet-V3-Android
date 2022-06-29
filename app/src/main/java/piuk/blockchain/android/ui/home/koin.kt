@@ -7,7 +7,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import piuk.blockchain.android.ui.dashboard.WalletModeSelectionViewModel
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionViewModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetInteractor
 import piuk.blockchain.android.ui.home.models.ActionsSheetModel
 import piuk.blockchain.android.ui.home.models.ActionsSheetState
@@ -71,7 +71,8 @@ val mainModule = module {
         viewModel {
             WalletModeSelectionViewModel(
                 walletModeService = get(),
-                cache = get()
+                cache = get(),
+                payloadManager = get()
             )
         }
     }
