@@ -54,10 +54,11 @@ fun Context.copyToClipboard(label: String, text: String) {
     }
 }
 
-fun Context.shareText(text: String) {
+fun Context.shareTextWithSubject(text: String, subject: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, text)
+        putExtra(Intent.EXTRA_SUBJECT, subject)
         type = "text/plain"
     }
 

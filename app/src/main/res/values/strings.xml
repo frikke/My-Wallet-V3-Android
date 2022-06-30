@@ -2930,6 +2930,8 @@
     <string name="referral_criteria_title">To qualify, your friends must:</string>
     <string name="referral_program">Referral Program</string>
     <string name="referral_invite_now">Invite Now</string>
+    <string name="referral_share_template">Join me and sign up to a Blockchain.com Wallet with referral code %1$s, and get a bonus in crypto!\n\nFind the app here: https://blockchainwallet.page.link/join</string>
+    <string name="referral_share_template_subject">Join me on Blockchain.com</string>
 
     <!-- App Rating-->
     <string name="app_rating_title">Do you like our app?</string>
