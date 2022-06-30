@@ -480,4 +480,20 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     class RefreshFiatBalances(val fiatAccounts: Map<Currency, FiatBalanceInfo>) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
+
+    object FetchReferralSuccess : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy()
+    }
+
+    data class ShowReferralSuccess(val referralSuccessData: Pair<String, String>) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            referralSuccessData = referralSuccessData
+        )
+    }
+
+    object DismissReferralSuccess : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(
+            referralSuccessData = null
+        )
+    }
 }

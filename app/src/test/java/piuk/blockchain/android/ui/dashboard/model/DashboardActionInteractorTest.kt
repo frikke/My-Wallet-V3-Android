@@ -19,6 +19,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.testutils.USD
 import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
@@ -49,6 +50,7 @@ class DashboardActionInteractorTest {
     private val targetFiatAccount: FiatAccount = mock {
         on { currency }.thenReturn(USD)
     }
+    private val referralPrefs: ReferralPrefs = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -78,7 +80,8 @@ class DashboardActionInteractorTest {
             nftAnnouncementPrefs = nftAnnouncementPrefs,
             exchangeRates = mock(),
             walletModeBalanceCache = mock(),
-            bankService = bankService
+            bankService = bankService,
+            referralPrefs = referralPrefs
         )
     }
 

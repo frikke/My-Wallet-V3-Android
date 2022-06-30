@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
@@ -121,22 +122,26 @@ class BuyIntroFragment :
                             null -> loadBuyDetails(showLoading)
                         }
                     },
-                    onError = {
+                    onError = { exception ->
                         renderErrorState()
+
+                        val nabuException: NabuApiException? = (exception as? HttpException)?.let { httpException ->
+                            NabuApiExceptionFactory.fromResponseBody(httpException)
+                        }
+
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = (it as? HttpException)?.let {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                },
-                                errorDescription = it.message,
+                                nabuApiException = nabuException,
+                                errorDescription = exception.message,
                                 error = ClientErrorAnalytics.NABU_ERROR,
-                                source = if (it is HttpException) {
+                                source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
                                 title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_BUY,
+                                categories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                             )
                         )
                     }

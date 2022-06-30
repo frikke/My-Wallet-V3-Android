@@ -43,6 +43,7 @@ sealed class ImageResource {
         override val contentDescription: String? = null,
         override val shape: Shape? = null,
         override val size: Dp? = null,
+        val iconSize: Dp? = null
     ) : ImageResource()
 
     class LocalWithBackgroundAndExternalResources(

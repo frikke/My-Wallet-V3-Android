@@ -122,6 +122,7 @@ class PaymentsRepository(
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
+    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
     private val googlePayFeatureFlag: FeatureFlag,
     private val plaidFeatureFlag: FeatureFlag,
 ) : BankService, CardService, PaymentMethodService {
@@ -207,15 +208,16 @@ class PaymentsRepository(
             .filter { it.eligible || !onlyEligible }
     }.doOnSuccess {
         updateSupportedCards(it)
-    }.map { methods ->
+    }.zipWith(getSupportedCurrenciesUseCase.invoke(Unit)).map { (methods, supportedCurrencies) ->
         val paymentMethodsTypes = methods
             .map { it.toAvailablePaymentMethodType(fiatCurrency) }
             .filterNot { it.type == PaymentMethodType.UNKNOWN }
             .filter {
                 when (it.type) {
                     PaymentMethodType.BANK_ACCOUNT ->
-                        SUPPORTED_WIRE_TRANSFER_CURRENCIES.contains(it.currency.networkTicker)
-                    PaymentMethodType.FUNDS -> SUPPORTED_FUNDS_CURRENCIES.contains(it.currency.networkTicker)
+                        supportedCurrencies.wireTransferCurrencies.contains(it.currency.networkTicker)
+                    PaymentMethodType.FUNDS ->
+                        supportedCurrencies.fundsCurrencies.contains(it.currency.networkTicker)
                     PaymentMethodType.BANK_TRANSFER,
                     PaymentMethodType.PAYMENT_CARD,
                     PaymentMethodType.GOOGLE_PAY,
@@ -597,14 +599,20 @@ class PaymentsRepository(
         } ?: toBankTransferDetails()
 
     override fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean> =
-        if (!SUPPORTED_WIRE_TRANSFER_CURRENCIES.contains(fiatCurrency.networkTicker))
-            Single.just(false)
-        else getAvailablePaymentMethodsTypes(
-            fiatCurrency = fiatCurrency,
-            fetchSddLimits = false,
-            onlyEligible = true
-        ).map { available ->
-            available.any { it.type == PaymentMethodType.BANK_ACCOUNT || it.type == PaymentMethodType.BANK_TRANSFER }
+        getSupportedCurrenciesUseCase.invoke(Unit).flatMap { supportedCurrencies ->
+            if (!supportedCurrencies.wireTransferCurrencies.contains(fiatCurrency.networkTicker)) {
+                Single.just(false)
+            } else {
+                getAvailablePaymentMethodsTypes(
+                    fiatCurrency = fiatCurrency,
+                    fetchSddLimits = false,
+                    onlyEligible = true
+                ).map { available ->
+                    available.any {
+                        it.type == PaymentMethodType.BANK_ACCOUNT || it.type == PaymentMethodType.BANK_TRANSFER
+                    }
+                }
+            }
         }
 
     // <editor-fold desc="Editor Fold: Network response Mappers">
@@ -751,9 +759,6 @@ class PaymentsRepository(
             else -> BankState.UNKNOWN
         }
 
-    private fun String.isActive(): Boolean =
-        toCardStatus() == CardStatus.ACTIVE
-
     private fun String.toCardStatus(): CardStatus =
         when (this) {
             CardResponse.ACTIVE -> CardStatus.ACTIVE
@@ -861,12 +866,6 @@ class PaymentsRepository(
     companion object {
         private val SUPPORTED_BANK_PARTNERS = listOf(
             BankPartner.YAPILY, BankPartner.YODLEE, BankPartner.PLAID
-        )
-        private val SUPPORTED_FUNDS_CURRENCIES = listOf(
-            "GBP", "EUR", "USD"
-        )
-        private val SUPPORTED_WIRE_TRANSFER_CURRENCIES = listOf(
-            "GBP", "EUR", "USD"
         )
         private const val SDD_ELIGIBLE_TIER = 3
     }

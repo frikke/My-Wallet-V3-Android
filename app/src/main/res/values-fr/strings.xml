@@ -1004,8 +1004,6 @@ Vous pouvez continuer à utiliser le portefeuille pour gérer votre crypto.</str
         <item quantity="many">Vous avez %1$d envois sans sauvegarde restants</item>
     </plurals>
     <string name="backup_before_send_now_label">Vous devez sauvegarder avant d\'envoyer</string>
-    <string name="card_info_title">Cartes virtuelles non acceptées</string>
-    <string name="card_info_description">Pour le moment, nous ne prenons pas en charge l\'achat de crypto avec des cartes de crédit et de débit virtuelles. Vous devez utiliser le numéro, la date et le code de sécurité d\'une carte physique.</string>
     <string name="send_confirmation_insufficient_fee">Pas assez de fonds pour les frais de priorité, veuillez ajuster votre montant d\'envoi.</string>
     <string name="send_state_locked_funds_1">Vous avez des transactions en attente.</string>
     <string name="sell_info_title">Vous souhaitez vendre à partir de vos autres portefeuilles ?</string>

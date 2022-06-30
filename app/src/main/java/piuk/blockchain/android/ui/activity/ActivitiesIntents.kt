@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import info.blockchain.balance.Currency
 import info.blockchain.balance.CurrencyType
@@ -30,7 +31,7 @@ class AccountSelectedIntent(
 object SelectDefaultAccountIntent : ActivitiesIntent() {
     override fun reduce(oldState: ActivitiesState): ActivitiesState {
         return oldState.copy(
-            account = null,
+            account = NullCryptoAccount(),
             isLoading = true,
             activityList = emptyList()
         )
@@ -45,6 +46,15 @@ class ActivityListUpdatedIntent(
             isError = false,
             isLoading = false,
             activityList = activityList
+        )
+    }
+}
+
+object ActivityLoadingIntent : ActivitiesIntent() {
+    override fun reduce(oldState: ActivitiesState): ActivitiesState {
+        return oldState.copy(
+            isError = false,
+            isLoading = true
         )
     }
 }

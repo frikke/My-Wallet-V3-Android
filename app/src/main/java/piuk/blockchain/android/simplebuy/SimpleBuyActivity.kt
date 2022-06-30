@@ -297,8 +297,7 @@ class SimpleBuyActivity :
             is BlockedReason.InsufficientTier -> showBottomSheet(KycUpgradeNowSheet.newInstance())
             is BlockedReason.Sanctions -> showBottomSheet(BlockedDueToSanctionsSheet.newInstance(reason))
             BlockedReason.NotEligible,
-            is BlockedReason.TooManyInFlightTransactions,
-            -> {
+            is BlockedReason.TooManyInFlightTransactions -> {
                 supportFragmentManager.beginTransaction()
                     .addAnimationTransaction()
                     .replace(
@@ -404,7 +403,8 @@ class SimpleBuyActivity :
                     error = error,
                     nabuApiException = nabuApiException,
                     errorDescription = description,
-                    action = ACTION_BUY
+                    action = ACTION_BUY,
+                    analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
                 )
             )
         )

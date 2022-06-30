@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.commonarch.presentation.base.trackProgress
@@ -74,7 +75,7 @@ class BuySellFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentBuySellBinding.inflate(inflater, container, false).apply {
             this.redesignTabLayout.items = listOf(getString(R.string.common_buy), getString(R.string.common_sell))
@@ -115,24 +116,27 @@ class BuySellFragment :
                     onSuccess = { introAction ->
                         renderBuySellFragments(introAction)
                     },
-                    onError = {
+                    onError = { exception ->
                         renderErrorState()
+                        val nabuException: NabuApiException? = (exception as? HttpException)?.let { httpException ->
+                            NabuApiExceptionFactory.fromResponseBody(httpException)
+                        }
+
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = (it as? HttpException)?.let {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                },
-                                errorDescription = it.message,
-                                error = if (it is HttpException) {
+                                nabuApiException = nabuException,
+                                errorDescription = exception.message,
+                                error = if (exception is HttpException) {
                                     ClientErrorAnalytics.NABU_ERROR
                                 } else ClientErrorAnalytics.UNKNOWN_ERROR,
-                                source = if (it is HttpException) {
+                                source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
                                 title = ClientErrorAnalytics.OOPS_ERROR,
                                 action = ClientErrorAnalytics.ACTION_SELL,
+                                categories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                             )
                         )
                     }
@@ -140,7 +144,7 @@ class BuySellFragment :
     }
 
     private fun renderBuySellFragments(
-        action: BuySellIntroAction?
+        action: BuySellIntroAction?,
     ) {
         with(binding) {
             buySellEmpty.gone()
@@ -277,7 +281,7 @@ class BuySellFragment :
 
         fun newInstance(
             asset: AssetInfo? = null,
-            viewType: BuySellViewType = BuySellViewType.TYPE_BUY
+            viewType: BuySellViewType = BuySellViewType.TYPE_BUY,
         ) = BuySellFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(VIEW_TYPE, viewType)
@@ -312,7 +316,7 @@ class BuySellFragment :
 @SuppressLint("WrongConstant")
 internal class ViewPagerAdapter(
     private val titlesList: List<String>,
-    fragmentManager: FragmentManager
+    fragmentManager: FragmentManager,
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getCount(): Int = titlesList.size

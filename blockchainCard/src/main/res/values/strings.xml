@@ -109,4 +109,13 @@
     <string name="residential_address"></string>
     <string name="card_intro_title"></string>
     <string name="next"></string>
+    <string name="merchant"></string>>
+    <string name="date"></string>>
+    <string name="type"></string>>
+    <string name="state"></string>>
+    <string name="transaction_details"></string>
+    <string name="bc_card_transaction_pending"></string>
+    <string name="bc_card_transaction_cancelled"></string>
+    <string name="bc_card_transaction_declined"></string>
+    <string name="bc_card_transaction_completed"></string>>
 </resources>

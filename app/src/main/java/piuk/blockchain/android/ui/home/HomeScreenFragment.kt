@@ -38,7 +38,7 @@ interface HomeNavigator {
         asset: AssetInfo? = null,
         reload: Boolean = false
     )
-    fun launchSimpleBuy(asset: AssetInfo)
+    fun launchSimpleBuy(asset: AssetInfo, paymentMethodId: String? = null)
     fun launchInterestDashboard(origin: LaunchOrigin)
     fun launchFiatDeposit(currency: String)
     fun launchTransfer()

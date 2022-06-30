@@ -216,6 +216,9 @@ class PortfolioFragment :
 
         updateAnalytics(this.state, newState)
         updateOnboarding(newState.onboardingState)
+        newState.referralSuccessData?.let {
+            showReferralSuccess(it)
+        }
 
         this.state = newState
     }
@@ -533,6 +536,7 @@ class PortfolioFragment :
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.FetchOnboardingSteps)
         initOrUpdateAssets()
+        model.process(DashboardIntent.FetchReferralSuccess)
     }
 
     // This method doesn't get called when we use the split portfolio/prices dashboard.
@@ -646,6 +650,18 @@ class PortfolioFragment :
         LocksDetailsActivity.start(requireContext(), locks.fundsLocks)
     }
 
+    private fun showReferralSuccess(successData: Pair<String, String>) {
+        binding.referralSuccess.apply {
+            title = successData.first
+            subtitle = successData.second
+            onClose = {
+                model.process(DashboardIntent.DismissReferralSuccess)
+                gone()
+            }
+            visible()
+        }
+    }
+
     private val announcementHost = object : AnnouncementHost {
 
         override val disposables: CompositeDisposable
@@ -693,8 +709,8 @@ class PortfolioFragment :
             navigator().resumeSimpleBuyKyc()
         }
 
-        override fun startSimpleBuy(asset: AssetInfo) {
-            navigator().launchSimpleBuy(asset)
+        override fun startSimpleBuy(asset: AssetInfo, paymentMethodId: String?) {
+            navigator().launchSimpleBuy(asset, paymentMethodId)
         }
 
         override fun startBuy() {

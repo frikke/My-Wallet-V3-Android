@@ -1,8 +1,12 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import androidx.annotation.VisibleForTesting
+import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
+import com.blockchain.api.services.PaymentMethodsService
+import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
@@ -12,12 +16,18 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
+import com.blockchain.payments.googlepay.manager.GooglePayManager
+import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
+import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
+import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
+import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -40,6 +50,11 @@ class AnnouncementQueries(
     private val coincore: Coincore,
     private val remoteConfig: RemoteConfig,
     private val assetCatalogue: AssetCatalogue,
+    private val googlePayManager: GooglePayManager,
+    private val googlePayEnabledFlag: FeatureFlag,
+    private val paymentMethodsService: PaymentMethodsService,
+    private val authenticator: AuthHeaderProvider,
+    private val currencyPrefs: CurrencyPrefs,
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.fiatAssets.accountGroup().toSingle().map {
@@ -134,6 +149,38 @@ class AnnouncementQueries(
                 Maybe.just(Pair(renamedAsset.oldTicker, asset))
             }
                 ?: Maybe.empty()
+        }
+
+    fun isGooglePayAvailable(): Single<Boolean> =
+        authenticator.getAuthHeader().flatMap { authToken ->
+            Single.zip(
+                paymentMethodsService.getAvailablePaymentMethodsTypes(
+                    authorization = authToken,
+                    currency = currencyPrefs.tradingCurrency.networkTicker,
+                    tier = null,
+                    eligibleOnly = true
+                ).map { list ->
+                    list.any { response ->
+                        response.mobilePayment?.any { payment ->
+                            payment.equals(PaymentMethodResponse.GOOGLE_PAY, true)
+                        } ?: false
+                    }
+                },
+                googlePayEnabledFlag.enabled,
+                checkGooglePayAvailability()
+            ) { gPayPaymentMethodAvailable, gPayFlagEnabled, gPayAvailableOnDevice ->
+                return@zip gPayPaymentMethodAvailable && gPayFlagEnabled && gPayAvailableOnDevice
+            }
+        }.map { enabled ->
+            return@map enabled
+        }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    fun checkGooglePayAvailability(): Single<Boolean> =
+        rxSingle {
+            googlePayManager.checkIfGooglePayIsAvailable(
+                GooglePayRequestBuilder.buildForPaymentStatus(allowedAuthMethods, allowedCardNetworks)
+            )
         }
 
     companion object {

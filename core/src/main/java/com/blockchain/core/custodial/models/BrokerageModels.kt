@@ -14,7 +14,6 @@ data class BrokerageQuote(
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,
 ) {
-
     fun millisToExpire(): Long {
         return Duration.between(
             ZonedDateTime.now(expiresAt.zone),

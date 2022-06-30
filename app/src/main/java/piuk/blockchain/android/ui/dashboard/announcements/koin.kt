@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
@@ -13,6 +14,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.CeloEurAnnounceme
 import piuk.blockchain.android.ui.dashboard.announcements.rule.CloudBackupAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsKycAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.FiatFundsNoKycAnnouncement
+import piuk.blockchain.android.ui.dashboard.announcements.rule.GooglePayAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.IncreaseLimitsAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.InterestAvailableAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.KycIncompleteAnnouncement
@@ -69,9 +71,21 @@ val dashboardAnnouncementsModule = module {
                 userIdentity = get(),
                 coincore = get(),
                 remoteConfig = get(),
-                assetCatalogue = get()
+                assetCatalogue = get(),
+                googlePayManager = get(),
+                googlePayEnabledFlag = get(googlePayFeatureFlag),
+                paymentMethodsService = get(),
+                authenticator = get(),
+                currencyPrefs = get()
             )
         }
+
+        factory {
+            GooglePayAnnouncement(
+                announcementQueries = get(),
+                dismissRecorder = get()
+            )
+        }.bind(AnnouncementRule::class)
 
         factory {
             PaxRenamedAnnouncement(

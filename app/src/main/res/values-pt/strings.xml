@@ -1060,8 +1060,6 @@ se disponível. Isso permite que restaure a sua carteira e perder este dispositi
         <item quantity="other">Tem %1$d envios sem cópia de segurança restantes</item>
     </plurals>
     <string name="backup_before_send_now_label">Deve fazer uma cópia de segurança antes de enviar</string>
-    <string name="card_info_title">Cartões virtuais não aceites</string>
-    <string name="card_info_description">No momento, não suportamos a compra de criptografia com cartões virtuais de crédito e débito. Deverá usar o número, data e código de segurança de um cartão físico.</string>
     <string name="send_confirmation_insufficient_fee">Não há fundos suficientes para a taxa de prioridade, ajuste o valor de envio.</string>
     <string name="send_state_locked_funds_1">Tem transações pendentes.</string>
     <string name="sell_info_title">Quer vender das suas outras carteiras?</string>

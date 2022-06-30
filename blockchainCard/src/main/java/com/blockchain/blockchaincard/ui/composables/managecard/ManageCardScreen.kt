@@ -18,14 +18,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -58,6 +57,8 @@ import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
@@ -75,13 +76,23 @@ import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.BalanceTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.ToggleTableRow
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark800
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.UltraLight
+import com.blockchain.utils.fromIso8601ToUtc
+import com.blockchain.utils.toFormattedDate
+import com.blockchain.utils.toFormattedString
+import com.blockchain.utils.toLocalTime
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import info.blockchain.balance.CryptoValue
+import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
+import java.math.BigDecimal
 
 @Composable
 fun ManageCard(
@@ -89,10 +100,14 @@ fun ManageCard(
     cardWidgetUrl: String?,
     linkedAccountBalance: AccountBalance?,
     isBalanceLoading: Boolean,
+    isTransactionListRefreshing: Boolean,
+    transactionList: List<BlockchainCardTransaction>?,
     onManageCardDetails: () -> Unit,
     onChoosePaymentMethod: () -> Unit,
     onTopUp: () -> Unit,
-    onRefreshBalance: () -> Unit
+    onRefreshBalance: () -> Unit,
+    onSeeTransactionDetails: (BlockchainCardTransaction) -> Unit,
+    onRefreshTransactions: () -> Unit
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -112,8 +127,7 @@ fun ManageCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(top = AppTheme.dimensions.paddingLarge)
+            .padding(top = AppTheme.dimensions.paddingSmall)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,7 +159,8 @@ fun ManageCard(
                     onClick = onManageCardDetails,
                     modifier = Modifier
                         .wrapContentWidth()
-                        .weight(1.4f)
+                        .weight(1.4f),
+                    minHeight = 16.dp
                 )
             }
 
@@ -164,10 +179,9 @@ fun ManageCard(
                     },
                     modifier = Modifier
                         .padding(
-                            start = AppTheme.dimensions.paddingMedium,
-                            top = AppTheme.dimensions.paddingLarge,
-                            end = AppTheme.dimensions.paddingMedium
-                        ),
+                            top = AppTheme.dimensions.paddingMedium
+                        )
+                        .requiredHeight(200.dp)
                 )
             } else {
                 CircularProgressIndicator(
@@ -177,6 +191,8 @@ fun ManageCard(
                     )
                 )
             }
+
+            Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -226,49 +242,58 @@ fun ManageCard(
             }
         }
 
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingLarge))
+        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = AppTheme.dimensions.paddingMedium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(
+                    horizontal = AppTheme.dimensions.paddingMedium
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             SimpleText(
                 text = stringResource(R.string.recent_transactions),
                 style = ComposeTypographies.Body2,
                 color = ComposeColors.Body,
-                gravity = ComposeGravities.Start,
-                modifier = Modifier.weight(2f)
+                gravity = ComposeGravities.Start
             )
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            MinimalButton(
-                text = stringResource(R.string.see_all),
-                onClick = { },
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .weight(1f)
-            )
+            when {
+                transactionList == null -> ShimmerLoadingTableRow()
+                transactionList.isEmpty() -> SimpleText(
+                    text = stringResource(R.string.recent_purchases_here),
+                    style = ComposeTypographies.Paragraph1,
+                    color = ComposeColors.Dark,
+                    gravity = ComposeGravities.Centre
+                )
+                else -> CardTransactionList(
+                    transactionList = transactionList,
+                    onSeeTransactionDetails = onSeeTransactionDetails,
+                    onRefreshTransactions = onRefreshTransactions,
+                    isTransactionListRefreshing = isTransactionListRefreshing
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
-
-        SimpleText(
-            text = stringResource(R.string.recent_purchases_here),
-            style = ComposeTypographies.Paragraph1,
-            color = ComposeColors.Dark,
-            gravity = ComposeGravities.Centre
-        )
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCard() {
-    ManageCard(null, null, null, false, {}, {}, {}, {})
+    ManageCard(
+        card = null,
+        cardWidgetUrl = null,
+        linkedAccountBalance = null,
+        isBalanceLoading = false,
+        isTransactionListRefreshing = false,
+        transactionList = null,
+        onManageCardDetails = {},
+        onChoosePaymentMethod = {},
+        onTopUp = {},
+        onRefreshBalance = {},
+        onSeeTransactionDetails = {},
+    ) {}
 }
 
 @Composable
@@ -337,7 +362,7 @@ fun ManageCardDetails(
         DefaultTableRow(
             primaryText = stringResource(R.string.personal_details),
             secondaryText = stringResource(R.string.view_account_information),
-            onClick = onSeePersonalDetails
+            onClick = onSeePersonalDetails,
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -345,7 +370,7 @@ fun ManageCardDetails(
         DefaultTableRow(
             primaryText = stringResource(R.string.transaction_controls),
             secondaryText = stringResource(R.string.settings_features_for_card_transactions),
-            onClick = onSeeTransactionControls
+            onClick = onSeeTransactionControls,
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -353,7 +378,7 @@ fun ManageCardDetails(
         DefaultTableRow(
             primaryText = stringResource(R.string.support),
             secondaryText = stringResource(R.string.get_help_with_card_issues),
-            onClick = onSeeSupport
+            onClick = onSeeSupport,
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
     }
@@ -363,6 +388,36 @@ fun ManageCardDetails(
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
     ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {})
+}
+
+@Composable
+fun CardTransactionList(
+    transactionList: List<BlockchainCardTransaction>,
+    onSeeTransactionDetails: (transaction: BlockchainCardTransaction) -> Unit,
+    onRefreshTransactions: () -> Unit,
+    isTransactionListRefreshing: Boolean,
+) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = isTransactionListRefreshing),
+        onRefresh = onRefreshTransactions
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            itemsIndexed(items = transactionList) { index, transaction ->
+                CardTransactionItem(
+                    merchantName = transaction.merchantName,
+                    timestamp = transaction.userTransactionTime,
+                    amount = transaction.originalAmount.toStringWithSymbol(),
+                    state = transaction.state,
+                    onClick = { onSeeTransactionDetails(transaction) }
+                )
+                if (index < transactionList.lastIndex)
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            }
+        }
+    }
 }
 
 @Composable
@@ -383,7 +438,7 @@ fun TransactionControls() {
         DefaultTableRow(
             primaryText = stringResource(R.string.manage_pin),
             secondaryText = stringResource(R.string.manage_pin_description),
-            onClick = {}
+            onClick = {},
         )
 
         // Security Settings
@@ -401,7 +456,7 @@ fun TransactionControls() {
         DefaultTableRow(
             primaryText = stringResource(R.string.transaction_amount_limit),
             secondaryText = stringResource(R.string.transaction_amount_limit_description),
-            onClick = {}
+            onClick = {},
         )
     }
 }
@@ -430,8 +485,8 @@ fun PersonalDetails(firstAndLastName: String?, shortAddress: String?, onCheckBil
             DefaultTableRow(
                 primaryText = stringResource(R.string.name),
                 secondaryText = firstAndLastName,
+                endImageResource = ImageResource.None,
                 onClick = {},
-                endImageResource = ImageResource.None
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -439,7 +494,7 @@ fun PersonalDetails(firstAndLastName: String?, shortAddress: String?, onCheckBil
             DefaultTableRow(
                 primaryText = stringResource(R.string.billing_address),
                 secondaryText = shortAddress,
-                onClick = onCheckBillingAddress
+                onClick = onCheckBillingAddress,
             )
         } else {
             CircularProgressIndicator(
@@ -808,7 +863,7 @@ fun Support(onCloseCard: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.card_lost),
             secondaryText = stringResource(R.string.card_lost_description),
-            onClick = {}
+            onClick = {},
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -816,7 +871,7 @@ fun Support(onCloseCard: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.visit_faq),
             secondaryText = stringResource(R.string.visit_faq_description),
-            onClick = {}
+            onClick = {},
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
@@ -824,7 +879,7 @@ fun Support(onCloseCard: () -> Unit) {
         DefaultTableRow(
             primaryText = stringResource(R.string.contact_support),
             secondaryText = stringResource(R.string.contact_support_description),
-            onClick = {}
+            onClick = {},
         )
 
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingMedium))
@@ -1002,7 +1057,7 @@ private fun PreviewCardDetailsBottomSheetElement() {
 @Composable
 fun AccountPicker(
     eligibleTradingAccountBalances: MutableList<AccountBalance>,
-    onAccountSelected: (String) -> Unit
+    onAccountSelected: (String) -> Unit,
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -1024,7 +1079,7 @@ fun AccountPicker(
 @Composable
 fun AccountsContent(
     eligibleTradingAccountBalances: MutableList<AccountBalance>,
-    onAccountSelected: (String) -> Unit
+    onAccountSelected: (String) -> Unit,
 ) {
     if (eligibleTradingAccountBalances.isNotEmpty()) {
         LazyColumn {
@@ -1082,7 +1137,7 @@ fun CryptoAccountItem(
     currentBalance: String,
     currentBalanceInFiat: String,
     currencyLogo: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     BalanceTableRow(
         titleStart = buildAnnotatedString { append(currencyName) },
@@ -1104,7 +1159,7 @@ fun FiatAccountItem(
     currencyTicker: String,
     currentBalance: String,
     currencyLogo: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     BalanceTableRow(
         titleStart = buildAnnotatedString { append(currencyName) },
@@ -1116,5 +1171,112 @@ fun FiatAccountItem(
         ),
         tags = emptyList(),
         onClick = onClick
+    )
+}
+
+@Composable
+fun CardTransactionItem(
+    merchantName: String,
+    timestamp: String,
+    amount: String,
+    state: BlockchainCardTransactionState,
+    onClick: () -> Unit,
+) {
+    val tagType = when (state) {
+        BlockchainCardTransactionState.COMPLETED -> TagType.Success()
+        BlockchainCardTransactionState.DECLINED -> TagType.Error()
+        BlockchainCardTransactionState.CANCELLED,
+        BlockchainCardTransactionState.PENDING -> TagType.InfoAlt()
+    }
+
+    DefaultTableRow(
+        startImageResource = ImageResource.Local(R.drawable.credit_card),
+        primaryText = merchantName,
+        secondaryText = timestamp.fromIso8601ToUtc()?.toLocalTime()?.toFormattedDate(),
+        endText = amount,
+        endTag = TagViewState(stringResource(id = state.getStringResource()), tagType),
+        onClick = onClick,
+    )
+}
+
+@Preview
+@Composable
+fun PreviewCardTransactionItem() {
+    CardTransactionItem(
+        merchantName = "Starbucks",
+        timestamp = "2020-01-01T00:00:00.000Z",
+        amount = "-$1.00",
+        state = BlockchainCardTransactionState.COMPLETED,
+        onClick = { /*TODO*/ }
+    )
+}
+
+@Composable
+fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        SheetHeader(
+            onClosePress = { /*TODO*/ },
+            title = stringResource(R.string.transaction_details),
+            shouldShowDivider = true
+        )
+
+        SimpleText(
+            text = cardTransaction.originalAmount.toStringWithSymbol(),
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Start,
+            modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+        )
+
+        DefaultTableRow(
+            primaryText = stringResource(R.string.merchant),
+            secondaryText = cardTransaction.merchantName,
+            endImageResource = ImageResource.None,
+            onClick = {},
+        )
+        DefaultTableRow(
+            primaryText = stringResource(R.string.date),
+            secondaryText = cardTransaction.userTransactionTime.fromIso8601ToUtc()?.toLocalTime()?.toFormattedString(),
+            endImageResource = ImageResource.None,
+            onClick = {},
+        )
+        DefaultTableRow(
+            primaryText = stringResource(R.string.type),
+            secondaryText = cardTransaction.type,
+            endImageResource = ImageResource.None,
+            onClick = {},
+        )
+        DefaultTableRow(
+            primaryText = stringResource(R.string.state),
+            secondaryText = cardTransaction.state.toString(),
+            endImageResource = ImageResource.None,
+            onClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCardTransactionDetails() {
+    CardTransactionDetails(
+        BlockchainCardTransaction(
+            merchantName = "Coffee Beans Inc.",
+            originalAmount = FiatValue.fromMajor(FiatCurrency.fromCurrencyCode("USD"), BigDecimal(-100.00)),
+            userTransactionTime = "2020-06-21T12:00:00.000Z",
+            type = "Purchase",
+            state = BlockchainCardTransactionState.COMPLETED,
+            id = "123456789",
+            cardId = "123456789",
+            fundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            reversedAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            counterAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            clearedFundingAmount = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
+            declineReason = null,
+            networkConversionRate = null
+        )
     )
 }

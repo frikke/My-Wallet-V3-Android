@@ -1,6 +1,7 @@
 package com.blockchain.blockchaincard.viewmodel
 
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
@@ -33,10 +34,13 @@ sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     object LoadResidentialAddress : BlockchainCardIntent()
     object SeeBillingAddress : BlockchainCardIntent()
     data class UpdateBillingAddress(val newAddress: BlockchainCardAddress) : BlockchainCardIntent()
+    data class SeeTransactionDetails(val transaction: BlockchainCardTransaction) : BlockchainCardIntent()
+
     object DismissBillingAddressUpdateResult : BlockchainCardIntent()
     object SeeSupport : BlockchainCardIntent()
     object CloseCard : BlockchainCardIntent()
     object ConfirmCloseCard : BlockchainCardIntent()
     object LoadUserFirstAndLastName : BlockchainCardIntent()
     object LoadTransactions : BlockchainCardIntent()
+    object RefreshTransactions : BlockchainCardIntent()
 }

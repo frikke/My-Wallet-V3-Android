@@ -110,15 +110,19 @@ class MainModel(
                         }
                     )
             }
-            is MainIntent.CheckForInitialDialogs -> if (intent.shouldStartUiTour) {
-                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
-                null
-            } else {
-                interactor.shouldShowEntitySwitchSilverKycUpsell()
-                    .onErrorReturnItem(false)
-                    .subscribeBy { show ->
-                        if (show) process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
-                    }
+            is MainIntent.CheckForInitialDialogs -> {
+                if (intent.shouldStartUiTour) {
+                    process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowUiTour))
+                    null
+                } else {
+                    interactor.shouldShowEntitySwitchSilverKycUpsell()
+                        .onErrorReturnItem(false)
+                        .subscribeBy { show ->
+                            if (show) {
+                                process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowEntitySwitchSilverKycUpsell))
+                            }
+                        }
+                }
             }
             is MainIntent.CheckReferralCode -> {
                 interactor.checkReferral()
@@ -130,7 +134,6 @@ class MainModel(
                         process(MainIntent.ReferralCodeIntent(referralState))
                     }
             }
-
             is MainIntent.ReferralIconClicked -> {
                 interactor.storeReferralClicked()
                 null

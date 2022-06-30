@@ -1,12 +1,12 @@
 package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
-import com.blockchain.core.featureflag.LocalOnlyFeatureFlag
-import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
+import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
@@ -15,7 +15,6 @@ import com.blockchain.koin.ethLayerTwoFeatureFlag
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.metadataMigrationFeatureFlag
-import com.blockchain.koin.newAssetPriceStoreFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
@@ -24,6 +23,7 @@ import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
+import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.speedUpLoginKycFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
@@ -36,11 +36,29 @@ import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
 
+    single(accountUnificationFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_sso_account_unification",
+                "SSO Account Unification"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(speedUpLoginInterestFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_interest",
                 "SpeedUp Login - /accounts/savings"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(speedUpLoginTradingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_trading",
+                "SpeedUp Login - /accounts/simplebuy"
             )
         )
     }.bind(FeatureFlag::class)
@@ -93,7 +111,7 @@ val featureFlagsModule = module {
     single(coinWebSocketFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_coin_web_socket",
+                "android_disable_ff_coin_web_socket",
                 "Coin Web Socket"
             )
         )
@@ -132,15 +150,6 @@ val featureFlagsModule = module {
                 "android_ff_notification_preferences_rework",
                 "Notification Preferences Rework"
             )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(newAssetPriceStoreFeatureFlag) {
-        LocalOnlyFeatureFlag(
-            key = "android_ff_new_asset_price_store",
-            readableName = "New AssetPriceStore with Store Cache",
-            prefs = get(),
-            defaultValue = get<EnvironmentConfig>().isRunningInDebugMode()
         )
     }.bind(FeatureFlag::class)
 
@@ -239,6 +248,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_plaid",
                 "Enable Plaid For ACH Users"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(bindFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_bind",
+                "Enable BIND For LatAm Users"
             )
         )
     }.bind(FeatureFlag::class)

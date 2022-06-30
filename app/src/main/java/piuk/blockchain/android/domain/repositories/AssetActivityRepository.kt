@@ -4,13 +4,13 @@ import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
-import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoActivitySummaryItem
 import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.FiatActivitySummaryItem
 import com.blockchain.coincore.InterestAccount
+import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -19,59 +19,59 @@ import com.blockchain.nabu.datamanagers.TransactionType
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
-class AssetActivityRepository(
-    private val coincore: Coincore
-) : ExpiringRepository<ActivitySummaryList>() {
+class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, BlockchainAccount>() {
 
     private val transactionCache = mutableListOf<ActivitySummaryItem>()
 
     fun fetch(
         account: BlockchainAccount,
-        isRefreshRequested: Boolean
-    ): Observable<ActivitySummaryList> {
-        val cacheMaybe = if (isRefreshRequested || isCacheExpired()) Maybe.empty() else getFromCache()
-        return Maybe.concat(
-            cacheMaybe,
-            requestNetwork(isRefreshRequested)
-        ).toObservable()
-            .map { list ->
-                list.filter { item ->
-                    when (account) {
-                        is AccountGroup -> {
-                            account.includes(item.account)
-                        }
-                        is CryptoInterestAccount -> {
-                            account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
-                        }
-                        else -> {
-                            account == item.account
-                        }
+        isRefreshRequested: Boolean,
+    ): Single<ActivitySummaryList> {
+        val cacheMaybe = if (isRefreshRequested || isCacheExpired()) Maybe.empty() else getFromCache(account)
+        return cacheMaybe.defaultIfEmpty(emptyList()).flatMap {
+            if (it.isEmpty())
+                requestNetwork(account).defaultIfEmpty(emptyList())
+            else Single.just(it)
+        }.map { list ->
+            list.filter { item ->
+                when (account) {
+                    is AccountGroup -> {
+                        account.includes(item.account)
+                    }
+                    is CryptoInterestAccount -> {
+                        account.currency == (item as? CustodialInterestActivitySummaryItem)?.asset
+                    }
+                    else -> {
+                        account == item.account
                     }
                 }
-            }.map { filteredList ->
-                if (account is AllWalletsAccount) {
-                    reconcileTransfersAndBuys(filteredList)
-                } else {
-                    filteredList
-                }.sorted()
-            }.map { filteredList ->
-                if (account is AllWalletsAccount) {
-                    reconcileCustodialAndInterestTxs(filteredList)
-                } else {
-                    filteredList
-                }.sorted()
-            }.map { list ->
-                Timber.d("Activity list size: ${list.size}")
-                val pruned = list.distinct()
-                Timber.d("Activity list pruned size: ${pruned.size}")
-                pruned
             }
+        }.map { filteredList ->
+            if (account is AllWalletsAccount) {
+                reconcileTransfersAndBuys(filteredList)
+            } else {
+                filteredList
+            }.sorted()
+        }.map { filteredList ->
+            if (account is AllWalletsAccount) {
+                reconcileCustodialAndInterestTxs(filteredList)
+            } else {
+                filteredList
+            }.sorted()
+        }.map { list ->
+            Timber.d("Activity list size: ${list.size}")
+            val pruned = list.distinct()
+            Timber.d("Activity list pruned size: ${pruned.size}")
+            pruned
+        }
     }
 
-    private fun reconcileTransfersAndBuys(list: ActivitySummaryList): List<ActivitySummaryItem> {
+    private fun reconcileTransfersAndBuys(
+        list: ActivitySummaryList,
+    ): List<ActivitySummaryItem> {
         val custodialWalletActivity = list.filterIsInstance<CustodialTradingActivitySummaryItem>()
         val activityList = list.toMutableList()
 
@@ -90,7 +90,9 @@ class AssetActivityRepository(
         return activityList.toList().sorted()
     }
 
-    private fun reconcileCustodialAndInterestTxs(list: ActivitySummaryList): List<ActivitySummaryItem> {
+    private fun reconcileCustodialAndInterestTxs(
+        list: ActivitySummaryList,
+    ): List<ActivitySummaryItem> {
         val interestWalletActivity = list.filter {
             it.account is InterestAccount && it is CustodialInterestActivitySummaryItem
         }
@@ -128,35 +130,42 @@ class AssetActivityRepository(
             it.currency == currency && it.txId == txHash
         }
 
-    private fun requestNetwork(refreshRequested: Boolean): Maybe<ActivitySummaryList> {
-        return if (refreshRequested || isCacheExpired()) {
-            getFromNetwork()
-        } else {
-            Maybe.empty()
-        }
+    private fun requestNetwork(account: BlockchainAccount): Maybe<ActivitySummaryList> {
+        return getFromNetwork(account)
     }
 
-    override fun getFromNetwork(): Maybe<ActivitySummaryList> =
-        coincore.allWalletsInActiveMode()
-            .flatMap { it.activity }
+    override fun getFromNetwork(param: BlockchainAccount): Maybe<ActivitySummaryList> =
+        param.activity
             .doOnSuccess { activityList ->
-                // on error of activity returns onSuccess with empty list
                 if (activityList.isNotEmpty()) {
                     transactionCache.clear()
                     transactionCache.addAll(activityList)
                 }
                 lastUpdatedTimestamp = System.currentTimeMillis()
             }.map { list ->
-                // if network comes empty, but we have cache, return cache instead
-                if (list.isEmpty() && transactionCache.isNotEmpty()) {
-                    transactionCache
-                } else {
-                    list
-                }
+                list
             }.toMaybe()
 
-    override fun getFromCache(): Maybe<ActivitySummaryList> {
-        return Maybe.just(transactionCache)
+    override fun getFromCache(param: BlockchainAccount): Maybe<ActivitySummaryList> {
+        return when (param) {
+            is AccountGroup -> getCachedActivitiesOfAccountGroup(param)
+            is SingleAccount -> getCachedActivitiesOfSingleAccount(param)
+            else -> Maybe.empty()
+        }
+    }
+
+    private fun getCachedActivitiesOfSingleAccount(param: SingleAccount): Maybe<List<ActivitySummaryItem>> {
+        val list = transactionCache.filter { it.account == param }
+        list.takeIf { it.isNotEmpty() }?.let {
+            return Maybe.just(it)
+        } ?: return Maybe.empty()
+    }
+
+    private fun getCachedActivitiesOfAccountGroup(param: AccountGroup): Maybe<List<ActivitySummaryItem>> {
+        val list = transactionCache.filter { param.accounts.contains(it.account) }
+        list.takeIf { it.isNotEmpty() }?.let {
+            return Maybe.just(it)
+        } ?: return Maybe.empty()
     }
 
     fun clear() {

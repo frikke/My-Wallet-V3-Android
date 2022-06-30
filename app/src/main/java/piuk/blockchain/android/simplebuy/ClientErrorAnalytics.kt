@@ -18,6 +18,7 @@ sealed class ClientErrorAnalytics(
         val source: Source,
         val title: String,
         val action: String? = null,
+        val categories: List<String>
     ) : ClientErrorAnalytics(
         event = AnalyticsNames.CLIENT_ERROR.eventName,
         params = mapOf(
@@ -30,6 +31,7 @@ sealed class ClientErrorAnalytics(
             "network_error_description" to (nabuApiException?.message ?: errorDescription.orEmpty()),
             "network_error_id" to nabuApiException?.getId(),
             "network_error_type" to nabuApiException?.getErrorType()?.type,
+            "categories" to categories.joinToString(",")
         ).withoutNullValues()
     )
 

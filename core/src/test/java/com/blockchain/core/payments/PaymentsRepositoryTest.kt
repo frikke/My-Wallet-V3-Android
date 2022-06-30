@@ -150,6 +150,7 @@ class PaymentsRepositoryTest {
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
     private val withdrawLocksCache: WithdrawLocksCache = mockk()
+    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase = mockk()
 
     private lateinit var subject: PaymentsRepository
 
@@ -166,6 +167,7 @@ class PaymentsRepositoryTest {
             authenticator,
             googlePayManager,
             environmentConfig,
+            getSupportedCurrenciesUseCase,
             googlePayFeatureFlag,
             plaidFeatureFlag
         )
@@ -616,6 +618,12 @@ class PaymentsRepositoryTest {
     @Test
     fun `canTransactWithBankMethods() - unsupported currency`() {
         // ARRANGE
+        every { getSupportedCurrenciesUseCase.invoke(Unit) } returns Single.just(
+            SupportedCurrencies(
+                listOf("GBP", "EUR", "USD"),
+                listOf("GBP", "EUR", "USD")
+            )
+        )
         val fiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns "invalid" }
 
         // ASSERT

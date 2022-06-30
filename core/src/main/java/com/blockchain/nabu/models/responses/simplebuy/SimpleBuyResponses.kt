@@ -34,16 +34,20 @@ data class SimpleBuyCurrency(val currency: String)
 data class BankAccountResponse(
     val address: String,
     val agent: BankAgentResponse,
-    val currency: String
+    val currency: String,
+    val state: String?
 )
 
 @Serializable
 data class BankAgentResponse(
     val account: String? = null,
     val address: String? = null,
+    val label: String? = null,
+    val holderDocument: String? = null,
     val code: String? = null,
     val country: String? = null,
     val name: String? = null,
+    val bankName: String? = null,
     val recipient: String? = null,
     val routingNumber: String? = null,
     val recipientAddress: String? = null,

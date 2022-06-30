@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.Analytics
+import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.Coincore
@@ -86,7 +87,7 @@ class SwapFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentSwapBinding.inflate(inflater, container, false)
         return binding.root
@@ -179,12 +180,14 @@ class SwapFragment :
                 coincore.walletsWithActions(setOf(AssetAction.Swap))
                     .map { it.isNotEmpty() },
                 userIdentity.userAccessForFeature(Feature.Swap)
-            ) { tiers: KycTiers,
+            ) {
+                tiers: KycTiers,
                 pairs: List<TrendingPair>,
                 limits: TransferLimits,
                 orders: List<CustodialOrder>,
                 hasAtLeastOneAccountToSwapFrom,
-                eligibility ->
+                eligibility,
+                ->
                 SwapComposite(
                     tiers,
                     pairs,
@@ -220,7 +223,8 @@ class SwapFragment :
                             if (eligibility is FeatureAccess.Blocked) {
                                 when (val reason = eligibility.reason) {
                                     BlockedReason.NotEligible,
-                                    is BlockedReason.InsufficientTier -> showKycUpgradeNow()
+                                    is BlockedReason.InsufficientTier,
+                                    -> showKycUpgradeNow()
                                     is BlockedReason.Sanctions -> showBlockedDueToSanctions(reason)
                                     is BlockedReason.TooManyInFlightTransactions -> { // noop
                                     }
@@ -233,24 +237,27 @@ class SwapFragment :
                             initKycView()
                         }
                     },
-                    onError = {
+                    onError = { exception ->
                         showErrorUi()
+                        val nabuException: NabuApiException? = (exception as? HttpException)?.let { httpException ->
+                            NabuApiExceptionFactory.fromResponseBody(httpException)
+                        }
+
                         analytics.logEvent(
                             ClientErrorAnalytics.ClientLogError(
-                                nabuApiException = (it as? HttpException)?.let {
-                                    NabuApiExceptionFactory.fromResponseBody(it)
-                                },
-                                errorDescription = it.message,
+                                nabuApiException = nabuException,
+                                errorDescription = exception.message,
                                 title = getString(R.string.transfer_wallets_load_error),
-                                source = if (it is HttpException) {
+                                source = if (exception is HttpException) {
                                     ClientErrorAnalytics.Companion.Source.NABU
                                 } else {
                                     ClientErrorAnalytics.Companion.Source.CLIENT
                                 },
-                                error = if (it is HttpException) {
+                                error = if (exception is HttpException) {
                                     ClientErrorAnalytics.NABU_ERROR
                                 } else ClientErrorAnalytics.OOPS_ERROR,
                                 action = ACTION_SWAP,
+                                categories = nabuException?.getServerSideErrorInfo()?.categories ?: emptyList()
                             )
                         )
                         BlockchainSnackbar.make(
@@ -421,7 +428,7 @@ class SwapFragment :
         val limits: TransferLimits,
         val orders: List<CustodialOrder>,
         val hasAtLeastOneAccountToSwapFrom: Boolean,
-        val eligibility: FeatureAccess
+        val eligibility: FeatureAccess,
     )
 
     override fun onDestroyView() {

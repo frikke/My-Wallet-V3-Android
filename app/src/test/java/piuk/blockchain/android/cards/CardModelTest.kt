@@ -6,6 +6,7 @@ import com.blockchain.api.NabuErrorCodes
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
@@ -358,6 +359,21 @@ class CardModelTest {
         }.assertValueAt(2) {
             it.cardRequestStatus is CardRequestStatus.Error &&
                 (it.cardRequestStatus as CardRequestStatus.Error).type == CardError.PENDING_AFTER_POLL
+        }
+    }
+
+    @Test
+    fun `getting active cards returns list`() {
+        val expectedCards = listOf<LinkedPaymentMethod.Card>(mock(), mock())
+        whenever(interactor.loadLinkedCards()).thenReturn(Single.just(expectedCards))
+
+        val test = model.state.test()
+        model.process(CardIntent.LoadLinkedCards)
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.linkedCards == expectedCards
         }
     }
 }

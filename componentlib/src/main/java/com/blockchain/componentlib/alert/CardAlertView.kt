@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.utils.BaseAbstractComposeView
@@ -13,7 +14,7 @@ import com.blockchain.componentlib.utils.BaseAbstractComposeView
 class CardAlertView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : BaseAbstractComposeView(context, attrs, defStyleAttr) {
 
     var title by mutableStateOf("")
@@ -22,6 +23,8 @@ class CardAlertView @JvmOverloads constructor(
     var alertType by mutableStateOf(AlertType.Default)
     var isDismissable by mutableStateOf(true)
     var onClose by mutableStateOf({})
+    var primaryCta by mutableStateOf<CardButton?>(null)
+    var secondaryCta by mutableStateOf<CardButton?>(null)
 
     @Composable
     override fun Content() {
@@ -33,7 +36,9 @@ class CardAlertView @JvmOverloads constructor(
                     alertType = alertType,
                     isBordered = isBordered,
                     onClose = onClose,
-                    isDismissable = isDismissable
+                    isDismissable = isDismissable,
+                    primaryCta = primaryCta,
+                    secondaryCta = secondaryCta
                 )
             }
         }

@@ -217,10 +217,6 @@ class PrefsUtil(
 
     override fun clearBuyState() = removeValue(KEY_SIMPLE_BUY_STATE)
 
-    override var addCardInfoDismissed: Boolean
-        get() = getValue(KEY_ADD_CARD_INFO, false)
-        set(dismissed) = setValue(KEY_ADD_CARD_INFO, dismissed)
-
     override var isFirstTimeBuyer: Boolean
         get() = getValue(KEY_FIRST_TIME_BUYER, true)
         set(value) {
@@ -619,6 +615,13 @@ class PrefsUtil(
         get() = getValue(REFERRAL_ICON_CLICKED, false)
         set(value) = setValue(REFERRAL_ICON_CLICKED, value)
 
+    override var referralSuccessTitle: String
+        get() = getValue(REFERRAL_SUCCESS_TITLE, "")
+        set(value) = setValue(REFERRAL_SUCCESS_TITLE, value)
+
+    override var referralSuccessBody: String
+        get() = getValue(REFERRAL_SUCCESS_BODY, "")
+        set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -650,7 +653,6 @@ class PrefsUtil(
 
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
-        private const val KEY_ADD_CARD_INFO = "key_add_card_info"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"
         private const val KEY_SIMPLE_BUY_CURRENCY = "key_trading_urrency_currency"
         private const val KEY_HAS_COMPLETED_AT_LEAST_ONE_BUY = "has_completed_at_least_one_buy"
@@ -739,8 +741,10 @@ class PrefsUtil(
         private const val NFT_ANNOUNCEMENT_DISMISSED = "NFT_ANNOUNCEMENT_DISMISSED"
         private const val NFT_ANNOUNCEMENT_JOIN_WAITLIST = "NFT_ANNOUNCEMENT_JOIN_WAITLIST"
 
-        // Referral clicked
+        // Referral
         private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
+        private const val REFERRAL_SUCCESS_TITLE = "REFERRAL_SUCCESS_TITLE"
+        private const val REFERRAL_SUCCESS_BODY = "REFERRAL_SUCCESS_BODY"
     }
 }
 

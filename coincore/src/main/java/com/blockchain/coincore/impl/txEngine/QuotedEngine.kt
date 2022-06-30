@@ -24,7 +24,6 @@ import com.blockchain.nabu.datamanagers.CustodialOrder
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.Product
 import com.blockchain.nabu.datamanagers.TransferDirection
-import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -49,9 +48,6 @@ abstract class QuotedEngine(
     private val limitsDataManager: LimitsDataManager,
     private val productType: Product
 ) : TxEngine() {
-
-    override val flushableDataSources: List<FlushableDataSource>
-        get() = listOf()
 
     protected abstract val direction: TransferDirection
 

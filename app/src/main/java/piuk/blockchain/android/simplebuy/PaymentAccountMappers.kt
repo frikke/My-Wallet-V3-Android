@@ -148,3 +148,73 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
         )
     }
 }
+
+class ARSPaymentAccountMapper(private val resources: Resources) : PaymentAccountMapper {
+
+    enum class AccountType(val value: String) {
+        TRADITIONAL("CBU"),
+        VIRTUAL("CVU")
+    }
+
+    override fun map(bankAccountResponse: BankAccountResponse): BankAccount? {
+        if (bankAccountResponse.currency != "ARS") return null
+        return BankAccount(
+            listOfNotNull(
+                bankAccountResponse.agent.bankName?.let { bankName ->
+                    BankDetail(
+                        title = resources.getString(R.string.bank_name),
+                        value = bankName,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.label?.let { label ->
+                    BankDetail(
+                        title = resources.getString(R.string.alias),
+                        value = label,
+                        isCopyable = true,
+                        tooltip = resources.getString(R.string.alias_tooltip)
+                    )
+                },
+                bankAccountResponse.agent.name?.let { accountHolder ->
+                    BankDetail(
+                        title = resources.getString(R.string.account_holder),
+                        value = accountHolder,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.holderDocument?.let { cuit ->
+                    BankDetail(
+                        title = resources.getString(R.string.cuit),
+                        value = cuit,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.address?.let { address ->
+                    BankDetail(
+                        title = if (bankAccountResponse.agent.accountType == AccountType.TRADITIONAL.value) {
+                            AccountType.TRADITIONAL.value
+                        } else {
+                            AccountType.VIRTUAL.value
+                        },
+                        value = address,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.code?.let { accountNumber ->
+                    BankDetail(
+                        title = resources.getString(R.string.account_number),
+                        value = accountNumber,
+                        isCopyable = true
+                    )
+                },
+                bankAccountResponse.agent.recipient?.let { recipient ->
+                    BankDetail(
+                        title = resources.getString(R.string.recipient_name),
+                        value = recipient,
+                        isCopyable = true
+                    )
+                }
+            )
+        )
+    }
+}

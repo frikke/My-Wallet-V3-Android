@@ -79,28 +79,32 @@ fun Image(
                 contentScale = contentScale,
             )
         is ImageResource.LocalWithBackground -> {
-            val filterColor =
+            val iconTintColor =
                 Color(ContextCompat.getColor(LocalContext.current, imageResource.iconTintColour))
-            val tintColor =
+            val backgroundColor =
                 Color(ContextCompat.getColor(LocalContext.current, imageResource.backgroundColour))
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = modifier.size(dimensionResource(R.dimen.large_margin))
+                modifier = modifier.run {
+                    imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                }
             ) {
                 Box(
                     modifier = Modifier
                         .alpha(imageResource.alpha)
                         .background(
-                            color = tintColor,
+                            color = backgroundColor,
                             shape = imageResource.shape ?: defaultShape
                         )
-                        .size(dimensionResource(R.dimen.large_margin)),
+                        .run {
+                            imageResource.size?.let { size(it) } ?: size(dimensionResource(R.dimen.large_margin))
+                        }
                 )
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = imageResource.id),
                     contentDescription = imageResource.contentDescription,
-                    modifier = modifier,
-                    colorFilter = ColorFilter.tint(filterColor),
+                    modifier = Modifier.run { imageResource.iconSize?.let { size(it) } ?: this },
+                    colorFilter = ColorFilter.tint(iconTintColor),
                     contentScale = contentScale,
                 )
             }

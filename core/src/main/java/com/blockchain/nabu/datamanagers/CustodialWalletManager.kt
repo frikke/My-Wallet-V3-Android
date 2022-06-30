@@ -210,8 +210,6 @@ interface CustodialWalletManager {
         success: Boolean
     ): Completable
 
-    fun isFiatCurrencySupported(destination: String): Boolean
-
     fun executeCustodialTransfer(amount: Money, origin: Product, destination: Product): Completable
 
     val selectedFiatcurrency: FiatCurrency
@@ -256,14 +254,14 @@ data class InterestActivityItem(
 }
 
 enum class InterestState {
-    FAILED,
-    REJECTED,
     PROCESSING,
-    COMPLETE,
     PENDING,
     MANUAL_REVIEW,
     CLEARED,
     REFUNDED,
+    FAILED,
+    REJECTED,
+    COMPLETE,
     UNKNOWN
 }
 
@@ -443,12 +441,12 @@ enum class CustodialOrderState {
     CREATED,
     PENDING_CONFIRMATION,
     PENDING_LEDGER,
-    CANCELED,
     PENDING_EXECUTION,
     PENDING_DEPOSIT,
     FINISH_DEPOSIT,
     PENDING_WITHDRAWAL,
     EXPIRED,
+    CANCELED,
     FINISHED,
     FAILED,
     UNKNOWN;
@@ -497,7 +495,12 @@ enum class TransferDirection {
 
 data class BankAccount(val details: List<BankDetail>)
 
-data class BankDetail(val title: String, val value: String, val isCopyable: Boolean = false)
+data class BankDetail(
+    val title: String,
+    val value: String,
+    val isCopyable: Boolean = false,
+    val tooltip: String? = null
+)
 
 data class PaymentCardAcquirer(
     val cardAcquirerName: String,

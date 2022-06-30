@@ -2,6 +2,7 @@ package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviIntent
 import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 
 sealed class CardIntent : MviIntent<CardState> {
@@ -61,5 +62,14 @@ sealed class CardIntent : MviIntent<CardState> {
     object CheckCardStatus : CardIntent() {
         override fun reduce(oldState: CardState): CardState =
             oldState
+    }
+
+    object LoadLinkedCards : CardIntent() {
+        override fun reduce(oldState: CardState): CardState = oldState
+    }
+
+    class LinkedCardsLoaded(private val linkedCards: List<LinkedPaymentMethod.Card>) : CardIntent() {
+        override fun reduce(oldState: CardState): CardState =
+            oldState.copy(linkedCards = linkedCards)
     }
 }

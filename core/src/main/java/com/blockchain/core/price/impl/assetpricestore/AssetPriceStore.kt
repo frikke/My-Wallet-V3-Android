@@ -1,10 +1,9 @@
 package com.blockchain.core.price.impl.assetpricestore
 
 import com.blockchain.core.price.HistoricalTimeSpan
-import com.blockchain.core.price.impl.SupportedTickerList
 import com.blockchain.core.price.model.AssetPriceError
 import com.blockchain.core.price.model.AssetPriceNotCached
-import com.blockchain.core.price.model.AssetPriceRecord2
+import com.blockchain.core.price.model.AssetPriceRecord
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.map
@@ -21,12 +20,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-internal class AssetPriceStore2(
+internal typealias SupportedTickerList = List<String>
+
+internal class AssetPriceStore(
     private val cache: AssetPriceStoreCache,
     private val supportedTickersStore: SupportedTickersStore,
 ) {
 
-    private val quoteTickerToCurrentPrices = ConcurrentHashMap<String, List<AssetPriceRecord2>>()
+    private val quoteTickerToCurrentPrices = ConcurrentHashMap<String, List<AssetPriceRecord>>()
     lateinit var fiatQuoteTickers: SupportedTickerList
         private set
 
@@ -41,7 +42,7 @@ internal class AssetPriceStore2(
     internal fun getCurrentPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord2>> =
+    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
         if (base.networkTicker == quote.networkTicker) {
             flowOf(createEqualityRecordResponse(base.networkTicker, quote.networkTicker))
         } else {
@@ -61,7 +62,7 @@ internal class AssetPriceStore2(
     internal fun getYesterdayPriceForAsset(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord2>> =
+    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
         cache.stream(
             KeyedStoreRequest.Cached(
                 key = AssetPriceStoreCache.Key.GetAllYesterday(quote.networkTicker),
@@ -74,27 +75,27 @@ internal class AssetPriceStore2(
         base: Currency,
         quote: Currency,
         timeSpan: HistoricalTimeSpan
-    ): Outcome<AssetPriceError, List<AssetPriceRecord2>> = cache.stream(
+    ): Outcome<AssetPriceError, List<AssetPriceRecord>> = cache.stream(
         KeyedStoreRequest.Cached(
             key = AssetPriceStoreCache.Key.GetHistorical(base, quote.networkTicker, timeSpan),
             forceRefresh = false
         )
     ).firstOutcome()
 
-    fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord2 =
+    fun getCachedAssetPrice(fromAsset: Currency, toFiat: Currency): AssetPriceRecord =
         quoteTickerToCurrentPrices[toFiat.networkTicker]
             ?.find { it.base == fromAsset.networkTicker }
             ?: throw AssetPriceNotCached(fromAsset.networkTicker, toFiat.networkTicker)
 
-    fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord2 =
+    fun getCachedFiatPrice(fromFiat: Currency, toFiat: Currency): AssetPriceRecord =
         quoteTickerToCurrentPrices[toFiat.networkTicker]
             ?.find { it.base == fromFiat.networkTicker }
             ?: throw AssetPriceNotCached(fromFiat.networkTicker, toFiat.networkTicker)
 
-    private fun Flow<StoreResponse<AssetPriceError, List<AssetPriceRecord2>>>.findAssetOrError(
+    private fun Flow<StoreResponse<AssetPriceError, List<AssetPriceRecord>>>.findAssetOrError(
         base: Currency,
         quote: Currency
-    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord2>> =
+    ): Flow<StoreResponse<AssetPriceError, AssetPriceRecord>> =
         map { response ->
             when (response) {
                 is StoreResponse.Data -> {
@@ -112,8 +113,8 @@ internal class AssetPriceStore2(
     private fun createEqualityRecordResponse(
         base: String,
         quote: String
-    ): StoreResponse<AssetPriceError, AssetPriceRecord2> = StoreResponse.Data(
-        AssetPriceRecord2(
+    ): StoreResponse<AssetPriceError, AssetPriceRecord> = StoreResponse.Data(
+        AssetPriceRecord(
             base = base,
             quote = quote,
             rate = 1.0.toBigDecimal(),

@@ -7,7 +7,6 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.walletmode.WalletMode
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -25,7 +24,7 @@ class ActivitiesInteractor(
     fun getActivityForAccount(
         account: BlockchainAccount,
         isRefreshRequested: Boolean,
-    ): Observable<ActivitySummaryList> =
+    ): Single<ActivitySummaryList> =
         activityRepository.fetch(account, isRefreshRequested)
 
     fun getDefaultAccount(walletMode: WalletMode): Single<BlockchainAccount> =

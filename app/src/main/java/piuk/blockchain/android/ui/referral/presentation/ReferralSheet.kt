@@ -20,9 +20,10 @@ import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
 import org.koin.java.KoinJavaComponent.get
+import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.referral.presentation.composable.ReferralScreen
 import piuk.blockchain.android.util.copyToClipboard
-import piuk.blockchain.android.util.shareText
+import piuk.blockchain.android.util.shareTextWithSubject
 
 class ReferralSheet :
     MVIBottomSheet<ReferralViewState>(),
@@ -82,19 +83,24 @@ class ReferralSheet :
 
     private fun copyToClipboard(code: String) {
         analytics.logEvent(ReferralAnalyticsEvents.ReferralCopyCode(code, args.campaignId))
-        context?.copyToClipboard("referralCode", code)
+        context?.copyToClipboard(CLIPBOARD_LABEL, code)
         viewModel.onIntent(ReferralIntents.ConfirmCopiedToClipboard)
     }
 
     private fun shareCode(code: String) {
         analytics.logEvent(ReferralAnalyticsEvents.ReferralShareCode(code, args.campaignId))
-        context?.shareText(code)
+        context?.shareTextWithSubject(
+            text = getString(R.string.referral_share_template, code),
+            subject = getString(R.string.referral_share_template_subject)
+        )
     }
 
     override fun route(navigationEvent: ReferralNavigationEvent) {
     }
 
     companion object {
+        private const val CLIPBOARD_LABEL = "referralCode"
+
         fun newInstance(referralData: ReferralInfo.Data) = ReferralSheet().withArgs(
             key = ReferralArgs.ARGS_KEY,
             args = referralData.mapArgs()

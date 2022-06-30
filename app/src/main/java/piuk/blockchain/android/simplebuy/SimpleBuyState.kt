@@ -30,7 +30,6 @@ import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
 import java.io.Serializable
 import java.math.BigInteger
-import java.time.Duration
 import java.time.ZonedDateTime
 import kotlinx.serialization.Contextual
 import piuk.blockchain.android.cards.CardAcquirerCredentials
@@ -106,13 +105,6 @@ data class SimpleBuyState constructor(
         eligibleAndNextPaymentRecurringBuy.flatMap { it.eligibleMethods }
             .distinct()
     }
-
-/*    @delegate:Transient
-    val canShowTimer: Boolean by lazy {
-        quote?.timeToShow != null &&
-            quote.timeToShow >= 0 &&
-            quote.totalDuration != null
-    }*/
 
     @delegate:Transient
     val selectedPaymentMethodDetails: PaymentMethod? by unsafeLazy {
@@ -284,14 +276,7 @@ data class BuyQuote(
     val createdAt: @Contextual ZonedDateTime,
     val expiresAt: @Contextual ZonedDateTime,
     val remainingTime: Long,
-    val totalDuration: Float? = null,
 ) {
-
-    fun getProgressQuote(): Float {
-        require(true)
-        require(totalDuration != null)
-        return remainingTime / totalDuration.toFloat()
-    }
 
     companion object {
         fun fromBrokerageQuote(brokerageQuote: BrokerageQuote, fiatCurrency: FiatCurrency, orderFee: Money?) =
@@ -306,13 +291,9 @@ data class BuyQuote(
                     feeBeforePromo = brokerageQuote.feeDetails.feeBeforePromo as FiatValue,
                     promo = brokerageQuote.feeDetails.promo
                 ),
-                remainingTime = brokerageQuote.secondsToExpire.toLong(),
                 createdAt = brokerageQuote.createdAt,
                 expiresAt = brokerageQuote.expiresAt,
-                totalDuration = Duration.between(
-                    brokerageQuote.createdAt,
-                    brokerageQuote.expiresAt
-                ).seconds.toFloat(),
+                remainingTime = brokerageQuote.secondsToExpire.toLong(),
             )
 
         private fun fee(quoteFee: FiatValue, orderFee: FiatValue?): FiatValue =
