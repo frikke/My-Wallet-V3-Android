@@ -2,12 +2,10 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
-import com.blockchain.nabu.service.NabuService
 import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import io.mockk.Runs
 import io.mockk.every
@@ -27,9 +25,7 @@ class NabuDataUserProviderTest {
     private val trust = mockk<DigitalTrust>()
     private val walletReporter = mockk<WalletReporter>()
     private val payloadDataManager = mockk<PayloadDataManager>()
-    private val nabuService = mockk<NabuService>()
     private val getUserStoreService = mockk<GetUserStoreService>()
-    private val userDataSource = mockk<GetUserDataSource>()
     private val speedUpLoginUserFF = mockk<FeatureFlag>()
 
     private val nabuDataUserProvider: NabuDataUserProvider = NabuDataUserProviderNabuDataManagerAdapter(
@@ -39,9 +35,7 @@ class NabuDataUserProviderTest {
         trust = trust,
         walletReporter = walletReporter,
         payloadDataManager = payloadDataManager,
-        nabuService = nabuService,
         getUserStoreService = getUserStoreService,
-        userDataSource = userDataSource,
         speedUpLoginUserFF = speedUpLoginUserFF
     )
 
@@ -64,8 +58,6 @@ class NabuDataUserProviderTest {
         every { userReporter.reportUser(any()) } just Runs
         every { trust.setUserId(any()) } just Runs
         every { walletReporter.reportWalletGuid(any()) } just Runs
-
-        every { nabuService.updateWalletInformation(any(), any()) } returns Single.just(userObject)
     }
 
     @Test
@@ -92,15 +84,5 @@ class NabuDataUserProviderTest {
         verify(exactly = 1) { userReporter.reportUser(userObject) }
         verify(exactly = 1) { userReporter.reportUserId(sessionToken.userId) }
         verify(exactly = 1) { trust.setUserId(sessionToken.userId) }
-    }
-
-    @Test
-    fun `WHEN updateUserWalletInfo is called, THEN verify success functions are called`() {
-        val jwt = "JWT"
-
-        // Act
-        nabuDataUserProvider.updateUserWalletInfo(jwt).test()
-        // Assert
-        verify(exactly = 1) { nabuService.updateWalletInformation(sessionToken, jwt) }
     }
 }

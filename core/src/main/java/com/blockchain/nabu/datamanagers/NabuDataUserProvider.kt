@@ -2,20 +2,14 @@ package com.blockchain.nabu.datamanagers
 
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 interface NabuDataUserProvider {
     fun getUser(): Single<NabuUser>
-
-    fun updateUserWalletInfo(
-        jwt: String
-    ): Single<NabuUser>
 }
 
 internal class NabuDataUserProviderNabuDataManagerAdapter(
@@ -25,9 +19,7 @@ internal class NabuDataUserProviderNabuDataManagerAdapter(
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
     private val payloadDataManager: PayloadDataManager,
-    private val nabuService: NabuService,
     private val getUserStoreService: GetUserStoreService,
-    private val userDataSource: GetUserDataSource,
     private val speedUpLoginUserFF: FeatureFlag
 ) : NabuDataUserProvider {
 
@@ -48,9 +40,4 @@ internal class NabuDataUserProviderNabuDataManagerAdapter(
             }
         }
     }
-
-    override fun updateUserWalletInfo(jwt: String): Single<NabuUser> =
-        authenticator.authenticate { tokenResponse ->
-            nabuService.updateWalletInformation(tokenResponse, jwt)
-        }.doOnSuccess { userDataSource.invalidate() }
 }

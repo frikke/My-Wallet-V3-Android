@@ -7,6 +7,7 @@ import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
@@ -52,6 +53,7 @@ class KycHomeAddressPresenter(
     private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
     private val nabuDataUserProvider: NabuDataUserProvider,
+    private val nabuUserSync: NabuUserSync,
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
     private val analytics: Analytics,
@@ -224,14 +226,7 @@ class KycHomeAddressPresenter(
         ).subscribeOn(Schedulers.io())
     }
 
-    private fun updateNabuData(): Completable =
-        nabuDataManager.requestJwt()
-            .subscribeOn(Schedulers.io())
-            .flatMap { jwt ->
-                nabuDataUserProvider.updateUserWalletInfo(jwt)
-                    .subscribeOn(Schedulers.io())
-            }
-            .ignoreElement()
+    private fun updateNabuData(): Completable = nabuUserSync.syncUser()
 
     private fun getCountryName(countryCode: String): Maybe<String> = countryCodeSingle
         .map { it.entries.first { (_, value) -> value == countryCode }.key }

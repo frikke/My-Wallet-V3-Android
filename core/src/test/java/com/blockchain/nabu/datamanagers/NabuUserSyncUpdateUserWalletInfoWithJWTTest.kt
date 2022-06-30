@@ -1,64 +1,68 @@
 package com.blockchain.nabu.datamanagers
 
 import com.blockchain.nabu.NabuUserSync
-import com.blockchain.nabu.getBlankNabuUser
-import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
+import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.models.responses.nabu.NabuUser
+import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
+import com.blockchain.nabu.service.NabuService
+import com.blockchain.nabu.util.fakefactory.nabu.FakeNabuSessionTokenFactory
 import com.blockchain.testutils.rxInit
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import io.reactivex.rxjava3.core.Single
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
-
     @get:Rule
     val initSchedulers = rxInit {
         ioTrampoline()
     }
 
-    @Test
-    fun `no interactions until subscribe`() {
-        val nabuDataUserProvider = mock<NabuDataUserProvider>()
-        val nabuDataManager = mock<NabuDataManager>()
-        val nabuUserSync = givenSyncInstance(nabuDataManager, nabuDataUserProvider)
-        nabuUserSync
-            .syncUser()
-        verifyZeroInteractions(nabuDataUserProvider)
-        verifyZeroInteractions(nabuDataManager)
+    private val authenticator = mockk<NabuAuthenticator>()
+    private val jwt = "JWT"
+    private val nabuDataManager: NabuDataManager = mockk()
+    private val nabuService = mockk<NabuService>()
+    private val userDataSource = mockk<GetUserDataSource>()
+
+    private val nabuUserSync: NabuUserSync = NabuUserSyncUpdateUserWalletInfoWithJWT(
+        authenticator = authenticator,
+        nabuDataManager = nabuDataManager,
+        nabuService = nabuService,
+        userDataSource = userDataSource
+    )
+
+    private val sessionToken = FakeNabuSessionTokenFactory.any
+    private val userObject: NabuUser = mockk()
+
+    @Before
+    fun setUp() {
+        every { authenticator.authenticate(any<(NabuSessionTokenResponse) -> Single<NabuUser>>()) } answers {
+            firstArg<(NabuSessionTokenResponse) -> Single<NabuUser>>().invoke(sessionToken)
+        }
+
+        every { nabuDataManager.requestJwt() } returns Single.just(jwt)
+
+        every { nabuService.updateWalletInformation(any(), any()) } returns Single.just(userObject)
+
+        every { userDataSource.invalidate() } just Runs
+
+        every { userObject.emailVerified } returns true
+        every { userObject.mobileVerified } returns true
     }
 
     @Test
     fun `on sync user`() {
-        val jwt = "JWT"
-        val offlineToken = NabuOfflineToken("", "")
-        val nabuDataUserProvider: NabuDataUserProvider = mock {
-            on { updateUserWalletInfo(any()) }.thenReturn(Single.just(getBlankNabuUser()))
-        }
-        val nabuDataManager: NabuDataManager = mock {
-            on { requestJwt() }.thenReturn(Single.just(jwt))
-        }
-
-        val nabuUserSync = givenSyncInstance(nabuDataManager, nabuDataUserProvider)
-
         nabuUserSync
             .syncUser()
             .test()
             .assertComplete()
 
-        verify(nabuDataUserProvider).updateUserWalletInfo(jwt)
-        verifyNoMoreInteractions(nabuDataUserProvider)
-
-        verify(nabuDataManager).requestJwt()
-        verifyNoMoreInteractions(nabuDataManager)
+        verify { nabuService.updateWalletInformation(sessionToken, jwt) }
+        verify { nabuDataManager.requestJwt() }
     }
-
-    private fun givenSyncInstance(
-        nabuDataManager: NabuDataManager,
-        nabuDataUserProvider: NabuDataUserProvider
-    ): NabuUserSync =
-        NabuUserSyncUpdateUserWalletInfoWithJWT(nabuDataManager, nabuDataUserProvider)
 }

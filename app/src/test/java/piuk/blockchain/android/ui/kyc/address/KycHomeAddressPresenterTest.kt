@@ -5,6 +5,7 @@ import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
@@ -36,6 +37,7 @@ class KycHomeAddressPresenterTest {
     private val nabuDataManager: NabuDataManager = mock()
     private val eligibilityService: EligibilityService = mock()
     private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val nabuUserSync: NabuUserSync = mock()
     private val nabuToken: NabuToken = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
@@ -57,6 +59,7 @@ class KycHomeAddressPresenterTest {
             nabuDataManager,
             eligibilityService,
             nabuDataUserProvider,
+            nabuUserSync,
             kycNextStepDecision,
             custodialWalletManager,
             mock()
@@ -472,8 +475,8 @@ class KycHomeAddressPresenterTest {
     private fun givenRequestJwtAndUpdateWalletInfoSucceds() {
         val jwt = "JWT"
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(nabuDataUserProvider.updateUserWalletInfo(jwt))
-            .thenReturn(Single.just(getBlankNabuUser()))
+        whenever(nabuUserSync.syncUser())
+            .thenReturn(Completable.complete())
     }
 
     private fun givenAddressCompletes() {

@@ -250,14 +250,19 @@ val nabuModule = module {
                 trust = get(),
                 walletReporter = get(uniqueId),
                 payloadDataManager = get(),
-                nabuService = get(),
                 getUserStoreService = get(),
-                userDataSource = get(),
                 speedUpLoginUserFF = get(speedUpLoginUserFeatureFlag)
             )
         }
 
-        factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
+        factory {
+            NabuUserSyncUpdateUserWalletInfoWithJWT(
+                authenticator = get(),
+                nabuDataManager = get(),
+                nabuService = get(),
+                userDataSource = get(),
+            )
+        }.bind(NabuUserSync::class)
 
         scoped {
             CustodialRepository(
