@@ -15,23 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.dimensionResource
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.blockchain.commonarch.presentation.mvi_v2.MVIBottomSheet
+import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
+import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
 import com.blockchain.walletmode.WalletMode
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 
-class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScopeComponent {
+class WalletModeSelectionBottomSheet :
+    MVIBottomSheet<WalletModeSelectionViewState>(),
+    NavigationRouter<WalletModeSelectionNavigationEvent>,
+    AndroidScopeComponent {
     interface Host {
         fun onActiveModeChanged(
             walletMode: WalletMode,
@@ -57,7 +58,7 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        collectViewState()
+        setupViewModel()
 
         viewModel.onIntent(WalletModeSelectionIntent.LoadAvailableModesAndBalances)
 
@@ -79,30 +80,31 @@ class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScope
         }
     }
 
-    private fun collectViewState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.viewState.onEach { viewState ->
-                    with(viewState) {
-                        when {
-                            newSelectedWalletMode != null -> {
-                                host.onActiveModeChanged(newSelectedWalletMode)
-                                dismiss()
-                            }
+    private fun setupViewModel() {
+        bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
+    }
 
-                            shouldLaunchDeFiOnboarding -> {
-                                launchDeFiOnboarding()
-                            }
-                        }
-                    }
-                }.collect()
+    override fun onStateUpdated(state: WalletModeSelectionViewState) {
+        with(state) {
+            when {
+                newSelectedWalletMode != null -> {
+                    host.onActiveModeChanged(newSelectedWalletMode)
+                    dismiss()
+                }
             }
         }
     }
 
+    override fun route(navigationEvent: WalletModeSelectionNavigationEvent) {
+        when (navigationEvent) {
+            WalletModeSelectionNavigationEvent.DeFiOnboarding -> {
+                launchDeFiOnboarding()
+            }
+        }.exhaustive
+    }
+
     private fun launchDeFiOnboarding() {
         onDeFiOnboardingResult.launch(DeFiOnboardingActivity.newIntent(context = requireContext()))
-        viewModel.onIntent(WalletModeSelectionIntent.DeFiOnboardingRequested)
     }
 
     private fun deFiOnboardingComplete() {

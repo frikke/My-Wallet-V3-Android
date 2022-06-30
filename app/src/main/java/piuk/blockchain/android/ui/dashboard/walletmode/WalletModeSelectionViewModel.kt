@@ -30,14 +30,13 @@ class WalletModeSelectionViewModel(
         WalletModeSelectionIntent,
         WalletModeSelectionViewState,
         WalletModeSelectionModelState,
-        NavigationEvent,
+        WalletModeSelectionNavigationEvent,
         ModelConfigArgs.NoArgs>(
         initialState = WalletModeSelectionModelState(
             brokerageBalance = null,
             defiBalance = null,
             enabledWalletMode = walletModeService.enabledWalletMode(),
             newSelectedWalletMode = null,
-            requiresDeFiOnboarding = false
         )
     ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -55,7 +54,6 @@ class WalletModeSelectionViewModel(
                 defiWalletAvailable = true,
                 enabledWalletMode = enabledWalletMode,
                 newSelectedWalletMode = newSelectedWalletMode,
-                shouldLaunchDeFiOnboarding = requiresDeFiOnboarding,
             )
         }
     }
@@ -118,15 +116,11 @@ class WalletModeSelectionViewModel(
 
             is WalletModeSelectionIntent.WalletModeSelected -> {
                 // DeFi selected + no backup -> should start defi onboarding with recovery flow
-                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && payloadManager.isBackedUp.not()) {
-                    updateState { it.copy(requiresDeFiOnboarding = true) }
+                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && payloadManager.isBackedUp) {
+                    navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
                 } else {
                     updateActiveWalletMode(intent.walletMode)
                 }
-            }
-
-            WalletModeSelectionIntent.DeFiOnboardingRequested -> {
-                updateState { it.copy(requiresDeFiOnboarding = false) }
             }
 
             // defi (NON_CUSTODIAL_ONLY) specific
@@ -157,8 +151,6 @@ sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
         }
     }
 
-    object DeFiOnboardingRequested : WalletModeSelectionIntent()
-
     object DeFiOnboardingComplete : WalletModeSelectionIntent()
 }
 
@@ -169,7 +161,6 @@ data class WalletModeSelectionViewState(
     val defiWalletAvailable: Boolean,
     val enabledWalletMode: WalletMode,
     val newSelectedWalletMode: WalletMode?,
-    val shouldLaunchDeFiOnboarding: Boolean,
 ) : ViewState
 
 data class WalletModeSelectionModelState(
@@ -177,7 +168,6 @@ data class WalletModeSelectionModelState(
     val defiBalance: Money?,
     val enabledWalletMode: WalletMode,
     val newSelectedWalletMode: WalletMode?,
-    val requiresDeFiOnboarding: Boolean,
 ) : ModelState
 
 sealed class BalanceState {
