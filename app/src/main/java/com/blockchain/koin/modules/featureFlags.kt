@@ -2,6 +2,7 @@ package com.blockchain.koin.modules
 
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.appRatingFeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
@@ -22,6 +23,7 @@ import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
+import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
@@ -33,11 +35,29 @@ import org.koin.java.KoinJavaComponent
 
 val featureFlagsModule = module {
 
+    single(accountUnificationFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_sso_account_unification",
+                "SSO Account Unification"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
     single(speedUpLoginInterestFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_interest",
                 "SpeedUp Login - /accounts/savings"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(speedUpLoginTradingFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_trading",
+                "SpeedUp Login - /accounts/simplebuy"
             )
         )
     }.bind(FeatureFlag::class)
@@ -81,7 +101,7 @@ val featureFlagsModule = module {
     single(coinWebSocketFeatureFlag) {
         IntegratedFeatureFlag(
             remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_coin_web_socket",
+                "android_disable_ff_coin_web_socket",
                 "Coin Web Socket"
             )
         )

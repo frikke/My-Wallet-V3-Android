@@ -834,8 +834,7 @@ class SimpleBuyCryptoFragment :
             ErrorState.BankLinkingTimeout,
             ErrorState.Card3DsFailed,
             ErrorState.UnknownCardProvider,
-            ErrorState.LinkedBankNotSupported,
-            -> {
+            ErrorState.LinkedBankNotSupported -> {
                 analytics.logEvent(
                     ClientErrorAnalytics.ClientLogError(
                         nabuApiException = null,
@@ -844,6 +843,7 @@ class SimpleBuyCryptoFragment :
                         source = ClientErrorAnalytics.Companion.Source.CLIENT,
                         title = "IllegalStateException",
                         action = ACTION_BUY,
+                        categories = emptyList()
                     )
                 )
                 throw IllegalStateException(

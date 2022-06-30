@@ -116,7 +116,7 @@ class SelectSourceAccountFragment :
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {
-                displayErrorMessage()
+                displayErrorSnackbar()
             }
             DepositOptionsState.None -> {
             }
@@ -132,7 +132,7 @@ class SelectSourceAccountFragment :
         when (newState.linkBankState) {
             is BankLinkingState.Success -> handleBankLinkSuccess(newState.linkBankState, newState)
             is BankLinkingState.Error -> handleBankLinkError(newState.linkBankState)
-            else -> displayErrorMessage()
+            else -> displayErrorSnackbar()
         }
     }
 
@@ -148,18 +148,18 @@ class SelectSourceAccountFragment :
     }
 
     private fun handleBankLinkError(linkBankState: BankLinkingState.Error) {
-        val error = linkBankState.e
-        when ((error as? NabuApiException)?.getErrorCode()) {
+        val nabuError = linkBankState.e as? NabuApiException
+        when (nabuError?.getErrorCode()) {
             NabuErrorCodes.MaxPaymentBankAccounts ->
-                // TODO (dserrano) should these take into account the scalable brokerage deeplink actions?
                 showBottomSheet(
                     ErrorSlidingBottomDialog.newInstance(
                         ErrorDialogData(
                             title = getString(R.string.bank_linking_max_accounts_title),
                             description = getString(R.string.bank_linking_max_accounts_subtitle),
                             errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
-                            error = (error as? NabuApiException)?.getErrorDescription(),
-                            nabuApiException = error as? NabuApiException
+                            error = nabuError.getErrorDescription(),
+                            nabuApiException = nabuError,
+                            analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
                         )
                     )
                 )
@@ -170,16 +170,17 @@ class SelectSourceAccountFragment :
                             title = getString(R.string.bank_linking_max_attempts_title),
                             description = getString(R.string.bank_linking_max_attempts_subtitle),
                             errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
-                            error = (error as? NabuApiException)?.getErrorDescription(),
-                            nabuApiException = error as? NabuApiException
+                            error = nabuError.getErrorDescription(),
+                            nabuApiException = nabuError,
+                            analyticsCategories = nabuError.getServerSideErrorInfo()?.categories ?: emptyList()
                         )
                     )
                 )
-            else -> displayErrorMessage()
+            else -> displayErrorSnackbar()
         }
     }
 
-    private fun displayErrorMessage() {
+    private fun displayErrorSnackbar() {
         BlockchainSnackbar.make(
             binding.root, getString(R.string.common_error), type = SnackbarType.Error
         ).show()

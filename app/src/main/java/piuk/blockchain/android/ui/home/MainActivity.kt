@@ -540,11 +540,17 @@ class MainActivity :
                     },
                     onComplete = {
                         Timber.d("No source accounts available for scan target")
-                        showNoAccountFromScanSnackbar(targetAddress.asset)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.scan_no_account_selected, targetAddress.asset.displayTicker)
+                        ).show()
                     },
                     onError = {
                         Timber.e("Unable to select source account for scan")
-                        showNoAccountFromScanSnackbar(targetAddress.asset)
+                        BlockchainSnackbar.make(
+                            binding.root,
+                            getString(R.string.scan_no_available_account, targetAddress.asset.displayTicker)
+                        ).show()
                     }
                 )
         }

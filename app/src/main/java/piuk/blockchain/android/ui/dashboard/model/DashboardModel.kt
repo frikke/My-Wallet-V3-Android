@@ -89,6 +89,11 @@ class DashboardModel(
             is DashboardIntent.LoadFundsLocked -> interactor.loadWithdrawalLocks(this)
             is DashboardIntent.FetchOnboardingSteps -> interactor.getOnboardingSteps(this)
             is DashboardIntent.RefreshFiatBalances -> interactor.refreshFiatBalances(intent.fiatAccounts, this)
+            is DashboardIntent.FetchReferralSuccess -> interactor.checkReferralSuccess(this)
+            is DashboardIntent.DismissReferralSuccess -> {
+                interactor.dismissReferralSuccess()
+            }
+            is DashboardIntent.ShowReferralSuccess,
             is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,
             is DashboardIntent.PriceHistoryUpdate,

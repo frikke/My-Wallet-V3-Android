@@ -24,6 +24,8 @@ val receiveCryptoModule = module {
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 remoteLogger = get(),
+                walletModeService = get(),
+                coincore = get(),
                 getAvailableCryptoAssetsUseCase = get(),
                 getReceiveAccountsForAssetUseCase = get()
             )

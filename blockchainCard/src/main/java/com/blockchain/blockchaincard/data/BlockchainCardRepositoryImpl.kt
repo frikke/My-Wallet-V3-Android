@@ -13,6 +13,7 @@ import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardProduct
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
+import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
 import com.blockchain.blockchaincard.domain.models.BlockchainCardType
 import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.BlockchainAccount
@@ -378,7 +379,7 @@ internal class BlockchainCardRepositoryImpl(
             id = id,
             cardId = cardId,
             type = type,
-            state = state,
+            state = BlockchainCardTransactionState.valueOf(state),
             originalAmount = FiatValue.fromMajor(
                 fiatCurrency = FiatCurrency.fromCurrencyCode(originalAmount.symbol),
                 major = BigDecimal(originalAmount.value)

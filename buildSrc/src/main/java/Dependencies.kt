@@ -8,7 +8,7 @@ object Versions {
     const val compileSdk = 31
 
     const val versionCode = 20422
-    const val versionName = "202207.1.0"
+    const val versionName = "202207.2.0"
 
     const val buildTools = "30.0.2"
 
@@ -112,6 +112,7 @@ object Versions {
     // Accompanist
     const val systemUi = "0.24.3-alpha"
     const val navigationMaterial = "0.23.1"
+    const val swipeRefresh = "0.23.1"
 
     // zxing 3.4.0 crashes with:
     //      "java.lang.NoSuchMethodError. No interface method sort(Ljava/util/Comparator;)V in class Ljava/util/List;"
@@ -302,6 +303,7 @@ object Libraries {
         "com.google.accompanist:accompanist-navigation-material:${Versions.navigationMaterial}"
     const val composeNavigation = "androidx.navigation:navigation-compose:${Versions.composeNavigation}"
     const val accompanistFlowLayout = "com.google.accompanist:accompanist-flowlayout:${Versions.composeFlowLayout}"
+    const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.swipeRefresh}"
 
     // Third Party SDKs
     const val veriff = "com.veriff:veriff-library:${Versions.veriff}"

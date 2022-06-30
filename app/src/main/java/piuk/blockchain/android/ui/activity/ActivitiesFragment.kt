@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.analytics.events.ActivityAnalytics
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.annotations.CommonCode
-import com.blockchain.coincore.ActivitySummaryItem
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -70,8 +69,6 @@ class ActivitiesFragment :
         )
     }
 
-    private val displayList = mutableListOf<ActivitySummaryItem>()
-
     private val disposables = CompositeDisposable()
     private val rxBus: RxBus by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
@@ -130,6 +127,8 @@ class ActivitiesFragment :
                         )
                     }
                 }
+                null -> {
+                }
             }
         }
         this.state = newState
@@ -140,17 +139,14 @@ class ActivitiesFragment :
             when {
                 newState.isLoading && newState.activityList.isEmpty() -> {
                     headerLayout.gone()
-                    contentList.gone()
                     emptyView.gone()
                 }
                 newState.activityList.isEmpty() -> {
                     headerLayout.visible()
-                    contentList.gone()
                     emptyView.visible()
                 }
                 else -> {
                     headerLayout.visible()
-                    contentList.visible()
                     emptyView.gone()
                 }
             }
@@ -169,14 +165,6 @@ class ActivitiesFragment :
     }
 
     private fun renderAccountDetails(newState: ActivitiesState) {
-        if (newState.account == state?.account && selectedFiatCurrency == currencyPrefs.selectedFiatCurrency) {
-            return
-        }
-
-        if (newState.account == null) {
-            // Should not happen! TODO: Crash
-            return
-        }
 
         with(binding) {
             disposables.clear()
@@ -223,19 +211,7 @@ class ActivitiesFragment :
     }
 
     private fun renderTransactionList(newState: ActivitiesState) {
-        if (state?.activityList == newState.activityList) {
-            return
-        }
-
-        with(newState.activityList) {
-            displayList.clear()
-            if (isEmpty()) {
-                Timber.d("Render new tx list - empty")
-            } else {
-                displayList.addAll(this)
-            }
-            activityAdapter.notifyDataSetChanged()
-        }
+        activityAdapter.items = newState.activityList
     }
 
     private fun renderLoader(newState: ActivitiesState) {
@@ -274,7 +250,6 @@ class ActivitiesFragment :
             adapter = activityAdapter
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
-        activityAdapter.items = displayList
     }
 
     private fun setupAccountSelect() {
@@ -308,7 +283,7 @@ class ActivitiesFragment :
     private fun onItemClicked(
         currency: Currency,
         txHash: String,
-        type: ActivityType
+        type: ActivityType,
     ) {
         model.process(ShowActivityDetailsIntent(currency, txHash, type))
     }

@@ -160,8 +160,8 @@ internal class DynamicAssetLoader(
         custodialAssets: Iterable<AssetInfo>,
     ): Single<List<CryptoAsset>> {
         return Single.zip(
-            tradingBalances.getActiveAssets(),
-            interestBalances.getActiveAssets().printTime("----- ::interestBalances")
+            tradingBalances.getActiveAssets().printTime("----- ::CustodialAssets - tradingBalances"),
+            interestBalances.getActiveAssets().printTime("----- ::CustodialAssets - interestBalances")
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
@@ -183,7 +183,9 @@ internal class DynamicAssetLoader(
     ): Single<List<CryptoAsset>> {
 
         val tradingBalancesAssets = tradingBalances.getActiveAssets()
-        val interestBalancesAssets = interestBalances.getActiveAssets().printTime("----- ::interestBalances")
+            .printTime("----- ::Erc20Assets - tradingBalances")
+        val interestBalancesAssets = interestBalances.getActiveAssets()
+            .printTime("----- ::Erc20Assets - interestBalances")
 
         // Assets with non custodial balance
         val erc20ActiveAssets =

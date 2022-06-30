@@ -93,7 +93,7 @@ fun NavigationBar(
         Row(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = dimensionResource(R.dimen.standard_margin))
+                .padding(horizontal = dimensionResource(R.dimen.standard_margin))
         ) {
             startNavigationBarButton?.let { button ->
                 when (button) {
@@ -233,6 +233,18 @@ fun RowScope.DropDown(dropdownIndicator: NavigationBarButton.DropdownIndicator) 
 fun NavigationBarPreview() {
     AppTheme {
         NavigationBar(title = "Test", onBackButtonClick = null, navigationBarButtons = emptyList())
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavigationBarPreviewLongText() {
+    AppTheme {
+        NavigationBar(
+            title = "Comunicarse con el soporte técnico",
+            onBackButtonClick = { },
+            navigationBarButtons = emptyList()
+        )
     }
 }
 

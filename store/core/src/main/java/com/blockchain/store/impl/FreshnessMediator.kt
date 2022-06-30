@@ -32,5 +32,6 @@ data class Freshness private constructor(
         fun ofMinutes(minutes: Long) = Freshness(minutes, TimeUnit.MINUTES)
         fun ofHours(hours: Long) = Freshness(hours, TimeUnit.HOURS)
         val DURATION_24_HOURS = ofHours(24L)
+        val DURATION_1_HOUR = ofHours(1L)
     }
 }

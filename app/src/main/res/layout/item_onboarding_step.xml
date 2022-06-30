@@ -43,7 +43,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/very_small_margin"
-            android:layout_marginEnd="@dimen/very_small_margin"
+            android:layout_marginEnd="@dimen/tiny_margin"
             android:layout_marginBottom="@dimen/small_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/action_icon"

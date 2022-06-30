@@ -177,6 +177,8 @@ data class DashboardState(
     val onboardingState: DashboardOnboardingState = DashboardOnboardingState.Hidden,
     val canPotentiallyTransactWithBanks: Boolean = true,
     val showedAppRating: Boolean = false,
+    val referralSuccessData: Pair<String, String>? = null
+
 ) : MviState, BalanceState {
     val availableAssets = availablePrices.keys.toList()
 

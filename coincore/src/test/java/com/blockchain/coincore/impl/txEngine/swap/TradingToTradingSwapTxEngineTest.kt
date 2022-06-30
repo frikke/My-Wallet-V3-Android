@@ -15,6 +15,7 @@ import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.xlm.XlmCryptoWalletAccount
 import com.blockchain.core.SwapTransactionsCache
+import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -52,7 +53,6 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
     private val quotesEngine: TransferQuotesEngine = mock()
     private val userIdentity: UserIdentity = mock()
     private val swapTransactionsCache: SwapTransactionsCache = mock()
-
     private val limitsDataManager: LimitsDataManager = mock {
         on { getLimits(any(), any(), any(), any(), any(), any()) }.thenReturn(
             Single.just(
@@ -65,10 +65,12 @@ class TradingToTradingSwapTxEngineTest : CoincoreTestBase() {
             )
         )
     }
+    private val tradingDataSource: TradingDataSource = mock()
 
     private val environmentConfig: EnvironmentConfig = mock()
 
     private val subject = TradingToTradingSwapTxEngine(
+        tradingDataSource = tradingDataSource,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         limitsDataManager = limitsDataManager,

@@ -22,7 +22,11 @@ class GooglePayAnnouncement(
     override val name = "google_pay_available"
 
     override fun shouldShow(): Single<Boolean> =
-        announcementQueries.isGooglePayAvailable()
+        if (dismissEntry.isDismissed) {
+            Single.just(false)
+        } else {
+            announcementQueries.isGooglePayAvailable()
+        }
 
     override fun show(host: AnnouncementHost) {
         host.showAnnouncementCard(

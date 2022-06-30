@@ -194,6 +194,7 @@ class TransactionProgressFragment : TransactionFlowFragment<FragmentTxFlowInProg
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = analyticsPair.first,
                 action = action,
+                categories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
             )
         )
     }

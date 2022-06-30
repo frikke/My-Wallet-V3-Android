@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.blockchain.blockchaincard.ui.composables.managecard.AccountPicker
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddress
 import com.blockchain.blockchaincard.ui.composables.managecard.BillingAddressUpdated
+import com.blockchain.blockchaincard.ui.composables.managecard.CardTransactionDetails
 import com.blockchain.blockchaincard.ui.composables.managecard.CloseCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCard
 import com.blockchain.blockchaincard.ui.composables.managecard.ManageCardDetails
@@ -142,8 +143,10 @@ fun BlockchainCardNavHost(
                     ManageCard(
                         card = state.card,
                         cardWidgetUrl = state.cardWidgetUrl,
-                        isBalanceLoading = state.isLinkedAccountBalanceLoading,
                         linkedAccountBalance = state.linkedAccountBalance,
+                        isBalanceLoading = state.isLinkedAccountBalanceLoading,
+                        isTransactionListRefreshing = state.isTransactionListRefreshing,
+                        transactionList = state.transactionList,
                         onManageCardDetails = {
                             viewModel.onIntent(BlockchainCardIntent.ManageCardDetails)
                         },
@@ -155,7 +158,13 @@ fun BlockchainCardNavHost(
                         },
                         onRefreshBalance = {
                             viewModel.onIntent(BlockchainCardIntent.LoadLinkedAccount)
-                        }
+                        },
+                        onSeeTransactionDetails = { transaction ->
+                            viewModel.onIntent(BlockchainCardIntent.SeeTransactionDetails(transaction))
+                        },
+                        onRefreshTransactions = {
+                            viewModel.onIntent(BlockchainCardIntent.RefreshTransactions)
+                        },
                     )
                 }
             }
@@ -244,6 +253,12 @@ fun BlockchainCardNavHost(
                         viewModel.onIntent(BlockchainCardIntent.ConfirmCloseCard)
                     }
                 )
+            }
+        }
+
+        bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
+            state?.selectedCardTransaction?.let { transaction ->
+                CardTransactionDetails(cardTransaction = transaction)
             }
         }
     }

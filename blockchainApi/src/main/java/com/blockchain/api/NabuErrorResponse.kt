@@ -46,7 +46,9 @@ data class NabuUxErrorResponse(
     @SerialName("icon")
     val icon: IconData?,
     @SerialName("actions")
-    val actions: List<ActionData>?
+    val actions: List<ActionData>?,
+    @SerialName("categories")
+    val categories: List<String>?
 )
 
 @Serializable
@@ -76,7 +78,8 @@ data class ServerSideUxErrorInfo(
     val description: String,
     val iconUrl: String,
     val statusUrl: String,
-    val actions: List<ServerErrorAction>
+    val actions: List<ServerErrorAction>,
+    val categories: List<String>
 )
 
 data class ServerErrorAction(
@@ -178,7 +181,8 @@ object NabuApiExceptionFactory {
                 description = uxErrorResponse.message,
                 iconUrl = uxErrorResponse.icon?.url.orEmpty(),
                 statusUrl = uxErrorResponse.icon?.status?.url.orEmpty(),
-                actions = uxErrorResponse.mapActions()
+                actions = uxErrorResponse.mapActions(),
+                categories = uxErrorResponse.categories ?: emptyList()
             )
         )
 
@@ -202,7 +206,8 @@ object NabuApiExceptionFactory {
                         description = nabuUxResponse.message,
                         iconUrl = nabuUxResponse.icon?.url.orEmpty(),
                         statusUrl = nabuUxResponse.icon?.status?.url.orEmpty(),
-                        actions = nabuUxResponse.mapActions()
+                        actions = nabuUxResponse.mapActions(),
+                        categories = nabuUxResponse.categories ?: emptyList()
                     )
                 }
 

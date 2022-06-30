@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.activity
 
 import com.blockchain.coincore.ActivitySummaryList
 import com.blockchain.coincore.BlockchainAccount
+import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.enviroment.EnvironmentConfig
@@ -32,7 +33,7 @@ enum class ActivityType {
 }
 
 data class ActivitiesState(
-    val account: BlockchainAccount? = null,
+    val account: BlockchainAccount = NullCryptoAccount(),
     val activityList: ActivitySummaryList = emptyList(),
     val isLoading: Boolean = true,
     val isRefreshRequested: Boolean = false,
@@ -70,19 +71,18 @@ class ActivitiesModel(
                 fetchSubscription?.dispose()
 
                 fetchSubscription = interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
+                    .doOnSubscribe {
+                        process(ActivityLoadingIntent)
+                    }
                     .subscribeBy(
-                        onNext = { list ->
+                        onSuccess = { list ->
                             process(ActivityListUpdatedIntent(list))
-                        },
-                        onComplete = {
-                            // do nothing
                         },
                         onError = {
                             Timber.e(it)
                             process(ActivityListUpdatedErrorIntent)
                         }
                     )
-
                 fetchSubscription
             }
             is SelectDefaultAccountIntent ->

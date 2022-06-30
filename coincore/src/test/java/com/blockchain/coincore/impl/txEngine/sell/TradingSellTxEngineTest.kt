@@ -15,6 +15,7 @@ import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.txEngine.PricedQuote
 import com.blockchain.coincore.impl.txEngine.TransferQuotesEngine
 import com.blockchain.coincore.testutil.CoincoreTestBase
+import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
@@ -63,8 +64,10 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
             )
         )
     }
+    private val tradingDataSource: TradingDataSource = mock()
 
     private val subject = TradingSellTxEngine(
+        tradingDataSource = tradingDataSource,
         walletManager = walletManager,
         quotesEngine = quotesEngine,
         userIdentity = userIdentity,
@@ -549,7 +552,7 @@ class TradingSellTxEngineTest : CoincoreTestBase() {
     }
 
     private fun verifyFeeLevels(
-        feeSelection: FeeSelection
+        feeSelection: FeeSelection,
     ) = feeSelection.selectedLevel == FeeLevel.None &&
         feeSelection.availableLevels == setOf(FeeLevel.None) &&
         feeSelection.availableLevels.contains(feeSelection.selectedLevel) &&

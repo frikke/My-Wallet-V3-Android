@@ -130,6 +130,10 @@ class BlockchainCardNavigationRouter(override val navController: NavHostControll
             is BlockchainCardNavigationEvent.DismissBillingAddressUpdateResult -> {
                 navController.popBackStack()
             }
+
+            is BlockchainCardNavigationEvent.SeeTransactionDetails -> {
+                destination = BlockchainCardDestination.TransactionDetailsDestination
+            }
         }.exhaustive
 
         if (destination !is BlockchainCardDestination.NoDestination)
@@ -185,6 +189,8 @@ sealed class BlockchainCardNavigationEvent : NavigationEvent {
     data class BillingAddressUpdated(val success: Boolean) : BlockchainCardNavigationEvent()
 
     object DismissBillingAddressUpdateResult : BlockchainCardNavigationEvent()
+
+    object SeeTransactionDetails : BlockchainCardNavigationEvent()
 }
 
 sealed class BlockchainCardDestination(override val route: String) : ComposeNavigationDestination {
@@ -228,4 +234,6 @@ sealed class BlockchainCardDestination(override val route: String) : ComposeNavi
 
     object BillingAddressUpdateFailedDestination :
         BlockchainCardDestination(route = "billing_address_update_failed")
+
+    object TransactionDetailsDestination : BlockchainCardDestination(route = "transaction_details")
 }

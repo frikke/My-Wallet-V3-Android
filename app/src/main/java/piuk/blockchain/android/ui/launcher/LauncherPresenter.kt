@@ -30,7 +30,9 @@ data class ViewIntentData(
     val scheme: String?,
     val dataString: String?,
     val data: String?,
-    val isAutomationTesting: Boolean
+    val isAutomationTesting: Boolean,
+    val referralSuccessTitle: String?,
+    val referralSuccessBody: String?
 )
 
 class LauncherPresenter internal constructor(
@@ -94,6 +96,11 @@ class LauncherPresenter internal constructor(
         }
         if (viewIntentData?.data != null) {
             deepLinkPersistence.pushDeepLink(viewIntentData.data)
+        }
+
+        if (viewIntentData?.referralSuccessBody != null && viewIntentData.referralSuccessTitle != null) {
+            prefs.referralSuccessTitle = viewIntentData.referralSuccessTitle
+            prefs.referralSuccessBody = viewIntentData.referralSuccessBody
         }
 
         if (

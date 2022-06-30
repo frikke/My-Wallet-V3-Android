@@ -254,14 +254,14 @@ data class InterestActivityItem(
 }
 
 enum class InterestState {
-    FAILED,
-    REJECTED,
     PROCESSING,
-    COMPLETE,
     PENDING,
     MANUAL_REVIEW,
     CLEARED,
     REFUNDED,
+    FAILED,
+    REJECTED,
+    COMPLETE,
     UNKNOWN
 }
 
@@ -441,12 +441,12 @@ enum class CustodialOrderState {
     CREATED,
     PENDING_CONFIRMATION,
     PENDING_LEDGER,
-    CANCELED,
     PENDING_EXECUTION,
     PENDING_DEPOSIT,
     FINISH_DEPOSIT,
     PENDING_WITHDRAWAL,
     EXPIRED,
+    CANCELED,
     FINISHED,
     FAILED,
     UNKNOWN;

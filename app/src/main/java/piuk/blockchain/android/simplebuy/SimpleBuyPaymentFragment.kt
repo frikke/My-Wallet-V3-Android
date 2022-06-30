@@ -233,16 +233,18 @@ class SimpleBuyPaymentFragment :
         title: String,
         error: String,
         nabuApiException: NabuApiException? = null,
-        errorDescription: String,
+        errorDescription: String
     ) {
         analytics.logEvent(
             ClientErrorAnalytics.ClientLogError(
                 nabuApiException = nabuApiException,
                 error = error,
+                errorDescription = errorDescription,
                 source = nabuApiException?.getErrorCode()?.let { ClientErrorAnalytics.Companion.Source.NABU }
                     ?: ClientErrorAnalytics.Companion.Source.CLIENT,
                 title = title,
                 action = ClientErrorAnalytics.ACTION_BUY,
+                categories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
             )
         )
     }

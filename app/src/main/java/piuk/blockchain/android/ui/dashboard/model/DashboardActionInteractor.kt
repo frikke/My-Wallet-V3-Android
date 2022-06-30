@@ -30,6 +30,7 @@ import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.KeyedStoreRequest
 import com.blockchain.walletmode.WalletMode
@@ -42,6 +43,7 @@ import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -86,6 +88,7 @@ class DashboardActionInteractor(
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
+    private val referralPrefs: ReferralPrefs,
 ) {
 
     private val defFilter: AssetFilter
@@ -693,6 +696,27 @@ class DashboardActionInteractor(
             }
         )
     }
+
+    fun checkReferralSuccess(model: DashboardModel) = Completable.fromAction {
+        val title = referralPrefs.referralSuccessTitle
+        val body = referralPrefs.referralSuccessBody
+        if (title.isNotBlank() && body.isNotBlank()) {
+            model.process(DashboardIntent.ShowReferralSuccess(Pair(title, body)))
+        }
+    }.subscribeBy(
+        onError = {
+            Timber.e(it)
+        }
+    )
+
+    fun dismissReferralSuccess() = Completable.fromAction {
+        referralPrefs.referralSuccessTitle = ""
+        referralPrefs.referralSuccessBody = ""
+    }.subscribeBy(
+        onError = {
+            Timber.e(it)
+        }
+    )
 
     companion object {
         private val FLATLINE_CHART = listOf(
