@@ -1845,6 +1845,7 @@
     <string name="scan_mismatch_transaction_target">The scanned code is not a %1$s QR code.</string>
     <string name="scan_failed">QR code not recognised, please try again.</string>
     <string name="scan_no_available_account">No funded source accounts available to send %1$s</string>
+    <string name="scan_no_account_selected">No account selected to send %1$s, please scan the invoice again to proceed</string>
 
     <string name="could_not_save_card">We could not save your card. Please contact support.</string>
     <string name="could_not_activate_card">We could not activate your card. Please contact support.</string>

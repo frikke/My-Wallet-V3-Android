@@ -9,9 +9,10 @@ fun SingleAccountList.filterByAction(
     Single.zip(
         this.map { account -> account.stateAwareActions.map { actions -> Pair(account, actions) } }
     ) { result: Array<Any> ->
-        result.filterIsInstance<Pair<SingleAccount, Set<AssetAction>>>()
-            .filter { (account, actions) -> actions.contains(action) }
-            .map { (account, actions) -> account }
+        result.filterIsInstance<Pair<SingleAccount, Set<StateAwareAction>>>()
+            .filter { (account, stateAwareActions) ->
+                stateAwareActions.map { it.action }.contains(action)
+            }.map { (account, actions) -> account }
     }
 
 @Suppress("UNUSED_DESTRUCTURED_PARAMETER_ENTRY") // For code clarity
