@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.navhost
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -35,6 +36,7 @@ class KycNavHostPresenterTest {
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
+    private val userDataSource: GetUserDataSource = mock()
 
     @Suppress("unused")
     @get:Rule
@@ -52,9 +54,22 @@ class KycNavHostPresenterTest {
             kycNavigator = ReentryDecisionKycNavigator(
                 nabuDataUserProvider, reentryDecision, analytics
             ),
-            analytics = mock()
+            analytics = mock(),
+            userDataSource = userDataSource
         )
         subject.initView(view)
+    }
+
+    @Test
+    fun `onViewReady should invalidate stores`() {
+        // Arrange - throw an exception just to have definitions,
+        // won't be checked in this test
+        whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
+        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.error { Throwable() })
+        // Act
+        subject.onViewReady()
+        // Assert
+        verify(userDataSource).invalidate()
     }
 
     @Test
