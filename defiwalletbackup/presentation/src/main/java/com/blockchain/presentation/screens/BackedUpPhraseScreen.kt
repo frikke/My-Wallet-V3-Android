@@ -22,7 +22,8 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.MinimalButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseIntent
@@ -42,7 +43,7 @@ fun BackedUpPhrase(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         BackedUpPhraseScreen(
             mnemonic = state.mnemonic,
-            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) }
+            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackup) }
         )
     }
 }
@@ -83,7 +84,15 @@ fun BackedUpPhraseScreen(
 
             HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+            TertiaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.common_copy),
+                onClick = nextOnClick
+            )
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(
                 text = stringResource(id = R.string.recovery_phrase_description),
@@ -94,9 +103,9 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            PrimaryButton(
+            MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.next),
+                text = stringResource(id = R.string.recovery_phrase_backup_again),
                 onClick = nextOnClick
             )
         }
