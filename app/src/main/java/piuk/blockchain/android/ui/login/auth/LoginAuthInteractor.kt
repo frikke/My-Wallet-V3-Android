@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.login.auth
 
+import com.blockchain.featureflag.FeatureFlag
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
@@ -9,17 +10,16 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
-import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
-    val appUtil: AppUtil,
-    val authDataManager: AuthDataManager,
-    val payloadDataManager: PayloadDataManager,
-    val prefs: PersistentPrefs
+    private val authDataManager: AuthDataManager,
+    private val payloadDataManager: PayloadDataManager,
+    private val prefs: PersistentPrefs,
+    private val accountUnificationFF: FeatureFlag
 ) {
     fun getAuthInfo(json: String): Single<LoginAuthInfo> {
         return Single.fromCallable {
@@ -91,11 +91,11 @@ class LoginAuthInteractor(
         )
     }
 
-    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Completable =
+    fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Single<Boolean> =
         authDataManager.updateMobileSetup(
             guid = prefs.walletGuid,
             sharedKey = prefs.sharedKey,
             isMobileSetup = isMobileSetup,
             deviceType = deviceType
-        )
+        ).toSingle { accountUnificationFF.isEnabled }
 }

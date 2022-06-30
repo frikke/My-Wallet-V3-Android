@@ -196,7 +196,7 @@ class LoginAuthModelTest {
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Completable.complete()
+            Single.just(true)
         )
         whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 
@@ -266,7 +266,7 @@ class LoginAuthModelTest {
             Completable.complete()
         )
         whenever(interactor.updateMobileSetup(isMobileSetup, deviceType)).thenReturn(
-            Completable.complete()
+            Single.just(true)
         )
         whenever(unifiedSignInFlag.enabled).thenReturn(Single.just(false))
 

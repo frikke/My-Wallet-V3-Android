@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui.login
 
+import com.blockchain.koin.accountUnificationFeatureFlag
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -45,10 +46,10 @@ val loginUiModule = module {
 
         factory {
             LoginAuthInteractor(
-                appUtil = get(),
                 authDataManager = get(),
                 payloadDataManager = get(),
-                prefs = get()
+                prefs = get(),
+                accountUnificationFF = get(accountUnificationFeatureFlag)
             )
         }
     }
