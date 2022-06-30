@@ -38,7 +38,7 @@ class NabuApiException internal constructor(
     private val errorDescription: String?,
     private val path: String?,
     private val id: String?,
-) : Throwable(message) {
+) : Exception(message) {
 
     private constructor(message: String, code: Int) : this(
         message = message,
