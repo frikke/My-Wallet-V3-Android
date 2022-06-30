@@ -6,7 +6,6 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
-import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.extensions.exhaustive
 import com.blockchain.store.KeyedStoreRequest
@@ -33,6 +32,7 @@ class WalletModeSelectionViewModel(
         WalletModeSelectionNavigationEvent,
         ModelConfigArgs.NoArgs>(
         initialState = WalletModeSelectionModelState(
+            isWalletBackedUp = false,
             brokerageBalance = null,
             defiBalance = null,
             enabledWalletMode = walletModeService.enabledWalletMode(),
@@ -66,7 +66,13 @@ class WalletModeSelectionViewModel(
 
     override suspend fun handleIntent(modelState: WalletModeSelectionModelState, intent: WalletModeSelectionIntent) {
         when (intent) {
-            WalletModeSelectionIntent.LoadAvailableModesAndBalances -> {
+            WalletModeSelectionIntent.LoadInitialData -> {
+                // isBackedUp
+                updateState {
+                    it.copy(isWalletBackedUp = payloadManager.isBackedUp)
+                }
+
+                // balances
                 updateState {
                     it.copy(brokerageBalance = null, defiBalance = null)
                 }
@@ -116,7 +122,7 @@ class WalletModeSelectionViewModel(
 
             is WalletModeSelectionIntent.WalletModeSelected -> {
                 // DeFi selected + no backup -> should start defi onboarding with recovery flow
-                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && payloadManager.isBackedUp) {
+                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && modelState.isWalletBackedUp) {
                     navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
                 } else {
                     updateActiveWalletMode(intent.walletMode)
@@ -133,8 +139,6 @@ class WalletModeSelectionViewModel(
     private fun updateActiveWalletMode(walletMode: WalletMode) {
         updateState {
             it.copy(
-                brokerageBalance = null,
-                defiBalance = null,
                 enabledWalletMode = walletMode
             )
         }
@@ -144,7 +148,8 @@ class WalletModeSelectionViewModel(
 }
 
 sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
-    object LoadAvailableModesAndBalances : WalletModeSelectionIntent()
+    object LoadInitialData : WalletModeSelectionIntent()
+
     data class WalletModeSelected(val walletMode: WalletMode) : WalletModeSelectionIntent() {
         override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
             return modelState.enabledWalletMode != walletMode
@@ -164,6 +169,7 @@ data class WalletModeSelectionViewState(
 ) : ViewState
 
 data class WalletModeSelectionModelState(
+    val isWalletBackedUp: Boolean,
     val brokerageBalance: Money?,
     val defiBalance: Money?,
     val enabledWalletMode: WalletMode,

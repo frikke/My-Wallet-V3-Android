@@ -60,7 +60,7 @@ class WalletModeSelectionBottomSheet :
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setupViewModel()
 
-        viewModel.onIntent(WalletModeSelectionIntent.LoadAvailableModesAndBalances)
+        viewModel.onIntent(WalletModeSelectionIntent.LoadInitialData)
 
         return ComposeView(requireContext()).apply {
             setContent {
