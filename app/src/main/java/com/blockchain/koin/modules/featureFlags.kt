@@ -23,8 +23,8 @@ import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
-import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.speedUpLoginKycFeatureFlag
+import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
 import com.blockchain.koin.termsAndConditionsFeatureFlag
