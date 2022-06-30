@@ -13,9 +13,9 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.BackupPhraseActivity
+import com.blockchain.presentation.BackupPhrasePinService
 import com.blockchain.presentation.onboarding.navigation.DeFiOnboardingNavHost
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
-import com.blockchain.ui.password.SecondPasswordHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -32,15 +32,7 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
     override val scope: Scope = payloadScope
     val viewModel: DeFiOnboardingViewModel by viewModel()
 
-    // pin verification
-    private val secondPasswordHandler: SecondPasswordHandler by inject()
-    private val onVerifyPinResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            pinCodeVerified()
-        }
-    }
+    val pinService: BackupPhrasePinService by inject()
 
     // backup phrase
     private val onBackupPhraseResult = registerForActivityResult(
@@ -70,6 +62,8 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        pinService.init(this)
 
         collectViewState()
 
@@ -103,32 +97,11 @@ class DeFiOnboardingActivity : BlockchainActivity(), KoinScopeComponent {
 
     // pin verification
     private fun launchPinVerification() {
-        launchPhraseBackup()
-
-        // todo(othman)
-        //        onVerifyPinResult.launch(
-        //            PinActivity.newIntent(
-        //                context = requireContext(),
-        //                startForResult = true,
-        //                originScreen = PinActivity.Companion.OriginScreenToPin.BACKUP_PHRASE,
-        //                addFlagsToClear = false
-        //            )
-        //        )
-    }
-
-    private fun pinCodeVerified() {
-        secondPasswordHandler.validate(
-            this,
-            object : SecondPasswordHandler.ResultListener {
-                override fun onNoSecondPassword() {
-                    launchPhraseBackup()
-                }
-
-                override fun onSecondPasswordValidated(validatedSecondPassword: String) {
-                    launchPhraseBackup(secondPassword = validatedSecondPassword)
-                }
+        pinService.verifyPin { successful, secondPassword ->
+            if (successful) {
+                launchPhraseBackup(secondPassword)
             }
-        )
+        }
     }
 
     // phrase backup
