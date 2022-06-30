@@ -3069,6 +3069,14 @@
     <string name="verify_your_address_description">Confirm your residential address below to avoid delays. You will be able to specify a different shipping address later.</string>
     <string name="residential_address">Residential Address</string>
     <string name="card_intro_title">Get the Blockchain.com Visa Card</string>
+    <string name="merchant">Merchant</string>
+    <string name="type">Type</string>
+    <string name="state">State</string>
+    <string name="transaction_details">Transaction Details</string>
+    <string name="bc_card_transaction_pending">Pending</string>
+    <string name="bc_card_transaction_cancelled">Cancelled</string>
+    <string name="bc_card_transaction_declined">Declined</string>
+    <string name="bc_card_transaction_completed">Completed</string>>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

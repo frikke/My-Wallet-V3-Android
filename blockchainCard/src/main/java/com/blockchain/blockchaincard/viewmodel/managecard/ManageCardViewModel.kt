@@ -39,7 +39,10 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
         isLinkedAccountBalanceLoading = state.isLinkedAccountBalanceLoading,
         linkedAccountBalance = state.linkedAccountBalance,
         residentialAddress = state.residentialAddress,
-        userFirstAndLastName = state.userFirstAndLastName
+        userFirstAndLastName = state.userFirstAndLastName,
+        transactionList = state.transactionList,
+        selectedCardTransaction = state.selectedCardTransaction,
+        isTransactionListRefreshing = state.isTransactionListRefreshing,
     )
 
     override suspend fun handleIntent(
@@ -294,11 +297,22 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 blockchainCardRepository.getTransactions().fold(
                     onSuccess = { transactions ->
                         Timber.d("Transactions loaded: $transactions")
+                        updateState { it.copy(transactionList = transactions, isTransactionListRefreshing = false) }
                     },
                     onFailure = {
                         Timber.e("Unable to get transactions: $it")
                     }
                 )
+            }
+
+            is BlockchainCardIntent.RefreshTransactions -> {
+                updateState { it.copy(isTransactionListRefreshing = true) }
+                onIntent(BlockchainCardIntent.LoadTransactions)
+            }
+
+            is BlockchainCardIntent.SeeTransactionDetails -> {
+                updateState { it.copy(selectedCardTransaction = intent.transaction) }
+                navigate(BlockchainCardNavigationEvent.SeeTransactionDetails)
             }
         }
     }

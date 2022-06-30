@@ -48,6 +48,7 @@ dependencies {
     implementation Libraries.appCompat
     implementation Libraries.androidXAnnotations
     implementation Libraries.accompanistNavigationMaterial
+    implementation Libraries.accompanistSwipeRefresh
 
     // test
     testImplementation Libraries.junit
