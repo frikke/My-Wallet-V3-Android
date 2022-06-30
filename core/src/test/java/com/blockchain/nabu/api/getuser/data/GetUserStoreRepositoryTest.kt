@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
-class GetUserStoreServiceTest {
+class GetUserStoreRepositoryTest {
     private val getUserDataSource = mockk<GetUserDataSource>()
 
     private val getUserStoreService: GetUserStoreService = GetUserStoreRepository(

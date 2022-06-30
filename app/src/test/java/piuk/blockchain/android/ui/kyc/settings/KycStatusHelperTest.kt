@@ -4,7 +4,6 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider

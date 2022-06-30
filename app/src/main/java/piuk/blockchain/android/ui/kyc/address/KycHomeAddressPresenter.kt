@@ -19,6 +19,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.SortedMap
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -30,7 +31,6 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import timber.log.Timber
-import java.util.SortedMap
 
 interface KycNextStepDecision {
 

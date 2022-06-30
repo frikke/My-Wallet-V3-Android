@@ -15,10 +15,10 @@ import com.blockchain.store.Store
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
 internal class GetUserStore(
     private val nabuService: NabuService,
@@ -40,7 +40,6 @@ internal class GetUserStore(
                             trust.setUserId(tokenResponse.userId)
                             walletReporter.reportWalletGuid(payloadDataManager.guid)
                         }
-
                 }
             },
             errorMapper = { it }

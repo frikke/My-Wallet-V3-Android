@@ -5,11 +5,9 @@ import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken

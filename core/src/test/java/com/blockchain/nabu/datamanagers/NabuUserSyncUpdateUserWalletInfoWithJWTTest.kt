@@ -1,6 +1,5 @@
 package com.blockchain.nabu.datamanagers
 
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.getBlankNabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
