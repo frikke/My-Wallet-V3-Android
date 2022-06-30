@@ -121,7 +121,7 @@ class WalletModeSelectionViewModel(
 
             is WalletModeSelectionIntent.WalletModeSelected -> {
                 // DeFi selected + no backup -> should start defi onboarding with recovery flow
-                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && modelState.isWalletBackedUp) {
+                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && modelState.isWalletBackedUp.not()) {
                     navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
                 } else {
                     updateActiveWalletMode(intent.walletMode)

@@ -119,7 +119,6 @@ class WalletModeSelectionBottomSheet :
                 host.onActiveModeChanged(navigationEvent.walletMode)
                 dismiss()
             }
-
         }.exhaustive
     }
 
