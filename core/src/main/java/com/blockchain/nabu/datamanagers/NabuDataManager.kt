@@ -5,6 +5,7 @@ import com.blockchain.api.ApiException
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
@@ -122,6 +123,7 @@ internal class NabuDataManagerImpl(
     private val walletReporter: WalletReporter,
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
+//    private val userDataSource: GetUserDataSource,
     private val prefs: PersistentPrefs,
 ) : NabuDataManager {
 
@@ -218,6 +220,7 @@ internal class NabuDataManagerImpl(
         authenticate(offlineTokenResponse) {
             nabuService.updateWalletInformation(it, jwt)
         }
+//            .doOnSuccess { userDataSource.invalidate() }
 
     override fun addAddress(
         offlineTokenResponse: NabuOfflineToken,

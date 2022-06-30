@@ -118,6 +118,7 @@ val kycUiModule = module {
                 nabuDataUserProvider = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),
+                userDataSource = get(),
                 analytics = get()
             )
         }

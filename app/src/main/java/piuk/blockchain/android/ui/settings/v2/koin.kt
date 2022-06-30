@@ -120,7 +120,8 @@ val redesignSettingsModule = module {
             PhoneInteractor(
                 settingsDataManager = get(),
                 authPrefs = get(),
-                nabuUserSync = get()
+                nabuUserSync = get(),
+                userDataSource = get()
             )
         }
 
@@ -139,7 +140,8 @@ val redesignSettingsModule = module {
             EmailInteractor(
                 emailUpdater = get(),
                 settingsDataManager = get(),
-                authPrefs = get()
+                authPrefs = get(),
+                userDataSource = get()
             )
         }
 
