@@ -25,8 +25,8 @@ internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
                         userDataSource.invalidate()
 
                         Timber.d(
-                            "Syncing nabu user complete, email/phone verified: " +
-                                "${it.emailVerified}, ${it.mobileVerified}"
+                            "Syncing nabu user complete, email/phone verified: %s, %s",
+                            it.emailVerified, it.mobileVerified
                         )
                     }
                 }
