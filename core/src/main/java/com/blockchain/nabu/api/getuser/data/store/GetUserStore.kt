@@ -46,6 +46,11 @@ internal class GetUserStore(
         ),
         dataSerializer = NabuUser.serializer(),
         mediator = object : Mediator<Unit, NabuUser> {
+            /**
+             * cache would be considered expired in these caes:
+             * * no kyc, expired, rejected, verified -> if cache is more than 1 hour
+             * * pending, under review -> if cache is more than 3 minutes
+             */
             fun shouldFetch(userState: UserState, kycState: KycState, dataAgeMillis: Long): Boolean {
                 if (userState == UserState.None) return true
 
