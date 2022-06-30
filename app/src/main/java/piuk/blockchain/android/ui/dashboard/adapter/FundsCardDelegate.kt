@@ -13,15 +13,16 @@ import piuk.blockchain.android.databinding.ItemDashboardFundsBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsBorderedBinding
 import piuk.blockchain.android.databinding.ItemDashboardFundsParentBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.FiatAssetState
 import piuk.blockchain.android.ui.dashboard.model.FiatBalanceInfo
 
-class FundsCardDelegate<in T>(
+class FundsCardDelegate(
     private val selectedFiat: Currency,
     private val onFundsItemClicked: (FiatAccount) -> Unit
-) : AdapterDelegate<T> {
+) : AdapterDelegate<DashboardItem> {
 
-    override fun isForViewType(items: List<T>, position: Int): Boolean =
+    override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
         items[position] is FiatAssetState
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
@@ -35,7 +36,7 @@ class FundsCardDelegate<in T>(
     }
 
     override fun onBindViewHolder(
-        items: List<T>,
+        items: List<DashboardItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as FundsCardViewHolder).bind(items[position] as FiatAssetState)

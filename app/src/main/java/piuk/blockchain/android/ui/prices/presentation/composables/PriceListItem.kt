@@ -19,15 +19,13 @@ import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.core.price.ExchangeRate
 import com.blockchain.walletconnect.R
 import piuk.blockchain.android.ui.dashboard.asPercentString
-import piuk.blockchain.android.ui.dashboard.format
-import piuk.blockchain.android.ui.prices.PricesItem
+import piuk.blockchain.android.ui.prices.presentation.PriceItemViewState
 
 @Composable
 fun PriceListItem(
-    priceItem: PricesItem,
+    priceItem: PriceItemViewState,
     onClick: () -> Unit,
 ) {
 
@@ -55,7 +53,12 @@ fun PriceListItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin), end = 8.dp)
+                    .padding(
+                        start = dimensionResource(com.blockchain.componentlib.R.dimen.medium_margin),
+                        end = dimensionResource(
+                            id = R.dimen.tiny_margin
+                        )
+                    )
             ) {
                 Text(
                     text = priceItem.assetInfo.name,
@@ -68,47 +71,39 @@ fun PriceListItem(
                 Row {
                     Text(
                         modifier = Modifier.semantics {
-                            this.contentDescription = "$access24hChange " +
-                                if (priceItem.priceWithDelta == null) {
+                            this.contentDescription = "$accessCurrentMarketPrice " +
+                                if (priceItem.hasError) {
                                     accessPriceNotAvailable
                                 } else {
-                                    val rate = priceItem.priceWithDelta.currentRate as? ExchangeRate
-                                    rate?.price.format(priceItem.fiatCurrency)
+                                    priceItem.currentPrice
                                 }
                         },
-                        text = if (priceItem.priceWithDelta == null) {
-                            "--"
-                        } else {
-                            val rate = priceItem.priceWithDelta.currentRate as? ExchangeRate
-                            rate?.price.format(priceItem.fiatCurrency)
-                        },
+                        text = priceItem.currentPrice,
                         style = AppTheme.typography.paragraph1,
                         color = AppTheme.colors.body
                     )
                     Text(
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = dimensionResource(id = R.dimen.tiny_margin))
                             .semantics {
-                                this.contentDescription = "$accessCurrentMarketPrice " +
-                                    if (priceItem.priceWithDelta == null || priceItem.priceWithDelta.delta24h.isNaN()) {
+                                this.contentDescription = "$access24hChange " +
+                                    if (priceItem.hasError) {
                                         accessPriceNotAvailable
                                     } else {
-                                        priceItem.priceWithDelta.delta24h.asPercentString()
+                                        priceItem.delta
                                     }
                             },
-                        text = if (priceItem.priceWithDelta == null || priceItem.priceWithDelta.delta24h.isNaN()) {
-                            "--"
-                        } else {
-                            priceItem.priceWithDelta.delta24h.asPercentString()
-                        },
+                        text = priceItem.delta.takeIf { !it.isNullorNaN() }?.let {
+                            it.asPercentString()
+                        } ?: "--",
                         style = AppTheme.typography.paragraph1,
-                        color = if (priceItem.priceWithDelta == null ||
-                            priceItem.priceWithDelta.delta24h.isNaN()
-                        ) {
-                            AppTheme.colors.success
-                        } else {
-                            AppTheme.colors.error
-                        }
+                        color = priceItem.delta.takeIf { !it.isNullorNaN() }?.let {
+                            if (it >= 0) {
+                                AppTheme.colors.success
+                            } else {
+                                AppTheme.colors.error
+                            }
+                        } ?: AppTheme.colors.body
                     )
                 }
             }
@@ -125,4 +120,8 @@ fun PriceListItem(
         onContentClicked = onClick,
     )
     Divider(color = AppTheme.colors.light, thickness = 1.dp)
+}
+
+private fun Double?.isNullorNaN(): Boolean {
+    return this == null || this.isNaN()
 }

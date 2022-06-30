@@ -6,13 +6,18 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.ANNOUNCEMENT_INDEX
 
 interface AnnouncementCard : DashboardItem {
     val name: String
     val dismissKey: String
+    override val index: Int
+        get() = ANNOUNCEMENT_INDEX
+    override val id: String
+        get() = name
 }
 
-data class StandardAnnouncementCard(
+class StandardAnnouncementCard(
     override val name: String,
     val dismissRule: DismissRule,
     val dismissEntry: DismissRecorder.DismissEntry,

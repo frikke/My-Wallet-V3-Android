@@ -33,7 +33,7 @@
             android:requiresFadingEdge="vertical"
             android:visibility="gone"
             tools:itemCount="10"
-            tools:listitem="@layout/item_dashboard_asset_card"
+            tools:listitem="@layout/item_dashboard_defi_asset_card"
             tools:visibility="visible" />
 
         <androidx.constraintlayout.widget.Group

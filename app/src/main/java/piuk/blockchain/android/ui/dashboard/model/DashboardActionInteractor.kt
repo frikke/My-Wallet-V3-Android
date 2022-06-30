@@ -42,7 +42,6 @@ import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -120,7 +119,13 @@ class DashboardActionInteractor(
                 onSuccess = { accounts ->
                     model.process(
                         DashboardIntent.UpdateAllAssetsAndBalances(
-                            assetList = assets.filterIsInstance<CryptoAsset>().map { it.assetInfo },
+                            assetList = assets.filterIsInstance<CryptoAsset>().map { crytpoAsset ->
+                                when (walletModeService.enabledWalletMode()) {
+                                    WalletMode.UNIVERSAL,
+                                    WalletMode.CUSTODIAL_ONLY -> BrokerageAsset(crytpoAsset.assetInfo)
+                                    WalletMode.NON_CUSTODIAL_ONLY -> DefiAsset(crytpoAsset.assetInfo)
+                                }
+                            },
                             fiatAssetList = accounts.map { it as FiatAccount }
                         )
                     )
@@ -154,11 +159,10 @@ class DashboardActionInteractor(
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
             // If prices are coming in too fast, be sure not to miss any
-            .toFlowable(BackpressureStrategy.BUFFER)
             .subscribeBy(
                 onNext = {
                     model.process(
-                        DashboardIntent.AssetPriceUpdate(
+                        DashboardIntent.AssetPriceWithDeltaUpdate(
                             asset = asset,
                             prices24HrWithDelta = it,
                             shouldFetchDayHistoricalPrices = false
@@ -182,7 +186,7 @@ class DashboardActionInteractor(
     ): Disposable {
         val cd = CompositeDisposable()
 
-        loadBalances(state.assetMapKeys, model, cd)
+        loadBalances(state.activeAssets.keys, model, cd)
 
         state.fiatAssets.fiatAccounts
             .values.forEach {
@@ -266,7 +270,7 @@ class DashboardActionInteractor(
             }
             .doOnNext { accountBalance ->
                 Timber.d("Got balance for ${asset.displayTicker}")
-                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance, defFilter == AssetFilter.All))
+                model.process(DashboardIntent.BalanceUpdate(asset, accountBalance))
             }
             .firstOrError()
             .map {
@@ -294,10 +298,28 @@ class DashboardActionInteractor(
                 }
             )
 
-    fun refreshPrices(model: DashboardModel, crypto: AssetInfo): Disposable =
+    private fun refreshPricesWith24HDelta(model: DashboardModel, crypto: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(crypto).firstOrError()
             .map { pricesWithDelta ->
-                DashboardIntent.AssetPriceUpdate(crypto, pricesWithDelta, shouldFetchDayHistoricalPrices = true)
+                DashboardIntent.AssetPriceWithDeltaUpdate(crypto, pricesWithDelta, true)
+            }
+            .subscribeBy(
+                onSuccess = { model.process(it) },
+                onError = {
+                    model.process(DashboardIntent.BalanceUpdateError(crypto))
+                }
+            )
+
+    fun refreshPrices(model: DashboardModel, asset: DashboardAsset): Disposable =
+        when (asset) {
+            is BrokerageAsset -> refreshPricesWith24HDelta(model, asset.currency)
+            is DefiAsset -> refreshPrice(model, asset.currency)
+        }
+
+    private fun refreshPrice(model: DashboardModel, crypto: AssetInfo): Disposable =
+        exchangeRates.exchangeRateToUserFiat(crypto).firstOrError()
+            .map { price ->
+                DashboardIntent.AssetPriceUpdate(crypto, price)
             }
             .subscribeBy(
                 onSuccess = { model.process(it) },
@@ -318,21 +340,6 @@ class DashboardActionInteractor(
                 onSuccess = { model.process(it) },
                 onError = { Timber.e(it) }
             )
-
-    fun checkForCustodialBalance(model: DashboardModel, crypto: AssetInfo): Disposable {
-        return coincore[crypto].accountGroup(AssetFilter.Trading)
-            .flatMapObservable { it.balance }
-            .toFlowable(BackpressureStrategy.BUFFER)
-            .subscribeBy(
-                onNext = {
-                    model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, !it.total.isZero))
-                },
-                onComplete = {
-                    model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false))
-                },
-                onError = { model.process(DashboardIntent.UpdateHasCustodialBalanceIntent(crypto, false)) }
-            )
-    }
 
     fun hasUserBackedUp(): Single<Boolean> = Single.just(payloadManager.isBackedUp)
 

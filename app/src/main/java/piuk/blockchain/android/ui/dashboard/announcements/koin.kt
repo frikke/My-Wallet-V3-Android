@@ -49,7 +49,8 @@ val dashboardAnnouncementsModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 availableAnnouncements = availableAnnouncements,
                 orderAdapter = get(),
-                dismissRecorder = get()
+                dismissRecorder = get(),
+                walletModeService = get()
             )
         }
 

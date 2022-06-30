@@ -7,10 +7,6 @@ import piuk.blockchain.android.ui.prices.PricesModelState
 sealed interface PricesIntents : Intent<PricesModelState> {
     object LoadAssetsAvailable : PricesIntents
 
-    data class LoadPrice(
-        val cryptoCurrency: AssetInfo,
-    ) : PricesIntents
-
     data class FilterData(val filter: String) : PricesIntents
 
     data class PricesItemClicked(

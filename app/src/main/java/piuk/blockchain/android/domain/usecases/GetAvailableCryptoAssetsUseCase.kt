@@ -10,9 +10,5 @@ class GetAvailableCryptoAssetsUseCase(
 ) : UseCase<Unit, Single<List<AssetInfo>>>() {
 
     override fun execute(parameter: Unit): Single<List<AssetInfo>> =
-        Single.fromCallable {
-            coincore.activeCryptoAssets().map { cryptoAsset -> cryptoAsset.assetInfo }.toSet().plus(
-                coincore.availableCryptoAssets().sortedBy { assetInfo: AssetInfo -> assetInfo.displayTicker }
-            ).toList()
-        }
+        Single.just(coincore.availableCryptoAssets().sortedBy { assetInfo: AssetInfo -> assetInfo.displayTicker })
 }

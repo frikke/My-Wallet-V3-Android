@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.dashboard.announcements
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -60,6 +62,7 @@ abstract class AnnouncementRule(private val dismissRecorder: DismissRecorder) {
 
 class AnnouncementList(
     private val mainScheduler: Scheduler,
+    private val walletModeService: WalletModeService,
     private val orderAdapter: AnnouncementConfigAdapter,
     private val availableAnnouncements: List<AnnouncementRule>,
     private val dismissRecorder: DismissRecorder
@@ -87,8 +90,11 @@ class AnnouncementList(
             .observeOn(mainScheduler)
             .doOnSuccess { it.show(host) }
 
-    private fun getNextAnnouncement(): Maybe<AnnouncementRule> =
-        orderAdapter.announcementConfig
+    private fun getNextAnnouncement(): Maybe<AnnouncementRule> {
+        if (walletModeService.enabledWalletMode() == WalletMode.NON_CUSTODIAL_ONLY) {
+            return Maybe.empty()
+        }
+        return orderAdapter.announcementConfig
             .doOnSuccess { dismissRecorder.setPeriod(it.interval) }
             .map { buildAnnouncementList(it.order) }
             .flattenAsObservable { it }
@@ -101,6 +107,7 @@ class AnnouncementList(
                 }
             }
             .firstElement()
+    }
 
     internal fun dismissKeys(): List<String> = availableAnnouncements.map { it.dismissKey }
 

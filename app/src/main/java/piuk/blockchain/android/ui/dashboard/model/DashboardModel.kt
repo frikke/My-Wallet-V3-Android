@@ -39,11 +39,9 @@ class DashboardModel(
                 }
             }
             DashboardIntent.ShowAppRating -> null
-
             DashboardIntent.JoinNftWaitlist -> {
                 interactor.joinNftWaitlist()
             }
-
             is DashboardIntent.GetActiveAssets -> interactor.fetchActiveAssets(this)
             is DashboardIntent.UpdateActiveAssets -> interactor.fetchAccounts(
                 intent.assetList,
@@ -56,28 +54,20 @@ class DashboardModel(
                 null
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
-            is DashboardIntent.RefreshAllBalancesIntent ->
-                interactor.refreshBalances(this, previousState)
-            is DashboardIntent.BalanceUpdate -> {
-                if (intent.shouldFetchCustodial) {
-                    process(DashboardIntent.CheckForCustodialBalanceIntent(intent.asset))
+            is DashboardIntent.RefreshAllBalancesIntent -> {
+                if (previousState.activeAssets.isNotEmpty()) {
+                    interactor.refreshBalances(this, previousState)
                 } else {
-                    process(DashboardIntent.UpdateHasCustodialBalanceIntent(intent.asset, false))
+                    process(DashboardIntent.GetActiveAssets)
+                    null
                 }
-                null
             }
-            is DashboardIntent.CheckForCustodialBalanceIntent ->
-                interactor.checkForCustodialBalance(
-                    this,
-                    intent.asset
-                )
-
-            is DashboardIntent.UpdateHasCustodialBalanceIntent -> {
-                process(DashboardIntent.RefreshPrices(intent.asset))
+            is DashboardIntent.BalanceUpdate -> {
+                process(DashboardIntent.RefreshPrices(previousState[intent.asset]))
                 null
             }
             is DashboardIntent.RefreshPrices -> interactor.refreshPrices(this, intent.asset)
-            is DashboardIntent.AssetPriceUpdate ->
+            is DashboardIntent.AssetPriceWithDeltaUpdate ->
                 if (intent.shouldFetchDayHistoricalPrices) interactor.refreshPriceHistory(this, intent.asset)
                 else null
             is DashboardIntent.CheckBackupStatus -> checkBackupStatus(intent.account, intent.action)
@@ -99,6 +89,7 @@ class DashboardModel(
             is DashboardIntent.PriceHistoryUpdate,
             is DashboardIntent.ClearAnnouncement,
             is DashboardIntent.ShowAnnouncement,
+            is DashboardIntent.AssetPriceUpdate,
             is DashboardIntent.ShowFiatAssetDetails,
             is DashboardIntent.ShowBankLinkingSheet,
             is DashboardIntent.ShowPortfolioSheet,

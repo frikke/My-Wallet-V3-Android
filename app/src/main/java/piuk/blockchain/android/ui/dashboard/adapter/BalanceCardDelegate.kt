@@ -14,19 +14,20 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemDashboardBalanceCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
-import piuk.blockchain.android.ui.dashboard.model.BalanceState
+import piuk.blockchain.android.ui.dashboard.model.BrokerageBalanceState
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.setDeltaColour
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 import piuk.blockchain.android.util.getResolvedColor
 
-class BalanceCardDelegate<in T>(
+class BalanceCardDelegate(
     private val selectedFiat: FiatCurrency,
     private val assetResources: AssetResources,
-) : AdapterDelegate<T> {
+) : AdapterDelegate<DashboardItem> {
 
-    override fun isForViewType(items: List<T>, position: Int): Boolean =
-        items[position] is BalanceState
+    override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
+        items[position] is BrokerageBalanceState
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         BalanceCardViewHolder(
@@ -36,11 +37,11 @@ class BalanceCardDelegate<in T>(
         )
 
     override fun onBindViewHolder(
-        items: List<T>,
+        items: List<DashboardItem>,
         position: Int,
         holder: RecyclerView.ViewHolder,
     ) = (holder as BalanceCardViewHolder).bind(
-        items[position] as BalanceState,
+        items[position] as BrokerageBalanceState,
     )
 }
 
@@ -52,7 +53,7 @@ private class BalanceCardViewHolder(
 
     private var isFirstLoad = true
 
-    fun bind(state: BalanceState) {
+    fun bind(state: BrokerageBalanceState) {
         configurePieChart()
 
         if (state.isLoading) {
@@ -75,7 +76,7 @@ private class BalanceCardViewHolder(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun renderLoaded(state: BalanceState) {
+    private fun renderLoaded(state: BrokerageBalanceState) {
 
         with(binding) {
             totalBalance.text = state.fiatBalance?.toStringWithSymbol().orEmpty()
@@ -86,7 +87,6 @@ private class BalanceCardViewHolder(
                 balanceDeltaPercent.text = ""
             } else {
                 val (deltaVal, deltaPercent) = state.delta!!
-
                 balanceDeltaValue.text = deltaVal.toStringWithSymbol()
                 balanceDeltaValue.setDeltaColour(deltaPercent)
                 balanceDeltaPercent.asDeltaPercent(deltaPercent, "(", ")")
@@ -115,7 +115,7 @@ private class BalanceCardViewHolder(
         }
     }
 
-    private fun populatePieChart(state: BalanceState) {
+    private fun populatePieChart(state: BrokerageBalanceState) {
         with(binding) {
             val assets = state.assetList
 

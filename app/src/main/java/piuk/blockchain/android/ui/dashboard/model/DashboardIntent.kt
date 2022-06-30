@@ -7,6 +7,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -72,8 +73,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateAllAssetsAndBalances(
-        private val assetList: List<AssetInfo>,
-        private val fiatAssetList: List<FiatAccount>,
+        private val assetList: List<DashboardAsset>,
+        private val fiatAssetList: List<FiatAccount>
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val fiatState = FiatAssetState(
@@ -85,8 +86,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             return oldState.copy(
                 activeAssets = AssetMap(
                     assetList.associateBy(
-                        keySelector = { it },
-                        valueTransform = { CryptoAssetState(it) }
+                        keySelector = { it.currency },
+                        valueTransform = {
+                            it
+                        }
                     )
                 ),
                 fiatAssets = fiatState
@@ -99,7 +102,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return oldState.copy(
-                availablePrices = assetList.map { it to AssetPriceState(assetInfo = it) }.toMap()
+                availablePrices = assetList.associateWith { AssetPriceState(assetInfo = it) }
             )
         }
     }
@@ -109,6 +112,40 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class AssetPriceUpdate(
+        val asset: AssetInfo,
+        val price: ExchangeRate
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState {
+            val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
+                val oldAsset = oldState.activeAssets[asset]
+                val newAsset = updateAsset(oldAsset, price)
+                oldState.activeAssets.copy(patchAsset = newAsset)
+            } else {
+                oldState.activeAssets
+            }
+
+            val priceState = AssetPriceState(
+                assetInfo = asset
+            )
+            val pricesMap = oldState.availablePrices.toMutableMap()
+            pricesMap[asset] = priceState
+            return oldState.copy(
+                activeAssets = updatedActiveList,
+                availablePrices = pricesMap
+            )
+        }
+
+        private fun updateAsset(
+            old: DashboardAsset,
+            rate: ExchangeRate
+        ): DashboardAsset {
+            return old.updateExchangeRate(
+                rate = rate
+            )
+        }
+    }
+
+    class AssetPriceWithDeltaUpdate(
         val asset: AssetInfo,
         private val prices24HrWithDelta: Prices24HrWithDelta,
         // Only fetch day historical prices for active assets, the ones with balance, to draw the small graph
@@ -136,14 +173,11 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
 
         private fun updateAsset(
-            old: CryptoAssetState,
+            old: DashboardAsset,
             prices24HrWithDelta: Prices24HrWithDelta,
-        ): CryptoAssetState {
-            return old.copy(
-                accountBalance = old.accountBalance?.copy(
-                    exchangeRate = prices24HrWithDelta.currentRate
-                ),
-                prices24HrWithDelta = prices24HrWithDelta
+        ): DashboardAsset {
+            return old.updatePrices24HrWithDelta(
+                prices24HrWithDelta
             )
         }
     }
@@ -204,9 +238,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
     class BalanceUpdate(
         val asset: AssetInfo,
-        private val newBalance: AccountBalance,
-        // todo(antonis-bc) Remove this when universal is no longer support it and default it to false
-        val shouldFetchCustodial: Boolean,
+        private val newBalance: AccountBalance
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val balance = newBalance.total as CryptoValue
@@ -215,7 +247,7 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             }
 
             val oldAsset = oldState[asset]
-            val newAsset = oldAsset.copy(accountBalance = newBalance, hasBalanceError = false)
+            val newAsset = oldAsset.updateBalance(accountBalance = newBalance)
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
             return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)
@@ -227,45 +259,15 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val oldAsset = oldState[asset]
-            val newAsset = oldAsset.copy(
-                accountBalance = AccountBalance.zero(asset),
-                hasBalanceError = true
-            )
+            val newAsset = oldAsset.toErrorState()
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            return oldState.copy(activeAssets = newAssets)
-        }
-    }
-
-    class CheckForCustodialBalanceIntent(
-        val asset: AssetInfo,
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            val oldAsset = oldState[asset]
-            val newAsset = oldAsset.copy(
-                hasCustodialBalance = false
-            )
-            val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
-            return oldState.copy(activeAssets = newAssets)
-        }
-    }
-
-    class UpdateHasCustodialBalanceIntent(
-        val asset: AssetInfo,
-        private val hasCustodial: Boolean,
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            val oldAsset = oldState[asset]
-            val newAsset = oldAsset.copy(
-                hasCustodialBalance = hasCustodial
-            )
-            val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
             return oldState.copy(activeAssets = newAssets)
         }
     }
 
     class RefreshPrices(
-        val asset: AssetInfo,
+        val asset: DashboardAsset,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
@@ -276,9 +278,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             return if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset]
+                val oldAsset = oldState.activeAssets[asset] as? BrokerageAsset ?: throw IllegalStateException(
+                    "Historic prices are only supported for brokerage"
+                )
                 val newAsset = updateAsset(oldAsset, historicPrices)
-
                 oldState.copy(activeAssets = oldState.activeAssets.copy(patchAsset = newAsset))
             } else {
                 oldState
@@ -286,9 +289,9 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
 
         private fun updateAsset(
-            old: CryptoAssetState,
+            old: BrokerageAsset,
             historicPrices: HistoricalRateList
-        ): CryptoAssetState {
+        ): BrokerageAsset {
             val trend = historicPrices.map { it.rate.toFloat() }
             return old.copy(priceTrend = trend)
         }
