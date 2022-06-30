@@ -88,7 +88,6 @@ val nabuModule = module {
                 prefs = get(),
                 walletReporter = get(uniqueId),
                 userReporter = get(uniqueUserAnalytics),
-//                userDataSource = get(),
                 trust = get()
             )
         }.bind(NabuDataManager::class)
@@ -251,7 +250,9 @@ val nabuModule = module {
                 trust = get(),
                 walletReporter = get(uniqueId),
                 payloadDataManager = get(),
+                nabuService = get(),
                 getUserStoreService = get(),
+                userDataSource = get(),
                 speedUpLoginUserFF = get(speedUpLoginUserFeatureFlag)
             )
         }

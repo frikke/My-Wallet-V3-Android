@@ -46,11 +46,6 @@ interface NabuDataManager {
         offlineTokenResponse: NabuOfflineToken
     ): Single<AirdropStatusList>
 
-    fun updateUserWalletInfo(
-        offlineTokenResponse: NabuOfflineToken,
-        jwt: String
-    ): Single<NabuUser>
-
     fun addAddress(
         offlineTokenResponse: NabuOfflineToken,
         line1: String,
@@ -123,7 +118,6 @@ internal class NabuDataManagerImpl(
     private val walletReporter: WalletReporter,
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
-//    private val userDataSource: GetUserDataSource,
     private val prefs: PersistentPrefs,
 ) : NabuDataManager {
 
@@ -212,15 +206,6 @@ internal class NabuDataManagerImpl(
         authenticate(offlineTokenResponse) {
             nabuService.getAirdropCampaignStatus(it)
         }
-
-    override fun updateUserWalletInfo(
-        offlineTokenResponse: NabuOfflineToken,
-        jwt: String
-    ): Single<NabuUser> =
-        authenticate(offlineTokenResponse) {
-            nabuService.updateWalletInformation(it, jwt)
-        }
-//            .doOnSuccess { userDataSource.invalidate() }
 
     override fun addAddress(
         offlineTokenResponse: NabuOfflineToken,

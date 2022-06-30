@@ -47,26 +47,6 @@ class KycStatusHelper(
         isInKycRegion(), hasAccount()
     ) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
 
-    @Deprecated("Use NabuUserSync")
-    fun syncPhoneNumberWithNabu(): Completable = nabuDataManager.requestJwt()
-        .subscribeOn(Schedulers.io())
-        .flatMap { jwt ->
-            fetchOfflineToken.flatMap {
-                nabuDataManager.updateUserWalletInfo(it, jwt)
-                    .subscribeOn(Schedulers.io())
-            }
-        }
-        .ignoreElement()
-        .doOnError { Timber.e(it) }
-        .onErrorResumeNext {
-            if (it is MetadataNotFoundException) {
-                // Allow users who aren't signed up to Nabu to ignore this failure
-                return@onErrorResumeNext Completable.complete()
-            } else {
-                return@onErrorResumeNext Completable.error { it }
-            }
-        }
-
     fun getKycStatus(): Single<KycState> =
         nabuDataUserProvider.getUser()
             .subscribeOn(Schedulers.io())

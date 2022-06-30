@@ -472,7 +472,7 @@ class KycHomeAddressPresenterTest {
     private fun givenRequestJwtAndUpdateWalletInfoSucceds() {
         val jwt = "JWT"
         whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(nabuDataManager.updateUserWalletInfo(validOfflineToken, jwt))
+        whenever(nabuDataUserProvider.updateUserWalletInfo(jwt))
             .thenReturn(Single.just(getBlankNabuUser()))
     }
 
