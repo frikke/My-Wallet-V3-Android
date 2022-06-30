@@ -84,22 +84,19 @@ class WalletModeSelectionBottomSheet :
         bindViewModel(viewModel, this, ModelConfigArgs.NoArgs)
     }
 
-    override fun onStateUpdated(state: WalletModeSelectionViewState) {
-        with(state) {
-            when {
-                newSelectedWalletMode != null -> {
-                    host.onActiveModeChanged(newSelectedWalletMode)
-                    dismiss()
-                }
-            }
-        }
-    }
+    override fun onStateUpdated(state: WalletModeSelectionViewState) {}
 
     override fun route(navigationEvent: WalletModeSelectionNavigationEvent) {
         when (navigationEvent) {
             WalletModeSelectionNavigationEvent.DeFiOnboarding -> {
                 launchDeFiOnboarding()
             }
+
+            is WalletModeSelectionNavigationEvent.Close -> {
+                host.onActiveModeChanged(navigationEvent.walletMode)
+                dismiss()
+            }
+
         }.exhaustive
     }
 

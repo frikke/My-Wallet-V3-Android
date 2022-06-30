@@ -6,6 +6,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
+import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
 import com.blockchain.extensions.exhaustive
 import com.blockchain.store.KeyedStoreRequest
@@ -35,8 +36,7 @@ class WalletModeSelectionViewModel(
             isWalletBackedUp = false,
             brokerageBalance = null,
             defiBalance = null,
-            enabledWalletMode = walletModeService.enabledWalletMode(),
-            newSelectedWalletMode = null,
+            enabledWalletMode = walletModeService.enabledWalletMode()
         )
     ) {
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
@@ -53,7 +53,6 @@ class WalletModeSelectionViewModel(
                 } ?: BalanceState.Loading,
                 defiWalletAvailable = true,
                 enabledWalletMode = enabledWalletMode,
-                newSelectedWalletMode = newSelectedWalletMode,
             )
         }
     }
@@ -138,12 +137,11 @@ class WalletModeSelectionViewModel(
 
     private fun updateActiveWalletMode(walletMode: WalletMode) {
         updateState {
-            it.copy(
-                enabledWalletMode = walletMode
-            )
+            it.copy(enabledWalletMode = walletMode)
         }
         walletModeService.updateEnabledWalletMode(walletMode)
-        updateState { it.copy(newSelectedWalletMode = walletMode) }
+
+        navigate(WalletModeSelectionNavigationEvent.Close(walletMode = walletMode))
     }
 }
 
@@ -165,7 +163,6 @@ data class WalletModeSelectionViewState(
     val defiWalletBalance: BalanceState,
     val defiWalletAvailable: Boolean,
     val enabledWalletMode: WalletMode,
-    val newSelectedWalletMode: WalletMode?,
 ) : ViewState
 
 data class WalletModeSelectionModelState(
@@ -173,12 +170,16 @@ data class WalletModeSelectionModelState(
     val brokerageBalance: Money?,
     val defiBalance: Money?,
     val enabledWalletMode: WalletMode,
-    val newSelectedWalletMode: WalletMode?,
 ) : ModelState
 
 sealed class BalanceState {
     object Loading : BalanceState()
     data class Data(val money: Money) : BalanceState()
+}
+
+sealed interface WalletModeSelectionNavigationEvent : NavigationEvent {
+    object DeFiOnboarding : WalletModeSelectionNavigationEvent
+    data class Close(val walletMode: WalletMode) : WalletModeSelectionNavigationEvent
 }
 
 @StringRes
