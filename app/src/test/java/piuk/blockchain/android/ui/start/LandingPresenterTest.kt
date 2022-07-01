@@ -16,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class LandingPresenterTest {
 
