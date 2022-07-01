@@ -4,6 +4,10 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
+import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
+import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
@@ -17,8 +21,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
-import java.math.BigInteger
-import kotlin.IllegalStateException
 import org.web3j.abi.TypeEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.RawTransaction
@@ -26,6 +28,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import piuk.blockchain.androidcore.utils.extensions.zipSingles
 import timber.log.Timber
+import java.math.BigInteger
 
 interface Erc20DataManager {
     val accountHash: String
@@ -86,7 +89,12 @@ internal class Erc20DataManagerImpl(
     private val balanceCallCache: Erc20BalanceCallCache,
     private val historyCallCache: Erc20HistoryCallCache,
     private val assetCatalogue: AssetCatalogue,
-    private val ethLayerTwoFeatureFlag: FeatureFlag
+    private val erc20StoreService: Erc20StoreService,
+    private val erc20DataSource: Erc20DataSource,
+    private val erc20L2StoreService: Erc20L2StoreService,
+    private val erc20L2DataSource: Erc20L2DataSource,
+    private val ethLayerTwoFeatureFlag: FeatureFlag,
+    private val speedUpLoginErc20FF: FeatureFlag
 ) : Erc20DataManager {
 
     override val accountHash: String
@@ -142,26 +150,56 @@ internal class Erc20DataManagerImpl(
                     } ?: Observable.just(Erc20Balance.zero(asset))
                 }
             } else {
-                balanceCallCache.getBalances(accountHash)
-                    .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-                    .toObservable()
+                speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
+                    if (isEnabled) {
+                        erc20StoreService.getBalanceFor(accountHash = accountHash, asset = asset)
+                    } else {
+                        balanceCallCache.getBalances(accountHash)
+                            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                            .toObservable()
+                    }
+                }
             }
         }
     }
 
     override fun getActiveAssets(): Single<Set<AssetInfo>> {
-        return ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-            balanceCallCache.getBalances(accountHash).map { it.keys }.flatMap { baseErc20Assets ->
-                if (isEnabled) {
-                    getSupportedNetworks().flatMap { supportedNetworks ->
-                        supportedNetworks.map { evmNetwork ->
-                            balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker).map { it.keys }
-                        }.zipSingles().map {
-                            (baseErc20Assets + it.flatten()).toSet()
+        return speedUpLoginErc20FF.enabled.flatMap { isSpeedUpEnabled ->
+            if (isSpeedUpEnabled) {
+                ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
+                    erc20StoreService.getActiveAssets(accountHash = accountHash)
+                        .flatMap { baseErc20Assets ->
+                            if (isEnabled) {
+                                getSupportedNetworks().flatMap { supportedNetworks ->
+                                    supportedNetworks.map { evmNetwork ->
+                                        erc20L2StoreService.getActiveAssets(
+                                            accountHash = accountHash,
+                                            networkTicker = evmNetwork.networkTicker
+                                        )
+                                    }.zipSingles().map {
+                                        (baseErc20Assets + it.flatten()).toSet()
+                                    }
+                                }
+                            } else {
+                                Single.just(baseErc20Assets.toSet())
+                            }
+                        }
+                }
+            } else {
+                ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
+                    balanceCallCache.getBalances(accountHash).map { it.keys }.flatMap { baseErc20Assets ->
+                        if (isEnabled) {
+                            getSupportedNetworks().flatMap { supportedNetworks ->
+                                supportedNetworks.map { evmNetwork ->
+                                    balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker).map { it.keys }
+                                }.zipSingles().map {
+                                    (baseErc20Assets + it.flatten()).toSet()
+                                }
+                            }
+                        } else {
+                            Single.just(baseErc20Assets)
                         }
                     }
-                } else {
-                    Single.just(baseErc20Assets)
                 }
             }
         }
@@ -334,6 +372,9 @@ internal class Erc20DataManagerImpl(
     override fun flushCaches(asset: AssetInfo) {
         require(asset.isErc20())
 
+        erc20DataSource.invalidate()
+        erc20L2DataSource.invalidate(asset.networkTicker)
+
         balanceCallCache.flush(asset)
         historyCallCache.flush(asset)
     }
@@ -358,12 +399,38 @@ internal class Erc20DataManagerImpl(
         val isOnOtherEvm = evmNetwork.chainId != EthDataManager.ETH_CHAIN_ID
         return when {
             // Only load L2 balances if we have a balance of the network's native token
-            isOnOtherEvm && hasNativeTokenBalance -> balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker)
-                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }.toObservable()
-            !isOnOtherEvm -> balanceCallCache.getBalances(accountHash)
-                .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
-                .toObservable()
-            else -> Observable.just(Erc20Balance.zero(asset))
+            isOnOtherEvm && hasNativeTokenBalance -> {
+                speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
+                    if (isEnabled) {
+                        erc20L2StoreService.getBalances(
+                            accountHash = accountHash,
+                            networkTicker = evmNetwork.networkTicker
+                        ).map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                    } else {
+                        balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker)
+                            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }.toObservable()
+                    }
+                }
+            }
+
+            isOnOtherEvm.not() -> {
+                speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
+                    if (isEnabled) {
+                        erc20StoreService.getBalanceFor(
+                            accountHash = accountHash,
+                            asset = asset
+                        )
+                    } else {
+                        balanceCallCache.getBalances(accountHash)
+                            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                            .toObservable()
+                    }
+                }
+            }
+
+            else -> {
+                Observable.just(Erc20Balance.zero(asset))
+            }
         }
     }
 

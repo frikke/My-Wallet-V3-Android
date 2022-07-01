@@ -17,6 +17,13 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
+import com.blockchain.core.chains.erc20.data.Erc20StoreRepository
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
+import com.blockchain.core.chains.erc20.data.store.Erc20Store
+import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
+import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -83,7 +90,6 @@ import com.blockchain.wallet.SeedAccessWithoutPrompt
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.payload.WalletPayloadService
 import info.blockchain.wallet.util.PrivateKeyFactory
-import java.util.UUID
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import piuk.blockchain.androidcore.data.access.PinRepository
@@ -122,6 +128,7 @@ import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import piuk.blockchain.androidcore.utils.UUIDGenerator
+import java.util.UUID
 
 val coreModule = module {
 
@@ -287,6 +294,32 @@ val coreModule = module {
             )
         }
 
+        scoped<Erc20DataSource> {
+            Erc20Store(
+                erc20Service = get()
+            )
+        }
+
+        scoped<Erc20StoreService> {
+            Erc20StoreRepository(
+                assetCatalogue = get(),
+                erc20DataSource = get()
+            )
+        }
+
+        scoped {
+            Erc20L2Store(
+                evmService = get()
+            )
+        }
+
+        scoped<Erc20L2StoreService> {
+            Erc20L2StoreRepository(
+                assetCatalogue = get(),
+                erc20L2DataSource = get()
+            )
+        }
+
         factory {
             Erc20HistoryCallCache(
                 ethDataManager = get(),
@@ -302,7 +335,12 @@ val coreModule = module {
                 balanceCallCache = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                erc20StoreService = get(),
+                erc20DataSource = get(),
+                erc20L2StoreService = get(),
+                erc20L2DataSource = get(),
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                speedUpLoginErc20FF = get(speedUpLoginErc20FeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
