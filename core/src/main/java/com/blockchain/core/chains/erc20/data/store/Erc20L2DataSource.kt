@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface Erc20L2DataSource : KeyedFlushableDataSource<String> {
     fun stream(
-        accountHash: String,
         networkTicker: String,
         refresh: Boolean
     ): Flow<StoreResponse<Throwable, BalancesResponse>>

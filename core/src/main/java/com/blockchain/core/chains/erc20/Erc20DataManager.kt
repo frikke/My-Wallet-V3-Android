@@ -172,10 +172,7 @@ internal class Erc20DataManagerImpl(
                             if (isEnabled) {
                                 getSupportedNetworks().flatMap { supportedNetworks ->
                                     supportedNetworks.map { evmNetwork ->
-                                        erc20L2StoreService.getActiveAssets(
-                                            accountHash = accountHash,
-                                            networkTicker = evmNetwork.networkTicker
-                                        )
+                                        erc20L2StoreService.getActiveAssets(networkTicker = evmNetwork.networkTicker)
                                     }.zipSingles().map {
                                         (baseErc20Assets + it.flatten()).toSet()
                                     }
@@ -402,10 +399,8 @@ internal class Erc20DataManagerImpl(
             isOnOtherEvm && hasNativeTokenBalance -> {
                 speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
                     if (isEnabled) {
-                        erc20L2StoreService.getBalances(
-                            accountHash = accountHash,
-                            networkTicker = evmNetwork.networkTicker
-                        ).map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
+                        erc20L2StoreService.getBalances(networkTicker = evmNetwork.networkTicker)
+                            .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
                     } else {
                         balanceCallCache.getBalances(accountHash, evmNetwork.networkTicker)
                             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }.toObservable()

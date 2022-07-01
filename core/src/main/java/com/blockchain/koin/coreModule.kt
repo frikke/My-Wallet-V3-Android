@@ -311,13 +311,15 @@ val coreModule = module {
 
         scoped<Erc20L2DataSource> {
             Erc20L2Store(
-                evmService = get()
+                evmService = get(),
+                ethDataManager = get()
             )
         }
 
         scoped<Erc20L2StoreService> {
             Erc20L2StoreRepository(
                 assetCatalogue = get(),
+                ethDataManager = get(),
                 erc20L2DataSource = get()
             )
         }

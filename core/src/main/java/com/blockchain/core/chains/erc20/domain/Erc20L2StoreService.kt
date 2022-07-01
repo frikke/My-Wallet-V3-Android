@@ -6,19 +6,9 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 interface Erc20L2StoreService {
-    fun getBalances(
-        accountHash: String,
-        networkTicker: String
-    ): Observable<Map<AssetInfo, Erc20Balance>>
+    fun getBalances(networkTicker: String): Observable<Map<AssetInfo, Erc20Balance>>
 
-    fun getBalanceFor(
-        accountHash: String,
-        networkTicker: String,
-        asset: AssetInfo
-    ): Observable<Erc20Balance>
+    fun getBalanceFor(networkTicker: String, asset: AssetInfo): Observable<Erc20Balance>
 
-    fun getActiveAssets(
-        accountHash: String,
-        networkTicker: String
-    ): Single<Set<AssetInfo>>
+    fun getActiveAssets(networkTicker: String): Single<Set<AssetInfo>>
 }

@@ -1,9 +1,9 @@
 package com.blockchain.core.chains.erc20.data.domain
 
 import com.blockchain.api.services.Erc20TokenBalance
+import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.math.BigInteger
 
 @Serializable
 internal data class Erc20TokenBalancesStore(

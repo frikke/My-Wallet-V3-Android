@@ -13,10 +13,10 @@ import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.store.mapData
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import kotlinx.coroutines.flow.Flow
-import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 internal class Erc20Store(
     private val erc20Service: NonCustodialErc20Service,

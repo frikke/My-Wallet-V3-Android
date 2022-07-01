@@ -19,13 +19,16 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
+import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 
 class Erc20L2StoreRepositoryTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
+    private val ethDataManager = mockk<EthDataManager>()
     private val erc20L2DataSource = mockk<Erc20L2DataSource>()
 
     private val erc20L2StoreService: Erc20L2StoreService = Erc20L2StoreRepository(
         assetCatalogue = assetCatalogue,
+        ethDataManager = ethDataManager,
         erc20L2DataSource = erc20L2DataSource
     )
 
@@ -84,15 +87,16 @@ class Erc20L2StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20L2DataSource.stream(any(), any(), any()) } returns flowOf(StoreResponse.Data(balancesResponse))
+        every { erc20L2DataSource.stream(any(), any()) } returns flowOf(StoreResponse.Data(balancesResponse))
         every { erc20L2DataSource.invalidate(any()) } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(l1chain = "CRYPTO2", any()) } returns cryptoCurrency
         every { assetCatalogue.assetInfoFromNetworkTicker(symbol = "CRYPTO_NATIVE") } returns cryptoCurrencyNative
+        every { ethDataManager.accountAddress } returns "accountHash"
     }
 
     @Test
     fun `WHEN getBalances is called, THEN data should be returned`() {
-        erc20L2StoreService.getBalances(accountHash = "accountHash", networkTicker = "CRYPTO2")
+        erc20L2StoreService.getBalances(networkTicker = "CRYPTO2")
             .test()
             .await()
             .assertValue {
@@ -114,7 +118,6 @@ class Erc20L2StoreRepositoryTest {
     @Test
     fun `GIVEN asset included, WHEN getBalanceFor is called, THEN erc20Balance should be returned`() {
         erc20L2StoreService.getBalanceFor(
-            accountHash = "accountHash",
             networkTicker = "CRYPTO2",
             asset = cryptoCurrency
         )
@@ -130,7 +133,6 @@ class Erc20L2StoreRepositoryTest {
         val asset = CryptoCurrency.BTC
 
         erc20L2StoreService.getBalanceFor(
-            accountHash = "accountHash",
             networkTicker = "CRYPTO2",
             asset = asset
         )
@@ -143,7 +145,7 @@ class Erc20L2StoreRepositoryTest {
 
     @Test
     fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        erc20L2StoreService.getActiveAssets(accountHash = "accountHash", networkTicker = "CRYPTO2")
+        erc20L2StoreService.getActiveAssets(networkTicker = "CRYPTO2")
             .test()
             .await()
             .assertValue {
