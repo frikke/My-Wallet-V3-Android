@@ -4,8 +4,8 @@ import com.blockchain.api.services.AssetDiscoveryApiService
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.model.Erc20Balance
-import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.featureflag.FeatureFlag
 import info.blockchain.balance.AssetCatalogue

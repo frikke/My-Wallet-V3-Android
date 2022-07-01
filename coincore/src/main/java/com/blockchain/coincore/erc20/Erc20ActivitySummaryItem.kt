@@ -3,7 +3,7 @@ package com.blockchain.coincore.erc20
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.price.ExchangeRatesDataManager
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue

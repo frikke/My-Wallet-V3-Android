@@ -4,7 +4,7 @@ import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.testutil.USD
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -58,7 +58,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
             transactionHash = "0xfd7d583fa54bf55f6cfbfec97c0c55cc6af8c121b71addb7d06a9e1e305ae8ff",
             blockNumber = 7721219.toBigInteger(),
             timestamp = 1557334297,
-            fee = Single.just(CryptoValue.Companion.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
+            fee = Single.just(CryptoValue.fromMinor(ERC20_TOKEN, 400L.toBigInteger()))
         )
 
         val erc20HistoryList = listOf(erc20HistoryEvent)

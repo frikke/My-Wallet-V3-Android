@@ -3,7 +3,7 @@ package com.blockchain.core.chains.erc20.call
 import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.erc20.model.Erc20Balance
+import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.core.common.caching.ParameteredSingleTimedCacheRequest
 import com.blockchain.core.common.caching.TimedCacheRequest
 import com.blockchain.outcome.map

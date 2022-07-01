@@ -4,8 +4,8 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.model.Erc20Balance
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
