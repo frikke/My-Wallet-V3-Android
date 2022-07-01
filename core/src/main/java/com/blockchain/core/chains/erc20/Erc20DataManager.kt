@@ -152,7 +152,7 @@ internal class Erc20DataManagerImpl(
             } else {
                 speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
                     if (isEnabled) {
-                        erc20StoreService.getBalanceFor(accountHash = accountHash, asset = asset)
+                        erc20StoreService.getBalanceFor(asset = asset)
                     } else {
                         balanceCallCache.getBalances(accountHash)
                             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
@@ -167,7 +167,7 @@ internal class Erc20DataManagerImpl(
         return speedUpLoginErc20FF.enabled.flatMap { isSpeedUpEnabled ->
             if (isSpeedUpEnabled) {
                 ethLayerTwoFeatureFlag.enabled.flatMap { isEnabled ->
-                    erc20StoreService.getActiveAssets(accountHash = accountHash)
+                    erc20StoreService.getActiveAssets()
                         .flatMap { baseErc20Assets ->
                             if (isEnabled) {
                                 getSupportedNetworks().flatMap { supportedNetworks ->
@@ -416,10 +416,7 @@ internal class Erc20DataManagerImpl(
             isOnOtherEvm.not() -> {
                 speedUpLoginErc20FF.enabled.flatMapObservable { isEnabled ->
                     if (isEnabled) {
-                        erc20StoreService.getBalanceFor(
-                            accountHash = accountHash,
-                            asset = asset
-                        )
+                        erc20StoreService.getBalanceFor(asset = asset)
                     } else {
                         balanceCallCache.getBalances(accountHash)
                             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }

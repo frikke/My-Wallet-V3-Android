@@ -54,14 +54,14 @@ class Erc20StoreRepositoryTest {
 
     @Before
     fun setUp() {
-        every { erc20DataSource.stream(any(), any()) } returns flowOf(StoreResponse.Data(listOf(erc20TokenBalance)))
+        every { erc20DataSource.stream(any()) } returns flowOf(StoreResponse.Data(listOf(erc20TokenBalance)))
         every { erc20DataSource.invalidate() } just Runs
         every { assetCatalogue.assetFromL1ChainByContractAddress(any(), any()) } returns cryptoCurrency
     }
 
     @Test
     fun `WHEN getBalances is called, THEN data should be returned`() {
-        erc20StoreService.getBalances(accountHash = "accountHash")
+        erc20StoreService.getBalances()
             .test()
             .await()
             .assertValue {
@@ -78,7 +78,7 @@ class Erc20StoreRepositoryTest {
 
     @Test
     fun `GIVEN asset included, WHEN getBalanceFor is called, THEN erc20Balance should be returned`() {
-        erc20StoreService.getBalanceFor(accountHash = "accountHash", asset = cryptoCurrency)
+        erc20StoreService.getBalanceFor(asset = cryptoCurrency)
             .test()
             .await()
             .assertValue {
@@ -90,10 +90,7 @@ class Erc20StoreRepositoryTest {
     fun `GIVEN asset not included, WHEN getBalanceFor is called, THEN Erc20Balance-zero should be returned`() {
         val asset = CryptoCurrency.BTC
 
-        erc20StoreService.getBalanceFor(
-            accountHash = "accountHash",
-            asset = asset
-        )
+        erc20StoreService.getBalanceFor(asset = asset)
             .test()
             .await()
             .assertValue {
@@ -103,7 +100,7 @@ class Erc20StoreRepositoryTest {
 
     @Test
     fun `WHEN getActiveAssets is called, THEN data-keys should be returned`() {
-        erc20StoreService.getActiveAssets(accountHash = "accountHash")
+        erc20StoreService.getActiveAssets()
             .test()
             .await()
             .assertValue {

@@ -32,7 +32,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.TestScheduler
-import java.math.BigInteger
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -40,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.web3j.crypto.RawTransaction
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
+import java.math.BigInteger
 
 class Erc20DataManagerTest {
 
@@ -171,13 +171,13 @@ class Erc20DataManagerTest {
         whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(true))
 
         val mockBalance: Erc20Balance = mock()
-        whenever(erc20StoreService.getBalanceFor(accountHash = ACCOUNT_HASH, asset = ERC20_TOKEN))
+        whenever(erc20StoreService.getBalanceFor(asset = ERC20_TOKEN))
             .thenReturn(Observable.just(mockBalance))
 
         val result = subject.getErc20Balance(ERC20_TOKEN).blockingFirst()
         assertEquals(mockBalance, result)
 
-        verify(erc20StoreService).getBalanceFor(accountHash = ACCOUNT_HASH, asset = ERC20_TOKEN)
+        verify(erc20StoreService).getBalanceFor(asset = ERC20_TOKEN)
         io.mockk.verify { ethDataManager.accountAddress }
 
         verifyNoMoreInteractions(erc20StoreService)
@@ -207,13 +207,13 @@ class Erc20DataManagerTest {
     fun `speedUpLoginErc20FF true, getErc20Balance returns zero if asset not found`() {
         whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(true))
 
-        whenever(erc20StoreService.getBalanceFor(accountHash = ACCOUNT_HASH, asset = UNKNOWN_ERC20_TOKEN))
+        whenever(erc20StoreService.getBalanceFor(asset = UNKNOWN_ERC20_TOKEN))
             .thenReturn(Observable.just(Erc20Balance.zero(UNKNOWN_ERC20_TOKEN)))
 
         val result = subject.getErc20Balance(UNKNOWN_ERC20_TOKEN).blockingFirst()
         assert(result.balance.isZero)
 
-        verify(erc20StoreService).getBalanceFor(accountHash = ACCOUNT_HASH, asset = UNKNOWN_ERC20_TOKEN)
+        verify(erc20StoreService).getBalanceFor(asset = UNKNOWN_ERC20_TOKEN)
         io.mockk.verify { ethDataManager.accountAddress }
 
         verifyNoMoreInteractions(erc20StoreService)

@@ -6,5 +6,5 @@ import com.blockchain.storedatasource.FlushableDataSource
 import kotlinx.coroutines.flow.Flow
 
 interface Erc20DataSource : FlushableDataSource {
-    fun stream(accountHash: String, refresh: Boolean): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>>
+    fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, List<Erc20TokenBalance>>>
 }

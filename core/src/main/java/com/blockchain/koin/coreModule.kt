@@ -297,7 +297,8 @@ val coreModule = module {
 
         scoped<Erc20DataSource> {
             Erc20Store(
-                erc20Service = get()
+                erc20Service = get(),
+                ethDataManager = get()
             )
         }
 

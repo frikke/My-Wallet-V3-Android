@@ -18,12 +18,8 @@ internal class Erc20StoreRepository(
     private val erc20DataSource: Erc20DataSource
 ) : Erc20StoreService {
 
-    private fun getBalances(
-        accountHash: String,
-        refresh: Boolean
-    ): Observable<Map<AssetInfo, Erc20Balance>> {
-
-        return erc20DataSource.stream(accountHash = accountHash, refresh = refresh)
+    private fun getBalances(refresh: Boolean): Observable<Map<AssetInfo, Erc20Balance>> {
+        return erc20DataSource.stream(refresh = refresh)
             .mapData { balanceList ->
                 balanceList.mapNotNull { balance ->
                     assetCatalogue.assetFromL1ChainByContractAddress(
@@ -38,15 +34,15 @@ internal class Erc20StoreRepository(
             .onErrorReturn { emptyMap() }
     }
 
-    override fun getBalances(accountHash: String): Observable<Map<AssetInfo, Erc20Balance>> =
-        getBalances(accountHash = accountHash, refresh = true)
+    override fun getBalances(): Observable<Map<AssetInfo, Erc20Balance>> =
+        getBalances(refresh = true)
 
-    override fun getBalanceFor(accountHash: String, asset: AssetInfo): Observable<Erc20Balance> =
-        getBalances(accountHash = accountHash, refresh = true)
+    override fun getBalanceFor(asset: AssetInfo): Observable<Erc20Balance> =
+        getBalances(refresh = true)
             .map { it.getOrDefault(asset, Erc20Balance.zero(asset)) }
 
-    override fun getActiveAssets(accountHash: String): Single<Set<AssetInfo>> =
-        getBalances(accountHash = accountHash, refresh = false).map { it.keys }.firstElement().toSingle()
+    override fun getActiveAssets(): Single<Set<AssetInfo>> =
+        getBalances(refresh = false).map { it.keys }.firstElement().toSingle()
 }
 
 private fun Erc20TokenBalance?.mapBalance(asset: AssetInfo): Erc20Balance =
