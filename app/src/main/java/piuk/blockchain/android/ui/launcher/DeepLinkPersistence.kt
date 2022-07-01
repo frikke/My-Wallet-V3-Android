@@ -1,11 +1,11 @@
 package piuk.blockchain.android.ui.launcher
 
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 private const val KEY_DEEP_LINK_URI = "deeplink_uri"
 
-class DeepLinkPersistence(private val prefs: PersistentPrefs) {
+class DeepLinkPersistence(private val prefs: SessionPrefs) {
 
     fun pushDeepLink(data: String) {
         Timber.d("DeepLink: Saving uri: $data")

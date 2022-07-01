@@ -31,7 +31,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 // todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
 class FeatureFlagsHandlingActivity : BlockchainActivity() {
@@ -39,7 +39,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
     private val featureFlagHandler: FeatureFlagHandler by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val prefs: PersistentPrefs by inject()
+    private val prefs: SessionPrefs by inject()
     private val appUtils: AppUtil by inject()
     private val loginState: PinRepository by inject()
     private val remoteLogger: RemoteLogger by inject()

@@ -12,14 +12,14 @@ import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class LoginInteractorTest {
 
     private lateinit var subject: LoginInteractor
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val appUtil: AppUtil = mock()
 
     private val action = Intent.ACTION_VIEW

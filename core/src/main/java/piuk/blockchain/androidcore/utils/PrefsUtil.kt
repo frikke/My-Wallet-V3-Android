@@ -8,21 +8,35 @@ import android.util.Base64
 import androidx.annotation.VisibleForTesting
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.AppInfoPrefs
+import com.blockchain.preferences.AppMaintenancePrefs
+import com.blockchain.preferences.AppRatingPrefs
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.Authorization
+import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
+import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.NftAnnouncementPrefs
+import com.blockchain.preferences.NotificationPrefs
+import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.preferences.RemoteConfigPrefs
+import com.blockchain.preferences.SecureChannelPrefs
+import com.blockchain.preferences.SecurityPrefs
+import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
-import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.PersistentPrefs.Companion.KEY_EMAIL_VERIFIED
+import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -36,7 +50,24 @@ class PrefsUtil(
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
     private val environmentConfig: EnvironmentConfig
-) : PersistentPrefs {
+) : SessionPrefs,
+    CurrencyPrefs,
+    NotificationPrefs,
+    DashboardPrefs,
+    SecurityPrefs,
+    SecureChannelPrefs,
+    SimpleBuyPrefs,
+    WalletStatusPrefs,
+    EncryptedPrefs,
+    AuthPrefs,
+    BankLinkingPrefs,
+    AppInfoPrefs,
+    RemoteConfigPrefs,
+    OnboardingPrefs,
+    AppMaintenancePrefs,
+    AppRatingPrefs,
+    NftAnnouncementPrefs,
+    ReferralPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -68,12 +99,6 @@ class PrefsUtil(
             setValue(KEY_PIN_IDENTIFIER, value)
             backupStore.edit().putString(KEY_PIN_IDENTIFIER, value).commit()
             BackupManager.dataChanged(ctx.packageName)
-        }
-
-    override var newSwapEnabled: Boolean
-        get() = getValue(NEW_SWAP_ENABLED, false)
-        set(value) {
-            setValue(NEW_SWAP_ENABLED, value)
         }
 
     override var devicePreIDVCheckFailed: Boolean
@@ -120,17 +145,13 @@ class PrefsUtil(
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
 
-    // SecurityPrefs
-    override var disableRootedWarning: Boolean
-        get() = getValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, false)
-        set(v) = setValue(PersistentPrefs.KEY_ROOT_WARNING_DISABLED, v)
-
-    override var trustScreenOverlay: Boolean
-        get() = getValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
-        set(v) = setValue(PersistentPrefs.KEY_OVERLAY_TRUSTED, v)
-
     override val areScreenshotsEnabled: Boolean
         get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
+
+    override var trustScreenOverlay: Boolean
+        get() = getValue(KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
+        set(v) = setValue(KEY_OVERLAY_TRUSTED, v)
+
 
     override fun setScreenshotsEnabled(enable: Boolean) =
         setValue(KEY_SCREENSHOTS_ENABLED, enable)
@@ -321,7 +342,7 @@ class PrefsUtil(
         backupStore.edit()
             .clear()
             .putString(KEY_PIN_IDENTIFIER, getValue(KEY_PIN_IDENTIFIER, ""))
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, getValue(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, ""))
+            .putString(KEY_ENCRYPTED_PASSWORD, getValue(KEY_ENCRYPTED_PASSWORD, ""))
             .putString(
                 KEY_ENCRYPTED_GUID,
                 aes.encrypt(
@@ -350,8 +371,8 @@ class PrefsUtil(
             backupStore.getString(KEY_PIN_IDENTIFIER, "") ?: ""
         )
         setValue(
-            PersistentPrefs.KEY_ENCRYPTED_PASSWORD,
-            backupStore.getString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, "") ?: ""
+            KEY_ENCRYPTED_PASSWORD,
+            backupStore.getString(KEY_ENCRYPTED_PASSWORD, "") ?: ""
         )
         setValue(
             KEY_WALLET_GUID,
@@ -390,7 +411,7 @@ class PrefsUtil(
         // we just logged out of.
         backupStore.edit()
             .putString(KEY_PIN_IDENTIFIER, "")
-            .putString(PersistentPrefs.KEY_ENCRYPTED_PASSWORD, "")
+            .putString(KEY_ENCRYPTED_PASSWORD, "")
             .putString(KEY_ENCRYPTED_GUID, "")
             .putString(KEY_ENCRYPTED_SHARED_KEY, "")
             .commit()
@@ -460,44 +481,44 @@ class PrefsUtil(
         String(Base64.decode(data.toByteArray(charset("UTF-8")), Base64.DEFAULT))
 
     // Raw accessors
-    override fun getValue(name: String): String? =
+    private fun getValue(name: String): String? =
         store.getString(name, null)
 
-    override fun getValue(name: String, defaultValue: String): String =
+    private fun getValue(name: String, defaultValue: String): String =
         store.getString(name, defaultValue).orEmpty()
 
-    override fun getValue(name: String, defaultValue: Int): Int =
+    private fun getValue(name: String, defaultValue: Int): Int =
         store.getInt(name, defaultValue)
 
-    override fun getValue(name: String, defaultValue: Long): Long =
+    private fun getValue(name: String, defaultValue: Long): Long =
         try {
             store.getLong(name, defaultValue)
         } catch (e: Exception) {
             store.getInt(name, defaultValue.toInt()).toLong()
         }
 
-    override fun getValue(name: String, defaultValue: Boolean): Boolean =
+    private fun getValue(name: String, defaultValue: Boolean): Boolean =
         store.getBoolean(name, defaultValue)
 
-    override fun setValue(name: String, value: String) {
+    private fun setValue(name: String, value: String) {
         store.edit().putString(name, value).apply()
     }
 
-    override fun setValue(name: String, value: Int) {
+    private fun setValue(name: String, value: Int) {
         store.edit().putInt(name, if (value < 0) 0 else value).apply()
     }
 
-    override fun setValue(name: String, value: Long) {
+    private fun setValue(name: String, value: Long) {
         store.edit().putLong(name, if (value < 0L) 0L else value).apply()
     }
 
-    override fun setValue(name: String, value: Boolean) {
+    private fun setValue(name: String, value: Boolean) {
         store.edit().putBoolean(name, value).apply()
     }
 
-    override fun has(name: String): Boolean = store.contains(name)
+    private fun has(name: String): Boolean = store.contains(name)
 
-    override fun removeValue(name: String) {
+    private fun removeValue(name: String) {
         store.edit().remove(name).apply()
     }
 
@@ -622,6 +643,8 @@ class PrefsUtil(
     override var referralSuccessBody: String
         get() = getValue(REFERRAL_SUCCESS_BODY, "")
         set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
+
+    // Persistent prefs
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -635,6 +658,22 @@ class PrefsUtil(
         setValue(KEY_WALLET_GUID, guid)
         setValue(KEY_PRE_IDV_DEVICE_ID, deviceId)
     }
+
+    override var metadataUri: String
+        get() = getValue(KEY_METADATA_URI, "")
+        set(value) = setValue(KEY_METADATA_URI, value)
+
+    override var keySchemeUrl: String
+        get() = getValue(KEY_SCHEME_URL, "")
+        set(value) = setValue(KEY_SCHEME_URL, value)
+
+    override var analyticsReportedNabuUser: String
+        get() = getValue(ANALYTICS_REPORTED_NABU_USER_KEY, "")
+        set(value) = setValue(ANALYTICS_REPORTED_NABU_USER_KEY, value)
+
+    override var analyticsReportedWalletKey: String
+        get() = getValue(ANALYTICS_REPORTED_WALLET_KEY, "")
+        set(value) = setValue(ANALYTICS_REPORTED_WALLET_KEY, value)
 
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
@@ -691,8 +730,6 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_IS_DEVICE_ID_RANDOMISED = "random_device_id"
 
-        const val NEW_SWAP_ENABLED = "swap_v_2_enabled"
-
         private const val KEY_FIREBASE_TOKEN = "firebase_token"
         private const val KEY_PUSH_NOTIFICATION_ENABLED = "push_notification_enabled"
 
@@ -745,6 +782,16 @@ class PrefsUtil(
         private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
         private const val REFERRAL_SUCCESS_TITLE = "REFERRAL_SUCCESS_TITLE"
         private const val REFERRAL_SUCCESS_BODY = "REFERRAL_SUCCESS_BODY"
+
+        // Session
+        private const val KEY_EMAIL_VERIFIED = "code_verified"
+        private const val KEY_SCHEME_URL = "scheme_url"
+        private const val KEY_METADATA_URI = "metadata_uri"
+        private const val ANALYTICS_REPORTED_NABU_USER_KEY = "analytics_reported_nabu_user_key"
+        private const val ANALYTICS_REPORTED_WALLET_KEY = "analytics_reported_wallet_key"
+
+        // Security
+        private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
     }
 }
 

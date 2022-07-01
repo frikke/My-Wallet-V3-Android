@@ -12,13 +12,13 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val accountUnificationFF: FeatureFlag
 ) {
     fun getAuthInfo(json: String): Single<LoginAuthInfo> {

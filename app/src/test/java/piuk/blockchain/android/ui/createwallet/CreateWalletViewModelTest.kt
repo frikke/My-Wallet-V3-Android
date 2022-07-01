@@ -19,7 +19,6 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -37,7 +36,7 @@ import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class CreateWalletViewModelTest {
 //    @get:Rule
@@ -49,7 +48,7 @@ class CreateWalletViewModelTest {
 
     private val environmentConfig: EnvironmentConfig = mockk()
     private val defaultLabels: DefaultLabels = mockk()
-    private val prefs: PersistentPrefs = mockk(relaxed = true)
+    private val prefs: SessionPrefs = mockk(relaxed = true)
     private val analytics: Analytics = mockk(relaxed = true)
     private val specificAnalytics: ProviderSpecificAnalytics = mockk(relaxed = true)
     private val appUtil: AppUtil = mockk(relaxed = true)

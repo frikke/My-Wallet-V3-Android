@@ -9,7 +9,7 @@ import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -35,7 +35,7 @@ class EthAccountActivityTest : CoincoreTestBase() {
     private val payloadManager: PayloadDataManager = mock()
     private val ethDataManager: EthDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val ethAccount: EthereumAccount = mock {
         on { address }.thenReturn(ETH_ADDRESS)

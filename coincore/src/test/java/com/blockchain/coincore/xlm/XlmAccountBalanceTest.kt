@@ -4,7 +4,7 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
@@ -28,7 +28,7 @@ class XlmAccountBalanceTest : CoincoreTestBase() {
     private val xlmDataManager: XlmDataManager = mock()
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val xlmAccountReference = XlmAccountReference(
         label = "Test Xlm Account",

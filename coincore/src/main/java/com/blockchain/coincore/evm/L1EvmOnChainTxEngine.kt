@@ -15,7 +15,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatValue
@@ -35,7 +35,7 @@ import timber.log.Timber
 class L1EvmOnChainTxEngine(
     private val erc20DataManager: Erc20DataManager,
     private val feeManager: FeeDataManager,
-    walletPreferences: WalletStatus,
+    walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
     resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(

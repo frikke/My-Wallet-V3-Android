@@ -14,7 +14,7 @@ import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -41,7 +41,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     private val feeDataManager: FeeDataManager,
     private val sendDataManager: SendDataManager,
     private val internalAccount: GenericMetadataAccount,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
     override val addressResolver: AddressResolver,
@@ -176,7 +176,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             exchangeRates: ExchangeRatesDataManager,
             feeDataManager: FeeDataManager,
             sendDataManager: SendDataManager,
-            walletPreferences: WalletStatus,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,

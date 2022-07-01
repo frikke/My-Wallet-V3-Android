@@ -50,7 +50,7 @@ import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.events.WalletAndTransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
@@ -80,7 +80,7 @@ class CoinsWebSocketStrategy(
     private val json: Json,
     private val replaceGsonKtxFF: FeatureFlag,
     private val rxBus: RxBus,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val assetCatalogue: AssetCatalogue,

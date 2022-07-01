@@ -13,7 +13,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -31,7 +31,7 @@ import piuk.blockchain.androidcore.data.fees.FeeDataManager
     private val jsonAccount: EthereumAccount,
     private val ethDataManager: EthDataManager,
     private val fees: FeeDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     override val exchangeRates: ExchangeRatesDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetCatalogue: AssetCatalogue,

@@ -14,14 +14,14 @@ import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class PasswordRequiredPresenterTest : RxTest() {
 
     private lateinit var subject: PasswordRequiredPresenter
     private val view: PasswordRequiredView = mock()
     private val appUtil: AppUtil = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val wallet: Wallet = mock()

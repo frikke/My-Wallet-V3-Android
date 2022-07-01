@@ -25,12 +25,12 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.Response
 
 class AuthDataManagerTest : RxTest() {
 
-    private val prefsUtil: PersistentPrefs = mock()
+    private val prefsUtil: SessionPrefs = mock()
     private val authApiService: AuthApiService = mock()
     private val walletAuthService: WalletAuthService = mock()
     private val pinRepository: PinRepository = mock()

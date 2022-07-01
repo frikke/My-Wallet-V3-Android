@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class LoaderModel(
@@ -23,7 +23,7 @@ class LoaderModel(
     private val remoteLogger: RemoteLogger,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val prerequisites: Prerequisites,
     private val authPrefs: AuthPrefs,
     private val interactor: LoaderInteractor

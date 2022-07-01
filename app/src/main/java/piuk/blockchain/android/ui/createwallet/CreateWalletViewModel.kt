@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 data class CreateWalletModelState(
@@ -78,7 +78,7 @@ sealed class CreateWalletError {
 class CreateWalletViewModel(
     private val environmentConfig: EnvironmentConfig,
     private val defaultLabels: DefaultLabels,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val analytics: Analytics,
     private val specificAnalytics: ProviderSpecificAnalytics,
     private val appUtil: AppUtil,

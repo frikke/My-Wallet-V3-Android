@@ -24,7 +24,7 @@ import piuk.blockchain.android.ui.launcher.loader.ProgressStep
 import piuk.blockchain.android.ui.launcher.loader.ToastType
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LoaderModelTest {
@@ -34,7 +34,7 @@ class LoaderModelTest {
     private val appUtil: AppUtil = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val prerequisites: Prerequisites = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
 
     @get:Rule

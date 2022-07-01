@@ -2,7 +2,7 @@ package com.blockchain.preferences
 
 import info.blockchain.balance.AssetInfo
 
-interface WalletStatus {
+interface WalletStatusPrefs {
     var lastBackupTime: Long // Seconds since epoch
     val isWalletBackedUp: Boolean
 

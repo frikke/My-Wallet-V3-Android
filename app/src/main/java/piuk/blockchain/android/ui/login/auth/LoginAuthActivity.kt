@@ -22,7 +22,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.signin.UnifiedSignInEventListener
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -64,7 +64,7 @@ class LoginAuthActivity :
         get() = binding.toolbar
 
     private val remoteLogger: RemoteLogger by inject()
-    private val walletPrefs: WalletStatus by inject()
+    private val walletPrefs: WalletStatusPrefs by inject()
 
     private lateinit var currentState: LoginAuthState
 

@@ -12,11 +12,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class DismissRecorderTest {
 
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val clock: DismissClock = mock()
 
     private lateinit var subject: DismissRecorder

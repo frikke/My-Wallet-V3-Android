@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
@@ -11,7 +11,7 @@ class TransferCryptoAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val walletStatus: WalletStatus = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
 
     private lateinit var subject: TransferCryptoAnnouncement
 
@@ -23,7 +23,7 @@ class TransferCryptoAnnouncementTest {
         subject =
             TransferCryptoAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatus
+                walletStatus = walletStatusPrefs
             )
     }
 
@@ -41,9 +41,9 @@ class TransferCryptoAnnouncementTest {
     @Test
     fun `should show, when not already shown, wallet is unfunded`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
 
-        whenever(walletStatus.isWalletFunded).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(false)
 
         subject.shouldShow()
             .test()
@@ -55,9 +55,9 @@ class TransferCryptoAnnouncementTest {
     @Test
     fun `should not show, when not already shown, wallet is funded`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
 
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
 
         subject.shouldShow()
             .test()

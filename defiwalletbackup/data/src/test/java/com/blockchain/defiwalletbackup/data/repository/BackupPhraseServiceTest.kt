@@ -3,7 +3,7 @@ package com.blockchain.defiwalletbackup.data.repository
 import com.blockchain.defiwalletbackup.domain.errors.BackupPhraseError
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
 import io.mockk.Runs
 import io.mockk.every
@@ -21,12 +21,12 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 class BackupPhraseServiceTest {
     private val payloadManager = mockk<PayloadDataManager>()
     private val backupWallet = mockk<BackupWallet>()
-    private val walletStatus = mockk<WalletStatus>()
+    private val walletStatusPrefs = mockk<WalletStatusPrefs>()
 
     private val backupPhraseService: BackupPhraseService = BackupPhraseRepository(
         payloadManager = payloadManager,
         backupWallet = backupWallet,
-        walletStatus = walletStatus
+        walletStatus = walletStatusPrefs
     )
 
     private val mnemonic = listOf("A", "B")
@@ -34,7 +34,7 @@ class BackupPhraseServiceTest {
     @Before
     fun setUp() {
         every { payloadManager.wallet!!.walletBody?.mnemonicVerified = any() } just Runs
-        every { walletStatus.lastBackupTime = any() } just Runs
+        every { walletStatusPrefs.lastBackupTime = any() } just Runs
     }
 
     @Test

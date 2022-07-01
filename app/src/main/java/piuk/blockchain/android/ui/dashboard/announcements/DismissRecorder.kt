@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
 import java.lang.ClassCastException
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 /**
  * Maintains a boolean flag for recording if a dialog has been dismissed.
@@ -18,7 +18,7 @@ interface DismissClock {
 }
 
 class DismissRecorder(
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val clock: DismissClock
 ) {
     operator fun get(key: String) = DismissEntry(key)

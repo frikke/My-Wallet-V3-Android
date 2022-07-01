@@ -15,7 +15,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class LandingPresenterTest {
 
@@ -30,7 +30,7 @@ class LandingPresenterTest {
     private val assetCatalogue: AssetCatalogueImpl = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
 
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val rootUtil: RootUtil = mock()
 

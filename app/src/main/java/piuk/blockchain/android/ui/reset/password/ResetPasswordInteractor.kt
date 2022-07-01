@@ -11,13 +11,13 @@ import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import io.reactivex.rxjava3.core.Completable
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class ResetPasswordInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val nabuDataManager: NabuDataManager,
     private val metadataService: MetadataService,
     private val metadataRepository: MetadataRepository,

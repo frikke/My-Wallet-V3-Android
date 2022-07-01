@@ -26,7 +26,7 @@ import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.Response
 import timber.log.Timber
 
@@ -50,7 +50,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     protected abstract val appUtil: AppUtil
     protected abstract val authDataManager: AuthDataManager
     protected abstract val payloadDataManager: PayloadDataManager
-    protected abstract val prefs: PersistentPrefs
+    protected abstract val prefs: SessionPrefs
     protected abstract val remoteLogger: RemoteLogger
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

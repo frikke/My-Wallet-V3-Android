@@ -132,7 +132,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BitpayAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 

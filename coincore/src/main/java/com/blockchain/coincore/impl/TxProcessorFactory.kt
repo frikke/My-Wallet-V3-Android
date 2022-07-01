@@ -46,7 +46,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.EthMessageSigner
@@ -61,7 +61,7 @@ class TxProcessorFactory(
     private val interestBalances: InterestBalanceDataManager,
     private val interestDataSource: InterestDataSource,
     private val tradingDataSource: TradingDataSource,
-    private val walletPrefs: WalletStatus,
+    private val walletPrefs: WalletStatusPrefs,
     private val ethMessageSigner: EthMessageSigner,
     private val ethDataManager: EthDataManager,
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider,

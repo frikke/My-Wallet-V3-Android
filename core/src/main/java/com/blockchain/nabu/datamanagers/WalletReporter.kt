@@ -5,7 +5,7 @@ import com.blockchain.analytics.UserProperty
 import info.blockchain.wallet.api.data.Settings
 import java.security.MessageDigest
 import org.spongycastle.util.encoders.Hex
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface WalletReporter {
     fun reportWalletGuid(walletGuid: String)
@@ -44,21 +44,17 @@ class AnalyticsWalletReporter(private val userAnalytics: UserAnalytics) : Wallet
 
 class UniqueAnalyticsWalletReporter(
     private val walletReporter: WalletReporter,
-    private val prefs: PersistentPrefs
+    private val prefs: SessionPrefs
 ) : WalletReporter by walletReporter {
     override fun reportWalletGuid(walletGuid: String) {
-        val reportedKey = prefs.getValue(ANALYTICS_REPORTED_WALLET_KEY)?.take(UserProperty.MAX_VALUE_LEN)
-        if (reportedKey == null || reportedKey != walletGuid) {
+        val reportedKey = prefs.analyticsReportedWalletKey.take(UserProperty.MAX_VALUE_LEN)
+        if (reportedKey != walletGuid) {
             walletReporter.reportWalletGuid(UserAnalytics.WALLET_ID)
-            prefs.setValue(ANALYTICS_REPORTED_WALLET_KEY, walletGuid)
+            prefs.analyticsReportedWalletKey =  walletGuid
         }
     }
 
     override fun reportUserSettings(settings: Settings) {
         walletReporter.reportUserSettings(settings)
-    }
-
-    companion object {
-        private const val ANALYTICS_REPORTED_WALLET_KEY = "analytics_reported_wallet_key"
     }
 }

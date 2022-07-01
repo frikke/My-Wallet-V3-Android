@@ -17,7 +17,7 @@ import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.fees.FeeType
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.Memo
 import com.blockchain.sunriver.SendDetails
 import com.blockchain.sunriver.XlmAccountReference
@@ -49,7 +49,7 @@ class XlmOnChainTxEngine(
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
     requireSecondPassword: Boolean,
-    walletPreferences: WalletStatus,
+    walletPreferences: WalletStatusPrefs,
     resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(requireSecondPassword, walletPreferences, resolvedAddress) {
 

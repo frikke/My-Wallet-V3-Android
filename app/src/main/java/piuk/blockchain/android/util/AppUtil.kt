@@ -13,12 +13,12 @@ import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class AppUtil(
     private val context: Context,
     private var payloadScopeWiper: PayloadScopeWiper,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,

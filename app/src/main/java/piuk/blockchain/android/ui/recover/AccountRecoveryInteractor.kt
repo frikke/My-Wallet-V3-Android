@@ -9,12 +9,12 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import piuk.blockchain.androidcore.data.auth.metadata.WalletRecoveryMetadata
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class AccountRecoveryInteractor(
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val metadataInteractor: MetadataInteractor,
     private val metadataDerivation: MetadataDerivation,
     private val nabuDataManager: NabuDataManager

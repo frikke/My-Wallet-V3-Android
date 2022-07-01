@@ -6,7 +6,7 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface PasswordRequiredView : PasswordAuthView {
     fun restartPage()
@@ -16,7 +16,7 @@ interface PasswordRequiredView : PasswordAuthView {
 
 class PasswordRequiredPresenter(
     override val appUtil: AppUtil,
-    override val prefs: PersistentPrefs,
+    override val prefs: SessionPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
     override val remoteLogger: RemoteLogger

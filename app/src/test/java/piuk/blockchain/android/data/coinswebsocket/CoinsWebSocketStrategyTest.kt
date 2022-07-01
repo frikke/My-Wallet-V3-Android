@@ -37,7 +37,7 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
@@ -138,7 +138,7 @@ class CoinsWebSocketStrategyTest {
         on { getWalletTransactions(any(), any()) }.thenReturn(Observable.just(emptyList()))
     }
 
-    private val prefs: PersistentPrefs = mock {
+    private val prefs: SessionPrefs = mock {
         on { walletGuid }.thenReturn("1234")
     }
 

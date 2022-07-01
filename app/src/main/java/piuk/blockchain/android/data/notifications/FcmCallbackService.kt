@@ -21,7 +21,7 @@ import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Compan
 import com.blockchain.notifications.models.NotificationPayload
 import com.blockchain.preferences.ReferralPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -43,7 +43,7 @@ class FcmCallbackService : FirebaseMessagingService() {
     private val notificationManager: NotificationManager by inject()
     private val notificationTokenManager: NotificationTokenManager by scopedInject()
     private val analytics: Analytics by inject()
-    private val walletPrefs: WalletStatus by inject()
+    private val walletPrefs: WalletStatusPrefs by inject()
     private val remoteConfigPrefs: RemoteConfigPrefs by inject()
     private val secureChannelService: SecureChannelService by scopedInject()
     private val compositeDisposable = CompositeDisposable()
