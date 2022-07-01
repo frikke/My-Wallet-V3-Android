@@ -9,11 +9,10 @@ import com.blockchain.store.StoreResponse
 import com.blockchain.store.impl.Freshness
 import com.blockchain.store.impl.FreshnessMediator
 import com.blockchain.store_caches_persistedjsonsqldelight.PersistedJsonSqlDelightStoreBuilder
-import com.blockchain.storedatasource.StoreKey
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
-import java.util.concurrent.atomic.AtomicReference
 
 class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
@@ -32,7 +31,7 @@ class Erc20L2Store(
         ),
         keySerializer = Key.serializer(),
         dataSerializer = BalancesResponse.serializer(),
-        mediator = FreshnessMediator(Freshness.ofMinutes(60L)) // todo(othman) duration?
+        mediator = FreshnessMediator(Freshness.DURATION_1_HOUR)
     ),
     Erc20L2DataSource {
 
@@ -40,7 +39,7 @@ class Erc20L2Store(
     data class Key(
         val accountHash: String,
         val networkTicker: String
-    ) : StoreKey
+    )
 
     private val accountAtomic = AtomicReference<String>()
 
@@ -73,6 +72,7 @@ class Erc20L2Store(
     }
 
     private fun invalidate(accountHash: String, networkTicker: String) {
+        println("----- ::invalidate Erc20L2Store")
         markAsStale(key = Key(accountHash = accountHash, networkTicker = networkTicker))
     }
 

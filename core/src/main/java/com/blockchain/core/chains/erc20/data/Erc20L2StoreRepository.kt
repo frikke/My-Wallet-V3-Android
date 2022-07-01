@@ -69,5 +69,4 @@ internal class Erc20L2StoreRepository(
     ): Single<Set<AssetInfo>> =
         getBalances(accountHash = accountHash, networkTicker = networkTicker, refresh = false)
             .map { it.keys }.firstElement().toSingle()
-
 }

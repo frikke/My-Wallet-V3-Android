@@ -2,7 +2,6 @@ package com.blockchain.core.chains.erc20.data
 
 import com.blockchain.api.services.Erc20TokenBalance
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
-import com.blockchain.core.chains.erc20.data.store.Erc20Store
 import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
 import com.blockchain.store.asObservable
@@ -13,7 +12,6 @@ import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.concurrent.atomic.AtomicReference
 
 internal class Erc20StoreRepository(
     private val assetCatalogue: AssetCatalogue,

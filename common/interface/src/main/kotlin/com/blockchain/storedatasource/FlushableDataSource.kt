@@ -7,5 +7,3 @@ interface FlushableDataSource {
 interface KeyedFlushableDataSource<T> {
     fun invalidate(param: T)
 }
-
-interface StoreKey
