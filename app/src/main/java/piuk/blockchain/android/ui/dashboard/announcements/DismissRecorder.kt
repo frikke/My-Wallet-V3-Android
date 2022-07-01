@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
-import java.lang.ClassCastException
 import piuk.blockchain.androidcore.utils.SessionPrefs
 
 /**
@@ -41,29 +40,29 @@ class DismissRecorder(
     }
 
     fun dismissPeriodic(prefsKey: String) {
-        prefs.removeValue(prefsKey) // In case there is a legacy setting
-        prefs.setValue(prefsKey, DISMISS_INTERVAL_PERIODIC)
+        prefs.deleteDismissalRecord(prefsKey) // In case there is a legacy setting
+        prefs.recordDismissal(prefsKey, DISMISS_INTERVAL_PERIODIC)
     }
 
     fun dismissForever(prefsKey: String) {
-        prefs.removeValue(prefsKey) // In case there is a legacy setting
-        prefs.setValue(prefsKey, DISMISS_INTERVAL_FOREVER)
+        prefs.deleteDismissalRecord(prefsKey) // In case there is a legacy setting
+        prefs.recordDismissal(prefsKey, DISMISS_INTERVAL_FOREVER)
     }
 
     fun isDismissed(prefsKey: String): Boolean =
         try {
-            val nextShow = prefs.getValue(prefsKey, 0L)
+            val nextShow = prefs.getDismissalEntry(prefsKey)
             val now = clock.now()
 
             nextShow != 0L && now <= nextShow
         } catch (e: ClassCastException) {
             // Try the legacy key
-            prefs.getValue(prefsKey, false)
+            prefs.getLegacyDismissalEntry(prefsKey)
         }
 
     // For debug/QA
-    internal fun undismissAll(announcementList: AnnouncementList) {
-        announcementList.dismissKeys().forEach { prefs.removeValue(it) }
+    internal fun reinstateAllAnnouncements(announcementList: AnnouncementList) {
+        announcementList.dismissKeys().forEach { prefs.deleteDismissalRecord(it) }
     }
 
     private var interval = ONE_WEEK

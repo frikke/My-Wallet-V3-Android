@@ -208,7 +208,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         val announcementList: AnnouncementList by scopedInject()
         val dismissRecorder: DismissRecorder by scopedInject()
 
-        dismissRecorder.undismissAll(announcementList)
+        dismissRecorder.reinstateAllAnnouncements(announcementList)
 
         showSnackbar("Announcement reset")
     }

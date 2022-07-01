@@ -18,4 +18,9 @@ interface SessionPrefs {
 
     // Allow QA to randomise device ids when testing kyc
     var qaRandomiseDeviceId: Boolean
+
+    fun recordDismissal(key: String, time: Long)
+    fun deleteDismissalRecord(key: String)
+    fun getDismissalEntry(key: String): Long
+    fun getLegacyDismissalEntry(key: String): Boolean
 }

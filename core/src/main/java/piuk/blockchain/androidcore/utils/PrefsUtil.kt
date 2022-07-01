@@ -141,10 +141,6 @@ class PrefsUtil(
         get() = getValue(KEY_TAPPED_FAB, false)
         set(seen) = setValue(KEY_TAPPED_FAB, seen)
 
-    override var qaRandomiseDeviceId: Boolean
-        get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
-        set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
-
     override val areScreenshotsEnabled: Boolean
         get() = getValue(KEY_SCREENSHOTS_ENABLED, false)
 
@@ -152,6 +148,10 @@ class PrefsUtil(
         get() = getValue(KEY_OVERLAY_TRUSTED, environmentConfig.isRunningInDebugMode())
         set(v) = setValue(KEY_OVERLAY_TRUSTED, v)
 
+    // SecurityPrefs
+    override var disableRootedWarning: Boolean
+        get() = getValue(KEY_ROOT_WARNING_DISABLED, false)
+        set(v) = setValue(KEY_ROOT_WARNING_DISABLED, v)
 
     override fun setScreenshotsEnabled(enable: Boolean) =
         setValue(KEY_SCREENSHOTS_ENABLED, enable)
@@ -644,6 +644,22 @@ class PrefsUtil(
         get() = getValue(REFERRAL_SUCCESS_BODY, "")
         set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
 
+    override var qaRandomiseDeviceId: Boolean
+        get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
+        set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
+
+    override fun recordDismissal(key: String, time: Long) =
+        setValue(key, time)
+
+    override fun deleteDismissalRecord(key: String) =
+        removeValue(key)
+
+    override fun getDismissalEntry(key: String): Long =
+        getValue(key, 0L)
+
+    override fun getLegacyDismissalEntry(key: String): Boolean =
+        getValue(key, false)
+
     // Persistent prefs
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
@@ -799,6 +815,7 @@ class PrefsUtil(
 
         // Security
         private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"
+        private const val KEY_ROOT_WARNING_DISABLED = "disable_root_warning"
     }
 }
 

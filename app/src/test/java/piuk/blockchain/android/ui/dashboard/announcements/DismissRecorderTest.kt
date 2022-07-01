@@ -157,7 +157,7 @@ class DismissRecorderTest {
         subject[DISMISS_KEY_2].dismiss(DismissRule.CardPeriodic)
         subject[DISMISS_KEY_3].dismiss(DismissRule.CardOneTime)
 
-        subject.undismissAll(announcementList)
+        subject.reinstateAllAnnouncements(announcementList)
 
         val captorString = argumentCaptor<String>()
         verify(prefs, times(6)).removeValue(captorString.capture())
