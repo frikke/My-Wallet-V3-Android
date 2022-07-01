@@ -27,7 +27,6 @@ import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 

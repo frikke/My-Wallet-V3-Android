@@ -113,7 +113,7 @@ class LauncherPresenter internal constructor(
             Intent.ACTION_VIEW == viewIntentData?.action &&
             viewIntentData.dataString?.contains("blockchain") == true
         ) {
-            prefs.metadataUri =  viewIntentData.dataString
+            prefs.metadataUri = viewIntentData.dataString
         }
 
         if (viewIntentData?.isAutomationTesting == true && Environment.STAGING == envSettings.environment) {

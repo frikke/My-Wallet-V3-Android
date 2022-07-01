@@ -30,13 +30,13 @@ import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.crypto.AESUtil
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
-import java.util.concurrent.TimeUnit
 
 interface UUIDGenerator {
     fun generateUUID(): String
@@ -660,7 +660,7 @@ class PrefsUtil(
     override fun getLegacyDismissalEntry(key: String): Boolean =
         getValue(key, false)
 
-    // Persistent prefs
+    // Session prefs
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */

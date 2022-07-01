@@ -50,7 +50,7 @@ class UniqueAnalyticsWalletReporter(
         val reportedKey = prefs.analyticsReportedWalletKey.take(UserProperty.MAX_VALUE_LEN)
         if (reportedKey != walletGuid) {
             walletReporter.reportWalletGuid(UserAnalytics.WALLET_ID)
-            prefs.analyticsReportedWalletKey =  walletGuid
+            prefs.analyticsReportedWalletKey = walletGuid
         }
     }
 

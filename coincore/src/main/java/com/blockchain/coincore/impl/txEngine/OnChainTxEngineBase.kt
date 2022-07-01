@@ -17,7 +17,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import org.koin.core.component.inject
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 abstract class OnChainTxEngineBase(
     override val requireSecondPassword: Boolean,

@@ -16,7 +16,6 @@ import piuk.blockchain.android.ui.login.auth.LoginAuthInfo
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class LoginInteractor(

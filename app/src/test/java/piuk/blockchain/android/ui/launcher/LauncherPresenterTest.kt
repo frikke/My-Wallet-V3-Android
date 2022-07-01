@@ -33,7 +33,6 @@ class LauncherPresenterTest {
     private val referralPrefs: ReferralPrefs = mock()
     private val encryptedPrefs: EncryptedPrefs = mock()
 
-
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock()
     private val appMaintenanceFF: FeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(true))

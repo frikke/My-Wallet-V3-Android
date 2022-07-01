@@ -51,7 +51,6 @@ import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.events.WalletAndTransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 

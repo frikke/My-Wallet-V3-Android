@@ -24,7 +24,6 @@ import piuk.blockchain.android.ui.launcher.loader.ProgressStep
 import piuk.blockchain.android.ui.launcher.loader.ToastType
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LoaderModelTest {

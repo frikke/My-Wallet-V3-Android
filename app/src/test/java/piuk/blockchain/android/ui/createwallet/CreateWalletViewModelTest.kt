@@ -38,7 +38,6 @@ import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class CreateWalletViewModelTest {
 //    @get:Rule

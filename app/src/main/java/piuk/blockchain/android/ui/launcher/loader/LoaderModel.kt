@@ -13,7 +13,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class LoaderModel(

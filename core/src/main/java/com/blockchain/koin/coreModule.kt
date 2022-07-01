@@ -119,8 +119,8 @@ import piuk.blockchain.androidcore.utils.CloudBackupAgent
 import piuk.blockchain.androidcore.utils.DeviceIdGenerator
 import piuk.blockchain.androidcore.utils.DeviceIdGeneratorImpl
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
 
 val coreModule = module {
