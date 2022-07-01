@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
-class Erc20L2Store(
+internal class Erc20L2Store(
     private val evmService: NonCustodialEvmService,
 ) : KeyedStore<Erc20L2Store.Key, Throwable, BalancesResponse> by PersistedJsonSqlDelightStoreBuilder()
     .buildKeyed(

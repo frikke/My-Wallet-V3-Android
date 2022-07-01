@@ -1,5 +1,5 @@
 package com.blockchain.store
 
 interface Mediator<K, T> {
-    fun shouldFetch(cachedData: CachedData<K, T>?): Boolean
+    fun shouldFetch(requestKey: K, cachedData: CachedData<K, T>?): Boolean
 }

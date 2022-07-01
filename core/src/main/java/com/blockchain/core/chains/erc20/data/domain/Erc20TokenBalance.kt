@@ -6,7 +6,7 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Erc20TokenBalanceStore(
+internal data class Erc20TokenBalanceStore(
     val ticker: String,
     val contractAddress: String,
     val balance: @Contextual BigInteger,
@@ -14,7 +14,7 @@ data class Erc20TokenBalanceStore(
     val transferCount: Int
 )
 
-fun Erc20TokenBalance.toStore() = Erc20TokenBalanceStore(
+internal fun Erc20TokenBalance.toStore() = Erc20TokenBalanceStore(
     ticker = ticker,
     contractAddress = contractAddress,
     balance = balance,
@@ -22,7 +22,7 @@ fun Erc20TokenBalance.toStore() = Erc20TokenBalanceStore(
     transferCount = transferCount
 )
 
-fun Erc20TokenBalanceStore.toDomain() = Erc20TokenBalance(
+internal fun Erc20TokenBalanceStore.toDomain() = Erc20TokenBalance(
     ticker = ticker,
     contractAddress = contractAddress,
     balance = balance,

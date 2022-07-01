@@ -71,5 +71,5 @@ class RealStore<K : Any, E : Any, T : Any>(
     }
 
     private fun shouldFetch(request: KeyedStoreRequest.Cached<K>, cachedData: CachedData<K, T>?): Boolean =
-        request.forceRefresh || mediator.shouldFetch(cachedData)
+        request.forceRefresh || mediator.shouldFetch(request.key, cachedData)
 }

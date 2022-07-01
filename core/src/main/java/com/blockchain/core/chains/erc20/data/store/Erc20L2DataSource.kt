@@ -5,7 +5,7 @@ import com.blockchain.store.StoreResponse
 import com.blockchain.storedatasource.KeyedFlushableDataSource
 import kotlinx.coroutines.flow.Flow
 
-internal interface Erc20L2DataSource : KeyedFlushableDataSource<String> {
+interface Erc20L2DataSource : KeyedFlushableDataSource<String> {
     fun stream(
         accountHash: String,
         networkTicker: String,
