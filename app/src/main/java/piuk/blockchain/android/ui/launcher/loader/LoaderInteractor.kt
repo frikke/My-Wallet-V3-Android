@@ -34,7 +34,6 @@ import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
-    private val prefs: SessionPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val settingsDataManager: SettingsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
@@ -127,7 +126,7 @@ class LoaderInteractor(
 
     private fun syncFiatCurrency(settings: Settings): Completable =
         when {
-            prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
+            walletPrefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
             settings.currency != currencyPrefs.selectedFiatCurrency.networkTicker -> Completable.fromAction {
                 currencyPrefs.selectedFiatCurrency =
                     assetCatalogue.fiatFromNetworkTicker(settings.currency) ?: Dollars
@@ -161,7 +160,7 @@ class LoaderInteractor(
         }
     }
 
-    private fun shouldCheckForEmailVerification() = prefs.isNewlyCreated && !prefs.isRestored
+    private fun shouldCheckForEmailVerification() = walletPrefs.isNewlyCreated && !walletPrefs.isRestored
 
     private fun saveInitialCountry(): Completable {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
@@ -171,7 +170,7 @@ class LoaderInteractor(
                 countrySelected,
                 stateSelected.takeIf { it.isNotEmpty() }
             ).doOnComplete {
-                prefs.clearGeolocationPreferences()
+                walletPrefs.clearGeolocationPreferences()
             }.onErrorComplete()
         } else Completable.complete()
     }

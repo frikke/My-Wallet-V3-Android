@@ -7,6 +7,7 @@ import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.TxResult
 import com.blockchain.koin.scopedInject
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.AssetInfo
@@ -28,7 +29,7 @@ abstract class OnChainTxEngineBase(
         get() = listOf()
 
     private val settingsDataManager: SettingsDataManager by scopedInject()
-    private val prefs: SessionPrefs by inject()
+    private val authPrefs: AuthPrefs by inject()
 
     override fun assertInputsValid() {
         val tgt = txTarget
@@ -39,8 +40,8 @@ abstract class OnChainTxEngineBase(
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         settingsDataManager.triggerOnChainTransaction(
-            guid = prefs.walletGuid,
-            sharedKey = prefs.sharedKey,
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey,
             amount = pendingTx.amount.toNetworkString(),
             currency = pendingTx.amount.currencyCode
         )

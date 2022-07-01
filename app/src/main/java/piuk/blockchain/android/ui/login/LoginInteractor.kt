@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.login
 import android.net.Uri
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import com.blockchain.preferences.AuthPrefs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.nio.charset.Charset
@@ -21,7 +22,7 @@ import timber.log.Timber
 class LoginInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: SessionPrefs,
+    private val authPrefs: AuthPrefs,
     private val appUtil: AppUtil
 ) {
     private lateinit var authPollService: PollService<ResponseBody>
@@ -30,7 +31,7 @@ class LoginInteractor(
         payloadDataManager.handleQrCode(qrString)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
-                    prefs.apply {
+                    authPrefs.apply {
                         sharedKey = wallet.sharedKey
                         walletGuid = wallet.guid
                         emailVerified = true
@@ -47,7 +48,7 @@ class LoginInteractor(
         email: String,
         captcha: String
     ): Completable {
-        prefs.sessionId = sessionId
+        authPrefs.sessionId = sessionId
         return authDataManager.sendEmailForAuthentication(sessionId, email, captcha)
     }
 
@@ -59,7 +60,7 @@ class LoginInteractor(
         }
 
         return when {
-            prefs.pinId.isNotEmpty() -> {
+            authPrefs.pinId.isNotEmpty() -> {
                 if (uri.hasDeeplinkData()) {
                     decodePayloadAndNavigate(uri, builder, intentAction)
                 } else {
@@ -75,7 +76,7 @@ class LoginInteractor(
     private fun decodePayloadAndNavigate(uri: Uri, builder: Json, intentAction: String): LoginIntents =
         try {
             PayloadHandler.getDataFromUri(uri)?.let { data ->
-                val sessionId = prefs.sessionId
+                val sessionId = authPrefs.sessionId
                 val decodedJson = PayloadHandler.decodeToJsonString(data)
                 val accountInfo = builder.decodeFromString<LoginAuthInfo.ExtendedAccountInfo>(decodedJson)
                 if (sessionId.isEmpty() || accountInfo.accountWallet.sessionId != sessionId) {
@@ -88,7 +89,7 @@ class LoginInteractor(
             LoginIntents.UnknownError
         }
 
-    fun shouldContinueToPinEntry() = prefs.pinId.isNotEmpty()
+    fun shouldContinueToPinEntry() = authPrefs.pinId.isNotEmpty()
 
     fun updateApprovalStatus(isLoginApproved: Boolean, sessionId: String, base64Payload: String): Completable =
         authDataManager.updateLoginApprovalStatus(sessionId, base64Payload, isLoginApproved)

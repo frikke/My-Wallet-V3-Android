@@ -34,7 +34,6 @@ class LoaderModelTest {
     private val appUtil: AppUtil = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val prerequisites: Prerequisites = mock()
-    private val prefs: SessionPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
 
     @get:Rule
@@ -55,7 +54,6 @@ class LoaderModelTest {
             appUtil = appUtil,
             payloadDataManager = payloadDataManager,
             prerequisites = prerequisites,
-            prefs = prefs,
             authPrefs = authPrefs
         )
     }
@@ -66,7 +64,7 @@ class LoaderModelTest {
         val isPinValidated = true
         val isAfterWalletCreation = false
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefs.pinId).thenReturn(PIN_ID)
+        whenever(authPrefs.pinId).thenReturn(PIN_ID)
         whenever(interactor.loaderIntents).thenReturn(
             Observable.just(LoaderIntents.UpdateProgressStep(ProgressStep.START))
         )

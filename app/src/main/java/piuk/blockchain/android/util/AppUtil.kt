@@ -8,6 +8,7 @@ import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import io.intercom.android.sdk.Intercom
 import piuk.blockchain.android.ui.auth.LogoutActivity
@@ -18,11 +19,12 @@ import piuk.blockchain.androidcore.utils.SessionPrefs
 class AppUtil(
     private val context: Context,
     private var payloadScopeWiper: PayloadScopeWiper,
-    private val prefs: SessionPrefs,
+    private val sessionPrefs: SessionPrefs,
     private val trust: DigitalTrust,
     private val pinRepository: PinRepository,
     private val remoteLogger: RemoteLogger,
-    private val isIntercomEnabledFlag: FeatureFlag
+    private val isIntercomEnabledFlag: FeatureFlag,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : AppUtilAPI {
     override fun logout() {
         pinRepository.clearPin()
@@ -40,7 +42,7 @@ class AppUtil(
 
     fun unpairWallet() {
         pinRepository.clearPin()
-        prefs.unPairWallet()
+        sessionPrefs.unPairWallet()
     }
 
     override var activityIndicator: ActivityIndicator? = null
@@ -48,7 +50,7 @@ class AppUtil(
     fun clearCredentials() {
         remoteLogger.logEvent("Clearing credentials")
         payloadScopeWiper.wipe()
-        prefs.clear()
+        sessionPrefs.clear()
     }
 
     fun clearCredentialsAndRestart() {
@@ -78,7 +80,7 @@ class AppUtil(
             }
         )
 
-        prefs.isAppUnlocked = false
+        walletStatusPrefs.isAppUnlocked = false
     }
 
     companion object {

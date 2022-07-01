@@ -2,24 +2,22 @@ package piuk.blockchain.android.ui.login
 
 import android.content.Intent
 import android.net.Uri
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import java.lang.IllegalStateException
-import kotlin.jvm.Throws
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class LoginInteractorTest {
 
     private lateinit var subject: LoginInteractor
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
-    private val prefs: SessionPrefs = mock()
+    private val authPrefs: AuthPrefs = mock()
     private val appUtil: AppUtil = mock()
 
     private val action = Intent.ACTION_VIEW
@@ -30,14 +28,14 @@ class LoginInteractorTest {
         subject = LoginInteractor(
             authDataManager = authDataManager,
             payloadDataManager = payloadDataManager,
-            prefs = prefs,
+            authPrefs = authPrefs,
             appUtil = appUtil
         )
     }
 
     @Test
     fun `check login intent when pin exists and no deeplink data sends PIN intent`() {
-        whenever(prefs.pinId).thenReturn("12343")
+        whenever(authPrefs.pinId).thenReturn("12343")
 
         val result = subject.checkSessionDetails(action, data)
         Assert.assertEquals(LoginIntents.UserLoggedInWithoutDeeplinkData, result)
@@ -45,8 +43,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when pin exists and intent data exists and session id empty`() {
-        whenever(prefs.pinId).thenReturn("1234")
-        whenever(prefs.sessionId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("1234")
+        whenever(authPrefs.sessionId).thenReturn("")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -55,8 +53,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when pin exists and intent data exists and session ids mismatch`() {
-        whenever(prefs.pinId).thenReturn("1234")
-        whenever(prefs.sessionId).thenReturn("12345")
+        whenever(authPrefs.pinId).thenReturn("1234")
+        whenever(authPrefs.sessionId).thenReturn("12345")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -65,8 +63,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when pin exists and intent data exists and session ids match`() {
-        whenever(prefs.pinId).thenReturn("1234")
-        whenever(prefs.sessionId).thenReturn("1234")
+        whenever(authPrefs.pinId).thenReturn("1234")
+        whenever(authPrefs.sessionId).thenReturn("1234")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -79,8 +77,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when intent data exists and session id empty`() {
-        whenever(prefs.pinId).thenReturn("")
-        whenever(prefs.sessionId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
+        whenever(authPrefs.sessionId).thenReturn("")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -89,8 +87,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when intent data exists and session ids mismatch`() {
-        whenever(prefs.pinId).thenReturn("")
-        whenever(prefs.sessionId).thenReturn("12345")
+        whenever(authPrefs.pinId).thenReturn("")
+        whenever(authPrefs.sessionId).thenReturn("12345")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -99,8 +97,8 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when intent data exists and session ids match`() {
-        whenever(prefs.pinId).thenReturn("")
-        whenever(prefs.sessionId).thenReturn("1234")
+        whenever(authPrefs.pinId).thenReturn("")
+        whenever(authPrefs.sessionId).thenReturn("1234")
         whenever(data.fragment).thenReturn("/login/$BASE_64_FULL_PAYLOAD")
 
         val result = subject.checkSessionDetails(action, data)
@@ -114,8 +112,8 @@ class LoginInteractorTest {
     @Test
     @Throws(IllegalStateException::class)
     fun `check login intent when exception is thrown`() {
-        whenever(prefs.pinId).thenReturn("")
-        whenever(prefs.sessionId).thenThrow(IllegalStateException())
+        whenever(authPrefs.pinId).thenReturn("")
+        whenever(authPrefs.sessionId).thenThrow(IllegalStateException())
         whenever(data.fragment).thenReturn("/login/abcd")
 
         val result = subject.checkSessionDetails(action, data)
@@ -124,9 +122,9 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when intent data corrupt`() {
-        whenever(prefs.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
         whenever(data.fragment).thenReturn("/login/$BASE_64_CORRUPT_PAYLOAD")
-        whenever(prefs.sessionId).thenReturn("1234")
+        whenever(authPrefs.sessionId).thenReturn("1234")
 
         val result = subject.checkSessionDetails(action, data)
         Assert.assertTrue(result is LoginIntents.UnknownError)
@@ -134,7 +132,7 @@ class LoginInteractorTest {
 
     @Test
     fun `check login intent when no intent delimiter exists sends error intent`() {
-        whenever(prefs.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
 
         val uri: Uri = mock {
             on { fragment }.thenReturn("abcd")

@@ -3,19 +3,17 @@ package piuk.blockchain.android.ui.launcher
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
-private const val KEY_DEEP_LINK_URI = "deeplink_uri"
-
-class DeepLinkPersistence(private val prefs: SessionPrefs) {
+class DeepLinkPersistence(private val sessionPrefs: SessionPrefs) {
 
     fun pushDeepLink(data: String) {
         Timber.d("DeepLink: Saving uri: $data")
-        prefs.setValue(KEY_DEEP_LINK_URI, data)
+        sessionPrefs.deeplinkUri = data
     }
 
-    fun popDataFromSharedPrefs(): String? {
-        val data = prefs.getValue(KEY_DEEP_LINK_URI)
+    fun popDataFromSharedPrefs(): String {
+        val data = sessionPrefs.deeplinkUri
         Timber.d("DeepLink: Read uri: $data")
-        prefs.removeValue(KEY_DEEP_LINK_URI)
+        sessionPrefs.clearDeeplinkUri()
         Timber.d("DeepLink: Cleared uri: $data")
         return data
     }

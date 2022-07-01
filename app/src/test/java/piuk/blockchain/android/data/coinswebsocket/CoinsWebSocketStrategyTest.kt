@@ -6,6 +6,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.websocket.MessagesSocketHandler
@@ -138,7 +139,7 @@ class CoinsWebSocketStrategyTest {
         on { getWalletTransactions(any(), any()) }.thenReturn(Observable.just(emptyList()))
     }
 
-    private val prefs: SessionPrefs = mock {
+    private val prefs: AuthPrefs = mock {
         on { walletGuid }.thenReturn("1234")
     }
 
@@ -179,7 +180,7 @@ class CoinsWebSocketStrategyTest {
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
         appUtil = mock(),
-        prefs = prefs,
+        authPrefs = prefs,
         rxBus = rxBus,
         assetCatalogue = assetCatalogue,
         crashLogger = mock()

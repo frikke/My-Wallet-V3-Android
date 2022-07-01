@@ -16,6 +16,8 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.wallet.util.PasswordUtil
 import java.util.Locale
@@ -78,7 +80,8 @@ sealed class CreateWalletError {
 class CreateWalletViewModel(
     private val environmentConfig: EnvironmentConfig,
     private val defaultLabels: DefaultLabels,
-    private val prefs: SessionPrefs,
+    private val authPrefs: AuthPrefs,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val analytics: Analytics,
     private val specificAnalytics: ProviderSpecificAnalytics,
     private val appUtil: AppUtil,
@@ -220,14 +223,18 @@ class CreateWalletViewModel(
                         val stateIso = (modelState.stateInputState as? StateInputState.Loaded)?.selected?.stateCode
                         analytics.logEvent(WalletCreationAnalytics.WalletSignUp(countryIso, stateIso))
 
-                        prefs.apply {
+                        walletStatusPrefs.apply {
                             isNewlyCreated = true
-                            walletGuid = wallet.guid
-                            sharedKey = wallet.sharedKey
                             countrySelectedOnSignUp = countryIso
                             if (stateIso != null) stateSelectedOnSignUp = stateIso
                             email = modelState.emailInput
                         }
+
+                        authPrefs.apply {
+                            walletGuid = wallet.guid
+                            sharedKey = wallet.sharedKey
+                        }
+
                         analytics.logEvent(AnalyticsEvents.WalletCreation)
                         specificAnalytics.logSignUp(true)
                         navigate(CreateWalletNavigation.PinEntry(modelState.referralCodeInput.ifEmpty { null }))

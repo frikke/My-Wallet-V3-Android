@@ -675,6 +675,12 @@ class PrefsUtil(
         get() = getValue(ANALYTICS_REPORTED_WALLET_KEY, "")
         set(value) = setValue(ANALYTICS_REPORTED_WALLET_KEY, value)
 
+    override var deeplinkUri: String
+        get() = getValue(KEY_DEEP_LINK_URI, "")
+        set(value) = setValue(KEY_DEEP_LINK_URI, value)
+
+    override fun clearDeeplinkUri() = removeValue(KEY_DEEP_LINK_URI)
+
     companion object {
         const val KEY_PRE_IDV_FAILED = "pre_idv_check_failed"
 
@@ -789,6 +795,7 @@ class PrefsUtil(
         private const val KEY_METADATA_URI = "metadata_uri"
         private const val ANALYTICS_REPORTED_NABU_USER_KEY = "analytics_reported_nabu_user_key"
         private const val ANALYTICS_REPORTED_WALLET_KEY = "analytics_reported_wallet_key"
+        private const val KEY_DEEP_LINK_URI = "deeplink_uri"
 
         // Security
         private const val KEY_OVERLAY_TRUSTED = "overlay_trusted"

@@ -7,6 +7,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.utils.appendSpaced
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler
@@ -80,7 +81,7 @@ class CoinsWebSocketStrategy(
     private val json: Json,
     private val replaceGsonKtxFF: FeatureFlag,
     private val rxBus: RxBus,
-    private val prefs: SessionPrefs,
+    private val authPrefs: AuthPrefs,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val assetCatalogue: AssetCatalogue,
@@ -494,7 +495,7 @@ class CoinsWebSocketStrategy(
         )
     }
 
-    private fun guid(): String = prefs.walletGuid
+    private fun guid(): String = authPrefs.walletGuid
 
     private fun xPubsBch(): List<String> {
         return if (payloadDataManager.wallet?.isUpgradedToV3 == true) {

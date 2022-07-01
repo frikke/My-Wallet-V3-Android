@@ -9,6 +9,8 @@ interface SessionPrefs {
     var keySchemeUrl: String
     var analyticsReportedNabuUser: String
     var analyticsReportedWalletKey: String
+    var deeplinkUri: String
+    fun clearDeeplinkUri()
 
     fun clear()
 
