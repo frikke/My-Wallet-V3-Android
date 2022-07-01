@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.start
 
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -21,7 +22,7 @@ class PasswordRequiredPresenterTest : RxTest() {
     private lateinit var subject: PasswordRequiredPresenter
     private val view: PasswordRequiredView = mock()
     private val appUtil: AppUtil = mock()
-    private val prefs: SessionPrefs = mock()
+    private val prefs: AuthPrefs = mock()
     private val authDataManager: AuthDataManager = mock()
     private val payloadDataManager: PayloadDataManager = mock()
     private val wallet: Wallet = mock()

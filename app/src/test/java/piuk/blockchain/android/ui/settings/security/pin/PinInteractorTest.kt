@@ -59,8 +59,8 @@ class PinInteractorTest {
                 authDataManager = authDataManager,
                 apiStatus = apiStatus,
                 authPrefs = authPrefs,
-                persistentPrefs = sessionPrefs,
-                walletStatus = walletStatusPrefs,
+                sessionPrefs = sessionPrefs,
+                walletStatusPrefs = walletStatusPrefs,
                 defaultLabels = defaultLabels,
                 isIntercomEnabledFlag = isIntercomEnabledFlag
             )

@@ -23,7 +23,7 @@ class TransferCryptoAnnouncementTest {
         subject =
             TransferCryptoAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatusPrefs
+                walletStatusPrefs = walletStatusPrefs
             )
     }
 

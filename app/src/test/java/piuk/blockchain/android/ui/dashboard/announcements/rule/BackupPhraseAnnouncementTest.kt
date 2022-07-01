@@ -23,7 +23,7 @@ class BackupPhraseAnnouncementTest {
         subject =
             BackupPhraseAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatusPrefs
+                walletStatusPrefs = walletStatusPrefs
             )
     }
 

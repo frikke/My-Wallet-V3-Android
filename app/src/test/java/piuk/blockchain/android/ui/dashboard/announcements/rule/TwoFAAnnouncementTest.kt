@@ -30,7 +30,7 @@ class TwoFAAnnouncementTest {
         subject =
             TwoFAAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatusPrefs,
+                walletStatusPrefs = walletStatusPrefs,
                 walletSettings = walletSettings
             )
     }
