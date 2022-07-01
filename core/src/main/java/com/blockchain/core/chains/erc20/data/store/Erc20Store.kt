@@ -37,6 +37,10 @@ internal class Erc20Store(
         ),
         dataSerializer = Erc20TokenBalancesStore.serializer(),
         mediator = object : Mediator<Unit, Erc20TokenBalancesStore> {
+            /**
+             * when accountHash changes -> fetch fresh
+             * otherwise 1 hour
+             */
             private fun shouldFetch(
                 requestAccountHash: String,
                 cachedAccountHash: String,
