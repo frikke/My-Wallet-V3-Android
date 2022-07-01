@@ -496,6 +496,8 @@
     <string name="disable">Disable</string>
     <string name="setting_limits_title">Trading Accounts</string>
     <string name="setting_limits_description">Limits &amp; Features</string>
+    <string name="setting_limits_load_error_title">Loading Error</string>
+    <string name="setting_limits_load_error_description">We can’t load your limits now. You can check your account limits by going to Settings</string>
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
 
@@ -1372,7 +1374,6 @@
     <string name="cancel_order_go_back_dashboard">No, Keep Order</string>
     <string name="cancel_token_instruction">This will remove your %1$s Buy order.</string>
     <string name="transfer_details">Transfer Details</string>
-    <string name="ops">Oops!</string>
     <string name="something_went_wrong_try_again">Something went wrong. Please try again.</string>
     <string name="simple_buy_copied_to_clipboard">%1s is on your clipboard</string>
     <string name="account_number">Account Number</string>
@@ -2545,6 +2546,8 @@
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
     <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
+    <string name="dashboard_onboarding_error_title">Loading Error</string>
+    <string name="dashboard_onboarding_error_description">We encountered an issue while loading the verification screen. Please go back to the previous screen and try again.</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
     <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>

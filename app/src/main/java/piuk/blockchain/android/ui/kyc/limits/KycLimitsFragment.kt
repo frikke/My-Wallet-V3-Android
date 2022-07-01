@@ -104,9 +104,11 @@ class KycLimitsFragment :
             showBottomSheet(
                 ErrorSlidingBottomDialog.newInstance(
                     ErrorDialogData(
-                        title = nabuException?.getServerSideErrorInfo()?.title ?: getString(R.string.ops),
+                        title = nabuException?.getServerSideErrorInfo()?.title ?: getString(
+                            R.string.setting_limits_load_error_title
+                        ),
                         description = nabuException?.getServerSideErrorInfo()?.description ?: getString(
-                            R.string.something_went_wrong_try_again
+                            R.string.setting_limits_load_error_description
                         ),
                         errorButtonCopies = ErrorButtonCopies(primaryButtonText = getString(R.string.common_ok)),
                         error = errorState.toString(),
