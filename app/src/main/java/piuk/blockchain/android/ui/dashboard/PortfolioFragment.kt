@@ -62,7 +62,7 @@ import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.assetdetails.fiatAssetAction
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
+import piuk.blockchain.android.ui.dashboard.model.DashboardAsset
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
@@ -97,8 +97,7 @@ import piuk.blockchain.android.util.launchUrlInBrowser
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-
-class EmptyDashboardItem : DashboardItem
+import timber.log.Timber
 
 class PortfolioFragment :
     HomeScreenMviFragment<DashboardModel, DashboardIntent, DashboardState, FragmentPortfolioBinding>(),
@@ -136,8 +135,6 @@ class PortfolioFragment :
     private val theLayoutManager: RecyclerView.LayoutManager by unsafeLazy {
         SafeLayoutManager(requireContext())
     }
-
-    private val displayList = mutableListOf<DashboardItem>()
 
     private val compositeDisposable = CompositeDisposable()
     private val rxBus: RxBus by inject()
@@ -224,51 +221,33 @@ class PortfolioFragment :
     }
 
     private fun updateDisplayList(newState: DashboardState) {
-        with(displayList) {
-            val newMap = if (isEmpty()) {
-                mapOf(
-                    IDX_CARD_ANNOUNCE to EmptyDashboardItem(),
-                    IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to EmptyDashboardItem(),
-                    IDX_FUNDS_BALANCE to EmptyDashboardItem() // Placeholder for funds
-                )
-            } else {
-                mapOf(
-                    IDX_CARD_ANNOUNCE to get(IDX_CARD_ANNOUNCE),
-                    IDX_CARD_BALANCE to newState,
-                    IDX_WITHDRAWAL_LOCKS to (
-                        newState.locks.fundsLocks?.let {
-                            newState.locks
-                        } ?: EmptyDashboardItem()
-                        ),
-                    IDX_FUNDS_BALANCE to if (newState.fiatAssets.fiatAccounts.isNotEmpty()) {
-                        newState.fiatAssets
-                    } else {
-                        EmptyDashboardItem()
-                    }
-                )
-            }
 
-            // Add assets, sorted by fiat balance then alphabetically
-            val cryptoAssets = newState.activeAssets.values.sortedWith(
-                compareByDescending<CryptoAssetState> { it.fiatBalance?.toBigInteger() }
-                    .thenBy { it.currency.name }
-            )
-            val fiatAssets = newState.fiatAssets.fiatAccounts
+        val items = listOfNotNull(
+            newState.dashboardBalance,
+            newState.locks.fundsLocks?.let {
+                newState.locks
+            },
+            newState.fiatAssets.fiatAccounts.takeIf { it.isNotEmpty() }?.let { newState.fiatAssets },
+        )
 
-            val atLeastOneCryptoAssetHasBalancePositive =
-                cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
+        val cryptoAssets = newState.activeAssets.values.sortedWith(
+            compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
+                .thenBy { it.currency.name }
+        )
+        val fiatAssets = newState.fiatAssets.fiatAccounts
 
-            val atLeastOneFiatAssetHasBalancePositive =
-                fiatAssets.any { it.value.availableBalance?.isPositive == true }
+        val atLeastOneCryptoAssetHasBalancePositive =
+            cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
 
-            val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
+        val atLeastOneFiatAssetHasBalancePositive =
+            fiatAssets.any { it.value.availableBalance?.isPositive == true }
 
-            manageLoadingState(isDashboardLoading(newState), showPortfolio, newState.canPotentiallyTransactWithBanks)
-            clear()
-            addAll(newMap.values + cryptoAssets)
-        }
-        theAdapter.notifyDataSetChanged()
+        val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
+
+        manageLoadingState(isDashboardLoading(newState), showPortfolio, newState.canPotentiallyTransactWithBanks)
+
+        theAdapter.items =
+            theAdapter.items.filterIsInstance<AnnouncementCard>().plus(items).plus(cryptoAssets)
     }
 
     /**
@@ -276,7 +255,7 @@ class PortfolioFragment :
      * -> verify app rating
      */
     private fun verifyAppRating(state: DashboardState) {
-        if (isDashboardLoading(state).not() && state.fiatBalance?.isPositive == true) {
+        if (isDashboardLoading(state).not() && state.dashboardBalance?.fiatBalance?.isPositive == true) {
             model.process(DashboardIntent.VerifyAppRating)
         }
     }
@@ -338,6 +317,15 @@ class PortfolioFragment :
                 activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), navigationAction.asset))
                 model.process(DashboardIntent.ResetNavigation)
             }
+            is DashboardNavigationAction.BackUpBeforeSend,
+            is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions,
+            is DashboardNavigationAction.FiatFundsDetails,
+            DashboardNavigationAction.FiatFundsNoKyc,
+            is DashboardNavigationAction.InterestSummary,
+            is DashboardNavigationAction.LinkOrDeposit,
+            is DashboardNavigationAction.PaymentMethods,
+            DashboardNavigationAction.SimpleBuyCancelOrder,
+            DashboardNavigationAction.StxAirdropComplete -> Timber.e("Unhandled navigation event")
         }
     }
 
@@ -439,15 +427,16 @@ class PortfolioFragment :
     }
 
     private fun showAnnouncement(card: AnnouncementCard?) {
-        displayList[IDX_CARD_ANNOUNCE] = card ?: EmptyDashboardItem()
-        theAdapter.notifyItemChanged(IDX_CARD_ANNOUNCE)
         card?.let {
-            binding.portfolioRecyclerView.smoothScrollToPosition(IDX_CARD_ANNOUNCE)
+            theAdapter.items = theAdapter.items.plus(it)
+            binding.portfolioRecyclerView.smoothScrollToPosition(DashboardItem.ANNOUNCEMENT_INDEX)
+        } ?: kotlin.run {
+            theAdapter.items = theAdapter.items.filterNot { it is AnnouncementCard }
         }
     }
 
     private fun updateAnalytics(oldState: DashboardState?, newState: DashboardState) {
-        analyticsReporter.updateFiatTotal(newState.fiatBalance)
+        analyticsReporter.updateFiatTotal(newState.dashboardBalance?.fiatBalance)
 
         newState.activeAssets.forEach { (asset, state) ->
             val newBalance = state.accountBalance?.total
@@ -500,7 +489,6 @@ class PortfolioFragment :
 
             addItemDecoration(BlockchainListDividerDecor(requireContext()))
         }
-        theAdapter.items = displayList
     }
 
     private fun setupSwipeRefresh() {
@@ -554,11 +542,7 @@ class PortfolioFragment :
     }
 
     private fun initOrUpdateAssets() {
-        if (displayList.isEmpty()) {
-            model.process(DashboardIntent.GetActiveAssets)
-        } else {
-            model.process(DashboardIntent.RefreshAllBalancesIntent(false))
-        }
+        model.process(DashboardIntent.RefreshAllBalancesIntent(false))
     }
 
     fun refreshFiatAssets() {
@@ -572,9 +556,8 @@ class PortfolioFragment :
         // ordering. Storing this through prefs is a bit of a hack, um, "optimisation" - we don't
         // want to be getting all the balances every time we want to display assets in balance order.
         // TODO This UI is due for a re-write soon, at which point this ordering should be managed better
-        dashboardPrefs.dashboardAssetOrder = displayList.filterIsInstance<CryptoAssetState>()
+        dashboardPrefs.dashboardAssetOrder = theAdapter.items.filterIsInstance<DashboardAsset>()
             .map { it.currency.displayTicker }
-
         compositeDisposable.clear()
         rxBus.unregister(ActionEvent::class.java, actionEvent)
         super.onPause()
@@ -844,11 +827,6 @@ class PortfolioFragment :
 
         internal const val FLOW_TO_LAUNCH = "FLOW_TO_LAUNCH"
         internal const val FLOW_FIAT_CURRENCY = "FLOW_FIAT_CURRENCY"
-
-        private const val IDX_CARD_ANNOUNCE = 0
-        private const val IDX_CARD_BALANCE = 1
-        private const val IDX_WITHDRAWAL_LOCKS = 2
-        private const val IDX_FUNDS_BALANCE = 3
 
         const val BACKUP_FUNDS_REQUEST_CODE = 8265
     }

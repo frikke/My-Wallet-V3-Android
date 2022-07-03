@@ -19,7 +19,7 @@ class DashboardStateTest {
             announcement = null
         )
 
-        assertEquals(subject.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
+        assertEquals(subject.dashboardBalance!!.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
     }
 
     @Test
@@ -27,27 +27,27 @@ class DashboardStateTest {
         val subject = DashboardState(
             activeAssets = mapOfAssets(
                 CryptoCurrency.BTC to initialBtcState,
-                CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
-                CryptoCurrency.XLM to CryptoAssetState(CryptoCurrency.XLM)
+                CryptoCurrency.ETHER to BrokerageAsset(CryptoCurrency.ETHER),
+                CryptoCurrency.XLM to BrokerageAsset(CryptoCurrency.XLM)
             ),
             announcement = null
         )
 
-        assertEquals(subject.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
+        assertEquals(subject.dashboardBalance!!.fiatBalance, FiatValue.zero(FIAT_CURRENCY))
     }
 
     @Test
     fun `if no assets are loaded, total balance is null`() {
         val subject = DashboardState(
             activeAssets = mapOfAssets(
-                CryptoCurrency.BTC to CryptoAssetState(CryptoCurrency.BTC),
-                CryptoCurrency.ETHER to CryptoAssetState(CryptoCurrency.ETHER),
-                CryptoCurrency.XLM to CryptoAssetState(CryptoCurrency.XLM)
+                CryptoCurrency.BTC to BrokerageAsset(CryptoCurrency.BTC),
+                CryptoCurrency.ETHER to BrokerageAsset(CryptoCurrency.ETHER),
+                CryptoCurrency.XLM to BrokerageAsset(CryptoCurrency.XLM)
             ),
             announcement = null
         )
 
-        assertNull(subject.fiatBalance)
+        assertNull(subject.dashboardBalance!!.fiatBalance)
     }
 
     @Test
@@ -66,7 +66,7 @@ class DashboardStateTest {
             -25.0
         )
 
-        val result = subject.delta
+        val result = (subject.dashboardBalance as BrokerageBalanceState).delta
 
         assertEquals(expectedResult, result)
     }
@@ -91,7 +91,7 @@ class DashboardStateTest {
                 ),
                 -25.0
             ),
-            subject.delta
+            (subject.dashboardBalance as BrokerageBalanceState).delta
         )
     }
 
@@ -115,7 +115,7 @@ class DashboardStateTest {
                 ),
                 -20.0
             ),
-            subject.delta
+            (subject.dashboardBalance as BrokerageBalanceState).delta
         )
     }
 }

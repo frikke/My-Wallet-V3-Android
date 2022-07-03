@@ -50,6 +50,10 @@ class BackupPhraseViewModel(
 
     override suspend fun handleIntent(modelState: BackupPhraseModelState, intent: BackupPhraseIntent) {
         when (intent) {
+            BackupPhraseIntent.StartBackup -> {
+                navigate(BackupPhraseNavigationEvent.BackupPhraseIntro)
+            }
+
             BackupPhraseIntent.LoadData -> {
                 loadData()
             }
@@ -92,6 +96,8 @@ class BackupPhraseViewModel(
             }
         }.exhaustive
     }
+
+    fun isBackedUp() = backupPhraseService.isBackedUp()
 
     private fun loadData() {
         loadBackupStatus()

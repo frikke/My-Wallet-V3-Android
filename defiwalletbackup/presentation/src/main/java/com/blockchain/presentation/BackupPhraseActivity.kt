@@ -65,7 +65,10 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
     companion object {
         fun newIntent(context: Context, secondPassword: String?): Intent =
             Intent(context, BackupPhraseActivity::class.java).apply {
-                putExtra(BackupPhraseArgs.ARGS_KEY, BackupPhraseArgs(secondPassword))
+                putExtra(
+                    BackupPhraseArgs.ARGS_KEY,
+                    BackupPhraseArgs(secondPassword = secondPassword)
+                )
             }
     }
 }

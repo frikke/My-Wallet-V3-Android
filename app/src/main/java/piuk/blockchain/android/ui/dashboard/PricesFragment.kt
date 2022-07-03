@@ -16,6 +16,7 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.preferences.CurrencyPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -39,8 +40,6 @@ import piuk.blockchain.android.ui.dashboard.adapter.PricesDelegateAdapter
 import piuk.blockchain.android.ui.dashboard.assetdetails.AssetDetailsAnalytics
 import piuk.blockchain.android.ui.dashboard.assetdetails.assetActionEvent
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.model.AssetPriceState
-import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
 import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
@@ -110,11 +109,6 @@ internal class PricesFragment :
 
     @UiThread
     override fun render(newState: DashboardState) {
-        doRender(newState)
-    }
-
-    @UiThread
-    private fun doRender(newState: DashboardState) {
         binding.swipe.isRefreshing = false
 
         updateDisplayList(newState)
@@ -130,14 +124,11 @@ internal class PricesFragment :
 
     private fun updateDisplayList(newState: DashboardState) {
         // Get the active assets sorted by balance
-        val activeAssets = newState.activeAssets.values.sortedWith(
-            compareByDescending<CryptoAssetState> { it.prices24HrWithDelta?.marketCap }
-                .thenBy { it.currency.name }
-        ).map { it.toAssetPriceState() }
+
         // Get all the available assets
         val availableAssets = newState.availablePrices.values
-        // Merge active and available, maintaining the order - active assets with biggest balances first
-        val sortedAssets = activeAssets.toSet().plus(availableAssets).filter { assetPriceState ->
+
+        val sortedAssets = availableAssets.filter { assetPriceState ->
             newState.filterBy.isBlank() ||
                 assetPriceState.assetInfo.name.contains(newState.filterBy, ignoreCase = true) ||
                 assetPriceState.assetInfo.displayTicker.contains(newState.filterBy, ignoreCase = true)
@@ -291,7 +282,19 @@ internal class PricesFragment :
                 activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), navigationAction.asset))
                 model.process(DashboardIntent.ResetNavigation)
             }
-        }
+            DashboardNavigationAction.AppRating,
+            is DashboardNavigationAction.BackUpBeforeSend,
+            is DashboardNavigationAction.DashboardOnboarding,
+            is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions,
+            is DashboardNavigationAction.FiatFundsDetails,
+            DashboardNavigationAction.FiatFundsNoKyc,
+            is DashboardNavigationAction.InterestSummary,
+            is DashboardNavigationAction.LinkOrDeposit,
+            is DashboardNavigationAction.PaymentMethods,
+            DashboardNavigationAction.SimpleBuyCancelOrder,
+            DashboardNavigationAction.StxAirdropComplete -> {
+            }
+        }.exhaustive
     }
 
     private fun startBankLinking(action: DashboardNavigationAction.LinkBankWithPartner) {
@@ -444,10 +447,4 @@ internal class PricesFragment :
     companion object {
         fun newInstance() = PricesFragment()
     }
-
-    private fun CryptoAssetState.toAssetPriceState() =
-        AssetPriceState(
-            assetInfo = currency,
-            prices = prices24HrWithDelta
-        )
 }

@@ -16,31 +16,32 @@ import piuk.blockchain.android.databinding.ItemDashboardAssetCardBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
 import piuk.blockchain.android.ui.dashboard.format
-import piuk.blockchain.android.ui.dashboard.model.CryptoAssetState
+import piuk.blockchain.android.ui.dashboard.model.BrokerageAsset
+import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.showLoading
 import piuk.blockchain.android.ui.resources.AssetResources
 import piuk.blockchain.android.util.context
 
 // Uses sparkline lib from here: https://github.com/robinhood/spark
 
-class AssetCardDelegate<in T>(
+class BrokerageCardDelegate(
     private val prefs: CurrencyPrefs,
     private val assetResources: AssetResources,
     private val onCardClicked: (AssetInfo) -> Unit
-) : AdapterDelegate<T> {
+) : AdapterDelegate<DashboardItem> {
 
-    override fun isForViewType(items: List<T>, position: Int): Boolean =
-        items[position] is CryptoAssetState
+    override fun isForViewType(items: List<DashboardItem>, position: Int): Boolean =
+        items[position] is BrokerageAsset
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetCardViewHolder(ItemDashboardAssetCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(
-        items: List<T>,
+        items: List<DashboardItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetCardViewHolder).bind(
-        items[position] as CryptoAssetState,
+        items[position] as BrokerageAsset,
         prefs.selectedFiatCurrency,
         assetResources,
         onCardClicked
@@ -52,7 +53,7 @@ private class AssetCardViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        state: CryptoAssetState,
+        state: BrokerageAsset,
         fiatSymbol: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
@@ -90,7 +91,7 @@ private class AssetCardViewHolder(
     }
 
     private fun renderLoaded(
-        state: CryptoAssetState,
+        state: BrokerageAsset,
         fiatCurrency: FiatCurrency,
         assetResources: AssetResources,
         onCardClicked: (AssetInfo) -> Unit
@@ -119,7 +120,7 @@ private class AssetCardViewHolder(
         }
     }
 
-    private fun renderError(state: CryptoAssetState) {
+    private fun renderError(state: BrokerageAsset) {
         showError()
 
         with(binding) {
@@ -155,13 +156,11 @@ private class AssetCardViewHolder(
             errorMsg.visible()
         }
     }
-
-    companion object {
-        private const val FIAT_BALANCE_ID = "DashboardAssetFiatBalance_"
-        private const val CRYPTO_BALANCE_ID = "DashboardAssetCryptoBalance_"
-        private const val ASSET_CARD_ID = "DashboardAssetCard_"
-    }
 }
+
+const val FIAT_BALANCE_ID = "DashboardAssetFiatBalance_"
+const val CRYPTO_BALANCE_ID = "DashboardAssetCryptoBalance_"
+const val ASSET_CARD_ID = "DashboardAssetCard_"
 
 private class PriceAdapter(private val yData: FloatArray) : SparkAdapter() {
     override fun getCount(): Int = yData.size

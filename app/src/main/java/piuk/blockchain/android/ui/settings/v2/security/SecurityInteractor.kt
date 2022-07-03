@@ -104,4 +104,10 @@ class SecurityInteractor internal constructor(
     fun updateCloudBackup(enabled: Boolean) {
         backupPrefs.backupEnabled = enabled
     }
+
+    fun triggerSeedPhraseAlert(): Completable =
+        settingsDataManager.triggerEmailAlert(
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey
+        )
 }

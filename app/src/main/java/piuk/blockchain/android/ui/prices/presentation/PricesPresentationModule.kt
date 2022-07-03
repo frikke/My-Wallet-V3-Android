@@ -8,7 +8,8 @@ val pricesPresentationModule = module {
     scope(payloadScopeQualifier) {
         viewModel {
             PricesViewModel(
-                getAvailableCryptoAssetsUseCase = get(),
+                walletModeService = get(),
+                coincore = get(),
                 exchangeRatesDataManager = get(),
                 custodialWalletManager = get(),
                 currencyPrefs = get()

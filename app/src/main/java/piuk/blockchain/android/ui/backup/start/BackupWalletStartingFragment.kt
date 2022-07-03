@@ -8,12 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blockchain.commonarch.presentation.mvi.MviFragment
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.BackupPhraseActivity
 import com.blockchain.ui.password.SecondPasswordHandler
-import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentBackupStartBinding
 import piuk.blockchain.android.ui.backup.wordlist.BackupWalletWordListFragment
@@ -25,8 +21,6 @@ class BackupWalletStartingFragment :
         BackupWalletStartingIntents,
         BackupWalletStartingState,
         FragmentBackupStartBinding>() {
-
-    private val backupFeatureFlag: FeatureFlag by inject(backupPhraseFeatureFlag)
 
     private val secondPasswordHandler: SecondPasswordHandler by scopedInjectActivity()
 
@@ -99,29 +93,21 @@ class BackupWalletStartingFragment :
     }
 
     private fun loadFragmentWordListFragment(secondPassword: String? = null) {
-        backupFeatureFlag.enabled.subscribe { enabled ->
-            if (enabled) {
-                BackupPhraseActivity.newIntent(activity, secondPassword)
-                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    .also { intent -> startActivity(intent) }
-            } else {
-                val fragment = BackupWalletWordListFragment().apply {
-                    secondPassword?.let {
-                        arguments = Bundle().apply {
-                            putString(
-                                BackupWalletWordListFragment.ARGUMENT_SECOND_PASSWORD,
-                                it
-                            )
-                        }
-                    }
-                }
-                activity.run {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, fragment)
-                        .addToBackStack(null)
-                        .commit()
+        val fragment = BackupWalletWordListFragment().apply {
+            secondPassword?.let {
+                arguments = Bundle().apply {
+                    putString(
+                        BackupWalletWordListFragment.ARGUMENT_SECOND_PASSWORD,
+                        it
+                    )
                 }
             }
+        }
+        activity.run {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .addToBackStack(null)
+                .commit()
         }
     }
 

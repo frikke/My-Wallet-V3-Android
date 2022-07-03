@@ -20,7 +20,7 @@ private val pricesWith24HrBtc = Prices24HrWithDelta(
     delta24h = 0.0
 )
 
-val initialBtcState = CryptoAssetState(
+val initialBtcState = BrokerageAsset(
     currency = CryptoCurrency.BTC,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.BTC))
@@ -34,7 +34,7 @@ val initialBtcState = CryptoAssetState(
     priceTrend = emptyList()
 )
 
-val initialEthState = CryptoAssetState(
+val initialEthState = BrokerageAsset(
     currency = CryptoCurrency.ETHER,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.ETHER))
@@ -48,7 +48,7 @@ val initialEthState = CryptoAssetState(
     priceTrend = emptyList()
 )
 
-val initialXlmState = CryptoAssetState(
+val initialXlmState = BrokerageAsset(
     currency = CryptoCurrency.XLM,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.zero(CryptoCurrency.XLM))
@@ -74,7 +74,7 @@ val testAnnouncementCard_2 = StandardAnnouncementCard(
     dismissEntry = mock()
 )
 
-val testBtcState = CryptoAssetState(
+val testBtcState = BrokerageAsset(
     currency = CryptoCurrency.BTC,
     accountBalance = mock {
         on { total }.thenReturn(CryptoValue.fromMajor(CryptoCurrency.BTC, 10.toBigDecimal()))

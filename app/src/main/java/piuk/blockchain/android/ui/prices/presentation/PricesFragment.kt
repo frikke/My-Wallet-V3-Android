@@ -6,7 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
@@ -16,7 +21,6 @@ import info.blockchain.balance.AssetInfo
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.scope.Scope
-import piuk.blockchain.android.databinding.FragmentPricesBinding
 
 class PricesFragment :
     MVIFragment<PricesViewState>(),
@@ -29,10 +33,6 @@ class PricesFragment :
         activity as? NavigationRouter<PricesNavigationEvent>
             ?: error("host does not implement NavigationRouter<PricesNavigationEvent>")
     }
-
-    private var _binding: FragmentPricesBinding? = null
-    private val binding: FragmentPricesBinding
-        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,14 +63,19 @@ class PricesFragment :
 
     @Composable
     private fun ScreenContent() {
-        val state = viewModel.viewState.collectAsState()
-
-        PricesScreen(
-            viewState = state.value,
-            loadAssetsAvailable = ::loadAssetsAvailable,
-            pricesItemClicked = ::pricesItemClicked,
-            filterData = ::filterData
-        )
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+            viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+        }
+        val viewState: PricesViewState? by stateFlowLifecycleAware.collectAsState(null)
+        viewState?.let {
+            PricesScreen(
+                viewState = it,
+                retryAction = ::loadAssetsAvailable,
+                pricesItemClicked = ::pricesItemClicked,
+                filterData = ::filterData
+            )
+        }
     }
 
     override fun onStateUpdated(state: PricesViewState) {}

@@ -22,14 +22,14 @@ import piuk.blockchain.android.ui.prices.presentation.composables.PricesScreenEr
 @Composable
 fun PricesScreen(
     viewState: PricesViewState,
-    loadAssetsAvailable: () -> Unit,
+    retryAction: () -> Unit,
     pricesItemClicked: (AssetInfo) -> Unit,
     filterData: (String) -> Unit,
 ) {
     with(viewState) {
         when {
             isLoading -> PriceScreenLoading()
-            isError -> PricesScreenError(loadAssetsAvailable)
+            isError -> PricesScreenError(retryAction)
             else -> {
                 Column {
                     Box(

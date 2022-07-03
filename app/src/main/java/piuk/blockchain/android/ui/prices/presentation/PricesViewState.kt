@@ -1,10 +1,17 @@
 package piuk.blockchain.android.ui.prices.presentation
 
 import com.blockchain.commonarch.presentation.mvi_v2.ViewState
-import piuk.blockchain.android.ui.prices.PricesItem
+import info.blockchain.balance.AssetInfo
 
 data class PricesViewState(
     val isLoading: Boolean,
     val isError: Boolean,
-    val data: List<PricesItem>,
+    val data: List<PriceItemViewState>,
 ) : ViewState
+
+data class PriceItemViewState(
+    val hasError: Boolean,
+    val assetInfo: AssetInfo,
+    val delta: Double?,
+    val currentPrice: String
+)

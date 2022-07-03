@@ -8,13 +8,14 @@ import info.blockchain.balance.Currency
 data class PricesModelState(
     val isLoadingData: Boolean = false,
     val isError: Boolean = false,
-    val data: MutableMap<AssetInfo, PricesItem> = mutableMapOf(),
+    val fiatCurrency: Currency,
+    val data: List<PricesItem> = listOf(),
     val filterBy: String = ""
 ) : ModelState
 
 data class PricesItem(
     val assetInfo: AssetInfo,
-    val fiatCurrency: Currency,
+    val hasError: Boolean,
     val priceWithDelta: Prices24HrWithDelta? = null,
     val isTradingAccount: Boolean? = false
 )

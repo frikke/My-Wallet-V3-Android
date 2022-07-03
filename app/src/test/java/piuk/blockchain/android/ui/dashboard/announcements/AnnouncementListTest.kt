@@ -1,5 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
@@ -17,6 +19,9 @@ class AnnouncementListTest {
     private val host: AnnouncementHost = mock()
     private val orderAdapter: AnnouncementConfigAdapter = mock()
     private val dismissRecorder: DismissRecorder = mock()
+    private val walletModeService: WalletModeService = mock {
+        on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+    }
 
     private fun createAnnouncementList(
         availableAnnouncements: List<AnnouncementRule>,
@@ -26,7 +31,8 @@ class AnnouncementListTest {
             mainScheduler = scheduler,
             orderAdapter = orderAdapter,
             availableAnnouncements = availableAnnouncements,
-            dismissRecorder = dismissRecorder
+            dismissRecorder = dismissRecorder,
+            walletModeService = walletModeService,
         )
 
     @Test
@@ -173,6 +179,25 @@ class AnnouncementListTest {
             .assertNoErrors()
 
         verify(available[0]).show(host)
+    }
+
+    @Test
+    fun `does not check announcements when walletmode is NON_CUSTODIAL only`() {
+        whenever(walletModeService.enabledWalletMode()).thenReturn(WalletMode.NON_CUSTODIAL_ONLY)
+
+        val available = listOf(
+            announcement("one"),
+            dontCheckAnnouncement("two"),
+            dontCheckAnnouncement("three"),
+            dontCheckAnnouncement("four")
+        )
+
+        createAnnouncementList(available)
+            .showNextAnnouncement(host)
+            .test()
+            .assertNoValues()
+            .assertComplete()
+            .assertNoErrors()
     }
 
     @Test
