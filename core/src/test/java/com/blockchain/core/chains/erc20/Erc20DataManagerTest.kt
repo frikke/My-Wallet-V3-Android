@@ -178,10 +178,8 @@ class Erc20DataManagerTest {
         assertEquals(mockBalance, result)
 
         verify(erc20StoreService).getBalanceFor(asset = ERC20_TOKEN)
-        io.mockk.verify { ethDataManager.accountAddress }
 
         verifyNoMoreInteractions(erc20StoreService)
-        verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
@@ -214,10 +212,8 @@ class Erc20DataManagerTest {
         assert(result.balance.isZero)
 
         verify(erc20StoreService).getBalanceFor(asset = UNKNOWN_ERC20_TOKEN)
-        io.mockk.verify { ethDataManager.accountAddress }
 
         verifyNoMoreInteractions(erc20StoreService)
-        verifyNoMoreInteractions(historyCallCache)
     }
 
     @Test
