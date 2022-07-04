@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.api.data.Settings
@@ -14,7 +14,7 @@ class TwoFAAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val walletStatus: WalletStatus = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
     private val walletSettings: SettingsDataManager = mock()
     private val settings: Settings = mock()
 
@@ -30,7 +30,7 @@ class TwoFAAnnouncementTest {
         subject =
             TwoFAAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatus,
+                walletStatusPrefs = walletStatusPrefs,
                 walletSettings = walletSettings
             )
     }
@@ -49,7 +49,7 @@ class TwoFAAnnouncementTest {
     @Test
     fun `should show, when not already shown, wallet is funded and 2 fa is not enabled`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
 
         whenever(settings.isSmsVerified).thenReturn(false)
         whenever(settings.authType).thenReturn(Settings.AUTH_TYPE_OFF)
@@ -64,7 +64,7 @@ class TwoFAAnnouncementTest {
     @Test
     fun `should not show, when not already shown, wallet is not funded`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(false)
 
         whenever(settings.isSmsVerified).thenReturn(false)
         whenever(settings.authType).thenReturn(Settings.AUTH_TYPE_OFF)
@@ -79,7 +79,7 @@ class TwoFAAnnouncementTest {
     @Test
     fun `should not show, when 2fa is enabled - yubi key`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(false)
 
         whenever(settings.isSmsVerified).thenReturn(false)
         whenever(settings.authType).thenReturn(Settings.AUTH_TYPE_YUBI_KEY)
@@ -94,7 +94,7 @@ class TwoFAAnnouncementTest {
     @Test
     fun `should not show, when 2fa is enabled - SMS`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(false)
 
         whenever(settings.isSmsVerified).thenReturn(true)
         whenever(settings.authType).thenReturn(Settings.AUTH_TYPE_SMS)

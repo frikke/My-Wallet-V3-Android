@@ -104,7 +104,7 @@ fun RecoveryPhraseScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.back_up_now),
+                text = stringResource(id = R.string.recovery_phrase_backup_manual),
                 onClick = backUpNowOnClick
             )
         }

@@ -6,12 +6,24 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.BackPhraseDestination
 
 class BackupPhraseNavigationRouter(
-    override val navController: NavHostController
+    override val navController: NavHostController,
 ) : ComposeNavigationRouter<BackupPhraseNavigationEvent> {
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
     override fun route(navigationEvent: BackupPhraseNavigationEvent) {
         when (navigationEvent) {
+            BackupPhraseNavigationEvent.BackedUp -> {
+                navController.navigate(BackPhraseDestination.BackedUpPhrase.route)
+            }
+
+            BackupPhraseNavigationEvent.BackupPhraseIntro -> {
+                navController.navigate(BackPhraseDestination.BackupPhraseIntro.route) {
+                    popUpTo(BackPhraseDestination.BackedUpPhrase.route) {
+                        inclusive = true
+                    }
+                }
+            }
+
             BackupPhraseNavigationEvent.RecoveryPhrase -> {
                 navController.navigate(BackPhraseDestination.RecoveryPhrase.route)
             }

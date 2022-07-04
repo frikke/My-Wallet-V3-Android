@@ -42,6 +42,7 @@ import piuk.blockchain.android.ui.activity.detail.TotalCostAmount
 import piuk.blockchain.android.ui.activity.detail.TransactionId
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
+import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.context
 
 class ActivityDetailInfoItemDelegate<in T>(
@@ -178,9 +179,7 @@ private class InfoItemViewHolder(
             is BuyCryptoWallet -> context.getString(
                 R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
             )
-            is SellCryptoWallet -> context.getString(
-                R.string.fiat_currency_funds_wallet_name_1, infoType.currency
-            )
+            is SellCryptoWallet -> context.getString(StringLocalizationUtil.getCashWalletName(infoType.currency))
             is SellPurchaseAmount -> infoType.value.toStringWithSymbol()
             is BuyPaymentMethod -> {
                 with(infoType.paymentDetails) {
@@ -212,7 +211,9 @@ private class InfoItemViewHolder(
                             context.getString(R.string.credit_or_debit_card)
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
-                            context.getString(R.string.checkout_funds_label_1, label)
+                            label?.let {
+                                context.getString(StringLocalizationUtil.getCashWalletName(it))
+                            } ?: ""
                         }
                         mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {
                             context.getString(R.string.google_pay)

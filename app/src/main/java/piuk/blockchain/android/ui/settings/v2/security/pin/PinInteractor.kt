@@ -4,7 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.AuthPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -24,12 +24,12 @@ import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.walletoptions.WalletOptionsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class PinInteractor internal constructor(
     private val apiStatus: ApiStatus,
-    private val persistentPrefs: PersistentPrefs,
+    private val sessionPrefs: SessionPrefs,
     private val authDataManager: AuthDataManager,
     private val payloadManager: PayloadDataManager,
     private val pinRepository: PinRepository,
@@ -39,7 +39,7 @@ class PinInteractor internal constructor(
     private val walletOptionsDataManager: WalletOptionsDataManager,
     private val authPrefs: AuthPrefs,
     private val defaultLabels: DefaultLabels,
-    private val walletStatus: WalletStatus,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val isIntercomEnabledFlag: FeatureFlag
 ) {
 
@@ -84,7 +84,7 @@ class PinInteractor internal constructor(
     }
 
     fun clearPrefs() {
-        persistentPrefs.clear()
+        sessionPrefs.clear()
     }
 
     fun getCurrentPin(): String = pinRepository.pin
@@ -138,7 +138,7 @@ class PinInteractor internal constructor(
     }
 
     fun setAccountLabelIfNecessary() {
-        if (walletStatus.isNewlyCreated &&
+        if (walletStatusPrefs.isNewlyCreated &&
             payloadManager.accounts.isNotEmpty() &&
             payloadManager.getAccount(0).label.isEmpty()
         ) {

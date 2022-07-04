@@ -67,6 +67,7 @@ import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringAnnotationClickEvent
+import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getCashWalletName
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -454,7 +455,7 @@ class SimpleBuyCheckoutFragment :
             when (paymentMethodType) {
                 PaymentMethodType.FUNDS -> SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     label = getString(R.string.payment_method),
-                    title = getString(R.string.fiat_currency_funds_wallet_name_1, state.fiatCurrency),
+                    title = getString(getCashWalletName(state.fiatCurrency)),
                     hasChanged = false
                 )
                 PaymentMethodType.BANK_TRANSFER,

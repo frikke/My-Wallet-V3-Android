@@ -11,6 +11,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackupPhraseArgs
+import com.blockchain.presentation.screens.BackedUpPhrase
 import com.blockchain.presentation.screens.BackupPhraseIntro
 import com.blockchain.presentation.screens.BackupSuccess
 import com.blockchain.presentation.screens.ManualBackup
@@ -21,34 +22,50 @@ import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 @Composable
 fun BackupPhraseNavHost(
     viewModel: BackupPhraseViewModel,
-    backupPhraseArgs: BackupPhraseArgs
+    backupPhraseArgs: BackupPhraseArgs,
 ) {
-    viewModel.viewCreated(backupPhraseArgs)
-
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val navEventsFlowLifecycleAware = remember(viewModel.navigationEventFlow, lifecycleOwner) {
         viewModel.navigationEventFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
 
+    viewModel.viewCreated(backupPhraseArgs)
+
     MviFragmentNavHost(
         navEvents = navEventsFlowLifecycleAware,
         navigationRouter = BackupPhraseNavigationRouter(
             navController = rememberNavController()
         ),
-        startDestination = BackPhraseDestination.BackupPhraseIntro,
+        startDestination = if (viewModel.isBackedUp()) {
+            BackPhraseDestination.BackedUpPhrase
+        } else {
+            BackPhraseDestination.BackupPhraseIntro
+        }
     ) {
+        // Backed Up Phrase (initial screen when phrase is already backed up)
+        backedUpPhraseDestination(viewModel)
+
         // Intro
         backupPhraseIntroDestination(viewModel)
 
         // Recovery Phrase
         recoveryPhraseDestination(viewModel)
 
+        // Manual Backup
         manualBackupDestination(viewModel)
 
+        // Verify Phrase
         verifyPhraseDestination(viewModel)
 
+        // Backup Successful
         backupSuccessDestination(viewModel)
+    }
+}
+
+private fun NavGraphBuilder.backedUpPhraseDestination(viewModel: BackupPhraseViewModel) {
+    composable(navigationEvent = BackPhraseDestination.BackedUpPhrase) {
+        BackedUpPhrase(viewModel)
     }
 }
 

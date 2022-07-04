@@ -4,9 +4,11 @@ import android.content.Intent
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.commonarch.presentation.mvi.MviIntent
+import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletmode.WalletMode
 
 sealed class MainIntent : MviIntent<MainState> {
     object PerformInitialChecks : MainIntent() {
@@ -21,11 +23,32 @@ sealed class MainIntent : MviIntent<MainState> {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
+    object NavigationTabs : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
+    }
+
+    class RefreshTabs(val walletMode: WalletMode) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState.copy(walletMode = walletMode)
+    }
+
     class ReferralCodeIntent(private val referralState: ReferralState) : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 referral = referralState
             )
+    }
+
+    class UpdateTabs(private val tabs: List<NavigationItem>, private val selectedTab: NavigationItem) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(
+                currentTab = selectedTab,
+                tabs = tabs
+            )
+    }
+
+    class UpdateCurrentTab(private val item: NavigationItem) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState =
+            oldState.copy(currentTab = item)
     }
 
     object ReferralIconClicked : MainIntent() {

@@ -3,7 +3,6 @@ package com.blockchain.api.services
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nabu.data.InitialAddressRequest
 import com.blockchain.api.nabu.data.InterestEligibilityResponse
-import com.blockchain.api.nabu.data.LatestTermsAndConditionsResponse
 import com.blockchain.api.nabu.data.contactpreferences.ContactPreferencesResponse
 import com.blockchain.api.nabu.data.contactpreferences.NotificationMethod
 import com.blockchain.api.nabu.data.contactpreferences.PreferenceUpdate
@@ -41,11 +40,6 @@ class NabuUserService internal constructor(
     ): Completable =
         api.saveUserInitialLocation(authHeader, InitialAddressRequest(countryIsoCode, stateIsoCode))
 
-    fun getLatestTermsAndConditions(authHeader: String): Single<LatestTermsAndConditions> =
-        api.getLatestTermsAndConditions(authHeader).map { it.toDomain() }
-
-    fun signLatestTermsAndConditions(authHeader: String) = api.signLatestTermsAndConditions(authHeader)
-
     fun getContactPreferences(authHeader: String) = api.getContactPreferences(authHeader).map { it.toDomain() }
 
     fun updateContactPreferences(authHeader: String, preferenceUpdates: List<ContactPreferenceUpdate>) =
@@ -59,10 +53,6 @@ class NabuUserService internal constructor(
 
 private fun Map<String, InterestEligibilityResponse>.toDomain(): InterestEligibility =
     InterestEligibility(this)
-
-private fun LatestTermsAndConditionsResponse.toDomain() = LatestTermsAndConditions(termsAndConditionsUrl)
-
-data class LatestTermsAndConditions(val termsAndConditionsUrl: String?)
 
 private fun ContactPreferencesResponse.toDomain(): List<ContactPreference> {
     val availableMethods = mutableMapOf<String, NotificationMethod>()

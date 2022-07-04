@@ -46,6 +46,7 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                         )
                     paymentMethodTitle.text = it.uiLabel()
                     cardNumber.text = it.dottedEndDigits()
+                    expDate.text = context.getString(R.string.card_expiry_date, it.expireDate.formatted())
                 }
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
             }

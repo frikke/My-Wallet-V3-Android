@@ -20,7 +20,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.storedatasource.FlushableDataSource
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -57,7 +57,7 @@ class BitpayTxEngine(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val assetEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val walletPrefs: WalletStatus,
+    val walletPrefs: WalletStatusPrefs,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val analytics: Analytics
 ) : TxEngine() {

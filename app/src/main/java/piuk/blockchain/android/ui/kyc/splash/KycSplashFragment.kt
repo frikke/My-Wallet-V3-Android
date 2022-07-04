@@ -85,7 +85,7 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
             CampaignType.None -> R.string.identity_verification
         }
 
-        progressListener.setHostTitle(title)
+        progressListener.setupHostToolbar(title)
 
         with(binding) {
             textViewKycTermsAndConditions.gone()

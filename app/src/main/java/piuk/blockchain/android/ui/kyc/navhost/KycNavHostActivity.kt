@@ -15,6 +15,7 @@ import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.invisibleIf
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.Tier
@@ -81,8 +82,9 @@ class KycNavHostActivity :
         onViewReady()
     }
 
-    override fun setHostTitle(title: Int) {
+    override fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton>) {
         updateToolbarTitle(getString(title))
+        updateToolbarMenuItems(navigationBarButtons)
     }
 
     override fun displayLoading(loading: Boolean) {
@@ -249,7 +251,7 @@ interface KycProgressListener {
 
     val campaignType: CampaignType
 
-    fun setHostTitle(@StringRes title: Int)
+    fun setupHostToolbar(@StringRes title: Int, navigationBarButtons: List<NavigationBarButton> = emptyList())
 
     fun hideBackButton()
 }

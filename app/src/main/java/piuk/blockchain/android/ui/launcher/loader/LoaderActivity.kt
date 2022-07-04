@@ -26,13 +26,11 @@ import piuk.blockchain.android.ui.kyc.email.entry.EmailEntryHost
 import piuk.blockchain.android.ui.kyc.email.entry.KycEmailEntryFragment
 import piuk.blockchain.android.ui.launcher.LauncherActivity
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinActivity
-import piuk.blockchain.android.ui.termsconditions.TermsAndConditionsFragment
 import piuk.blockchain.android.util.AppUtil
 
 class LoaderActivity :
     MviActivity<LoaderModel, LoaderIntents, LoaderState, ActivityLoaderBinding>(),
-    EmailEntryHost,
-    TermsAndConditionsFragment.Host {
+    EmailEntryHost {
 
     override val model: LoaderModel by scopedInject()
 
@@ -67,7 +65,6 @@ class LoaderActivity :
             // These below should always come only after a ProgressStep.FINISH has been emitted
             is LoadingStep.EmailVerification -> launchEmailVerification()
             is LoadingStep.Main -> onStartMainActivity(loaderStep.data, loaderStep.shouldLaunchUiTour)
-            is LoadingStep.NewTermsAndConditions -> launchTermsAndConditions(loaderStep.url)
             null -> {
             }
         }
@@ -146,10 +143,6 @@ class LoaderActivity :
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffSkipped(LaunchOrigin.SIGN_UP))
     }
 
-    override fun termsAndConditionsAccepted() {
-        model.process(LoaderIntents.OnTermsAndConditionsSigned)
-    }
-
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
@@ -185,19 +178,6 @@ class LoaderActivity :
         analytics.logEvent(KYCAnalyticsEvents.EmailVeriffRequested(LaunchOrigin.SIGN_UP))
         supportFragmentManager.beginTransaction()
             .replace(R.id.content_frame, KycEmailEntryFragment(), KycEmailEntryFragment::class.simpleName)
-            .commitAllowingStateLoss()
-    }
-
-    private fun launchTermsAndConditions(url: String) {
-        updateToolbarTitle(getString(R.string.terms_and_conditions_toolbar))
-        binding.progress.gone()
-        binding.contentFrame.visible()
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.content_frame,
-                TermsAndConditionsFragment.newInstance(url),
-                TermsAndConditionsFragment::class.simpleName
-            )
             .commitAllowingStateLoss()
     }
 

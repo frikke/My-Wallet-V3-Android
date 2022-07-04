@@ -5,20 +5,20 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.coincore.AccountGroup
-import com.blockchain.coincore.impl.AllWalletsAccount
+import com.blockchain.coincore.MultipleCurrenciesAccountGroup
+import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.price.ExchangeRatesDataManager
-import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.CurrencyPrefs
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewAccountGroupOverviewBinding
-import piuk.blockchain.android.util.getResolvedDrawable
+import piuk.blockchain.android.ui.resources.AccountIcon
+import piuk.blockchain.android.ui.resources.AssetResources
 import timber.log.Timber
 
 class AccountInfoGroup @JvmOverloads constructor(
@@ -30,8 +30,7 @@ class AccountInfoGroup @JvmOverloads constructor(
     private val binding: ViewAccountGroupOverviewBinding =
         ViewAccountGroupOverviewBinding.inflate(LayoutInflater.from(context), this, true)
 
-    private val exchangeRates: ExchangeRatesDataManager by scopedInject()
-    private val currencyPrefs: CurrencyPrefs by scopedInject()
+    private val assetResources: AssetResources by inject()
 
     private val disposables = CompositeDisposable()
 
@@ -42,20 +41,19 @@ class AccountInfoGroup @JvmOverloads constructor(
 
     private fun updateView(account: AccountGroup) {
         // Only supports AllWallets at this time
-        require(account is AllWalletsAccount)
+        require(account is MultipleCurrenciesAccountGroup)
 
         disposables.clear()
 
-        val currency = currencyPrefs.selectedFiatCurrency
         with(binding) {
-            icon.setImageDrawable(context.getResolvedDrawable(R.drawable.ic_all_wallets_blue))
-
+            val accIcon = AccountIcon(account, assetResources)
+            accIcon.loadAssetIcon(icon)
             walletName.text = account.label
 
             assetSubtitle.text = context.getString(R.string.activity_wallet_total_balance)
 
             walletBalanceFiat.invisible()
-            walletCurrency.text = currency.displayTicker
+            walletCurrency.gone()
 
             disposables += account.balance.firstOrError()
                 .observeOn(AndroidSchedulers.mainThread())

@@ -157,7 +157,7 @@ class QuestionnaireStateMachine {
                 }
             }
             is TreeNode.OpenEnded -> {
-                val isValid = input.isNotEmpty()
+                val isValid = input.isNotEmpty() && (regex == null || regex.matches(input))
                 if (isValid) {
                     childrenToValidate += children
                 }
@@ -227,7 +227,7 @@ class QuestionnaireStateMachine {
             FlatNode.SingleSelection(id, text, depth, instructions)
         }
         is TreeNode.MultipleSelection -> FlatNode.MultipleSelection(id, text, depth, instructions)
-        is TreeNode.OpenEnded -> FlatNode.OpenEnded(id, text, depth, input, hint)
+        is TreeNode.OpenEnded -> FlatNode.OpenEnded(id, text, depth, input, hint, regex)
         is TreeNode.Selection -> FlatNode.Selection(id, text, depth, isChecked, parent is TreeNode.SingleSelection)
     }
 }
@@ -265,7 +265,8 @@ sealed class FlatNode(
         override val text: String,
         override val depth: Int,
         val input: String,
-        val hint: String
+        val hint: String,
+        val regex: Regex?,
     ) : FlatNode(id, text, depth)
 
     data class Selection(
@@ -310,7 +311,8 @@ sealed class TreeNode(
         override val text: String,
         override val children: List<TreeNode>,
         var input: String,
-        val hint: String
+        val hint: String,
+        val regex: Regex?,
     ) : TreeNode(id, text, children)
 
     @Parcelize

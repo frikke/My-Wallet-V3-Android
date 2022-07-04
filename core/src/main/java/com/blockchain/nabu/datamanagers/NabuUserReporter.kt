@@ -3,7 +3,7 @@ package com.blockchain.nabu.datamanagers
 import com.blockchain.analytics.UserAnalytics
 import com.blockchain.analytics.UserProperty
 import com.blockchain.nabu.models.responses.nabu.NabuUser
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface NabuUserReporter {
     fun reportUserId(userId: String)
@@ -35,17 +35,13 @@ class AnalyticsNabuUserReporterImpl(
 
 class UniqueAnalyticsNabuUserReporter(
     private val nabuUserReporter: NabuUserReporter,
-    private val prefs: PersistentPrefs
+    private val prefs: SessionPrefs
 ) : NabuUserReporter by nabuUserReporter {
     override fun reportUserId(userId: String) {
-        val reportedKey = prefs.getValue(ANALYTICS_REPORTED_NABU_USER_KEY)
-        if (reportedKey == null || reportedKey != userId) {
+        val reportedKey = prefs.analyticsReportedNabuUser
+        if (reportedKey != userId) {
             nabuUserReporter.reportUserId(userId)
-            prefs.setValue(ANALYTICS_REPORTED_NABU_USER_KEY, userId)
+            prefs.analyticsReportedNabuUser = userId
         }
-    }
-
-    companion object {
-        private const val ANALYTICS_REPORTED_NABU_USER_KEY = "analytics_reported_nabu_user_key"
     }
 }

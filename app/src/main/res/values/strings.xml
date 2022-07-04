@@ -496,6 +496,8 @@
     <string name="disable">Disable</string>
     <string name="setting_limits_title">Trading Accounts</string>
     <string name="setting_limits_description">Limits &amp; Features</string>
+    <string name="setting_limits_load_error_title">Loading Error</string>
+    <string name="setting_limits_load_error_description">We can’t load your limits now. You can check your account limits by going to Settings</string>
     <string name="settings_pair_wallet">Pair my wallet</string>
     <string name="web_login">Web Log In</string>
 
@@ -1328,11 +1330,13 @@
     <string name="bank_wire_transfer_min_withdrawal">%1$s Min Withdraw</string>
     <string name="wire_transfer">Wire Transfer</string>
     <string name="bank_transfer">Bank Transfer</string>
-    <string name="payment_wire_transfer_subtitle">3 – 5 Business Days</string>
-    <string name="payment_wire_transfer_blurb">Send funds directly from your bank account to your Blockchain.com Wallet. Bank fees may apply.</string>
+    <string name="payment_wire_transfer_subtitle_dollars">Should arrive in 3-5 business days</string>
+    <string name="payment_wire_transfer_subtitle_pounds">Should arrive same day</string>
+    <string name="payment_wire_transfer_subtitle_euros">Should arrive in 1 business day</string>
     <string name="payment_deposit">Bank Deposit</string>
-    <string name="payment_deposit_subtitle">Instantly Available</string>
-    <string name="payment_deposit_blurb">Securely link a bank and send cash to your Blockchain.com Wallet at anytime.</string>
+    <string name="payment_deposit_subtitle_pounds">Should arrive instantly</string>
+    <string name="payment_deposit_subtitle_dollars">Should arrive in 3 business days</string>
+    <string name="payment_deposit_subtitle_euros">Should arrive instantly</string>
     <string name="credit_or_debit_card">Credit or Debit Card</string>
     <string name="instantly_buy_crypto_with_card">Instantly buy crypto with any Visa or Mastercard.</string>
     <string name="google_pay_instructions">Simply tap Buy with Google Pay, no forms or card details needed.</string>
@@ -1372,7 +1376,6 @@
     <string name="cancel_order_go_back_dashboard">No, Keep Order</string>
     <string name="cancel_token_instruction">This will remove your %1$s Buy order.</string>
     <string name="transfer_details">Transfer Details</string>
-    <string name="ops">Oops!</string>
     <string name="something_went_wrong_try_again">Something went wrong. Please try again.</string>
     <string name="simple_buy_copied_to_clipboard">%1s is on your clipboard</string>
     <string name="account_number">Account Number</string>
@@ -1473,8 +1476,6 @@
     <string name="activity_no_activity_text">All your transactions will show up here.</string>
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s Account</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_loading_error">Failed to load activity, please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
 
@@ -1670,7 +1671,7 @@
     <string name="swap_confirmation_cta_button">Swap Now</string>
     <string name="deposit_source_select_title">Linked Banks</string>
     <string name="deposit_confirmation_cta_button">Deposit Now</string>
-    <string name="deposit_enter_amount_limit_title">Daily Limit</string>
+    <string name="deposit_enter_amount_limit_title">Limit</string>
     <string name="deposit_enter_amount_limit_label">%1$s Available</string>
     <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
@@ -1991,8 +1992,10 @@
     <string name="add_a_deposit_method">Select a Deposit Method</string>
     <string name="link_a_bank_wire_transfer">Link a bank to your Wallet by sending any amount via wire transfer. Note: This is much slower and high bank fees may apply.</string>
     <string name="link_a_bank_bank_transfer">Securely link a bank to buy crypto, deposit cash and withdraw back to your bank at anytime.</string>
-    <string name="bank_transfer_blurb">Follow the instructions on the next screen to deposit funds from your bank account to your Blockchain.com account. Bank fees may apply.</string>
-    <string name="easy_bank_transfer_blurb">Link once and send cash to your Blockchain.com account at any time.</string>
+    <string name="bank_transfer_blurb_pounds">Transfers are made through the UK Faster Payments System and usually arrive in seconds.</string>
+    <string name="bank_transfer_blurb_dollars">For transferring large amounts. Bank fees may apply.</string>
+    <string name="bank_transfer_blurb_euros">Bank fees may apply.</string>
+    <string name="easy_bank_transfer_blurb">Quick and secure without entering account details.</string>
 
     <!-- trading error messages -->
     <string name="trading_order_limit">You have too many pending %1$s transactions. Once those complete you can create a new one.</string>
@@ -2060,7 +2063,7 @@
     <string name="link_a_bank_description">Store USD, GBP or EUR in your wallet. Use the balance to buy crypto. Sell crypto for cash at anytime.</string>
     <string name="earn_rewards_description" formatted="false">Put your crypto to work. Earn up to 10% monthly by simply doing nothing. Instantly deposit and start earning.</string>
 
-    <string name="sb_checkout_daily_limit_title">Daily limit exceeded</string>
+    <string name="sb_checkout_daily_limit_title">Limit exceeded</string>
     <string name="sb_checkout_daily_limit_blurb">Oops, looks like you’ve used up your daily transaction limit for Buys and Deposits, please try again tomorrow.</string>
     <string name="sb_checkout_weekly_limit_title">Weekly limit exceeded</string>
     <string name="sb_checkout_weekly_limit_blurb">Oops, looks like you’ve used up your weekly transaction limit for Buys and Deposits, please try again tomorrow.</string>
@@ -2368,7 +2371,6 @@
     <string name="recurring_buy_details_recurring">Recurring</string>
     <string name="recurring_buy_details_fee">Fee</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
-    <string name="recurring_buy_funds_label">%s Wallet</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
     <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
@@ -2545,6 +2547,8 @@
     <string name="dashboard_onboarding_steps_counter">%1$d/%2$d</string>
     <string name="dashboard_onboarding_card_title">Complete Your Profile</string>
     <string name="dashboard_onboarding_subtitle">Buy Crypto Today</string>
+    <string name="dashboard_onboarding_error_title">Loading Error</string>
+    <string name="dashboard_onboarding_error_description">We encountered an issue while loading the verification screen. Please go back to the previous screen and try again.</string>
     <string name="blockchain_fee">Blockchain.com Fee</string>
     <string name="new_user_fee_waiver">New User Fee Waiver</string>
     <string name="swap_empty_state_sheet_title">You’ll need some crypto first!</string>
@@ -2816,10 +2820,6 @@
     <string name="coinview_expandable_button">Read More</string>
     <string name="coinview_collapsable_button">Read Less</string>
 
-    <!--  Terms and Conditions  -->
-    <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
-    <string name="terms_and_conditions_accept_label">I agree to Blockchain.com’s Terms of Service &amp; Privacy Policy.</string>
-    <string name="terms_and_conditions_review_button">Review</string>
     <string name="pair_not_supported_title">Pair not supported</string>
     <string name="pair_not_supported_subtitle">Missing rate for pair</string>
 
@@ -2857,6 +2857,7 @@
     <!-- Kyc Questionnaire -->
     <string name="kyc_additional_info_toolbar">Use of Account Information</string>
     <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
+    <string name="questionnaire_error_invalid_format">Invalid Format</string>
 
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>
@@ -2955,6 +2956,8 @@
 
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
+    <string name="recovery_phrase_backup_again">Back Up Again</string>
+    <string name="recovery_phrase_backup_manual">Back Up Manually</string>
 
     <string name="manual_backup_title">Manual Back Up</string>
     <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>
@@ -2968,6 +2971,21 @@
 
     <string name="backup_success_title">Back Up Successful!</string>
     <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>
+
+    <string name="defi_onboarding_nav_title">DeFi Wallet</string>
+
+    <string name="defi_onboarding_intro_title">Introducing the DeFi Wallet</string>
+    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>
+    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>
+    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>
+    <string name="defi_onboarding_intro_property2_title">Multi-chain Support</string>
+    <string name="defi_onboarding_intro_property2_subtitle">Manage your portfolio across 7 chains</string>
+    <string name="defi_onboarding_intro_property3_title">Connect to Decentralized Finance</string>
+    <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
+    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>
+
+    <string name="defi_onboarding_complete_title">Welcome to Your DeFi Wallet</string>
+    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">A digital card you can use instantly for online payments.</string>
@@ -3104,4 +3122,10 @@
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
+    <string name="default_label_all_non_custodial_wallets">All</string>
+    <string name="default_label_all_custodial_wallets">All</string>
+
+    <string name="cash_wallet_dollar">US Dollar</string>
+    <string name="cash_wallet_pound">British Pound</string>
+    <string name="cash_wallet_euro">Euro</string>
 </resources>

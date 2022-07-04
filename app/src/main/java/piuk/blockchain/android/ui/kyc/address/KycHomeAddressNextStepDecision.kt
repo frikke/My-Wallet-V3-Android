@@ -1,10 +1,10 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import io.reactivex.rxjava3.core.Single
-import piuk.blockchain.android.ui.dataremediation.toMutableNode
-import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
+import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 
 class KycHomeAddressNextStepDecision(
     private val nabuDataUserProvider: NabuDataUserProvider,
@@ -22,13 +22,11 @@ class KycHomeAddressNextStepDecision(
                     // selected tier 1, so we need to inform them
                     Single.just(KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo)
                 } else {
-                    rxSingleOutcome { dataRemediationService.getQuestionnaire() }.map { questionnaire ->
-                        if (questionnaire.isNotEmpty()) {
-                            KycNextStepDecision.NextStep.Questionnaire(questionnaire.toMutableNode())
-                        } else {
-                            KycNextStepDecision.NextStep.Veriff
-                        }
-                    }
+                    rxMaybeOutcome {
+                        dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+                    }.map { questionnaire ->
+                        KycNextStepDecision.NextStep.Questionnaire(questionnaire) as KycNextStepDecision.NextStep
+                    }.defaultIfEmpty(KycNextStepDecision.NextStep.Veriff)
                 }
             }
 }

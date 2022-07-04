@@ -3,11 +3,11 @@ package piuk.blockchain.android.ui.start
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 interface ManualPairingView : PasswordAuthView
 
@@ -15,7 +15,7 @@ class ManualPairingPresenter(
     override val appUtil: AppUtil,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val prefs: PersistentPrefs,
+    override val authPrefs: AuthPrefs,
     private val analytics: Analytics,
     override val remoteLogger: RemoteLogger
 ) : PasswordAuthPresenter<ManualPairingView>() {

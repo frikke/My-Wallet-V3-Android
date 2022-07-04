@@ -2,7 +2,6 @@ package com.blockchain.core.user
 
 import com.blockchain.api.services.ContactPreference
 import com.blockchain.api.services.ContactPreferenceUpdate
-import com.blockchain.api.services.LatestTermsAndConditions
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.common.caching.TimedCacheRequest
@@ -16,10 +15,6 @@ interface NabuUserDataManager {
     fun tiers(): Single<KycTiers>
 
     fun saveUserInitialLocation(countryIsoCode: String, stateIsoCode: String?): Completable
-
-    fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions>
-
-    fun signLatestTermsAndConditions(): Completable
 
     fun getContactPreferences(): Single<List<ContactPreference>>
 
@@ -51,16 +46,6 @@ class NabuUserDataManagerImpl(
                 stateIsoCode
             )
         }.flatMapCompletable { it }
-
-    override fun getLatestTermsAndConditions(): Single<LatestTermsAndConditions> =
-        authenticator.getAuthHeader().flatMap {
-            nabuUserService.getLatestTermsAndConditions(it)
-        }
-
-    override fun signLatestTermsAndConditions(): Completable =
-        authenticator.getAuthHeader().flatMapCompletable {
-            nabuUserService.signLatestTermsAndConditions(it)
-        }
 
     override fun getContactPreferences(): Single<List<ContactPreference>> =
         authenticator.getAuthHeader().flatMap {

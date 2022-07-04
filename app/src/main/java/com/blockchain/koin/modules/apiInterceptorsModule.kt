@@ -15,7 +15,7 @@ import piuk.blockchain.androidcore.data.api.interceptors.DeviceIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.RequestIdInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.SSLPinningInterceptor
 import piuk.blockchain.androidcore.data.api.interceptors.UserAgentInterceptor
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 val apiInterceptorsModule = module {
 
@@ -26,7 +26,7 @@ val apiInterceptorsModule = module {
             mutableListOf(
                 SSLPinningInterceptor(sslPinningEmitter = get()),
                 UserAgentInterceptor(versionName, Build.VERSION.RELEASE),
-                DeviceIdInterceptor(prefs = lazy { get<PersistentPrefs>() }, get()),
+                DeviceIdInterceptor(prefs = lazy { get<SessionPrefs>() }, get()),
                 RequestIdInterceptor { UUID.randomUUID().toString() }
             ).apply {
                 if (env.isRunningInDebugMode()) {

@@ -13,9 +13,9 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
+import com.blockchain.coincore.MultipleCurrenciesAccountGroup
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
-import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -428,10 +428,10 @@ private class AllWalletsAccountDelegate(
 ) : AdapterDelegate<AccountsListItem> {
 
     override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
-        (items[position] as? SelectableAccountItem)?.item?.account is AllWalletsAccount
+        (items[position] as? SelectableAccountItem)?.item?.account is MultipleCurrenciesAccountGroup
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
-        AllWalletsAccountViewHolder(
+        MultipleCurrenciesAccountGroupViewHolder(
             compositeDisposable,
             ItemAccountSelectGroupBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
@@ -442,14 +442,14 @@ private class AllWalletsAccountDelegate(
         items: List<AccountsListItem>,
         position: Int,
         holder: RecyclerView.ViewHolder
-    ) = (holder as AllWalletsAccountViewHolder).bind(
+    ) = (holder as MultipleCurrenciesAccountGroupViewHolder).bind(
         items[position] as SelectableAccountItem,
         statusDecorator,
         onAccountClicked
     )
 }
 
-private class AllWalletsAccountViewHolder(
+private class MultipleCurrenciesAccountGroupViewHolder(
     private val compositeDisposable: CompositeDisposable,
     private val binding: ItemAccountSelectGroupBinding
 ) : RecyclerView.ViewHolder(binding.root), DisposableViewHolder {
@@ -461,7 +461,7 @@ private class AllWalletsAccountViewHolder(
     ) {
         with(binding) {
 
-            accountGroup.updateAccount(selectableAccountItem.item.account as AllWalletsAccount)
+            accountGroup.updateAccount(selectableAccountItem.item.account as MultipleCurrenciesAccountGroup)
             accountGroup.alpha = 1f
 
             compositeDisposable += statusDecorator(selectableAccountItem.item.account).isEnabled()

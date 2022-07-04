@@ -23,7 +23,7 @@ val startupUiModule = module {
                 appUtil = get(),
                 authDataManager = get(),
                 payloadDataManager = get(),
-                prefs = get(),
+                authPrefs = get(),
                 analytics = get(),
                 remoteLogger = get()
             )
@@ -32,7 +32,7 @@ val startupUiModule = module {
         factory {
             PasswordRequiredPresenter(
                 appUtil = get(),
-                prefs = get(),
+                authPrefs = get(),
                 authDataManager = get(),
                 payloadDataManager = get(),
                 remoteLogger = get()

@@ -1,6 +1,7 @@
 package com.blockchain.walletmode
 
 import kotlinx.coroutines.flow.Flow
+
 interface WalletModeService {
     fun enabledWalletMode(): WalletMode
     val walletMode: Flow<WalletMode>

@@ -11,6 +11,8 @@ import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.outcome.Outcome
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.CoroutineTestRule
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.wallet.payload.data.Wallet
@@ -19,7 +21,6 @@ import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -37,7 +38,6 @@ import org.junit.Test
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.android.util.FormatChecker
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class CreateWalletViewModelTest {
 //    @get:Rule
@@ -49,7 +49,8 @@ class CreateWalletViewModelTest {
 
     private val environmentConfig: EnvironmentConfig = mockk()
     private val defaultLabels: DefaultLabels = mockk()
-    private val prefs: PersistentPrefs = mockk(relaxed = true)
+    private val authPrefs: AuthPrefs = mockk(relaxed = true)
+    private val walletStatusPrefs: WalletStatusPrefs = mockk(relaxed = true)
     private val analytics: Analytics = mockk(relaxed = true)
     private val specificAnalytics: ProviderSpecificAnalytics = mockk(relaxed = true)
     private val appUtil: AppUtil = mockk(relaxed = true)
@@ -65,7 +66,8 @@ class CreateWalletViewModelTest {
         subject = CreateWalletViewModel(
             environmentConfig = environmentConfig,
             defaultLabels = defaultLabels,
-            prefs = prefs,
+            authPrefs = authPrefs,
+            walletStatusPrefs = walletStatusPrefs,
             analytics = analytics,
             specificAnalytics = specificAnalytics,
             appUtil = appUtil,
@@ -320,12 +322,12 @@ class CreateWalletViewModelTest {
             subject.onIntent(CreateWalletIntent.ReferralInputChanged("12345678"))
             subject.onIntent(CreateWalletIntent.NextClicked)
             verify { payloadDataManager.createHdWallet("1234", "default_nc_name", "bla@something.com") }
-            verify { prefs.isNewlyCreated = true }
-            verify { prefs.walletGuid = "guid" }
-            verify { prefs.sharedKey = "sharedKey" }
-            verify { prefs.countrySelectedOnSignUp = "US" }
-            verify { prefs.stateSelectedOnSignUp = "AK" }
-            verify { prefs.email = "bla@something.com" }
+            verify { walletStatusPrefs.isNewlyCreated = true }
+            verify { authPrefs.walletGuid = "guid" }
+            verify { authPrefs.sharedKey = "sharedKey" }
+            verify { walletStatusPrefs.countrySelectedOnSignUp = "US" }
+            verify { walletStatusPrefs.stateSelectedOnSignUp = "AK" }
+            verify { walletStatusPrefs.email = "bla@something.com" }
             awaitItem() shouldBeEqualTo CreateWalletNavigation.PinEntry("12345678")
             expectNoEvents()
         }

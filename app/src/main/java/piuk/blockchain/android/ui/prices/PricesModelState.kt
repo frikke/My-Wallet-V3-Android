@@ -9,6 +9,7 @@ data class PricesModelState(
     val isLoadingData: Boolean = false,
     val isError: Boolean = false,
     val fiatCurrency: Currency,
+    val tradableCurrencies: List<String>,
     val data: List<PricesItem> = listOf(),
     val filterBy: String = ""
 ) : ModelState

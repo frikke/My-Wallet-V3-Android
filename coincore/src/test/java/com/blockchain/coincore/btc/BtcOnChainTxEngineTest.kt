@@ -13,7 +13,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.blockchain.testutils.satoshi
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -62,7 +62,7 @@ class BtcOnChainTxEngineTest : CoincoreTestBase() {
         on { btcFeeOptions }.thenReturn(Observable.just(btcFeeOptions))
     }
 
-    private val walletPreferences: WalletStatus = mock {
+    private val walletPreferences: WalletStatusPrefs = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
 

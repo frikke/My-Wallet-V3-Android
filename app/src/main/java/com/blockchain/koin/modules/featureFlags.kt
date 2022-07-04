@@ -18,16 +18,15 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
-import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
+import com.blockchain.koin.speedUpLoginKycFeatureFlag
 import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.speedUpLoginUserFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -68,6 +67,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_user",
                 "SpeedUp Login - /user"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(speedUpLoginKycFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_kyc",
+                "SpeedUp Login - /kyc/tiers"
             )
         )
     }.bind(FeatureFlag::class)
@@ -113,15 +121,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_disable_ff_coin_web_socket",
                 "Coin Web Socket"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(termsAndConditionsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_terms_and_conditions",
-                "Terms and Conditions"
             )
         )
     }.bind(FeatureFlag::class)
@@ -221,15 +220,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_referrals",
                 "Referrals"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(pricesFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_prices",
-                "Prices"
             )
         )
     }.bind(FeatureFlag::class)

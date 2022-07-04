@@ -16,9 +16,13 @@ import com.blockchain.coincore.fiat.LinkedBanksFactory
 import com.blockchain.core.nftwaitlist.domain.NftWaitlistService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.extensions.exhaustive
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -39,8 +43,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.isCustodial
-import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -53,7 +55,10 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Optional
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
@@ -64,6 +69,7 @@ import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
+import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import timber.log.Timber
 
 class DashboardGroupLoadFailure(msg: String, e: Throwable) : Exception(msg, e)
@@ -83,6 +89,7 @@ class DashboardActionInteractor(
     private val nftWaitlistService: NftWaitlistService,
     private val nftAnnouncementPrefs: NftAnnouncementPrefs,
     private val userIdentity: UserIdentity,
+    private val dataRemediationService: DataRemediationService,
     private val walletModeBalanceCache: WalletModeBalanceCache,
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
@@ -96,7 +103,7 @@ class DashboardActionInteractor(
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         walletModeService.walletMode.map {
             coincore.activeAssets(it)
-        }.asObservable()
+        }.asObservable(Dispatchers.IO)
             .subscribeBy(
                 onNext = { activeAssets ->
                     model.process(
@@ -135,26 +142,6 @@ class DashboardActionInteractor(
             }
             )
     }
-
-    fun fetchAvailableAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.map { walletMode ->
-            coincore.availableCryptoAssets().filter {
-                when (walletMode) {
-                    WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
-                    WalletMode.CUSTODIAL_ONLY -> it.isCustodial
-                    WalletMode.UNIVERSAL -> true
-                }
-            }
-        }.asObservable().subscribeBy(
-            onNext = { assets ->
-                model.process(DashboardIntent.AssetListUpdate(assets))
-            },
-            onError =
-            {
-                Timber.e("Error fetching available assets - $it")
-                throw it
-            }
-        )
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
@@ -407,17 +394,20 @@ class DashboardActionInteractor(
         targetAccount: SingleAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
     ): Disposable {
         require(targetAccount is FiatAccount)
-        return handleFiatDeposit(targetAccount, shouldLaunchBankLinkTransfer, model, action)
+        return handleFiatDeposit(targetAccount, shouldLaunchBankLinkTransfer, shouldSkipQuestionnaire, model, action)
     }
 
     private fun handleFiatDeposit(
         targetAccount: FiatAccount,
         shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
         model: DashboardModel,
         action: AssetAction,
     ) = Singles.zip(
+        getQuestionnaireIfNeeded(shouldSkipQuestionnaire),
         userIdentity.userAccessForFeature(Feature.DepositFiat),
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
@@ -426,9 +416,14 @@ class DashboardActionInteractor(
         linkedBanksFactory.getNonWireTransferBanks().map {
             it.filter { bank -> bank.currency == targetAccount.currency }
         }
-    ).doOnSubscribe {
+    ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
+        (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
+    }.doOnSubscribe {
         model.process(DashboardIntent.LongCallStarted)
-    }.flatMap { (eligibility, paymentMethods, linkedBanks) ->
+    }.flatMap { (questionnaireOptAndEligibility, paymentMethodsAndLinkedBanks) ->
+        val (questionnaireOpt, eligibility) = questionnaireOptAndEligibility
+        val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
+
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
         when {
             eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
@@ -437,6 +432,17 @@ class DashboardActionInteractor(
                         eligibility.reason as BlockedReason.Sanctions
                     )
                 )
+            questionnaireOpt.isPresent -> Single.just(
+                FiatTransactionRequestResult.LaunchQuestionnaire(
+                    questionnaire = questionnaireOpt.get(),
+                    callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                        targetAccount,
+                        action,
+                        shouldLaunchBankLinkTransfer,
+                        shouldSkipQuestionnaire = true
+                    )
+                )
+            )
             eligibleBanks.isEmpty() -> {
                 handleNoLinkedBanks(
                     targetAccount,
@@ -479,7 +485,7 @@ class DashboardActionInteractor(
     )
 
     private fun handlePaymentMethodsUpdate(
-        fiatTxRequestResult: FiatTransactionRequestResult?,
+        fiatTxRequestResult: FiatTransactionRequestResult,
         model: DashboardModel,
         fiatAccount: FiatAccount,
         action: AssetAction,
@@ -548,6 +554,16 @@ class DashboardActionInteractor(
                     )
                 )
             }
+            is FiatTransactionRequestResult.LaunchQuestionnaire -> {
+                model.process(
+                    DashboardIntent.UpdateNavigationAction(
+                        DashboardNavigationAction.DepositQuestionnaire(
+                            questionnaire = fiatTxRequestResult.questionnaire,
+                            callbackIntent = fiatTxRequestResult.callbackIntent
+                        )
+                    )
+                )
+            }
             is FiatTransactionRequestResult.LaunchPaymentMethodChooser -> {
                 model.process(
                     DashboardIntent.ShowLinkablePaymentMethodsSheet(
@@ -559,7 +575,9 @@ class DashboardActionInteractor(
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 model.process(DashboardIntent.ShowBankLinkingSheet(fiatTxRequestResult.targetAccount))
             }
-        }
+            null -> {
+            }
+        }.exhaustive
     }
 
     private fun handleNoLinkedBanks(
@@ -692,6 +710,16 @@ class DashboardActionInteractor(
                 Timber.e(it)
             }
         )
+
+    private fun getQuestionnaireIfNeeded(shouldSkipQuestionnaire: Boolean): Single<Optional<Questionnaire>> =
+        if (shouldSkipQuestionnaire) {
+            Single.just(Optional.empty())
+        } else {
+            rxMaybeOutcome(Schedulers.io().asCoroutineDispatcher()) {
+                dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT)
+            }.map { Optional.of(it) }
+                .defaultIfEmpty(Optional.empty())
+        }
 
     fun joinNftWaitlist(): Disposable {
         return rxSingle { nftWaitlistService.joinWaitlist() }.subscribeBy(

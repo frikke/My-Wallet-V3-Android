@@ -28,6 +28,7 @@ class BottomNavigationBarView @JvmOverloads constructor(
 
     @Composable
     override fun Content() {
+
         AppTheme {
             AppSurface {
                 BottomNavigationBar(

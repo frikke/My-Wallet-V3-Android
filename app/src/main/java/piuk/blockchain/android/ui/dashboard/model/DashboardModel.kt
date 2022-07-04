@@ -47,7 +47,6 @@ class DashboardModel(
                 intent.assetList,
                 this
             )
-            is DashboardIntent.GetAvailableAssets -> interactor.fetchAvailableAssets(this)
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
                 process(DashboardIntent.LoadFundsLocked)
                 process(DashboardIntent.RefreshAllBalancesIntent(false))
@@ -96,7 +95,6 @@ class DashboardModel(
             is DashboardIntent.ClearActiveFlow,
             is DashboardIntent.UpdateSelectedCryptoAccount,
             is DashboardIntent.ShowBackupSheet,
-            is DashboardIntent.AssetListUpdate,
             is DashboardIntent.LaunchBankLinkFlow,
             is DashboardIntent.ResetNavigation,
             is DashboardIntent.ShowLinkablePaymentMethodsSheet,
@@ -120,7 +118,8 @@ class DashboardModel(
                     this,
                     intent.account,
                     intent.action,
-                    intent.shouldLaunchBankLinkTransfer
+                    intent.shouldLaunchBankLinkTransfer,
+                    intent.shouldSkipQuestionnaire
                 )
             }
             AssetAction.FiatWithdraw -> {

@@ -19,6 +19,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.legacy.MaterialProgressDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.extensions.nextAfterOrNull
 import com.blockchain.koin.scopedInject
 import com.jakewharton.rx3.replayingShare
@@ -36,7 +37,6 @@ import piuk.blockchain.android.KycNavXmlDirections
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentKycHomeAddressBinding
 import piuk.blockchain.android.ui.base.BaseMvpFragment
-import piuk.blockchain.android.ui.dataremediation.TreeNode
 import piuk.blockchain.android.ui.kyc.ParentActivityDelegate
 import piuk.blockchain.android.ui.kyc.address.models.AddressDialog
 import piuk.blockchain.android.ui.kyc.address.models.AddressIntent
@@ -90,7 +90,7 @@ class KycHomeAddressFragment :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentKycHomeAddressBinding.inflate(inflater, container, false)
         return binding.root
@@ -99,7 +99,7 @@ class KycHomeAddressFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycAddress)
-        progressListener.setHostTitle(R.string.kyc_address_title)
+        progressListener.setupHostToolbar(R.string.kyc_address_title)
         binding.editTextKycAddressZipCode.addTextChangedListener(textWatcher)
 
         setupImeOptions()
@@ -125,10 +125,13 @@ class KycHomeAddressFragment :
         navigate(KycNavXmlDirections.actionStartVeriff(countryCode))
     }
 
-    override fun continueToQuestionnaire(root: TreeNode.Root, countryCode: String) {
+    override fun continueToQuestionnaire(questionnaire: Questionnaire, countryCode: String) {
         closeKeyboard()
         navigate(
-            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToQuestionnaireFragment(root, countryCode)
+            KycHomeAddressFragmentDirections.actionKycHomeAddressFragmentToKycQuestionnaireFragment(
+                questionnaire,
+                countryCode
+            )
         )
     }
 
@@ -154,7 +157,7 @@ class KycHomeAddressFragment :
         city: String?,
         state: String?,
         postCode: String?,
-        countryName: String
+        countryName: String,
     ) {
         with(binding) {
             editTextKycAddressFirstLine.setText(line1)

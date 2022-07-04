@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.backup.completed
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -13,12 +13,12 @@ class BackupWalletCompletedPresenterTest {
 
     private lateinit var subject: BackupWalletCompletedPresenter
     private val view: BackupWalletCompletedView = mock()
-    private val walletStatus: WalletStatus = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
     private val authDataManager: AuthDataManager = mock()
 
     @Before
     fun setUp() {
-        subject = BackupWalletCompletedPresenter(walletStatus, authDataManager)
+        subject = BackupWalletCompletedPresenter(walletStatusPrefs, authDataManager)
         subject.initView(view)
     }
 
@@ -26,12 +26,12 @@ class BackupWalletCompletedPresenterTest {
     fun `onViewReady set backup date`() {
         // Arrange
         val date = 1499181978000L
-        whenever(walletStatus.lastBackupTime).thenReturn(date)
+        whenever(walletStatusPrefs.lastBackupTime).thenReturn(date)
         // Act
         subject.onViewReady()
         // Assert
-        verify(walletStatus).lastBackupTime
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime
+        verifyNoMoreInteractions(walletStatusPrefs)
         verify(view).showLastBackupDate(date)
         verifyNoMoreInteractions(view)
     }
@@ -39,12 +39,12 @@ class BackupWalletCompletedPresenterTest {
     @Test
     fun `onViewReady hide backup date`() {
         // Arrange
-        whenever(walletStatus.lastBackupTime).thenReturn(0L)
+        whenever(walletStatusPrefs.lastBackupTime).thenReturn(0L)
         // Act
         subject.onViewReady()
         // Assert
-        verify(walletStatus).lastBackupTime
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime
+        verifyNoMoreInteractions(walletStatusPrefs)
         verify(view).hideLastBackupDate()
         verifyNoMoreInteractions(view)
     }

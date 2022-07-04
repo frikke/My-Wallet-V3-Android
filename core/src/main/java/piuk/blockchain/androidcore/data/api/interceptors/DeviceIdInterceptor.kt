@@ -3,9 +3,9 @@ package piuk.blockchain.androidcore.data.api.interceptors
 import com.blockchain.enviroment.EnvironmentConfig
 import okhttp3.Interceptor
 import okhttp3.Response
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
-class DeviceIdInterceptor(private val prefs: Lazy<PersistentPrefs>, private val environmentConfig: EnvironmentConfig) :
+class DeviceIdInterceptor(private val prefs: Lazy<SessionPrefs>, private val environmentConfig: EnvironmentConfig) :
     Interceptor {
     private var deviceId: String? = null
 

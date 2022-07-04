@@ -1331,7 +1331,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="aave_yfi_dot_available_card_cta">Acheter maintenant</string>
     <string name="old_default_non_custodial_wallet_label">Mon portefeuille %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">Votre ordre est en cours de traitement, nous vous informerons lorsqu\'il sera terminé. Vous pouvez fermer cet écran en toute sécurité pendant que nous mettons l\'ordre à jour en arrière-plan.</string>
-    <string name="fiat_currency_funds_wallet_name_1">Compte %1s</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Pas assez de %1$s dans votre portefeuille pour vendre avec les frais de réseau actuels.</string>
     <string name="send_enter_amount_network_fees">Frais du réseau</string>
     <string name="send_enter_amount_total">Total</string>
@@ -1578,7 +1577,6 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="recurring_buy_details_next_payment">Prochain paiement</string>
     <string name="recurring_buy_details_recurring">Récurrent</string>
     <string name="activity_details_label_btn_cash">Ajouter de l\'argent</string>
-    <string name="recurring_buy_funds_label">%sCompte</string>
     <string name="recurring_buy_short_error">Échec</string>
     <string name="recurring_buy_insufficient_funds_short_error">Échec. Solde insuffisant</string>
     <string name="recurring_buy_internal_server_error">Une erreur s\'est produite lors de votre achat. Nous allons réessayer sous peu.</string>
@@ -1796,7 +1794,6 @@ Veuillez vérifier votre connexion Internet et réessayer ou contacter l\'assist
  Vos %1$s seront disponibles sur votre compte \" %2$s \" sous 2 jours.</string>
     <string name="reset_kyc_notice_1">Pour votre sécurité, vous devrez peut-être revérifier votre identité avant d\'accéder à votre compte de trading ou de récompenses.</string>
     <string name="reset_account_description_1">La réinitialisation restaurera vos comptes de trading, de récompenses et d\'échange.</string>
-    <string name="checkout_funds_label_1">Wallet %s</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="common_approve">Approuver</string>
     <string name="common_deny">Refuser</string>

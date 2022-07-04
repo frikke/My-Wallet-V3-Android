@@ -1351,7 +1351,6 @@ Blockchain Wallet:
     <string name="aave_yfi_dot_available_card_cta">Купить сейчас</string>
     <string name="old_default_non_custodial_wallet_label">Мой %1s Кошелек</string>
     <string name="bank_transfer_in_progress_ob_blurb">Ваш ордер обрабатывается. Вы можете безопасно закрыть этот экран, пока мы обновляем ордер в фоновом режиме.</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s счет</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">В вашем кошельке недостаточно %1$s, чтобы продавать с текущими сетевыми комиссиями.</string>
     <string name="send_enter_amount_network_fees">Сетевые комиссии</string>
     <string name="send_enter_amount_total">Всего</string>
@@ -1596,7 +1595,6 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="recurring_buy_details_next_payment">Следующий платеж</string>
     <string name="recurring_buy_details_recurring">Повторяющийся</string>
     <string name="activity_details_label_btn_cash">Добавить наличные</string>
-    <string name="recurring_buy_funds_label">Учетная запись %s</string>
     <string name="recurring_buy_short_error">Не удалось</string>
     <string name="recurring_buy_insufficient_funds_short_error">Ошибка. Недостаточный баланс</string>
     <string name="recurring_buy_internal_server_error">При покупке произошла ошибка. Мы повторим попытку в ближайшее время.</string>
@@ -1814,7 +1812,6 @@ SafeConnect поделится этими данными с вашим банк�
  Ваш %1$s будет доступен в вашем аккаунте \" %2$s \" в течение 2 дней.</string>
     <string name="reset_kyc_notice_1">В целях безопасности вам, возможно, придется повторно подтвердить свою личность, прежде чем получить доступ к своему торговому или бонусному счету.</string>
     <string name="reset_account_description_1">Сброс восстановит ваши торговые, наградные и биржевые учетные записи.</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Всего</string>
     <string name="common_approve">Подтвердить</string>
     <string name="common_deny">Отклонить</string>

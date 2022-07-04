@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.navhost
 import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Address
@@ -36,6 +37,7 @@ class KycNavHostPresenterTest {
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
+    private val kycDataSource: KycDataSource = mock()
     private val userDataSource: GetUserDataSource = mock()
 
     @Suppress("unused")
@@ -54,8 +56,9 @@ class KycNavHostPresenterTest {
             kycNavigator = ReentryDecisionKycNavigator(
                 nabuDataUserProvider, reentryDecision, analytics
             ),
+            kycDataSource = kycDataSource,
+            userDataSource = userDataSource,
             analytics = mock(),
-            userDataSource = userDataSource
         )
         subject.initView(view)
     }
@@ -69,6 +72,7 @@ class KycNavHostPresenterTest {
         // Act
         subject.onViewReady()
         // Assert
+        verify(kycDataSource).invalidate()
         verify(userDataSource).invalidate()
     }
 

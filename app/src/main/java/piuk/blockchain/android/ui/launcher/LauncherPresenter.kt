@@ -5,6 +5,8 @@ import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.preferences.SecurityPrefs
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.maintenance.domain.model.AppMaintenanceStatus
@@ -12,7 +14,8 @@ import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfi
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.isValidGuid
 import timber.log.Timber
 
@@ -37,12 +40,15 @@ data class ViewIntentData(
 
 class LauncherPresenter internal constructor(
     private val appUtil: AppUtil,
-    private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val envSettings: EnvironmentConfig,
     private val authPrefs: AuthPrefs,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
-    private val appMaintenanceFF: FeatureFlag
+    private val appMaintenanceFF: FeatureFlag,
+    private val sessionPrefs: SessionPrefs,
+    private val securityPrefs: SecurityPrefs,
+    private val referralPrefs: ReferralPrefs,
+    private val encryptedPrefs: EncryptedPrefs
 ) : MvpPresenter<LauncherView>() {
 
     override fun onViewCreated() {
@@ -92,31 +98,31 @@ class LauncherPresenter internal constructor(
             viewIntentData.scheme == "bitcoin" &&
             viewIntentData.data != null
         ) {
-            prefs.setValue(PersistentPrefs.KEY_SCHEME_URL, viewIntentData.data)
+            sessionPrefs.keySchemeUrl = viewIntentData.data
         }
         if (viewIntentData?.data != null) {
             deepLinkPersistence.pushDeepLink(viewIntentData.data)
         }
 
         if (viewIntentData?.referralSuccessBody != null && viewIntentData.referralSuccessTitle != null) {
-            prefs.referralSuccessTitle = viewIntentData.referralSuccessTitle
-            prefs.referralSuccessBody = viewIntentData.referralSuccessBody
+            referralPrefs.referralSuccessTitle = viewIntentData.referralSuccessTitle
+            referralPrefs.referralSuccessBody = viewIntentData.referralSuccessBody
         }
 
         if (
             Intent.ACTION_VIEW == viewIntentData?.action &&
             viewIntentData.dataString?.contains("blockchain") == true
         ) {
-            prefs.setValue(PersistentPrefs.KEY_METADATA_URI, viewIntentData.dataString)
+            sessionPrefs.metadataUri = viewIntentData.dataString
         }
 
         if (viewIntentData?.isAutomationTesting == true && Environment.STAGING == envSettings.environment) {
-            prefs.setIsUnderTest()
+            securityPrefs.setIsUnderTest()
         }
 
-        val hasBackup = prefs.hasBackup()
+        val hasBackup = encryptedPrefs.hasBackup()
         val walletId = authPrefs.walletGuid
-        val pinId = prefs.pinId
+        val pinId = authPrefs.pinId
 
         val isWalletIdInValid = walletId.isNotEmpty() && !walletId.isValidGuid()
         val hasUnPairedWallet = walletId.isNotEmpty() && pinId.isEmpty()

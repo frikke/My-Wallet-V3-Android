@@ -69,6 +69,11 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
         }
     }
 
+    fun accountsWithActivity(): Set<BlockchainAccount> =
+        transactionCache.map {
+            it.account
+        }.toSet()
+
     private fun reconcileTransfersAndBuys(
         list: ActivitySummaryList,
     ): List<ActivitySummaryItem> {
@@ -162,7 +167,7 @@ class AssetActivityRepository : ExpiringRepository<ActivitySummaryList, Blockcha
     }
 
     private fun getCachedActivitiesOfAccountGroup(param: AccountGroup): Maybe<List<ActivitySummaryItem>> {
-        val list = transactionCache.filter { param.accounts.contains(it.account) }
+        val list = transactionCache.filter { param.includes(it.account) }
         list.takeIf { it.isNotEmpty() }?.let {
             return Maybe.just(it)
         } ?: return Maybe.empty()

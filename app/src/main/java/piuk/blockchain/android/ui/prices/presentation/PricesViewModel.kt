@@ -17,6 +17,7 @@ import info.blockchain.balance.isCustodial
 import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
@@ -38,7 +39,9 @@ class PricesViewModel(
     PricesViewState,
     PricesModelState,
     PricesNavigationEvent,
-    ModelConfigArgs.NoArgs>(PricesModelState(fiatCurrency = currencyPrefs.selectedFiatCurrency)) {
+    ModelConfigArgs.NoArgs>(
+    PricesModelState(fiatCurrency = currencyPrefs.selectedFiatCurrency, tradableCurrencies = emptyList())
+) {
 
     override fun viewCreated(args: ModelConfigArgs.NoArgs) {}
     private var job: Job? = null
@@ -61,9 +64,9 @@ class PricesViewModel(
     private fun loadAvailableAssets() {
         job = viewModelScope.launch {
             try {
-                loadAssetsAndPrices().asFlow().onEach { priceInfo ->
+                loadAssetsAndPrices().asFlow().onEach { prices ->
                     updateState {
-                        it.updateAsset(priceInfo)
+                        modelState.updateAssets(prices)
                     }
                 }.collect()
             } catch (e: Exception) {
@@ -83,8 +86,8 @@ class PricesViewModel(
                     it.assetInfo.displayTicker.contains(state.filterBy, ignoreCase = true) ||
                     it.assetInfo.name.contains(state.filterBy, ignoreCase = true)
             }.sortedWith(
-                compareByDescending<PricesItem> { it.priceWithDelta?.marketCap }
-                    .thenBy { it.isTradingAccount }
+                compareByDescending<PricesItem> { it.isTradingAccount }
+                    .thenByDescending { it.priceWithDelta?.marketCap }
                     .thenBy { it.assetInfo.name }
             ).map {
                 it.toPriceItemViewModel(state.fiatCurrency)
@@ -92,40 +95,47 @@ class PricesViewModel(
         )
     }
 
-    private fun loadAssetsAndPrices(): Observable<AssetPriceInfo> {
-        updateState { it.copy(isLoadingData = true) }
-
-        return walletModeService.walletMode.map { walletMode ->
-            coincore.availableCryptoAssets().filter {
-                when (walletMode) {
-                    WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
-                    WalletMode.CUSTODIAL_ONLY -> it.isCustodial
-                    WalletMode.UNIVERSAL -> true
-                }
-            }
-        }.asObservable().doOnNext { availableAssets ->
+    private fun loadAssetsAndPrices(): Observable<List<AssetPriceInfo>> {
+        val supportedBuyCurrencies = custodialWalletManager.getSupportedBuySellCryptoCurrencies()
+        return supportedBuyCurrencies.doOnSuccess { tradableCurrencies ->
             updateState {
-                modelState.updateAllAssets(availableAssets)
+                modelState.copy(tradableCurrencies = tradableCurrencies.map { it.source.networkTicker })
             }
-        }.flatMapIterable { assets ->
-            assets.map { fetchAssetPrice(it) }
-        }.flatMapSingle { it }
+        }.flatMapObservable {
+            walletModeService.walletMode.map { walletMode ->
+                coincore.availableCryptoAssets().filter {
+                    when (walletMode) {
+                        WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
+                        WalletMode.CUSTODIAL_ONLY -> it.isCustodial
+                        WalletMode.UNIVERSAL -> true
+                    }
+                }
+            }.asObservable().doOnNext {
+                updateState {
+                    modelState.copy(
+                        isLoadingData = true,
+                        data = emptyList()
+                    )
+                }
+            }.flatMapSingle { assets ->
+                Single.concat(
+                    assets.map { fetchAssetPrice(it) }
+                ).toList()
+            }
+        }
     }
 
     private fun fetchAssetPrice(assetInfo: AssetInfo): Single<AssetPriceInfo> {
+
         return exchangeRatesDataManager.getPricesWith24hDelta(assetInfo).firstOrError()
-            .flatMap { prices24HrWithDelta ->
-                custodialWalletManager.isCurrencyAvailableForTrading(assetInfo).map {
-                    AssetPriceInfo(
-                        price = prices24HrWithDelta,
-                        isTradable = it,
-                        assetInfo = assetInfo
-                    )
-                }
-            }.onErrorReturn {
+            .map { prices24HrWithDelta ->
                 AssetPriceInfo(
-                    assetInfo = assetInfo,
-                    isTradable = false
+                    price = prices24HrWithDelta,
+                    assetInfo = assetInfo
+                )
+            }.subscribeOn(Schedulers.io()).onErrorReturn {
+                AssetPriceInfo(
+                    assetInfo = assetInfo
                 )
             }
     }
@@ -162,22 +172,21 @@ private fun PricesModelState.updateAllAssets(assets: List<AssetInfo>): PricesMod
         }
     )
 
-private fun PricesModelState.updateAsset(assetPriceInfo: AssetPriceInfo): PricesModelState =
+private fun PricesModelState.updateAssets(assetPriceInfo: List<AssetPriceInfo>): PricesModelState =
     copy(
         isLoadingData = false,
-        isError = false,
-        data = this.data.minus { it.assetInfo.networkTicker == assetPriceInfo.assetInfo.networkTicker }.plus(
+        isError = assetPriceInfo.isEmpty(),
+        data = assetPriceInfo.map { priceInfo ->
             PricesItem(
-                assetInfo = assetPriceInfo.assetInfo,
-                hasError = assetPriceInfo.price == null,
-                isTradingAccount = assetPriceInfo.isTradable,
-                priceWithDelta = assetPriceInfo.price
+                isTradingAccount = tradableCurrencies.contains(priceInfo.assetInfo.networkTicker),
+                assetInfo = priceInfo.assetInfo,
+                hasError = priceInfo.price == null,
+                priceWithDelta = priceInfo.price
             )
-        )
+        }
     )
 
 private data class AssetPriceInfo(
     val price: Prices24HrWithDelta? = null,
     val assetInfo: AssetInfo,
-    val isTradable: Boolean,
 )

@@ -10,6 +10,8 @@ import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.coincore.fiat.FiatAccountGroup
+import com.blockchain.coincore.impl.AllCustodialWalletsAccount
+import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CryptoAccountNonCustodialGroup
 import com.blockchain.coincore.impl.CryptoAccountTradingGroup
@@ -60,6 +62,8 @@ class AccountIcon(
     private fun accountGroupIcon(account: AccountGroup): Int? {
         return when (account) {
             is AllWalletsAccount -> R.drawable.ic_all_wallets_white
+            is AllCustodialWalletsAccount -> R.drawable.ic_portfolio
+            is AllNonCustodialWalletsAccount -> R.drawable.ic_defi_wallet
             is CryptoAccountTradingGroup -> null
             is CryptoAccountNonCustodialGroup -> null
             is FiatAccountGroup -> null
@@ -70,7 +74,9 @@ class AccountIcon(
     companion object {
         private fun accountGroupTicker(account: AccountGroup): Currency? {
             return when (account) {
-                is AllWalletsAccount -> null
+                is AllWalletsAccount,
+                is AllNonCustodialWalletsAccount,
+                is AllCustodialWalletsAccount -> null
                 is FiatAccount,
                 is CryptoAccountTradingGroup -> account.accounts[0].currency
                 is CryptoAccountNonCustodialGroup -> account.asset

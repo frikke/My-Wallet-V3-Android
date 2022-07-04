@@ -38,7 +38,7 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.repositories.WithdrawLocksRepository
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.balance.CryptoCurrency
 import io.reactivex.rxjava3.core.Single
@@ -53,7 +53,7 @@ class TxProcessorFactoryTest {
     private val interestBalances: InterestBalanceDataManager = mock()
     private val interestDataSource: InterestDataSource = mock()
     private val tradingDataSource: TradingDataSource = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val bankPartnerCallbackProvider: BankPartnerCallbackProvider = mock()
     private val quotesEngine: TransferQuotesEngine = mock()
     private val analytics: Analytics = mock()
