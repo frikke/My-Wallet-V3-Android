@@ -7,12 +7,14 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
+import retrofit2.http.Query
 
 interface DataRemediationApi {
 
     @GET("kyc/extra-questions")
     suspend fun getQuestionnaire(
-        @Header("authorization") authorization: String
+        @Header("authorization") authorization: String,
+        @Query("context") questionnaireContext: String
     ): Outcome<ApiError, QuestionnaireResponse?>
 
     @PUT("kyc/extra-questions")

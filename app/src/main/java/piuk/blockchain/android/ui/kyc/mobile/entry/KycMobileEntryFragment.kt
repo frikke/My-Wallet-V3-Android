@@ -93,7 +93,7 @@ class KycMobileEntryFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_phone_number_title)
+        progressListener.setupHostToolbar(R.string.kyc_phone_number_title)
 
         with(binding.editTextKycMobileNumber) {
             addTextChangedListener(PhoneNumberFormattingTextWatcher())

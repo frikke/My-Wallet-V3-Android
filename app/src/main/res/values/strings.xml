@@ -2820,10 +2820,6 @@
     <string name="coinview_expandable_button">Read More</string>
     <string name="coinview_collapsable_button">Read Less</string>
 
-    <!--  Terms and Conditions  -->
-    <string name="terms_and_conditions_toolbar">Review Our New Terms</string>
-    <string name="terms_and_conditions_accept_label">I agree to Blockchain.com’s Terms of Service &amp; Privacy Policy.</string>
-    <string name="terms_and_conditions_review_button">Review</string>
     <string name="pair_not_supported_title">Pair not supported</string>
     <string name="pair_not_supported_subtitle">Missing rate for pair</string>
 
@@ -2861,6 +2857,7 @@
     <!-- Kyc Questionnaire -->
     <string name="kyc_additional_info_toolbar">Use of Account Information</string>
     <string name="kyc_additional_info_invalid_node_error">Form contains errors or incomplete fields</string>
+    <string name="questionnaire_error_invalid_format">Invalid Format</string>
 
     <string name="tax_center_announcement_description">In partnership with CoinTracker, our new Tax Center is now live. Connect to your account on <annotation font="bold">web</annotation> and go to <annotation font="bold">Account -> Tax Center</annotation>.</string>
     <string name="tax_center_announcement_title">Tax Center is Now Available!</string>

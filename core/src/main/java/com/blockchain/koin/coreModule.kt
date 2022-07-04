@@ -145,7 +145,7 @@ val coreModule = module {
         factory<DataRemediationService> {
             DataRemediationRepository(
                 authenticator = get(),
-                kycService = get(),
+                api = get(),
             )
         }
 

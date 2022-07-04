@@ -4,7 +4,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class QuestionnaireResponse(
-    val nodes: List<QuestionnaireNodeResponse>
+    val header: QuestionnaireHeaderResponse?,
+    val context: String,
+    val nodes: List<QuestionnaireNodeResponse>,
+    val blocking: Boolean
+)
+
+@Serializable
+data class QuestionnaireHeaderResponse(
+    val title: String,
+    val description: String
 )
 
 @Serializable
@@ -22,7 +31,8 @@ data class QuestionnaireNodeResponse(
     // OPEN_ENDED
     val input: String?,
     val hint: String?,
+    val regex: String?,
 
     // SELECTION
-    val checked: Boolean?
+    val checked: Boolean?,
 )

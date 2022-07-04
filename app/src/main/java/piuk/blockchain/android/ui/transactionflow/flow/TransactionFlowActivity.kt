@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.NullCryptoAccount
@@ -23,8 +24,12 @@ import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
+import com.blockchain.koin.scopedInject
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.preferences.DashboardPrefs
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -37,6 +42,7 @@ import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.databinding.ActivityTransactionFlowBinding
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalytics
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionIntent
@@ -55,6 +61,7 @@ import timber.log.Timber
 class TransactionFlowActivity :
     MviActivity<TransactionModel, TransactionIntent, TransactionState, ActivityTransactionFlowBinding>(),
     SlidingModalBottomDialog.Host,
+    QuestionnaireSheet.Host,
     KycUpgradeNowSheet.Host {
 
     private val scopeId: String by lazy {
@@ -78,6 +85,7 @@ class TransactionFlowActivity :
     private val customiser: TransactionFlowCustomisations by inject()
     private val remoteLogger: RemoteLogger by inject()
     private val dashboardPrefs: DashboardPrefs by inject()
+    private val dataRemediationService: DataRemediationService by scopedInject()
 
     private val sourceAccount: SingleAccount by lazy {
         intent.extras?.getAccount(SOURCE) as? SingleAccount ?: kotlin.run {
@@ -150,6 +158,17 @@ class TransactionFlowActivity :
                     finish()
                 }
             )
+
+        if (action == AssetAction.Swap || action == AssetAction.Sell) {
+            lifecycleScope.launchWhenCreated {
+                dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
+                    .doOnSuccess { questionnaire ->
+                        if (questionnaire != null) {
+                            showBottomSheet(QuestionnaireSheet.newInstance(questionnaire, true))
+                        }
+                    }
+            }
+        }
     }
 
     override fun render(newState: TransactionState) {
@@ -315,6 +334,14 @@ class TransactionFlowActivity :
 
     override fun onSheetClosed() {
         // do nothing
+    }
+
+    override fun questionnaireSubmittedSuccessfully() {
+        // no op
+    }
+
+    override fun questionnaireSkipped() {
+        // no op
     }
 
     companion object {

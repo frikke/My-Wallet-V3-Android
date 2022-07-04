@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.basic.Image
+import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
@@ -48,20 +51,28 @@ import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
 import com.blockchain.componentlib.control.Radio
 import com.blockchain.componentlib.control.RadioButtonState
+import com.blockchain.componentlib.navigation.NavigationBar
+import com.blockchain.componentlib.navigation.NavigationBarButton
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Grey000
 import com.blockchain.componentlib.theme.Grey400
 import com.blockchain.domain.dataremediation.model.NodeId
+import com.blockchain.domain.dataremediation.model.QuestionnaireHeader
 import piuk.blockchain.android.R
 
 @Composable
 fun QuestionnaireScreen(
+    showNavigationBar: Boolean,
+    isSkipVisible: Boolean,
+    header: QuestionnaireHeader?,
     state: QuestionnaireState,
     onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
     onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
-    onContinueClicked: () -> Unit
+    onContinueClicked: () -> Unit,
+    onSkipClicked: () -> Unit,
+    onBackClicked: () -> Unit
 ) {
     Column(
         Modifier
@@ -108,6 +119,18 @@ fun QuestionnaireScreen(
             }
         }
 
+        if (showNavigationBar) {
+            NavigationBar(
+                title = stringResource(R.string.kyc_additional_info_toolbar),
+                onBackButtonClick = onBackClicked,
+                navigationBarButtons = if (isSkipVisible) {
+                    listOf(NavigationBarButton.Text(stringResource(R.string.common_skip), Blue600, onSkipClicked))
+                } else {
+                    emptyList()
+                }
+            )
+        }
+
         LazyColumn(
             Modifier
                 .weight(1f)
@@ -116,6 +139,12 @@ fun QuestionnaireScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             state = listState
         ) {
+            if (header != null) {
+                item {
+                    Header(header)
+                }
+            }
+
             items(state.nodes, key = { node -> node.id }) { node ->
                 NodeRow(
                     node,
@@ -164,14 +193,16 @@ private fun NodeRow(
     isInvalid: Boolean,
     onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
     onSelectionClicked: (node: FlatNode.Selection) -> Unit,
-    onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit
+    onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
 ) {
     val topPadding = when (node) {
         is FlatNode.SingleSelection,
         is FlatNode.Dropdown,
-        is FlatNode.MultipleSelection -> dimensionResource(R.dimen.small_margin)
+        is FlatNode.MultipleSelection,
+        -> dimensionResource(R.dimen.small_margin)
         is FlatNode.OpenEnded,
-        is FlatNode.Selection -> 0.dp
+        is FlatNode.Selection,
+        -> 0.dp
     }
 
     val commonModifier = Modifier
@@ -195,7 +226,7 @@ private fun NodeRow(
 private fun SingleSelectionRow(
     modifier: Modifier,
     node: FlatNode.SingleSelection,
-    isInvalid: Boolean
+    isInvalid: Boolean,
 ) {
     Column(modifier) {
         SimpleText(
@@ -224,7 +255,7 @@ private fun DropdownRow(
     modifier: Modifier,
     node: FlatNode.Dropdown,
     isInvalid: Boolean,
-    onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit
+    onDropdownChoiceChanged: (node: FlatNode.Dropdown, newChoice: FlatNode.Selection) -> Unit,
 ) {
     Column(modifier) {
         SimpleText(
@@ -309,7 +340,7 @@ private fun DropdownRow(
 private fun MultipleSelectionRow(
     modifier: Modifier,
     node: FlatNode.MultipleSelection,
-    isInvalid: Boolean
+    isInvalid: Boolean,
 ) {
     Column(modifier) {
         SimpleText(
@@ -338,7 +369,7 @@ private fun OpenEndedRow(
     modifier: Modifier,
     node: FlatNode.OpenEnded,
     isInvalid: Boolean,
-    onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit
+    onOpenEndedInputChanged: (node: FlatNode.OpenEnded, newInput: String) -> Unit,
 ) {
     var input: String by remember { mutableStateOf(node.input) }
 
@@ -382,7 +413,7 @@ private fun OpenEndedRow(
 private fun SelectionRow(
     modifier: Modifier,
     node: FlatNode.Selection,
-    onSelectionClicked: (node: FlatNode.Selection) -> Unit
+    onSelectionClicked: (node: FlatNode.Selection) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -414,6 +445,41 @@ private fun SelectionRow(
         } else {
             Checkbox(state = if (node.isChecked) CheckboxState.Checked else CheckboxState.Unchecked)
         }
+    }
+}
+
+@Composable
+private fun Header(header: QuestionnaireHeader) {
+    Column {
+        Image(
+            imageResource = ImageResource.Local(R.drawable.ic_bank_user, colorFilter = ColorFilter.tint(Blue600)),
+            modifier = Modifier
+                .padding(top = dimensionResource(R.dimen.huge_margin))
+                .align(Alignment.CenterHorizontally)
+        )
+        SimpleText(
+            modifier = Modifier.padding(
+                top = dimensionResource(R.dimen.standard_margin),
+                start = dimensionResource(R.dimen.standard_margin),
+                end = dimensionResource(R.dimen.standard_margin)
+            ),
+            text = header.title,
+            style = ComposeTypographies.Title2,
+            color = ComposeColors.Title,
+            gravity = ComposeGravities.Centre
+        )
+        SimpleText(
+            modifier = Modifier.padding(
+                top = dimensionResource(R.dimen.tiny_margin),
+                bottom = dimensionResource(R.dimen.standard_margin),
+                start = dimensionResource(R.dimen.standard_margin),
+                end = dimensionResource(R.dimen.standard_margin)
+            ),
+            text = header.description,
+            style = ComposeTypographies.Paragraph1,
+            color = ComposeColors.Body,
+            gravity = ComposeGravities.Centre
+        )
     }
 }
 
@@ -497,10 +563,19 @@ private fun ScreenPreview() {
     )
 
     QuestionnaireScreen(
+        showNavigationBar = false,
+        isSkipVisible = false,
+        header = QuestionnaireHeader(
+            title = "Additional Information Needed",
+            description = "To comply with your country’s regulation, we need a few more pieces of " +
+                "information before you’re all set up to start trading crypto."
+        ),
         state = state,
         onDropdownChoiceChanged = { _, _ -> },
         onSelectionClicked = {},
         onOpenEndedInputChanged = { _, _ -> },
-        onContinueClicked = {}
+        onContinueClicked = {},
+        onSkipClicked = {},
+        onBackClicked = {}
     )
 }

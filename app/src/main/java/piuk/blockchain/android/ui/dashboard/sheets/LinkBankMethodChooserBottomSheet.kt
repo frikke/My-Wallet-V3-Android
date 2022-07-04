@@ -55,11 +55,11 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
                 onClick = {
                     analytics.logEvent(BankAuthAnalytics.LinkBankSelected(launchOrigin()))
                     when (it) {
-                        PaymentMethodType.BANK_TRANSFER -> kotlin.run {
+                        PaymentMethodType.BANK_TRANSFER -> {
                             host.onLinkBankSelected(paymentMethods)
                             dismiss()
                         }
-                        PaymentMethodType.BANK_ACCOUNT -> kotlin.run {
+                        PaymentMethodType.BANK_ACCOUNT -> {
                             host.onBankWireTransferSelected(paymentMethods.linkablePaymentMethods.currency)
                             dismiss()
                         }

@@ -8,7 +8,6 @@ sealed class LoadingStep {
     object Launcher : LoadingStep()
     object EmailVerification : LoadingStep()
     object RequestPin : LoadingStep()
-    data class NewTermsAndConditions(val url: String) : LoadingStep()
 }
 
 enum class ProgressStep {

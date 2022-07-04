@@ -7,6 +7,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationEvent
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.NodeId
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.dataremediation.model.SubmitQuestionnaireError
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.Outcome
@@ -17,16 +18,16 @@ data class QuestionnaireModelState(
     val isFormValid: Boolean = true,
     val isUploadingNodes: Boolean = false,
     val invalidNodes: List<NodeId> = emptyList(),
-    val error: SubmitQuestionnaireError? = null
+    val error: QuestionnaireError? = null
 ) : ModelState
 
 sealed class Navigation : NavigationEvent {
-    object LaunchVeriff : Navigation()
+    object FinishSuccessfully : Navigation()
 }
 
 @Parcelize
 data class Args(
-    val root: TreeNode.Root
+    val questionnaire: Questionnaire,
 ) : ModelConfigArgs.ParcelableArgs
 
 class QuestionnaireModel(
@@ -41,8 +42,11 @@ class QuestionnaireModel(
     Args
     >(QuestionnaireModelState()) {
 
+    private lateinit var originalQuestionnaire: Questionnaire
+
     override fun viewCreated(args: Args) {
         analytics.logEvent(KycQuestionnaireViewed)
+        originalQuestionnaire = args.questionnaire
         stateMachine.onStateChanged = { nodes ->
             updateState { prevState ->
                 prevState.copy(
@@ -52,7 +56,7 @@ class QuestionnaireModel(
                 )
             }
         }
-        stateMachine.setRoot(args.root)
+        stateMachine.setRoot(args.questionnaire.nodes.toMutableNode())
     }
 
     override fun reduce(state: QuestionnaireModelState): QuestionnaireState = QuestionnaireState(
@@ -79,30 +83,50 @@ class QuestionnaireModel(
             }
             QuestionnaireIntent.ContinueClicked -> {
                 if (!modelState.isFormValid) {
-                    updateState { it.copy(invalidNodes = stateMachine.invalidNodes) }
+                    val error = stateMachine.findInvalidOpenEndedRegexNodeError()?.let {
+                        QuestionnaireError.InvalidOpenEndedRegexMatch(it)
+                    } ?: modelState.error
+                    updateState { it.copy(invalidNodes = stateMachine.invalidNodes, error = error) }
                     return
                 }
 
                 updateState { it.copy(isUploadingNodes = true, invalidNodes = emptyList()) }
                 val nodes = stateMachine.getRoot().toDomain()
-                when (val result = dataRemediationService.submitQuestionnaire(nodes)) {
+                val filledQuestionnaire = originalQuestionnaire.copy(nodes = nodes)
+                when (val result = dataRemediationService.submitQuestionnaire(filledQuestionnaire)) {
                     is Outcome.Success -> {
                         analytics.logEvent(KycQuestionnaireSubmitted)
-                        navigate(Navigation.LaunchVeriff)
+                        navigate(Navigation.FinishSuccessfully)
                     }
                     is Outcome.Failure -> updateState {
-                        val invalidNodes =
-                            listOfNotNull((result.failure as? SubmitQuestionnaireError.InvalidNode)?.nodeId)
+                        val invalidNodeId = (result.failure as? SubmitQuestionnaireError.InvalidNode)?.nodeId
+                        val invalidNode = modelState.nodes.find { it.id == invalidNodeId }
+                        val error = if (invalidNode != null) {
+                            QuestionnaireError.InvalidNode(invalidNode)
+                        } else {
+                            // Shouldn't occurr as the backend should always send an existing id in the current list
+                            val errorMessage = when (val result = result.failure) {
+                                is SubmitQuestionnaireError.InvalidNode -> null
+                                is SubmitQuestionnaireError.RequestFailed -> result.message
+                            }
+                            QuestionnaireError.Unknown(errorMessage)
+                        }
                         it.copy(
                             isUploadingNodes = false,
-                            error = result.failure,
-                            invalidNodes = invalidNodes,
-                            isFormValid = invalidNodes.isEmpty()
+                            error = error,
+                            invalidNodes = listOfNotNull(invalidNodeId),
+                            isFormValid = invalidNodeId == null
                         )
                     }
                 }
             }
             QuestionnaireIntent.ErrorHandled -> updateState { it.copy(error = null) }
         }.exhaustive
+    }
+
+    private fun QuestionnaireStateMachine.findInvalidOpenEndedRegexNodeError(): FlatNode.OpenEnded? {
+        if (this.invalidNodes.isEmpty()) return null
+        return this.state.filterIsInstance<FlatNode.OpenEnded>()
+            .firstOrNull { invalidNodes.contains(it.id) && it.regex != null && !it.regex.matches(it.input) }
     }
 }

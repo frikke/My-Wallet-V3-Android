@@ -1,8 +1,10 @@
 package com.blockchain.nabu.service.nabu
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.FakeAuthenticator
 import com.blockchain.nabu.USD
+import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -31,17 +33,50 @@ class NabuTiersServiceTest {
     private val assetCatalogues: AssetCatalogue = mock {
         on { fromNetworkTicker("USD") }.thenReturn(USD)
     }
+    private val kycStoreService: KycStoreService = mock()
+    private val speedUpLoginKycFF: FeatureFlag = mock()
     private val authenticator: FakeAuthenticator = FakeAuthenticator(sessionToken)
 
-    private val subject: NabuTierService = NabuTierService(nabu, assetCatalogues, authenticator)
+    private val subject: NabuTierService = NabuTierService(
+        endpoint = nabu,
+        assetCatalogue = assetCatalogues,
+        kycStoreService = kycStoreService,
+        speedUpLoginKycFF = speedUpLoginKycFF,
+        authenticator = authenticator
+    )
 
     @get:Rule
     val rx = rxInit {
         ioTrampoline()
     }
 
+    private val kycTiers = KycTiers(
+        Tiers(
+            mapOf(
+                KycTierLevel.BRONZE to
+                    Tier(
+                        KycTierState.Verified,
+                        Limits(null, null)
+                    ),
+                KycTierLevel.SILVER to
+                    Tier(
+                        KycTierState.Pending,
+                        Limits(null, Money.fromMajor(USD, 1000.0.toBigDecimal()))
+                    ),
+                KycTierLevel.GOLD to
+                    Tier(
+                        KycTierState.None,
+                        Limits(
+                            Money.fromMajor(USD, 25000.0.toBigDecimal()), null
+                        )
+                    )
+            )
+        )
+    )
+
     @Test
-    fun `get tiers`() {
+    fun `speedUpLoginFF false, get tiers`() {
+        whenever(speedUpLoginKycFF.enabled).thenReturn(Single.just(false))
 
         whenever(
             nabu.getTiers(sessionToken.authHeader)
@@ -53,29 +88,23 @@ class NabuTiersServiceTest {
             .test()
             .waitForCompletionWithoutErrors()
             .assertValue {
-                it == KycTiers(
-                    Tiers(
-                        mapOf(
-                            KycTierLevel.BRONZE to
-                                Tier(
-                                    KycTierState.Verified,
-                                    Limits(null, null)
-                                ),
-                            KycTierLevel.SILVER to
-                                Tier(
-                                    KycTierState.Pending,
-                                    Limits(null, Money.fromMajor(USD, 1000.0.toBigDecimal()))
-                                ),
-                            KycTierLevel.GOLD to
-                                Tier(
-                                    KycTierState.None,
-                                    Limits(
-                                        Money.fromMajor(USD, 25000.0.toBigDecimal()), null
-                                    )
-                                )
-                        )
-                    )
-                )
+                it == kycTiers
+            }
+    }
+
+    @Test
+    fun `speedUpLoginFF true, get tiers`() {
+        whenever(speedUpLoginKycFF.enabled).thenReturn(Single.just(true))
+
+        whenever(kycStoreService.getKycTiers())
+            .thenReturn(Single.just(kycTiers))
+        Single.just(FakeKycTiersFactory.any)
+
+        subject.tiers()
+            .test()
+            .waitForCompletionWithoutErrors()
+            .assertValue {
+                it == kycTiers
             }
     }
 

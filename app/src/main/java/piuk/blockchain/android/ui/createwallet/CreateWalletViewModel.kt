@@ -154,7 +154,7 @@ class CreateWalletViewModel(
                 val newCountry = countryInputState.countries.find { it.countryCode == intent.countryCode }!!
 
                 val hasStates = newCountry.states.isNotEmpty()
-                // TODO(aromano): check if we're ignoring calls where the current country is the same as the one in the intent
+
                 updateState {
                     it.copy(
                         countryInputState = countryInputState.copy(selected = newCountry),

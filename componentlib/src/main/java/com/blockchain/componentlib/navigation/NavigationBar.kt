@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -106,17 +107,11 @@ fun NavigationBar(
                 }
             }
             Text(
+                modifier = Modifier.weight(1f),
                 text = title,
                 color = AppTheme.colors.title,
                 style = AppTheme.typography.title2
             )
-        }
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = dimensionResource(R.dimen.standard_margin))
-        ) {
             endNavigationBarButtons.forEach {
                 Spacer(modifier = Modifier.width(dimensionResource(R.dimen.smallest_margin)))
                 Box(
@@ -125,7 +120,7 @@ fun NavigationBar(
                             it.onClick.invoke()
                         }
                         .align(CenterVertically)
-                        .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
+                        .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                 ) {
                     when (it) {
                         is NavigationBarButton.Icon -> {
@@ -138,6 +133,7 @@ fun NavigationBar(
                         }
                         is NavigationBarButton.Text -> {
                             Text(
+                                modifier = Modifier.wrapContentWidth(),
                                 text = it.text,
                                 color = it.color ?: AppTheme.colors.error,
                                 style = AppTheme.typography.body2
@@ -241,9 +237,23 @@ fun NavigationBarPreview() {
 fun NavigationBarPreviewLongText() {
     AppTheme {
         NavigationBar(
-            title = "Comunicarse con el soporte técnico",
+            title = "Comunicarse con el soporte técnico longer longer longer",
             onBackButtonClick = { },
             navigationBarButtons = emptyList()
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NavigationBarPreviewLongTextWithActions() {
+    AppTheme {
+        NavigationBar(
+            title = "Comunicarse con el soporte técnico longer longer longer",
+            onBackButtonClick = { },
+            navigationBarButtons = listOf(
+                NavigationBarButton.Text("Some button") {}
+            )
         )
     }
 }

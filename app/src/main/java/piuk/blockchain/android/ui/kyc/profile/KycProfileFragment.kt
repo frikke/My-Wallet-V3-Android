@@ -91,7 +91,7 @@ class KycProfileFragment : BaseFragment<KycProfileView, KycProfilePresenter>(), 
         super.onViewCreated(view, savedInstanceState)
         logEvent(AnalyticsEvents.KycProfile)
 
-        progressListener.setHostTitle(R.string.kyc_profile_title)
+        progressListener.setupHostToolbar(R.string.kyc_profile_title)
 
         with(binding) {
             editTextKycFirstName.setOnEditorActionListener { _, i, _ ->

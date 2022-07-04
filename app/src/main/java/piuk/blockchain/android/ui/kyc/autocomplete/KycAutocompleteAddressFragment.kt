@@ -43,7 +43,7 @@ class KycAutocompleteAddressFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_address_title)
+        progressListener.setupHostToolbar(R.string.kyc_address_title)
         setupRecyclerView()
         setupSearch()
 
