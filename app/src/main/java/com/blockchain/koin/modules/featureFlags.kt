@@ -20,7 +20,6 @@ import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.pricesFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
 import com.blockchain.koin.speedUpLoginTradingFeatureFlag
@@ -67,15 +66,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_gpay",
                 "Google Pay"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(replaceGsonKtxFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_replace_gson_ktxjson",
-                "Use Kotlinx Serializer (Gson)"
             )
         )
     }.bind(FeatureFlag::class)

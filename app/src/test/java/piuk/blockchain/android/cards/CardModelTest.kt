@@ -10,11 +10,9 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.braintreepayments.cardform.utils.CardType
-import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.mock
@@ -23,7 +21,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.Date
 import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
@@ -32,6 +29,7 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
+import java.util.Date
 
 class CardModelTest {
 
@@ -63,17 +61,8 @@ class CardModelTest {
 
         defaultState = spy(CardState(fiatCurrency = FiatCurrency.Dollars, billingAddress = mock(), cardId = "123"))
 
-        val gson: Gson = mock {
-            on { fromJson(sbPrefs.cardState(), CardState::class.java) }.thenReturn(defaultState)
-            on { toJson(any<CardState>()) }.thenReturn(cardStateString)
-        }
-
         val json = Json {
             ignoreUnknownKeys = true
-        }
-
-        val replaceGsonKtxFF: FeatureFlag = mock {
-            on { enabled }.thenReturn(Single.just(true))
         }
 
         model = CardModel(
@@ -84,9 +73,7 @@ class CardModelTest {
             cardActivator = cardActivator,
             currencyPrefs = currencyPrefs,
             prefs = sbPrefs,
-            gson = gson,
-            json = json,
-            replaceGsonKtxFF = replaceGsonKtxFF
+            json = json
         )
     }
 

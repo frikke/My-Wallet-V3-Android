@@ -5,11 +5,9 @@ import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -27,15 +25,12 @@ class CardModel(
     private val interactor: SimpleBuyInteractor,
     private val prefs: SimpleBuyPrefs,
     private val cardActivator: CardActivator,
-    private val gson: Gson,
     private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag,
     val environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger
 ) : MviModel<CardState, CardIntent>(
     initialState = prefs.cardState()?.run {
-        if (replaceGsonKtxFF.isEnabled) json.decodeFromString<CardState>(this)
-        else gson.fromJson(this, CardState::class.java)
+        json.decodeFromString<CardState>(this)
     } ?: CardState(fiatCurrency = currencyPrefs.selectedFiatCurrency),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
@@ -186,9 +181,6 @@ class CardModel(
     }
 
     override fun onStateUpdate(s: CardState) {
-        prefs.updateCardState(
-            if (replaceGsonKtxFF.isEnabled) json.encodeToString(s)
-            else gson.toJson(s)
-        )
+        prefs.updateCardState(json.encodeToString(s))
     }
 }

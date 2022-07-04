@@ -19,7 +19,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
-import com.google.gson.JsonSyntaxException
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.doReturn
@@ -33,6 +32,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.serialization.SerializationException
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
@@ -288,7 +288,9 @@ class MainModelTest {
         val expectedUpdatedState = bankState.copy(
             bankAuthFlow = BankAuthFlowState.BANK_LINK_COMPLETE
         )
-        whenever(interactor.updateBankLinkingState(expectedUpdatedState)).thenThrow(JsonSyntaxException("test error"))
+        whenever(interactor.updateBankLinkingState(expectedUpdatedState)).thenThrow(
+            SerializationException("test error")
+        )
 
         val testState = model.state.test()
         model.process(MainIntent.CheckForPendingLinks(mockIntent))

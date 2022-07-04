@@ -1,11 +1,10 @@
 package piuk.blockchain.android.data.coinswebsocket.models
 
-import com.google.gson.annotations.SerializedName
-import java.math.BigDecimal
-import java.math.BigInteger
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.math.BigDecimal
+import java.math.BigInteger
 
 @Serializable
 data class SocketResponse(
@@ -43,7 +42,6 @@ data class TokenParams(
 @Serializable
 data class BtcTransaction(
     val inputs: List<Input> = emptyList(),
-    @SerializedName("out")
     @SerialName("out")
     val outputs: List<Output> = emptyList(),
     val hash: String? = null
@@ -61,7 +59,6 @@ data class Output(
 data class Input(
     val address: String,
     val value: @Contextual BigInteger,
-    @SerializedName("prev_out")
     @SerialName("prev_out")
     val prevOut: Output? = null
 )
@@ -112,13 +109,10 @@ data class TokenAccountKey(
 
 @Serializable
 enum class TransactionState {
-    @SerializedName("pending")
     @SerialName("pending")
     PENDING,
-    @SerializedName("replaced")
     @SerialName("replaced")
     REPLACED,
-    @SerializedName("confirmed")
     @SerialName("confirmed")
     CONFIRMED
 }

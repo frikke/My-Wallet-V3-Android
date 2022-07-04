@@ -1,6 +1,6 @@
 package piuk.blockchain.android.simplebuy.yodlee
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
 
 data class FastLinkMessage(val type: String?, val data: MessageData?)
 
@@ -18,7 +18,7 @@ data class MessageData(
     val providerAccountId: String?,
     val providerId: String?,
     val sites: List<SiteData>?,
-    @SerializedName("url")
+    @SerialName("url")
     val externalUrl: String?
 )
 

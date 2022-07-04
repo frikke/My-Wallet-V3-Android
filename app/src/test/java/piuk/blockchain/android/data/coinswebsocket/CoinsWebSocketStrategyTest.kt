@@ -9,7 +9,6 @@ import com.blockchain.network.websocket.WebSocket
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.websocket.MessagesSocketHandler
-import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -163,19 +162,13 @@ class CoinsWebSocketStrategyTest {
         }
     }
 
-    val replaceGsonKtxFF: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
-
     private val strategy = CoinsWebSocketStrategy(
         coinsWebSocket = webSocket,
         ethDataManager = ethDataManager,
         erc20DataManager = erc20DataManager,
         stringUtils = stringUtils,
-        gson = Gson(),
         json = json,
         featureFlag = featureFlag,
-        replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
         appUtil = mock(),
