@@ -1301,7 +1301,6 @@ autenticarse y acceder a su monedero.</string>
     <string name="aave_yfi_dot_available_card_cta">Comprar ahora</string>
     <string name="old_default_non_custodial_wallet_label">Mi monedero %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">Su pedido se está procesando. Puede cerrar esta pantalla de forma segura mientras actualizamos el pedido en segundo plano.</string>
-    <string name="fiat_currency_funds_wallet_name_1">Cuenta %1s</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">No hay suficientes %1$s en su monedero para vender con las tarifas de red actuales.</string>
     <string name="send_enter_amount_network_fees">Tarifas de red</string>
     <string name="send_enter_amount_total">Total</string>
@@ -1545,7 +1544,6 @@ Sus fondos estarán disponibles para retirarse una vez que se complete la transf
     <string name="recurring_buy_details_next_payment">Siguiente pago</string>
     <string name="recurring_buy_details_recurring">Periódica</string>
     <string name="activity_details_label_btn_cash">Agregar dinero en efectivo</string>
-    <string name="recurring_buy_funds_label">Cuenta de %s</string>
     <string name="recurring_buy_short_error">Error</string>
     <string name="recurring_buy_insufficient_funds_short_error">Error. Saldo bajo.</string>
     <string name="recurring_buy_internal_server_error">Se ha producido un error con su compra. En breve, lo volveremos a intentar.</string>
@@ -1763,7 +1761,6 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
  Su %1$s estará disponible en su cuenta \" %2$s \" dentro de 2 días.</string>
     <string name="reset_kyc_notice_1">Por su seguridad, es posible que deba volver a verificar su identidad antes de acceder a su cuenta de operaciones o de Rewards.</string>
     <string name="reset_account_description_1">El reinicio restaurará sus cuentas de Comercio, Recompensas y Exchange.</string>
-    <string name="checkout_funds_label_1">Wallet %s</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="common_approve">Aprobar</string>
     <string name="common_deny">Denegar</string>

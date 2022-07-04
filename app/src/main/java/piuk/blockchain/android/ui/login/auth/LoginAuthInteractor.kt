@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.login.auth
 
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.serialization.decodeFromString
@@ -12,14 +14,14 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 
 class LoginAuthInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
-    private val accountUnificationFF: FeatureFlag
+    private val authPrefs: AuthPrefs,
+    private val accountUnificationFF: FeatureFlag,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) {
     fun getAuthInfo(json: String): Single<LoginAuthInfo> {
         return Single.fromCallable {
@@ -34,9 +36,9 @@ class LoginAuthInteractor(
         }
     }
 
-    fun getSessionId() = prefs.sessionId
+    fun getSessionId() = authPrefs.sessionId
 
-    fun clearSessionId() = prefs.clearSessionId()
+    fun clearSessionId() = authPrefs.clearSessionId()
 
     fun authorizeApproval(authToken: String, sessionId: String): Single<JsonObject> {
         return authDataManager.authorizeSessionObject(authToken, sessionId)
@@ -49,7 +51,7 @@ class LoginAuthInteractor(
         return payloadDataManager.initializeFromPayload(payload, password)
             .doOnComplete {
                 payloadDataManager.wallet?.let { wallet ->
-                    prefs.apply {
+                    authPrefs.apply {
                         sharedKey = wallet.sharedKey
                         walletGuid = wallet.guid
                         emailVerified = true
@@ -59,12 +61,12 @@ class LoginAuthInteractor(
             }
     }
 
-    fun getRemaining2FaRetries() = prefs.resendSmsRetries
+    fun getRemaining2FaRetries() = walletStatusPrefs.resendSmsRetries
 
-    private fun consume2FaRetry() = prefs.setResendSmsRetries(prefs.resendSmsRetries - 1)
+    private fun consume2FaRetry() = walletStatusPrefs.setResendSmsRetries(walletStatusPrefs.resendSmsRetries - 1)
 
     fun reset2FaRetries(): Completable =
-        Completable.fromCallable { prefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
+        Completable.fromCallable { walletStatusPrefs.setResendSmsRetries(PrefsUtil.MAX_ALLOWED_RETRIES) }
 
     fun requestNew2FaCode(guid: String, sessionId: String): Single<JsonObject> =
         if (getRemaining2FaRetries() > 0) {
@@ -93,8 +95,8 @@ class LoginAuthInteractor(
 
     fun updateMobileSetup(isMobileSetup: Boolean, deviceType: Int): Single<Boolean> =
         authDataManager.updateMobileSetup(
-            guid = prefs.walletGuid,
-            sharedKey = prefs.sharedKey,
+            guid = authPrefs.walletGuid,
+            sharedKey = authPrefs.sharedKey,
             isMobileSetup = isMobileSetup,
             deviceType = deviceType
         ).toSingle { accountUnificationFF.isEnabled }

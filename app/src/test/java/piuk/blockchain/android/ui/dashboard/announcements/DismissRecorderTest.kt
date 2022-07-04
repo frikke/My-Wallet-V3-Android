@@ -12,11 +12,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class DismissRecorderTest {
 
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val clock: DismissClock = mock()
 
     private lateinit var subject: DismissRecorder
@@ -31,7 +31,7 @@ class DismissRecorderTest {
 
     @Test
     fun `entry is undismissed by default`() {
-        whenever(prefs.getValue(DISMISS_KEY, 0)).thenReturn(0)
+        whenever(prefs.getDismissalEntry(DISMISS_KEY)).thenReturn(0)
         whenever(clock.now()).thenReturn(BASE_TIME)
 
         val entry = subject[DISMISS_KEY]
@@ -49,12 +49,12 @@ class DismissRecorderTest {
         entry.dismiss(DismissRule.CardPersistent)
 
         // Check that any historical value is removed:
-        verify(prefs).removeValue(DISMISS_KEY)
+        verify(prefs).deleteDismissalRecord(DISMISS_KEY)
 
         val captorValue = argumentCaptor<Long>()
         val captorString = argumentCaptor<String>()
 
-        verify(prefs).setValue(captorString.capture(), captorValue.capture())
+        verify(prefs).recordDismissal(captorString.capture(), captorValue.capture())
 
         assertEquals(captorString.firstValue, DISMISS_KEY)
         assertEquals(captorValue.firstValue, Long.MAX_VALUE)
@@ -72,12 +72,12 @@ class DismissRecorderTest {
         entry.dismiss(DismissRule.CardPeriodic)
 
         // Check that any historical value is removed:
-        verify(prefs).removeValue(DISMISS_KEY)
+        verify(prefs).deleteDismissalRecord(DISMISS_KEY)
 
         val captorValue = argumentCaptor<Long>()
         val captorString = argumentCaptor<String>()
 
-        verify(prefs).setValue(captorString.capture(), captorValue.capture())
+        verify(prefs).recordDismissal(captorString.capture(), captorValue.capture())
 
         assertEquals(captorString.firstValue, DISMISS_KEY)
         assertEquals(captorValue.firstValue, BASE_TIME + ONE_WEEK)
@@ -95,12 +95,12 @@ class DismissRecorderTest {
         entry.dismiss(DismissRule.CardOneTime)
 
         // Check that any historical value is removed:
-        verify(prefs).removeValue(DISMISS_KEY)
+        verify(prefs).deleteDismissalRecord(DISMISS_KEY)
 
         val captorValue = argumentCaptor<Long>()
         val captorString = argumentCaptor<String>()
 
-        verify(prefs).setValue(captorString.capture(), captorValue.capture())
+        verify(prefs).recordDismissal(captorString.capture(), captorValue.capture())
 
         assertEquals(captorString.firstValue, DISMISS_KEY)
         assertEquals(captorValue.firstValue, Long.MAX_VALUE)
@@ -112,7 +112,7 @@ class DismissRecorderTest {
     fun `one time cards, once dismissed stay dismissed`() {
 
         whenever(clock.now()).thenReturn(BASE_TIME).thenReturn(BASE_TIME + ONE_WEEK)
-        whenever(prefs.getValue(DISMISS_KEY, 0L)).thenReturn(BASE_TIME)
+        whenever(prefs.getDismissalEntry(DISMISS_KEY)).thenReturn(BASE_TIME)
 
         val entry = subject[DISMISS_KEY]
 
@@ -126,7 +126,7 @@ class DismissRecorderTest {
     @Test
     fun `periodic cards undismiss after defined interval`() {
         whenever(clock.now()).thenReturn(BASE_TIME + 1)
-        whenever(prefs.getValue(DISMISS_KEY, 0L)).thenReturn(BASE_TIME)
+        whenever(prefs.getDismissalEntry(DISMISS_KEY)).thenReturn(BASE_TIME)
 
         val entry = subject[DISMISS_KEY]
 
@@ -137,8 +137,8 @@ class DismissRecorderTest {
 
     @Test
     fun `boolean style dismissed is dismissed with new time-based call`() {
-        whenever(prefs.getValue(DISMISS_KEY, 0L)).thenThrow(ClassCastException("It's a boolean"))
-        whenever(prefs.getValue(DISMISS_KEY, false)).thenReturn(true)
+        whenever(prefs.getDismissalEntry(DISMISS_KEY)).thenThrow(ClassCastException("It's a boolean"))
+        whenever(prefs.getLegacyDismissalEntry(DISMISS_KEY)).thenReturn(true)
         whenever(clock.now()).thenReturn(BASE_TIME)
 
         val entry = subject[DISMISS_KEY]
@@ -157,10 +157,10 @@ class DismissRecorderTest {
         subject[DISMISS_KEY_2].dismiss(DismissRule.CardPeriodic)
         subject[DISMISS_KEY_3].dismiss(DismissRule.CardOneTime)
 
-        subject.undismissAll(announcementList)
+        subject.reinstateAllAnnouncements(announcementList)
 
         val captorString = argumentCaptor<String>()
-        verify(prefs, times(6)).removeValue(captorString.capture())
+        verify(prefs, times(6)).deleteDismissalRecord(captorString.capture())
 
         assertEquals(captorString.firstValue, DISMISS_KEY)
         assertEquals(captorString.secondValue, DISMISS_KEY_2)

@@ -56,7 +56,7 @@ class SettingsModel(
                         process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
                     }
                     )
-            is SettingsIntent.AddBankTransferSelected -> interactor.getBankLinkingInfo()
+            is SettingsIntent.AddLinkBankSelected -> interactor.getBankLinkingInfo()
                 .subscribeBy(
                     onSuccess = { bankTransferInfo ->
                         process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankTransfer(bankTransferInfo)))
@@ -71,10 +71,6 @@ class SettingsModel(
                     }
                 }
                 )
-            is SettingsIntent.AddBankAccountSelected -> {
-                process(SettingsIntent.UpdateViewToLaunch(ViewToLaunch.BankAccount(interactor.getUserFiat())))
-                null
-            }
             is SettingsIntent.Logout -> interactor.unpairWallet()
                 .subscribeBy(
                     onComplete = {

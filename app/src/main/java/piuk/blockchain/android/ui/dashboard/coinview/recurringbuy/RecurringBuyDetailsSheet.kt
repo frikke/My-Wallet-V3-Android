@@ -27,6 +27,7 @@ import piuk.blockchain.android.simplebuy.SimpleBuyCheckoutItem
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringDate
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
+import piuk.blockchain.android.util.StringLocalizationUtil
 
 class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
     RecurringBuyIntent, RecurringBuyModelState, DialogSheetRecurringBuyInfoBinding>() {
@@ -156,7 +157,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
             if (paymentMethodType == PaymentMethodType.FUNDS) {
                 SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     label = getString(R.string.payment_method),
-                    title = getString(R.string.recurring_buy_funds_label, amount.currencyCode),
+                    title = getString(StringLocalizationUtil.getCashWalletName(amount.currencyCode)),
                     hasChanged = false
                 )
             } else {

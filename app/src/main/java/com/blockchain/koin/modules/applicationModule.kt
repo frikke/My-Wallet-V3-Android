@@ -182,11 +182,12 @@ val applicationModule = module {
         AppUtil(
             context = get(),
             payloadScopeWiper = get(),
-            prefs = get(),
+            sessionPrefs = get(),
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            isIntercomEnabledFlag = get(intercomChatFeatureFlag)
+            isIntercomEnabledFlag = get(intercomChatFeatureFlag),
+            walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
 
@@ -290,7 +291,7 @@ val applicationModule = module {
                 json = get(),
                 payloadDataManager = get(),
                 rxBus = get(),
-                prefs = get(),
+                authPrefs = get(),
                 appUtil = get(),
                 assetCatalogue = get(),
                 crashLogger = get()
@@ -321,7 +322,8 @@ val applicationModule = module {
             CreateWalletViewModel(
                 environmentConfig = get(),
                 defaultLabels = get(),
-                prefs = get(),
+                authPrefs = get(),
+                walletStatusPrefs = get(),
                 analytics = get(),
                 specificAnalytics = get(),
                 appUtil = get(),
@@ -342,7 +344,7 @@ val applicationModule = module {
 
         factory {
             BackupWalletStartingInteractor(
-                prefs = get(),
+                authPrefs = get(),
                 settingsDataManager = get()
             )
         }
@@ -373,7 +375,7 @@ val applicationModule = module {
             BackupVerifyPresenter(
                 payloadDataManager = get(),
                 backupWallet = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }
 
@@ -390,7 +392,7 @@ val applicationModule = module {
         factory {
             AccountRecoveryInteractor(
                 payloadDataManager = get(),
-                prefs = get(),
+                authPrefs = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
@@ -637,7 +639,7 @@ val applicationModule = module {
 
         factory {
             BackupWalletCompletedPresenter(
-                walletStatus = get(),
+                walletStatusPrefs = get(),
                 authDataManager = get()
             )
         }
@@ -841,18 +843,21 @@ val applicationModule = module {
     factory {
         LauncherPresenter(
             appUtil = get(),
-            prefs = get(),
             deepLinkPersistence = get(),
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
-            appMaintenanceFF = get(appMaintenanceFeatureFlag)
+            appMaintenanceFF = get(appMaintenanceFeatureFlag),
+            sessionPrefs = get(),
+            securityPrefs = get(),
+            referralPrefs = get(),
+            encryptedPrefs = get()
         )
     }
 
     factory {
         DeepLinkPersistence(
-            prefs = get()
+            sessionPrefs = get()
         )
     }
 

@@ -48,14 +48,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    object GetAvailableAssets : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                availablePrices = emptyMap()
-            )
-        }
-    }
-
     object ClearActiveFlow : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
@@ -97,16 +89,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    class AssetListUpdate(
-        private val assetList: List<AssetInfo>,
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                availablePrices = assetList.associateWith { AssetPriceState(assetInfo = it) }
-            )
-        }
-    }
-
     class GetAssetPrice(val asset: AssetInfo) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
@@ -123,15 +105,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             } else {
                 oldState.activeAssets
             }
-
-            val priceState = AssetPriceState(
-                assetInfo = asset
-            )
-            val pricesMap = oldState.availablePrices.toMutableMap()
-            pricesMap[asset] = priceState
             return oldState.copy(
-                activeAssets = updatedActiveList,
-                availablePrices = pricesMap
+                activeAssets = updatedActiveList
             )
         }
 
@@ -152,25 +127,16 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         val shouldFetchDayHistoricalPrices: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset]
-                val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
-                oldState.activeAssets.copy(patchAsset = newAsset)
-            } else {
-                oldState.activeAssets
-            }
+            val oldAsset = oldState.activeAssets[asset]
+            val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
+            val updatedActiveList = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            val priceState = AssetPriceState(
-                assetInfo = asset,
-                prices = prices24HrWithDelta
-            )
-            val pricesMap = oldState.availablePrices.toMutableMap()
-            pricesMap[asset] = priceState
             return oldState.copy(
-                activeAssets = updatedActiveList,
-                availablePrices = pricesMap
+                activeAssets = updatedActiveList
             )
         }
+
+        override fun isValidFor(oldState: DashboardState): Boolean = oldState.activeAssets[asset] is BrokerageAsset
 
         private fun updateAsset(
             old: DashboardAsset,

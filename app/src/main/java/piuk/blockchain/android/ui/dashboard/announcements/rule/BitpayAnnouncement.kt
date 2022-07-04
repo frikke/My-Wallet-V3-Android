@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
 import androidx.annotation.VisibleForTesting
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementHost
@@ -12,7 +12,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.StandardAnnouncementCa
 
 class BitpayAnnouncement(
     dismissRecorder: DismissRecorder,
-    val walletStatus: WalletStatus
+    val walletStatusPrefs: WalletStatusPrefs
 ) : AnnouncementRule(dismissRecorder) {
 
     override val dismissKey = DISMISS_KEY
@@ -22,7 +22,7 @@ class BitpayAnnouncement(
             return Single.just(false)
         }
 
-        return Single.just(!walletStatus.hasMadeBitPayTransaction)
+        return Single.just(!walletStatusPrefs.hasMadeBitPayTransaction)
     }
 
     override fun show(host: AnnouncementHost) {

@@ -15,7 +15,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.koin.scopedInject
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -41,7 +41,7 @@ class ManualPairingActivity : MvpActivity<ManualPairingView, ManualPairingPresen
 
     override val view: ManualPairingView = this
     override val presenter: ManualPairingPresenter by scopedInject()
-    private val walletPrefs: WalletStatus by inject()
+    private val walletPrefs: WalletStatusPrefs by inject()
 
     override val toolbarBinding: ToolbarGeneralBinding
         get() = binding.toolbar

@@ -1264,7 +1264,6 @@ Escribe estas 12 palabras en orden y consérvalas en algún lugar seguro. Nunca 
     <string name="aave_yfi_dot_available_card_cta">Comprar ahora</string>
     <string name="old_default_non_custodial_wallet_label">Mi %1s Wallet</string>
     <string name="bank_transfer_in_progress_ob_blurb">Tu orden se está procesando. Puedes cerrar esta pantalla de manera segura mientras actualizamos la orden en segundo plano.</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s cuenta</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Sin %1$s suficientes en tu billetera para vender con las comisiones de red actuales.</string>
     <string name="send_enter_amount_network_fees">Comisiones de red</string>
     <string name="send_enter_amount_total">Total</string>
@@ -1508,7 +1507,6 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="recurring_buy_details_next_payment">Próximo pago</string>
     <string name="recurring_buy_details_recurring">Recurrente</string>
     <string name="activity_details_label_btn_cash">Agregar dinero en efectivo</string>
-    <string name="recurring_buy_funds_label">%s Wallet</string>
     <string name="recurring_buy_short_error">Error</string>
     <string name="recurring_buy_insufficient_funds_short_error">Error. Poco saldo</string>
     <string name="recurring_buy_internal_server_error">Se produjo un error con tu compra. Volveremos a intentar pronto.</string>
@@ -1725,7 +1723,6 @@ Comprueba tu conexión a Internet e intenta otra vez o comunícate con soporte s
 Tu %1$s estará disponible en tu cuenta \"%2$s\" en el plazo de 2 días.</string>
     <string name="reset_kyc_notice_1">Para tu seguridad, es posible que debas volver a verificar tu identidad antes de acceder a tu cuenta de operaciones o Rewards.</string>
     <string name="reset_account_description_1">Si reestableces se restaurarán tus cuentas de Operaciones, Rewards y Exchange.</string>
-    <string name="checkout_funds_label_1">Wallet de %s</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="common_approve">Aprobar</string>
     <string name="common_deny">Denegar</string>

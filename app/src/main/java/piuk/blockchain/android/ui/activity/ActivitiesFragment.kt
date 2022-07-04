@@ -26,10 +26,7 @@ import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.asAssetInfoOrThrow
 import info.blockchain.balance.asFiatCurrencyOrThrow
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
-import io.reactivex.rxjava3.kotlin.subscribeBy
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -50,7 +47,6 @@ import piuk.blockchain.android.util.setAssetIconColoursNoTint
 import piuk.blockchain.androidcore.data.events.ActionEvent
 import piuk.blockchain.androidcore.data.rxjava.RxBus
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class ActivitiesFragment :
     HomeScreenMviFragment<ActivitiesModel, ActivitiesIntent, ActivitiesState, FragmentActivitiesBinding>(),
@@ -153,6 +149,9 @@ class ActivitiesFragment :
         }
     }
 
+    /**
+     * TODO(Lucia): Do we need this?
+     */
     private fun sendAnalyticsOnItemClickEvent(type: ActivityType, assetInfo: AssetInfo) {
         if (type == ActivityType.RECURRING_BUY) {
             analytics.logEvent(
@@ -187,25 +186,8 @@ class ActivitiesFragment :
             } ?: accountIndicator.gone()
 
             accountName.text = account.label
-            fiatBalance.text = ""
             selectedFiatCurrency = currencyPrefs.selectedFiatCurrency
-
-            disposables += account.balance.firstOrError().map {
-                it.totalFiat
-            }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = {
-                        fiatBalance.text =
-                            getString(
-                                R.string.common_spaced_strings, it.toStringWithSymbol(),
-                                it.currencyCode
-                            )
-                    },
-                    onError = {
-                        Timber.e("Unable to get balance for ${account.label}")
-                    }
-                )
+            fiatBalance.text = newState.selectedAccountBalance
             accountSelectBtn.visible()
         }
     }
@@ -307,6 +289,7 @@ class ActivitiesFragment :
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
+        model.process(ActivitiesStateUpdated(!hidden))
         if (!hidden) {
             state?.account?.let {
                 model.process(AccountSelectedIntent(it, true))

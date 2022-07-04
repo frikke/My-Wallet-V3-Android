@@ -19,6 +19,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.testutils.EUR
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.doReturn
@@ -32,6 +33,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.SerializationException
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
@@ -83,6 +85,9 @@ class MainModelTest {
             mainScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock(),
+            walletModeService = mock {
+                on { walletMode }.thenReturn(flowOf(WalletMode.UNIVERSAL))
+            },
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
         )
@@ -95,7 +100,9 @@ class MainModelTest {
         val testState = model.state.test()
         model.process(MainIntent.PerformInitialChecks)
 
-        testState.assertValue(MainState())
+        testState.assertValue {
+            it == MainState()
+        }
     }
 
     @Test

@@ -10,7 +10,7 @@ import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -28,7 +28,7 @@ class Erc20AccountActivityTest : CoincoreTestBase() {
 
     private val erc20DataManager: Erc20DataManager = mock()
 
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
 
     private val subject = Erc20NonCustodialAccount(

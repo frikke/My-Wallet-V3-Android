@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.backup.verify
 
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -23,12 +23,12 @@ class BackupVerifyPresenterTest {
     private lateinit var subject: BackupVerifyPresenter
     private val view: BackupVerifyView = mock()
     private val payloadDataManager: PayloadDataManager = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
-    private val walletStatus: WalletStatus = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
     private val backupWallet: BackupWallet = mock()
 
     @Before
     fun setUp() {
-        subject = BackupVerifyPresenter(payloadDataManager, walletStatus, backupWallet)
+        subject = BackupVerifyPresenter(payloadDataManager, walletStatusPrefs, backupWallet)
         subject.initView(view)
     }
 
@@ -93,8 +93,8 @@ class BackupVerifyPresenterTest {
         verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
-        verify(walletStatus).lastBackupTime = any()
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime = any()
+        verifyNoMoreInteractions(walletStatusPrefs)
     }
 
     @Test
@@ -113,8 +113,8 @@ class BackupVerifyPresenterTest {
         verify(view).showSnackbar(any(), eq(SnackbarType.Success))
         verify(view).showCompletedFragment()
         verifyNoMoreInteractions(view)
-        verify(walletStatus).lastBackupTime = any()
-        verifyNoMoreInteractions(walletStatus)
+        verify(walletStatusPrefs).lastBackupTime = any()
+        verifyNoMoreInteractions(walletStatusPrefs)
     }
 
     @Test
@@ -134,6 +134,6 @@ class BackupVerifyPresenterTest {
         verify(view).showSnackbar(any(), eq(SnackbarType.Error))
         verify(view).showStartingFragment()
         verifyNoMoreInteractions(view)
-        verifyZeroInteractions(walletStatus)
+        verifyZeroInteractions(walletStatusPrefs)
     }
 }

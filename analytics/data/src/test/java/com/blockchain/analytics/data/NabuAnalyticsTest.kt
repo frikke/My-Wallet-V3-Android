@@ -21,7 +21,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 import org.mockito.Mockito
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuAnalyticsTest {
     private val localAnalyticsPersistence = mock<AnalyticsLocalPersistence>()
@@ -35,11 +35,11 @@ class NabuAnalyticsTest {
         on { getAccessToken() }.thenReturn(Observable.just(token))
     }
 
-    private val persistentPrefs: PersistentPrefs = mock {
+    private val sessionPrefs: SessionPrefs = mock {
         on { deviceId }.thenReturn("deviceID")
     }
-    private val prefs: Lazy<PersistentPrefs> = mock {
-        onGeneric { value }.thenReturn(persistentPrefs)
+    private val prefs: Lazy<SessionPrefs> = mock {
+        onGeneric { value }.thenReturn(sessionPrefs)
     }
     private val mockedContext: AnalyticsContext = mock()
 

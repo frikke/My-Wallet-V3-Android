@@ -28,7 +28,7 @@ import io.reactivex.rxjava3.core.SingleSource
 import io.reactivex.rxjava3.schedulers.Schedulers
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 interface NabuDataManager {
 
@@ -122,7 +122,7 @@ internal class NabuDataManagerImpl(
     private val walletReporter: WalletReporter,
     private val trust: DigitalTrust,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
 ) : NabuDataManager {
 
     private val guid

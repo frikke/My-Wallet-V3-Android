@@ -39,8 +39,6 @@ import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
-import info.blockchain.balance.isCustodial
-import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -53,6 +51,7 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
@@ -96,7 +95,7 @@ class DashboardActionInteractor(
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         walletModeService.walletMode.map {
             coincore.activeAssets(it)
-        }.asObservable()
+        }.asObservable(Dispatchers.IO)
             .subscribeBy(
                 onNext = { activeAssets ->
                     model.process(
@@ -135,26 +134,6 @@ class DashboardActionInteractor(
             }
             )
     }
-
-    fun fetchAvailableAssets(model: DashboardModel): Disposable =
-        walletModeService.walletMode.map { walletMode ->
-            coincore.availableCryptoAssets().filter {
-                when (walletMode) {
-                    WalletMode.NON_CUSTODIAL_ONLY -> it.isNonCustodial
-                    WalletMode.CUSTODIAL_ONLY -> it.isCustodial
-                    WalletMode.UNIVERSAL -> true
-                }
-            }
-        }.asObservable().subscribeBy(
-            onNext = { assets ->
-                model.process(DashboardIntent.AssetListUpdate(assets))
-            },
-            onError =
-            {
-                Timber.e("Error fetching available assets - $it")
-                throw it
-            }
-        )
 
     fun fetchAssetPrice(model: DashboardModel, asset: AssetInfo): Disposable =
         exchangeRates.getPricesWith24hDelta(asset)
@@ -558,6 +537,8 @@ class DashboardActionInteractor(
             }
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 model.process(DashboardIntent.ShowBankLinkingSheet(fiatTxRequestResult.targetAccount))
+            }
+            null -> {
             }
         }
     }

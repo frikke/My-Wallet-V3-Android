@@ -312,10 +312,8 @@ class SettingsFragment :
                                         showPaymentMethodsBottomSheet(
                                             canAddCard =
                                             linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
-                                            canAddBankTransfer =
+                                            canLinkBank =
                                             linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
-                                            canAddBankAccount =
-                                            linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED
                                         )
                                     }
                                 },
@@ -337,10 +335,8 @@ class SettingsFragment :
                                     showPaymentMethodsBottomSheet(
                                         canAddCard =
                                         linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
-                                        canAddBankTransfer =
+                                        canLinkBank =
                                         linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
-                                        canAddBankAccount =
-                                        linkAccessMap[PaymentMethodType.BANK_ACCOUNT] == LinkAccess.GRANTED
                                     )
                                 }
                                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
@@ -512,14 +508,12 @@ class SettingsFragment :
 
     private fun showPaymentMethodsBottomSheet(
         canAddCard: Boolean,
-        canAddBankTransfer: Boolean,
-        canAddBankAccount: Boolean
+        canLinkBank: Boolean
     ) {
         showBottomSheet(
             AddPaymentMethodsBottomSheet.newInstance(
                 canAddCard = canAddCard,
-                canAddBankTransfer = canAddBankTransfer,
-                canAddBankAccount = canAddBankAccount
+                canLinkBank = canLinkBank
             )
         )
     }
@@ -529,12 +523,8 @@ class SettingsFragment :
         onCardAddedResult.launch(CardDetailsActivity.newIntent(requireContext()))
     }
 
-    override fun onAddBankTransferSelected() {
-        model.process(SettingsIntent.AddBankTransferSelected)
-    }
-
-    override fun onAddBankAccountSelected() {
-        model.process(SettingsIntent.AddBankAccountSelected)
+    override fun onLinkBankSelected() {
+        model.process(SettingsIntent.AddLinkBankSelected)
     }
 
     override fun onCardRemoved(cardId: String) {

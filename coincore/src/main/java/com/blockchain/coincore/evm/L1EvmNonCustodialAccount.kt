@@ -16,7 +16,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.map
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Observable
@@ -35,7 +35,7 @@ class L1EvmNonCustodialAccount(
     private val fees: FeeDataManager,
     override val label: String,
     override val exchangeRates: ExchangeRatesDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
     override val l1Network: EvmNetwork,

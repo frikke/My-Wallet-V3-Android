@@ -11,7 +11,7 @@ import com.blockchain.coincore.wrap.FormatUtilities
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
@@ -27,7 +27,7 @@ internal class MaticAsset(
     private val ethDataManager: EthDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val labels: DefaultLabels,
     private val formatUtils: FormatUtilities,
     private val addressResolver: EthHotWalletAddressResolver,

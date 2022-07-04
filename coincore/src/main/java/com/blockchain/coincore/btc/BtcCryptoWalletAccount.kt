@@ -14,7 +14,7 @@ import com.blockchain.coincore.impl.transactionFetchCount
 import com.blockchain.coincore.impl.transactionFetchOffset
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -42,7 +42,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
     override val exchangeRates: ExchangeRatesDataManager,
     private val internalAccount: JsonSerializableAccount,
     val isHDAccount: Boolean,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     private val refreshTrigger: AccountRefreshTrigger,
     override val addressResolver: AddressResolver,
@@ -268,7 +268,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
-            walletPreferences: WalletStatus,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,
@@ -292,7 +292,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
             sendDataManager: SendDataManager,
             feeDataManager: FeeDataManager,
             exchangeRates: ExchangeRatesDataManager,
-            walletPreferences: WalletStatus,
+            walletPreferences: WalletStatusPrefs,
             custodialWalletManager: CustodialWalletManager,
             refreshTrigger: AccountRefreshTrigger,
             addressResolver: AddressResolver,

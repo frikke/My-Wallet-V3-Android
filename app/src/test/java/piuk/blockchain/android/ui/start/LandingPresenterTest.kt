@@ -5,6 +5,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.datamanagers.ApiStatus
 import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -15,7 +16,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import piuk.blockchain.android.util.RootUtil
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 class LandingPresenterTest {
 
@@ -30,7 +30,7 @@ class LandingPresenterTest {
     private val assetCatalogue: AssetCatalogueImpl = mock()
     private val exchangeRatesDataManager: ExchangeRatesDataManager = mock()
 
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SecurityPrefs = mock()
     private val onboardingPrefs: OnboardingPrefs = mock()
     private val rootUtil: RootUtil = mock()
 

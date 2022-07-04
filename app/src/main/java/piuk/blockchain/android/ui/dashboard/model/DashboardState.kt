@@ -146,7 +146,6 @@ interface DashboardBalanceStateHost {
 }
 
 data class DashboardState(
-    val availablePrices: Map<AssetInfo, AssetPriceState> = emptyMap(),
     val dashboardNavigationAction: DashboardNavigationAction? = null,
     val selectedAsset: AssetInfo? = null,
     val filterBy: String = "",
@@ -165,8 +164,6 @@ data class DashboardState(
     val showedAppRating: Boolean = false,
     val referralSuccessData: Pair<String, String>? = null
 ) : MviState, DashboardBalanceStateHost {
-
-    val availableAssets = availablePrices.keys.toList()
 
     override val dashboardBalance: DashboardBalance?
         get() = when {

@@ -1,8 +1,6 @@
 package piuk.blockchain.android.ui.settings
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.api.NabuApiException
-import com.blockchain.api.NabuErrorCodes
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.MobilePaymentType
@@ -214,12 +212,12 @@ class SettingsModelTest {
     }
 
     @Test
-    fun `bankTransferSelected works`() {
+    fun `bankLinkedSelected works`() {
         val bankLinkInfo: LinkBankTransfer = mock()
         whenever(interactor.getBankLinkingInfo()).thenReturn(Single.just(bankLinkInfo))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
+        model.process(SettingsIntent.AddLinkBankSelected)
 
         testState
             .assertValueAt(0) {
@@ -231,70 +229,17 @@ class SettingsModelTest {
     }
 
     @Test
-    fun `bankTransferSelected fails`() {
+    fun `bankLinkedSelected fails`() {
         whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(Exception()))
 
         val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
+        model.process(SettingsIntent.AddLinkBankSelected)
 
         testState
             .assertValueAt(0) {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it.error == SettingsError.BankLinkStartFail
-            }
-    }
-
-    @Test
-    fun `bankTransferSelected fails when max number of attempts is reached`() {
-        val error: NabuApiException = mock {
-            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccountLinkAttempts)
-        }
-        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
-
-        val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
-
-        testState
-            .assertValueAt(0) {
-                it == SettingsState()
-            }.assertValueAt(1) {
-                it.error == SettingsError.BankLinkMaxAttemptsReached(error)
-            }
-    }
-
-    @Test
-    fun `bankTransferSelected fails when max number of bank accounts is reached`() {
-        val error: NabuApiException = mock {
-            on { getErrorCode() }.thenReturn(NabuErrorCodes.MaxPaymentBankAccounts)
-        }
-        whenever(interactor.getBankLinkingInfo()).thenReturn(Single.error(error))
-
-        val testState = model.state.test()
-        model.process(SettingsIntent.AddBankTransferSelected)
-
-        testState
-            .assertValueAt(0) {
-                it == SettingsState()
-            }.assertValueAt(1) {
-                it.error == SettingsError.BankLinkMaxAccountsReached(error)
-            }
-    }
-
-    @Test
-    fun `bankAccountSelected works`() {
-        val userFiat: FiatCurrency = mock()
-        whenever(interactor.getUserFiat()).thenReturn(userFiat)
-
-        val testState = model.state.test()
-        model.process(SettingsIntent.AddBankAccountSelected)
-
-        testState
-            .assertValueAt(0) {
-                it == SettingsState()
-            }.assertValueAt(1) {
-                it.viewToLaunch is ViewToLaunch.BankAccount &&
-                    (it.viewToLaunch as ViewToLaunch.BankAccount).currency == userFiat
             }
     }
 

@@ -1330,11 +1330,13 @@
     <string name="bank_wire_transfer_min_withdrawal">%1$s Min Withdraw</string>
     <string name="wire_transfer">Wire Transfer</string>
     <string name="bank_transfer">Bank Transfer</string>
-    <string name="payment_wire_transfer_subtitle">3 – 5 Business Days</string>
-    <string name="payment_wire_transfer_blurb">Send funds directly from your bank account to your Blockchain.com Wallet. Bank fees may apply.</string>
+    <string name="payment_wire_transfer_subtitle_dollars">Should arrive in 3-5 business days</string>
+    <string name="payment_wire_transfer_subtitle_pounds">Should arrive same day</string>
+    <string name="payment_wire_transfer_subtitle_euros">Should arrive in 1 business day</string>
     <string name="payment_deposit">Bank Deposit</string>
-    <string name="payment_deposit_subtitle">Instantly Available</string>
-    <string name="payment_deposit_blurb">Securely link a bank and send cash to your Blockchain.com Wallet at anytime.</string>
+    <string name="payment_deposit_subtitle_pounds">Should arrive instantly</string>
+    <string name="payment_deposit_subtitle_dollars">Should arrive in 3 business days</string>
+    <string name="payment_deposit_subtitle_euros">Should arrive instantly</string>
     <string name="credit_or_debit_card">Credit or Debit Card</string>
     <string name="instantly_buy_crypto_with_card">Instantly buy crypto with any Visa or Mastercard.</string>
     <string name="google_pay_instructions">Simply tap Buy with Google Pay, no forms or card details needed.</string>
@@ -1474,8 +1476,6 @@
     <string name="activity_no_activity_text">All your transactions will show up here.</string>
     <string name="activity_custodial_pending_value">Bank Transfer</string>
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s Account</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_loading_error">Failed to load activity, please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
 
@@ -1671,7 +1671,7 @@
     <string name="swap_confirmation_cta_button">Swap Now</string>
     <string name="deposit_source_select_title">Linked Banks</string>
     <string name="deposit_confirmation_cta_button">Deposit Now</string>
-    <string name="deposit_enter_amount_limit_title">Daily Limit</string>
+    <string name="deposit_enter_amount_limit_title">Limit</string>
     <string name="deposit_enter_amount_limit_label">%1$s Available</string>
     <string name="enter_amount_not_enough_balance">Insufficient balance for fee</string>
     <string name="deposit_confirmation_progress_title">Depositing %1$s</string>
@@ -1992,8 +1992,10 @@
     <string name="add_a_deposit_method">Select a Deposit Method</string>
     <string name="link_a_bank_wire_transfer">Link a bank to your Wallet by sending any amount via wire transfer. Note: This is much slower and high bank fees may apply.</string>
     <string name="link_a_bank_bank_transfer">Securely link a bank to buy crypto, deposit cash and withdraw back to your bank at anytime.</string>
-    <string name="bank_transfer_blurb">Follow the instructions on the next screen to deposit funds from your bank account to your Blockchain.com account. Bank fees may apply.</string>
-    <string name="easy_bank_transfer_blurb">Link once and send cash to your Blockchain.com account at any time.</string>
+    <string name="bank_transfer_blurb_pounds">Transfers are made through the UK Faster Payments System and usually arrive in seconds.</string>
+    <string name="bank_transfer_blurb_dollars">For transferring large amounts. Bank fees may apply.</string>
+    <string name="bank_transfer_blurb_euros">Bank fees may apply.</string>
+    <string name="easy_bank_transfer_blurb">Quick and secure without entering account details.</string>
 
     <!-- trading error messages -->
     <string name="trading_order_limit">You have too many pending %1$s transactions. Once those complete you can create a new one.</string>
@@ -2061,7 +2063,7 @@
     <string name="link_a_bank_description">Store USD, GBP or EUR in your wallet. Use the balance to buy crypto. Sell crypto for cash at anytime.</string>
     <string name="earn_rewards_description" formatted="false">Put your crypto to work. Earn up to 10% monthly by simply doing nothing. Instantly deposit and start earning.</string>
 
-    <string name="sb_checkout_daily_limit_title">Daily limit exceeded</string>
+    <string name="sb_checkout_daily_limit_title">Limit exceeded</string>
     <string name="sb_checkout_daily_limit_blurb">Oops, looks like you’ve used up your daily transaction limit for Buys and Deposits, please try again tomorrow.</string>
     <string name="sb_checkout_weekly_limit_title">Weekly limit exceeded</string>
     <string name="sb_checkout_weekly_limit_blurb">Oops, looks like you’ve used up your weekly transaction limit for Buys and Deposits, please try again tomorrow.</string>
@@ -2369,7 +2371,6 @@
     <string name="recurring_buy_details_recurring">Recurring</string>
     <string name="recurring_buy_details_fee">Fee</string>
     <string name="activity_details_label_btn_cash">Add Cash</string>
-    <string name="recurring_buy_funds_label">%s Wallet</string>
     <string name="recurring_buy_short_error">Failed</string>
     <string name="recurring_buy_insufficient_funds_short_error">Failed. Low Balance</string>
     <string name="recurring_buy_insufficient_funds_error_1">Your payment method\'s balance is too low. Please add more cash now.</string>
@@ -3124,4 +3125,10 @@
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
+    <string name="default_label_all_non_custodial_wallets">All</string>
+    <string name="default_label_all_custodial_wallets">All</string>
+
+    <string name="cash_wallet_dollar">US Dollar</string>
+    <string name="cash_wallet_pound">British Pound</string>
+    <string name="cash_wallet_euro">Euro</string>
 </resources>
