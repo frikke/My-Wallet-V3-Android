@@ -68,8 +68,8 @@ class BankAuthDeepLinkStateTest : KoinTest {
 
     private val ktxString =
         """{"bankAuthFlow":"NONE","bankPaymentData":{"paymentId":"txId","authorisationUrl":"authUrl","linkedBank":{"id":"id","currency":{"currencyCode":"GBP"},"partner":"YAPILY","bankName":"bankName","accountName":"name","accountNumber":"123","state":"BLOCKED","errorStatus":"ACCOUNT_ALREADY_LINKED","accountType":"","authorisationUrl":"url","sortCode":"123","accountIban":"123","bic":"123","entity":"entity","iconUrl":"iconUrl","callbackPath":""},"orderValue":{"currency":{"currencyCode":"EUR"},"amount":"10.00","symbol":"€"}},"bankLinkingInfo":{"linkingId":"id","bankAuthSource":"SIMPLE_BUY"}}"""
-    // legacy
-    private val gsonString =
+    // gson
+    private val legacyString =
         """{"bankAuthFlow":"NONE","bankPaymentData":{"paymentId":"txId","authorisationUrl":"authUrl","linkedBank":{"id":"id","currency":{"currencyCode":"GBP"},"partner":"YAPILY","bankName":"bankName","accountName":"name","accountNumber":"123","state":"BLOCKED","errorStatus":"ACCOUNT_ALREADY_LINKED","accountType":"","authorisationUrl":"url","sortCode":"123","accountIban":"123","bic":"123","entity":"entity","iconUrl":"iconUrl","callbackPath":""},"orderValue":{"currency":{"currencyCode":"EUR"},"amount":10.00,"symbol":"€"}},"bankLinkingInfo":{"linkingId":"id","bankAuthSource":"SIMPLE_BUY"}}"""
 
     @Before
@@ -102,7 +102,7 @@ class BankAuthDeepLinkStateTest : KoinTest {
 
     @Test
     fun `WHEN fromPreferencesValue is called with legacy data, THEN state should be returned`() {
-        val result = gsonString.fromPreferencesValue()
+        val result = legacyString.fromPreferencesValue()
 
         assertEquals(state, result)
     }
