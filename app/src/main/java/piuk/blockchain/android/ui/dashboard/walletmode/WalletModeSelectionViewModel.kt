@@ -44,6 +44,7 @@ class WalletModeSelectionViewModel(
     override fun reduce(state: WalletModeSelectionModelState): WalletModeSelectionViewState {
         with(state) {
             return WalletModeSelectionViewState(
+                showEnableDeFiMessage = isWalletBackedUp.not(),
                 totalBalance = totalBalance(brokerageBalance, defiBalance),
                 brokerageBalance = brokerageBalance?.let {
                     BalanceState.Data(it)
@@ -119,13 +120,12 @@ class WalletModeSelectionViewModel(
                 merge(nonCustodialBalance, custodialBalance).collect()
             }
 
-            is WalletModeSelectionIntent.WalletModeSelected -> {
-                // DeFi selected + no backup -> should start defi onboarding with recovery flow
-                if (intent.walletMode == WalletMode.NON_CUSTODIAL_ONLY && modelState.isWalletBackedUp.not()) {
-                    navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
-                } else {
-                    updateActiveWalletMode(intent.walletMode)
-                }
+            is WalletModeSelectionIntent.ActivateWalletMode -> {
+                updateActiveWalletMode(intent.walletMode)
+            }
+
+            WalletModeSelectionIntent.EnableDeFiWallet -> {
+                navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
             }
 
             // defi (NON_CUSTODIAL_ONLY) specific
@@ -148,9 +148,15 @@ class WalletModeSelectionViewModel(
 sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
     object LoadInitialData : WalletModeSelectionIntent()
 
-    data class WalletModeSelected(val walletMode: WalletMode) : WalletModeSelectionIntent() {
+    data class ActivateWalletMode(val walletMode: WalletMode) : WalletModeSelectionIntent() {
         override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
             return modelState.enabledWalletMode != walletMode
+        }
+    }
+
+    object EnableDeFiWallet : WalletModeSelectionIntent() {
+        override fun isValidFor(modelState: WalletModeSelectionModelState): Boolean {
+            return modelState.isWalletBackedUp.not()
         }
     }
 
@@ -158,6 +164,7 @@ sealed class WalletModeSelectionIntent : Intent<WalletModeSelectionModelState> {
 }
 
 data class WalletModeSelectionViewState(
+    val showEnableDeFiMessage: Boolean,
     val totalBalance: BalanceState,
     val brokerageBalance: BalanceState,
     val defiWalletBalance: BalanceState,

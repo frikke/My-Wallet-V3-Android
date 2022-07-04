@@ -2975,6 +2975,9 @@
     <string name="backup_success_title">Back Up Successful!</string>
     <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>
 
+    <string name="defi_onboarding_enable_wallet_title">Enable to get started</string>
+    <string name="defi_onboarding_enable_wallet_description">Connect to web3 apps, collect NFTs, and swap on DEXs.</string>
+
     <string name="defi_onboarding_nav_title">DeFi Wallet</string>
 
     <string name="defi_onboarding_intro_title">Introducing the DeFi Wallet</string>

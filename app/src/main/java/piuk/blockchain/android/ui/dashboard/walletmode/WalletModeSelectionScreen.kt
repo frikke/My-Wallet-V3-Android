@@ -34,12 +34,16 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
 
     viewState?.let { state ->
         WalletModesDialogContent(
+            showEnableDeFiMessage = state.showEnableDeFiMessage,
             totalBalance = state.totalBalance,
             portfolioBalanceState = state.brokerageBalance,
             defiWalletBalance = state.defiWalletBalance,
             selectedMode = state.enabledWalletMode,
             onItemClicked = {
-                viewModel.onIntent(WalletModeSelectionIntent.WalletModeSelected(it))
+                viewModel.onIntent(WalletModeSelectionIntent.ActivateWalletMode(it))
+            },
+            enableDeFiClicked = {
+                viewModel.onIntent(WalletModeSelectionIntent.EnableDeFiWallet)
             }
         )
     }
@@ -47,11 +51,13 @@ fun WalletModes(viewModel: WalletModeSelectionViewModel) {
 
 @Composable
 fun WalletModesDialogContent(
+    showEnableDeFiMessage: Boolean,
     totalBalance: BalanceState,
     portfolioBalanceState: BalanceState,
     defiWalletBalance: BalanceState,
     selectedMode: WalletMode,
     onItemClicked: (WalletMode) -> Unit,
+    enableDeFiClicked: () -> Unit,
 ) {
 
     Column(
@@ -91,18 +97,38 @@ fun WalletModesDialogContent(
             )
         )
 
-        DefaultTableRow(
-            primaryText = stringResource(id = R.string.defi),
-            secondaryText = (defiWalletBalance as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty(),
-            startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
-            onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) },
-            endImageResource = if (selectedMode == WalletMode.NON_CUSTODIAL_ONLY) ImageResource.Local(
-                R.drawable.ic_wallet_mode_selected
-            ) else ImageResource.Local(
-                id = com.blockchain.componentlib.R.drawable.ic_chevron_end
+        if (showEnableDeFiMessage) {
+            EnableDeFiTableRow(
+                onClick = enableDeFiClicked
             )
-        )
+        } else {
+            DefaultTableRow(
+                primaryText = stringResource(id = R.string.defi),
+                secondaryText = (defiWalletBalance as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty(),
+                startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
+                onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) },
+                endImageResource = if (selectedMode == WalletMode.NON_CUSTODIAL_ONLY) ImageResource.Local(
+                    R.drawable.ic_wallet_mode_selected
+                ) else ImageResource.Local(
+                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end
+                )
+            )
+        }
     }
+}
+
+@Composable
+fun EnableDeFiTableRow(
+    onClick: () -> Unit
+) {
+    DefaultTableRow(
+        primaryText = stringResource(id = R.string.defi),
+        secondaryText = stringResource(R.string.defi_onboarding_enable_wallet_title),
+        paragraphText = stringResource(R.string.defi_onboarding_enable_wallet_description),
+        startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
+        onClick = onClick,
+        endImageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+    )
 }
 
 @Preview
@@ -111,11 +137,43 @@ private fun WalletModePreview() {
     AppTheme {
         AppSurface {
             WalletModesDialogContent(
+                showEnableDeFiMessage = false,
                 totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
                 portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
                 defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
                 selectedMode = WalletMode.CUSTODIAL_ONLY,
-                onItemClicked = {}
+                onItemClicked = {},
+                enableDeFiClicked = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun WalletModePreviewEnableWallet() {
+    AppTheme {
+        AppSurface {
+            WalletModesDialogContent(
+                showEnableDeFiMessage = true,
+                totalBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 1000.toBigInteger())),
+                portfolioBalanceState = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 300.toBigInteger())),
+                defiWalletBalance = BalanceState.Data(Money.fromMinor(FiatCurrency.Dollars, 444.toBigInteger())),
+                selectedMode = WalletMode.CUSTODIAL_ONLY,
+                onItemClicked = {},
+                enableDeFiClicked = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewEnableDeFiTableRow() {
+    AppTheme {
+        AppSurface {
+            EnableDeFiTableRow(
+                onClick = {}
             )
         }
     }
