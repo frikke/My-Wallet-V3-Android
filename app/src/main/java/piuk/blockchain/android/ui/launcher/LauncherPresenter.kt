@@ -40,12 +40,12 @@ data class ViewIntentData(
 
 class LauncherPresenter internal constructor(
     private val appUtil: AppUtil,
-    private val prefs: SessionPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val envSettings: EnvironmentConfig,
     private val authPrefs: AuthPrefs,
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase,
     private val appMaintenanceFF: FeatureFlag,
+    private val sessionPrefs: SessionPrefs,
     private val securityPrefs: SecurityPrefs,
     private val referralPrefs: ReferralPrefs,
     private val encryptedPrefs: EncryptedPrefs
@@ -98,7 +98,7 @@ class LauncherPresenter internal constructor(
             viewIntentData.scheme == "bitcoin" &&
             viewIntentData.data != null
         ) {
-            prefs.keySchemeUrl = viewIntentData.data
+            sessionPrefs.keySchemeUrl = viewIntentData.data
         }
         if (viewIntentData?.data != null) {
             deepLinkPersistence.pushDeepLink(viewIntentData.data)
@@ -113,7 +113,7 @@ class LauncherPresenter internal constructor(
             Intent.ACTION_VIEW == viewIntentData?.action &&
             viewIntentData.dataString?.contains("blockchain") == true
         ) {
-            prefs.metadataUri = viewIntentData.dataString
+            sessionPrefs.metadataUri = viewIntentData.dataString
         }
 
         if (viewIntentData?.isAutomationTesting == true && Environment.STAGING == envSettings.environment) {

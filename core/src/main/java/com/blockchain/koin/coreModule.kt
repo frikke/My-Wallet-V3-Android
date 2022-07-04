@@ -383,7 +383,6 @@ val coreModule = module {
 
         factory {
             AuthDataManager(
-                sessionPrefs = get(),
                 authApiService = get(),
                 walletAuthService = get(),
                 pinRepository = get(),

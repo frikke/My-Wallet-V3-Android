@@ -21,14 +21,12 @@ import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
 
 class AuthDataManager(
-    private val sessionPrefs: SessionPrefs,
     private val authApiService: AuthApiService,
     private val walletAuthService: WalletAuthService,
     private val pinRepository: PinRepository,

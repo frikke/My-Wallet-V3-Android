@@ -854,12 +854,12 @@ val applicationModule = module {
     factory {
         LauncherPresenter(
             appUtil = get(),
-            prefs = get(),
             deepLinkPersistence = get(),
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
             appMaintenanceFF = get(appMaintenanceFeatureFlag),
+            sessionPrefs = get(),
             securityPrefs = get(),
             referralPrefs = get(),
             encryptedPrefs = get()

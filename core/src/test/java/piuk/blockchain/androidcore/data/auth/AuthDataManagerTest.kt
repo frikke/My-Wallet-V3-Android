@@ -2,6 +2,8 @@ package piuk.blockchain.androidcore.data.auth
 
 import com.blockchain.api.services.AuthApiService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -25,6 +27,7 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.testutils.RxTest
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.Response
 
@@ -36,18 +39,23 @@ class AuthDataManagerTest : RxTest() {
     private val pinRepository: PinRepository = mock()
     private val aesUtilWrapper: AESUtilWrapper = mock()
     private val remoteLogger: RemoteLogger = mock()
+    private val authPrefs: AuthPrefs = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
+    private val encryptedPrefs: EncryptedPrefs = mock()
 
     private lateinit var subject: AuthDataManager
 
     @Before
     fun setUp() {
         subject = AuthDataManager(
-            prefsUtil,
-            authApiService,
-            walletAuthService,
-            pinRepository,
-            aesUtilWrapper,
-            remoteLogger
+            authApiService = authApiService,
+            walletAuthService = walletAuthService,
+            pinRepository = pinRepository,
+            aesUtilWrapper = aesUtilWrapper,
+            remoteLogger = remoteLogger,
+            authPrefs = authPrefs,
+            walletStatusPrefs = walletStatusPrefs,
+            encryptedPrefs = encryptedPrefs
         )
     }
 
@@ -115,11 +123,11 @@ class AuthDataManagerTest : RxTest() {
         val status = Status()
 
         status.success = decryptionKey
-        whenever(prefsUtil.pinId).thenReturn(key)
-        whenever(prefsUtil.encryptedPassword).thenReturn(encryptedPassword)
-        whenever(prefsUtil.backupEnabled).thenReturn(true)
-        whenever(prefsUtil.hasBackup()).thenReturn(true)
-        whenever(prefsUtil.walletGuid).thenReturn(guid)
+        whenever(authPrefs.pinId).thenReturn(key)
+        whenever(authPrefs.encryptedPassword).thenReturn(encryptedPassword)
+        whenever(encryptedPrefs.backupEnabled).thenReturn(true)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(true)
+        whenever(authPrefs.walletGuid).thenReturn(guid)
         whenever(walletAuthService.validateAccess(key, pin))
             .thenReturn(Observable.just(Response.success(status)))
 
@@ -140,18 +148,18 @@ class AuthDataManagerTest : RxTest() {
 
         // Assert
         verify(pinRepository).setPin(pin)
-        verify(prefsUtil).isNewlyCreated = false
-        verify(prefsUtil).isRestored = false
+        verify(walletStatusPrefs).isNewlyCreated = false
+        verify(walletStatusPrefs).isRestored = false
         verifyNoMoreInteractions(pinRepository)
 
-        verify(prefsUtil).pinId
-        verify(prefsUtil).hasBackup()
-        verify(prefsUtil).backupEnabled
-        verify(prefsUtil).walletGuid
+        verify(authPrefs).pinId
+        verify(encryptedPrefs).hasBackup()
+        verify(encryptedPrefs).backupEnabled
+        verify(authPrefs).walletGuid
 
-        verify(prefsUtil).encryptedPassword
+        verify(authPrefs).encryptedPassword
 
-        verify(prefsUtil).restoreFromBackup(anyString(), eq(aesUtilWrapper))
+        verify(encryptedPrefs).restoreFromBackup(anyString(), eq(aesUtilWrapper))
 
         verify(walletAuthService).validateAccess(key, pin)
         verifyNoMoreInteractions(walletAuthService)
@@ -163,7 +171,9 @@ class AuthDataManagerTest : RxTest() {
         )
 
         verifyNoMoreInteractions(aesUtilWrapper)
-        verifyNoMoreInteractions(prefsUtil)
+        verifyZeroInteractions(prefsUtil)
+        verifyZeroInteractions(walletStatusPrefs)
+        verifyZeroInteractions(authPrefs)
     }
 
     @Test
@@ -176,7 +186,7 @@ class AuthDataManagerTest : RxTest() {
         val status = Status()
         status.success = decryptionKey
 
-        whenever(prefsUtil.pinId).thenReturn(key)
+        whenever(authPrefs.pinId).thenReturn(key)
         whenever(walletAuthService.validateAccess(key, pin))
             .thenReturn(
                 Observable.just(
@@ -191,8 +201,10 @@ class AuthDataManagerTest : RxTest() {
         // Assert
         verify(pinRepository).setPin(pin)
         verifyNoMoreInteractions(pinRepository)
-        verify(prefsUtil).pinId
-        verifyNoMoreInteractions(prefsUtil)
+        verify(authPrefs).pinId
+        verifyZeroInteractions(prefsUtil)
+        verifyZeroInteractions(walletStatusPrefs)
+        verifyZeroInteractions(authPrefs)
         verify(walletAuthService).validateAccess(key, pin)
         verifyNoMoreInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
@@ -213,6 +225,8 @@ class AuthDataManagerTest : RxTest() {
         // Assert
         verifyZeroInteractions(pinRepository)
         verifyZeroInteractions(prefsUtil)
+        verifyZeroInteractions(walletStatusPrefs)
+        verifyZeroInteractions(authPrefs)
         verifyZeroInteractions(walletAuthService)
         verifyZeroInteractions(aesUtilWrapper)
 
@@ -241,8 +255,8 @@ class AuthDataManagerTest : RxTest() {
                 eq(AESUtil.PIN_PBKDF2_ITERATIONS)
             )
         ).thenReturn(encryptedPassword)
-        whenever(prefsUtil.backupEnabled).thenReturn(true)
-        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(encryptedPrefs.backupEnabled).thenReturn(true)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(false)
 
         // Act
         val observer = subject.createPin(password, pin).test()
@@ -262,13 +276,15 @@ class AuthDataManagerTest : RxTest() {
             eq(AESUtil.PIN_PBKDF2_ITERATIONS)
         )
         verifyNoMoreInteractions(aesUtilWrapper)
-        verify(prefsUtil).encryptedPassword = encryptedPassword
-        verify(prefsUtil).pinId = anyString()
-        verify(prefsUtil).backupEnabled
-        verify(prefsUtil).hasBackup()
+        verify(authPrefs).encryptedPassword = encryptedPassword
+        verify(authPrefs).pinId = anyString()
+        verify(encryptedPrefs).backupEnabled
+        verify(encryptedPrefs).hasBackup()
 
-        verify(prefsUtil).backupCurrentPrefs(anyString(), eq(aesUtilWrapper))
+        verify(encryptedPrefs).backupCurrentPrefs(anyString(), eq(aesUtilWrapper))
         verifyNoMoreInteractions(prefsUtil)
+        verifyNoMoreInteractions(walletStatusPrefs)
+        verifyNoMoreInteractions(encryptedPrefs)
         observer.assertComplete()
         observer.assertNoErrors()
     }

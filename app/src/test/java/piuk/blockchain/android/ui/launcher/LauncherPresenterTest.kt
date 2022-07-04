@@ -23,11 +23,11 @@ import piuk.blockchain.androidcore.utils.SessionPrefs
 class LauncherPresenterTest {
 
     private val launcherActivity: LauncherView = mock()
-    private val sessionPrefs: SessionPrefs = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val appUtil: AppUtil = mock()
     private val viewIntentData: ViewIntentData = mock()
+    private val sessionPrefs: SessionPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
     private val securityPrefs: SecurityPrefs = mock()
     private val referralPrefs: ReferralPrefs = mock()
@@ -40,12 +40,12 @@ class LauncherPresenterTest {
 
     private val subject = LauncherPresenter(
         appUtil,
-        sessionPrefs,
         deepLinkPersistence,
         environmentConfig,
         authPrefs,
         getAppMaintenanceConfigUseCase,
         appMaintenanceFF,
+        sessionPrefs,
         securityPrefs,
         referralPrefs,
         encryptedPrefs
