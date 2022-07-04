@@ -8,8 +8,11 @@ import com.blockchain.outcome.Outcome
 class DataRemediationApiService(
     private val api: DataRemediationApi
 ) {
-    suspend fun getQuestionnaire(authorization: String): Outcome<ApiError, QuestionnaireResponse?> =
-        api.getQuestionnaire(authorization)
+    suspend fun getQuestionnaire(
+        authorization: String,
+        questionnaireContext: String
+    ): Outcome<ApiError, QuestionnaireResponse?> =
+        api.getQuestionnaire(authorization, questionnaireContext)
 
     suspend fun submitQuestionnaire(
         authorization: String,

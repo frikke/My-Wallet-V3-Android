@@ -41,7 +41,7 @@ class KycInvalidCountryFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_country_selection_title_1)
+        progressListener.setupHostToolbar(R.string.kyc_country_selection_title_1)
 
         with(binding) {
             textViewKycInvalidCountryHeader.text = getString(R.string.kyc_invalid_country_header, displayModel.name)

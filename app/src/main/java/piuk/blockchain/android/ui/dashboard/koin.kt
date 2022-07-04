@@ -46,6 +46,7 @@ val dashboardModule = module {
                 bankService = get(),
                 simpleBuyPrefs = get(),
                 userIdentity = get(),
+                dataRemediationService = get(),
                 walletModeService = get(),
                 analytics = get(),
                 walletModeBalanceCache = get(),

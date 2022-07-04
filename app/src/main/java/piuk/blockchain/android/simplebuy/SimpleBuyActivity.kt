@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.lifecycleScope
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
@@ -16,11 +17,14 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.hideKeyboard
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.outcome.doOnSuccess
 import com.blockchain.payments.googlepay.interceptor.GooglePayResponseInterceptor
 import com.blockchain.payments.googlepay.interceptor.OnGooglePayDataReceivedListener
 import com.blockchain.preferences.BankLinkingPrefs
@@ -32,7 +36,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -44,6 +47,7 @@ import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.base.mapToErrorCopies
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
@@ -62,6 +66,7 @@ class SimpleBuyActivity :
     BlockchainActivity(),
     SimpleBuyNavigator,
     KycUpgradeNowSheet.Host,
+    QuestionnaireSheet.Host,
     ErrorSlidingBottomDialog.Host {
     override val alwaysDisableScreenshots: Boolean
         get() = false
@@ -73,6 +78,7 @@ class SimpleBuyActivity :
     private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val googlePayResponseInterceptor: GooglePayResponseInterceptor by inject()
+    private val dataRemediationService: DataRemediationService by scopedInject()
 
     private var primaryErrorCtaAction = {}
     private var secondaryErrorCtaAction = {}
@@ -192,14 +198,17 @@ class SimpleBuyActivity :
 
     private fun startFlow(screenWithCurrency: BuyNavigation.FlowScreenWithCurrency) {
         when (screenWithCurrency.flowScreen) {
-            FlowScreen.ENTER_AMOUNT -> goToBuyCryptoScreen(
-                addToBackStack = false,
-                preselectedAsset = screenWithCurrency.cryptoCurrency,
-                preselectedPaymentMethodId = preselectedPaymentMethodId,
-                preselectedAmount = preselectedAmount,
-                launchLinkCard = launchLinkNewCard,
-                launchPaymentMethodSelection = launchSelectNewPaymentMethod
-            )
+            FlowScreen.ENTER_AMOUNT -> {
+                goToBuyCryptoScreen(
+                    addToBackStack = false,
+                    preselectedAsset = screenWithCurrency.cryptoCurrency,
+                    preselectedPaymentMethodId = preselectedPaymentMethodId,
+                    preselectedAmount = preselectedAmount,
+                    launchLinkCard = launchLinkNewCard,
+                    launchPaymentMethodSelection = launchSelectNewPaymentMethod
+                )
+                checkQuestionnaire()
+            }
             FlowScreen.KYC -> startKyc()
             FlowScreen.KYC_VERIFICATION -> goToKycVerificationScreen(false)
         }
@@ -410,6 +419,17 @@ class SimpleBuyActivity :
         )
     }
 
+    private fun checkQuestionnaire() {
+        lifecycleScope.launchWhenCreated {
+            dataRemediationService.getQuestionnaire(QuestionnaireContext.TRADING)
+                .doOnSuccess { questionnaire ->
+                    if (questionnaire != null) {
+                        showBottomSheet(QuestionnaireSheet.newInstance(questionnaire, true))
+                    }
+                }
+        }
+    }
+
     private fun List<ServerErrorAction>.assignErrorActions() =
         mapIndexed { index, info ->
             when (index) {
@@ -461,6 +481,14 @@ class SimpleBuyActivity :
 
     override fun goToBlockedBuyScreen() {
         blockBuy(BlockedReason.NotEligible)
+    }
+
+    override fun questionnaireSubmittedSuccessfully() {
+        // no op
+    }
+
+    override fun questionnaireSkipped() {
+        // no op
     }
 
     companion object {

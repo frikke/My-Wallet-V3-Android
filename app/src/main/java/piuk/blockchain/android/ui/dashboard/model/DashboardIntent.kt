@@ -17,6 +17,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -372,11 +373,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    class LaunchBankTransferFlow(
+    data class LaunchBankTransferFlow(
         val account: SingleAccount,
         val action: AssetAction,
         val shouldLaunchBankLinkTransfer: Boolean,
-    ) : DashboardIntent() {
+        val shouldSkipQuestionnaire: Boolean = false
+    ) : DashboardIntent(), Serializable {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,

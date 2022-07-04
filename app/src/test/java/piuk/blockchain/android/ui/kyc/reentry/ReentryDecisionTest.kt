@@ -1,6 +1,8 @@
 package piuk.blockchain.android.ui.kyc.reentry
 
 import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -18,7 +20,7 @@ import piuk.blockchain.android.ui.dataremediation.TreeNode
 class ReentryDecisionTest {
 
     private val dataRemediationService: DataRemediationService = mockk {
-        coEvery { getQuestionnaire() } returns Outcome.Success(emptyList())
+        coEvery { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) } returns Outcome.Success(null)
     }
 
     @Test
@@ -175,11 +177,18 @@ class ReentryDecisionTest {
 
     @Test
     fun `if user is tier 1, has questionnaire then go to questionnaire entry`() {
-        val nodes = listOf(
-            QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-            QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+        val questionnaire = Questionnaire(
+            header = null,
+            context = QuestionnaireContext.TIER_TWO_VERIFICATION,
+            nodes = listOf(
+                QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+                QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+            ),
+            isMandatory = true
         )
-        coEvery { dataRemediationService.getQuestionnaire() } returns Outcome.Success(nodes)
+        coEvery {
+            dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION)
+        } returns Outcome.Success(questionnaire)
         val root = TreeNode.Root(
             listOf(
                 TreeNode.Selection("s1", "text1", emptyList(), false),
@@ -203,7 +212,7 @@ class ReentryDecisionTest {
                 firstName = "A",
                 lastName = "B"
             )
-        ) `should be equal to` ReentryPoint.Questionnaire(root)
+        ) `should be equal to` ReentryPoint.Questionnaire(questionnaire)
     }
 
     @Test

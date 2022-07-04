@@ -78,6 +78,7 @@ import piuk.blockchain.android.ui.dashboard.sheets.FiatFundsDetailSheet
 import piuk.blockchain.android.ui.dashboard.sheets.ForceBackupForSendSheet
 import piuk.blockchain.android.ui.dashboard.sheets.LinkBankMethodChooserBottomSheet
 import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.ui.home.HomeScreenMviFragment
 import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.home.WalletClientAnalytics
@@ -105,6 +106,7 @@ class PortfolioFragment :
     FiatFundsDetailSheet.Host,
     KycBenefitsBottomSheet.Host,
     BuyPendingOrdersBottomSheet.Host,
+    QuestionnaireSheet.Host,
     BankLinkingHost {
 
     override val model: DashboardModel by scopedInject()
@@ -153,6 +155,8 @@ class PortfolioFragment :
 
     private var state: DashboardState? =
         null // Hold the 'current' display state, to enable optimising of state updates
+
+    private var questionnaireCallbackIntent: DashboardIntent.LaunchBankTransferFlow? = null
 
     private val activityResultsContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -397,6 +401,10 @@ class PortfolioFragment :
                 )
                 is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions ->
                     BlockedDueToSanctionsSheet.newInstance(navigationAction.reason)
+                is DashboardNavigationAction.DepositQuestionnaire -> {
+                    questionnaireCallbackIntent = navigationAction.callbackIntent
+                    QuestionnaireSheet.newInstance(navigationAction.questionnaire, true)
+                }
                 else -> null
             }
         )
@@ -563,6 +571,18 @@ class PortfolioFragment :
         super.onPause()
     }
 
+    override fun questionnaireSubmittedSuccessfully() {
+        questionnaireCallbackIntent?.let {
+            model.process(it)
+        }
+    }
+
+    override fun questionnaireSkipped() {
+        questionnaireCallbackIntent?.let {
+            model.process(it)
+        }
+    }
+
     private val activityResultLinkBank =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -589,7 +609,6 @@ class PortfolioFragment :
                 null -> {
                 }
             }
-            model.process(DashboardIntent.ResetNavigation)
         }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

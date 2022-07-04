@@ -10,7 +10,6 @@ import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.koin.scopedInject
-import com.blockchain.nabu.models.responses.nabu.KycTiers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -60,7 +59,7 @@ class KycTierSplashFragment :
             CampaignType.FiatFunds,
             CampaignType.Interest -> R.string.identity_verification
         }
-        progressListener.setHostTitle(title)
+        progressListener.setupHostToolbar(title)
 
         onViewReady()
     }

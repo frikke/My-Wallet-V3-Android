@@ -51,7 +51,7 @@ class ApplicationCompleteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressListener.setHostTitle(R.string.kyc_complete_title)
+        progressListener.setupHostToolbar(R.string.kyc_complete_title)
         progressListener.hideBackButton()
     }
 

@@ -33,10 +33,6 @@ class LoaderModel(
                 intent.isAfterWalletCreation,
                 intent.referralCode
             )
-            is LoaderIntents.OnTermsAndConditionsSigned -> {
-                process(LoaderIntents.StartMainActivity(null, false))
-                null
-            }
             is LoaderIntents.OnEmailVerificationFinished -> {
                 process(LoaderIntents.StartMainActivity(null, true))
                 null

@@ -118,7 +118,8 @@ class DashboardModel(
                     this,
                     intent.account,
                     intent.action,
-                    intent.shouldLaunchBankLinkTransfer
+                    intent.shouldLaunchBankLinkTransfer,
+                    intent.shouldSkipQuestionnaire
                 )
             }
             AssetAction.FiatWithdraw -> {

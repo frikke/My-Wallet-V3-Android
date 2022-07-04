@@ -26,7 +26,6 @@ import com.blockchain.koin.speedUpLoginKycFeatureFlag
 import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
-import com.blockchain.koin.termsAndConditionsFeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
 import com.blockchain.remoteconfig.featureFlag
 import org.koin.dsl.bind
@@ -112,15 +111,6 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_disable_ff_coin_web_socket",
                 "Coin Web Socket"
-            )
-        )
-    }.bind(FeatureFlag::class)
-
-    single(termsAndConditionsFeatureFlag) {
-        IntegratedFeatureFlag(
-            remoteFlag = get<RemoteConfig>().featureFlag(
-                "android_ff_terms_and_conditions",
-                "Terms and Conditions"
             )
         )
     }.bind(FeatureFlag::class)

@@ -11,7 +11,7 @@ fun TreeNode.toDomain(): QuestionnaireNode {
         is TreeNode.SingleSelection ->
             QuestionnaireNode.SingleSelection(id, text, children, instructions, isDropdown)
         is TreeNode.MultipleSelection -> QuestionnaireNode.MultipleSelection(id, text, children, instructions)
-        is TreeNode.OpenEnded -> QuestionnaireNode.OpenEnded(id, text, children, input, hint)
+        is TreeNode.OpenEnded -> QuestionnaireNode.OpenEnded(id, text, children, input, hint, regex)
         is TreeNode.Selection -> QuestionnaireNode.Selection(id, text, children, isChecked)
     }
 }
@@ -24,7 +24,7 @@ fun QuestionnaireNode.toMutableNode(): TreeNode = when (this) {
     is QuestionnaireNode.MultipleSelection ->
         TreeNode.MultipleSelection(id, text, children.map { it.toMutableNode() }, instructions)
     is QuestionnaireNode.OpenEnded ->
-        TreeNode.OpenEnded(id, text, children.map { it.toMutableNode() }, input, hint)
+        TreeNode.OpenEnded(id, text, children.map { it.toMutableNode() }, input, hint, regex)
     is QuestionnaireNode.Selection ->
         TreeNode.Selection(id, text, children.map { it.toMutableNode() }, isChecked)
 }

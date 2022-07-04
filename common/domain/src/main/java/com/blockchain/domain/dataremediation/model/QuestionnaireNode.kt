@@ -6,7 +6,7 @@ sealed class QuestionnaireNode(
     open val id: NodeId,
     open val text: String,
     open val children: List<QuestionnaireNode>
-) {
+) : java.io.Serializable {
 
     data class SingleSelection(
         override val id: NodeId,
@@ -28,7 +28,8 @@ sealed class QuestionnaireNode(
         override val text: String,
         override val children: List<QuestionnaireNode>,
         val input: String,
-        val hint: String
+        val hint: String,
+        val regex: Regex?,
     ) : QuestionnaireNode(id, text, children)
 
     data class Selection(

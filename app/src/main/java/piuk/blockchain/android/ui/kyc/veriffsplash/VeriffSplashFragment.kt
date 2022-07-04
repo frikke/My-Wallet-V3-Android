@@ -269,7 +269,7 @@ class VeriffSplashFragment :
 
     private fun showContentState() {
         dismissProgressDialog()
-        progressListener.setHostTitle(R.string.kyc_veriff_splash_title)
+        progressListener.setupHostToolbar(R.string.kyc_veriff_splash_title)
         with(binding) {
             errorLayout.gone()
             contentView.visible()
@@ -279,7 +279,7 @@ class VeriffSplashFragment :
 
     private fun showErrorState() {
         dismissProgressDialog()
-        progressListener.setHostTitle(R.string.kyc_veriff_splash_error_silver)
+        progressListener.setupHostToolbar(R.string.kyc_veriff_splash_error_silver)
         with(binding) {
             errorLayout.visible()
             contentView.gone()

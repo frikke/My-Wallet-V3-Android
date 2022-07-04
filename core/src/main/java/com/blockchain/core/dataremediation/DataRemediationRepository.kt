@@ -3,11 +3,12 @@ package com.blockchain.core.dataremediation
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.core.dataremediation.mapper.toDomain
+import com.blockchain.core.dataremediation.mapper.toError
 import com.blockchain.core.dataremediation.mapper.toNetwork
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.dataremediation.model.DataRemediationError
-import com.blockchain.domain.dataremediation.model.NodeId
-import com.blockchain.domain.dataremediation.model.QuestionnaireNode
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.SubmitQuestionnaireError
 import com.blockchain.nabu.Authenticator
 import com.blockchain.outcome.Outcome
@@ -18,36 +19,24 @@ import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 
 class DataRemediationRepository(
     private val authenticator: Authenticator,
-    private val kycService: DataRemediationApiService
+    private val api: DataRemediationApiService
 ) : DataRemediationService {
 
-    override suspend fun getQuestionnaire(): Outcome<DataRemediationError, List<QuestionnaireNode>> =
+    override suspend fun getQuestionnaire(
+        questionnaireContext: QuestionnaireContext
+    ): Outcome<DataRemediationError, Questionnaire?> =
         authenticator.getAuthHeader().awaitOutcome()
-            .flatMap { authToken -> kycService.getQuestionnaire(authToken) }
+            .flatMap { authToken -> api.getQuestionnaire(authToken, questionnaireContext.toNetwork()) }
             .mapError { DataRemediationError.REQUEST_FAILED }
-            .map { it?.toDomain() ?: emptyList() }
+            .map { it?.toDomain() }
 
-    override suspend fun submitQuestionnaire(nodes: List<QuestionnaireNode>): Outcome<SubmitQuestionnaireError, Unit> =
+    override suspend fun submitQuestionnaire(
+        questionnaire: Questionnaire
+    ): Outcome<SubmitQuestionnaireError, Unit> =
         authenticator.getAuthHeader().awaitOutcome()
-            .mapError { SubmitQuestionnaireError.RequestFailed }
+            .mapError { SubmitQuestionnaireError.RequestFailed(null) }
             .flatMap { authToken ->
-                kycService.submitQuestionnaire(authToken, nodes.toNetwork())
-                    .mapError {
-                        val nodeId = it.tryParseNodeIdFromApiError()
-                        if (nodeId != null) {
-                            SubmitQuestionnaireError.InvalidNode(nodeId)
-                        } else {
-                            SubmitQuestionnaireError.RequestFailed
-                        }
-                    }
+                api.submitQuestionnaire(authToken, questionnaire.toNetwork())
+                    .mapError(ApiError::toError)
             }
-
-    private fun ApiError.tryParseNodeIdFromApiError(): NodeId? =
-        if (this is ApiError.KnownError && errorDescription.count { it == '#' } == 2) {
-            val indexOfStart = errorDescription.indexOf('#') + 1
-            val indexOfEnd = errorDescription.substring(indexOfStart).indexOf('#')
-            errorDescription.substring(indexOfStart, indexOfStart + indexOfEnd)
-        } else {
-            null
-        }
 }
