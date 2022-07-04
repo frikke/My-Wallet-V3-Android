@@ -1,11 +1,7 @@
-package piuk.blockchain.android.ui.dashboard
+package piuk.blockchain.android.ui.dashboard.walletmode
 
-import android.app.Dialog
-import android.os.Bundle
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,99 +9,40 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ImageResource
-import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.tablerow.TableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.koin.payloadScope
 import com.blockchain.walletmode.WalletMode
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
-import org.koin.android.scope.AndroidScopeComponent
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.scope.Scope
 import piuk.blockchain.android.R
 
-class WalletModeSelectionBottomSheet : BottomSheetDialogFragment(), AndroidScopeComponent {
-    interface Host {
-        fun onActiveModeChanged(
-            walletMode: WalletMode,
-        )
+@Composable
+fun WalletModes(viewModel: WalletModeSelectionViewModel) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
+        viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
     }
+    val viewState: WalletModeSelectionViewState? by stateFlowLifecycleAware.collectAsState(null)
 
-    val host: Host by lazy {
-        activity as? Host
-            ?: throw IllegalStateException("Host activity is not a WalletModeSelectionBottomSheet.Host")
-    }
-
-    private val viewModel: WalletModeSelectionViewModel by viewModel()
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = BottomSheetDialog(requireActivity())
-        dialog.setContentView(
-            ComposeView(requireContext()).apply {
-                setContent {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        SheetHeader(
-                            onClosePress = { dismiss() },
-                            shouldShowDivider = false
-                        )
-                        WalletModes(viewModel)
-                    }
-                }
+    viewState?.let { state ->
+        WalletModesDialogContent(
+            totalBalance = state.totalBalance,
+            portfolioBalanceState = state.brokerageBalance,
+            defiWalletBalance = state.defiWalletBalance,
+            selectedMode = state.enabledWalletMode,
+            onItemClicked = {
+                viewModel.onIntent(WalletModeSelectionIntent.WalletModeSelected(it))
             }
         )
-
-        viewModel.onIntent(WalletModeSelectionIntent.LoadAvailableModesAndBalances)
-        return dialog
     }
-
-    companion object {
-        fun newInstance(): WalletModeSelectionBottomSheet = WalletModeSelectionBottomSheet()
-    }
-
-    @Composable
-    fun WalletModes(viewModel: WalletModeSelectionViewModel) {
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
-            viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-        }
-        val viewState: WalletModeSelectionViewState? by stateFlowLifecycleAware.collectAsState(null)
-
-        viewState?.let { state ->
-            WalletModesDialogContent(
-                totalBalance = state.totalBalance,
-                portfolioBalanceState = state.brokerageBalance,
-                defiWalletBalance = state.defiWalletBalance,
-                selectedMode = state.enabledWalletMode,
-                onItemClicked = {
-                    viewModel.onIntent(WalletModeSelectionIntent.UpdateActiveWalletMode(it))
-                    host.onActiveModeChanged(it)
-                    dismiss()
-                }
-            )
-        }
-    }
-
-    override val scope: Scope
-        get() = payloadScope
 }
 
 @Composable

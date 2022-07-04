@@ -2959,6 +2959,7 @@
     <string name="recovery_phrase_title">Your Recovery Phrase</string>
     <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>
     <string name="recovery_phrase_backup_again">Back Up Again</string>
+    <string name="recovery_phrase_backup_manual">Back Up Manually</string>
 
     <string name="manual_backup_title">Manual Back Up</string>
     <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>
@@ -2972,6 +2973,21 @@
 
     <string name="backup_success_title">Back Up Successful!</string>
     <string name="backup_success_description">Remember to keep your Recovery Phrase stored in a safe location and to never share it with anyone.</string>
+
+    <string name="defi_onboarding_nav_title">DeFi Wallet</string>
+
+    <string name="defi_onboarding_intro_title">Introducing the DeFi Wallet</string>
+    <string name="defi_onboarding_intro_description">Explore all of Web3 and DeFi in one place</string>
+    <string name="defi_onboarding_intro_property1_title">Self-Custody Your Assets</string>
+    <string name="defi_onboarding_intro_property1_subtitle">DeFi wallets are on-chain</string>
+    <string name="defi_onboarding_intro_property2_title">Multi-chain Support</string>
+    <string name="defi_onboarding_intro_property2_subtitle">Manage your portfolio across 7 chains</string>
+    <string name="defi_onboarding_intro_property3_title">Connect to Decentralized Finance</string>
+    <string name="defi_onboarding_intro_property3_subtitle">Log into DApps and sign transactions</string>
+    <string name="defi_onboarding_intro_cta">Enable DeFi Wallet</string>
+
+    <string name="defi_onboarding_complete_title">Welcome to Your DeFi Wallet</string>
+    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>
     <!-- Blockchain Card -->
     <string name="order_my_card">Order My Card</string>
     <string name="order_card_intro">A digital card you can use instantly for online payments.</string>

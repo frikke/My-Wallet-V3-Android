@@ -81,11 +81,11 @@ import piuk.blockchain.android.ui.backup.BackupWalletActivity
 import piuk.blockchain.android.ui.base.showFragment
 import piuk.blockchain.android.ui.dashboard.PortfolioFragment
 import piuk.blockchain.android.ui.dashboard.PricesFragment
-import piuk.blockchain.android.ui.dashboard.WalletModeSelectionBottomSheet
 import piuk.blockchain.android.ui.dashboard.coinview.CoinViewActivity
-import piuk.blockchain.android.ui.dashboard.icon
 import piuk.blockchain.android.ui.dashboard.sheets.KycUpgradeNowSheet
-import piuk.blockchain.android.ui.dashboard.title
+import piuk.blockchain.android.ui.dashboard.walletmode.WalletModeSelectionBottomSheet
+import piuk.blockchain.android.ui.dashboard.walletmode.icon
+import piuk.blockchain.android.ui.dashboard.walletmode.title
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellCtaClicked
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellDismissed
 import piuk.blockchain.android.ui.home.analytics.EntitySwitchSilverKycUpsellViewed
