@@ -26,7 +26,7 @@ class BackupPhraseServiceTest {
     private val backupPhraseService: BackupPhraseService = BackupPhraseRepository(
         payloadManager = payloadManager,
         backupWallet = backupWallet,
-        walletStatus = walletStatusPrefs
+        walletStatusPrefs = walletStatusPrefs
     )
 
     private val mnemonic = listOf("A", "B")
