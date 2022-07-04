@@ -1,5 +1,7 @@
 package com.blockchain.coincore
 
+import com.blockchain.coincore.impl.AllCustodialWalletsAccount
+import com.blockchain.coincore.impl.AllNonCustodialWalletsAccount
 import com.blockchain.coincore.impl.AllWalletsAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.impl.TxProcessorFactory
@@ -78,14 +80,7 @@ class Coincore internal constructor(
 
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
-            AllWalletsAccount(list, defaultLabels, currencyPrefs)
-        }
-
-    fun allWalletsInActiveMode(): Single<AccountGroup> =
-        when (walletModeService.enabledWalletMode()) {
-            WalletMode.NON_CUSTODIAL_ONLY -> allNonCustodialWallets()
-            WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
-            WalletMode.UNIVERSAL -> allWallets()
+            AllWalletsAccount(list, defaultLabels)
         }
 
     fun allWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
@@ -94,6 +89,21 @@ class Coincore internal constructor(
             WalletMode.CUSTODIAL_ONLY -> allCustodialWallets()
             WalletMode.UNIVERSAL -> allWallets()
         }
+
+    fun activeWalletsInMode(walletMode: WalletMode): Single<AccountGroup> =
+        Maybe.concat(
+            activeAssets(walletMode).map {
+                it.accountGroup(walletMode.defaultFilter()).map { grp -> grp.accounts }
+            }
+        ).reduce { a, l -> a + l }
+            .toSingle()
+            .map {
+                when (walletMode) {
+                    WalletMode.UNIVERSAL -> AllWalletsAccount(it, defaultLabels)
+                    WalletMode.NON_CUSTODIAL_ONLY -> AllNonCustodialWalletsAccount(it, defaultLabels)
+                    WalletMode.CUSTODIAL_ONLY -> AllCustodialWalletsAccount(it, defaultLabels)
+                }
+            }
 
     private fun walletsWithFilter(includeArchived: Boolean = false, filter: AssetFilter): Single<List<SingleAccount>> =
         Maybe.concat(
@@ -110,12 +120,12 @@ class Coincore internal constructor(
 
     private fun allCustodialWallets(): Single<AccountGroup> =
         walletsWithFilter(filter = AssetFilter.Custodial).map { list ->
-            AllWalletsAccount(list, defaultLabels, currencyPrefs)
+            AllCustodialWalletsAccount(list, defaultLabels)
         }
 
     private fun allNonCustodialWallets(): Single<AccountGroup> =
         walletsWithFilter(filter = AssetFilter.NonCustodial).map { list ->
-            AllWalletsAccount(list, defaultLabels, currencyPrefs)
+            AllNonCustodialWalletsAccount(list, defaultLabels)
         }
 
     fun walletsWithActions(

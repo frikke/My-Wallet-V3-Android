@@ -34,6 +34,12 @@ internal class ResourceDefaultLabels(
     override fun getAllWalletLabel(): String =
         resources.getString(R.string.default_label_all_wallets)
 
+    override fun getAllCustodialWalletsLabel(): String =
+        resources.getString(R.string.default_label_all_custodial_wallets)
+
+    override fun getAllNonCustodialWalletsLabel(): String =
+        resources.getString(R.string.default_label_all_non_custodial_wallets)
+
     override fun getDefaultInterestWalletLabel(): String =
         resources.getString(R.string.default_label_rewards_wallet)
 

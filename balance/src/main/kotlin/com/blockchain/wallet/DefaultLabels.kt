@@ -7,6 +7,8 @@ import info.blockchain.balance.FiatCurrency
 interface DefaultLabels {
 
     fun getAllWalletLabel(): String
+    fun getAllCustodialWalletsLabel(): String
+    fun getAllNonCustodialWalletsLabel(): String
     fun getAssetMasterWalletLabel(asset: Currency): String
     fun getDefaultNonCustodialWalletLabel(): String
     fun getOldDefaultNonCustodialWalletLabel(asset: AssetInfo): String

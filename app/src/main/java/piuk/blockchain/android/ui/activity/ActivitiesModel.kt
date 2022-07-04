@@ -10,8 +10,12 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.Currency
 import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.rx3.asObservable
 import timber.log.Timber
 
@@ -40,7 +44,9 @@ data class ActivitiesState(
     val bottomSheet: ActivitiesSheet? = null,
     val isError: Boolean = false,
     val selectedTxId: String = "",
+    val selectedAccountBalance: String = "",
     val selectedCurrency: Currency? = null,
+    val isForegrounded: Boolean = true,
     val activityType: ActivityType = ActivityType.UNKNOWN,
 ) : MviState
 
@@ -58,7 +64,7 @@ class ActivitiesModel(
     remoteLogger
 ) {
 
-    private var fetchSubscription: Disposable? = null
+    private var fetchSubscription = CompositeDisposable()
 
     override fun performAction(
         previousState: ActivitiesState,
@@ -68,12 +74,13 @@ class ActivitiesModel(
 
         return when (intent) {
             is AccountSelectedIntent -> {
-                fetchSubscription?.dispose()
+                fetchSubscription.clear()
 
-                fetchSubscription = interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
+                fetchSubscription += interactor.getActivityForAccount(intent.account, intent.isRefreshRequested)
                     .doOnSubscribe {
                         process(ActivityLoadingIntent)
                     }
+                    .subscribeOn(Schedulers.io())
                     .subscribeBy(
                         onSuccess = { list ->
                             process(ActivityListUpdatedIntent(list))
@@ -83,10 +90,19 @@ class ActivitiesModel(
                             process(ActivityListUpdatedErrorIntent)
                         }
                     )
+                fetchSubscription += intent.account.balance.subscribeBy(onError = {
+                    process(BalanceUpdatedErrorIntent)
+                }, onNext = {
+                    process(BalanceUpdatedIntent(it.totalFiat))
+                })
+
                 fetchSubscription
             }
             is SelectDefaultAccountIntent ->
-                walletModeService.walletMode.asObservable().flatMapSingle { interactor.getDefaultAccount(it) }
+                walletModeService.walletMode.asObservable(Dispatchers.IO)
+                    .flatMapSingle {
+                        interactor.getDefaultAccount(it)
+                    }
                     .subscribeBy(
                         onNext = { account ->
                             process(AccountSelectedIntent(account, false))

@@ -141,7 +141,68 @@ interface AccountGroup : BlockchainAccount {
     override val disabledReason: Single<IneligibilityReason>
         get() = Single.just(IneligibilityReason.NONE)
 
-    fun includes(account: BlockchainAccount): Boolean
+    override val activity: Single<ActivitySummaryList>
+        get() = allActivities()
+
+    fun includes(account: BlockchainAccount): Boolean =
+        accounts.contains(account)
+
+    override val stateAwareActions: Single<Set<StateAwareAction>>
+        get() = Single.just(
+            setOf(
+                StateAwareAction(ActionState.Available, AssetAction.ViewActivity)
+            )
+        )
+
+    override val receiveAddress: Single<ReceiveAddress>
+        get() = throw IllegalStateException("ReceiveAddress is not supported")
+
+    /**
+     * TODO remove those from the interface of account
+     */
+    override val isFunded: Boolean
+        get() = true
+
+    override val hasTransactions: Boolean
+        get() = true
+
+    private fun allActivities(): Single<ActivitySummaryList> =
+        Single.just(accounts).flattenAsObservable { it }
+            .flatMapSingle { account ->
+                account.activity
+                    .onErrorResumeNext { Single.just(emptyList()) }
+            }
+            .reduce { a, l -> a + l }
+            .defaultIfEmpty(emptyList())
+            .map { it.distinct() }
+            .map { it.sorted() }
+}
+
+interface SameCurrencyAccountGroup : AccountGroup {
+    val currency: Currency
+    override val balance: Observable<AccountBalance>
+        get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle {
+            it.balance.firstOrError()
+        }.reduce { a, v ->
+            AccountBalance.totalOf(a, v)
+        }.toObservable()
+}
+
+interface MultipleCurrenciesAccountGroup : AccountGroup {
+    /**
+     * Balance is calculated in the selected fiat currency
+     */
+    override val balance: Observable<AccountBalance>
+        get() = Single.just(accounts).flattenAsObservable { it }.flatMapSingle { account ->
+            account.balance.firstOrError()
+        }.reduce { a, v ->
+            AccountBalance(
+                total = a.exchangeRate.convert(a.total) + v.exchangeRate.convert(v.total),
+                withdrawable = a.exchangeRate.convert(a.withdrawable) + v.exchangeRate.convert(v.withdrawable),
+                pending = a.exchangeRate.convert(a.pending) + v.exchangeRate.convert(v.pending),
+                exchangeRate = ExchangeRate.identityExchangeRate(a.exchangeRate.to)
+            )
+        }.toObservable()
 }
 
 internal fun BlockchainAccount.isTrading(): Boolean =

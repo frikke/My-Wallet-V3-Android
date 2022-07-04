@@ -3125,6 +3125,8 @@
 
     <string name="simple_buy_quote_message">New Quote in %s</string>
     <string name="defi_current_balance">Current Balance</string>
+    <string name="default_label_all_non_custodial_wallets">All</string>
+    <string name="default_label_all_custodial_wallets">All</string>
 
     <string name="cash_wallet_dollar">US Dollar</string>
     <string name="cash_wallet_pound">British Pound</string>

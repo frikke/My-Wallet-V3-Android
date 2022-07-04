@@ -26,7 +26,8 @@ val mainModule = module {
                 interactor = get(),
                 walletConnectServiceAPI = get(),
                 environmentConfig = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                walletModeService = get()
             )
         }
 
