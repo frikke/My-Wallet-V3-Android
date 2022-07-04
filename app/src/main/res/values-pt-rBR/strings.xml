@@ -1329,7 +1329,6 @@ autenticar e acessar sua carteira.</string>
     <string name="aave_yfi_dot_available_card_cta">Comprar agora</string>
     <string name="old_default_non_custodial_wallet_label">Minha Wallet %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">Seu pedido está sendo processado. Você pode fechar esta tela com segurança enquanto atualizamos o pedido em segundo plano.</string>
-    <string name="fiat_currency_funds_wallet_name_1">Conta %1s</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficientes em sua carteira para vender com as taxas de rede atuais.</string>
     <string name="send_enter_amount_network_fees">Taxas de rede</string>
     <string name="send_enter_amount_total">Total</string>
@@ -1573,7 +1572,6 @@ para explorar objetos invisíveis e possivelmente roubar fundos. Observe que ess
     <string name="recurring_buy_details_next_payment">Próximo pagamento</string>
     <string name="recurring_buy_details_recurring">Recorrente</string>
     <string name="activity_details_label_btn_cash">Adicionar dinheiro</string>
-    <string name="recurring_buy_funds_label">%s Wallet</string>
     <string name="recurring_buy_short_error">Falha</string>
     <string name="recurring_buy_insufficient_funds_short_error">Falha. Saldo baixo</string>
     <string name="recurring_buy_internal_server_error">Ocorreu um erro com sua compra. Tentaremos novamente em breve.</string>
@@ -1786,7 +1784,6 @@ Verifique sua conexão com a Internet e tente novamente ou entre em contato com 
 Seus %1$s estarão disponíveis em sua conta \"%2$s\" dentro de 2 dias.</string>
     <string name="reset_kyc_notice_1">Para sua segurança, talvez seja necessário verificar novamente sua identidade antes de acessar sua conta de negociação ou de recompensas.</string>
     <string name="reset_account_description_1">A reinicialização restaurará suas contas Trading, Rewards e Exchange.</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Negar</string>

@@ -8,11 +8,12 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.coincore.SingleAccount
-import com.blockchain.coincore.TransactionTarget
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.FiatCurrency
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.LinkBankMethodChooserSheetLayoutBinding
 import piuk.blockchain.android.databinding.LinkBankMethodItemBinding
@@ -28,8 +29,7 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
     private val isForPayment: Boolean
         get() = arguments?.getBoolean(FOR_PAYMENT, false) ?: false
 
-    private val targetCurrencyTicker: String
-        get() = arguments?.getString(TARGET_CURRENCY_TICKER, "") ?: ""
+    private val currencyPrefs: CurrencyPrefs by inject()
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): LinkBankMethodChooserSheetLayoutBinding =
         LinkBankMethodChooserSheetLayoutBinding.inflate(inflater, container, false)
@@ -51,26 +51,22 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
             recycler.layoutManager = LinearLayoutManager(activity)
             recycler.adapter = LinkBankMethodChooserAdapter(
                 paymentMethods = paymentMethods.linkablePaymentMethods.linkMethods,
-                isForPayment = isForPayment,
-                targetCurrencyTicker = targetCurrencyTicker
-            ) {
-                analytics.logEvent(BankAuthAnalytics.LinkBankSelected(launchOrigin()))
-                when (it) {
-                    PaymentMethodType.BANK_TRANSFER -> kotlin.run {
-                        host.onLinkBankSelected(
-                            paymentMethods
-                        )
-                        dismiss()
+                tradingCurrency = currencyPrefs.tradingCurrency,
+                onClick = {
+                    analytics.logEvent(BankAuthAnalytics.LinkBankSelected(launchOrigin()))
+                    when (it) {
+                        PaymentMethodType.BANK_TRANSFER -> kotlin.run {
+                            host.onLinkBankSelected(paymentMethods)
+                            dismiss()
+                        }
+                        PaymentMethodType.BANK_ACCOUNT -> kotlin.run {
+                            host.onBankWireTransferSelected(paymentMethods.linkablePaymentMethods.currency)
+                            dismiss()
+                        }
+                        else -> throw IllegalStateException("Not supported linking method")
                     }
-                    PaymentMethodType.BANK_ACCOUNT -> kotlin.run {
-                        host.onBankWireTransferSelected(
-                            paymentMethods.linkablePaymentMethods.currency
-                        )
-                        dismiss()
-                    }
-                    else -> throw IllegalStateException("Not supported linking method")
                 }
-            }
+            )
 
             paymentMethodsTitle.text = getString(
                 if (isForPayment) {
@@ -85,7 +81,6 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
     companion object {
         private const val LINKABLE_METHODS = "LINKABLE_METHODS"
         private const val FOR_PAYMENT = "FOR_PAYMENT"
-        private const val TARGET_CURRENCY_TICKER = "TARGET_CURRENCY_TICKER"
 
         fun newInstance(
             linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction,
@@ -95,20 +90,6 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
                 arguments = Bundle().apply {
                     putSerializable(LINKABLE_METHODS, linkablePaymentMethodsForAction)
                     putBoolean(FOR_PAYMENT, isForPayment)
-                }
-            }
-
-        fun newInstance(
-            linkablePaymentMethodsForAction: LinkablePaymentMethodsForAction,
-            transactionTarget: TransactionTarget,
-            isForPayment: Boolean = false
-        ): LinkBankMethodChooserBottomSheet =
-            LinkBankMethodChooserBottomSheet().apply {
-                arguments = Bundle().apply {
-                    putSerializable(LINKABLE_METHODS, linkablePaymentMethodsForAction)
-                    putBoolean(FOR_PAYMENT, isForPayment)
-                    if (transactionTarget is SingleAccount)
-                        putString(TARGET_CURRENCY_TICKER, transactionTarget.currency.networkTicker)
                 }
             }
     }
@@ -116,19 +97,17 @@ class LinkBankMethodChooserBottomSheet : SlidingModalBottomDialog<LinkBankMethod
 
 class LinkBankMethodChooserAdapter(
     private val paymentMethods: List<PaymentMethodType>,
-    private val targetCurrencyTicker: String,
-    private val isForPayment: Boolean,
-    private val onClick: (PaymentMethodType) -> Unit
+    private val tradingCurrency: FiatCurrency,
+    private val onClick: (PaymentMethodType) -> Unit,
 ) : RecyclerView.Adapter<LinkBankMethodChooserAdapter.LinkBankMethodViewHolder>() {
 
     class LinkBankMethodViewHolder(
         private val binding: LinkBankMethodItemBinding,
-        private val isForPayment: Boolean,
-        private val targetCurrencyTicker: String
+        private val tradingCurrency: FiatCurrency
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(paymentMethod: PaymentMethodType, onClick: (PaymentMethodType) -> Unit) {
-            val item = paymentMethod.toLinkBankMethodItemUI(isForPayment, targetCurrencyTicker)
+            val item = paymentMethod.toLinkBankMethodItemUI(tradingCurrency)
 
             with(binding) {
                 paymentMethodTitle.setText(item.title)
@@ -147,8 +126,7 @@ class LinkBankMethodChooserAdapter(
         val binding = LinkBankMethodItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return LinkBankMethodViewHolder(
             binding = binding,
-            isForPayment = isForPayment,
-            targetCurrencyTicker = targetCurrencyTicker
+            tradingCurrency = tradingCurrency
         )
     }
 
@@ -160,28 +138,19 @@ class LinkBankMethodChooserAdapter(
 }
 
 private fun PaymentMethodType.toLinkBankMethodItemUI(
-    isForPayment: Boolean,
-    targetCurrencyTicker: String
+    fiatCurrency: FiatCurrency,
 ): LinkBankMethodItem =
     when (this) {
         PaymentMethodType.BANK_ACCOUNT -> LinkBankMethodItem(
-            title = StringLocalizationUtil.getBankDepositTitle(targetCurrencyTicker),
-            subtitle = R.string.payment_wire_transfer_subtitle,
-            blurb = if (isForPayment) {
-                R.string.payment_wire_transfer_blurb
-            } else {
-                R.string.bank_transfer_blurb
-            },
+            title = StringLocalizationUtil.getBankDepositTitle(fiatCurrency.networkTicker),
+            subtitle = StringLocalizationUtil.subtitleForBankAccount(fiatCurrency),
+            blurb = StringLocalizationUtil.blurbForBankAccount(fiatCurrency),
             icon = R.drawable.ic_funds_deposit
         )
         PaymentMethodType.BANK_TRANSFER -> LinkBankMethodItem(
             title = R.string.easy_bank_transfer,
-            subtitle = R.string.payment_deposit_subtitle,
-            blurb = if (isForPayment) {
-                R.string.payment_deposit_blurb
-            } else {
-                R.string.easy_bank_transfer_blurb
-            },
+            subtitle = StringLocalizationUtil.subtitleForEasyTransfer(fiatCurrency),
+            blurb = R.string.easy_bank_transfer_blurb,
             icon = R.drawable.ic_bank_transfer
         )
         else -> throw IllegalStateException("Not supported linking method")

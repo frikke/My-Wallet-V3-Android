@@ -1392,7 +1392,6 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="aave_yfi_dot_available_card_cta">Hemen Satın Al</string>
     <string name="old_default_non_custodial_wallet_label">%1s Cüzdanım</string>
     <string name="bank_transfer_in_progress_ob_blurb">Emriniz işleniyor. Biz arka planda emri güncellerken bu ekranı güvenle kapatabilirsiniz.</string>
-    <string name="fiat_currency_funds_wallet_name_1">%1s Hesabı</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Cüzdanınızda mevcut ağ ücretleriyle satmak için yeterli %1$s yok.</string>
     <string name="send_enter_amount_network_fees">Ağ Ücretleri</string>
     <string name="send_enter_amount_total">Toplam</string>
@@ -1638,7 +1637,6 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="recurring_buy_details_next_payment">Sonraki Ödeme</string>
     <string name="recurring_buy_details_recurring">Yinelenen</string>
     <string name="activity_details_label_btn_cash">Nakit Ekle</string>
-    <string name="recurring_buy_funds_label">%s Hesabı</string>
     <string name="recurring_buy_short_error">Başarısız oldu</string>
     <string name="recurring_buy_insufficient_funds_short_error">Başarısız oldu. Bakiye Düşük</string>
     <string name="recurring_buy_internal_server_error">Satın alma işleminizde bir hata oluştu. Az sonra tekrar deneyeceğiniz.</string>
@@ -1856,7 +1854,6 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
  %1$s 2 gün içinde %2$s \" Hesabınızda hazır olacak.</string>
     <string name="reset_kyc_notice_1">Güvenliğiniz için, al-sat veya ödül hesabınıza erişmeden önce kimliğinizi yeniden doğrulamanız gerekebilir.</string>
     <string name="reset_account_description_1">Sıfırlama, Al-Sat, Ödüller ve Exchange hesaplarınızı geri yükleyecektir.</string>
-    <string name="checkout_funds_label_1">%s Cüzdanı</string>
     <string name="activity_details_buy_purchase_amount_1">Toplam</string>
     <string name="common_approve">Onayla</string>
     <string name="common_deny">Reddet</string>
