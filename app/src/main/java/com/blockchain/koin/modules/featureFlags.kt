@@ -22,6 +22,7 @@ import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
+import com.blockchain.koin.speedUpLoginKycFeatureFlag
 import com.blockchain.koin.speedUpLoginTradingFeatureFlag
 import com.blockchain.koin.stxForAllFeatureFlag
 import com.blockchain.koin.superAppFeatureFlag
@@ -57,6 +58,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_trading",
                 "SpeedUp Login - /accounts/simplebuy"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(speedUpLoginKycFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_kyc",
+                "SpeedUp Login - /kyc/tiers"
             )
         )
     }.bind(FeatureFlag::class)
