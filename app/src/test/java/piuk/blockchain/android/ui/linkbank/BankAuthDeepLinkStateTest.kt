@@ -8,6 +8,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedBankState
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.eur
+import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
@@ -18,7 +19,6 @@ import org.koin.core.context.GlobalContext.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
-import kotlin.test.assertEquals
 
 class BankAuthDeepLinkStateTest : KoinTest {
 

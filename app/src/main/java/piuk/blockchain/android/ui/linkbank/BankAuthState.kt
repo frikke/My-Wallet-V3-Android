@@ -5,12 +5,12 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
+import java.io.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.context.GlobalContext
 import piuk.blockchain.android.simplebuy.SelectedPaymentMethod
-import java.io.Serializable
 
 data class BankAuthState(
     val id: String? = null,

@@ -21,6 +21,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Date
 import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
@@ -29,7 +30,6 @@ import org.mockito.ArgumentMatchers.anyString
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.cards.partners.CompleteCardActivation
 import piuk.blockchain.android.simplebuy.SimpleBuyInteractor
-import java.util.Date
 
 class CardModelTest {
 

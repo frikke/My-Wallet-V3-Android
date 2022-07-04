@@ -24,6 +24,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.logging.RemoteLogger
+import java.net.URLEncoder
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.json.JSONException
@@ -38,7 +39,6 @@ import piuk.blockchain.android.simplebuy.yodlee.MessageData
 import piuk.blockchain.android.simplebuy.yodlee.SiteData
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowNavigator
 import timber.log.Timber
-import java.net.URLEncoder
 
 class YodleeWebViewFragment :
     Fragment(),
