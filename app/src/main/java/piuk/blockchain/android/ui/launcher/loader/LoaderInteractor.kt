@@ -8,7 +8,7 @@ import com.blockchain.domain.referral.ReferralService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.FiatCurrency.Companion.Dollars
 import info.blockchain.wallet.api.data.Settings
@@ -27,20 +27,18 @@ import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 import piuk.blockchain.androidcore.utils.extensions.thenMaybe
 
 class LoaderInteractor(
     private val payloadDataManager: PayloadDataManager,
     private val prerequisites: Prerequisites,
-    private val prefs: PersistentPrefs,
     private val deepLinkPersistence: DeepLinkPersistence,
     private val settingsDataManager: SettingsDataManager,
     private val notificationTokenManager: NotificationTokenManager,
     private val currencyPrefs: CurrencyPrefs,
     private val nabuUserDataManager: NabuUserDataManager,
-    private val walletPrefs: WalletStatus,
+    private val walletPrefs: WalletStatusPrefs,
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
@@ -127,7 +125,7 @@ class LoaderInteractor(
 
     private fun syncFiatCurrency(settings: Settings): Completable =
         when {
-            prefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
+            walletPrefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
             settings.currency != currencyPrefs.selectedFiatCurrency.networkTicker -> Completable.fromAction {
                 currencyPrefs.selectedFiatCurrency =
                     assetCatalogue.fiatFromNetworkTicker(settings.currency) ?: Dollars
@@ -161,7 +159,7 @@ class LoaderInteractor(
         }
     }
 
-    private fun shouldCheckForEmailVerification() = prefs.isNewlyCreated && !prefs.isRestored
+    private fun shouldCheckForEmailVerification() = walletPrefs.isNewlyCreated && !walletPrefs.isRestored
 
     private fun saveInitialCountry(): Completable {
         val countrySelected = walletPrefs.countrySelectedOnSignUp
@@ -171,7 +169,7 @@ class LoaderInteractor(
                 countrySelected,
                 stateSelected.takeIf { it.isNotEmpty() }
             ).doOnComplete {
-                prefs.clearGeolocationPreferences()
+                walletPrefs.clearGeolocationPreferences()
             }.onErrorComplete()
         } else Completable.complete()
     }

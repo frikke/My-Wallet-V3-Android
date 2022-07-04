@@ -15,13 +15,13 @@ import piuk.blockchain.android.BuildConfig
 import piuk.blockchain.android.R
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import timber.log.Timber
 
 class VeriffSplashPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val prefs: PersistentPrefs,
+    private val prefs: SessionPrefs,
     private val analytics: Analytics
 ) : BaseKycPresenter<VeriffSplashView>(nabuToken) {
 

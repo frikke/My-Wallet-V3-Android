@@ -8,7 +8,7 @@ import com.blockchain.nabu.datamanagers.CustodialOrderState
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.TransferDirection
 import com.blockchain.nabu.datamanagers.repositories.swap.TradeTransactionItem
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.HorizonKeyPair
 import com.blockchain.sunriver.Memo
 import com.blockchain.sunriver.XlmAccountReference
@@ -36,7 +36,7 @@ class XlmAccountActivityTest : CoincoreTestBase() {
     private val xlmDataManager: XlmDataManager = mock()
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val custodialWalletManager: CustodialWalletManager = mock()
     private val xlmAccountReference = XlmAccountReference(
         label = "Test Xlm Account",

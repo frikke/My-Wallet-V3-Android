@@ -11,7 +11,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.gwei
 import com.blockchain.testutils.numberToBigDecimal
 import com.nhaarman.mockitokotlin2.any
@@ -46,7 +46,7 @@ class Erc20OnChainTxEngineTest : CoincoreTestBase() {
     private val feeManager: FeeDataManager = mock {
         on { getErc20FeeOptions("ETH", CONTRACT_ADDRESS) }.thenReturn(Observable.just(ethFeeOptions))
     }
-    private val walletPreferences: WalletStatus = mock {
+    private val walletPreferences: WalletStatusPrefs = mock {
         on { getFeeTypeForAsset(ASSET) }.thenReturn(FeeLevel.Regular.ordinal)
     }
 

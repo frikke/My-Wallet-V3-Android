@@ -2,11 +2,11 @@ package piuk.blockchain.android.ui.start
 
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 interface PasswordRequiredView : PasswordAuthView {
     fun restartPage()
@@ -16,7 +16,7 @@ interface PasswordRequiredView : PasswordAuthView {
 
 class PasswordRequiredPresenter(
     override val appUtil: AppUtil,
-    override val prefs: PersistentPrefs,
+    override val authPrefs: AuthPrefs,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
     override val remoteLogger: RemoteLogger
@@ -24,7 +24,7 @@ class PasswordRequiredPresenter(
 
     fun onContinueClicked(password: String) {
         if (password.length > 1) {
-            val guid = prefs.walletGuid
+            val guid = authPrefs.walletGuid
             verifyPassword(password, guid)
         } else {
             view?.apply {
@@ -36,7 +36,7 @@ class PasswordRequiredPresenter(
 
     fun checkEmailAuth(password: String) {
         if (password.isNotEmpty() && hasTimerStarted()) {
-            val guid = prefs.walletGuid
+            val guid = authPrefs.walletGuid
             waitForEmailAuth(password, guid)
         }
     }
@@ -46,7 +46,7 @@ class PasswordRequiredPresenter(
     }
 
     fun loadWalletGuid() {
-        view?.showWalletGuid(prefs.walletGuid)
+        view?.showWalletGuid(authPrefs.walletGuid)
     }
 
     fun onForgetWalletConfirmed() {

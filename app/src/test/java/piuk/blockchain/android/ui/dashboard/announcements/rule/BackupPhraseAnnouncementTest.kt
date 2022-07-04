@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.dashboard.announcements.rule
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Before
@@ -11,7 +11,7 @@ class BackupPhraseAnnouncementTest {
 
     private val dismissRecorder: DismissRecorder = mock()
     private val dismissEntry: DismissRecorder.DismissEntry = mock()
-    private val walletStatus: WalletStatus = mock()
+    private val walletStatusPrefs: WalletStatusPrefs = mock()
 
     private lateinit var subject: BackupPhraseAnnouncement
 
@@ -23,7 +23,7 @@ class BackupPhraseAnnouncementTest {
         subject =
             BackupPhraseAnnouncement(
                 dismissRecorder = dismissRecorder,
-                walletStatus = walletStatus
+                walletStatusPrefs = walletStatusPrefs
             )
     }
 
@@ -41,8 +41,8 @@ class BackupPhraseAnnouncementTest {
     @Test
     fun `should show, when not already shown`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
-        whenever(walletStatus.isWalletBackedUp).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletBackedUp).thenReturn(false)
 
         subject.shouldShow()
             .test()
@@ -54,8 +54,8 @@ class BackupPhraseAnnouncementTest {
     @Test
     fun `should not show, if wallet not funded`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(false)
-        whenever(walletStatus.isWalletBackedUp).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(false)
+        whenever(walletStatusPrefs.isWalletBackedUp).thenReturn(false)
 
         subject.shouldShow()
             .test()
@@ -67,8 +67,8 @@ class BackupPhraseAnnouncementTest {
     @Test
     fun `should not show, if wallet already backed up`() {
         whenever(dismissEntry.isDismissed).thenReturn(false)
-        whenever(walletStatus.isWalletFunded).thenReturn(true)
-        whenever(walletStatus.isWalletBackedUp).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletFunded).thenReturn(true)
+        whenever(walletStatusPrefs.isWalletBackedUp).thenReturn(true)
 
         subject.shouldShow()
             .test()

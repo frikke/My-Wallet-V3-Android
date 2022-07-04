@@ -132,7 +132,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BitpayAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -146,7 +146,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TwoFAAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get(),
+                walletStatusPrefs = get(),
                 walletSettings = get()
             )
         }.bind(AnnouncementRule::class)
@@ -162,7 +162,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BackupPhraseAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -184,7 +184,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TransferCryptoAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 

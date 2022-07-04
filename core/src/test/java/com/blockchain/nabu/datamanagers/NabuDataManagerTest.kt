@@ -23,7 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 class NabuDataManagerTest {
 
@@ -36,7 +36,7 @@ class NabuDataManagerTest {
     private val userReporter: NabuUserReporter = mock()
     private val walletReporter: WalletReporter = mock()
     private val digitalTrust: DigitalTrust = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
     private val appVersion = "6.23.2"
     private val deviceId = "DEVICE_ID"
     private val email = "EMAIL"

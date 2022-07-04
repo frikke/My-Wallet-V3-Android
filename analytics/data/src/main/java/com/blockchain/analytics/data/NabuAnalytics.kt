@@ -21,14 +21,14 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigDecimal
 import java.util.Date
 import java.util.Locale
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import piuk.blockchain.androidcore.utils.extensions.then
 import timber.log.Timber
 
 class NabuAnalytics(
     private val analyticsService: AnalyticsService,
-    private val prefs: Lazy<PersistentPrefs>,
+    private val prefs: Lazy<SessionPrefs>,
     private val localAnalyticsPersistence: AnalyticsLocalPersistence,
     private val remoteLogger: RemoteLogger,
     lifecycleObservable: LifecycleObservable,

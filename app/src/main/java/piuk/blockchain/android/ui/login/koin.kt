@@ -29,7 +29,7 @@ val loginUiModule = module {
             LoginInteractor(
                 authDataManager = get(),
                 payloadDataManager = get(),
-                prefs = get(),
+                authPrefs = get(),
                 appUtil = get()
             )
         }
@@ -48,8 +48,9 @@ val loginUiModule = module {
             LoginAuthInteractor(
                 authDataManager = get(),
                 payloadDataManager = get(),
-                prefs = get(),
-                accountUnificationFF = get(accountUnificationFeatureFlag)
+                authPrefs = get(),
+                accountUnificationFF = get(accountUnificationFeatureFlag),
+                walletStatusPrefs = get()
             )
         }
     }

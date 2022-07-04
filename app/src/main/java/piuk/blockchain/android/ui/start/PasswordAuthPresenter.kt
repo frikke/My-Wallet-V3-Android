@@ -7,6 +7,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
+import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.api.data.Settings
 import info.blockchain.wallet.exceptions.DecryptionException
 import info.blockchain.wallet.exceptions.HDWalletException
@@ -26,7 +27,6 @@ import piuk.blockchain.android.ui.base.MvpView
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import retrofit2.Response
 import timber.log.Timber
 
@@ -50,7 +50,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     protected abstract val appUtil: AppUtil
     protected abstract val authDataManager: AuthDataManager
     protected abstract val payloadDataManager: PayloadDataManager
-    protected abstract val prefs: PersistentPrefs
+    protected abstract val authPrefs: AuthPrefs
     protected abstract val remoteLogger: RemoteLogger
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -263,7 +263,7 @@ abstract class PasswordAuthPresenter<T : PasswordAuthView> : MvpPresenter<T>() {
     private fun attemptDecryptPayload(password: String, payload: String) {
         compositeDisposable += payloadDataManager.initializeFromPayload(payload, password)
             .doOnComplete {
-                prefs.apply {
+                authPrefs.apply {
                     sharedKey = payloadDataManager.wallet!!.sharedKey
                     walletGuid = payloadDataManager.wallet!!.guid
                     emailVerified = true

@@ -16,7 +16,7 @@ import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
@@ -38,7 +38,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
 class EthOnChainTxEngine(
     private val ethDataManager: EthDataManager,
     private val feeManager: FeeDataManager,
-    walletPreferences: WalletStatus,
+    walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
     resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(

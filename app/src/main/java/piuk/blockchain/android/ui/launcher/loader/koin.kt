@@ -16,11 +16,10 @@ val loaderModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 interactor = get(),
-                prefs = get(),
+                authPrefs = get(),
                 payloadDataManager = get(),
                 prerequisites = get(),
                 appUtil = get(),
-                authPrefs = get()
             )
         }
 
@@ -28,7 +27,6 @@ val loaderModule = module {
             LoaderInteractor(
                 walletPrefs = get(),
                 payloadDataManager = get(),
-                prefs = get(),
                 analytics = get(),
                 currencyPrefs = get(),
                 nabuUserDataManager = get(),

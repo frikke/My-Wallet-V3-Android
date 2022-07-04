@@ -9,7 +9,7 @@ import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -30,14 +30,14 @@ fun STUB_THIS(): Nothing = throw NotImplementedError("This method should be mock
 
 class OnChainTxEngineBaseTest : CoincoreTestBase() {
 
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val sourceAccount: CryptoAccount = mock()
     private val txTarget: TransactionTarget = mock()
     private val resolvedAddress: Single<String> = mock()
 
     private class OnChainTxEngineTestSubject(
         requireSecondPassword: Boolean,
-        walletPreferences: WalletStatus,
+        walletPreferences: WalletStatusPrefs,
         resolvedAddress: Single<String>
     ) : OnChainTxEngineBase(
         requireSecondPassword,

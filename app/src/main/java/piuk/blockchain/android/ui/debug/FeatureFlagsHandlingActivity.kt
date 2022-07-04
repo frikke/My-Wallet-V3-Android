@@ -16,6 +16,7 @@ import com.blockchain.logging.RemoteLogger
 import com.blockchain.preferences.AppMaintenancePrefs
 import com.blockchain.preferences.AppRatingPrefs
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.walletmode.WalletMode
@@ -31,7 +32,7 @@ import piuk.blockchain.android.ui.dashboard.announcements.DismissRecorder
 import piuk.blockchain.android.ui.referral.presentation.ReferralInviteNowSheet
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.access.PinRepository
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 // todo (gabor): revert this back to AppCompatActivity once trigger mechanism in place
 class FeatureFlagsHandlingActivity : BlockchainActivity() {
@@ -39,7 +40,8 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     private lateinit var binding: ActivityLocalFeatureFlagsBinding
     private val featureFlagHandler: FeatureFlagHandler by inject()
     private val compositeDisposable = CompositeDisposable()
-    private val prefs: PersistentPrefs by inject()
+    private val notificationPrefs: NotificationPrefs by inject()
+    private val sessionPrefs: SessionPrefs by inject()
     private val appUtils: AppUtil by inject()
     private val loginState: PinRepository by inject()
     private val remoteLogger: RemoteLogger by inject()
@@ -88,7 +90,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             btnResetPrefs.setOnClickListener { onResetPrefs() }
             btnComponentLib.setOnClickListener { onComponentLib() }
             deviceCurrency.text = "Select a new currency. Current one is ${currencyPrefs.selectedFiatCurrency}"
-            firebaseToken.text = prefs.firebaseToken
+            firebaseToken.text = notificationPrefs.firebaseToken
 
             radioDefi.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
@@ -193,7 +195,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
     }
 
     private fun onRndDeviceId() {
-        prefs.qaRandomiseDeviceId = true
+        sessionPrefs.qaRandomiseDeviceId = true
         showSnackbar("Device ID randomisation enabled")
     }
 
@@ -206,13 +208,13 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
         val announcementList: AnnouncementList by scopedInject()
         val dismissRecorder: DismissRecorder by scopedInject()
 
-        dismissRecorder.undismissAll(announcementList)
+        dismissRecorder.reinstateAllAnnouncements(announcementList)
 
         showSnackbar("Announcement reset")
     }
 
     private fun onResetPrefs() {
-        prefs.clear()
+        sessionPrefs.clear()
 
         remoteLogger.logEvent("debug clear prefs. Pin reset")
         loginState.clearPin()

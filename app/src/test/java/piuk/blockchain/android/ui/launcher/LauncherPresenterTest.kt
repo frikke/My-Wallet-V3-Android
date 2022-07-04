@@ -4,6 +4,8 @@ import android.content.Intent
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.ReferralPrefs
+import com.blockchain.preferences.SecurityPrefs
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -14,18 +16,22 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import piuk.blockchain.android.maintenance.domain.usecase.GetAppMaintenanceConfigUseCase
 import piuk.blockchain.android.util.AppUtil
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 
 @RunWith(MockitoJUnitRunner::class)
 class LauncherPresenterTest {
 
     private val launcherActivity: LauncherView = mock()
-    private val prefsUtil: PersistentPrefs = mock()
     private val deepLinkPersistence: DeepLinkPersistence = mock()
     private val environmentConfig: EnvironmentConfig = mock()
     private val appUtil: AppUtil = mock()
     private val viewIntentData: ViewIntentData = mock()
+    private val sessionPrefs: SessionPrefs = mock()
     private val authPrefs: AuthPrefs = mock()
+    private val securityPrefs: SecurityPrefs = mock()
+    private val referralPrefs: ReferralPrefs = mock()
+    private val encryptedPrefs: EncryptedPrefs = mock()
 
     private val getAppMaintenanceConfigUseCase: GetAppMaintenanceConfigUseCase = mock()
     private val appMaintenanceFF: FeatureFlag = mock {
@@ -34,12 +40,15 @@ class LauncherPresenterTest {
 
     private val subject = LauncherPresenter(
         appUtil,
-        prefsUtil,
         deepLinkPersistence,
         environmentConfig,
         authPrefs,
         getAppMaintenanceConfigUseCase,
-        appMaintenanceFF
+        appMaintenanceFF,
+        sessionPrefs,
+        securityPrefs,
+        referralPrefs,
+        encryptedPrefs
     )
 
     @Test
@@ -52,13 +61,13 @@ class LauncherPresenterTest {
         }
         whenever(launcherActivity.getViewIntentData()).thenReturn(bitcoinUriData)
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
+        whenever(authPrefs.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
         // Assert
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_SCHEME_URL, "bitcoin uri")
+        verify(sessionPrefs).keySchemeUrl = "bitcoin uri"
     }
 
     @Test
@@ -70,21 +79,21 @@ class LauncherPresenterTest {
         }
         whenever(launcherActivity.getViewIntentData()).thenReturn(metadata)
         whenever(authPrefs.walletGuid).thenReturn("")
-        whenever(prefsUtil.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
 
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
 
         // Assert
-        verify(prefsUtil).setValue(PersistentPrefs.KEY_METADATA_URI, "blockchain")
+        verify(sessionPrefs).metadataUri = "blockchain"
     }
 
     @Test
     fun onViewAttached_notValidGuid_callsOnCorruptPayload() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
+        whenever(authPrefs.pinId).thenReturn(PIN_ID)
         whenever(authPrefs.walletGuid).thenReturn(INVALID_WALLET_GUID)
 
         // Act
@@ -99,9 +108,9 @@ class LauncherPresenterTest {
     fun onViewAttached_noGuidAndNoPinId_callsOnRequestPin() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(false)
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn(PIN_ID)
+        whenever(authPrefs.pinId).thenReturn(PIN_ID)
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
@@ -114,9 +123,9 @@ class LauncherPresenterTest {
     fun onViewAttached_isLoggedOut_callsOnReenterPassword() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(false)
         whenever(authPrefs.walletGuid).thenReturn(WALLET_GUID)
-        whenever(prefsUtil.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
@@ -129,9 +138,9 @@ class LauncherPresenterTest {
     fun onViewAttached_noGuidAndNoBackup_callsOnNoGuid() {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(false)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(false)
         whenever(authPrefs.walletGuid).thenReturn("")
-        whenever(prefsUtil.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
         // Act
         subject.attachView(launcherActivity)
         subject.resumeAppFlow()
@@ -144,9 +153,9 @@ class LauncherPresenterTest {
     fun onViewAttached_noGuidAndBackup_callsOnRequestPin() = runBlocking {
         // Arrange
         whenever(launcherActivity.getViewIntentData()).thenReturn(viewIntentData)
-        whenever(prefsUtil.hasBackup()).thenReturn(true)
+        whenever(encryptedPrefs.hasBackup()).thenReturn(true)
         whenever(authPrefs.walletGuid).thenReturn("")
-        whenever(prefsUtil.pinId).thenReturn("")
+        whenever(authPrefs.pinId).thenReturn("")
 
         // Act
         subject.attachView(launcherActivity)
