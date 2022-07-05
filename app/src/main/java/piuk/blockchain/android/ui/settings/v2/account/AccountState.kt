@@ -35,6 +35,7 @@ sealed class BlockchainCardOrderState {
 data class AccountInformation(
     val walletId: String,
     val userCurrency: FiatCurrency,
+    val isChartVibrationEnabled: Boolean
 )
 
 enum class AccountError {

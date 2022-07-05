@@ -60,6 +60,7 @@ class ChartView : FrameLayout {
     var onActionPressDown: (() -> Unit)? = null
     var onScrubRelease: (() -> Unit)? = null
     var fiatSymbol: String = ""
+    var shouldVibrate: Boolean = true
 
     private var isBlockingScroll = false
     private var currentEvent: MotionEvent? = null
@@ -114,7 +115,9 @@ class ChartView : FrameLayout {
             selectedEntry?.let {
                 onEntryHighlighted?.invoke(it)
 
-                VibrationManager.vibrate(context)
+                if (shouldVibrate) {
+                    VibrationManager.vibrate(context)
+                }
             }
             setEntryData(entries)
         }

@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.settings.account
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.testutils.EUR
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -26,6 +27,7 @@ class AccountInteractorTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val exchangeLinkingState: ExchangeLinking = mock()
     private val blockchainCardRepository: BlockchainCardRepository = mock()
+    private val localSettingsPrefs: LocalSettingsPrefs = mock()
 
     @Before
     fun setup() {
@@ -34,7 +36,8 @@ class AccountInteractorTest {
             exchangeRates = exchangeRates,
             currencyPrefs = currencyPrefs,
             exchangeLinkingState = exchangeLinkingState,
-            blockchainCardRepository = blockchainCardRepository
+            blockchainCardRepository = blockchainCardRepository,
+            localSettingsPrefs = localSettingsPrefs
         )
     }
 
@@ -42,20 +45,25 @@ class AccountInteractorTest {
     fun getWalletInfo() {
         val mockGuid = "12345"
         val currencyCode = "EUR"
+        val chartVibrationEnabled = true
         val settingsMock: Settings = mock {
             on { guid }.thenReturn(mockGuid)
             on { currency }.thenReturn(currencyCode)
         }
         whenever(settingsDataManager.getSettings()).thenReturn(Observable.just(settingsMock))
+        whenever(localSettingsPrefs.isChartVibrationEnabled).thenReturn(chartVibrationEnabled)
 
         val observable = interactor.getWalletInfo().test()
         observable.assertValue {
             it.walletId == mockGuid &&
-                it.userCurrency.displayTicker == currencyCode
+                it.userCurrency.displayTicker == currencyCode &&
+                it.isChartVibrationEnabled == chartVibrationEnabled
         }
 
         verify(settingsDataManager).getSettings()
+        verify(localSettingsPrefs).isChartVibrationEnabled
         verifyNoMoreInteractions(settingsDataManager)
+        verifyNoMoreInteractions(localSettingsPrefs)
     }
 
     @Test

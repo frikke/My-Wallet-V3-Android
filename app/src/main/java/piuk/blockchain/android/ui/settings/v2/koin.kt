@@ -201,7 +201,8 @@ val redesignSettingsModule = module {
                 exchangeRates = get(),
                 blockchainCardRepository = get(),
                 currencyPrefs = get(),
-                exchangeLinkingState = get()
+                exchangeLinkingState = get(),
+                localSettingsPrefs = get()
             )
         }
 

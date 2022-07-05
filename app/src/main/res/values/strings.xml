@@ -2582,6 +2582,8 @@
     <string name="settings_notification_error_details">There was a problem fetching your notifications settings. Please reload or try again later.</string>
     <string name="settings_notification_error_back">Go Back</string>
     <string name="settings_notification_required">%s (required)</string>
+    <string name="settings_chart_vibration">Asset Price Chart</string>
+    <string name="settings_chart_vibration_desc">Toggle chart vibration</string>
 
     <!-- Account screen -->
     <string name="account_toolbar">Account</string>

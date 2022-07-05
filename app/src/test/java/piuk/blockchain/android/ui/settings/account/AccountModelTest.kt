@@ -25,7 +25,7 @@ class AccountModelTest {
 
     private lateinit var model: AccountModel
     private var defaultState = AccountState(
-        accountInformation = AccountInformation("1234", EUR)
+        accountInformation = AccountInformation("1234", EUR, false)
     )
 
     private val environmentConfig: EnvironmentConfig = mock {
@@ -149,6 +149,23 @@ class AccountModelTest {
                 it == defaultState
             }.assertValueAt(1) {
                 it.errorState == AccountError.ACCOUNT_FIAT_UPDATE_FAIL
+            }
+    }
+
+    @Test
+    fun toggleChartVibration() {
+        val expectedReturn = !defaultState.accountInformation?.isChartVibrationEnabled!!
+        whenever(interactor.toggleChartVibration(defaultState.accountInformation?.isChartVibrationEnabled!!))
+            .thenReturn(Single.just(expectedReturn))
+
+        val testState = model.state.test()
+        model.process(AccountIntent.ToggleChartVibration)
+
+        testState
+            .assertValueAt(0) {
+                it == defaultState
+            }.assertValueAt(1) {
+                it.accountInformation?.isChartVibrationEnabled == expectedReturn
             }
     }
 }

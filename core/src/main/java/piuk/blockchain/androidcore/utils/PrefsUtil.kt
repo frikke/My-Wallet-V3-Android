@@ -17,6 +17,7 @@ import com.blockchain.preferences.BrowserIdentity
 import com.blockchain.preferences.BrowserIdentityMapping
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -67,7 +68,8 @@ class PrefsUtil(
     AppMaintenancePrefs,
     AppRatingPrefs,
     NftAnnouncementPrefs,
-    ReferralPrefs {
+    ReferralPrefs,
+    LocalSettingsPrefs {
 
     private var isUnderAutomationTesting = false // Don't persist!
 
@@ -644,6 +646,11 @@ class PrefsUtil(
         get() = getValue(REFERRAL_SUCCESS_BODY, "")
         set(value) = setValue(REFERRAL_SUCCESS_BODY, value)
 
+    override var isChartVibrationEnabled: Boolean
+        get() = getValue(CHART_VIBRATION_ENABLED, true)
+        set(value) = setValue(CHART_VIBRATION_ENABLED, value)
+
+    // Session prefs
     override var qaRandomiseDeviceId: Boolean
         get() = getValue(KEY_IS_DEVICE_ID_RANDOMISED, false)
         set(value) = setValue(KEY_IS_DEVICE_ID_RANDOMISED, value)
@@ -660,7 +667,6 @@ class PrefsUtil(
     override fun getLegacyDismissalEntry(key: String): Boolean =
         getValue(key, false)
 
-    // Session prefs
     /**
      * Clears everything but the GUID for logging back in and the deviceId - for pre-IDV checking
      */
@@ -804,6 +810,9 @@ class PrefsUtil(
         private const val REFERRAL_ICON_CLICKED = "REFERRAL_ICON_CLICKED"
         private const val REFERRAL_SUCCESS_TITLE = "REFERRAL_SUCCESS_TITLE"
         private const val REFERRAL_SUCCESS_BODY = "REFERRAL_SUCCESS_BODY"
+
+        // Local Settings
+        private const val CHART_VIBRATION_ENABLED = "CHART_VIBRATION_ENABLED"
 
         // Session
         private const val KEY_EMAIL_VERIFIED = "code_verified"

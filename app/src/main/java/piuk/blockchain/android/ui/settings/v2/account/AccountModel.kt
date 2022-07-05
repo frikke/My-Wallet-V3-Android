@@ -80,6 +80,21 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_FIAT_UPDATE_FAIL))
                     }
                 )
+            AccountIntent.ToggleChartVibration -> {
+                previousState.accountInformation?.let { info ->
+                    interactor.toggleChartVibration(
+                        info.isChartVibrationEnabled
+                    ).subscribeBy(
+                        onSuccess = { enabled ->
+                            process(AccountIntent.UpdateChartVibration(enabled))
+                        },
+                        onError = {
+                            Timber.e("Error updating chart toggle")
+                        }
+                    )
+                }
+            }
+            is AccountIntent.UpdateChartVibration,
             is AccountIntent.UpdateAccountInformation,
             is AccountIntent.UpdateErrorState,
             is AccountIntent.ResetViewState,

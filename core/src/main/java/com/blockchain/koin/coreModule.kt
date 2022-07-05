@@ -67,6 +67,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -546,6 +547,7 @@ val coreModule = module {
         bind(AppRatingPrefs::class)
         bind(NftAnnouncementPrefs::class)
         bind(ReferralPrefs::class)
+        bind(LocalSettingsPrefs::class)
     }
 
     factory {
