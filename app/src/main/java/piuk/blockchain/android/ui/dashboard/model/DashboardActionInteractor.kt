@@ -62,7 +62,9 @@ import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
+import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
@@ -424,6 +426,9 @@ class DashboardActionInteractor(
         val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
 
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
+
+        analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
+
         when {
             eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                 Single.just(
@@ -634,6 +639,9 @@ class DashboardActionInteractor(
                 it.filter { bank -> bank.currency == sourceAccount.currency }
             }
         ).flatMap { (eligibility, paymentMethods, linkedBanks) ->
+
+            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
+
             when {
                 eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                     Single.just(

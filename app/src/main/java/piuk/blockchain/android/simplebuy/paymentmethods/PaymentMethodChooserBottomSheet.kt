@@ -14,8 +14,10 @@ import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.SimpleBuyPaymentMethodChooserBinding
 import piuk.blockchain.android.simplebuy.BankTransferViewed
+import piuk.blockchain.android.simplebuy.BuyMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.paymentMethodsShown
 import piuk.blockchain.android.simplebuy.toAnalyticsString
+import piuk.blockchain.android.simplebuy.toPaymentTypeAnalyticsString
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
@@ -80,6 +82,9 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
         }
 
         analytics.logEvent(paymentMethodsShown(paymentMethods.map { it.toAnalyticsString() }.joinToString { "," }))
+        if (isShowingPaymentMethods) {
+            analytics.logEvent(BuyMethodOptionsViewed(paymentMethods.map { it.toPaymentTypeAnalyticsString() }))
+        }
 
         if (paymentMethods.any { it is PaymentMethod.UndefinedBankTransfer }) {
             analytics.logEvent(BankTransferViewed(fiatCurrency = fiatCurrency))
