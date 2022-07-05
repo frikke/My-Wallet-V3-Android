@@ -90,11 +90,11 @@ fun WalletModesDialogContent(
             secondaryText = (portfolioBalanceState as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty(),
             startImageResource = ImageResource.Local(R.drawable.ic_portfolio),
             onClick = { onItemClicked(WalletMode.CUSTODIAL_ONLY) },
-            endImageResource = if (selectedMode == WalletMode.CUSTODIAL_ONLY) ImageResource.Local(
-                R.drawable.ic_wallet_mode_selected
-            ) else ImageResource.Local(
-                id = com.blockchain.componentlib.R.drawable.ic_chevron_end
-            )
+            endImageResource = if (selectedMode == WalletMode.CUSTODIAL_ONLY) {
+                ImageResource.Local(R.drawable.ic_wallet_mode_selected)
+            } else {
+                ImageResource.Local(R.drawable.ic_chevron_end)
+            }
         )
 
         if (showEnableDeFiMessage) {
@@ -107,11 +107,11 @@ fun WalletModesDialogContent(
                 secondaryText = (defiWalletBalance as? BalanceState.Data)?.money?.toStringWithSymbol().orEmpty(),
                 startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
                 onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) },
-                endImageResource = if (selectedMode == WalletMode.NON_CUSTODIAL_ONLY) ImageResource.Local(
-                    R.drawable.ic_wallet_mode_selected
-                ) else ImageResource.Local(
-                    id = com.blockchain.componentlib.R.drawable.ic_chevron_end
-                )
+                endImageResource = if (selectedMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    ImageResource.Local(R.drawable.ic_wallet_mode_selected)
+                } else {
+                    ImageResource.Local(R.drawable.ic_chevron_end)
+                }
             )
         }
     }
@@ -126,8 +126,7 @@ fun EnableDeFiTableRow(
         secondaryText = stringResource(R.string.defi_onboarding_enable_wallet_title),
         paragraphText = stringResource(R.string.defi_onboarding_enable_wallet_description),
         startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
-        onClick = onClick,
-        endImageResource = ImageResource.Local(com.blockchain.componentlib.R.drawable.ic_chevron_end)
+        onClick = onClick
     )
 }
 
