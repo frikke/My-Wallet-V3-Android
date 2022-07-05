@@ -178,10 +178,10 @@
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="@dimen/tiny_margin"
                 android:layout_marginEnd="@dimen/standard_margin"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/on_hold_cell"
-                android:visibility="gone"/>
+                app:layout_constraintTop_toBottomOf="@id/on_hold_cell" />
 
             <com.blockchain.componentlib.alert.CardAlertView
                 android:id="@+id/domains_alert"
@@ -227,16 +227,12 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/cta_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_margin="@dimen/standard_margin"
         android:contentDescription="@string/next"
-        android:enabled="false"
-        android:text="@string/next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

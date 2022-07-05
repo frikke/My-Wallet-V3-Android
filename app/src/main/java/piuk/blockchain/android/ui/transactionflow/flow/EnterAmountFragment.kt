@@ -14,6 +14,7 @@ import com.blockchain.coincore.FeeLevel
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.PendingTx
 import com.blockchain.coincore.SingleAccount
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.ExchangeRate
@@ -95,6 +96,11 @@ class EnterAmountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.amountSheetCtaButton.apply {
+            buttonState = ButtonState.Disabled
+            text = getString(R.string.common_preview)
+        }
+
         compositeDisposable += binding.amountSheetInput.amount
             .debounce(AMOUNT_DEBOUNCE_TIME_MS, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -161,11 +167,9 @@ class EnterAmountFragment :
 
         with(binding) {
 
-            with(amountSheetCtaButton) {
-                isEnabled = newState.nextEnabled
-                setOnClickListener {
-                    onCtaClick(newState)
-                }
+            amountSheetCtaButton.apply {
+                buttonState = if (newState.nextEnabled) ButtonState.Enabled else ButtonState.Disabled
+                onClick = { onCtaClick(newState) }
                 text = customiser.enterAmountCtaText(newState)
             }
 

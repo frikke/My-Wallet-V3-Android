@@ -91,9 +91,12 @@ class FeeSelectionBottomSheet :
                 getString(R.string.fee_options_priority_time)
             )
 
-            feeCustomContinue.setOnClickListener {
-                hideKeyboard()
-                dismiss()
+            feeCustomContinue.apply {
+                text = getString(R.string.btn_continue)
+                onClick = {
+                    hideKeyboard()
+                    dismiss()
+                }
             }
         }
     }

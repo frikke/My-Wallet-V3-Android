@@ -65,14 +65,11 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/add_method"/>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.blockchain.componentlib.button.MinimalButtonView
         android:id="@+id/add_method"
-        style="@style/CtaButton.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/add_payment_method"
+        android:layout_margin="@dimen/standard_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

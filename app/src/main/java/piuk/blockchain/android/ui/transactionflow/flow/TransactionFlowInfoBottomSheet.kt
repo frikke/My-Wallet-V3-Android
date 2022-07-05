@@ -7,7 +7,6 @@ import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.bumptech.glide.Glide
-import java.lang.IllegalStateException
 import piuk.blockchain.android.databinding.TxFlowInfoBottomSheetLayoutBinding
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 
@@ -29,11 +28,11 @@ class TransactionFlowInfoBottomSheet : SlidingModalBottomDialog<TxFlowInfoBottom
 
             info.action?.let {
                 infoActionContainer.visible()
-                actionCta.text = it.ctaActionText
                 actionDescription.text = it.description
                 actionTitle.text = it.title
-                actionCta.setOnClickListener {
-                    (host as? TransactionFlowInfoHost)?.onActionInfoTriggered()
+                actionCta.apply {
+                    text = it.ctaActionText
+                    onClick = { (host as? TransactionFlowInfoHost)?.onActionInfoTriggered() }
                 }
                 Glide.with(requireActivity()).load(it.icon).into(actionIcon)
             } ?: kotlin.run {
