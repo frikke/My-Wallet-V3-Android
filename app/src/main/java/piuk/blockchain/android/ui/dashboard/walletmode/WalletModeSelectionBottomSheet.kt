@@ -26,7 +26,6 @@ import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
-import com.blockchain.walletmode.WalletMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -39,16 +38,6 @@ class WalletModeSelectionBottomSheet :
     MVIBottomSheet<WalletModeSelectionViewState>(),
     NavigationRouter<WalletModeSelectionNavigationEvent>,
     AndroidScopeComponent {
-    interface Host {
-        fun onActiveModeChanged(
-            walletMode: WalletMode,
-        )
-    }
-
-    val host: Host by lazy {
-        activity as? Host
-            ?: throw IllegalStateException("Host activity is not a WalletModeSelectionBottomSheet.Host")
-    }
 
     override val scope: Scope
         get() = payloadScope
@@ -116,7 +105,6 @@ class WalletModeSelectionBottomSheet :
             }
 
             is WalletModeSelectionNavigationEvent.Close -> {
-                host.onActiveModeChanged(navigationEvent.walletMode)
                 dismiss()
             }
         }.exhaustive
