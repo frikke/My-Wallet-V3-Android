@@ -181,20 +181,27 @@ fun BlockchainCardNavHost(
                     cardStatus = card.status,
                     onSeePersonalDetails = { viewModel.onIntent(BlockchainCardIntent.SeePersonalDetails) },
                     onSeeTransactionControls = { viewModel.onIntent(BlockchainCardIntent.SeeTransactionControls) },
-                    onSeeSupport = { viewModel.onIntent(BlockchainCardIntent.SeeSupport) }
+                    onSeeSupport = { viewModel.onIntent(BlockchainCardIntent.SeeSupport) },
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                 )
             }
         }
 
         bottomSheet(BlockchainCardDestination.ChoosePaymentMethodDestination) {
             state?.let {
-                AccountPicker(it.eligibleTradingAccountBalances) { accountCurrencyNetworkTicker ->
-                    viewModel.onIntent(
-                        BlockchainCardIntent.LinkSelectedAccount(
-                            accountCurrencyNetworkTicker = accountCurrencyNetworkTicker
+                AccountPicker(
+                    eligibleTradingAccountBalances = it.eligibleTradingAccountBalances,
+                    onAccountSelected = { accountCurrencyNetworkTicker ->
+                        viewModel.onIntent(
+                            BlockchainCardIntent.LinkSelectedAccount(
+                                accountCurrencyNetworkTicker = accountCurrencyNetworkTicker
+                            )
                         )
-                    )
-                }
+                    },
+                    onCloseBottomSheet = {
+                        viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                    }
+                )
             }
         }
 
@@ -203,9 +210,8 @@ fun BlockchainCardNavHost(
                 PersonalDetails(
                     firstAndLastName = state.userFirstAndLastName,
                     shortAddress = state.residentialAddress?.getShortAddress(),
-                    onCheckBillingAddress = {
-                        viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress)
-                    }
+                    onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                 )
             }
         }
@@ -216,31 +222,49 @@ fun BlockchainCardNavHost(
                     address = address,
                     onUpdateAddress = { newAddress ->
                         viewModel.onIntent(BlockchainCardIntent.UpdateBillingAddress(newAddress = newAddress))
-                    }
+                    },
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
                 )
             }
         }
 
         bottomSheet(BlockchainCardDestination.BillingAddressUpdateSuccessDestination) {
-            BillingAddressUpdated(success = true, onDismiss = {
-                viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
-            })
+            BillingAddressUpdated(
+                success = true,
+                onDismiss = {
+                    viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
+                },
+                onCloseBottomSheet = {
+                    viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                }
+            )
         }
 
         bottomSheet(BlockchainCardDestination.BillingAddressUpdateFailedDestination) {
-            BillingAddressUpdated(success = false, onDismiss = {
-                viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
-            })
+            BillingAddressUpdated(
+                success = false,
+                onDismiss = {
+                    viewModel.onIntent(BlockchainCardIntent.DismissBillingAddressUpdateResult)
+                },
+                onCloseBottomSheet = {
+                    viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                }
+            )
         }
 
         bottomSheet(BlockchainCardDestination.TransactionControlsDestination) {
-            TransactionControls()
+            TransactionControls(onCloseBottomSheet = {
+                viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+            })
         }
 
         bottomSheet(BlockchainCardDestination.SupportDestination) {
             Support(
                 onCloseCard = {
                     viewModel.onIntent(BlockchainCardIntent.CloseCard)
+                },
+                onCloseBottomSheet = {
+                    viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                 }
             )
         }
@@ -251,6 +275,9 @@ fun BlockchainCardNavHost(
                     last4digits = last4,
                     onConfirmCloseCard = {
                         viewModel.onIntent(BlockchainCardIntent.ConfirmCloseCard)
+                    },
+                    onCloseBottomSheet = {
+                        viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
                     }
                 )
             }
@@ -258,7 +285,21 @@ fun BlockchainCardNavHost(
 
         bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
             state?.selectedCardTransaction?.let { transaction ->
-                CardTransactionDetails(cardTransaction = transaction)
+                CardTransactionDetails(
+                    cardTransaction = transaction,
+                    onCloseBottomSheet = {
+                        viewModel.onIntent(BlockchainCardIntent.HideBottomSheet)
+                    }
+                )
+            }
+        }
+
+        bottomSheet(BlockchainCardDestination.TransactionDetailsDestination) {
+            state?.selectedCardTransaction?.let { transaction ->
+                CardTransactionDetails(
+                    cardTransaction = transaction,
+                    onCloseBottomSheet = { viewModel.onIntent(BlockchainCardIntent.HideBottomSheet) }
+                )
             }
         }
     }

@@ -67,7 +67,6 @@ import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
 import piuk.blockchain.android.urllinks.TRADING_ACCOUNT_LOCKS
 import piuk.blockchain.android.urllinks.URL_OPEN_BANKING_PRIVACY_POLICY
 import piuk.blockchain.android.util.StringAnnotationClickEvent
-import piuk.blockchain.android.util.StringLocalizationUtil.Companion.getCashWalletName
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
@@ -455,7 +454,7 @@ class SimpleBuyCheckoutFragment :
             when (paymentMethodType) {
                 PaymentMethodType.FUNDS -> SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     label = getString(R.string.payment_method),
-                    title = getString(getCashWalletName(state.fiatCurrency)),
+                    title = state.fiatCurrency.name,
                     hasChanged = false
                 )
                 PaymentMethodType.BANK_TRANSFER,
@@ -757,7 +756,9 @@ class SimpleBuyCheckoutFragment :
 
     override fun onDestroy() {
         compositeDisposable.clear()
-        countDownTimer.cancel()
+        if (::countDownTimer.isInitialized) {
+            countDownTimer.cancel()
+        }
         super.onDestroy()
     }
 

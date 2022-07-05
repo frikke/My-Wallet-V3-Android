@@ -11,6 +11,8 @@ import com.blockchain.utils.toFormattedString
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.Currency
+import java.util.Locale
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ItemListInfoRowBinding
 import piuk.blockchain.android.simplebuy.toHumanReadableRecurringBuy
@@ -42,7 +44,6 @@ import piuk.blockchain.android.ui.activity.detail.TotalCostAmount
 import piuk.blockchain.android.ui.activity.detail.TransactionId
 import piuk.blockchain.android.ui.activity.detail.XlmMemo
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
-import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.context
 
 class ActivityDetailInfoItemDelegate<in T>(
@@ -179,7 +180,7 @@ private class InfoItemViewHolder(
             is BuyCryptoWallet -> context.getString(
                 R.string.custodial_wallet_default_label_2, infoType.crypto.displayTicker
             )
-            is SellCryptoWallet -> context.getString(StringLocalizationUtil.getCashWalletName(infoType.currency))
+            is SellCryptoWallet -> infoType.currency.name
             is SellPurchaseAmount -> infoType.value.toStringWithSymbol()
             is BuyPaymentMethod -> {
                 with(infoType.paymentDetails) {
@@ -212,7 +213,7 @@ private class InfoItemViewHolder(
                         }
                         paymentMethodId == PaymentMethod.FUNDS_PAYMENT_ID -> {
                             label?.let {
-                                context.getString(StringLocalizationUtil.getCashWalletName(it))
+                                Currency.getInstance(label).getDisplayName(Locale.getDefault())
                             } ?: ""
                         }
                         mobilePaymentType == MobilePaymentType.GOOGLE_PAY -> {

@@ -23,7 +23,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetActivityDetailsBinding
 import piuk.blockchain.android.ui.activity.detail.adapter.FiatDetailsSheetAdapter
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
-import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActivityDetailsBinding>() {
@@ -152,7 +151,7 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
         return when {
             mobilePaymentType?.equals(MobilePaymentType.GOOGLE_PAY) == true -> getString(R.string.google_pay)
             mobilePaymentType?.equals(MobilePaymentType.APPLE_PAY) == true -> getString(R.string.apple_pay)
-            label.isNullOrBlank() -> getString(StringLocalizationUtil.getCashWalletName(currency))
+            label.isNullOrBlank() -> currency.name
             else -> """${this.label} ${this.endDigits}"""
         }
     }

@@ -14,6 +14,7 @@ import com.blockchain.nabu.datamanagers.RecurringBuyFailureReason
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
 import com.blockchain.nabu.models.data.RecurringBuyState
 import info.blockchain.balance.AssetInfo
+import info.blockchain.balance.Currency
 import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Scheduler
@@ -63,7 +64,7 @@ data class TransactionId(val txId: String) : ActivityDetailsType(), Copyable {
 
 data class BuyCryptoWallet(val crypto: AssetInfo) : ActivityDetailsType()
 data class RecurringBuyFrequency(val frequency: RecurringBuyFrequency, val nextPayment: Date) : ActivityDetailsType()
-data class SellCryptoWallet(val currency: String) : ActivityDetailsType()
+data class SellCryptoWallet(val currency: Currency) : ActivityDetailsType()
 data class BuyPaymentMethod(val paymentDetails: PaymentDetails) : ActivityDetailsType()
 data class SwapReceiveAmount(val receivedAmount: Money) : ActivityDetailsType()
 data class XlmMemo(val memo: String) : ActivityDetailsType()
