@@ -304,6 +304,7 @@ fun ManageCardDetails(
     onSeePersonalDetails: () -> Unit,
     onSeeTransactionControls: () -> Unit,
     onSeeSupport: () -> Unit,
+    onCloseBottomSheet: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -313,7 +314,7 @@ fun ManageCardDetails(
 
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.manage_card),
             shouldShowDivider = false
         )
@@ -387,7 +388,7 @@ fun ManageCardDetails(
 @Composable
 @Preview(showBackground = true)
 private fun PreviewManageCardDetails() {
-    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {})
+    ManageCardDetails("***3458", {}, BlockchainCardStatus.ACTIVE, {}, {}, {}, {})
 }
 
 @Composable
@@ -421,14 +422,14 @@ fun CardTransactionList(
 }
 
 @Composable
-fun TransactionControls() {
+fun TransactionControls(onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.transaction_controls),
             shouldShowDivider = false
         )
@@ -464,18 +465,23 @@ fun TransactionControls() {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewTransactionControls() {
-    TransactionControls()
+    TransactionControls({})
 }
 
 @Composable
-fun PersonalDetails(firstAndLastName: String?, shortAddress: String?, onCheckBillingAddress: () -> Unit) {
+fun PersonalDetails(
+    firstAndLastName: String?,
+    shortAddress: String?,
+    onCheckBillingAddress: () -> Unit,
+    onCloseBottomSheet: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(id = R.string.personal_details),
             shouldShowDivider = false
         )
@@ -510,11 +516,15 @@ fun PersonalDetails(firstAndLastName: String?, shortAddress: String?, onCheckBil
 @Composable
 @Preview(showBackground = true)
 private fun PreviewPersonalDetails() {
-    PersonalDetails("John Smith", "614 Lorimer Street, Sacramento CA", {})
+    PersonalDetails("John Smith", "614 Lorimer Street, Sacramento CA", {}, {})
 }
 
 @Composable
-fun BillingAddress(address: BlockchainCardAddress, onUpdateAddress: (BlockchainCardAddress) -> Unit) {
+fun BillingAddress(
+    address: BlockchainCardAddress,
+    onUpdateAddress: (BlockchainCardAddress) -> Unit,
+    onCloseBottomSheet: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -541,7 +551,7 @@ fun BillingAddress(address: BlockchainCardAddress, onUpdateAddress: (BlockchainC
 
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.billing_address),
             shouldShowDivider = false
         )
@@ -685,9 +695,17 @@ fun BillingAddress(address: BlockchainCardAddress, onUpdateAddress: (BlockchainC
         }
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
+        val isFormValid = (
+            addressLine1.isNotEmpty() &&
+                city.isNotEmpty() &&
+                state.isNotEmpty() &&
+                postalCode.isNotEmpty()
+            )
+
         // Save
         PrimaryButton(
             text = stringResource(R.string.save),
+            state = if (isFormValid) ButtonState.Enabled else ButtonState.Disabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -724,12 +742,13 @@ private fun PreviewBillingAddress() {
             state = "CA",
             country = "USA"
         ),
-        onUpdateAddress = {}
+        onUpdateAddress = {},
+        onCloseBottomSheet = {}
     )
 }
 
 @Composable
-fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit) {
+fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit, onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -738,7 +757,7 @@ fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit) {
     ) {
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.billing_address),
             shouldShowDivider = false
         )
@@ -768,7 +787,7 @@ fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewBillingAddressUpdated() {
-    BillingAddressUpdated(success = true, onDismiss = {})
+    BillingAddressUpdated(success = true, onDismiss = {}, onCloseBottomSheet = {})
 }
 
 @Composable
@@ -844,14 +863,14 @@ private fun PreviewBillingAddressUpdatedError() {
 }
 
 @Composable
-fun Support(onCloseCard: () -> Unit) {
+fun Support(onCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(id = R.string.support),
             shouldShowDivider = false
         )
@@ -903,11 +922,11 @@ fun Support(onCloseCard: () -> Unit) {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewSupport() {
-    Support({})
+    Support({}, {})
 }
 
 @Composable
-fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit) {
+fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit, onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -916,7 +935,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit) {
     ) {
         // Header
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(id = R.string.close_card),
             shouldShowDivider = false
         )
@@ -1006,7 +1025,7 @@ fun CloseCard(last4digits: String, onConfirmCloseCard: () -> Unit) {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewCloseCard() {
-    CloseCard("1234", {})
+    CloseCard("1234", {}, {})
 }
 
 @Composable
@@ -1058,6 +1077,7 @@ private fun PreviewCardDetailsBottomSheetElement() {
 fun AccountPicker(
     eligibleTradingAccountBalances: MutableList<AccountBalance>,
     onAccountSelected: (String) -> Unit,
+    onCloseBottomSheet: () -> Unit,
 ) {
     val backgroundColor = if (!isSystemInDarkTheme()) {
         Color.White
@@ -1071,7 +1091,11 @@ fun AccountPicker(
             .fillMaxWidth()
             .background(backgroundColor)
     ) {
-        SheetHeader(onClosePress = { /*TODO*/ }, title = stringResource(R.string.spend_from), shouldShowDivider = false)
+        SheetHeader(
+            onClosePress = onCloseBottomSheet,
+            title = stringResource(R.string.spend_from),
+            shouldShowDivider = false
+        )
         AccountsContent(eligibleTradingAccountBalances, onAccountSelected)
     }
 }
@@ -1212,13 +1236,13 @@ fun PreviewCardTransactionItem() {
 }
 
 @Composable
-fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction) {
+fun CardTransactionDetails(cardTransaction: BlockchainCardTransaction, onCloseBottomSheet: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         SheetHeader(
-            onClosePress = { /*TODO*/ },
+            onClosePress = onCloseBottomSheet,
             title = stringResource(R.string.transaction_details),
             shouldShowDivider = true
         )
@@ -1277,6 +1301,7 @@ fun PreviewCardTransactionDetails() {
             fee = FiatValue.zero(FiatCurrency.fromCurrencyCode("USD")),
             declineReason = null,
             networkConversionRate = null
-        )
+        ),
+        onCloseBottomSheet = {}
     )
 }
