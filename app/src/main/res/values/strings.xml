@@ -3129,5 +3129,7 @@
     <string name="defi_current_balance">Current Balance</string>
     <string name="default_label_all_non_custodial_wallets">All</string>
     <string name="default_label_all_custodial_wallets">All</string>
+    <string name="purchase_title_error">Purchasing error</string>
+    <string name="purchase_description_error">We encountered a problem with the purchase. Please try again.</string>
 
 </resources>
