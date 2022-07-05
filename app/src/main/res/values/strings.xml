@@ -3125,7 +3125,4 @@
     <string name="default_label_all_non_custodial_wallets">All</string>
     <string name="default_label_all_custodial_wallets">All</string>
 
-    <string name="cash_wallet_dollar">US Dollar</string>
-    <string name="cash_wallet_pound">British Pound</string>
-    <string name="cash_wallet_euro">Euro</string>
 </resources>

@@ -36,19 +36,5 @@ class StringLocalizationUtil {
             TRADING_CURRENCY_EUROS -> R.string.payment_deposit_subtitle_euros
             else -> throw IllegalArgumentException("subtitleForEasyTransfer - Fiat currency does not exist")
         }
-
-        fun getCashWalletName(fiatCurrency: FiatCurrency): Int = when (fiatCurrency.networkTicker) {
-            TRADING_CURRENCY_DOLLARS -> R.string.cash_wallet_dollar
-            TRADING_CURRENCY_POUNDS -> R.string.cash_wallet_pound
-            TRADING_CURRENCY_EUROS -> R.string.cash_wallet_euro
-            else -> throw IllegalArgumentException("getCashWalletName - Fiat currency does not exist")
-        }
-
-        fun getCashWalletName(currency: String): Int = when (currency) {
-            TRADING_CURRENCY_DOLLARS -> R.string.cash_wallet_dollar
-            TRADING_CURRENCY_POUNDS -> R.string.cash_wallet_pound
-            TRADING_CURRENCY_EUROS -> R.string.cash_wallet_euro
-            else -> throw IllegalArgumentException("getCashWalletName - Fiat currency does not exist")
-        }
     }
 }

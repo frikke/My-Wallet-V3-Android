@@ -47,5 +47,5 @@ internal class ResourceDefaultLabels(
         resources.getString(R.string.exchange_default_account_label_1)
 
     override fun getDefaultCustodialFiatWalletLabel(fiatCurrency: FiatCurrency): String =
-        resources.getString(StringLocalizationUtil.getCashWalletName(fiatCurrency.displayTicker))
+        fiatCurrency.name
 }
