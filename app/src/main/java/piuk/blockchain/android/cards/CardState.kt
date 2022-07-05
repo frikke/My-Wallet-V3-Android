@@ -9,6 +9,7 @@ import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.FiatCurrency
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import piuk.blockchain.android.R
 
 @Serializable

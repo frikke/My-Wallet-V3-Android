@@ -7,11 +7,17 @@ import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
+import com.blockchain.domain.paymentmethods.model.MobilePaymentType
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
+import com.blockchain.serializers.BigDecimalSerializer
+import com.blockchain.serializers.BigIntSerializer
+import com.blockchain.serializers.IsoDateSerializer
+import com.blockchain.serializers.KZonedDateTimeSerializer
+import com.blockchain.testutils.USD
 import com.braintreepayments.cardform.utils.CardType
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doNothing
@@ -21,8 +27,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.Calendar
 import java.util.Date
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +53,19 @@ class CardModelTest {
     private val currencyPrefs: CurrencyPrefs = mock()
     private val sbPrefs: SimpleBuyPrefs = mock()
 
+    val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+        serializersModule = SerializersModule {
+            contextual(BigDecimalSerializer)
+            contextual(BigIntSerializer)
+            contextual(IsoDateSerializer)
+            contextual(KZonedDateTimeSerializer)
+        }
+    }
+
     @get:Rule
     val rx = rxInit {
         mainTrampoline()
@@ -51,19 +73,43 @@ class CardModelTest {
         computationTrampoline()
     }
 
+    private val paymentCard = LinkedPaymentMethod.Card(
+        cardId = "cardId",
+        label = "label",
+        endDigits = "endDigits",
+        partner = Partner.CARDPROVIDER,
+        expireDate = Calendar.getInstance().time,
+        cardType = "cardType",
+        status = CardStatus.ACTIVE,
+        cardFundSources = listOf(),
+        mobilePaymentType = MobilePaymentType.UNKNOWN,
+        currency = USD
+    )
+
     @Before
     fun setUp() {
-        val cardStateString = "{ mock card state }"
+        val cardStateString =
+            """{"fiatCurrency":{"currencyCode":"USD"},"cardId":"123","billingAddress":{"countryCode":"countryCode","fullName":"fullName","addressLine1":"address1","addressLine2":"address2","city":"city","postCode":"postCode","state":"state"}}"""
         whenever(sbPrefs.cardState()).thenReturn(cardStateString)
         doNothing().whenever(sbPrefs).updateCardState(anyString())
 
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
 
-        defaultState = spy(CardState(fiatCurrency = FiatCurrency.Dollars, billingAddress = mock(), cardId = "123"))
-
-        val json = Json {
-            ignoreUnknownKeys = true
-        }
+        defaultState = spy(
+            CardState(
+                fiatCurrency = FiatCurrency.Dollars,
+                billingAddress = BillingAddress(
+                    countryCode = "countryCode",
+                    fullName = "fullName",
+                    addressLine1 = "address1",
+                    addressLine2 = "address2",
+                    city = "city",
+                    postCode = "postCode",
+                    state = "state"
+                ),
+                cardId = "123"
+            )
+        )
 
         model = CardModel(
             uiScheduler = Schedulers.io(),
@@ -92,11 +138,10 @@ class CardModelTest {
             Partner.CARDPROVIDER, cardId
         )
 
-        whenever(interactor.addNewCard(any(), any(), any())).thenReturn(
-            Single.just(cardToBeActivated)
-        )
+        whenever(interactor.addNewCard(any(), any(), any())).thenReturn(Single.just(cardToBeActivated))
 
         whenever(cardActivator.activateCard(cardData, cardId)).thenReturn(Single.error(Exception()))
+
         val test = model.state.test()
         model.process(CardIntent.AddNewCard(cardData))
 
@@ -114,7 +159,15 @@ class CardModelTest {
     @Test
     fun `add new card fails with nabu exception`() {
         val cardData: CardData = mock()
-        val billingAddress: BillingAddress = mock()
+        val billingAddress = BillingAddress(
+            countryCode = "countryCode",
+            fullName = "fullName",
+            addressLine1 = "address1",
+            addressLine2 = "address2",
+            city = "city",
+            postCode = "postCode",
+            state = "state"
+        )
         whenever(defaultState.billingAddress).thenReturn(billingAddress)
 
         val intent = CardIntent.AddNewCard(cardData)
@@ -141,7 +194,15 @@ class CardModelTest {
     @Test
     fun `add new card fails with other exception`() {
         val cardData: CardData = mock()
-        val billingAddress: BillingAddress = mock()
+        val billingAddress = BillingAddress(
+            countryCode = "countryCode",
+            fullName = "fullName",
+            addressLine1 = "address1",
+            addressLine2 = "address2",
+            city = "city",
+            postCode = "postCode",
+            state = "state"
+        )
         whenever(defaultState.billingAddress).thenReturn(billingAddress)
 
         val intent = CardIntent.AddNewCard(cardData)
@@ -351,7 +412,7 @@ class CardModelTest {
 
     @Test
     fun `getting active cards returns list`() {
-        val expectedCards = listOf<LinkedPaymentMethod.Card>(mock(), mock())
+        val expectedCards = listOf(paymentCard)
         whenever(interactor.loadLinkedCards()).thenReturn(Single.just(expectedCards))
 
         val test = model.state.test()
