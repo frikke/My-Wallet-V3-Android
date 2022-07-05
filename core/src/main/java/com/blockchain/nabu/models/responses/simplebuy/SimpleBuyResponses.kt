@@ -35,8 +35,14 @@ data class BankAccountResponse(
     val address: String,
     val agent: BankAgentResponse,
     val currency: String,
-    val state: String?
-)
+    val state: String?,
+    val partner: String?
+) {
+    companion object {
+        const val PARTNER_BIND = "BIND"
+        const val PARTNER_SILVERGATE = "SILVERGATE"
+    }
+}
 
 @Serializable
 data class BankAgentResponse(

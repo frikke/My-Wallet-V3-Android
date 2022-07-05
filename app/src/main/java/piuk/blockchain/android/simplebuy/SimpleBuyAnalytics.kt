@@ -78,6 +78,18 @@ fun PaymentMethod.toAnalyticsString(): String =
         else -> ""
     }
 
+fun PaymentMethod.toPaymentTypeAnalyticsString(): String =
+    when (this) {
+        is PaymentMethod.Card,
+        is PaymentMethod.UndefinedCard -> "PAYMENT_CARD"
+        is PaymentMethod.GooglePay -> "GOOGLE_PAY"
+        is PaymentMethod.Funds -> "FUNDS"
+        is PaymentMethod.UndefinedBankTransfer,
+        is PaymentMethod.UndefinedBankAccount -> "BANK_TRANSFER"
+        is PaymentMethod.Bank -> "BANK_ACCOUNT"
+        else -> ""
+    }
+
 fun PaymentMethod.toNabuAnalyticsString(): String =
     when (this) {
         is PaymentMethod.Card -> "PAYMENT_CARD"
@@ -175,6 +187,42 @@ class CurrencySelected(fiatCurrency: String) : AnalyticsEvent {
     override val params: Map<String, String> = mapOf(
         "currency" to fiatCurrency
     )
+}
+
+class BuyMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.BUY_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.BUY
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes.toSet().joinToString(",")
+        } else {
+            null
+        }
+    ).withoutNullValues()
+}
+
+class DepositMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.DEPOSIT_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.DEPOSIT
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes.toSet().joinToString(",")
+        } else {
+            null
+        }
+    ).withoutNullValues()
+}
+
+class WithdrawMethodOptionsViewed(paymentMethodTypes: List<String>) : AnalyticsEvent {
+    override val event: String = AnalyticsNames.WITHDRAWAL_METHOD_OPTION_VIEWED.eventName
+    override val origin: LaunchOrigin = LaunchOrigin.WITHDRAW
+    override val params: Map<String, Serializable> = mapOf(
+        "type" to if (paymentMethodTypes.isNotEmpty()) {
+            paymentMethodTypes.toSet().joinToString(",")
+        } else {
+            null
+        }
+    ).withoutNullValues()
 }
 
 class BuyAmountEntered(

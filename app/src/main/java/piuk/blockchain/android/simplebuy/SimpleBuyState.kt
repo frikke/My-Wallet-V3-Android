@@ -49,6 +49,7 @@ data class SimpleBuyState constructor(
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: @Contextual AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
+    val failureReason: String? = null,
     val kycStartedButNotCompleted: Boolean = false,
     val kycVerificationState: KycState? = null,
     val currentScreen: FlowScreen = FlowScreen.ENTER_AMOUNT,
