@@ -56,7 +56,6 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
@@ -103,7 +102,7 @@ class DashboardActionInteractor(
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         walletModeService.walletMode.map {
             coincore.activeAssets(it)
-        }.asObservable(Dispatchers.IO)
+        }.asObservable()
             .subscribeBy(
                 onNext = { activeAssets ->
                     model.process(

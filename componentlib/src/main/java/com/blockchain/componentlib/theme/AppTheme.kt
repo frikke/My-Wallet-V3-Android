@@ -8,50 +8,113 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.flowWithLifecycle
 import coil.ImageLoader
 import coil.compose.LocalImageLoader
 import coil.decode.SvgDecoder
 import com.blockchain.componentlib.BuildConfig
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import org.koin.java.KoinJavaComponent.get
 
-object AppTheme {
+abstract class Theme {
+    @get:Composable
+    abstract val lightColors: SemanticColors
+
+    @get:Composable
+    abstract val darkColors: SemanticColors
+
+    @get:Composable
+    abstract val typography: AppTypography
 
     val colors: SemanticColors
         @Composable
-        @ReadOnlyComposable
-        get() = LocalColors.current
+        get() = if (isSystemInDarkTheme()) darkColors else lightColors
 
-    val typography: AppTypography
+    @get:Composable
+    abstract val dimensions: AppDimensions
+
+    @get:Composable
+    abstract val shapes: AppShapes
+}
+
+object DefaultAppTheme : Theme() {
+    override val lightColors: SemanticColors
+        @Composable
+        @ReadOnlyComposable
+        get() = defLightColors
+
+    override val darkColors: SemanticColors
+        @Composable
+        @ReadOnlyComposable
+        get() = defDarkColors
+
+    override val typography: AppTypography
         @Composable
         @ReadOnlyComposable
         get() = LocalTypography.current
 
-    val dimensions: AppDimensions
+    override val dimensions: AppDimensions
         @Composable
         @ReadOnlyComposable
         get() = LocalDimensions.current
 
-    val shapes: AppShapes
+    override val shapes: AppShapes
         @Composable
         @ReadOnlyComposable
         get() = LocalShapes.current
 }
 
+object AppTheme : Theme() {
+    override val lightColors: SemanticColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLightColors.current
+
+    override val darkColors: SemanticColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalDarkColors.current
+
+    override val typography: AppTypography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalTypography.current
+
+    override val dimensions: AppDimensions
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalDimensions.current
+
+    override val shapes: AppShapes
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalShapes.current
+}
+
+object FakeAppThemeProvider : AppThemeProvider {
+    override val appTheme: Flow<Theme>
+        get() = flow {
+            AppTheme
+        }
+}
+
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    typography: AppTypography = AppTheme.typography,
-    dimensions: AppDimensions = AppTheme.dimensions,
-    shapes: AppShapes = AppTheme.shapes,
-    content: @Composable () -> Unit
+    themeProvider: AppThemeProvider = defValue(),
+    content: @Composable () -> Unit,
 ) {
-
     val imageLoader = runCatching {
         ImageLoader.Builder(LocalContext.current)
             .componentRegistry { add(SvgDecoder(LocalContext.current)) }
@@ -76,8 +139,11 @@ fun AppTheme(
             .build()
     }
 
-    val colors = if (darkTheme) getDarkColors() else getLightColors()
-    val rememberedColors = remember { colors.copy() }.apply { updateColorsFrom(colors) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val stateFlowLifecycleAware = remember(themeProvider.appTheme, lifecycleOwner) {
+        themeProvider.appTheme.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+    val mTheme: Theme by stateFlowLifecycleAware.collectAsState(initial = DefaultAppTheme)
 
     val navigationBackground = if (darkTheme) {
         Color.Black
@@ -85,19 +151,38 @@ fun AppTheme(
         Color.White
     }
 
-    SystemColors(statusColor = colors.background, navigationColor = navigationBackground, isDarkTheme = darkTheme)
+    val colorsLocalProvider = if (darkTheme)
+        LocalDarkColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
+    else
+        LocalLightColors provides mTheme.colors.copy().apply { updateColorsFrom(mTheme.colors) }
+
+    SystemColors(
+        statusColor = mTheme.colors.background,
+        navigationColor = navigationBackground,
+        isDarkTheme = darkTheme
+    )
 
     MaterialTheme(colors = debugColors(darkTheme)) {
         CompositionLocalProvider(
-            LocalColors provides rememberedColors,
-            LocalDimensions provides dimensions,
-            LocalTypography provides typography,
-            LocalShapes provides shapes,
+            colorsLocalProvider,
+            LocalDimensions provides mTheme.dimensions,
+            LocalTypography provides mTheme.typography,
+            LocalShapes provides mTheme.shapes,
             LocalRippleTheme provides AppThemeRippleProvider,
             LocalImageLoader provides imageLoader,
             content = content
         )
     }
+}
+
+/**
+ * We have to do this so Preview keeps working
+ */
+@Composable
+fun defValue(): AppThemeProvider {
+    return if (LocalInspectionMode.current) {
+        FakeAppThemeProvider
+    } else get(AppThemeProvider::class.java)
 }
 
 @Composable
@@ -114,7 +199,6 @@ fun SystemColors(statusColor: Color, navigationColor: Color, isDarkTheme: Boolea
         }
 
         lifecycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }

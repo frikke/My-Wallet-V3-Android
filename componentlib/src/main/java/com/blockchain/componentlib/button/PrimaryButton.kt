@@ -12,7 +12,6 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Blue400
-import com.blockchain.componentlib.theme.Blue600
 import com.blockchain.componentlib.theme.Blue700
 import com.blockchain.componentlib.theme.Grey900
 
@@ -30,8 +29,8 @@ fun PrimaryButton(
         onClick = onClick,
         state = state,
         defaultTextColor = Color.White,
-        defaultBackgroundLightColor = defaultBackgroundColor ?: Blue600,
-        defaultBackgroundDarkColor = defaultBackgroundColor ?: Blue600,
+        defaultBackgroundLightColor = defaultBackgroundColor ?: AppTheme.colors.primary,
+        defaultBackgroundDarkColor = defaultBackgroundColor ?: AppTheme.colors.primary,
         disabledTextLightAlpha = 0.7f,
         disabledTextDarkAlpha = 0.4f,
         disabledBackgroundLightColor = Blue400,
