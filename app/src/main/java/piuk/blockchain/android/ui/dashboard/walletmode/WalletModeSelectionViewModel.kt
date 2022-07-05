@@ -128,7 +128,6 @@ class WalletModeSelectionViewModel(
                 navigate(WalletModeSelectionNavigationEvent.DeFiOnboarding)
             }
 
-            // defi (NON_CUSTODIAL_ONLY) specific
             WalletModeSelectionIntent.DeFiOnboardingComplete -> {
                 updateActiveWalletMode(WalletMode.NON_CUSTODIAL_ONLY)
             }

@@ -51,6 +51,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Singles
+import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
@@ -107,6 +108,7 @@ class DashboardActionInteractor(
         }.asObservable()
             .subscribeBy(
                 onNext = { activeAssets ->
+                    compositeDisposable.clear()
                     model.process(
                         DashboardIntent.UpdateActiveAssets(
                             activeAssets
@@ -162,55 +164,53 @@ class DashboardActionInteractor(
                 }
             )
 
-    // We have a problem here, in that pax init depends on ETH init
-    // Ultimately, we want to init metadata straight after decrypting (or creating) the wallet
-    // but we can't move that somewhere sensible yet, because 2nd password. When we remove that -
-    // which is on the radar - then we can clean up the entire app init sequence.
-    // But for now, we'll catch any pax init failure here, unless ETH has initialised OK. And when we
-    // get a valid ETH balance, will try for a PX balance. Yeah, this is a nasty hack TODO: Fix this
+    private val compositeDisposable = CompositeDisposable()
+
     fun refreshBalances(
         model: DashboardModel,
         state: DashboardState,
     ): Disposable {
-        val cd = CompositeDisposable()
 
-        loadBalances(state.activeAssets.keys, model, cd)
+        loadBalances(state.activeAssets.keys, model).forEach {
+            it.addTo(compositeDisposable)
+        }
 
         state.fiatAssets.fiatAccounts
             .values.forEach {
-                cd += refreshFiatAssetBalance(it.account, model)
+                compositeDisposable += refreshFiatAssetBalance(it.account, model)
             }
 
-        cd += warmWalletModeBalanceCache(cd)
+        warmWalletModeBalanceCache().forEach {
+            it.addTo(compositeDisposable)
+        }
 
-        return cd
+        return compositeDisposable
     }
 
-    private fun warmWalletModeBalanceCache(cd: CompositeDisposable): Disposable {
-        cd += walletModeBalanceCache.stream(
-            request = KeyedStoreRequest.Cached(
-                key = WalletMode.NON_CUSTODIAL_ONLY,
-                forceRefresh = true
-            )
-        ).asObservable().emptySubscribe()
+    private fun warmWalletModeBalanceCache(): List<Disposable> {
+        return listOf(
+            walletModeBalanceCache.stream(
+                request = KeyedStoreRequest.Cached(
+                    key = WalletMode.NON_CUSTODIAL_ONLY,
+                    forceRefresh = true
+                )
+            ).asObservable().emptySubscribe(),
 
-        cd += walletModeBalanceCache.stream(
-            request = KeyedStoreRequest.Cached(
-                key = WalletMode.CUSTODIAL_ONLY,
-                forceRefresh = true
-            )
-        ).asObservable().emptySubscribe()
-
-        return cd
+            walletModeBalanceCache.stream(
+                request = KeyedStoreRequest.Cached(
+                    key = WalletMode.CUSTODIAL_ONLY,
+                    forceRefresh = true
+                )
+            ).asObservable().emptySubscribe()
+        )
     }
 
     private fun loadBalances(
         assets: Set<AssetInfo>,
-        model: DashboardModel,
-        cd: CompositeDisposable,
-    ) {
-        assets.forEach { asset ->
-            cd += refreshAssetBalance(asset, model).subscribeBy(onError = {
+        model: DashboardModel
+    ): List<Disposable> {
+        return assets.map { asset ->
+            refreshAssetBalance(asset, model).subscribeBy(onError = {
                 Timber.e(it)
             })
         }
@@ -302,6 +302,8 @@ class DashboardActionInteractor(
         when (asset) {
             is BrokerageAsset -> refreshPricesWith24HDelta(model, asset.currency)
             is DefiAsset -> refreshPrice(model, asset.currency)
+        }.also {
+            compositeDisposable += it
         }
 
     private fun refreshPrice(model: DashboardModel, crypto: AssetInfo): Disposable =

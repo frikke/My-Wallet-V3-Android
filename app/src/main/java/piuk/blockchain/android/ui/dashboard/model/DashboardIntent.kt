@@ -219,6 +219,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
 
             return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)
         }
+
+        override fun isValidFor(oldState: DashboardState): Boolean {
+            return oldState.activeAssets.contains(asset)
+        }
     }
 
     class BalanceUpdateError(
