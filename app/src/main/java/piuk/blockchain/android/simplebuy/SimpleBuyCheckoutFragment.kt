@@ -756,7 +756,9 @@ class SimpleBuyCheckoutFragment :
 
     override fun onDestroy() {
         compositeDisposable.clear()
-        countDownTimer.cancel()
+        if (::countDownTimer.isInitialized) {
+            countDownTimer.cancel()
+        }
         super.onDestroy()
     }
 
