@@ -1,6 +1,6 @@
 package com.blockchain.componentlib.theme
 
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 val Blue700 = Color(0XFF1656B9)
@@ -8,6 +8,8 @@ val Blue600 = Color(0XFF0C6CF2)
 val Blue400 = Color(0XFF619FF7)
 val Blue200 = Color(0XFFBBDBFC)
 val Blue000 = Color(0XFFECF5FE)
+
+val Purple0000 = Color(0XFF5322E5)
 
 val Green900 = Color(0XFF003319)
 val Green700 = Color(0XFF006633)
@@ -61,7 +63,7 @@ val White600 = Color.White.copy(0.6f)
 
 val UltraLight = Color(0XFFFAFBFF)
 
-fun getLightColors() = SemanticColors(
+val defLightColors = SemanticColors(
     title = Grey900,
     body = Grey800,
     overlay = Overlay600,
@@ -74,11 +76,10 @@ fun getLightColors() = SemanticColors(
     success = Green600,
     warning = Orange600,
     error = Red600,
-
     isLight = true
 )
 
-fun getDarkColors() = SemanticColors(
+val defDarkColors = SemanticColors(
     title = Color.White,
     body = Dark200,
     overlay = Overlay600,
@@ -91,8 +92,8 @@ fun getDarkColors() = SemanticColors(
     success = Green400,
     warning = Orange400,
     error = Red400,
-
     isLight = false
 )
 
-val LocalColors = staticCompositionLocalOf { getLightColors() }
+val LocalLightColors = compositionLocalOf { defLightColors }
+val LocalDarkColors = compositionLocalOf { defDarkColors }

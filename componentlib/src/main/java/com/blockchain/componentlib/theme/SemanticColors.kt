@@ -18,7 +18,6 @@ class SemanticColors(
     success: Color,
     warning: Color,
     error: Color,
-
     isLight: Boolean
 ) {
 
@@ -46,7 +45,6 @@ class SemanticColors(
         private set
     var error by mutableStateOf(error)
         private set
-
     var isLight by mutableStateOf(isLight)
         private set
 
@@ -63,7 +61,6 @@ class SemanticColors(
         success: Color = this.success,
         warning: Color = this.warning,
         error: Color = this.error,
-
         isLight: Boolean = this.isLight
     ) = SemanticColors(
         title = title,
@@ -78,7 +75,6 @@ class SemanticColors(
         success = success,
         warning = warning,
         error = error,
-
         isLight = isLight
     )
 

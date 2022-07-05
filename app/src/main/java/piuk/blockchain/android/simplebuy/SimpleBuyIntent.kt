@@ -392,6 +392,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 orderState = buyOrder.state,
+                failureReason = buyOrder.failureReason,
                 id = buyOrder.id,
                 quote = BuyQuote.fromBrokerageQuote(
                     brokerageQuote = quote,
@@ -416,6 +417,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(
                 orderState = buyOrder.state,
+                failureReason = buyOrder.failureReason,
                 paymentSucceeded = buyOrder.state == OrderState.FINISHED,
                 isLoading = false,
                 orderValue = buyOrder.orderValue as CryptoValue,

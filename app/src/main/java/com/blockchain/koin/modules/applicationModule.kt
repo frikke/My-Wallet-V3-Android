@@ -10,6 +10,7 @@ import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
+import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.Database
 import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.enviroment.Environment
@@ -167,6 +168,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
+import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
@@ -218,6 +220,12 @@ val applicationModule = module {
     factory { get<Context>().resources }
 
     single { CurrentContextAccess() }
+
+    single {
+        WalletModeThemeProvider(
+            walletModeService = get()
+        )
+    }.bind(AppThemeProvider::class)
 
     single { LifecycleInterestedComponent() }
         .bind(LifecycleObservable::class)

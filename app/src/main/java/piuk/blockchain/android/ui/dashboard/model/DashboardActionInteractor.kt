@@ -56,14 +56,15 @@ import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.kotlin.zipWith
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.Optional
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.asObservable
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.GetDashboardOnboardingStepsUseCase
+import piuk.blockchain.android.simplebuy.DepositMethodOptionsViewed
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.simplebuy.WithdrawMethodOptionsViewed
 import piuk.blockchain.android.ui.dashboard.WalletModeBalanceCache
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.settings.v2.LinkablePaymentMethods
@@ -103,7 +104,7 @@ class DashboardActionInteractor(
     fun fetchActiveAssets(model: DashboardModel): Disposable =
         walletModeService.walletMode.map {
             coincore.activeAssets(it)
-        }.asObservable(Dispatchers.IO)
+        }.asObservable()
             .subscribeBy(
                 onNext = { activeAssets ->
                     model.process(
@@ -425,6 +426,9 @@ class DashboardActionInteractor(
         val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
 
         val eligibleBanks = linkedBanks.filter { paymentMethods.contains(it.type) }
+
+        analytics.logEvent(DepositMethodOptionsViewed(paymentMethods.map { it.name }))
+
         when {
             eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                 Single.just(
@@ -635,6 +639,9 @@ class DashboardActionInteractor(
                 it.filter { bank -> bank.currency == sourceAccount.currency }
             }
         ).flatMap { (eligibility, paymentMethods, linkedBanks) ->
+
+            analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
+
             when {
                 eligibility is FeatureAccess.Blocked && eligibility.reason is BlockedReason.Sanctions ->
                     Single.just(
