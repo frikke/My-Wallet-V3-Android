@@ -98,6 +98,7 @@ class SimpleBuyCheckoutFragment :
 
     private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
+    private var animateRefreshQuote = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -108,6 +109,7 @@ class SimpleBuyCheckoutFragment :
         compositeDisposable += buyQuoteRefreshFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
                 if (enabled) {
+                    animateRefreshQuote = true
                     binding.quoteExpiration.visible()
                     model.process(SimpleBuyIntent.ListenToQuotesUpdate)
                 }
@@ -199,7 +201,7 @@ class SimpleBuyCheckoutFragment :
 
         showAmountForMethod(newState)
 
-        if (newState.hasQuoteChanged) {
+        if (animateRefreshQuote && newState.hasQuoteChanged) {
             binding.amount.animateChange {
                 binding.amount.setTextColor(
                     ContextCompat.getColor(binding.amount.context, R.color.grey_800)
