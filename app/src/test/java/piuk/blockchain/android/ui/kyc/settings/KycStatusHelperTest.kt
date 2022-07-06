@@ -4,7 +4,6 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
@@ -371,21 +370,6 @@ class KycStatusHelperTest {
     }
 
     @Test
-    fun `sync phone number fails due to missing metadata but returns complete`() {
-        // Arrange
-        val jwt = "JWT"
-        whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error(MetadataNotFoundException("Nabu Token not found")))
-        // Act
-        val testObserver = subject.syncPhoneNumberWithNabu().test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
-    }
-
-    @Test
     fun `get settings kyc state should return state from tiers service`() = runTest {
         // Arrange
         whenever(tierService.tiers()).thenReturn(Single.just(tiers(KycTierState.Verified, KycTierState.Verified)))
@@ -408,43 +392,6 @@ class KycStatusHelperTest {
         testObserver.assertValue {
             it.isApprovedFor(KycTierLevel.GOLD)
         }
-    }
-
-    @Test
-    fun `sync phone number fails due to exception, throws correctly`() {
-        // Arrange
-        val jwt = "JWT"
-        whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.error { Throwable() })
-        // Act
-        val testObserver = subject.syncPhoneNumberWithNabu().test()
-        // Assert
-        testObserver.assertNotComplete()
-        testObserver.assertError(Throwable::class.java)
-    }
-
-    @Test
-    fun `sync phone number successful`() {
-        // Arrange
-        val jwt = "JWT"
-        whenever(nabuDataManager.requestJwt()).thenReturn(Single.just(jwt))
-        whenever(
-            nabuToken.fetchNabuToken()
-        ).thenReturn(Single.just(validOfflineToken))
-        whenever(
-            nabuDataManager.updateUserWalletInfo(
-                validOfflineToken,
-                jwt
-            )
-        )
-            .thenReturn(Single.just(getBlankNabuUser(KycState.None)))
-        // Act
-        val testObserver = subject.syncPhoneNumberWithNabu().test()
-        // Assert
-        testObserver.assertComplete()
-        testObserver.assertNoErrors()
     }
 
     @Test

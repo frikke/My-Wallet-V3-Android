@@ -74,6 +74,7 @@ val kycUiModule = module {
                 nabuDataManager = get(),
                 eligibilityService = get(),
                 nabuDataUserProvider = get(),
+                nabuUserSync = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
                 analytics = get()
@@ -119,6 +120,7 @@ val kycUiModule = module {
                 reentryDecision = get(),
                 kycNavigator = get(),
                 kycDataSource = get(),
+                userDataSource = get(),
                 analytics = get()
             )
         }

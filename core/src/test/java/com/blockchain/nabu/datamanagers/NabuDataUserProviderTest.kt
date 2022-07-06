@@ -1,6 +1,8 @@
 package com.blockchain.nabu.datamanagers
 
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.cache.UserCache
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.tokenresponse.NabuSessionTokenResponse
@@ -23,6 +25,8 @@ class NabuDataUserProviderTest {
     private val trust = mockk<DigitalTrust>()
     private val walletReporter = mockk<WalletReporter>()
     private val payloadDataManager = mockk<PayloadDataManager>()
+    private val getUserStoreService = mockk<GetUserStoreService>()
+    private val speedUpLoginUserFF = mockk<FeatureFlag>()
 
     private val nabuDataUserProvider: NabuDataUserProvider = NabuDataUserProviderNabuDataManagerAdapter(
         authenticator = authenticator,
@@ -30,7 +34,9 @@ class NabuDataUserProviderTest {
         userReporter = userReporter,
         trust = trust,
         walletReporter = walletReporter,
-        payloadDataManager = payloadDataManager
+        payloadDataManager = payloadDataManager,
+        getUserStoreService = getUserStoreService,
+        speedUpLoginUserFF = speedUpLoginUserFF
     )
 
     private val guid = "guid"
@@ -42,6 +48,8 @@ class NabuDataUserProviderTest {
         every { authenticator.authenticate(any<(NabuSessionTokenResponse) -> Single<NabuUser>>()) } answers {
             firstArg<(NabuSessionTokenResponse) -> Single<NabuUser>>().invoke(sessionToken)
         }
+        every { getUserStoreService.getUser() } returns Single.just(userObject)
+
         every { userCache.cached(sessionToken) } returns Single.just(userObject)
 
         every { payloadDataManager.guid } returns guid
@@ -53,7 +61,18 @@ class NabuDataUserProviderTest {
     }
 
     @Test
-    fun getUser() {
+    fun `GIVEN ff true, WHEN getUser, THEN getUserStoreService getUser should be called`() {
+        every { speedUpLoginUserFF.enabled } returns Single.just(true)
+
+        // Act
+        nabuDataUserProvider.getUser().test()
+        // Assert
+        verify(exactly = 1) { getUserStoreService.getUser() }
+    }
+
+    @Test
+    fun `GIVEN ff false, WHEN getUser is called, THEN verify success functions are called`() {
+        every { speedUpLoginUserFF.enabled } returns Single.just(false)
         // Act
         val testObserver = nabuDataUserProvider.getUser().test()
         // Assert

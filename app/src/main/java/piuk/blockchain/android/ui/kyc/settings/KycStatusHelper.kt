@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.kyc.settings
 import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
-import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
@@ -11,7 +10,6 @@ import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserState
 import com.blockchain.nabu.service.TierService
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -46,26 +44,6 @@ class KycStatusHelper(
     fun shouldDisplayKyc(): Single<Boolean> = Singles.zip(
         isInKycRegion(), hasAccount()
     ) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
-
-    @Deprecated("Use NabuUserSync")
-    fun syncPhoneNumberWithNabu(): Completable = nabuDataManager.requestJwt()
-        .subscribeOn(Schedulers.io())
-        .flatMap { jwt ->
-            fetchOfflineToken.flatMap {
-                nabuDataManager.updateUserWalletInfo(it, jwt)
-                    .subscribeOn(Schedulers.io())
-            }
-        }
-        .ignoreElement()
-        .doOnError { Timber.e(it) }
-        .onErrorResumeNext {
-            if (it is MetadataNotFoundException) {
-                // Allow users who aren't signed up to Nabu to ignore this failure
-                return@onErrorResumeNext Completable.complete()
-            } else {
-                return@onErrorResumeNext Completable.error { it }
-            }
-        }
 
     fun getKycStatus(): Single<KycState> =
         nabuDataUserProvider.getUser()

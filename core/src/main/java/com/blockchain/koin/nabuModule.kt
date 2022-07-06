@@ -6,6 +6,10 @@ import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.data.GetUserStoreRepository
+import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.api.getuser.data.store.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.api.kyc.data.KycStoreRepository
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.kyc.data.store.KycStore
@@ -95,6 +99,23 @@ val nabuModule = module {
         scoped {
             UserCache(
                 nabuService = get()
+            )
+        }
+
+        scoped<GetUserDataSource> {
+            GetUserStore(
+                nabuService = get(),
+                authenticator = get(),
+                userReporter = get(uniqueUserAnalytics),
+                trust = get(),
+                walletReporter = get(uniqueId),
+                payloadDataManager = get()
+            )
+        }
+
+        scoped<GetUserStoreService> {
+            GetUserStoreRepository(
+                getUserDataSource = get()
             )
         }
 
@@ -248,11 +269,20 @@ val nabuModule = module {
                 userReporter = get(uniqueUserAnalytics),
                 trust = get(),
                 walletReporter = get(uniqueId),
-                payloadDataManager = get()
+                payloadDataManager = get(),
+                getUserStoreService = get(),
+                speedUpLoginUserFF = get(speedUpLoginUserFeatureFlag)
             )
         }
 
-        factory { NabuUserSyncUpdateUserWalletInfoWithJWT(get(), get()) }.bind(NabuUserSync::class)
+        factory {
+            NabuUserSyncUpdateUserWalletInfoWithJWT(
+                authenticator = get(),
+                nabuDataManager = get(),
+                nabuService = get(),
+                userDataSource = get(),
+            )
+        }.bind(NabuUserSync::class)
 
         scoped {
             CustodialRepository(
