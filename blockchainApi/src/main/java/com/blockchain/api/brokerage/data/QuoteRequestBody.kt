@@ -22,7 +22,7 @@ class BrokerageQuoteResponse(
     @SerialName("feeDetails")
     val feeDetails: FeeDetailsResponse,
     @SerialName("settlementDetails")
-    val settlementDetails: SettlementDetails
+    val settlementDetails: SettlementDetails?
 )
 
 @Serializable

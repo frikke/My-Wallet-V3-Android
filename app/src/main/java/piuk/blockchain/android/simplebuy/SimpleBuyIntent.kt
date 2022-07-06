@@ -445,7 +445,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
 
     object ClearError : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(buyErrorState = null)
+            oldState.copy(buyErrorState = null, errorState = TransactionErrorState.NONE)
 
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return oldState.buyErrorState != null

@@ -285,6 +285,7 @@ class SimpleBuyCryptoFragment :
         lastState = newState
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)
+            model.process(SimpleBuyIntent.ClearError)
             return
         }
 
@@ -415,6 +416,8 @@ class SimpleBuyCryptoFragment :
                     handlePossibleInfoAction(info, state.transactionsLimit ?: TransactionsLimit.Unlimited)
             }
         } ?: errorContainer.setOnClickListener {}
+
+        model.process(SimpleBuyIntent.ClearError)
     }
 
     private fun handlePossibleInfoAction(

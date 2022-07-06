@@ -50,7 +50,7 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQ
         createdAt = ZonedDateTime.parse(quoteCreatedAt),
         expiresAt = ZonedDateTime.parse(quoteExpiresAt),
         quoteMargin = quoteMarginPercent,
-        availability = settlementDetails.availability?.toAvailability() ?: Availability.UNAVAILABLE,
+        availability = settlementDetails?.availability?.toAvailability() ?: Availability.UNAVAILABLE,
         feeDetails = QuoteFee(
             fee = Money.fromMinor(pair.source, feeDetails.fee.toBigInteger()),
             feeBeforePromo = Money.fromMinor(pair.source, feeDetails.feeWithoutPromo.toBigInteger()),
