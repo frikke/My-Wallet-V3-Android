@@ -54,6 +54,8 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import java.math.BigDecimal
+import kotlin.math.floor
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
@@ -100,32 +102,6 @@ class SimpleBuyModel(
 
     override fun performAction(previousState: SimpleBuyState, intent: SimpleBuyIntent): Disposable? =
         when (intent) {
-            is SimpleBuyIntent.UpdatedBuyLimits -> validateAmount(
-                balance = previousState.availableBalance,
-                amount = previousState.amount,
-                buyLimits = intent.limits,
-                paymentMethodLimits = previousState.selectedPaymentMethodLimits
-            ).subscribeBy(
-                onSuccess = {
-                    process(SimpleBuyIntent.UpdateErrorState(it))
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
-            is SimpleBuyIntent.ValidateAmount -> validateAmount(
-                balance = previousState.availableBalance,
-                amount = previousState.amount,
-                buyLimits = previousState.buyOrderLimits,
-                paymentMethodLimits = previousState.selectedPaymentMethodLimits
-            ).subscribeBy(
-                onSuccess = {
-                    process(SimpleBuyIntent.UpdateErrorState(it))
-                },
-                onError = {
-                    processOrderErrors(it)
-                }
-            )
             is SimpleBuyIntent.UpdateExchangeRate -> interactor.updateExchangeRate(intent.fiatCurrency, intent.asset)
                 .subscribeBy(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
@@ -249,12 +225,15 @@ class SimpleBuyModel(
                     preselectedId = intent.selectedPaymentMethodId,
                     previousSelectedId = previousState.selectedPaymentMethod?.id
                 )
-            is SimpleBuyIntent.FetchSuggestedPaymentMethod ->
+            is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
+                val lastPaymentMethodId = simpleBuyPrefs.getLastPaymentMethodId()
+
                 processGetPaymentMethod(
                     fiatCurrency = intent.fiatCurrency,
-                    preselectedId = intent.selectedPaymentMethodId,
-                    previousSelectedId = previousState.selectedPaymentMethod?.id
+                    preselectedId = intent.selectedPaymentMethodId ?: lastPaymentMethodId.ifEmpty { null },
+                    previousSelectedId = previousState.selectedPaymentMethod?.id,
                 )
+            }
 
             is SimpleBuyIntent.PaymentMethodChangeRequested -> {
                 validateAmountAndUpdatePaymentMethod(intent.paymentMethod, previousState)
@@ -402,7 +381,15 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
-
+            is SimpleBuyIntent.GetAmountToPrefill -> {
+                val amountToPrefill = getPrefillAmountRounded(
+                    assetCode = intent.assetCode,
+                    fiatCurrency = intent.fiatCurrency,
+                    maxAmount = intent.maxAmount
+                )
+                process(SimpleBuyIntent.PrefillEnterAmount(amountToPrefill))
+                null
+            }
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
                 previousState.fiatCurrency
             ).subscribeBy(
@@ -447,14 +434,17 @@ class SimpleBuyModel(
                     null
                 }
             }
-
             else -> null
         }
 
     private fun processOrderStatus(buySellOrder: BuySellOrder) {
         when {
             buySellOrder.state == OrderState.FINISHED -> {
-                updatePersistingCountersForCompletedOrders()
+                updatePersistingCountersForCompletedOrders(
+                    pair = buySellOrder.pair,
+                    amount = buySellOrder.source.toStringWithoutSymbol(),
+                    paymentMethodId = buySellOrder.paymentMethodId
+                )
                 process(SimpleBuyIntent.PaymentSucceeded)
             }
             buySellOrder.state.isPending() -> {
@@ -554,6 +544,14 @@ class SimpleBuyModel(
                             )
                         )
                     }
+
+                    process(
+                        SimpleBuyIntent.GetAmountToPrefill(
+                            assetCode = asset.networkTicker,
+                            fiatCurrency = fiatCurrency,
+                            maxAmount = limits.maxAmount
+                        )
+                    )
                 }
             )
     }
@@ -872,7 +870,11 @@ class SimpleBuyModel(
                     val orderCreatedSuccessfully = buySellOrder!!.state == OrderState.FINISHED
 
                     if (orderCreatedSuccessfully) {
-                        updatePersistingCountersForCompletedOrders()
+                        updatePersistingCountersForCompletedOrders(
+                            pair = buySellOrder.pair,
+                            amount = buySellOrder.source.toStringWithoutSymbol(),
+                            paymentMethodId = buySellOrder.paymentMethodId
+                        )
                     }
                     process(SimpleBuyIntent.StopQuotesUpdate(true))
                     process(
@@ -963,7 +965,9 @@ class SimpleBuyModel(
         }
     }
 
-    private fun updatePersistingCountersForCompletedOrders() {
+    private fun updatePersistingCountersForCompletedOrders(pair: String, amount: String, paymentMethodId: String) {
+        simpleBuyPrefs.setLastAmountBought(pair, amount)
+        simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId)
         simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
         simpleBuyPrefs.buysCompletedCount += 1
         onboardingPrefs.isLandingCtaDismissed = true
@@ -1051,6 +1055,34 @@ class SimpleBuyModel(
                 processOrderErrors(it)
             }
         )
+    }
+
+    private fun getPrefillAmountRounded(
+        assetCode: String,
+        fiatCurrency: FiatCurrency,
+        maxAmount: Money,
+    ): FiatValue {
+
+        val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-$fiatCurrency")
+
+        return if (amountString.isNotEmpty()) {
+            val fiatAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+            val fiatAmountToDisplay = roundToNearest(fiatAmount.toFloat(), ROUND_TO_NEAREST)
+
+            when {
+                fiatAmountToDisplay <= maxAmount.toFloat() -> {
+                    FiatValue.fromMajor(fiatCurrency, BigDecimal(fiatAmountToDisplay.toString()))
+                }
+                fiatAmount <= maxAmount -> fiatAmount
+                else -> FiatValue.zero(fiatCurrency)
+            }
+        } else {
+            FiatValue.zero(fiatCurrency)
+        }
+    }
+
+    private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
+        return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
     }
 
     private fun requestGooglePayInfo(
@@ -1151,6 +1183,10 @@ class SimpleBuyModel(
         val availablePaymentMethods = (availableForBuyLinkedMethods + canBeLinkedMethods)
 
         return availablePaymentMethods.sortedBy { paymentMethod -> paymentMethod.order }.toList()
+    }
+
+    companion object {
+        private const val ROUND_TO_NEAREST = 5
     }
 }
 

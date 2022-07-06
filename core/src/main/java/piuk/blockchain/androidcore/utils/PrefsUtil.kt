@@ -50,7 +50,7 @@ class PrefsUtil(
     private val idGenerator: DeviceIdGenerator,
     private val uuidGenerator: UUIDGenerator,
     private val assetCatalogue: AssetCatalogue,
-    private val environmentConfig: EnvironmentConfig
+    private val environmentConfig: EnvironmentConfig,
 ) : SessionPrefs,
     CurrencyPrefs,
     NotificationPrefs,
@@ -193,6 +193,14 @@ class PrefsUtil(
 
     override fun getSupportedCardTypes(): String? =
         getValue(KEY_SUPPORTED_CARDS_STATE, "").takeIf { it != "" }
+
+    override fun getLastAmountBought(pair: String): String = getValue(KEY_SIMPLE_BUY_AMOUNT + pair, "")
+
+    override fun setLastAmountBought(pair: String, amount: String) = setValue(KEY_SIMPLE_BUY_AMOUNT + pair, amount)
+
+    override fun getLastPaymentMethodId(): String = getValue(KEY_SIMPLE_BUY_PAYMENT_ID, "")
+
+    override fun setLastPaymentMethodId(paymentMethodId: String) = setValue(KEY_SIMPLE_BUY_PAYMENT_ID, paymentMethodId)
 
     override fun updateSimpleBuyState(simpleBuyState: String) = setValue(KEY_SIMPLE_BUY_STATE, simpleBuyState)
 
@@ -718,6 +726,8 @@ class PrefsUtil(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val KEY_LOGGED_IN = "logged_in"
 
+        private const val KEY_SIMPLE_BUY_AMOUNT = "key_simple_buy_amount_"
+        private const val KEY_SIMPLE_BUY_PAYMENT_ID = "key_simple_buy_payment_id"
         private const val KEY_SIMPLE_BUY_STATE = "key_simple_buy_state_2"
         private const val KEY_CARD_STATE = "key_card_state"
         private const val KEY_FIRST_TIME_BUYER = "key_first_time_buyer"

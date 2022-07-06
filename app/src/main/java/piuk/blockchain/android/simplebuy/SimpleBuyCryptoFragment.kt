@@ -283,6 +283,7 @@ class SimpleBuyCryptoFragment :
 
     override fun render(newState: SimpleBuyState) {
         lastState = newState
+
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)
             model.process(SimpleBuyIntent.ClearError)

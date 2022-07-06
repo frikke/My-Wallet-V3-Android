@@ -247,7 +247,7 @@ class SimpleBuyCheckoutFragment :
                 visible()
 
                 val linksMap = mapOf(
-                    "terms" to StringAnnotationClickEvent.OpenUri(Uri.parse(newState.safeConnectTosLink)),
+                    "terms" to StringAnnotationClickEvent.OpenUri(Uri.parse(newState.safeConnectTosLink.orEmpty())),
                     "privacy" to StringAnnotationClickEvent.OpenUri(Uri.parse(URL_OPEN_BANKING_PRIVACY_POLICY))
                 )
 
@@ -274,7 +274,8 @@ class SimpleBuyCheckoutFragment :
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
             model.process(
                 SimpleBuyIntent.FetchPaymentDetails(
-                    newState.fiatCurrency, newState.selectedPaymentMethod?.id.orEmpty()
+                    fiatCurrency = newState.fiatCurrency,
+                    selectedPaymentMethodId = newState.selectedPaymentMethod?.id.orEmpty()
                 )
             )
         }
