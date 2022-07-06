@@ -2,6 +2,7 @@ package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
+import kotlin.math.max
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -11,7 +12,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.math.max
 
 @Serializable
 data class NabuUser(

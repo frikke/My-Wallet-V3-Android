@@ -16,7 +16,6 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class NabuUserSerializationTest {
     private val jsonBuilder = Json {
