@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -27,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
@@ -41,6 +45,7 @@ import com.blockchain.componentlib.button.InfoButton
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.control.Checkbox
 import com.blockchain.componentlib.control.CheckboxState
+import com.blockchain.componentlib.controls.TextInput
 import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
@@ -180,6 +185,73 @@ private fun OrderCardAddressKYCPreview() {
         onCheckBillingAddress = {},
         shortAddress = "123 Main St, New York, NY 10001"
     )
+}
+
+const val SSN_LENGTH = 9
+
+@Composable
+fun OrderCardSsnKYC(onContinue: (String) -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        var ssn by remember { mutableStateOf("") }
+
+        Column(
+            horizontalAlignment = CenterHorizontally,
+            modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
+        ) {
+            SimpleText(
+                text = stringResource(R.string.verify_your_identity),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+
+            SimpleText(
+                text = stringResource(R.string.verify_your_identity_description),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+            )
+
+            TextInput(
+                value = ssn,
+                label = stringResource(R.string.ssn_title),
+                placeholder = stringResource(R.string.ssn_hint),
+                onValueChange = { if (it.length <= SSN_LENGTH) ssn = it },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.padding(
+                    horizontal = AppTheme.dimensions.paddingMedium,
+                    vertical = AppTheme.dimensions.paddingLarge
+                ),
+            )
+        }
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.paddingLarge)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(R.string.next),
+                onClick = { onContinue(ssn) },
+                state = if (ssn.isNotEmpty()) ButtonState.Enabled else ButtonState.Disabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun OrderCardSsnKYCPreview() {
+    OrderCardSsnKYC(onContinue = {})
 }
 
 @Composable

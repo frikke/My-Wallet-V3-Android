@@ -53,6 +53,29 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(amount = amount)
     }
 
+    class GetAmountToPrefill(
+        val assetCode: String,
+        val fiatCurrency: FiatCurrency,
+        val maxAmount: Money,
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return maxAmount.isPositive
+        }
+    }
+
+    class PrefillEnterAmount(
+        val amount: FiatValue,
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(amount = amount)
+
+        override fun isValidFor(oldState: SimpleBuyState): Boolean {
+            return amount.isPositive
+        }
+    }
+
     object ResetLinkBankTransfer : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(linkBankTransfer = null, newPaymentMethodToBeAdded = null)
@@ -85,7 +108,10 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         )
     }
 
-    class FetchPaymentDetails(val fiatCurrency: FiatCurrency, val selectedPaymentMethodId: String) : SimpleBuyIntent() {
+    class FetchPaymentDetails(
+        val fiatCurrency: FiatCurrency,
+        val selectedPaymentMethodId: String,
+    ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
     }
 
@@ -179,25 +205,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     object TryToLinkABankTransfer : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(isLoading = true)
-        }
-    }
-
-    object ClearAnySelectedPaymentMethods : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(
-                selectedPaymentMethod = null
-            )
-    }
-
-    object ValidateAmount : SimpleBuyIntent()
-
-    data class UpdatedBuyLimits(
-        val limits: TxLimits,
-    ) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
-            return oldState.copy(
-                transferLimits = limits
-            )
         }
     }
 

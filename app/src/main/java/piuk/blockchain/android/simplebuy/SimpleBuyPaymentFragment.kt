@@ -34,7 +34,6 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatValue
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.util.Locale
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
@@ -71,7 +70,6 @@ class SimpleBuyPaymentFragment :
     private val deeplinkRedirector: DeeplinkRedirector by scopedInject()
     private val environmentConfig: EnvironmentConfig by inject()
     private var isFirstLoad = false
-    private val compositeDisposable = CompositeDisposable()
     private lateinit var previousSelectedPaymentMethodId: String
     private lateinit var previousSelectedCryptoAsset: AssetInfo
 

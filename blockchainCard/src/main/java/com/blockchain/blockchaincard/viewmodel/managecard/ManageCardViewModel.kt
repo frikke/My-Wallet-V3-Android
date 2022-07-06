@@ -26,14 +26,14 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
             }
 
             is BlockchainCardArgs.ProductArgs -> {
-                updateState { it.copy(cardProduct = args.product) }
+                updateState { it.copy(selectedCardProduct = args.product) }
             }
         }
     }
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         card = state.card,
-        cardProduct = state.cardProduct,
+        selectedCardProduct = state.selectedCardProduct,
         cardWidgetUrl = state.cardWidgetUrl,
         eligibleTradingAccountBalances = state.eligibleTradingAccountBalances,
         isLinkedAccountBalanceLoading = state.isLinkedAccountBalanceLoading,

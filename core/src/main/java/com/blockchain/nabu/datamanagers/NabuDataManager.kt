@@ -8,7 +8,6 @@ import com.blockchain.logging.DigitalTrust
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
 import com.blockchain.nabu.models.responses.nabu.AirdropStatusList
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.RegisterCampaignRequest
 import com.blockchain.nabu.models.responses.nabu.SupportedDocuments
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
@@ -44,11 +43,6 @@ interface NabuDataManager {
     fun getAirdropCampaignStatus(
         offlineTokenResponse: NabuOfflineToken
     ): Single<AirdropStatusList>
-
-    fun updateUserWalletInfo(
-        offlineTokenResponse: NabuOfflineToken,
-        jwt: String
-    ): Single<NabuUser>
 
     fun addAddress(
         offlineTokenResponse: NabuOfflineToken,
@@ -209,14 +203,6 @@ internal class NabuDataManagerImpl(
     ): Single<AirdropStatusList> =
         authenticate(offlineTokenResponse) {
             nabuService.getAirdropCampaignStatus(it)
-        }
-
-    override fun updateUserWalletInfo(
-        offlineTokenResponse: NabuOfflineToken,
-        jwt: String
-    ): Single<NabuUser> =
-        authenticate(offlineTokenResponse) {
-            nabuService.updateWalletInformation(it, jwt)
         }
 
     override fun addAddress(
