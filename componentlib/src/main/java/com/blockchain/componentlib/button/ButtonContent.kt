@@ -66,6 +66,8 @@ fun ButtonContent(
                     )
                     Spacer(Modifier.width(AppTheme.dimensions.paddingSmall))
                 }
+                is ImageResource.LocalWithResolvedBitmap,
+                is ImageResource.LocalWithBackgroundAndExternalResources,
                 ImageResource.None -> { /* no-op */
                 }
             }

@@ -23,6 +23,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
 import com.blockchain.componentlib.sheets.SheetHeader
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.onboarding.DeFiOnboardingActivity
@@ -76,17 +77,19 @@ class WalletModeSelectionBottomSheet :
 
         return ComposeView(requireContext()).apply {
             setContent {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    SheetHeader(
-                        onClosePress = { dismiss() },
-                        shouldShowDivider = false
-                    )
-                    WalletModes(viewModel)
+                AppTheme {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White, RoundedCornerShape(dimensionResource(id = R.dimen.tiny_margin))),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        SheetHeader(
+                            onClosePress = { dismiss() },
+                            shouldShowDivider = false
+                        )
+                        WalletModes(viewModel)
+                    }
                 }
             }
         }

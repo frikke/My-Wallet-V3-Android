@@ -38,6 +38,7 @@ import com.blockchain.componentlib.charts.PercentageChangeData
 import com.blockchain.componentlib.databinding.ToolbarGeneralBinding
 import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
@@ -513,23 +514,25 @@ class CoinViewActivity :
 
     private fun setExpandableDescription(description: String) {
         binding.assetAboutBlurb.setContent {
-            if (description.isEmpty()) {
-                SimpleText(
-                    text = getString(R.string.coinview_no_asset_description),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    style = ComposeTypographies.Paragraph1,
-                    color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start
-                )
-            } else {
-                ExpandableItem(
-                    text = description,
-                    numLinesVisible = VISIBLE_LINES_DESCRIPTION,
-                    textButtonToExpand = getString(R.string.coinview_expandable_button),
-                    textButtonToCollapse = getString(R.string.coinview_collapsable_button)
-                )
+            AppTheme {
+                if (description.isEmpty()) {
+                    SimpleText(
+                        text = getString(R.string.coinview_no_asset_description),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        style = ComposeTypographies.Paragraph1,
+                        color = ComposeColors.Body,
+                        gravity = ComposeGravities.Start
+                    )
+                } else {
+                    ExpandableItem(
+                        text = description,
+                        numLinesVisible = VISIBLE_LINES_DESCRIPTION,
+                        textButtonToExpand = getString(R.string.coinview_expandable_button),
+                        textButtonToCollapse = getString(R.string.coinview_collapsable_button)
+                    )
+                }
             }
         }
     }

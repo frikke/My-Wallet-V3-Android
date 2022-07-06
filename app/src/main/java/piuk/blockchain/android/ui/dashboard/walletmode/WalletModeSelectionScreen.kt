@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,7 +92,10 @@ fun WalletModesDialogContent(
             startImageResource = ImageResource.Local(R.drawable.ic_portfolio),
             onClick = { onItemClicked(WalletMode.CUSTODIAL_ONLY) },
             endImageResource = if (selectedMode == WalletMode.CUSTODIAL_ONLY) {
-                ImageResource.Local(R.drawable.ic_wallet_mode_selected)
+                ImageResource.Local(
+                    id = R.drawable.ic_wallet_mode_selected,
+                    colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+                )
             } else {
                 ImageResource.Local(R.drawable.ic_chevron_end)
             }
@@ -108,7 +112,10 @@ fun WalletModesDialogContent(
                 startImageResource = ImageResource.Local(R.drawable.ic_defi_wallet),
                 onClick = { onItemClicked(WalletMode.NON_CUSTODIAL_ONLY) },
                 endImageResource = if (selectedMode == WalletMode.NON_CUSTODIAL_ONLY) {
-                    ImageResource.Local(R.drawable.ic_wallet_mode_selected)
+                    ImageResource.Local(
+                        id = R.drawable.ic_wallet_mode_selected,
+                        colorFilter = ColorFilter.tint(AppTheme.colors.primary)
+                    )
                 } else {
                     ImageResource.Local(R.drawable.ic_chevron_end)
                 }

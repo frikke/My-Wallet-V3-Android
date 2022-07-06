@@ -56,8 +56,14 @@ fun Button(
 
     val interactionSource = remember { MutableInteractionSource() }
 
-    var backgroundColor by remember(isDarkTheme) {
-        mutableStateOf(if (isDarkTheme) defaultBackgroundDarkColor else defaultBackgroundLightColor)
+    var backgroundColor by remember(state, isDarkTheme) {
+        mutableStateOf(
+            when (state) {
+                ButtonState.Loading,
+                ButtonState.Enabled -> if (isDarkTheme) defaultBackgroundLightColor else defaultBackgroundDarkColor
+                ButtonState.Disabled -> if (isDarkTheme) disabledBackgroundLightColor else disabledBackgroundDarkColor
+            }
+        )
     }
 
     val disabledBackgroundColor = if (isDarkTheme) disabledBackgroundDarkColor else disabledBackgroundLightColor

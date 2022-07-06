@@ -48,8 +48,7 @@ fun SmallMinimalButton(
             textColor: Color,
             textAlpha: Float,
             loadingIconResId: Int,
-            _: ImageResource,
-            ->
+            _: ImageResource, ->
             ButtonContentSmall(
                 state = state,
                 text = text,

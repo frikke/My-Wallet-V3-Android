@@ -16,6 +16,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.MVIFragment
 import com.blockchain.commonarch.presentation.mvi_v2.ModelConfigArgs
 import com.blockchain.commonarch.presentation.mvi_v2.NavigationRouter
 import com.blockchain.commonarch.presentation.mvi_v2.bindViewModel
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.koin.payloadScope
 import info.blockchain.balance.AssetInfo
 import org.koin.android.scope.AndroidScopeComponent
@@ -41,7 +42,9 @@ class PricesFragment :
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                ScreenContent()
+                AppTheme {
+                    ScreenContent()
+                }
             }
         }
     }

@@ -85,7 +85,9 @@ class DappsListFragment :
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Dapps(model)
+                AppTheme {
+                    Dapps(model)
+                }
             }
         }
     }
