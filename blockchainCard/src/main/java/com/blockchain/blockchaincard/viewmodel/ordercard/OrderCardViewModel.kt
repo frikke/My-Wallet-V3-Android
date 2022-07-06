@@ -22,15 +22,16 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardArgs.ProductArgs -> {
-                updateState { it.copy(cardProduct = args.product) }
+                updateState { it.copy(selectedCardProduct = args.product) }
             }
         }
     }
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
         card = state.card,
-        cardProduct = state.cardProduct,
-        residentialAddress = state.residentialAddress
+        selectedCardProduct = state.selectedCardProduct,
+        residentialAddress = state.residentialAddress,
+        ssn = state.ssn,
     )
 
     override suspend fun handleIntent(
@@ -44,7 +45,12 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                 navigate(BlockchainCardNavigationEvent.OrderCardKycAddress)
             }
 
+            is BlockchainCardIntent.OrderCardSSNAddress -> {
+                navigate(BlockchainCardNavigationEvent.OrderCardKycSSN)
+            }
+
             is BlockchainCardIntent.OrderCardKycComplete -> {
+                updateState { it.copy(ssn = intent.ssn) }
                 navigate(BlockchainCardNavigationEvent.OrderCardConfirm)
             }
 
@@ -95,16 +101,20 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
             }
 
             is BlockchainCardIntent.CreateCard -> {
-                navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
-                blockchainCardRepository.createCard(productCode = intent.productCode, ssn = intent.ssn)
-                    .doOnFailure {
-                        // Todo update state's error here OR pass it to the destination
-                        navigate(BlockchainCardNavigationEvent.CreateCardFailed)
+                modelState.selectedCardProduct?.let { product ->
+                    modelState.ssn?.let { ssn ->
+                        navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
+                        blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
+                            .doOnFailure {
+                                // Todo(labreu): update state's error here OR pass it to the destination
+                                navigate(BlockchainCardNavigationEvent.CreateCardFailed)
+                            }
+                            .doOnSuccess { card ->
+                                updateState { it.copy(card = card) }
+                                navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
+                            }
                     }
-                    .doOnSuccess { card ->
-                        updateState { it.copy(card = card) }
-                        navigate(BlockchainCardNavigationEvent.CreateCardSuccess)
-                    }
+                }
             }
 
             is BlockchainCardIntent.HideBottomSheet -> {

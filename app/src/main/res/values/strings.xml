@@ -3100,6 +3100,10 @@
     <string name="bc_card_transaction_cancelled">Cancelled</string>
     <string name="bc_card_transaction_declined">Declined</string>
     <string name="bc_card_transaction_completed">Completed</string>>
+    <string name="verify_your_identity">Verify Your Identity</string>
+    <string name="verify_your_identity_description">Please confirm your SSN or Tax ID below to prevent others from creating fraudulent accounts in your name.</string>
+    <string name="ssn_title">SSN or Individual Tax ID #</string>
+    <string name="ssn_hint">XXXXXXXXX</string>
 
     <!--  Sanctions  -->
     <string name="russia_sanctions_eu5_sheet_subtitle">Currently, trading is not allowed for balances over €10.000 due to regulatory sanctions. However, you can still hold or withdraw.</string>

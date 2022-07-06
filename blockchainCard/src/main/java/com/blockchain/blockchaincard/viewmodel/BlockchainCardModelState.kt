@@ -10,7 +10,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.ModelState
 
 data class BlockchainCardModelState(
     val card: BlockchainCard? = null,
-    val cardProduct: BlockchainCardProduct? = null,
+    val selectedCardProduct: BlockchainCardProduct? = null,
     val cardWidgetUrl: String? = null,
     val isLinkedAccountBalanceLoading: Boolean = false,
     val isTransactionListRefreshing: Boolean = false,
@@ -19,5 +19,6 @@ data class BlockchainCardModelState(
     val residentialAddress: BlockchainCardAddress? = null,
     val userFirstAndLastName: String? = null,
     val transactionList: List<BlockchainCardTransaction>? = null,
-    val selectedCardTransaction: BlockchainCardTransaction? = null
+    val selectedCardTransaction: BlockchainCardTransaction? = null,
+    val ssn: String? = null
 ) : ModelState

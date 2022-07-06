@@ -24,6 +24,7 @@ import com.blockchain.blockchaincard.ui.composables.ordercard.CardCreationSucces
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCard
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardAddressKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardContent
+import com.blockchain.blockchaincard.ui.composables.ordercard.OrderCardSsnKYC
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductDetails
 import com.blockchain.blockchaincard.ui.composables.ordercard.ProductLegalInfo
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
@@ -73,27 +74,21 @@ fun BlockchainCardNavHost(
         composable(BlockchainCardDestination.OrderCardKycAddressDestination) {
             state?.let { state ->
                 OrderCardAddressKYC(
-                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete) },
+                    onContinue = { viewModel.onIntent(BlockchainCardIntent.OrderCardSSNAddress) },
                     onCheckBillingAddress = { viewModel.onIntent(BlockchainCardIntent.SeeBillingAddress) },
                     shortAddress = state.residentialAddress?.getShortAddress()
                 )
             }
         }
 
+        composable(BlockchainCardDestination.OrderCardKycSSNDestination) {
+            OrderCardSsnKYC(onContinue = { ssn -> viewModel.onIntent(BlockchainCardIntent.OrderCardKycComplete(ssn)) })
+        }
+
         composable(BlockchainCardDestination.OrderCardConfirmDestination) {
             OrderCardContent(
-                onCreateCard = {
-                    viewModel.onIntent(
-                        // TODO(labreu): once staging API is not harcoded, remove this
-                        BlockchainCardIntent.CreateCard(
-                            productCode = "VIRTUAL1",
-                            ssn = "111111110"
-                        )
-                    )
-                },
-                onSeeProductDetails = {
-                    viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails)
-                },
+                onCreateCard = { viewModel.onIntent(BlockchainCardIntent.CreateCard) },
+                onSeeProductDetails = { viewModel.onIntent(BlockchainCardIntent.OnSeeProductDetails) },
             )
         }
 
