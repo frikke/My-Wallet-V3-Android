@@ -16,7 +16,6 @@ import com.blockchain.coincore.TxValidationFailure
 import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.copyAndPut
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
-import com.blockchain.coincore.toFiat
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.limits.TxLimits
@@ -275,12 +274,9 @@ class BtcOnChainTxEngine(
             .then { validateSufficientFunds(pendingTx) }
             .updateTxValidity(pendingTx)
 
-    override fun doBuildConfirmations(pendingTx: PendingTx): Single<PendingTx> =
-        Single.just(
-            buildConfirmations(pendingTx)
-        )
-
-    private fun buildConfirmations(pendingTx: PendingTx): PendingTx =
+    override fun doBuildConfirmations(
+        pendingTx: PendingTx
+    ): Single<PendingTx> = isLargeTransaction(pendingTx).map { isLargeTransaction ->
         pendingTx.copy(
             confirmations = listOfNotNull(
                 TxConfirmationValue.From(sourceAccount, sourceAsset),
@@ -303,38 +299,40 @@ class BtcOnChainTxEngine(
                         .plus(pendingTx.feeAmount.toUserFiat(exchangeRates))
                 ),
                 TxConfirmationValue.Description(),
-                if (isLargeTransaction(pendingTx)) {
+                if (isLargeTransaction) {
                     TxConfirmationValue.TxBooleanConfirmation<Unit>(
                         TxConfirmation.LARGE_TRANSACTION_WARNING
                     )
                 } else null
             )
         )
+    }
 
     // Returns true if bitcoin transaction is large by checking against 3 criteria:
     //  * If the fee > $0.50 AND
     //  * the Tx size is over 1kB AND
     //  * the ratio of fee/amount is over 1%
-    private fun isLargeTransaction(pendingTx: PendingTx): Boolean {
+    private fun isLargeTransaction(pendingTx: PendingTx): Single<Boolean> =
+        exchangeRates.exchangeRate(pendingTx.feeAmount.currency, Dollars)
+            .firstOrError()
+            .map { exchangeRate ->
+                val fiatValue = exchangeRate.convert(pendingTx.feeAmount)
+                val outputs = listOf(
+                    btcDataManager.getAddressOutputType(btcTarget.address),
+                    btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
+                )
 
-        val fiatValue = pendingTx.feeAmount.toFiat(Dollars, exchangeRates)
+                val txSize = sendDataManager.estimateSize(
+                    inputs = pendingTx.utxoBundle.spendableOutputs,
+                    outputs = outputs // assumes change required
+                )
 
-        val outputs = listOf(
-            btcDataManager.getAddressOutputType(btcTarget.address),
-            btcDataManager.getXpubFormatOutputType(btcSource.xpubs.default.derivation)
-        )
-
-        val txSize = sendDataManager.estimateSize(
-            inputs = pendingTx.utxoBundle.spendableOutputs,
-            outputs = outputs // assumes change required
-        )
-
-        val relativeFee =
-            BigDecimal(100) * (pendingTx.feeAmount.toBigDecimal() / pendingTx.amount.toBigDecimal())
-        return fiatValue.toBigDecimal() > BigDecimal(LARGE_TX_FEE) &&
-            txSize > LARGE_TX_SIZE &&
-            relativeFee > LARGE_TX_PERCENTAGE
-    }
+                val relativeFee =
+                    BigDecimal(100) * (pendingTx.feeAmount.toBigDecimal() / pendingTx.amount.toBigDecimal())
+                fiatValue.toBigDecimal() > BigDecimal(LARGE_TX_FEE) &&
+                    txSize > LARGE_TX_SIZE &&
+                    relativeFee > LARGE_TX_PERCENTAGE
+            }
 
     override fun doValidateAll(pendingTx: PendingTx): Single<PendingTx> =
         validateAddress()
