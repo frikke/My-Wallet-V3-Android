@@ -2,6 +2,8 @@ package piuk.blockchain.android.ui.kyc.mobile.validation
 
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.domain.dataremediation.model.QuestionnaireNode
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.outcome.Outcome
@@ -20,7 +22,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import piuk.blockchain.android.ui.dataremediation.toMutableNode
 import piuk.blockchain.android.ui.kyc.mobile.entry.models.PhoneVerificationModel
 import piuk.blockchain.android.ui.kyc.mobile.validation.models.VerificationCode
 import piuk.blockchain.androidcore.data.settings.PhoneNumber
@@ -35,7 +36,8 @@ class KycMobileValidationPresenterTest {
         on { syncUser() }.thenReturn(Completable.complete())
     }
     private val dataRemediationService: DataRemediationService = mock {
-        onBlocking { getQuestionnaire() }.thenReturn(Outcome.Success(emptyList()))
+        onBlocking { getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION) }
+            .thenReturn(Outcome.Success(null))
     }
 
     @Suppress("unused")
@@ -66,11 +68,17 @@ class KycMobileValidationPresenterTest {
         whenever(view.resendObservable).thenReturn(noResend())
         whenever(phoneNumberUpdater.verifySms(verificationCode.code))
             .thenReturn(Single.just(phoneNumberSanitized))
-        val nodes = listOf(
-            QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
-            QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+        val questionnaire = Questionnaire(
+            header = null,
+            context = QuestionnaireContext.TIER_TWO_VERIFICATION,
+            nodes = listOf(
+                QuestionnaireNode.Selection("s1", "text1", emptyList(), false),
+                QuestionnaireNode.Selection("s2", "text2", emptyList(), false),
+            ),
+            isMandatory = true
         )
-        whenever(dataRemediationService.getQuestionnaire()).thenReturn(Outcome.Success(nodes))
+        whenever(dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION))
+            .thenReturn(Outcome.Success(questionnaire))
 
         // Act
         subject.onViewReady()
@@ -84,7 +92,7 @@ class KycMobileValidationPresenterTest {
         verify(nabuUserSync).syncUser()
         verify(view).showProgressDialog()
         verify(view).dismissProgressDialog()
-        verify(view).navigateToQuestionnaire(nodes.toMutableNode())
+        verify(view).navigateToQuestionnaire(questionnaire)
     }
 
     @Test
@@ -151,7 +159,8 @@ class KycMobileValidationPresenterTest {
         whenever(nabuUserSync.syncUser())
             .thenReturn(Completable.error { Throwable() })
             .thenReturn(Completable.complete())
-        whenever(dataRemediationService.getQuestionnaire()).thenReturn(Outcome.Success(emptyList())).thenReturn(Outcome.Success(emptyList()))
+        whenever(dataRemediationService.getQuestionnaire(QuestionnaireContext.TIER_TWO_VERIFICATION))
+            .thenReturn(Outcome.Success(null)).thenReturn(Outcome.Success(null))
         val verificationModel = PhoneVerificationModel(phoneNumberSanitized, verificationCode)
 
         // Act

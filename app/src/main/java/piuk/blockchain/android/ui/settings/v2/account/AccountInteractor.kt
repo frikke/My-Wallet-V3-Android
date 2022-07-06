@@ -9,6 +9,7 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import exchange.ExchangeLinking
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.wallet.api.data.Settings
@@ -21,14 +22,16 @@ class AccountInteractor internal constructor(
     private val exchangeRates: ExchangeRatesDataManager,
     private val blockchainCardRepository: BlockchainCardRepository,
     private val currencyPrefs: CurrencyPrefs,
-    private val exchangeLinkingState: ExchangeLinking
+    private val exchangeLinkingState: ExchangeLinking,
+    private val localSettingsPrefs: LocalSettingsPrefs
 ) {
 
     fun getWalletInfo(): Single<AccountInformation> =
         settingsDataManager.getSettings().firstOrError().map {
             AccountInformation(
                 walletId = it.guid,
-                userCurrency = FiatCurrency.fromCurrencyCode(it.currency)
+                userCurrency = FiatCurrency.fromCurrencyCode(it.currency),
+                isChartVibrationEnabled = localSettingsPrefs.isChartVibrationEnabled
             )
         }
 
@@ -69,4 +72,10 @@ class AccountInteractor internal constructor(
                         }
                 }
             }
+
+    fun toggleChartVibration(chartVibrationEnabled: Boolean): Single<Boolean> =
+        Single.fromCallable {
+            localSettingsPrefs.isChartVibrationEnabled = !chartVibrationEnabled
+            return@fromCallable !chartVibrationEnabled
+        }
 }

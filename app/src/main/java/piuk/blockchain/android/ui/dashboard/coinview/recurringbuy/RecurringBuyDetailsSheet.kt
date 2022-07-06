@@ -156,7 +156,7 @@ class RecurringBuyDetailsSheet : MviBottomSheet<RecurringBuyModel,
             if (paymentMethodType == PaymentMethodType.FUNDS) {
                 SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     label = getString(R.string.payment_method),
-                    title = getString(R.string.recurring_buy_funds_label, amount.currencyCode),
+                    title = amount.currency.name,
                     hasChanged = false
                 )
             } else {

@@ -314,6 +314,10 @@ class ManageCardViewModel(private val blockchainCardRepository: BlockchainCardRe
                 updateState { it.copy(selectedCardTransaction = intent.transaction) }
                 navigate(BlockchainCardNavigationEvent.SeeTransactionDetails)
             }
+
+            is BlockchainCardIntent.HideBottomSheet -> {
+                navigate(BlockchainCardNavigationEvent.HideBottomSheet)
+            }
         }
     }
 }

@@ -5,6 +5,6 @@ enum class DataRemediationError {
 }
 
 sealed class SubmitQuestionnaireError {
-    object RequestFailed : SubmitQuestionnaireError()
+    data class RequestFailed(val message: String?) : SubmitQuestionnaireError()
     data class InvalidNode(val nodeId: NodeId) : SubmitQuestionnaireError()
 }

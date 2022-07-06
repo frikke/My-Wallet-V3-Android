@@ -6,10 +6,10 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.websocket.MessagesSocketHandler
-import com.google.gson.Gson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -37,7 +37,6 @@ import piuk.blockchain.androidcore.data.ethereum.EthDataManager
 import piuk.blockchain.androidcore.data.ethereum.models.CombinedEthModel
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 
 private const val DUMMY_ERC20_1_TICKER = "DUMMY"
 private const val DUMMY_ERC20_1_CONTRACT_ADDRESS = "0xF00F00F00F00F00F00FAB"
@@ -138,7 +137,7 @@ class CoinsWebSocketStrategyTest {
         on { getWalletTransactions(any(), any()) }.thenReturn(Observable.just(emptyList()))
     }
 
-    private val prefs: PersistentPrefs = mock {
+    private val prefs: AuthPrefs = mock {
         on { walletGuid }.thenReturn("1234")
     }
 
@@ -163,23 +162,17 @@ class CoinsWebSocketStrategyTest {
         }
     }
 
-    val replaceGsonKtxFF: FeatureFlag = mock {
-        on { enabled }.thenReturn(Single.just(true))
-    }
-
     private val strategy = CoinsWebSocketStrategy(
         coinsWebSocket = webSocket,
         ethDataManager = ethDataManager,
         erc20DataManager = erc20DataManager,
         stringUtils = stringUtils,
-        gson = Gson(),
         json = json,
         featureFlag = featureFlag,
-        replaceGsonKtxFF = replaceGsonKtxFF,
         bchDataManager = bchDataManager,
         payloadDataManager = payloadDataManager,
         appUtil = mock(),
-        prefs = prefs,
+        authPrefs = prefs,
         rxBus = rxBus,
         assetCatalogue = assetCatalogue,
         crashLogger = mock()

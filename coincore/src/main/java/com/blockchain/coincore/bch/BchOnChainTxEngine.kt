@@ -19,7 +19,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.nabu.datamanagers.TransactionError
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Money
@@ -55,7 +55,7 @@ class BchOnChainTxEngine(
     private val payloadDataManager: PayloadDataManager,
     private val sendDataManager: SendDataManager,
     private val feeManager: FeeDataManager,
-    walletPreferences: WalletStatus,
+    walletPreferences: WalletStatusPrefs,
     requireSecondPassword: Boolean,
     resolvedAddress: Single<String>
 ) : OnChainTxEngineBase(

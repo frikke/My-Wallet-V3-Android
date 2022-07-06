@@ -10,6 +10,7 @@ import com.blockchain.biometrics.BiometricDataRepository
 import com.blockchain.biometrics.CryptographyManager
 import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
+import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.Database
 import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.enviroment.Environment
@@ -29,7 +30,6 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -53,7 +53,6 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
-import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
@@ -167,6 +166,7 @@ import piuk.blockchain.android.util.RootUtil
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.wiper.DataWiper
 import piuk.blockchain.android.util.wiper.DataWiperImpl
+import piuk.blockchain.android.walletmode.WalletModeThemeProvider
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.data.api.ConnectionApi
 import piuk.blockchain.androidcore.data.auth.metadata.WalletCredentialsMetadataUpdater
@@ -184,11 +184,12 @@ val applicationModule = module {
         AppUtil(
             context = get(),
             payloadScopeWiper = get(),
-            prefs = get(),
+            sessionPrefs = get(),
             trust = get(),
             pinRepository = get(),
             remoteLogger = get(),
-            isIntercomEnabledFlag = get(intercomChatFeatureFlag)
+            isIntercomEnabledFlag = get(intercomChatFeatureFlag),
+            walletStatusPrefs = get()
         )
     }.bind(AppUtilAPI::class)
 
@@ -217,6 +218,12 @@ val applicationModule = module {
     factory { get<Context>().resources }
 
     single { CurrentContextAccess() }
+
+    single {
+        WalletModeThemeProvider(
+            walletModeService = get()
+        )
+    }.bind(AppThemeProvider::class)
 
     single { LifecycleInterestedComponent() }
         .bind(LifecycleObservable::class)
@@ -289,21 +296,15 @@ val applicationModule = module {
                 bchDataManager = get(),
                 stringUtils = get(),
                 featureFlag = get(coinWebSocketFeatureFlag),
-                gson = get(),
                 json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 payloadDataManager = get(),
                 rxBus = get(),
-                prefs = get(),
+                authPrefs = get(),
                 appUtil = get(),
                 assetCatalogue = get(),
                 crashLogger = get()
             )
         }.bind(CoinsWebSocketInterface::class)
-
-        factory {
-            GsonBuilder().create()
-        }
 
         factory {
             OkHttpClient()
@@ -329,7 +330,8 @@ val applicationModule = module {
             CreateWalletViewModel(
                 environmentConfig = get(),
                 defaultLabels = get(),
-                prefs = get(),
+                authPrefs = get(),
+                walletStatusPrefs = get(),
                 analytics = get(),
                 specificAnalytics = get(),
                 appUtil = get(),
@@ -350,7 +352,7 @@ val applicationModule = module {
 
         factory {
             BackupWalletStartingInteractor(
-                prefs = get(),
+                authPrefs = get(),
                 settingsDataManager = get()
             )
         }
@@ -381,7 +383,7 @@ val applicationModule = module {
             BackupVerifyPresenter(
                 payloadDataManager = get(),
                 backupWallet = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }
 
@@ -398,7 +400,7 @@ val applicationModule = module {
         factory {
             AccountRecoveryInteractor(
                 payloadDataManager = get(),
-                prefs = get(),
+                authPrefs = get(),
                 metadataInteractor = get(),
                 metadataDerivation = MetadataDerivation(),
                 nabuDataManager = get()
@@ -577,7 +579,6 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                assetCatalogue = get(),
                 json = get(kotlinJsonAssetTicker),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
@@ -599,9 +600,7 @@ val applicationModule = module {
                 currencyPrefs = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivator = get(),
-                gson = get(),
                 json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
                 remoteLogger = get()
@@ -648,7 +647,7 @@ val applicationModule = module {
 
         factory {
             BackupWalletCompletedPresenter(
-                walletStatus = get(),
+                walletStatusPrefs = get(),
                 authDataManager = get()
             )
         }
@@ -852,18 +851,21 @@ val applicationModule = module {
     factory {
         LauncherPresenter(
             appUtil = get(),
-            prefs = get(),
             deepLinkPersistence = get(),
             envSettings = get(),
             authPrefs = get(),
             getAppMaintenanceConfigUseCase = get(),
-            appMaintenanceFF = get(appMaintenanceFeatureFlag)
+            appMaintenanceFF = get(appMaintenanceFeatureFlag),
+            sessionPrefs = get(),
+            securityPrefs = get(),
+            referralPrefs = get(),
+            encryptedPrefs = get()
         )
     }
 
     factory {
         DeepLinkPersistence(
-            prefs = get()
+            sessionPrefs = get()
         )
     }
 

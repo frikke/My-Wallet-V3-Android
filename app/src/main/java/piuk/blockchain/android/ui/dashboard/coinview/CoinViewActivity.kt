@@ -46,6 +46,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.snackbar.Snackbar
@@ -107,6 +108,8 @@ class CoinViewActivity :
 
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
+    private val localSettingsPrefs: LocalSettingsPrefs by inject()
+
     private val listItems = mutableListOf<AssetDetailsItem>()
     private lateinit var historicalGraphData: HistoricalRateList
     private lateinit var prices24Hr: Prices24HrWithDelta
@@ -231,6 +234,7 @@ class CoinViewActivity :
                         selectedFiat
                     )
                 }
+                shouldVibrate = localSettingsPrefs.isChartVibrationEnabled
             }
 
             chartControls.apply {

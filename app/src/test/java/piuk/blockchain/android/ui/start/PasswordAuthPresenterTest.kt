@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.start
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -28,7 +29,6 @@ import piuk.blockchain.android.R
 import piuk.blockchain.android.util.AppUtil
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
 import retrofit2.Response
 
@@ -36,7 +36,7 @@ class TestAuthPresenter(
     override val appUtil: AppUtil,
     override val authDataManager: AuthDataManager,
     override val payloadDataManager: PayloadDataManager,
-    override val prefs: PersistentPrefs,
+    override val authPrefs: AuthPrefs,
     override val remoteLogger: RemoteLogger
 ) : PasswordAuthPresenter<PasswordAuthView>() {
     override fun onAuthFailed() {

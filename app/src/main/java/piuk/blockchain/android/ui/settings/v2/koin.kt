@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.settings.v2
 
 import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.presentation.BackupPhrasePinService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -37,6 +38,7 @@ import piuk.blockchain.android.ui.settings.v2.security.password.PasswordChangeSt
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinInteractor
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinModel
 import piuk.blockchain.android.ui.settings.v2.security.pin.PinState
+import piuk.blockchain.android.ui.settings.v2.security.pin.requests.BackupPhrasePinRequest
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationInteractor
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationModel
 import piuk.blockchain.android.ui.settings.v2.sheets.sms.SMSVerificationState
@@ -199,7 +201,8 @@ val redesignSettingsModule = module {
                 exchangeRates = get(),
                 blockchainCardRepository = get(),
                 currencyPrefs = get(),
-                exchangeLinkingState = get()
+                exchangeLinkingState = get(),
+                localSettingsPrefs = get()
             )
         }
 
@@ -264,13 +267,19 @@ val redesignSettingsModule = module {
                 pinRepository = get(),
                 biometricsController = get(),
                 mobileNoticeRemoteConfig = get(),
-                persistentPrefs = get(),
-                walletStatus = get(),
+                sessionPrefs = get(),
+                walletStatusPrefs = get(),
                 authPrefs = get(),
                 credentialsWiper = get(),
                 walletOptionsDataManager = get(),
                 defaultLabels = get(),
                 isIntercomEnabledFlag = get(intercomChatFeatureFlag)
+            )
+        }
+
+        scoped<BackupPhrasePinService> {
+            BackupPhrasePinRequest(
+                secondPasswordHandler = get()
             )
         }
 

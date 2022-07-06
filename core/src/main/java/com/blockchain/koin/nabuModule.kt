@@ -6,6 +6,10 @@ import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.kyc.data.KycStoreRepository
+import com.blockchain.nabu.api.kyc.data.store.KycDataSource
+import com.blockchain.nabu.api.kyc.data.store.KycStore
+import com.blockchain.nabu.api.kyc.domain.KycStoreService
 import com.blockchain.nabu.api.nabu.Nabu
 import com.blockchain.nabu.cache.CustodialAssetsEligibilityCache
 import com.blockchain.nabu.cache.UserCache
@@ -206,10 +210,26 @@ val nabuModule = module {
             AnalyticsWalletReporter(userAnalytics = get())
         }.bind(WalletReporter::class)
 
+        scoped<KycStoreService> {
+            KycStoreRepository(
+                kycDataSource = get(),
+                assetCatalogue = get()
+            )
+        }
+
+        scoped<KycDataSource> {
+            KycStore(
+                endpoint = get(),
+                authenticator = get()
+            )
+        }
+
         factory {
             NabuTierService(
                 assetCatalogue = get(),
                 authenticator = get(),
+                kycStoreService = get(),
+                speedUpLoginKycFF = get(speedUpLoginKycFeatureFlag),
                 endpoint = get()
             )
         }.apply {

@@ -37,7 +37,7 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import info.blockchain.balance.Money
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -101,7 +101,7 @@ class SwapFragment :
     private val userIdentity: UserIdentity by scopedInject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
-    private val walletPrefs: WalletStatus by inject()
+    private val walletPrefs: WalletStatusPrefs by inject()
     private val analytics: Analytics by inject()
     private val assetResources: AssetResources by inject()
     private val compositeDisposable = CompositeDisposable()

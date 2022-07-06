@@ -10,7 +10,7 @@ import com.blockchain.coincore.TxEngine
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.BalanceAndMin
 import com.blockchain.sunriver.XlmAccountReference
 import com.blockchain.sunriver.XlmDataManager
@@ -34,7 +34,7 @@ internal class XlmCryptoWalletAccount(
     override val exchangeRates: ExchangeRatesDataManager,
     private val xlmFeesFetcher: XlmFeesFetcher,
     private val walletOptionsDataManager: WalletOptionsDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val custodialWalletManager: CustodialWalletManager,
     override val addressResolver: AddressResolver,
 ) : CryptoNonCustodialAccount(

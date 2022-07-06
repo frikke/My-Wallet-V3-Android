@@ -6,8 +6,6 @@ import com.blockchain.core.referral.ReferralRepository
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.referral.model.ReferralInfo
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.outcome.Outcome
@@ -89,19 +87,11 @@ class MainInteractorTest {
         }
     }
 
-    private val replaceGsonKtxFF: FeatureFlag = mock()
-    private val featureFlagsModule = module {
-        single(replaceGsonKtxFeatureFlag) {
-            replaceGsonKtxFF
-        }
-    }
-
     @Before
     fun setup() {
         GlobalContext.startKoin {
             modules(
                 jsonSerializers,
-                featureFlagsModule
             )
         }
 
@@ -196,16 +186,7 @@ class MainInteractorTest {
     }
 
     @Test
-    fun setLocalBankStateGson() {
-        whenever(replaceGsonKtxFF.isEnabled).thenReturn(false)
-        doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
-        interactor.updateBankLinkingState(mock())
-        verify(bankLinkingPrefs).setBankLinkingState(any())
-    }
-
-    @Test
-    fun setLocalBankStateKtx() {
-        whenever(replaceGsonKtxFF.isEnabled).thenReturn(true)
+    fun setLocalBankState() {
         doNothing().whenever(bankLinkingPrefs).setBankLinkingState(any())
         interactor.updateBankLinkingState(BankAuthDeepLinkState())
         verify(bankLinkingPrefs).setBankLinkingState(any())

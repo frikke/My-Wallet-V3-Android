@@ -17,6 +17,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import java.io.Serializable
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.ui.dashboard.announcements.AnnouncementCard
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -44,14 +45,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 activeAssets = AssetMap(mapOf()),
                 fiatAssets = FiatAssetState(),
                 isLoadingAssets = true
-            )
-        }
-    }
-
-    object GetAvailableAssets : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                availablePrices = emptyMap()
             )
         }
     }
@@ -97,16 +90,6 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         }
     }
 
-    class AssetListUpdate(
-        private val assetList: List<AssetInfo>,
-    ) : DashboardIntent() {
-        override fun reduce(oldState: DashboardState): DashboardState {
-            return oldState.copy(
-                availablePrices = assetList.associateWith { AssetPriceState(assetInfo = it) }
-            )
-        }
-    }
-
     class GetAssetPrice(val asset: AssetInfo) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }
@@ -123,15 +106,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             } else {
                 oldState.activeAssets
             }
-
-            val priceState = AssetPriceState(
-                assetInfo = asset
-            )
-            val pricesMap = oldState.availablePrices.toMutableMap()
-            pricesMap[asset] = priceState
             return oldState.copy(
-                activeAssets = updatedActiveList,
-                availablePrices = pricesMap
+                activeAssets = updatedActiveList
             )
         }
 
@@ -152,25 +128,16 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         val shouldFetchDayHistoricalPrices: Boolean,
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
-            val updatedActiveList = if (oldState.activeAssets.contains(asset)) {
-                val oldAsset = oldState.activeAssets[asset]
-                val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
-                oldState.activeAssets.copy(patchAsset = newAsset)
-            } else {
-                oldState.activeAssets
-            }
+            val oldAsset = oldState.activeAssets[asset]
+            val newAsset = updateAsset(oldAsset, prices24HrWithDelta)
+            val updatedActiveList = oldState.activeAssets.copy(patchAsset = newAsset)
 
-            val priceState = AssetPriceState(
-                assetInfo = asset,
-                prices = prices24HrWithDelta
-            )
-            val pricesMap = oldState.availablePrices.toMutableMap()
-            pricesMap[asset] = priceState
             return oldState.copy(
-                activeAssets = updatedActiveList,
-                availablePrices = pricesMap
+                activeAssets = updatedActiveList
             )
         }
+
+        override fun isValidFor(oldState: DashboardState): Boolean = oldState.activeAssets[asset] is BrokerageAsset
 
         private fun updateAsset(
             old: DashboardAsset,
@@ -251,6 +218,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             val newAssets = oldState.activeAssets.copy(patchAsset = newAsset)
 
             return oldState.copy(activeAssets = newAssets, isLoadingAssets = false)
+        }
+
+        override fun isValidFor(oldState: DashboardState): Boolean {
+            return oldState.activeAssets.contains(asset)
         }
     }
 
@@ -406,11 +377,12 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
-    class LaunchBankTransferFlow(
+    data class LaunchBankTransferFlow(
         val account: SingleAccount,
         val action: AssetAction,
         val shouldLaunchBankLinkTransfer: Boolean,
-    ) : DashboardIntent() {
+        val shouldSkipQuestionnaire: Boolean = false
+    ) : DashboardIntent(), Serializable {
         override fun reduce(oldState: DashboardState): DashboardState =
             oldState.copy(
                 dashboardNavigationAction = null,

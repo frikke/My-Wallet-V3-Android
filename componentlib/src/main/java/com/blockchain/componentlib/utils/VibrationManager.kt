@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 object VibrationManager {
     private const val VIBRATION_DURATION = 75L
+    private const val VIBRATION_INTENSITY = 200 // ranges from 0-255
 
     fun vibrate(context: Context, duration: Long = VIBRATION_DURATION) {
         val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -20,7 +21,7 @@ object VibrationManager {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vib.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
+            vib.vibrate(VibrationEffect.createOneShot(duration, VIBRATION_INTENSITY))
         } else {
             // deprecated in API 26
             vib.vibrate(duration)

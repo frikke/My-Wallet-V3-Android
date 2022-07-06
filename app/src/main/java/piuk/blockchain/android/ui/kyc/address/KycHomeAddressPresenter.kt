@@ -3,6 +3,7 @@ package piuk.blockchain.android.ui.kyc.address
 import com.blockchain.analytics.Analytics
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
@@ -24,7 +25,6 @@ import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.sdd.SDDAnalytics
-import piuk.blockchain.android.ui.dataremediation.TreeNode
 import piuk.blockchain.android.ui.kyc.BaseKycPresenter
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
@@ -38,7 +38,8 @@ interface KycNextStepDecision {
         object Tier1Complete : NextStep(0)
         object SDDComplete : NextStep(1)
         object Tier2ContinueTier1NeedsMoreInfo : NextStep(2)
-        data class Questionnaire(val root: TreeNode.Root) : NextStep(3)
+        data class Questionnaire(val questionnaire: com.blockchain.domain.dataremediation.model.Questionnaire) :
+            NextStep(3)
         object Veriff : NextStep(4)
 
         override fun compareTo(other: NextStep): Int = this.order - other.order
@@ -161,7 +162,7 @@ class KycHomeAddressPresenter(
                 onSuccess = {
                     when (it.progressToKycNextStep) {
                         is KycNextStepDecision.NextStep.Questionnaire ->
-                            view.continueToQuestionnaire(it.progressToKycNextStep.root, it.countryCode)
+                            view.continueToQuestionnaire(it.progressToKycNextStep.questionnaire, it.countryCode)
                         KycNextStepDecision.NextStep.Tier1Complete -> view.tier1Complete()
                         KycNextStepDecision.NextStep.Tier2ContinueTier1NeedsMoreInfo ->
                             view.continueToTier2MoreInfoNeeded(it.countryCode)

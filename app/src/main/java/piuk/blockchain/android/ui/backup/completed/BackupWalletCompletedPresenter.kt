@@ -1,6 +1,6 @@
 package piuk.blockchain.android.ui.backup.completed
 
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import piuk.blockchain.android.ui.base.BasePresenter
@@ -16,12 +16,12 @@ interface BackupWalletCompletedView : View {
 }
 
 class BackupWalletCompletedPresenter(
-    private val walletStatus: WalletStatus,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val authDataManager: AuthDataManager
 ) : BasePresenter<BackupWalletCompletedView>() {
 
     override fun onViewReady() {
-        val lastBackup = walletStatus.lastBackupTime
+        val lastBackup = walletStatusPrefs.lastBackupTime
         if (lastBackup != 0L) {
             view.showLastBackupDate(lastBackup)
         } else {

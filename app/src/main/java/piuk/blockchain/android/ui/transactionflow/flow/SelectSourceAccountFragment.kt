@@ -51,16 +51,19 @@ class SelectSourceAccountFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.apply {
-            with(accountList) {
+        with(binding) {
+            accountList.apply {
                 onListLoaded = ::doOnListLoaded
                 onLoadError = ::doOnLoadError
                 onListLoading = ::doOnListLoading
             }
 
-            addMethod.setOnClickListener {
-                binding.progress.visible()
-                model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
+            addMethod.apply {
+                text = getString(R.string.add_payment_method)
+                onClick = {
+                    binding.progress.visible()
+                    model.process(TransactionIntent.CheckAvailableOptionsForFiatDeposit)
+                }
             }
         }
     }
@@ -111,8 +114,7 @@ class SelectSourceAccountFragment :
                 LinkBankMethodChooserBottomSheet.newInstance(
                     linkablePaymentMethodsForAction = LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         newState.depositOptionsState.linkablePaymentMethods
-                    ),
-                    transactionTarget = newState.selectedTarget
+                    )
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {

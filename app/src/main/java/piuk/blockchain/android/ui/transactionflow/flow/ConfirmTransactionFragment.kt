@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRates
@@ -74,8 +75,8 @@ class ConfirmTransactionFragment : TransactionFlowFragment<FragmentTxFlowConfirm
         with(binding) {
             with(confirmCtaButton) {
                 text = customiser.confirmCtaText(newState)
-                isEnabled = newState.nextEnabled
-                setOnClickListener { onCtaClick(newState) }
+                buttonState = if (newState.nextEnabled) ButtonState.Enabled else ButtonState.Disabled
+                onClick = { onCtaClick(newState) }
             }
 
             with(buttonCancel) {

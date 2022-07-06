@@ -7,9 +7,11 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoTarget
 import com.blockchain.commonarch.presentation.mvi.MviState
+import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.deeplinking.processor.DeepLinkResult
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.walletconnect.domain.WalletConnectSession
+import com.blockchain.walletmode.WalletMode
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import piuk.blockchain.android.campaign.CampaignType
@@ -23,8 +25,14 @@ data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed,
     val deeplinkIntent: Intent? = null,
+    val currentTab: NavigationItem = NavigationItem.Home,
+    val tabs: List<NavigationItem> = emptyList(),
+    val walletMode: WalletMode = WalletMode.UNIVERSAL,
     val referral: ReferralState = ReferralState(ReferralInfo.NotAvailable)
-) : MviState
+) : MviState {
+    val hasMiddleButton: Boolean
+        get() = walletMode != WalletMode.NON_CUSTODIAL_ONLY
+}
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()

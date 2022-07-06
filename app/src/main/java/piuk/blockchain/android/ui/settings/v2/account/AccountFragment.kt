@@ -160,6 +160,14 @@ class AccountFragment :
                     navigator().goToAddresses()
                 }
             }
+
+            settingsChartVibration.apply {
+                primaryText = getString(R.string.settings_chart_vibration)
+                secondaryText = getString(R.string.settings_chart_vibration_desc)
+                onCheckedChange = {
+                    model.process(AccountIntent.ToggleChartVibration)
+                }
+            }
         }
     }
 
@@ -254,8 +262,11 @@ class AccountFragment :
     private fun renderWalletInformation(accountInformation: AccountInformation) {
         walletId = accountInformation.walletId
 
-        binding.settingsCurrency.apply {
-            secondaryText = accountInformation.userCurrency.nameWithSymbol()
+        with(binding) {
+            settingsChartVibration.isChecked = accountInformation.isChartVibrationEnabled
+            settingsCurrency.apply {
+                secondaryText = accountInformation.userCurrency.nameWithSymbol()
+            }
         }
     }
 

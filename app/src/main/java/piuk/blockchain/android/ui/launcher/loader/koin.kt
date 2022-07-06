@@ -1,7 +1,6 @@
 package piuk.blockchain.android.ui.launcher.loader
 
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.termsAndConditionsFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.dsl.module
@@ -16,11 +15,10 @@ val loaderModule = module {
                 environmentConfig = get(),
                 remoteLogger = get(),
                 interactor = get(),
-                prefs = get(),
+                authPrefs = get(),
                 payloadDataManager = get(),
                 prerequisites = get(),
                 appUtil = get(),
-                authPrefs = get()
             )
         }
 
@@ -28,7 +26,6 @@ val loaderModule = module {
             LoaderInteractor(
                 walletPrefs = get(),
                 payloadDataManager = get(),
-                prefs = get(),
                 analytics = get(),
                 currencyPrefs = get(),
                 nabuUserDataManager = get(),
@@ -38,7 +35,6 @@ val loaderModule = module {
                 prerequisites = get(),
                 ioScheduler = Schedulers.io(),
                 deepLinkPersistence = get(),
-                termsAndConditionsFeatureFlag = get(termsAndConditionsFeatureFlag),
                 referralService = get()
             )
         }

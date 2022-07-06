@@ -33,7 +33,6 @@ dependencies {
     implementation project(':common-mp:utils')
     implementation project(':blockchainApi')
 
-    implementation Libraries.gson
     implementation Libraries.timber
     implementation Libraries.retrofit
     implementation Libraries.retrofitKotlinJsonConverter

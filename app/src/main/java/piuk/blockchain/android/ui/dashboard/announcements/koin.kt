@@ -3,7 +3,6 @@ package piuk.blockchain.android.ui.dashboard.announcements
 import com.blockchain.koin.googlePayFeatureFlag
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -57,8 +56,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             AnnouncementConfigAdapterImpl(
                 config = get(),
-                json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag)
+                json = get()
             )
         }.bind(AnnouncementConfigAdapter::class)
 
@@ -132,7 +130,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BitpayAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -146,7 +144,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TwoFAAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get(),
+                walletStatusPrefs = get(),
                 walletSettings = get()
             )
         }.bind(AnnouncementRule::class)
@@ -162,7 +160,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             BackupPhraseAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 
@@ -184,7 +182,7 @@ val dashboardAnnouncementsModule = module {
         factory {
             TransferCryptoAnnouncement(
                 dismissRecorder = get(),
-                walletStatus = get()
+                walletStatusPrefs = get()
             )
         }.bind(AnnouncementRule::class)
 

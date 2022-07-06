@@ -8,7 +8,7 @@ import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.nhaarman.mockitokotlin2.mock
@@ -49,7 +49,7 @@ class BtcAssetTest : KoinTest {
     private val sendDataManager: SendDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val coinsWebsocket: CoinsWebSocketInterface = mock()
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
 
     private val subject = BtcAsset(

@@ -1392,7 +1392,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="aave_yfi_dot_available_card_cta">Comprar agora</string>
     <string name="old_default_non_custodial_wallet_label">A minha Carteira %1s</string>
     <string name="bank_transfer_in_progress_ob_blurb">A sua encomenda está a ser processada. Pode fechar esta janela em segurança enquanto atualizamos a encomenda em segundo plano.</string>
-    <string name="fiat_currency_funds_wallet_name_1">Conta %1s</string>
     <string name="sell_enter_amount_error_insufficient_funds_for_fees">Não há %1$s suficiente na sua carteira para vender com as taxas de rede atuais.</string>
     <string name="send_enter_amount_network_fees">Taxas de rede</string>
     <string name="send_enter_amount_total">Total</string>
@@ -1566,8 +1565,8 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="verify_device_title">Verificar o dispositivo</string>
     <string name="verify_device_desc">Enviámos um e-mail de verificação para %s.  Clique na ligação do e-mail para continuar.</string>
     <string name="recurring_buy_toolbar">Compras recorrentes</string>
-    <string name="recurring_buy_one_time_short">Uma vez</string>
-    <string name="recurring_buy_one_time">Compra única</string>
+    <string name="recurring_buy_one_time_cta">Uma vez -></string>
+    <string name="recurring_buy_one_time_selector">Compra única</string>
     <string name="recurring_buy_frequency_subtitle">Em %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">cerca de %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">No dia %s</string>
@@ -1638,7 +1637,6 @@ Os seus fundos estarão disponíveis para levantamento quando a transferência b
     <string name="recurring_buy_details_next_payment">Próximo pagamento</string>
     <string name="recurring_buy_details_recurring">Recorrente</string>
     <string name="activity_details_label_btn_cash">Adicionar dinheiro</string>
-    <string name="recurring_buy_funds_label">Conta %s</string>
     <string name="recurring_buy_short_error">Falhou</string>
     <string name="recurring_buy_insufficient_funds_short_error">Falhou. Saldo baixo</string>
     <string name="recurring_buy_internal_server_error">Ocorreu um erro com a sua compra. Tentaremos novamente em breve.</string>
@@ -1856,7 +1854,6 @@ Verifique a sua conexão à Internet e tente novamente ou entre em Contacto com 
  Seu %1$s estará disponível em sua conta \" %2$s \" dentro de 2 dias.</string>
     <string name="reset_kyc_notice_1">Para sua segurança, pode ser necessário verificar novamente sua identidade antes de acessar sua conta de negociação ou de recompensas.</string>
     <string name="reset_account_description_1">A redefinição irá restaurar suas contas de negociação, recompensas e câmbio.</string>
-    <string name="checkout_funds_label_1">%s Wallet</string>
     <string name="activity_details_buy_purchase_amount_1">Total</string>
     <string name="common_approve">Aprovar</string>
     <string name="common_deny">Recusar</string>

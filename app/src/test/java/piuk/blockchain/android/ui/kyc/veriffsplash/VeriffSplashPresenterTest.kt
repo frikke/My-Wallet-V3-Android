@@ -21,7 +21,7 @@ import okhttp3.ResponseBody
 import org.junit.Rule
 import org.junit.Test
 import piuk.blockchain.android.ui.kyc.navhost.models.UiState
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import retrofit2.HttpException
 import retrofit2.Response
 
@@ -31,7 +31,7 @@ class VeriffSplashPresenterTest {
     private val nabuDataManager: NabuDataManager = mock()
     private val view: VeriffSplashView = mock()
     private val analytics: Analytics = mock()
-    private val prefs: PersistentPrefs = mock()
+    private val prefs: SessionPrefs = mock()
 
     private val subject = VeriffSplashPresenter(
         nabuToken = nabuToken,

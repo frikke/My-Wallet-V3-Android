@@ -1,9 +1,9 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import androidx.annotation.StringRes
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import io.reactivex.rxjava3.core.Observable
 import piuk.blockchain.android.ui.base.View
-import piuk.blockchain.android.ui.dataremediation.TreeNode
 import piuk.blockchain.android.ui.kyc.address.models.AddressModel
 import piuk.blockchain.android.ui.kyc.profile.models.ProfileModel
 
@@ -29,7 +29,7 @@ interface KycHomeAddressView : View {
 
     fun continueToTier2MoreInfoNeeded(countryCode: String)
 
-    fun continueToQuestionnaire(root: TreeNode.Root, countryCode: String)
+    fun continueToQuestionnaire(questionnaire: Questionnaire, countryCode: String)
     fun tier1Complete()
     fun onSddVerified()
 

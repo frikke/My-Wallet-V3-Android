@@ -6,6 +6,7 @@ import com.blockchain.api.NabuApiException
 import com.blockchain.banking.BankPaymentApproval
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.componentlib.navigation.NavigationItem
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.referral.model.ReferralInfo
@@ -19,12 +20,15 @@ import com.blockchain.network.PollResult
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
-import com.google.gson.JsonSyntaxException
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import kotlinx.coroutines.rx3.asObservable
+import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.deeplink.LinkState
@@ -45,6 +49,7 @@ class MainModel(
     mainScheduler: Scheduler,
     private val interactor: MainInteractor,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
+    private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
 ) : MviModel<MainState, MainIntent>(
@@ -78,8 +83,41 @@ class MainModel(
         }
     }
 
+    private fun updateTabs(walletMode: WalletMode, currentTab: NavigationItem): MainIntent {
+        return when (walletMode) {
+            WalletMode.UNIVERSAL,
+            WalletMode.CUSTODIAL_ONLY -> MainIntent.UpdateTabs(
+                tabs = listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.BuyAndSell,
+                    NavigationItem.Activity
+                ),
+                selectedTab = currentTab
+            )
+            WalletMode.NON_CUSTODIAL_ONLY -> {
+                val newTabs = listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Prices,
+                    NavigationItem.Activity
+                )
+                MainIntent.UpdateTabs(
+                    tabs = newTabs,
+                    selectedTab = if (newTabs.contains(currentTab)) currentTab else NavigationItem.Home
+                )
+            }
+        }
+    }
+
     override fun performAction(previousState: MainState, intent: MainIntent): Disposable? =
         when (intent) {
+            MainIntent.NavigationTabs -> walletModeService.walletMode.asObservable().subscribeBy {
+                process(MainIntent.RefreshTabs(it))
+            }
+            is MainIntent.RefreshTabs -> {
+                process(updateTabs(intent.walletMode, previousState.currentTab))
+                null
+            }
             is MainIntent.PerformInitialChecks -> {
                 interactor.checkForUserWalletErrors()
                     .subscribeBy(
@@ -220,6 +258,8 @@ class MainModel(
             is MainIntent.SaveDeeplinkIntent -> null
             is MainIntent.ReferralCodeIntent -> null
             is MainIntent.ShowReferralWhenAvailable -> null
+            is MainIntent.UpdateCurrentTab -> null
+            is MainIntent.UpdateTabs -> null
         }
 
     private fun handlePossibleDeepLinkFromScan(scanResult: ScanResult.HttpUri) {
@@ -358,7 +398,7 @@ class MainModel(
                             bankLinkingState.bankLinkingInfo?.let {
                                 process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
                             }
-                        } catch (e: JsonSyntaxException) {
+                        } catch (e: SerializationException) {
                             process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                         }
                     },

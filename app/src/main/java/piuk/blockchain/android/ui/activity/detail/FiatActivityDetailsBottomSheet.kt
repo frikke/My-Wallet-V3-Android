@@ -151,7 +151,7 @@ class FiatActivityDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetActiv
         return when {
             mobilePaymentType?.equals(MobilePaymentType.GOOGLE_PAY) == true -> getString(R.string.google_pay)
             mobilePaymentType?.equals(MobilePaymentType.APPLE_PAY) == true -> getString(R.string.apple_pay)
-            label.isNullOrBlank() -> getString(R.string.checkout_funds_label_1, currency)
+            label.isNullOrBlank() -> currency.name
             else -> """${this.label} ${this.endDigits}"""
         }
     }

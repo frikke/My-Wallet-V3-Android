@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.blockchain.componentlib.viewextensions.afterMeasured
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.price.ExchangeRate
@@ -60,7 +61,6 @@ class FiatCryptoInputView(
         }
 
     private val exchangeRates: ExchangeRatesDataManager by inject()
-    private val inputKeyboardAmount: InputAmountKeyboard by inject()
 
     private val currencyPrefs: CurrencyPrefs by inject()
 
@@ -170,6 +170,7 @@ class FiatCryptoInputView(
                 val inputSymbol = newValue.inputCurrency.symbol
                 currencySwap.visibleIf { newValue.swapEnabled }
                 exchangeAmount.visibleIf { !newValue.inputIsSameAsExchange }
+                exchangeAmount.goneIf { !newValue.showExchangeRate }
 
                 maxLimit?.let { amount ->
                     disposables += conversionModel.convert(amount, newValue)
@@ -329,7 +330,8 @@ data class FiatCryptoViewConfiguration(
     val exchangeCurrency: Currency, // the currency used for the exchanged amount
     val outputCurrency: Currency = inputCurrency, // the currency used for the model output
     val predefinedAmount: Money = Money.zero(inputCurrency),
-    val canSwap: Boolean = true
+    val canSwap: Boolean = true,
+    val showExchangeRate: Boolean = true
 ) {
     val inputIsSameAsExchange: Boolean
         get() = inputCurrency == exchangeCurrency

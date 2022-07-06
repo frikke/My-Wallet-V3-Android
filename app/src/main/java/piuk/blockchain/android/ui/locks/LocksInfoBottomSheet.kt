@@ -42,11 +42,17 @@ class LocksInfoBottomSheet : SlidingModalBottomDialog<DialogLocksInfoBinding>() 
                 R.string.funds_locked_summary_on_hold,
                 fundsLocks.onHoldTotalAmount.toStringWithSymbol()
             )
-            seeDetails.setOnClickListener {
-                LocksDetailsActivity.start(requireContext(), fundsLocks)
+            seeDetails.apply {
+                text = getString(R.string.funds_locked_summary_details)
+                onClick = { LocksDetailsActivity.start(requireContext(), fundsLocks) }
             }
+
             close.setOnClickListener { dismiss() }
-            okButton.setOnClickListener { dismiss() }
+
+            okButton.apply {
+                text = getString(R.string.funds_locked_summary_cta)
+                onClick = ::dismiss
+            }
         }
     }
 

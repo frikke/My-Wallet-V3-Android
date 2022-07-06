@@ -15,6 +15,7 @@ import com.blockchain.coincore.CryptoAddress
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.viewextensions.getTextString
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -68,6 +69,11 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                     if (it) hideTransferList()
                 }
             }
+
+            ctaButton.apply {
+                buttonState = ButtonState.Disabled
+                text = getString(R.string.next)
+            }
         }
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))
     }
@@ -112,9 +118,9 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 warningMessage.gone()
             } ?: hideErrorState()
 
-            ctaButton.isEnabled = newState.nextEnabled
-            ctaButton.setOnClickListener {
-                onCtaClick(newState)
+            ctaButton.apply {
+                buttonState = if (newState.nextEnabled) ButtonState.Enabled else ButtonState.Disabled
+                onClick = { onCtaClick(newState) }
             }
         }
         state = newState

@@ -47,11 +47,7 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
             )
     }
 
-    object AddBankTransferSelected : SettingsIntent() {
-        override fun reduce(oldState: SettingsState): SettingsState = oldState
-    }
-
-    object AddBankAccountSelected : SettingsIntent() {
+    object AddLinkBankSelected : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState = oldState
     }
 

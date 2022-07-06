@@ -10,7 +10,7 @@ import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.impl.NotificationAddresses
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -26,7 +26,7 @@ internal class EthAsset(
     private val ethDataManager: EthDataManager,
     private val feeDataManager: FeeDataManager,
     private val assetCatalogue: Lazy<AssetCatalogue>,
-    private val walletPrefs: WalletStatus,
+    private val walletPrefs: WalletStatusPrefs,
     private val notificationUpdater: BackendNotificationUpdater,
     private val formatUtils: FormatUtilities,
     private val labels: DefaultLabels,

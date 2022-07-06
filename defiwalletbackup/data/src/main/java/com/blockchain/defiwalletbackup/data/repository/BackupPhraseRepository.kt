@@ -5,7 +5,7 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.doOnSuccess
 import com.blockchain.outcome.mapError
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
@@ -14,7 +14,7 @@ import timber.log.Timber
 class BackupPhraseRepository(
     private val payloadManager: PayloadDataManager,
     private val backupWallet: BackupWallet,
-    private val walletStatus: WalletStatus
+    private val walletStatusPrefs: WalletStatusPrefs
 ) : BackupPhraseService {
 
     override fun isBackedUp() = payloadManager.isBackedUp
@@ -31,7 +31,7 @@ class BackupPhraseRepository(
         return payloadManager.syncPayloadWithServer().awaitOutcome()
             .doOnSuccess {
                 payloadManager.wallet?.walletBody?.mnemonicVerified = true
-                walletStatus.lastBackupTime = System.currentTimeMillis() / 1000
+                walletStatusPrefs.lastBackupTime = System.currentTimeMillis() / 1000
             }
             .mapError {
                 Timber.e(it)

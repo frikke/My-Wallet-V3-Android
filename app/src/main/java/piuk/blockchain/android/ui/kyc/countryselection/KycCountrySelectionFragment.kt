@@ -78,11 +78,11 @@ internal class KycCountrySelectionFragment :
         when (regionType) {
             RegionType.Country -> {
                 logEvent(AnalyticsEvents.KycCountry)
-                progressListener.setHostTitle(R.string.kyc_country_selection_title_1)
+                progressListener.setupHostToolbar(R.string.kyc_country_selection_title_1)
             }
             RegionType.State -> {
                 logEvent(AnalyticsEvents.KycStates)
-                progressListener.setHostTitle(R.string.kyc_country_selection_state_title)
+                progressListener.setupHostToolbar(R.string.kyc_country_selection_state_title)
             }
         }
         onViewReady()

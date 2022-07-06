@@ -112,17 +112,14 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.5" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.blockchain.componentlib.button.SmallPrimaryButtonView
             android:id="@+id/action_cta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/small_margin"
-            android:background="@drawable/rounded_blue_button_bkg"
-            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/ic_announce_pax"
             tools:text="BUY" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

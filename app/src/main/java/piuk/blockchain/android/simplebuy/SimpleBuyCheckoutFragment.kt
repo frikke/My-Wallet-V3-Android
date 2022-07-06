@@ -61,6 +61,9 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAX
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.SERVER_SIDE_HANDLED_ERROR
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
+import piuk.blockchain.android.ui.base.ErrorButtonCopies
+import piuk.blockchain.android.ui.base.ErrorDialogData
+import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.urllinks.ORDER_PRICE_EXPLANATION
 import piuk.blockchain.android.urllinks.PRIVATE_KEY_EXPLANATION
@@ -70,7 +73,6 @@ import piuk.blockchain.android.util.StringAnnotationClickEvent
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.animateChange
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-import timber.log.Timber
 
 class SimpleBuyCheckoutFragment :
     MviFragment<SimpleBuyModel, SimpleBuyIntent, SimpleBuyState, FragmentSimplebuyCheckoutBinding>(),
@@ -96,6 +98,7 @@ class SimpleBuyCheckoutFragment :
 
     private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
+    private var animateRefreshQuote = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -106,6 +109,7 @@ class SimpleBuyCheckoutFragment :
         compositeDisposable += buyQuoteRefreshFF.enabled.onErrorReturn { false }
             .subscribe { enabled ->
                 if (enabled) {
+                    animateRefreshQuote = true
                     binding.quoteExpiration.visible()
                     model.process(SimpleBuyIntent.ListenToQuotesUpdate)
                 }
@@ -191,14 +195,13 @@ class SimpleBuyCheckoutFragment :
         ) {
             chunksCounter = getListOfTotalTimes(newState.quote.remainingTime.toDouble())
             startCounter(newState.quote, chunksCounter.first())
-            Timber.e("quotes start")
         }
 
         binding.buttonAction.isEnabled = (newState.quote?.remainingTime ?: 0) > 0
 
         showAmountForMethod(newState)
 
-        if (newState.hasQuoteChanged) {
+        if (animateRefreshQuote && newState.hasQuoteChanged) {
             binding.amount.animateChange {
                 binding.amount.setTextColor(
                     ContextCompat.getColor(binding.amount.context, R.color.grey_800)
@@ -280,15 +283,29 @@ class SimpleBuyCheckoutFragment :
 
         when (newState.order.orderState) {
             OrderState.FINISHED, // Funds orders are getting finished right after confirmation
-            OrderState.AWAITING_FUNDS,
-            -> {
+            OrderState.AWAITING_FUNDS -> {
                 if (newState.confirmationActionRequested) {
                     navigator().goToPaymentScreen()
                 }
             }
             OrderState.FAILED -> {
-
                 binding.buttonAction.isEnabled = false
+                val errorDescription = newState.failureReason ?: getString(R.string.purchase_description_error)
+                showBottomSheet(
+                    ErrorSlidingBottomDialog.newInstance(
+                        ErrorDialogData(
+                            title = getString(R.string.purchase_title_error),
+                            description = errorDescription,
+                            errorButtonCopies = ErrorButtonCopies(
+                                primaryButtonText = getString(R.string.common_ok)
+                            ),
+                            error = newState.order.orderState.toString(),
+                            errorDescription = errorDescription,
+                            action = ClientErrorAnalytics.ACTION_BUY,
+                            analyticsCategories = emptyList()
+                        )
+                    )
+                )
             }
             OrderState.CANCELED -> {
                 if (activity is SmallSimpleBuyNavigator) {
@@ -454,7 +471,7 @@ class SimpleBuyCheckoutFragment :
             when (paymentMethodType) {
                 PaymentMethodType.FUNDS -> SimpleBuyCheckoutItem.SimpleCheckoutItem(
                     label = getString(R.string.payment_method),
-                    title = getString(R.string.fiat_currency_funds_wallet_name_1, state.fiatCurrency),
+                    title = state.fiatCurrency.name,
                     hasChanged = false
                 )
                 PaymentMethodType.BANK_TRANSFER,
@@ -756,7 +773,9 @@ class SimpleBuyCheckoutFragment :
 
     override fun onDestroy() {
         compositeDisposable.clear()
-        countDownTimer.cancel()
+        if (::countDownTimer.isInitialized) {
+            countDownTimer.cancel()
+        }
         super.onDestroy()
     }
 

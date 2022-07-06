@@ -24,8 +24,9 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.logging.RemoteLogger
-import com.google.gson.Gson
 import java.net.URLEncoder
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.json.JSONException
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
@@ -48,6 +49,7 @@ class YodleeWebViewFragment :
     private val binding: FragmentYodleeWebviewBinding
         get() = _binding!!
 
+    private val json: Json by inject()
     private val analytics: Analytics by inject()
     private val remoteLogger: RemoteLogger by inject()
     private var isViewLoaded: Boolean = false
@@ -108,7 +110,10 @@ class YodleeWebViewFragment :
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
         with(binding.yodleeWebview) {
             webViewClient = YodleeWebClient(this@YodleeWebViewFragment)
-            addJavascriptInterface(FastLinkInterfaceHandler(this@YodleeWebViewFragment), "YWebViewHandler")
+            addJavascriptInterface(
+                FastLinkInterfaceHandler(listener = this@YodleeWebViewFragment, json = json),
+                "YWebViewHandler"
+            )
         }
     }
 
@@ -244,7 +249,10 @@ class YodleeWebClient(private val listener: YodleeWebClientInterface) : WebViewC
     }
 }
 
-class FastLinkInterfaceHandler(private val listener: FastLinkListener) {
+class FastLinkInterfaceHandler(
+    private val listener: FastLinkListener,
+    private val json: Json
+) {
 
     interface FastLinkListener {
         fun flowSuccess(providerAccountId: String, accountId: String)
@@ -264,7 +272,7 @@ class FastLinkInterfaceHandler(private val listener: FastLinkListener) {
         if (!data.isValidJSONObject()) {
             return
         }
-        val message = Gson().fromJson(data, FastLinkMessage::class.java)
+        val message: FastLinkMessage = json.decodeFromString(data)
         val messageType = message.type ?: return
         val messageData = message.data ?: return
 

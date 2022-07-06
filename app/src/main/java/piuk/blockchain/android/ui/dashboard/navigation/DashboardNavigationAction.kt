@@ -6,10 +6,12 @@ import com.blockchain.coincore.CryptoAccount
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.TransactionTarget
+import com.blockchain.domain.dataremediation.model.Questionnaire
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.nabu.BlockedReason
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
+import piuk.blockchain.android.ui.dashboard.model.DashboardIntent
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
@@ -23,6 +25,10 @@ sealed class DashboardNavigationAction {
     object FiatFundsNoKyc : DashboardNavigationAction(), BottomSheet
     data class FiatDepositOrWithdrawalBlockedDueToSanctions(
         val reason: BlockedReason.Sanctions
+    ) : DashboardNavigationAction(), BottomSheet
+    data class DepositQuestionnaire(
+        val questionnaire: Questionnaire,
+        val callbackIntent: DashboardIntent.LaunchBankTransferFlow
     ) : DashboardNavigationAction(), BottomSheet
     data class InterestSummary(
         val account: CryptoAccount

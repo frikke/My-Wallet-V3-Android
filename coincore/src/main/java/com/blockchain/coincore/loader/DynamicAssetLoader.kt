@@ -18,7 +18,7 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.rx.printTime
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.walletmode.WalletMode
@@ -47,7 +47,7 @@ internal class DynamicAssetLoader(
     private val payloadManager: PayloadDataManager,
     private val erc20DataManager: Erc20DataManager,
     private val feeDataManager: FeeDataManager,
-    private val walletPreferences: WalletStatus,
+    private val walletPreferences: WalletStatusPrefs,
     private val tradingBalances: TradingBalanceDataManager,
     private val interestBalances: InterestBalanceDataManager,
     private val labels: DefaultLabels,

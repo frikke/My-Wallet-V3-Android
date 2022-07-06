@@ -23,6 +23,18 @@ sealed class AccountIntent : MviIntent<AccountState> {
         )
     }
 
+    object ToggleChartVibration : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    class UpdateChartVibration(private val isVibrationEnabled: Boolean) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState.copy(
+            accountInformation = oldState.accountInformation?.copy(
+                isChartVibrationEnabled = isVibrationEnabled
+            )
+        )
+    }
+
     class UpdateViewToLaunch(private val viewToLaunch: ViewToLaunch) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState.copy(
             viewToLaunch = viewToLaunch

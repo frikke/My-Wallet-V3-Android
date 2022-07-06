@@ -57,12 +57,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/confirm_cta_button"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginHorizontal="@dimen/standard_margin"
         android:contentDescription="@string/next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

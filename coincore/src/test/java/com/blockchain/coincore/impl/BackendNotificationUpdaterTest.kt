@@ -1,6 +1,5 @@
 package com.blockchain.coincore.impl
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
@@ -18,15 +17,13 @@ class BackendNotificationUpdaterTest {
     private val walletApi = mockk<WalletApi>()
     private val prefs = mockk<AuthPrefs>()
     private val json = Json
-    private val replaceGsonKtxFF = mockk<FeatureFlag>()
 
     private val responseBody = mockk<ResponseBody>()
 
     private val backendNotificationUpdater = BackendNotificationUpdater(
         walletApi = walletApi,
         prefs = prefs,
-        json = json,
-        replaceGsonKtxFF = replaceGsonKtxFF
+        json = json
     )
 
     private val jsonString =
@@ -40,43 +37,7 @@ class BackendNotificationUpdaterTest {
     }
 
     @Test
-    fun `GIVEN ktx, WHEN updateNotificationBackend is called, THEN walletApi-submitCoinReceiveAddresses should be called with correct data`() {
-        every { replaceGsonKtxFF.isEnabled } returns true
-
-        backendNotificationUpdater.updateNotificationBackend(
-            item = NotificationAddresses(
-                assetTicker = CryptoCurrency.BTC.networkTicker,
-                addressList = listOf()
-            )
-        )
-
-        backendNotificationUpdater.updateNotificationBackend(
-            item = NotificationAddresses(
-                assetTicker = CryptoCurrency.BCH.networkTicker,
-                addressList = listOf()
-            )
-        )
-
-        backendNotificationUpdater.updateNotificationBackend(
-            item = NotificationAddresses(
-                assetTicker = CryptoCurrency.ETHER.networkTicker,
-                addressList = listOf()
-            )
-        )
-
-        verify(exactly = 1) {
-            walletApi.submitCoinReceiveAddresses(
-                guid = "walletGuid",
-                sharedKey = "sharedKey",
-                coinAddresses = jsonString
-            )
-        }
-    }
-
-    @Test
-    fun `GIVEN gson, WHEN updateNotificationBackend is called, THEN walletApi-submitCoinReceiveAddresses should be called with correct data`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
+    fun `WHEN updateNotificationBackend is called, THEN walletApi-submitCoinReceiveAddresses should be called with correct data`() {
         backendNotificationUpdater.updateNotificationBackend(
             item = NotificationAddresses(
                 assetTicker = CryptoCurrency.BTC.networkTicker,

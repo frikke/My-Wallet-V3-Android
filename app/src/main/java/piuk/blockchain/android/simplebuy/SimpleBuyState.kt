@@ -38,7 +38,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /**
- * This is an object that gets serialized with Gson so any properties that we don't
+ * This is an object that gets serialized with Json so any properties that we don't
  * want to get serialized should be tagged as @Transient
  *
  */
@@ -49,6 +49,7 @@ data class SimpleBuyState constructor(
     override val amount: FiatValue = FiatValue.zero(fiatCurrency),
     val selectedCryptoAsset: @Contextual AssetInfo? = null,
     val orderState: OrderState = OrderState.UNINITIALISED,
+    val failureReason: String? = null,
     val kycStartedButNotCompleted: Boolean = false,
     val kycVerificationState: KycState? = null,
     val currentScreen: FlowScreen = FlowScreen.ENTER_AMOUNT,

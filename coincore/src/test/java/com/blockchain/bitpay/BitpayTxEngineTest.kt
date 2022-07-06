@@ -15,7 +15,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.testutils.bitcoin
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
@@ -39,7 +39,7 @@ class BitpayTxEngineTest : CoincoreTestBase() {
 
     private val onChainEngine: BtcOnChainTxEngine = mock()
     private val bitPayDataManager: BitPayDataManager = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val analytics: Analytics = mock()
 
     private val subject = BitpayTxEngine(

@@ -13,7 +13,7 @@ object Versions {
     const val buildTools = "30.0.2"
 
     // Build tools and languages
-    const val androidPlugin = "7.2.0"
+    const val androidPlugin = "7.2.1"
     const val kotlin = "1.6.10"
 
     // Coroutines
@@ -223,7 +223,6 @@ object Libraries {
     // Networking, RxJava
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitRxJavaAdapter = "com.squareup.retrofit2:adapter-rxjava3:${Versions.retrofit}"
-    const val retrofitGsonConverter = "com.squareup.retrofit2:converter-gson:2.5.0"
     const val retrofitKotlinJsonConverter =
         "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:${Versions.kotlinJsonConverter}"
     const val okHttp = "com.squareup.okhttp3:okhttp:${Versions.okHttp}"

@@ -3,7 +3,7 @@ package piuk.blockchain.android.util.wiper
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import info.blockchain.wallet.payload.PayloadScopeWiper
 import piuk.blockchain.android.domain.repositories.AssetActivityRepository
@@ -17,7 +17,7 @@ class DataWiperImpl constructor(
     private val nabuDataManager: NabuDataManager,
     private val walletConnectServiceAPI: WalletConnectServiceAPI,
     private val assetActivityRepository: AssetActivityRepository,
-    private val walletPrefs: WalletStatus,
+    private val walletPrefs: WalletStatusPrefs,
     private val payloadScopeWiper: PayloadScopeWiper,
     private val remoteLogger: RemoteLogger
 ) : DataWiper {

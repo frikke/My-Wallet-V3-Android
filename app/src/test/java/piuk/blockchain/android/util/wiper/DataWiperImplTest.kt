@@ -3,7 +3,7 @@ package piuk.blockchain.android.util.wiper
 import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.nhaarman.mockitokotlin2.mock
 import info.blockchain.wallet.payload.PayloadScopeWiper
@@ -24,7 +24,7 @@ class DataWiperImplTest {
     private val nabuDataManager: NabuDataManager = mock()
     private val walletConnectServiceAPI: WalletConnectServiceAPI = mock()
     private val assetActivityRepository: AssetActivityRepository = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val payloadScopeWiper: PayloadScopeWiper = mock()
     private val remoteLogger: RemoteLogger = mock()
 

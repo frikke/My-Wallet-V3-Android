@@ -8,29 +8,34 @@ import com.blockchain.metadata.save
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.metadata.BlockchainAccountCredentialsMetadata
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import io.reactivex.rxjava3.core.Completable
 import piuk.blockchain.androidcore.data.auth.AuthDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class ResetPasswordInteractor(
     private val authDataManager: AuthDataManager,
     private val payloadDataManager: PayloadDataManager,
-    private val prefs: PersistentPrefs,
+    private val authPrefs: AuthPrefs,
     private val nabuDataManager: NabuDataManager,
     private val metadataService: MetadataService,
     private val metadataRepository: MetadataRepository,
-    private val accountMetadataFF: FeatureFlag
+    private val accountMetadataFF: FeatureFlag,
+    private val walletStatusPrefs: WalletStatusPrefs
 ) {
 
     fun createWalletForAccount(email: String, password: String, walletName: String): Completable {
         return payloadDataManager.createHdWallet(password, walletName, email)
             .doOnSuccess { wallet ->
-                prefs.apply {
-                    isNewlyCreated = true
+                authPrefs.apply {
                     walletGuid = wallet.guid
                     sharedKey = wallet.sharedKey
+                }
+
+                walletStatusPrefs.apply {
+                    isNewlyCreated = true
                     this.email = email
                 }
             }.ignoreElement()
@@ -75,7 +80,7 @@ class ResetPasswordInteractor(
     fun setNewPassword(password: String): Completable {
         val fallbackPassword = payloadDataManager.tempPassword
         payloadDataManager.tempPassword = password
-        prefs.isRestored = true
+        walletStatusPrefs.isRestored = true
         return authDataManager.verifyCloudBackup()
             .then { payloadDataManager.syncPayloadWithServer() }
             .doOnError {

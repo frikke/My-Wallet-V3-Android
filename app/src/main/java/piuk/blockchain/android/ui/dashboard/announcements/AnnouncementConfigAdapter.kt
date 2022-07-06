@@ -1,10 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.announcements
 
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.remoteconfig.RemoteConfig
-import com.google.gson.Gson
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Singles
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -21,19 +18,13 @@ interface AnnouncementConfigAdapter {
 
 class AnnouncementConfigAdapterImpl(
     private val config: RemoteConfig,
-    private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag
+    private val json: Json
 ) : AnnouncementConfigAdapter {
-
-    private val gson = Gson()
 
     override val announcementConfig: Single<AnnounceConfig>
         get() {
-            return Singles.zip(replaceGsonKtxFF.enabled.onErrorReturn { false }, config.getRawJson(ANNOUNCE_KEY))
-                .map { (replaceGsonKtx, announcementsJson) ->
-                    if (replaceGsonKtx) json.decodeFromString(announcementsJson)
-                    else gson.fromJson(announcementsJson, AnnounceConfig::class.java)
-                }
+            return config.getRawJson(ANNOUNCE_KEY)
+                .map { announcementsJson -> json.decodeFromString(announcementsJson) }
         }
 
     companion object {

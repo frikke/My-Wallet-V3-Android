@@ -3,6 +3,8 @@ package piuk.blockchain.androidcore.data.auth
 import androidx.annotation.VisibleForTesting
 import com.blockchain.api.services.AuthApiService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.preferences.AuthPrefs
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.wallet.api.data.WalletOptions
 import info.blockchain.wallet.crypto.AESUtil
 import info.blockchain.wallet.exceptions.InvalidCredentialsException
@@ -18,19 +20,21 @@ import okhttp3.ResponseBody
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.access.PinRepository
 import piuk.blockchain.androidcore.utils.AESUtilWrapper
-import piuk.blockchain.androidcore.utils.PersistentPrefs
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 import piuk.blockchain.androidcore.utils.extensions.applySchedulers
 import piuk.blockchain.androidcore.utils.extensions.handleResponse
 import piuk.blockchain.androidcore.utils.extensions.isValidPin
 import retrofit2.Response
 
 class AuthDataManager(
-    private val prefs: PersistentPrefs,
     private val authApiService: AuthApiService,
     private val walletAuthService: WalletAuthService,
     private val pinRepository: PinRepository,
     private val aesUtilWrapper: AESUtilWrapper,
-    private val remoteLogger: RemoteLogger
+    private val remoteLogger: RemoteLogger,
+    private val authPrefs: AuthPrefs,
+    private val walletStatusPrefs: WalletStatusPrefs,
+    private val encryptedPrefs: EncryptedPrefs
 ) {
 
     @VisibleForTesting
@@ -158,7 +162,7 @@ class AuthDataManager(
     }
 
     private fun getValidatePinObservable(passedPin: String): Observable<String> {
-        val key = prefs.pinId
+        val key = authPrefs.pinId
 
         if (!passedPin.isValidPin()) {
             return Observable.error(IllegalArgumentException("Invalid PIN"))
@@ -174,14 +178,14 @@ class AuthDataManager(
                 with a 403 { code: 1, error: "Incorrect PIN you have x attempts left" }
                  */
                 if (response.isSuccessful) {
-                    prefs.isNewlyCreated = false
-                    prefs.isRestored = false
+                    walletStatusPrefs.isNewlyCreated = false
+                    walletStatusPrefs.isRestored = false
                     val decryptionKey = response.body()!!.success
 
                     handleBackup(decryptionKey)
 
                     return@map aesUtilWrapper.decrypt(
-                        prefs.encryptedPassword,
+                        authPrefs.encryptedPassword,
                         decryptionKey,
                         AESUtil.PIN_PBKDF2_ITERATIONS
                     )
@@ -208,16 +212,16 @@ class AuthDataManager(
         shouldVerifyCloudBackup = when {
             // Just to make sure, if the user specifically opted out out of cloud backups,
             // always clear the backup over here.
-            !prefs.backupEnabled -> {
-                prefs.clearBackup()
+            !encryptedPrefs.backupEnabled -> {
+                encryptedPrefs.clearBackup()
                 false
             }
-            prefs.hasBackup() && prefs.walletGuid.isEmpty() -> {
-                prefs.restoreFromBackup(decryptionKey, aesUtilWrapper)
+            encryptedPrefs.hasBackup() && authPrefs.walletGuid.isEmpty() -> {
+                encryptedPrefs.restoreFromBackup(decryptionKey, aesUtilWrapper)
                 false
             }
             else -> {
-                prefs.backupCurrentPrefs(decryptionKey, aesUtilWrapper)
+                encryptedPrefs.backupCurrentPrefs(decryptionKey, aesUtilWrapper)
                 true
             }
         }
@@ -251,8 +255,8 @@ class AuthDataManager(
                             AESUtil.PIN_PBKDF2_ITERATIONS
                         )
 
-                        prefs.encryptedPassword = encryptedPassword
-                        prefs.pinId = key
+                        authPrefs.encryptedPassword = encryptedPassword
+                        authPrefs.pinId = key
 
                         handleBackup(encryptionKey)
 
@@ -305,7 +309,7 @@ class AuthDataManager(
      * @return A [Completable] wrapping the result
      */
     fun updateMnemonicBackup(): Completable =
-        walletAuthService.updateMnemonicBackup(prefs.walletGuid, prefs.sharedKey)
+        walletAuthService.updateMnemonicBackup(authPrefs.walletGuid, authPrefs.sharedKey)
             .applySchedulers()
 
     /**
@@ -316,8 +320,8 @@ class AuthDataManager(
     fun verifyCloudBackup(): Completable = if (shouldVerifyCloudBackup) {
         Completable.fromSingle(
             walletAuthService.verifyCloudBackup(
-                guid = prefs.walletGuid,
-                sharedKey = prefs.sharedKey,
+                guid = authPrefs.walletGuid,
+                sharedKey = authPrefs.sharedKey,
                 hasCloudBackup = true,
                 deviceType = DEVICE_TYPE_ANDROID
             )

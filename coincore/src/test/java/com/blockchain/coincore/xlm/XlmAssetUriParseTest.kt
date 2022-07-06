@@ -1,7 +1,7 @@
 package com.blockchain.coincore.xlm
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.nhaarman.mockitokotlin2.mock
@@ -23,7 +23,7 @@ class XlmAssetUriParseTest {
     private val xlmDataManager: XlmDataManager = mock()
     private val xlmFeesFetcher: XlmFeesFetcher = mock()
     private val walletOptionsDataManager: WalletOptionsDataManager = mock()
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
 
     private val subject = XlmAsset(
         payloadManager = payloadManager,

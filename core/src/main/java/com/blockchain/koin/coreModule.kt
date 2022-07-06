@@ -75,6 +75,7 @@ import com.blockchain.preferences.AuthPrefs
 import com.blockchain.preferences.BankLinkingPrefs
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.preferences.NftAnnouncementPrefs
 import com.blockchain.preferences.NotificationPrefs
 import com.blockchain.preferences.OnboardingPrefs
@@ -83,7 +84,7 @@ import com.blockchain.preferences.RemoteConfigPrefs
 import com.blockchain.preferences.SecureChannelPrefs
 import com.blockchain.preferences.SecurityPrefs
 import com.blockchain.preferences.SimpleBuyPrefs
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmHorizonUrlFetcher
 import com.blockchain.sunriver.XlmTransactionTimeoutFetcher
 import com.blockchain.wallet.SeedAccess
@@ -127,8 +128,8 @@ import piuk.blockchain.androidcore.utils.CloudBackupAgent
 import piuk.blockchain.androidcore.utils.DeviceIdGenerator
 import piuk.blockchain.androidcore.utils.DeviceIdGeneratorImpl
 import piuk.blockchain.androidcore.utils.EncryptedPrefs
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.PrefsUtil
+import piuk.blockchain.androidcore.utils.SessionPrefs
 import piuk.blockchain.androidcore.utils.UUIDGenerator
 
 val coreModule = module {
@@ -153,7 +154,7 @@ val coreModule = module {
         factory<DataRemediationService> {
             DataRemediationRepository(
                 authenticator = get(),
-                kycService = get(),
+                api = get(),
             )
         }
 
@@ -425,12 +426,14 @@ val coreModule = module {
 
         factory {
             AuthDataManager(
-                prefs = get(),
                 authApiService = get(),
                 walletAuthService = get(),
                 pinRepository = get(),
                 aesUtilWrapper = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                authPrefs = get(),
+                walletStatusPrefs = get(),
+                encryptedPrefs = get()
             )
         }
 
@@ -568,14 +571,14 @@ val coreModule = module {
             environmentConfig = get()
         )
     }.apply {
-        bind(PersistentPrefs::class)
+        bind(SessionPrefs::class)
         bind(CurrencyPrefs::class)
         bind(NotificationPrefs::class)
         bind(DashboardPrefs::class)
         bind(SecurityPrefs::class)
         bind(RemoteConfigPrefs::class)
         bind(SimpleBuyPrefs::class)
-        bind(WalletStatus::class)
+        bind(WalletStatusPrefs::class)
         bind(EncryptedPrefs::class)
         bind(AuthPrefs::class)
         bind(AppInfoPrefs::class)
@@ -586,6 +589,7 @@ val coreModule = module {
         bind(AppRatingPrefs::class)
         bind(NftAnnouncementPrefs::class)
         bind(ReferralPrefs::class)
+        bind(LocalSettingsPrefs::class)
     }
 
     factory {

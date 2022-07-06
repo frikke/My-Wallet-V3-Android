@@ -4,7 +4,7 @@ import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.coincore.impl.EthHotWalletAddressResolver
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.coincore.wrap.FormatUtilities
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -23,7 +23,7 @@ class EthAddressParserTest : CoincoreTestBase() {
     private val ethDataManager: EthDataManager = mock()
     private val feeDataManager: FeeDataManager = mock()
     private val assetCatalogue: Lazy<AssetCatalogue> = mock()
-    private val walletPrefs: WalletStatus = mock()
+    private val walletPrefs: WalletStatusPrefs = mock()
     private val notificationUpdater: BackendNotificationUpdater = mock()
     private val labels: DefaultLabels = mock()
 

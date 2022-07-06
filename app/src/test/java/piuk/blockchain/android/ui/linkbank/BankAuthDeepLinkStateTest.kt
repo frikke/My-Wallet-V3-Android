@@ -5,13 +5,9 @@ import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedBankErrorState
 import com.blockchain.domain.paymentmethods.model.LinkedBankState
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.testutils.GBP
 import com.blockchain.testutils.eur
-import io.mockk.every
-import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -26,8 +22,6 @@ import org.koin.test.KoinTest
 
 class BankAuthDeepLinkStateTest : KoinTest {
 
-    private val replaceGsonKtxFF = mockk<FeatureFlag>()
-
     private val jsonSerializers = module {
         single {
             Json {
@@ -39,12 +33,6 @@ class BankAuthDeepLinkStateTest : KoinTest {
                     contextual(BigDecimalSerializer)
                 }
             }
-        }
-    }
-
-    private val featureFlagsModule = module {
-        single(replaceGsonKtxFeatureFlag) {
-            replaceGsonKtxFF
         }
     }
 
@@ -80,15 +68,15 @@ class BankAuthDeepLinkStateTest : KoinTest {
 
     private val ktxString =
         """{"bankAuthFlow":"NONE","bankPaymentData":{"paymentId":"txId","authorisationUrl":"authUrl","linkedBank":{"id":"id","currency":{"currencyCode":"GBP"},"partner":"YAPILY","bankName":"bankName","accountName":"name","accountNumber":"123","state":"BLOCKED","errorStatus":"ACCOUNT_ALREADY_LINKED","accountType":"","authorisationUrl":"url","sortCode":"123","accountIban":"123","bic":"123","entity":"entity","iconUrl":"iconUrl","callbackPath":""},"orderValue":{"currency":{"currencyCode":"EUR"},"amount":"10.00","symbol":"€"}},"bankLinkingInfo":{"linkingId":"id","bankAuthSource":"SIMPLE_BUY"}}"""
-    private val gsonString =
+    // gson
+    private val legacyString =
         """{"bankAuthFlow":"NONE","bankPaymentData":{"paymentId":"txId","authorisationUrl":"authUrl","linkedBank":{"id":"id","currency":{"currencyCode":"GBP"},"partner":"YAPILY","bankName":"bankName","accountName":"name","accountNumber":"123","state":"BLOCKED","errorStatus":"ACCOUNT_ALREADY_LINKED","accountType":"","authorisationUrl":"url","sortCode":"123","accountIban":"123","bic":"123","entity":"entity","iconUrl":"iconUrl","callbackPath":""},"orderValue":{"currency":{"currencyCode":"EUR"},"amount":10.00,"symbol":"€"}},"bankLinkingInfo":{"linkingId":"id","bankAuthSource":"SIMPLE_BUY"}}"""
 
     @Before
     fun setUp() {
         startKoin {
             modules(
-                jsonSerializers,
-                featureFlagsModule
+                jsonSerializers
             )
         }
     }
@@ -99,46 +87,22 @@ class BankAuthDeepLinkStateTest : KoinTest {
     }
 
     @Test
-    fun `GIVEN ktx enabled, WHEN toPreferencesValue is called, THEN ktxString should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns true
-
+    fun `WHEN toPreferencesValue is called, THEN ktxString should be returned`() {
         val result = state.toPreferencesValue()
 
         assertEquals(ktxString, result)
     }
 
     @Test
-    fun `GIVEN ktx enabled, WHEN fromPreferencesValue is called, THEN state should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
+    fun `WHEN fromPreferencesValue is called, THEN state should be returned`() {
         val result = ktxString.fromPreferencesValue()
 
         assertEquals(state, result)
     }
 
     @Test
-    fun `GIVEN ktx enabled, WHEN fromPreferencesValue is called with gson data, THEN state should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
-        val result = gsonString.fromPreferencesValue()
-
-        assertEquals(state, result)
-    }
-
-    @Test
-    fun `GIVEN gson enabled, WHEN toPreferencesValue is called, THEN gsonString should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
-        val result = state.toPreferencesValue()
-
-        assertEquals(gsonString, result)
-    }
-
-    @Test
-    fun `GIVEN gson enabled, WHEN fromPreferencesValue is called, THEN state should be returned`() {
-        every { replaceGsonKtxFF.isEnabled } returns false
-
-        val result = gsonString.fromPreferencesValue()
+    fun `WHEN fromPreferencesValue is called with legacy data, THEN state should be returned`() {
+        val result = legacyString.fromPreferencesValue()
 
         assertEquals(state, result)
     }

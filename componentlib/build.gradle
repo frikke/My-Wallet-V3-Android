@@ -47,6 +47,9 @@ dependencies {
     implementation Libraries.composeCoilSvg
     implementation Libraries.accompanistSystemUi
     implementation Libraries.constraintLayoutCompose
+    implementation Libraries.koin
+    implementation Libraries.koinAndroid
+    implementation Libraries.lifecycleRuntime
 
     androidTestImplementation Libraries.composeUiTest
     debugImplementation Libraries.composeUiTooling

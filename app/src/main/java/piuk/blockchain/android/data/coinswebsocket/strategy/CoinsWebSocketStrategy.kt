@@ -7,10 +7,10 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.network.websocket.ConnectionEvent
 import com.blockchain.network.websocket.WebSocket
+import com.blockchain.preferences.AuthPrefs
 import com.blockchain.utils.appendSpaced
 import com.blockchain.websocket.CoinsWebSocketInterface
 import com.blockchain.websocket.MessagesSocketHandler
-import com.google.gson.Gson
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
@@ -50,7 +50,6 @@ import piuk.blockchain.androidcore.data.events.TransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.events.WalletAndTransactionsUpdatedEvent
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.rxjava.RxBus
-import piuk.blockchain.androidcore.utils.PersistentPrefs
 import piuk.blockchain.androidcore.utils.extensions.emptySubscribe
 import timber.log.Timber
 
@@ -76,11 +75,9 @@ class CoinsWebSocketStrategy(
     private val bchDataManager: BchDataManager,
     private val stringUtils: StringUtils,
     private val featureFlag: FeatureFlag,
-    private val gson: Gson,
     private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag,
     private val rxBus: RxBus,
-    private val prefs: PersistentPrefs,
+    private val authPrefs: AuthPrefs,
     private val appUtil: AppUtil,
     private val payloadDataManager: PayloadDataManager,
     private val assetCatalogue: AssetCatalogue,
@@ -110,12 +107,7 @@ class CoinsWebSocketStrategy(
     }
 
     private fun sendMessage(message: SocketRequest) {
-        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
-            coinsWebSocket.send(
-                if (replaceGsonKtx) json.encodeToString(message)
-                else gson.toJson(message)
-            )
-        }
+        coinsWebSocket.send(json.encodeToString(message))
     }
 
     private fun subscribeToEvents() {
@@ -130,19 +122,15 @@ class CoinsWebSocketStrategy(
         compositeDisposable += coinsWebSocket.responses.distinctUntilChanged()
             .subscribeBy(
                 onNext = { response ->
-                    replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
-                        val socketResponse: SocketResponse =
-                            if (replaceGsonKtx) json.decodeFromString(response)
-                            else gson.fromJson(response, SocketResponse::class.java)
+                    val socketResponse: SocketResponse = json.decodeFromString(response)
 
-                        if (socketResponse.op == "on_change")
-                            checkForWalletChange(socketResponse.checksum)
-                        when (socketResponse.coin) {
-                            Coin.ETH -> handleEthTransaction(response)
-                            Coin.BTC -> handleBtcTransaction(response)
-                            Coin.BCH -> handleBchTransaction(response)
-                            else -> {
-                            }
+                    if (socketResponse.op == "on_change")
+                        checkForWalletChange(socketResponse.checksum)
+                    when (socketResponse.coin) {
+                        Coin.ETH -> handleEthTransaction(response)
+                        Coin.BTC -> handleBtcTransaction(response)
+                        Coin.BCH -> handleBchTransaction(response)
+                        else -> {
                         }
                     }
                 },
@@ -231,58 +219,49 @@ class CoinsWebSocketStrategy(
     }
 
     private fun handleBtcTransaction(response: String) {
-        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
+        val btcResponse: BtcBchResponse = json.decodeFromString(response)
 
-            val btcResponse: BtcBchResponse =
-                if (replaceGsonKtx) json.decodeFromString(response)
-                else gson.fromJson(response, BtcBchResponse::class.java)
+        val transaction = btcResponse.transaction ?: return
 
-            val transaction = btcResponse.transaction ?: return@subscribe
+        handleTransactionInputsAndOutputs(
+            transaction.inputs,
+            transaction.outputs,
+            transaction.hash
+        ) { x ->
+            payloadDataManager.wallet?.containsImportedAddress(x)
+        }
 
+        updateBtcBalancesAndTransactions()
+    }
+
+    private fun handleBchTransaction(response: String) {
+        val bchResponse: BtcBchResponse = json.decodeFromString(response)
+
+        val transaction = bchResponse.transaction ?: return
+
+        val (inAddr, totalValue) =
             handleTransactionInputsAndOutputs(
                 transaction.inputs,
                 transaction.outputs,
                 transaction.hash
             ) { x ->
-                payloadDataManager.wallet?.containsImportedAddress(x)
+                bchDataManager.getImportedAddressStringList().contains(x)
             }
 
-            updateBtcBalancesAndTransactions()
-        }
-    }
+        updateBchBalancesAndTransactions()
 
-    private fun handleBchTransaction(response: String) {
-        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
-            val bchResponse: BtcBchResponse =
-                if (replaceGsonKtx) json.decodeFromString(response)
-                else gson.fromJson(response, BtcBchResponse::class.java)
+        val title = stringUtils.getString(R.string.app_name)
 
-            val transaction = bchResponse.transaction ?: return@subscribe
+        if (totalValue > BigDecimal.ZERO) {
+            val amount = CryptoValue.fromMinor(CryptoCurrency.BCH, totalValue)
+            val marquee =
+                stringUtils.getString(R.string.received_bitcoin_cash) + amount.toStringWithSymbol()
 
-            val (inAddr, totalValue) =
-                handleTransactionInputsAndOutputs(
-                    transaction.inputs,
-                    transaction.outputs,
-                    transaction.hash
-                ) { x ->
-                    bchDataManager.getImportedAddressStringList().contains(x)
-                }
-
-            updateBchBalancesAndTransactions()
-
-            val title = stringUtils.getString(R.string.app_name)
-
-            if (totalValue > BigDecimal.ZERO) {
-                val amount = CryptoValue.fromMinor(CryptoCurrency.BCH, totalValue)
-                val marquee =
-                    stringUtils.getString(R.string.received_bitcoin_cash) + amount.toStringWithSymbol()
-
-                var text = marquee
-                text += " ${stringUtils.getString(R.string.common_from).toLowerCase(Locale.US)} $inAddr"
-                messagesSocketHandler?.triggerNotification(
-                    title, marquee, text, "BchTransaction"
-                )
-            }
+            var text = marquee
+            text += " ${stringUtils.getString(R.string.common_from).toLowerCase(Locale.US)} $inAddr"
+            messagesSocketHandler?.triggerNotification(
+                title, marquee, text, "BchTransaction"
+            )
         }
     }
 
@@ -303,43 +282,39 @@ class CoinsWebSocketStrategy(
     }
 
     private fun handleEthTransaction(response: String) {
-        replaceGsonKtxFF.enabled.onErrorReturn { false }.subscribe { replaceGsonKtx ->
-            val ethResponse: EthResponse =
-                if (replaceGsonKtx) json.decodeFromString(response)
-                else gson.fromJson(response, EthResponse::class.java)
+        val ethResponse: EthResponse = json.decodeFromString(response)
 
-            val title = stringUtils.getString(R.string.app_name)
+        val title = stringUtils.getString(R.string.app_name)
 
-            if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
-                val transaction: EthTransaction = ethResponse.transaction
-                val ethAddress = ethAddress()
-                if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
-                ) {
-                    val marqueeBuilder = StringBuilder()
-                        .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
-                        .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
-                        .appendSpaced(CryptoCurrency.ETHER.displayTicker)
-                        .toString()
-
-                    val textBuilder = StringBuilder()
-                        .append(marqueeBuilder)
-                        .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
-                        .appendSpaced(transaction.from)
-                        .toString()
-                    messagesSocketHandler?.triggerNotification(title, marqueeBuilder, textBuilder, "Eth Transaction")
-                }
-                updateEthTransactions()
-            }
-
-            if (ethResponse.entity == Entity.TokenAccount &&
-                ethResponse.tokenTransfer != null &&
-                ethResponse.tokenTransfer.to.equals(ethAddress(), true)
+        if (ethResponse.transaction != null && ethResponse.getTokenType() == CryptoCurrency.ETHER) {
+            val transaction: EthTransaction = ethResponse.transaction
+            val ethAddress = ethAddress()
+            if (transaction.state == TransactionState.CONFIRMED && transaction.to.equals(ethAddress, true)
             ) {
-                val tokenTransaction = ethResponse.tokenTransfer
-                val asset = ethResponse.getTokenType()
-                if (asset?.isErc20() == true) {
-                    triggerErc20NotificationAndUpdate(asset, tokenTransaction, title)
-                }
+                val marqueeBuilder = StringBuilder()
+                    .append(stringUtils.getString(R.string.received_ethereum).format(CryptoCurrency.ETHER.name))
+                    .appendSpaced(Convert.fromWei(BigDecimal(transaction.value), Convert.Unit.ETHER))
+                    .appendSpaced(CryptoCurrency.ETHER.displayTicker)
+                    .toString()
+
+                val textBuilder = StringBuilder()
+                    .append(marqueeBuilder)
+                    .appendSpaced(stringUtils.getString(R.string.common_from).toLowerCase(Locale.US))
+                    .appendSpaced(transaction.from)
+                    .toString()
+                messagesSocketHandler?.triggerNotification(title, marqueeBuilder, textBuilder, "Eth Transaction")
+            }
+            updateEthTransactions()
+        }
+
+        if (ethResponse.entity == Entity.TokenAccount &&
+            ethResponse.tokenTransfer != null &&
+            ethResponse.tokenTransfer.to.equals(ethAddress(), true)
+        ) {
+            val tokenTransaction = ethResponse.tokenTransfer
+            val asset = ethResponse.getTokenType()
+            if (asset?.isErc20() == true) {
+                triggerErc20NotificationAndUpdate(asset, tokenTransaction, title)
             }
         }
     }
@@ -494,7 +469,7 @@ class CoinsWebSocketStrategy(
         )
     }
 
-    private fun guid(): String = prefs.walletGuid
+    private fun guid(): String = authPrefs.walletGuid
 
     private fun xPubsBch(): List<String> {
         return if (payloadDataManager.wallet?.isUpgradedToV3 == true) {

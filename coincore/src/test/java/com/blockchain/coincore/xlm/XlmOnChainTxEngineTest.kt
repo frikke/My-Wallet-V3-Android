@@ -13,7 +13,7 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.testutil.CoincoreTestBase
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.fees.FeeType
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.sunriver.XlmDataManager
 import com.blockchain.sunriver.XlmFeesFetcher
 import com.blockchain.testutils.lumens
@@ -45,7 +45,7 @@ class XlmOnChainTxEngineTest : CoincoreTestBase() {
         on { operationFee(FeeType.Regular) }.thenReturn(Single.just(FEE_REGULAR))
     }
 
-    private val walletPreferences: WalletStatus = mock()
+    private val walletPreferences: WalletStatusPrefs = mock()
 
     private val subject = XlmOnChainTxEngine(
         xlmDataManager = xlmDataManager,

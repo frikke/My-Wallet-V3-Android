@@ -1,6 +1,8 @@
 package com.blockchain.domain.paymentmethods.model
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class BillingAddress(
     val countryCode: String,
     val fullName: String,

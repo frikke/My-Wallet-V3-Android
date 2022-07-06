@@ -79,7 +79,7 @@ class ActivityDetailsInteractor(
             if (summaryItem.type == OrderType.BUY)
                 BuyCryptoWallet(summaryItem.asset)
             else
-                SellCryptoWallet(summaryItem.fundedFiat.currencyCode),
+                SellCryptoWallet(summaryItem.fundedFiat.currency),
             BuyFee(summaryItem.fee)
         )
 

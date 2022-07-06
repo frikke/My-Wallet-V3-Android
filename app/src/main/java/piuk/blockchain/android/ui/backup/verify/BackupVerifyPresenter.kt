@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import com.blockchain.componentlib.alert.SnackbarType
-import com.blockchain.preferences.WalletStatus
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.BackupWallet
 import io.reactivex.rxjava3.kotlin.plusAssign
 import piuk.blockchain.android.R
@@ -28,7 +28,7 @@ interface BackupVerifyView : View {
 
 class BackupVerifyPresenter(
     private val payloadDataManager: PayloadDataManager,
-    private val walletStatus: WalletStatus,
+    private val walletStatusPrefs: WalletStatusPrefs,
     private val backupWallet: BackupWallet
 ) : BasePresenter<BackupVerifyView>() {
 
@@ -60,7 +60,7 @@ class BackupVerifyPresenter(
             .doAfterTerminate { view.hideProgressDialog() }
             .subscribe(
                 {
-                    walletStatus.lastBackupTime = System.currentTimeMillis() / 1000
+                    walletStatusPrefs.lastBackupTime = System.currentTimeMillis() / 1000
                     view.showSnackbar(R.string.backup_confirmed, SnackbarType.Success)
                     view.showCompletedFragment()
                 },

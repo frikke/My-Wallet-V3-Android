@@ -12,14 +12,19 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAccountSelectorBinding
+import piuk.blockchain.android.domain.repositories.AssetActivityRepository
 
 class AccountSelectSheet(
     override val host: HostedBottomSheet.Host,
 ) : SlidingModalBottomDialog<DialogSheetAccountSelectorBinding>() {
+
+    private val activityRepo: AssetActivityRepository by scopedInject()
 
     interface SelectionHost : HostedBottomSheet.Host {
         fun onAccountSelected(account: BlockchainAccount)
@@ -33,12 +38,13 @@ class AccountSelectSheet(
         DialogSheetAccountSelectorBinding.inflate(inflater, container, false)
 
     private val coincore: Coincore by scopedInject()
+    private val walletModeService: WalletModeService by inject()
     private val disposables = CompositeDisposable()
 
     private var accountList: Single<List<AccountListViewItem>> =
-        coincore.allWalletsInActiveMode()
-            .map { listOf(it) + it.accounts }
-            .map { it.filter(BlockchainAccount::hasTransactions).map(AccountListViewItem.Companion::create) }
+        coincore.activeWalletsInMode(walletModeService.enabledWalletMode())
+            .map { listOf(it) + activityRepo.accountsWithActivity() }
+            .map { it.map(AccountListViewItem.Companion::create) }
 
     private var sheetTitle: Int = R.string.select_account_sheet_title
     private var sheetSubtitle: Int = R.string.empty

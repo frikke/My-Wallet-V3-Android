@@ -135,7 +135,7 @@ class QuestionnaireStateMachineTest {
                 selection(
                     id = "ss1-s2", isChecked = true,
                     openEnded(
-                        id = "ss1-s2-oe1", input = "", hint = "hint",
+                        id = "ss1-s2-oe1", input = "", hint = "hint", regex = null,
                         selection(id = "hidden"),
                         selection(id = "hidden")
                     )
@@ -320,9 +320,10 @@ class QuestionnaireStateMachineTest {
         id: NodeId = randomId(),
         input: String = "",
         hint: String = "",
+        regex: Regex? = null,
         vararg children: TreeNode
     ): TreeNode.OpenEnded =
-        TreeNode.OpenEnded(id, id, children.toList(), input, hint)
+        TreeNode.OpenEnded(id, id, children.toList(), input, hint, regex)
 
     private fun selection(
         id: NodeId = randomId(),
