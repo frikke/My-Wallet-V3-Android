@@ -1,10 +1,5 @@
 package com.blockchain.serializers
 
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.text.SimpleDateFormat
-import java.time.ZonedDateTime
-import java.util.Date
 import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -17,6 +12,11 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.serializer
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.text.SimpleDateFormat
+import java.time.ZonedDateTime
+import java.util.Date
 
 object BigIntSerializer : KSerializer<BigInteger> {
     override val descriptor: SerialDescriptor =
@@ -65,18 +65,12 @@ object StringMapSerializer : KSerializer<Map<String, String>> {
 object PrimitiveSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
 
-    @OptIn(InternalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: Any) {
-        val actualSerializer = encoder.serializersModule.getContextual(value::class) ?: value::class.serializer()
-        encoder.encodeSerializableValue(actualSerializer as KSerializer<Any>, value)
+        encoder.encodeString(value.toString())
     }
 
     override fun deserialize(decoder: Decoder): Any {
-        (decoder as? JsonDecoder)?.let {
-            return it.decodeJsonElement()
-        } ?: run {
-            error("Invalid decoder")
-        }
+       return decoder.decodeString()
     }
 }
 

@@ -8,16 +8,21 @@ import com.blockchain.nabu.models.responses.nabu.ProductsUsed
 import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
+import com.blockchain.serializers.PrimitiveSerializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class NabuUserSerializationTest {
     private val jsonBuilder = Json {
         ignoreUnknownKeys = true
         explicitNulls = true
+        serializersModule = SerializersModule { contextual(PrimitiveSerializer) }
     }
 
     @Test
@@ -94,5 +99,69 @@ class NabuUserSerializationTest {
         )
 
         testObject shouldBeEqualTo user
+    }
+
+    @Test
+    fun `nabuUser - decode from string and encode the result to string should be successful`() {
+        val originalJsonString =
+            """{
+  "id": "id",
+  "firstName": "firstName",
+  "lastName": "lastName",
+  "email": "email@email.email",
+  "emailVerified": true,
+  "dob": "2000-10-10",
+  "mobile": "+12121212",
+  "mobileVerified": true,
+  "address": {
+    "city": "city",
+    "line1": "line1",
+    "line2": "line2",
+    "state": "state",
+    "country": "country",
+    "postCode": "123"
+  },
+  "state": "ACTIVE",
+  "kycState": "VERIFIED",
+  "tiers": {
+    "current": 2,
+    "selected": 2,
+    "next": 2
+  },
+  "limits": [],
+  "tags": {
+    "NO_BROKERAGE_FEES": {
+      "rdcGlobalStatus": "PENDING"
+    },
+    "INTERNAL_TESTING": {}
+  },
+  "settings": {
+    "MERCURY_SIGNUP_COUNTRY": "GB",
+    "MERCURY_EMAIL_VERIFIED": false
+  },
+  "productsUsed": {
+    "exchange": true
+  },
+  "walletAddresses": {
+    "BCH": "BCHaddress",
+  },
+  "walletGuid": "walletGuid",
+  "currencies": {
+    "preferredFiatTradingCurrency": "GBP",
+    "usableFiatCurrencies": [
+      "GBP",
+      "EUR",
+      "USD"
+    ],
+    "defaultWalletCurrency": "GBP",
+    "userFiatCurrencies": [
+      "GBP"
+    ]
+  },
+  "mercuryEmailVerified": false
+}"""
+
+        val userObject = jsonBuilder.decodeFromString<NabuUser>(originalJsonString)
+        jsonBuilder.encodeToString(userObject)
     }
 }
