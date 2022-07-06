@@ -296,7 +296,8 @@ class SimpleBuyCryptoFragment :
                 outputCurrency = newState.fiatCurrency,
                 exchangeCurrency = it,
                 canSwap = false,
-                predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency)
+                predefinedAmount = newState.order.amount ?: FiatValue.zero(newState.fiatCurrency),
+                showExchangeRate = false
             )
             binding.buyIcon.setAssetIconColoursWithTint(it)
         }
@@ -1042,7 +1043,7 @@ class SimpleBuyCryptoFragment :
 
 fun RecurringBuyFrequency.toHumanReadableRecurringBuy(context: Context): String {
     return when (this) {
-        RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_short)
+        RecurringBuyFrequency.ONE_TIME -> context.getString(R.string.recurring_buy_one_time_selector)
         RecurringBuyFrequency.DAILY -> context.getString(R.string.recurring_buy_daily_1)
         RecurringBuyFrequency.WEEKLY -> context.getString(R.string.recurring_buy_weekly_1)
         RecurringBuyFrequency.BI_WEEKLY -> context.getString(R.string.recurring_buy_bi_weekly_1)

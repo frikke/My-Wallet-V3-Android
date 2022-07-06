@@ -1502,8 +1502,8 @@ Seus fundos estarão disponíveis para saque assim que a transferência bancári
     <string name="verify_device_title">Verificar dispositivo</string>
     <string name="verify_device_desc">Se você tiver uma conta registrada com este endereço de e-mail, receberá um e-mail com um link para verificar seu dispositivo.</string>
     <string name="recurring_buy_toolbar">Compras recorrentes</string>
-    <string name="recurring_buy_one_time_short">Uma vez</string>
-    <string name="recurring_buy_one_time">Compra única</string>
+    <string name="recurring_buy_one_time_cta">Uma vez -></string>
+    <string name="recurring_buy_one_time_selector">Compra única</string>
     <string name="recurring_buy_frequency_subtitle">Em %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">cerca de %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">Em %s</string>

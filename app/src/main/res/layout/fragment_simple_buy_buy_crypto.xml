@@ -117,7 +117,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_margin"
-        android:text="@string/recurring_buy_one_time_short"
+        android:text="@string/recurring_buy_one_time_cta"
         app:layout_constraintBottom_toTopOf="@id/payment_method"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

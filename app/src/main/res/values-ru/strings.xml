@@ -1525,8 +1525,8 @@ SafeConnect поделится этими данными с вашим банк�
     <string name="verify_device_title">Проверить устройство</string>
     <string name="verify_device_desc">Если у вас есть зарегистрированный с этим адресом электронной почты аккаунт, вы получите электронное письмо со ссылкой для подтверждения вашего устройства.</string>
     <string name="recurring_buy_toolbar">Повторяющиеся покупки</string>
-    <string name="recurring_buy_one_time_short">Один раз</string>
-    <string name="recurring_buy_one_time">Одноразовая покупка</string>
+    <string name="recurring_buy_one_time_cta">Один раз -></string>
+    <string name="recurring_buy_one_time_selector">Одноразовая покупка</string>
     <string name="recurring_buy_frequency_subtitle">В %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">около %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">В %s</string>

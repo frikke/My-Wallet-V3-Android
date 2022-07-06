@@ -1474,8 +1474,8 @@ Sus fondos estarán disponibles para retirarse una vez que se complete la transf
     <string name="verify_device_title">Verificar dispositivo</string>
     <string name="verify_device_desc">Enviamos un correo electrónico de verificación a: %s . Haga clic en el enlace del correo electrónico para continuar.</string>
     <string name="recurring_buy_toolbar">Compras periódicas</string>
-    <string name="recurring_buy_one_time_short">Una vez</string>
-    <string name="recurring_buy_one_time">Compra única</string>
+    <string name="recurring_buy_one_time_cta">Una vez -></string>
+    <string name="recurring_buy_one_time_selector">Compra única</string>
     <string name="recurring_buy_frequency_subtitle">El %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">alrededor de %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">El día %s</string>

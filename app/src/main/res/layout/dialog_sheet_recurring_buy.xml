@@ -43,7 +43,7 @@
             android:drawablePadding="@dimen/small_margin"
             android:paddingTop="@dimen/very_small_margin"
             android:paddingBottom="@dimen/very_small_margin"
-            android:text="@string/recurring_buy_one_time_short"
+            android:text="@string/recurring_buy_one_time_selector"
             android:visibility="gone"
             tools:visibility="visible" />
 

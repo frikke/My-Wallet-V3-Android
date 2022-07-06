@@ -1505,8 +1505,8 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="verify_device_title">Vérifiez l\'appareil</string>
     <string name="verify_device_desc">Nous avons envoyé un courriel de vérification à %s. Veuillez cliquer sur le lien dans le courriel pour continuer.</string>
     <string name="recurring_buy_toolbar">Achats récurrents</string>
-    <string name="recurring_buy_one_time_short">Une fois</string>
-    <string name="recurring_buy_one_time">Achat ponctuel</string>
+    <string name="recurring_buy_one_time_cta">Une fois -></string>
+    <string name="recurring_buy_one_time_selector">Achat ponctuel</string>
     <string name="recurring_buy_frequency_subtitle">Sur %s</string>
     <string name="recurring_buy_frequency_subtitle_each_day">autour de %s</string>
     <string name="recurring_buy_frequency_subtitle_monthly">Le %s</string>

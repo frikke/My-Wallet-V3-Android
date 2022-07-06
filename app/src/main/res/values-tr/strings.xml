@@ -1565,8 +1565,8 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="verify_device_title">Cihazı Doğrula</string>
     <string name="verify_device_desc">Bu e-posta adresine kayıtlı bir hesabınız varsa cihazınızı doğrulamak için kullanacağınız bir bağlantıyı içeren e-posta alacaksınız.</string>
     <string name="recurring_buy_toolbar">Yinelenen Satın Almalar</string>
-    <string name="recurring_buy_one_time_short">Tek sefer</string>
-    <string name="recurring_buy_one_time">Tek seferlik satın alma</string>
+    <string name="recurring_buy_one_time_cta">Tek sefer -></string>
+    <string name="recurring_buy_one_time_selector">Tek seferlik satın alma</string>
     <string name="recurring_buy_frequency_subtitle">%s tarihinde</string>
     <string name="recurring_buy_frequency_subtitle_each_day">%s civarında</string>
     <string name="recurring_buy_frequency_subtitle_monthly">%s günde</string>
