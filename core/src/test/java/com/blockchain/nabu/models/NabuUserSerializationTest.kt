@@ -8,12 +8,9 @@ import com.blockchain.nabu.models.responses.nabu.ProductsUsed
 import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.blockchain.nabu.models.responses.nabu.UserState
-import com.blockchain.serializers.PrimitiveSerializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 
@@ -21,7 +18,6 @@ class NabuUserSerializationTest {
     private val jsonBuilder = Json {
         ignoreUnknownKeys = true
         explicitNulls = true
-        serializersModule = SerializersModule { contextual(PrimitiveSerializer) }
     }
 
     @Test

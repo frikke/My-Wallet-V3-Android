@@ -2,8 +2,8 @@ package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
+import com.blockchain.serializers.AnyToStringSerializer
 import kotlin.math.max
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -36,7 +36,7 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    private val tags: Map<String, Map<String, @Contextual Any>>? = null,
+    private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val walletGuid: String? = null
