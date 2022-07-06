@@ -4,6 +4,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.android.ui.linkbank.yodlee.FastLinkInterfaceHandler
@@ -15,7 +16,15 @@ class FastLinkInterfaceHandlerTest {
 
     @Before
     fun setUp() {
-        fastlinkHandler = FastLinkInterfaceHandler(listener)
+        fastlinkHandler = FastLinkInterfaceHandler(
+            listener,
+            Json {
+                explicitNulls = false
+                ignoreUnknownKeys = true
+                isLenient = true
+                encodeDefaults = true
+            }
+        )
     }
 
     @Test

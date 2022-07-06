@@ -5,11 +5,7 @@ import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
-import com.google.gson.Gson
 import java.io.Serializable
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -86,30 +82,19 @@ data class BankAuthDeepLinkState(
     val bankLinkingInfo: BankLinkingInfo? = null
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 fun BankAuthDeepLinkState.toPreferencesValue(): String {
     val koin = GlobalContext.get()
-    val replaceGsonKtxFF by koin.inject<FeatureFlag>(replaceGsonKtxFeatureFlag)
+    val json by koin.inject<Json>()
 
-    return if (replaceGsonKtxFF.isEnabled) {
-        val json by koin.inject<Json>()
-        json.encodeToString(this)
-    } else {
-        Gson().toJson(this, BankAuthDeepLinkState::class.java)
-    }
+    return json.encodeToString(this)
 }
 
 internal fun String.fromPreferencesValue(): BankAuthDeepLinkState? {
     val koin = GlobalContext.get()
-    val replaceGsonKtxFF by koin.inject<FeatureFlag>(replaceGsonKtxFeatureFlag)
 
     return if (this.isNotEmpty()) {
-        if (replaceGsonKtxFF.isEnabled) {
-            val json by koin.inject<Json>()
-            json.decodeFromString<BankAuthDeepLinkState>(this)
-        } else {
-            Gson().fromJson(this, BankAuthDeepLinkState::class.java)
-        }
+        val json by koin.inject<Json>()
+        json.decodeFromString<BankAuthDeepLinkState>(this)
     } else {
         null
     }

@@ -46,7 +46,6 @@ class SimpleBuyPrefsSerializerTest {
 
     private val simpleBuyPrefsSerializer: SimpleBuyPrefsSerializer = SimpleBuyPrefsSerializerImpl(
         prefs = prefs,
-        assetCatalogue = assetCatalogue,
         json = json,
     )
 
@@ -120,7 +119,7 @@ class SimpleBuyPrefsSerializerTest {
     }
 
     @Test
-    fun `GIVEN ktx enabled, WHEN update is called with simpleBuyStateObject, THEN prefs_updateSimpleBuyState should be called with simpleBuyStateKtxString`() {
+    fun `WHEN update is called with simpleBuyStateObject, THEN prefs_updateSimpleBuyState should be called with simpleBuyStateKtxString`() {
         simpleBuyPrefsSerializer.update(simpleBuyStateObject)
 
         verify(exactly = 1) { prefs.updateSimpleBuyState(simpleBuyStateKtxString) }

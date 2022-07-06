@@ -1,9 +1,7 @@
 package com.blockchain.coincore.impl
 
 import android.annotation.SuppressLint
-import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.preferences.AuthPrefs
-import com.google.gson.Gson
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.wallet.api.WalletApi
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -29,8 +27,7 @@ internal data class NotificationReceiveAddresses(
 /*internal*/ class BackendNotificationUpdater(
     private val walletApi: WalletApi,
     private val prefs: AuthPrefs,
-    private val json: Json,
-    private val replaceGsonKtxFF: FeatureFlag,
+    private val json: Json
 ) {
 
     private val addressMap = mutableMapOf<String, NotificationAddresses>()
@@ -68,11 +65,7 @@ internal data class NotificationReceiveAddresses(
             NotificationReceiveAddresses(key, addresses)
         }
 
-        return if (replaceGsonKtxFF.isEnabled) {
-            json.encodeToString(addresses)
-        } else {
-            Gson().toJson(addresses)
-        }
+        return json.encodeToString(addresses)
     }
 
     companion object {

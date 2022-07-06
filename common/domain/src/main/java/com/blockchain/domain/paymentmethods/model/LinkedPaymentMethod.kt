@@ -5,21 +5,26 @@ import info.blockchain.balance.Money
 import java.io.Serializable
 import java.util.Date
 import java.util.Locale
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 
+@kotlinx.serialization.Serializable
 sealed class LinkedPaymentMethod(
     val type: PaymentMethodType,
     open val currency: FiatCurrency
 ) {
+    @kotlinx.serialization.Serializable
     data class Card(
         val cardId: String,
         val label: String,
         val endDigits: String,
         val partner: Partner,
-        val expireDate: Date,
+        val expireDate: @Contextual Date,
         val cardType: String,
         val status: CardStatus,
         val cardFundSources: List<String>? = null,
         val mobilePaymentType: MobilePaymentType? = null,
+        @SerialName("fiatCurrency")
         override val currency: FiatCurrency
     ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
 

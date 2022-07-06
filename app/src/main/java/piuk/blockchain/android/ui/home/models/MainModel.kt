@@ -22,13 +22,13 @@ import com.blockchain.walletconnect.domain.WalletConnectServiceAPI
 import com.blockchain.walletconnect.domain.WalletConnectSessionEvent
 import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
-import com.google.gson.JsonSyntaxException
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.rx3.asObservable
+import kotlinx.serialization.SerializationException
 import piuk.blockchain.android.campaign.CampaignType
 import piuk.blockchain.android.deeplink.BlockchainLinkState
 import piuk.blockchain.android.deeplink.LinkState
@@ -398,7 +398,7 @@ class MainModel(
                             bankLinkingState.bankLinkingInfo?.let {
                                 process(MainIntent.UpdateViewToLaunch(ViewToLaunch.LaunchOpenBankingLinking(it)))
                             }
-                        } catch (e: JsonSyntaxException) {
+                        } catch (e: SerializationException) {
                             process(MainIntent.UpdateViewToLaunch(ViewToLaunch.ShowOpenBankingError))
                         }
                     },

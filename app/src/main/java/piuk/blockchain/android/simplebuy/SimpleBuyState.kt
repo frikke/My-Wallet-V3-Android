@@ -38,7 +38,7 @@ import piuk.blockchain.android.ui.transactionflow.engine.TransactionFlowStateInf
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 /**
- * This is an object that gets serialized with Gson so any properties that we don't
+ * This is an object that gets serialized with Json so any properties that we don't
  * want to get serialized should be tagged as @Transient
  *
  */

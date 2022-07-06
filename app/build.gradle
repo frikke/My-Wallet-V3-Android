@@ -423,7 +423,6 @@ dependencies {
     implementation Libraries.googleServicesReCaptcha
     implementation Libraries.biometricsApi
 
-    implementation Libraries.gson
     implementation Libraries.kotlinJson
     implementation Libraries.json
 

@@ -30,7 +30,6 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
-import com.blockchain.koin.replaceGsonKtxFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -54,7 +53,6 @@ import com.blockchain.ui.password.SecondPasswordHandler
 import com.blockchain.wallet.BackupWallet
 import com.blockchain.wallet.DefaultLabels
 import com.blockchain.websocket.CoinsWebSocketInterface
-import com.google.gson.GsonBuilder
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.squareup.sqldelight.db.SqlDriver
 import exchange.ExchangeLinking
@@ -298,9 +296,7 @@ val applicationModule = module {
                 bchDataManager = get(),
                 stringUtils = get(),
                 featureFlag = get(coinWebSocketFeatureFlag),
-                gson = get(),
                 json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 payloadDataManager = get(),
                 rxBus = get(),
                 authPrefs = get(),
@@ -309,10 +305,6 @@ val applicationModule = module {
                 crashLogger = get()
             )
         }.bind(CoinsWebSocketInterface::class)
-
-        factory {
-            GsonBuilder().create()
-        }
 
         factory {
             OkHttpClient()
@@ -587,7 +579,6 @@ val applicationModule = module {
         factory {
             SimpleBuyPrefsSerializerImpl(
                 prefs = get(),
-                assetCatalogue = get(),
                 json = get(kotlinJsonAssetTicker),
             )
         }.bind(SimpleBuyPrefsSerializer::class)
@@ -609,9 +600,7 @@ val applicationModule = module {
                 currencyPrefs = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 cardActivator = get(),
-                gson = get(),
                 json = get(),
-                replaceGsonKtxFF = get(replaceGsonKtxFeatureFlag),
                 prefs = get(),
                 environmentConfig = get(),
                 remoteLogger = get()
