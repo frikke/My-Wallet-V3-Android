@@ -31,7 +31,6 @@ import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.lang.IllegalStateException
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
@@ -188,8 +187,8 @@ internal class DynamicAssetLoader(
             .printTime("----- ::Erc20Assets - interestBalances")
 
         // Assets with non custodial balance
-        val erc20ActiveAssets =
-            erc20DataManager.getActiveAssets()
+        val erc20ActiveAssets = erc20DataManager.getActiveAssets()
+            .printTime("----- ::Erc20Assets - erc20DataManager")
 
         return Single.zip(
             tradingBalancesAssets,

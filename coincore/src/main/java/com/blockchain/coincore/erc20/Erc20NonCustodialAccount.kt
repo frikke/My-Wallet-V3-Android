@@ -14,6 +14,7 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.WalletStatusPrefs
+import com.blockchain.rx.printTime
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
 import info.blockchain.balance.Money
@@ -49,6 +50,7 @@ class Erc20NonCustodialAccount(
 
     override fun getOnChainBalance(): Observable<Money> =
         erc20DataManager.getErc20Balance(currency)
+            .printTime("----- ::getErc20Balance")
             .doOnNext { hasFunds.set(it.balance.isPositive) }
             .doOnNext { setHasTransactions(it.hasTransactions) }
             .map { it.balance }

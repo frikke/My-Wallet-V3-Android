@@ -5,8 +5,8 @@ import com.blockchain.api.ethereum.evm.TransactionDirection
 import com.blockchain.api.services.Erc20Transfer
 import com.blockchain.api.services.NonCustodialErc20Service
 import com.blockchain.api.services.NonCustodialEvmService
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
-import com.blockchain.core.chains.erc20.model.Erc20HistoryList
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryList
 import com.blockchain.extensions.filterIf
 import com.blockchain.outcome.map
 import info.blockchain.balance.AssetCatalogue

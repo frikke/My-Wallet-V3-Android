@@ -20,6 +20,7 @@ import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
+import com.blockchain.koin.speedUpLoginErc20FeatureFlag
 import com.blockchain.koin.speedUpLoginInterestFeatureFlag
 import com.blockchain.koin.speedUpLoginKycFeatureFlag
 import com.blockchain.koin.speedUpLoginTradingFeatureFlag
@@ -66,6 +67,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_speedup_login_user",
                 "SpeedUp Login - /user"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(speedUpLoginErc20FeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_speedup_login_erc20",
+                "SpeedUp Login - eth erc20"
             )
         )
     }.bind(FeatureFlag::class)

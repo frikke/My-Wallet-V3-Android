@@ -10,6 +10,7 @@ val speedUpLoginInterestFeatureFlag = StringQualifier("android_ff_speedup_login_
 val speedUpLoginTradingFeatureFlag = StringQualifier("android_ff_speedup_login_trading")
 val speedUpLoginKycFeatureFlag = StringQualifier("android_ff_speedup_login_kyc")
 val speedUpLoginUserFeatureFlag = StringQualifier("android_ff_speedup_login_user")
+val speedUpLoginErc20FeatureFlag = StringQualifier("android_ff_speedup_login_erc20")
 val googlePayFeatureFlag = StringQualifier("ff_gpay")
 val metadataMigrationFeatureFlag = StringQualifier("ff_metadata_migration")
 val superAppFeatureFlag = StringQualifier("ff_super_app")

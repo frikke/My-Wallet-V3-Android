@@ -4,9 +4,14 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.core.chains.EvmNetwork
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
-import com.blockchain.core.chains.erc20.model.Erc20Balance
-import com.blockchain.core.chains.erc20.model.Erc20HistoryEvent
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
+import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
+import com.blockchain.core.chains.erc20.domain.Erc20StoreService
+import com.blockchain.core.chains.erc20.domain.model.Erc20Balance
+import com.blockchain.core.chains.erc20.domain.model.Erc20HistoryEvent
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.outcome.Outcome
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -23,6 +28,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.TestScheduler
@@ -69,12 +75,18 @@ class Erc20DataManagerTest {
         )
         coEvery { getBalance() } returns Outcome.Success(BigInteger.ZERO)
     }
-
     private val balanceCallCache: Erc20BalanceCallCache = mock()
     private val historyCallCache: Erc20HistoryCallCache = mock()
     private val assetCatalogue: AssetCatalogue = mockk()
+    private val erc20StoreService: Erc20StoreService = mock()
+    private val erc20DataSource: Erc20DataSource = mock()
+    private val erc20L2StoreService: Erc20L2StoreService = mock()
+    private val erc20L2DataSource: Erc20L2DataSource = mock()
     private val ethLayerTwoFeatureFlag: IntegratedFeatureFlag = mock {
         on { enabled }.thenReturn(Single.just(false))
+    }
+    private val speedUpLoginErc20FF: FeatureFlag = mock {
+        on { enabled }.thenReturn(Single.just(true))
     }
 
     private val subject = Erc20DataManagerImpl(
@@ -82,11 +94,18 @@ class Erc20DataManagerTest {
         balanceCallCache = balanceCallCache,
         historyCallCache = historyCallCache,
         assetCatalogue = assetCatalogue,
-        ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag
+        erc20StoreService = erc20StoreService,
+        erc20DataSource = erc20DataSource,
+        erc20L2StoreService = erc20L2StoreService,
+        erc20L2DataSource = erc20L2DataSource,
+        ethLayerTwoFeatureFlag = ethLayerTwoFeatureFlag,
+        speedUpLoginErc20FF = speedUpLoginErc20FF
     )
 
     @Test
-    fun `accountHash fetches from eth data manager`() {
+    fun `speedUpLoginErc20FF false, accountHash fetches from eth data manager`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(false))
+
         val result = subject.accountHash
 
         assertEquals(ACCOUNT_HASH, result)
@@ -97,16 +116,15 @@ class Erc20DataManagerTest {
     }
 
     @Test
-    fun `requireSecondPassword delegates to eth manager`() {
-        val expectedResult = true
-        every { ethDataManager.requireSecondPassword } returns expectedResult
+    fun `speedUpLoginErc20FF true, accountHash fetches from eth data manager`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(true))
 
-        val result = subject.requireSecondPassword
+        val result = subject.accountHash
 
-        assertEquals(expectedResult, result)
+        assertEquals(ACCOUNT_HASH, result)
 
-        io.mockk.verify { ethDataManager.requireSecondPassword }
-        verifyNoMoreInteractions(balanceCallCache)
+        io.mockk.verify { ethDataManager.accountAddress }
+        verifyNoMoreInteractions(erc20StoreService)
         verifyNoMoreInteractions(historyCallCache)
     }
 
@@ -130,7 +148,9 @@ class Erc20DataManagerTest {
     }
 
     @Test
-    fun `getErc20Balance delegates to balance cache`() {
+    fun `speedUpLoginErc20FF false, getErc20Balance delegates to balance cache`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(false))
+
         val mockBalance: Erc20Balance = mock()
         val mockResult = mapOf(ERC20_TOKEN to mockBalance)
         whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
@@ -147,7 +167,25 @@ class Erc20DataManagerTest {
     }
 
     @Test
-    fun `getErc20Balance returns zero if asset not found`() {
+    fun `speedUpLoginErc20FF true, getErc20Balance delegates to balance cache`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(true))
+
+        val mockBalance: Erc20Balance = mock()
+        whenever(erc20StoreService.getBalanceFor(asset = ERC20_TOKEN))
+            .thenReturn(Observable.just(mockBalance))
+
+        val result = subject.getErc20Balance(ERC20_TOKEN).blockingFirst()
+        assertEquals(mockBalance, result)
+
+        verify(erc20StoreService).getBalanceFor(asset = ERC20_TOKEN)
+
+        verifyNoMoreInteractions(erc20StoreService)
+    }
+
+    @Test
+    fun `speedUpLoginErc20FF false, getErc20Balance returns zero if asset not found`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(false))
+
         val mockBalance: Erc20Balance = mock()
         val mockResult = mapOf(ERC20_TOKEN to mockBalance)
         whenever(balanceCallCache.getBalances(ACCOUNT_HASH))
@@ -161,6 +199,21 @@ class Erc20DataManagerTest {
 
         verifyNoMoreInteractions(balanceCallCache)
         verifyNoMoreInteractions(historyCallCache)
+    }
+
+    @Test
+    fun `speedUpLoginErc20FF true, getErc20Balance returns zero if asset not found`() {
+        whenever(speedUpLoginErc20FF.enabled).thenReturn(Single.just(true))
+
+        whenever(erc20StoreService.getBalanceFor(asset = UNKNOWN_ERC20_TOKEN))
+            .thenReturn(Observable.just(Erc20Balance.zero(UNKNOWN_ERC20_TOKEN)))
+
+        val result = subject.getErc20Balance(UNKNOWN_ERC20_TOKEN).blockingFirst()
+        assert(result.balance.isZero)
+
+        verify(erc20StoreService).getBalanceFor(asset = UNKNOWN_ERC20_TOKEN)
+
+        verifyNoMoreInteractions(erc20StoreService)
     }
 
     @Test
@@ -416,6 +469,9 @@ class Erc20DataManagerTest {
     @Test
     fun `flushCaches clears cached API data`() {
         subject.flushCaches(ERC20_TOKEN)
+
+        verify(erc20DataSource).invalidate()
+        verify(erc20L2DataSource).invalidate(ERC20_TOKEN.networkTicker)
 
         verify(balanceCallCache).flush(ERC20_TOKEN)
         verify(historyCallCache).flush(ERC20_TOKEN)

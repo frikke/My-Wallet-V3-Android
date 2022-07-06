@@ -17,6 +17,14 @@ import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.Erc20DataManagerImpl
 import com.blockchain.core.chains.erc20.call.Erc20BalanceCallCache
 import com.blockchain.core.chains.erc20.call.Erc20HistoryCallCache
+import com.blockchain.core.chains.erc20.data.Erc20L2StoreRepository
+import com.blockchain.core.chains.erc20.data.Erc20StoreRepository
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2Store
+import com.blockchain.core.chains.erc20.data.store.Erc20Store
+import com.blockchain.core.chains.erc20.domain.Erc20L2StoreService
+import com.blockchain.core.chains.erc20.domain.Erc20StoreService
 import com.blockchain.core.custodial.BrokerageDataManager
 import com.blockchain.core.custodial.TradingBalanceCallCache
 import com.blockchain.core.custodial.TradingBalanceDataManager
@@ -288,6 +296,35 @@ val coreModule = module {
             )
         }
 
+        scoped<Erc20DataSource> {
+            Erc20Store(
+                erc20Service = get(),
+                ethDataManager = get()
+            )
+        }
+
+        scoped<Erc20StoreService> {
+            Erc20StoreRepository(
+                assetCatalogue = get(),
+                erc20DataSource = get()
+            )
+        }
+
+        scoped<Erc20L2DataSource> {
+            Erc20L2Store(
+                evmService = get(),
+                ethDataManager = get()
+            )
+        }
+
+        scoped<Erc20L2StoreService> {
+            Erc20L2StoreRepository(
+                assetCatalogue = get(),
+                ethDataManager = get(),
+                erc20L2DataSource = get()
+            )
+        }
+
         factory {
             Erc20HistoryCallCache(
                 ethDataManager = get(),
@@ -303,7 +340,12 @@ val coreModule = module {
                 balanceCallCache = get(),
                 historyCallCache = get(),
                 assetCatalogue = get(),
-                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag)
+                erc20StoreService = get(),
+                erc20DataSource = get(),
+                erc20L2StoreService = get(),
+                erc20L2DataSource = get(),
+                ethLayerTwoFeatureFlag = get(ethLayerTwoFeatureFlag),
+                speedUpLoginErc20FF = get(speedUpLoginErc20FeatureFlag)
             )
         }.bind(Erc20DataManager::class)
 
