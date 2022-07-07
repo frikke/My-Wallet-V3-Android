@@ -1,6 +1,5 @@
 package piuk.blockchain.android.ui.home.models
 
-import android.content.Intent
 import androidx.annotation.StringRes
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
@@ -24,7 +23,6 @@ import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 data class MainState(
     val viewToLaunch: ViewToLaunch = ViewToLaunch.None,
     val deeplinkResult: DeepLinkResult = DeepLinkResult.DeepLinkResultFailed,
-    val deeplinkIntent: Intent? = null,
     val currentTab: NavigationItem = NavigationItem.Home,
     val tabs: List<NavigationItem> = emptyList(),
     val walletMode: WalletMode = WalletMode.UNIVERSAL,

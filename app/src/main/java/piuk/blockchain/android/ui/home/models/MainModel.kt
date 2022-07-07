@@ -13,6 +13,7 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.responses.nabu.CampaignData
@@ -52,6 +53,7 @@ class MainModel(
     private val walletModeService: WalletModeService,
     environmentConfig: EnvironmentConfig,
     remoteLogger: RemoteLogger,
+    private val deeplinkingV2FF: FeatureFlag
 ) : MviModel<MainState, MainIntent>(
     initialState,
     mainScheduler,
@@ -119,34 +121,40 @@ class MainModel(
                 null
             }
             is MainIntent.PerformInitialChecks -> {
-                interactor.checkForUserWalletErrors()
-                    .subscribeBy(
-                        onComplete = {
-                            if (previousState.deeplinkIntent != null) {
-                                previousState.deeplinkIntent.data?.let { uri ->
-                                    interactor.processDeepLinkV2(uri).subscribeBy(
-                                        onComplete = {
-                                            // Nothing to do. Deeplink V2 was parsed successfully
-                                        },
-                                        onError = {
-                                            // Deeplink V2 parsing failed, fallback to legacy
-                                            Timber.e(it)
-                                            process(MainIntent.CheckForPendingLinks(previousState.deeplinkIntent))
-                                        }
-                                    )
-                                }
-                            }
-                        },
-                        onError = { throwable ->
-                            if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
-                                process(
-                                    MainIntent.UpdateViewToLaunch(
-                                        ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
-                                    )
+                interactor.checkForUserWalletErrors().toSingleDefault(Any()).flatMap {
+                    deeplinkingV2FF.enabled
+                }.subscribeBy(
+                    onSuccess = { isEnabled ->
+                        if (isEnabled) {
+                            process(MainIntent.ProcessPendingDeeplinkIntent(intent.deeplinkIntent))
+                        } else {
+                            process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
+                        }
+                    },
+                    onError = { throwable ->
+                        if (throwable is NabuApiException && throwable.isUserWalletLinkError()) {
+                            process(
+                                MainIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.CheckForAccountWalletLinkErrors(throwable.getWalletIdHint())
                                 )
-                            }
+                            )
+                        }
+                    }
+                )
+            }
+            is MainIntent.ProcessPendingDeeplinkIntent -> {
+                intent.deeplinkIntent.data?.let { uri ->
+                    interactor.processDeepLinkV2(uri).subscribeBy(
+                        onComplete = {
+                            // Nothing to do. Deeplink V2 was parsed successfully
+                        },
+                        onError = {
+                            // Deeplink V2 parsing failed, fallback to legacy
+                            Timber.e(it)
+                            process(MainIntent.CheckForPendingLinks(intent.deeplinkIntent))
                         }
                     )
+                }
             }
             is MainIntent.CheckForInitialDialogs -> {
                 if (intent.shouldStartUiTour) {
@@ -255,7 +263,6 @@ class MainModel(
             MainIntent.ResetViewState,
             is MainIntent.UpdateViewToLaunch -> null
             is MainIntent.UpdateDeepLinkResult -> null
-            is MainIntent.SaveDeeplinkIntent -> null
             is MainIntent.ReferralCodeIntent -> null
             is MainIntent.ShowReferralWhenAvailable -> null
             is MainIntent.UpdateCurrentTab -> null

@@ -90,6 +90,7 @@ class MainModelTest {
             },
             walletConnectServiceAPI = walletConnectServiceAPI,
             interactor = interactor,
+            deeplinkingV2FF = mock(),
         )
     }
 
@@ -98,7 +99,7 @@ class MainModelTest {
         whenever(interactor.checkForUserWalletErrors()).thenReturn(Completable.complete())
 
         val testState = model.state.test()
-        model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks(mock()))
 
         testState.assertValue {
             it == MainState()
@@ -124,7 +125,7 @@ class MainModelTest {
         )
 
         val testState = model.state.test()
-        model.process(MainIntent.PerformInitialChecks)
+        model.process(MainIntent.PerformInitialChecks(mock()))
 
         testState
             .assertValueAt(0) {

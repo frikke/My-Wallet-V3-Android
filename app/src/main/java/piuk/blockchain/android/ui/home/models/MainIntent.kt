@@ -11,7 +11,7 @@ import com.blockchain.walletconnect.domain.WalletConnectSession
 import com.blockchain.walletmode.WalletMode
 
 sealed class MainIntent : MviIntent<MainState> {
-    object PerformInitialChecks : MainIntent() {
+    data class PerformInitialChecks(val deeplinkIntent: Intent) : MainIntent() {
         override fun reduce(oldState: MainState): MainState = oldState
     }
 
@@ -106,17 +106,14 @@ sealed class MainIntent : MviIntent<MainState> {
             )
     }
 
-    class SaveDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
-        override fun reduce(oldState: MainState): MainState =
-            oldState.copy(
-                deeplinkIntent = deeplinkIntent
-            )
-    }
-
     object ClearDeepLinkResult : MainIntent() {
         override fun reduce(oldState: MainState): MainState =
             oldState.copy(
                 deeplinkResult = DeepLinkResult.DeepLinkResultFailed
             )
+    }
+
+    data class ProcessPendingDeeplinkIntent(val deeplinkIntent: Intent) : MainIntent() {
+        override fun reduce(oldState: MainState): MainState = oldState
     }
 }

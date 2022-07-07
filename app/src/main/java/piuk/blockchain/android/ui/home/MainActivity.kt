@@ -38,8 +38,6 @@ import com.blockchain.deeplinking.navigation.Destination
 import com.blockchain.deeplinking.navigation.DestinationArgs
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.extensions.exhaustive
-import com.blockchain.featureflag.FeatureFlag
-import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents
 import com.blockchain.notifications.analytics.NotificationAnalyticsEvents.Companion.createCampaignPayload
@@ -161,8 +159,6 @@ class MainActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
-    private val deeplinkingV2FF: FeatureFlag by scopedInject(deeplinkingFeatureFlag)
-
     private val settingsResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             (
@@ -209,18 +205,6 @@ class MainActivity :
             analytics.logEvent(NotificationAnalyticsEvents.PushNotificationTapped(payload))
         }
 
-        if (savedInstanceState == null) {
-            deeplinkingV2FF.enabled.subscribeBy(
-                onSuccess = { isEnabled ->
-                    if (isEnabled) {
-                        model.process(MainIntent.SaveDeeplinkIntent(intent))
-                    } else {
-                        model.process(MainIntent.CheckForPendingLinks(intent))
-                    }
-                }
-            )
-        }
-
         val startUiTour = intent.getBooleanExtra(START_UI_TOUR_KEY, false)
         intent.removeExtra(START_UI_TOUR_KEY)
 
@@ -248,10 +232,13 @@ class MainActivity :
                 navigateToDeeplinkDestination(destination)
             }
         }
-        model.process(MainIntent.CheckForInitialDialogs(startUiTour))
-        model.process(MainIntent.PerformInitialChecks)
-        model.process(MainIntent.CheckReferralCode)
-        model.process(MainIntent.NavigationTabs)
+
+        if (savedInstanceState == null) {
+            model.process(MainIntent.CheckForInitialDialogs(startUiTour))
+            model.process(MainIntent.PerformInitialChecks(intent))
+            model.process(MainIntent.CheckReferralCode)
+            model.process(MainIntent.NavigationTabs)
+        }
     }
 
     override fun onResume() {

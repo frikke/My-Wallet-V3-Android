@@ -72,7 +72,7 @@ class LauncherActivity : MvpActivity<LauncherView, LauncherPresenter>(), Launche
         var referralSuccessTitle: String? = null
         var referralSuccessBody: String? = null
         when {
-            intent.data != null -> intent.data.toString()
+            intent.data != null -> deeplinkURL = intent.data.toString()
             intent.hasExtra(DATA) -> {
                 try {
                     val jsonObject = JSONObject(intent.getStringExtra(DATA))
