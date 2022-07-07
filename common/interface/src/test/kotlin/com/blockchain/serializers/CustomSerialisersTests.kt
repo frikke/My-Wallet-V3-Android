@@ -127,7 +127,7 @@ class PrimitiveSerializerTest {
     }
 
     private val containerClass = TestClass(12, "lorem", true)
-    private val jsonString = "{\"number\":\"12\",\"text\":\"lorem\",\"bool\":\"true\"}"
+    private val jsonString = "{\"number\":12,\"text\":\"lorem\",\"bool\":true}"
 
     @Test
     fun `primitive serialisation`() {
@@ -139,7 +139,7 @@ class PrimitiveSerializerTest {
         val result = json.decodeFromString<TestClass>(jsonString)
 
         result.number.toString() shouldBeEqualTo containerClass.number.toString()
-        result.text.toString() shouldBeEqualTo containerClass.text
+        result.text.toString() shouldBeEqualTo "\"${containerClass.text}\""
         result.bool.toString() shouldBeEqualTo containerClass.bool.toString()
     }
 }
