@@ -12,8 +12,7 @@ class EligibilityForFreeEthAdapter(
         return nabuDataUserProvider.getUser()
             .map { nabuUser ->
                 val userTier = nabuUser.tiers?.current ?: 0
-                val isPowerPaxTagged = nabuUser.tags?.containsKey("POWER_PAX") ?: false
-                return@map userTier == 2 && !isPowerPaxTagged
+                return@map userTier == 2 && nabuUser.isPowerPaxTagged.not()
             }
     }
 }

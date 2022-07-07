@@ -2,7 +2,7 @@ package com.blockchain.nabu.models.responses.nabu
 
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.serialization.JsonSerializable
-import com.blockchain.serializers.PrimitiveSerializer
+import com.blockchain.serializers.AnyToStringSerializer
 import kotlin.math.max
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -36,7 +36,7 @@ data class NabuUser(
      * ISO-8601 Timestamp w/millis, eg 2018-08-15T17:00:45.129Z
      */
     val updatedAt: String? = null,
-    val tags: Map<String, Map<String, @Serializable(with = PrimitiveSerializer::class) Any>>? = null,
+    private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
     val walletGuid: String? = null
@@ -83,13 +83,17 @@ data class NabuUser(
             tiers?.current != 2
 
     val isStxAirdropRegistered: Boolean
-        get() = tags?.get(STX_AIRDROP_TAG) != null
+        get() = tags?.containsKey(STX_AIRDROP_TAG) ?: false
+
+    val isPowerPaxTagged: Boolean
+        get() = tags?.containsKey(POWER_PAX_TAG) ?: false
 
     val exchangeEnabled: Boolean
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
 
     companion object {
         const val STX_AIRDROP_TAG = "BLOCKSTACK"
+        const val POWER_PAX_TAG = "POWER_PAX"
     }
 }
 

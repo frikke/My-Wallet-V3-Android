@@ -62,6 +62,18 @@ object StringMapSerializer : KSerializer<Map<String, String>> {
     }
 }
 
+object AnyToStringSerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
+
+    override fun serialize(encoder: Encoder, value: Any) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): Any {
+        return decoder.decodeString()
+    }
+}
+
 object PrimitiveSerializer : KSerializer<Any> {
     override val descriptor: SerialDescriptor = ContextualSerializer(Any::class, null, emptyArray()).descriptor
 
