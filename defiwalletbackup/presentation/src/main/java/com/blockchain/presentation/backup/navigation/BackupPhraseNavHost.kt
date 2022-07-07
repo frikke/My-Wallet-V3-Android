@@ -9,10 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.presentation.BackPhraseDestination
-import com.blockchain.presentation.BackupPhraseArgs
 import com.blockchain.presentation.backup.BackupPhraseArgs
-import com.blockchain.presentation.backup.BackupPhraseViewModel
 import com.blockchain.presentation.backup.screens.BackedUpPhrase
 import com.blockchain.presentation.backup.screens.BackupPhraseIntro
 import com.blockchain.presentation.backup.screens.BackupSuccess

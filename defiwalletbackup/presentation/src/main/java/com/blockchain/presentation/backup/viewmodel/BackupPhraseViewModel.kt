@@ -6,7 +6,6 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.presentation.BackupPhraseArgs
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseArgs
 import com.blockchain.presentation.backup.BackupPhraseIntent
@@ -16,9 +15,9 @@ import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.FlowState
 import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,

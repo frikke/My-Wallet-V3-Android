@@ -13,7 +13,6 @@ import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
 import com.blockchain.presentation.backup.navigation.BackupPhraseNavHost
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
