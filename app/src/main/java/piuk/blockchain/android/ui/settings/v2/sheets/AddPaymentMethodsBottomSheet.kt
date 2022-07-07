@@ -44,7 +44,7 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
             with(addCardParent) {
                 primaryText = getString(R.string.add_credit_or_debit_card_1)
                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
-                secondaryText = getString(R.string.instantly_available)
+                secondaryText = getString(R.string.buy_small_amounts)
                 paragraphText = getString(R.string.instantly_buy_crypto_with_card)
                 tags = listOf(TagViewState(getString(R.string.most_popular), TagType.Success()))
                 onClick = {

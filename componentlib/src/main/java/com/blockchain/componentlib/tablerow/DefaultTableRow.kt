@@ -110,6 +110,16 @@ fun DefaultTableRow(
                         color = AppTheme.colors.body,
                         modifier = Modifier
                             .padding(
+                                /*                         Fonts have some padding and currently we cannot remove it using jetpack compose..
+                                                           This attribute will be available in next compose release and we can apply it on AppTypography.
+
+                                                               platformStyle = PlatformTextStyle(
+                                                                   includeFontPadding = false
+                                                               )
+
+                                                           For now I just apply some margin, to avoid miss alignment
+                               */
+                                start = dimensionResource(id = R.dimen.smallest_margin),
                                 top = dimensionResource(R.dimen.smallest_margin),
                                 bottom = if (tags.isNullOrEmpty()) 0.dp else 8.dp
                             )
