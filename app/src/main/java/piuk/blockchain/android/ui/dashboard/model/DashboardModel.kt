@@ -49,13 +49,20 @@ class DashboardModel(
             )
             is DashboardIntent.UpdateAllAssetsAndBalances -> {
                 process(DashboardIntent.LoadFundsLocked)
-                process(DashboardIntent.RefreshAllBalancesIntent(false))
-                null
+                interactor.refreshBalances(
+                    model = this,
+                    activeAssets = intent.assetList.map { it.currency }.toSet(),
+                    fiatAccounts = intent.fiatAssetList.map { FiatBalanceInfo(it) }.toSet()
+                )
             }
             is DashboardIntent.GetAssetPrice -> interactor.fetchAssetPrice(this, intent.asset)
             is DashboardIntent.RefreshAllBalancesIntent -> {
                 if (previousState.activeAssets.isNotEmpty()) {
-                    interactor.refreshBalances(this, previousState)
+                    interactor.refreshBalances(
+                        model = this,
+                        activeAssets = previousState.activeAssets.keys.toSet(),
+                        fiatAccounts = previousState.fiatAssets.fiatAccounts.values.toSet()
+                    )
                 } else {
                     process(DashboardIntent.GetActiveAssets)
                     null
@@ -106,6 +113,7 @@ class DashboardModel(
             is DashboardIntent.LaunchDashboardOnboarding,
             is DashboardIntent.SetDepositVisibility,
             DashboardIntent.ResetDashboardAssets,
+            DashboardIntent.NoActiveAssets,
             is DashboardIntent.UpdateNavigationAction,
             -> null
         }.exhaustive

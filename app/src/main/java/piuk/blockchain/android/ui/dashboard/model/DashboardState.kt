@@ -5,7 +5,6 @@ import com.blockchain.coincore.AccountBalance
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.coincore.SingleAccount
 import com.blockchain.commonarch.presentation.mvi.MviState
-import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoValue
@@ -22,11 +21,6 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem.Companion.LOCKS_
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
 import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
-
-data class AssetPriceState(
-    val assetInfo: AssetInfo,
-    val prices: Prices24HrWithDelta? = null,
-)
 
 class AssetMap(private val map: Map<AssetInfo, DashboardAsset>) :
     Map<AssetInfo, DashboardAsset> by map {
@@ -197,6 +191,43 @@ data class DashboardState(
         .map { it.fiatBalance24h!! }
         .ifEmpty { null }?.total()
 
+    /**
+     * The idea here is that
+     * - When in Defi mode we display all the non custodial coins regardless the balance
+     * - When in Brokerage or Universal we display only assets with balances
+     */
+    val displayableCryptoAssets: List<DashboardAsset>
+        get() {
+            if (activeAssets.isEmpty()) return emptyList()
+            if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.toList()
+            if (activeAssets.all { it.value is BrokerageAsset }) return activeAssets.values.filter {
+                it.fiatBalance?.isPositive ?: false
+            }
+            throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
+        }
+
+    val displayableFiatAssets: FiatAssetState?
+        get() = fiatAssets.fiatAccounts.takeIf { it.isNotEmpty() }?.let { fiatAssets }
+
+    /**
+     * States:
+     * - Assets: Is set when there is at least one available fiat or crypto asset to display
+     * - Empty : When no Assets and all fetching operations have finished
+     * - Loading: When dashboard is loading assets and no assets have been loaded yet.
+     */
+    val uiState: DashboardUIState
+        get() = if (displayableCryptoAssets.isNotEmpty() || displayableFiatAssets != null)
+            DashboardUIState.ASSETS
+        else if (!isLoadingAssets && displayableCryptoAssets.isEmpty() && displayableFiatAssets == null)
+            DashboardUIState.EMPTY
+        else if (isLoadingAssets) {
+            DashboardUIState.LOADING
+        } else throw IllegalStateException(
+            "State is undefined for loading: $isLoadingAssets --  ${activeAssets.size} assets --" +
+                " in state Loading ${activeAssets.values.map { it.isLoading }} -- active" +
+                " currencies: ${activeAssets.values.map { it.currency.networkTicker }}}"
+        )
+
     private fun addFiatBalance(balance: Money?): Money? {
         val fiatAssetBalance = fiatAssets.totalBalance
 
@@ -223,6 +254,10 @@ data class DashboardState(
 
     operator fun get(currency: AssetInfo): DashboardAsset =
         activeAssets[currency]
+}
 
-    val assetMapKeys = activeAssets.keys
+enum class DashboardUIState {
+    LOADING,
+    ASSETS,
+    EMPTY
 }

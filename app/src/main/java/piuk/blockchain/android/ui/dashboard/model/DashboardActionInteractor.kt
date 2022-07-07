@@ -168,17 +168,15 @@ class DashboardActionInteractor(
 
     fun refreshBalances(
         model: DashboardModel,
-        state: DashboardState,
+        activeAssets: Set<AssetInfo>,
+        fiatAccounts: Set<FiatBalanceInfo>
     ): Disposable {
-
-        loadBalances(state.activeAssets.keys, model).forEach {
+        loadBalances(activeAssets, model).forEach {
             it.addTo(compositeDisposable)
         }
-
-        state.fiatAssets.fiatAccounts
-            .values.forEach {
-                compositeDisposable += refreshFiatAssetBalance(it.account, model)
-            }
+        fiatAccounts.forEach {
+            compositeDisposable += refreshFiatAssetBalance(it.account, model)
+        }
 
         warmWalletModeBalanceCache().forEach {
             it.addTo(compositeDisposable)
@@ -209,10 +207,13 @@ class DashboardActionInteractor(
         assets: Set<AssetInfo>,
         model: DashboardModel
     ): List<Disposable> {
-        return assets.map { asset ->
+        return assets.takeIf { it.isNotEmpty() }?.map { asset ->
             refreshAssetBalance(asset, model).subscribeBy(onError = {
                 Timber.e(it)
             })
+        } ?: kotlin.run {
+            model.process(DashboardIntent.NoActiveAssets)
+            emptyList()
         }
     }
 
@@ -704,16 +705,23 @@ class DashboardActionInteractor(
         )
 
     fun getOnboardingSteps(model: DashboardModel): Disposable =
-        getDashboardOnboardingStepsUseCase(Unit).subscribeBy(
-            onSuccess = { steps ->
-                val onboardingState = if (steps.any { !it.isCompleted }) {
-                    DashboardOnboardingState.Visible(steps)
-                } else {
-                    DashboardOnboardingState.Hidden
+        walletModeService.walletMode.asObservable().flatMapSingle { walletMode ->
+            if (!walletMode.custodialEnabled) {
+                Single.just(DashboardOnboardingState.Hidden)
+            } else
+                getDashboardOnboardingStepsUseCase(Unit).doOnSuccess { steps ->
+                    val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
+                    if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
+                }.map { steps ->
+                    if (steps.any { !it.isCompleted }) {
+                        DashboardOnboardingState.Visible(steps)
+                    } else {
+                        DashboardOnboardingState.Hidden
+                    }
                 }
+        }.subscribeBy(
+            onNext = { onboardingState ->
                 model.process(DashboardIntent.FetchOnboardingStepsSuccess(onboardingState))
-                val hasBoughtCrypto = steps.find { it.step == DashboardOnboardingStep.BUY }?.isCompleted == true
-                if (hasBoughtCrypto) onboardingPrefs.isLandingCtaDismissed = true
             },
             onError = {
                 Timber.e(it)

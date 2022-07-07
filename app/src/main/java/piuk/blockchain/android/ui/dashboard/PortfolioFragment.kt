@@ -68,6 +68,7 @@ import piuk.blockchain.android.ui.dashboard.model.DashboardItem
 import piuk.blockchain.android.ui.dashboard.model.DashboardModel
 import piuk.blockchain.android.ui.dashboard.model.DashboardOnboardingState
 import piuk.blockchain.android.ui.dashboard.model.DashboardState
+import piuk.blockchain.android.ui.dashboard.model.DashboardUIState
 import piuk.blockchain.android.ui.dashboard.model.LinkablePaymentMethodsForAction
 import piuk.blockchain.android.ui.dashboard.model.Locks
 import piuk.blockchain.android.ui.dashboard.navigation.DashboardNavigationAction
@@ -231,27 +232,43 @@ class PortfolioFragment :
             newState.locks.fundsLocks?.let {
                 newState.locks
             },
-            newState.fiatAssets.fiatAccounts.takeIf { it.isNotEmpty() }?.let { newState.fiatAssets },
+            newState.displayableFiatAssets
         )
 
-        val cryptoAssets = newState.activeAssets.values.sortedWith(
+        val cryptoAssets = newState.displayableCryptoAssets.sortedWith(
             compareByDescending<DashboardAsset> { it.fiatBalance?.toBigInteger() }
                 .thenBy { it.currency.name }
         )
-        val fiatAssets = newState.fiatAssets.fiatAccounts
 
-        val atLeastOneCryptoAssetHasBalancePositive =
-            cryptoAssets.any { it.accountBalance?.total?.isPositive == true }
-
-        val atLeastOneFiatAssetHasBalancePositive =
-            fiatAssets.any { it.value.availableBalance?.isPositive == true }
-
-        val showPortfolio = atLeastOneCryptoAssetHasBalancePositive || atLeastOneFiatAssetHasBalancePositive
-
-        manageLoadingState(isDashboardLoading(newState), showPortfolio, newState.canPotentiallyTransactWithBanks)
-
+        renderState(newState.uiState)
+        setupCtaButtons(newState)
         theAdapter.items =
             theAdapter.items.filterIsInstance<AnnouncementCard>().plus(items).plus(cryptoAssets)
+    }
+
+    private fun renderState(uiState: DashboardUIState) {
+        Timber.i("Rendering state $uiState")
+        with(binding) {
+            when (uiState) {
+                DashboardUIState.ASSETS -> {
+                    portfolioRecyclerView.visible()
+                    dashboardProgress.gone()
+                    emptyPortfolioGroup.gone()
+                    momentLogger.endEvent(MomentEvent.PIN_TO_DASHBOARD)
+                }
+                DashboardUIState.EMPTY -> {
+                    portfolioRecyclerView.gone()
+                    emptyPortfolioGroup.visible()
+                    dashboardProgress.gone()
+                    momentLogger.endEvent(MomentEvent.PIN_TO_DASHBOARD)
+                }
+                DashboardUIState.LOADING -> {
+                    portfolioRecyclerView.gone()
+                    emptyPortfolioGroup.gone()
+                    dashboardProgress.visible()
+                }
+            }
+        }
     }
 
     /**
@@ -261,32 +278,6 @@ class PortfolioFragment :
     private fun verifyAppRating(state: DashboardState) {
         if (isDashboardLoading(state).not() && state.dashboardBalance?.fiatBalance?.isPositive == true) {
             model.process(DashboardIntent.VerifyAppRating)
-        }
-    }
-
-    private fun manageLoadingState(isLoading: Boolean, showPortfolio: Boolean, showDepositButton: Boolean) {
-        with(binding) {
-            when {
-                isLoading && showPortfolio -> {
-                    portfolioRecyclerView.visible()
-                    dashboardProgress.gone()
-
-                    momentLogger.endEvent(MomentEvent.PIN_TO_DASHBOARD)
-                }
-                isLoading -> {
-                    portfolioRecyclerView.gone()
-                    emptyPortfolioGroup.gone()
-                    dashboardProgress.visible()
-                }
-                else -> {
-                    portfolioRecyclerView.visibleIf { showPortfolio }
-                    emptyPortfolioGroup.visibleIf { !showPortfolio }
-                    setupCtaButtons(showDepositButton, showPortfolio)
-                    dashboardProgress.gone()
-
-                    momentLogger.endEvent(MomentEvent.PIN_TO_DASHBOARD)
-                }
-            }
         }
     }
 
@@ -329,7 +320,8 @@ class PortfolioFragment :
             is DashboardNavigationAction.LinkOrDeposit,
             is DashboardNavigationAction.PaymentMethods,
             DashboardNavigationAction.SimpleBuyCancelOrder,
-            DashboardNavigationAction.StxAirdropComplete -> Timber.e("Unhandled navigation event")
+            is DashboardNavigationAction.DepositQuestionnaire,
+            DashboardNavigationAction.StxAirdropComplete -> Timber.e("Unhandled navigation event $navigationAction")
         }
     }
 
@@ -473,18 +465,18 @@ class PortfolioFragment :
         }
     }
 
-    private fun setupCtaButtons(showDepositButton: Boolean, showPortfolio: Boolean) {
+    private fun setupCtaButtons(state: DashboardState) {
         with(binding) {
             buyCryptoButton.setOnClickListener { navigator().launchBuySell() }
             receiveDepositButton.apply {
-                visibleIf { showDepositButton && !showPortfolio }
+                visibleIf { state.uiState == DashboardUIState.EMPTY && state.canPotentiallyTransactWithBanks }
                 leftButton.setOnClickListener { navigator().launchReceive() }
                 rightButton.setOnClickListener {
                     model.process(DashboardIntent.StartBankTransferFlow(action = AssetAction.FiatDeposit))
                 }
             }
             receiveButton.apply {
-                visibleIf { !showDepositButton && !showPortfolio }
+                visibleIf { state.uiState == DashboardUIState.EMPTY && !state.canPotentiallyTransactWithBanks }
                 setOnClickListener { navigator().launchReceive() }
             }
         }

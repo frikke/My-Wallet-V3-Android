@@ -66,8 +66,8 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
     }
 
     class UpdateAllAssetsAndBalances(
-        private val assetList: List<DashboardAsset>,
-        private val fiatAssetList: List<FiatAccount>
+        val assetList: List<DashboardAsset>,
+        val fiatAssetList: List<FiatAccount>
     ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
             val fiatState = FiatAssetState(
@@ -119,6 +119,10 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
                 rate = rate
             )
         }
+    }
+
+    object NoActiveAssets : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState = oldState.copy(isLoadingAssets = false)
     }
 
     class AssetPriceWithDeltaUpdate(
