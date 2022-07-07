@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,13 +36,13 @@ import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
-import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.TOTAL_STEP_COUNT
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.presentation.extensions.copyToClipboard
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 private const val STEP_INDEX = 1

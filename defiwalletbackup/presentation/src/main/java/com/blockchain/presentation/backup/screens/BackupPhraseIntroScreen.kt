@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.border
@@ -38,11 +38,11 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey100
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.utils.clickableNoEffect
-import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.utils.isNotLastIn
 
 /**

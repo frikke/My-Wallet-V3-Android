@@ -1,4 +1,4 @@
-package com.blockchain.presentation
+package com.blockchain.presentation.backup.navigation
 
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationDestination
 

@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.basic.Image
 import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.R
+import com.blockchain.presentation.backup.BackUpStatus
 
 @Composable
 fun BackupStatus(backupStatus: BackUpStatus) {

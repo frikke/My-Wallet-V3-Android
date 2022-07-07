@@ -1,4 +1,4 @@
-package com.blockchain.presentation.navigation
+package com.blockchain.presentation.backup.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -11,13 +11,15 @@ import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
 import com.blockchain.presentation.BackPhraseDestination
 import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.screens.BackedUpPhrase
-import com.blockchain.presentation.screens.BackupPhraseIntro
-import com.blockchain.presentation.screens.BackupSuccess
-import com.blockchain.presentation.screens.ManualBackup
-import com.blockchain.presentation.screens.RecoveryPhrase
-import com.blockchain.presentation.screens.VerifyPhrase
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackupPhraseArgs
+import com.blockchain.presentation.backup.BackupPhraseViewModel
+import com.blockchain.presentation.backup.screens.BackedUpPhrase
+import com.blockchain.presentation.backup.screens.BackupPhraseIntro
+import com.blockchain.presentation.backup.screens.BackupSuccess
+import com.blockchain.presentation.backup.screens.ManualBackup
+import com.blockchain.presentation.backup.screens.RecoveryPhrase
+import com.blockchain.presentation.backup.screens.VerifyPhrase
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 
 @Composable
 fun BackupPhraseNavHost(

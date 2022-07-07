@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,11 +25,11 @@ import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable

@@ -1,4 +1,4 @@
-package com.blockchain.presentation.viewmodel
+package com.blockchain.presentation.backup.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -6,15 +6,16 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseModelState
-import com.blockchain.presentation.BackupPhraseViewState
-import com.blockchain.presentation.CopyState
-import com.blockchain.presentation.FlowState
-import com.blockchain.presentation.UserMnemonicVerificationStatus
-import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupPhraseArgs
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseModelState
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.FlowState
+import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
+import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +22,9 @@ import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.presentation.BackupPhraseIntent
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewModel
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 
 @Composable
 fun BackupSuccess(viewModel: BackupPhraseViewModel) {

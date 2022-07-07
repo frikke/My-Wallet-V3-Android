@@ -3,12 +3,12 @@ package com.blockchain.presentation.viewmodel
 import app.cash.turbine.test
 import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.outcome.Outcome
-import com.blockchain.presentation.BackUpStatus
 import com.blockchain.presentation.BackupPhraseArgs
 import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.CopyState
-import com.blockchain.presentation.UserMnemonicVerificationStatus
-import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
+import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import com.blockchain.testutils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.every

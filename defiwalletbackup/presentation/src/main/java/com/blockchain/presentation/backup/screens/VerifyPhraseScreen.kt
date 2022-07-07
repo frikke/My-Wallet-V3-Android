@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,12 +35,12 @@ import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Red600
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.TOTAL_STEP_COUNT
-import com.blockchain.presentation.UserMnemonicVerificationStatus
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
+import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import com.blockchain.utils.replaceInList
 import java.util.Locale
 
