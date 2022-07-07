@@ -12,6 +12,9 @@ import com.blockchain.biometrics.CryptographyManagerImpl
 import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.Database
+import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.custodial.data.store.TradingDataSource
+import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
@@ -34,6 +37,8 @@ import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
 import com.blockchain.logging.DigitalTrust
+import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.datamanagers.custodialwalletimpl.PaymentAccountMapper
 import com.blockchain.network.websocket.Options
 import com.blockchain.network.websocket.autoRetry
@@ -268,7 +273,14 @@ val applicationModule = module {
                 metadataService = get(),
                 walletOptionsState = get(),
                 nabuDataManager = get(),
-                notificationTokenManager = get()
+                notificationTokenManager = get(),
+                flushableDataSources = listOf(
+                    get<TradingDataSource>(),
+                    get<KycDataSource>(),
+                    get<InterestDataSource>(),
+                    get<GetUserDataSource>(),
+                    get<Erc20DataSource>(),
+                )
             )
         }
 

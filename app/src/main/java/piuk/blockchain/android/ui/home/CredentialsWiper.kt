@@ -4,6 +4,7 @@ import com.blockchain.core.chains.bitcoincash.BchDataManager
 import com.blockchain.metadata.MetadataService
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.notifications.NotificationTokenManager
+import com.blockchain.storedatasource.FlushableDataSource
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -21,7 +22,8 @@ class CredentialsWiper(
     private val bchDataManager: BchDataManager,
     private val metadataService: MetadataService,
     private val nabuDataManager: NabuDataManager,
-    private val walletOptionsState: WalletOptionsState
+    private val walletOptionsState: WalletOptionsState,
+    private val flushableDataSources: List<FlushableDataSource>
 ) {
     fun wipe() {
         notificationTokenManager.revokeAccessToken().then {
@@ -32,6 +34,7 @@ class CredentialsWiper(
                 nabuDataManager.clearAccessToken()
                 metadataService.reset()
                 walletOptionsState.wipe()
+                flushableDataSources.forEach { it.invalidate() }
             }
         }
             .onErrorComplete()
