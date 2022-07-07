@@ -9,7 +9,6 @@ import com.blockchain.nabu.service.NabuService
 import io.reactivex.rxjava3.core.Single
 
 data class TransactionsRequest(
-    val currency: String,
     val product: String,
     val type: String?,
 )
@@ -20,7 +19,6 @@ class TransactionsCache(private val nabuService: NabuService, private val authen
         authenticator.authenticate { token ->
             nabuService.getTransactions(
                 sessionToken = token,
-                currency = request.currency,
                 product = request.product,
                 type = request.type
             )

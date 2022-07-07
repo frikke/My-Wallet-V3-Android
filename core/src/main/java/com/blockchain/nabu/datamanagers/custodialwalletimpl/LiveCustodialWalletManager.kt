@@ -253,13 +253,16 @@ class LiveCustodialWalletManager(
     ): Single<List<FiatTransaction>> =
         transactionsCache.transactions(
             TransactionsRequest(
-                currency = fiatCurrency.networkTicker,
                 product = product.toRequestString(),
                 type = type
 
             )
         ).map { response ->
-            response.items.filterNot {
+            response.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == fiatCurrency.networkTicker
+            }.filterNot {
                 it.hasCardOrBankFailure()
             }.mapNotNull {
                 val state = it.state.toTransactionState() ?: return@mapNotNull null
@@ -283,12 +286,15 @@ class LiveCustodialWalletManager(
 
         transactionsCache.transactions(
             TransactionsRequest(
-                currency = asset.networkTicker,
                 product = product.toRequestString(),
                 type = type
             )
         ).map { response ->
-            response.items.mapNotNull {
+            response.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == asset.networkTicker
+            }.mapNotNull {
                 val crypto = assetCatalogue.fromNetworkTicker(it.amount.symbol) ?: return@mapNotNull null
                 val state = it.state.toTransactionState() ?: return@mapNotNull null
                 val txType = it.type.toTransactionType() ?: return@mapNotNull null
@@ -525,12 +531,15 @@ class LiveCustodialWalletManager(
     override fun getInterestActivity(asset: AssetInfo): Single<List<InterestActivityItem>> =
         transactionsCache.transactions(
             TransactionsRequest(
-                currency = asset.networkTicker,
                 product = "savings",
                 type = null
             )
         ).map { interestActivityResponse ->
-            interestActivityResponse.items.map {
+            interestActivityResponse.items.filter {
+                assetCatalogue.fromNetworkTicker(
+                    it.amount.symbol
+                )?.networkTicker == asset.networkTicker
+            }.map {
                 val ccy = assetCatalogue.fromNetworkTicker(it.amount.symbol) as AssetInfo
                 it.toInterestActivityItem(ccy)
             }

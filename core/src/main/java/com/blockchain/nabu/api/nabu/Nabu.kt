@@ -200,8 +200,9 @@ internal interface Nabu {
     @GET(NABU_SIMPLE_BUY_TRANSACTIONS)
     fun getTransactions(
         @Header("authorization") authorization: String,
-        @Query("currency") currency: String,
         @Query("product") product: String,
+        @Query("limit") limit: Int = 100,
+        @Query("currency") currency: String? = null,
         @Query("type") type: String?
     ): Single<TransactionsResponse>
 

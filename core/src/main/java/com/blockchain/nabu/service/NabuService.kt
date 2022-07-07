@@ -283,15 +283,26 @@ class NabuService internal constructor(
 
     internal fun getTransactions(
         sessionToken: NabuSessionTokenResponse,
-        currency: String,
         product: String,
         type: String?
     ): Single<TransactionsResponse> =
         nabu.getTransactions(
-            sessionToken.authHeader,
-            currency,
-            product,
-            type
+            authorization = sessionToken.authHeader,
+            product = product,
+            type = type
+        ).wrapErrorMessage()
+
+    internal fun getCurrencyTransactions(
+        sessionToken: NabuSessionTokenResponse,
+        product: String,
+        currency: String,
+        type: String?
+    ): Single<TransactionsResponse> =
+        nabu.getTransactions(
+            authorization = sessionToken.authHeader,
+            product = product,
+            currency = currency,
+            type = type
         ).wrapErrorMessage()
 
     internal fun isEligibleForSimpleBuy(
