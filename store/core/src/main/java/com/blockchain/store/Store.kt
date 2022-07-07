@@ -77,6 +77,7 @@ interface Store<E : Any, T : Any> {
 interface KeyedStore<K : Any, E : Any, T : Any> {
     fun stream(request: KeyedStoreRequest<K>): Flow<StoreResponse<E, T>>
     fun markAsStale(key: K)
+    fun markStoreAsStale()
 }
 
 /**

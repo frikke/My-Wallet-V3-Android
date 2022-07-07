@@ -31,6 +31,8 @@ class PersistedJsonSqlDelightCache<K, T> internal constructor(
 
     override suspend fun markAsStale(key: K) = persister.markAsStale(keyParser.encode(key))
 
+    override suspend fun markStoreAsStale() = persister.markStoreAsStale()
+
     class Builder<K, T>(
         private val storeId: StoreId,
         private val keyParser: Parser<K>,
