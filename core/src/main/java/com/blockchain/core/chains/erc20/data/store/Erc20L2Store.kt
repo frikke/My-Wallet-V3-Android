@@ -87,8 +87,11 @@ internal class Erc20L2Store(
     }
 
     override fun invalidate(param: String) {
-        println("----- ::invalidate Erc20L2Store")
         markAsStale(key = Key(networkTicker = param))
+    }
+
+    override fun invalidate() {
+        markStoreAsStale()
     }
 
     companion object {

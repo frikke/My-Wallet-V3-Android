@@ -4,6 +4,6 @@ interface FlushableDataSource {
     fun invalidate()
 }
 
-interface KeyedFlushableDataSource<T> {
+interface KeyedFlushableDataSource<T> : FlushableDataSource {
     fun invalidate(param: T)
 }

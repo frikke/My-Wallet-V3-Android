@@ -13,6 +13,7 @@ import com.blockchain.commonarch.presentation.base.AppUtilAPI
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.core.Database
 import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
+import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
@@ -280,6 +281,7 @@ val applicationModule = module {
                     get<InterestDataSource>(),
                     get<GetUserDataSource>(),
                     get<Erc20DataSource>(),
+                    get<Erc20L2DataSource>()
                 )
             )
         }

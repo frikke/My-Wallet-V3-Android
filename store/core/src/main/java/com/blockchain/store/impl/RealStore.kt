@@ -70,6 +70,12 @@ class RealStore<K : Any, E : Any, T : Any>(
         }
     }
 
+    override fun markStoreAsStale() {
+        scope.launch {
+            cache.markStoreAsStale()
+        }
+    }
+
     private fun shouldFetch(request: KeyedStoreRequest.Cached<K>, cachedData: CachedData<K, T>?): Boolean =
         request.forceRefresh || mediator.shouldFetch(cachedData)
 }
