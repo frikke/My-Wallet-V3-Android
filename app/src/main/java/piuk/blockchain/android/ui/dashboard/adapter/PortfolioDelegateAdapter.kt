@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.blockchain.analytics.Analytics
 import com.blockchain.coincore.FiatAccount
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
@@ -20,6 +21,7 @@ class PortfolioDelegateAdapter(
     onFundsItemClicked: (FiatAccount) -> Unit,
     onHoldAmountClicked: (Locks) -> Unit,
     assetResources: AssetResources,
+    assetCatalogue: AssetCatalogue
 ) : DelegationAdapter<DashboardItem>(AdapterDelegatesManager(), emptyList()) {
 
     override var items: List<DashboardItem> = emptyList()
@@ -53,7 +55,7 @@ class PortfolioDelegateAdapter(
                     onFundsItemClicked
                 )
             )
-            addAdapterDelegate(DefiCardDelegate(assetResources, onCardClicked))
+            addAdapterDelegate(DefiCardDelegate(assetResources, assetCatalogue, onCardClicked))
             addAdapterDelegate(BrokerageCardDelegate(prefs, assetResources, onCardClicked))
         }
     }

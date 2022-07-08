@@ -102,7 +102,8 @@ val dashboardModule = module {
                 mainScheduler = AndroidSchedulers.mainThread(),
                 interactor = get(),
                 environmentConfig = get(),
-                remoteLogger = get()
+                remoteLogger = get(),
+                walletModeService = get()
             )
         }
         factory {

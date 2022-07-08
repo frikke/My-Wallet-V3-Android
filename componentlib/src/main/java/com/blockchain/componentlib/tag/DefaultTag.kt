@@ -7,20 +7,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Dark600
-import com.blockchain.componentlib.theme.Grey000
-import com.blockchain.componentlib.theme.Grey900
+import com.blockchain.componentlib.theme.Grey700
 
 @Composable
 fun DefaultTag(text: String, size: TagSize = TagSize.Primary) {
 
     val defaultBackgroundColor = if (!isSystemInDarkTheme()) {
-        Grey000
+        Color.White
     } else {
         Dark600
     }
 
     val defaultTextColor = if (!isSystemInDarkTheme()) {
-        Grey900
+        Grey700
     } else {
         Color.White
     }
@@ -29,7 +28,8 @@ fun DefaultTag(text: String, size: TagSize = TagSize.Primary) {
         text = text,
         size = size,
         defaultBackgroundColor = defaultBackgroundColor,
-        defaultTextColor = defaultTextColor
+        defaultTextColor = defaultTextColor,
+        borders = true
     )
 }
 

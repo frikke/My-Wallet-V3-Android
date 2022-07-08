@@ -127,6 +127,7 @@ class PortfolioFragment :
     private val theAdapter: PortfolioDelegateAdapter by lazy {
         PortfolioDelegateAdapter(
             prefs = get(),
+            assetCatalogue = get(),
             onCardClicked = { onAssetClicked(it) },
             analytics = get(),
             onFundsItemClicked = { onFundsClicked(it) },

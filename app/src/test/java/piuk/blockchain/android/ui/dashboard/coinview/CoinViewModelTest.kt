@@ -13,6 +13,7 @@ import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -51,7 +52,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
     }
 
@@ -136,7 +140,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val assetInfo = AssetInformation.NonTradeable(prices = prices, isAddedToWatchlist = true)
@@ -177,7 +184,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -258,7 +268,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val list: List<AssetDisplayInfo> = listOf(
@@ -425,7 +438,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val priceList: HistoricalRateList = listOf(mock(), mock(), mock())
@@ -466,7 +482,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -523,7 +542,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -563,7 +585,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         val priceList: HistoricalRateList = emptyList()
@@ -685,7 +710,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.just(mock()))
@@ -729,7 +757,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.error(Exception()))
@@ -794,7 +825,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         whenever(interactor.removeFromWatchlist(asset.assetInfo)).thenReturn(Completable.complete())
@@ -849,7 +883,10 @@ class CoinViewModelTest {
             mainScheduler = Schedulers.io(),
             interactor = interactor,
             environmentConfig = environmentConfig,
-            remoteLogger = mock()
+            remoteLogger = mock(),
+            walletModeService = mock {
+                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
+            }
         )
 
         whenever(interactor.addToWatchlist(asset.assetInfo)).thenReturn(Single.error(Exception()))

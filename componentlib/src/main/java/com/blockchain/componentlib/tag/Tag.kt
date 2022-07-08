@@ -1,7 +1,9 @@
 package com.blockchain.componentlib.tag
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,9 +13,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppTheme
+import com.blockchain.componentlib.theme.Grey000
 
 @Composable
-fun Tag(text: String, size: TagSize, defaultBackgroundColor: Color, defaultTextColor: Color) {
+fun Tag(text: String, size: TagSize, defaultBackgroundColor: Color, defaultTextColor: Color, borders: Boolean = false) {
 
     val paddingHorizontal = when (size) {
         TagSize.Primary -> 8.dp
@@ -35,7 +38,12 @@ fun Tag(text: String, size: TagSize, defaultBackgroundColor: Color, defaultTextC
         style = textStyle,
         color = defaultTextColor,
         modifier = Modifier
-            .clip(AppTheme.shapes.small)
+            .border(
+                width = if (borders) 1.dp else 0.dp,
+                color = Grey000,
+                shape = RoundedCornerShape(4.dp),
+            )
+            .clip(RoundedCornerShape(4.dp))
             .background(defaultBackgroundColor)
             .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
     )

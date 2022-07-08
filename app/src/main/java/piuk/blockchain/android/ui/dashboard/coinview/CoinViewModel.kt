@@ -8,6 +8,7 @@ import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.FeatureAccess
+import com.blockchain.walletmode.WalletModeService
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
@@ -18,6 +19,7 @@ class CoinViewModel(
     mainScheduler: Scheduler,
     private val interactor: CoinViewInteractor,
     environmentConfig: EnvironmentConfig,
+    private val walletModeService: WalletModeService,
     private val remoteLogger: RemoteLogger
 ) : MviModel<CoinViewState, CoinViewIntent>(
     initialState,
@@ -56,7 +58,11 @@ class CoinViewModel(
                 } ?: process(CoinViewIntent.UpdateErrorState(CoinViewError.UnknownAsset))
                 null
             }
-            is CoinViewIntent.LoadRecurringBuys -> loadRecurringBuys(intent)
+            is CoinViewIntent.LoadRecurringBuys ->
+                if
+                (walletModeService.enabledWalletMode().custodialEnabled) {
+                    loadRecurringBuys(intent)
+                } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
             is CoinViewIntent.ToggleWatchlist -> toggleWatchlist(previousState)
             is CoinViewIntent.CheckScreenToOpen -> getAccountActions(intent)
