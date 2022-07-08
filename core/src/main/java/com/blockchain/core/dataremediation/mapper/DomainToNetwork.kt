@@ -50,6 +50,7 @@ private fun NodeType.toNetwork(): String = when (this) {
 internal fun QuestionnaireContext.toNetwork(): String = when (this) {
     QuestionnaireContext.TIER_TWO_VERIFICATION -> "TIER_TWO_VERIFICATION"
     QuestionnaireContext.FIAT_DEPOSIT -> "FIAT_DEPOSIT"
+    QuestionnaireContext.FIAT_WITHDRAW -> "FIAT_WITHDRAW"
     QuestionnaireContext.TRADING -> "TRADING"
 }
 

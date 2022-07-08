@@ -411,7 +411,7 @@ class DashboardActionInteractor(
         model: DashboardModel,
         action: AssetAction,
     ) = Singles.zip(
-        getQuestionnaireIfNeeded(shouldSkipQuestionnaire),
+        getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_DEPOSIT),
         userIdentity.userAccessForFeature(Feature.DepositFiat),
         linkedBanksFactory.eligibleBankPaymentMethods(targetAccount.currency).map { paymentMethods ->
             // Ignore any WireTransferMethods In case BankLinkTransfer should launch
@@ -628,10 +628,12 @@ class DashboardActionInteractor(
         sourceAccount: SingleAccount,
         action: AssetAction,
         shouldLaunchBankLinkTransfer: Boolean,
+        shouldSkipQuestionnaire: Boolean,
     ): Disposable {
         require(sourceAccount is FiatAccount)
 
         return Singles.zip(
+            getQuestionnaireIfNeeded(shouldSkipQuestionnaire, QuestionnaireContext.FIAT_WITHDRAW),
             userIdentity.userAccessForFeature(Feature.WithdrawFiat),
             linkedBanksFactory.eligibleBankPaymentMethods(sourceAccount.currency as FiatCurrency)
                 .map { paymentMethods ->
@@ -641,7 +643,11 @@ class DashboardActionInteractor(
             linkedBanksFactory.getAllLinkedBanks().map {
                 it.filter { bank -> bank.currency == sourceAccount.currency }
             }
-        ).flatMap { (eligibility, paymentMethods, linkedBanks) ->
+        ) { questionnaireOpt, eligibility, paymentMethods, linkedBanks ->
+            (questionnaireOpt to eligibility) to (paymentMethods to linkedBanks)
+        }.flatMap { (questionnaireOptAndEligibility, paymentMethodsAndLinkedBanks) ->
+            val (questionnaireOpt, eligibility) = questionnaireOptAndEligibility
+            val (paymentMethods, linkedBanks) = paymentMethodsAndLinkedBanks
 
             analytics.logEvent(WithdrawMethodOptionsViewed(paymentMethods.map { it.name }))
 
@@ -652,6 +658,17 @@ class DashboardActionInteractor(
                             eligibility.reason as BlockedReason.Sanctions
                         )
                     )
+                questionnaireOpt.isPresent -> Single.just(
+                    FiatTransactionRequestResult.LaunchQuestionnaire(
+                        questionnaire = questionnaireOpt.get(),
+                        callbackIntent = DashboardIntent.LaunchBankTransferFlow(
+                            sourceAccount,
+                            action,
+                            shouldLaunchBankLinkTransfer,
+                            shouldSkipQuestionnaire = true
+                        )
+                    )
+                )
                 linkedBanks.isEmpty() -> {
                     handleNoLinkedBanks(
                         sourceAccount,
@@ -728,12 +745,15 @@ class DashboardActionInteractor(
             }
         )
 
-    private fun getQuestionnaireIfNeeded(shouldSkipQuestionnaire: Boolean): Single<Optional<Questionnaire>> =
+    private fun getQuestionnaireIfNeeded(
+        shouldSkipQuestionnaire: Boolean,
+        questionnaireContext: QuestionnaireContext,
+    ): Single<Optional<Questionnaire>> =
         if (shouldSkipQuestionnaire) {
             Single.just(Optional.empty())
         } else {
             rxMaybeOutcome(Schedulers.io().asCoroutineDispatcher()) {
-                dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT)
+                dataRemediationService.getQuestionnaire(questionnaireContext)
             }.map { Optional.of(it) }
                 .defaultIfEmpty(Optional.empty())
         }
