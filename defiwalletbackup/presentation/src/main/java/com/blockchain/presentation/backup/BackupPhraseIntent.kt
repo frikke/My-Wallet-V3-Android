@@ -11,6 +11,7 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
     object StartBackupProcess : BackupPhraseIntent
 
     // recover phrase
+    object EnableCloudBackup : BackupPhraseIntent
     object StartManualBackup : BackupPhraseIntent
 
     // manual backup
@@ -20,6 +21,7 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
 
     // verify phrase
     data class VerifyPhrase(val userMnemonic: List<String>) : BackupPhraseIntent
+    object PhraseVerified : BackupPhraseIntent
     object ResetVerificationStatus : BackupPhraseIntent {
         override fun isValidFor(modelState: BackupPhraseModelState) =
             modelState.mnemonicVerificationStatus == UserMnemonicVerificationStatus.INCORRECT

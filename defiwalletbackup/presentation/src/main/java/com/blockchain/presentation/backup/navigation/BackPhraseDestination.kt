@@ -6,6 +6,7 @@ sealed class BackPhraseDestination(override val route: String) : ComposeNavigati
     object BackedUpPhrase : BackPhraseDestination("BackedUpPhrase")
     object BackupPhraseIntro : BackPhraseDestination("BackupPhraseIntro")
     object RecoveryPhrase : BackPhraseDestination("RecoveryPhrase")
+    object CloudBackupConfirmation : BackPhraseDestination("CloudBackupConfirmation")
     object ManualBackup : BackPhraseDestination("ManualBackup")
     object VerifyPhrase : BackPhraseDestination("VerifyPhrase")
     object BackupSuccess : BackPhraseDestination("BackupSuccess")

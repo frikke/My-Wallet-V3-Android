@@ -26,7 +26,7 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.scopedInject
-import com.blockchain.presentation.BackupPhraseActivity
+import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.ui.password.SecondPasswordHandler
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R

@@ -7,6 +7,7 @@ sealed interface BackupPhraseNavigationEvent : NavigationEvent {
     object BackedUp : BackupPhraseNavigationEvent
     object BackupPhraseIntro : BackupPhraseNavigationEvent
     object RecoveryPhrase : BackupPhraseNavigationEvent
+    object CloudBackupConfirmation : BackupPhraseNavigationEvent
     object ManualBackup : BackupPhraseNavigationEvent
     object VerifyPhrase : BackupPhraseNavigationEvent
     object BackupConfirmation : BackupPhraseNavigationEvent

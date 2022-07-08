@@ -9,6 +9,11 @@ data class BackupPhraseModelState(
     val isError: Boolean = false,
     val mnemonic: List<String> = emptyList(),
     val copyState: CopyState = CopyState.IDLE,
+    val backupOption: BackupOption = BackupOption.NONE,
     val mnemonicVerificationStatus: UserMnemonicVerificationStatus = UserMnemonicVerificationStatus.IDLE,
     val flowState: FlowState = FlowState.InProgress
 ) : ModelState
+
+enum class BackupOption {
+    CLOUD, MANUAL, NONE
+}

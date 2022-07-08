@@ -22,9 +22,9 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
+import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
@@ -32,10 +32,9 @@ import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
-import java.util.Locale
 
 @Composable
-fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
+fun CloudBackupConfirmation(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -43,34 +42,26 @@ fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
     val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        RecoveryPhraseScreen(
-            backupStatus = state.backUpStatus,
+        CloudBackupConfirmationScreen(
             mnemonic = state.mnemonic,
-            showLoading = state.showLoading,
-            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
-            backUpCloudOnClick = { viewModel.onIntent(BackupPhraseIntent.EnableCloudBackup) },
+            doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) },
             backUpManualOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
         )
     }
 }
 
 @Composable
-fun RecoveryPhraseScreen(
-    backupStatus: BackUpStatus,
+fun CloudBackupConfirmationScreen(
     mnemonic: List<String>,
-    showLoading: Boolean,
-    backOnClick: () -> Unit,
-    backUpCloudOnClick: () -> Unit,
-    backUpManualOnClick: () -> Unit,
+    doneOnClick: () -> Unit,
+    backUpManualOnClick: () -> Unit
 ) {
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
-            onBackButtonClick = backOnClick
-        )
+        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -88,17 +79,23 @@ fun RecoveryPhraseScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            if (backupStatus == BackUpStatus.NO_BACKUP) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-                BackupStatus(backupStatus)
-            }
+            BackupStatus(BackUpStatus.BACKED_UP)
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-            Mnemonic(mnemonic = mnemonic)
+            HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+            TertiaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.common_copy),
+                onClick = { }
+            )
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(
                 text = stringResource(id = R.string.recovery_phrase_description),
@@ -111,9 +108,8 @@ fun RecoveryPhraseScreen(
 
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_cloud),
-                state = if (showLoading) ButtonState.Loading else ButtonState.Enabled,
-                onClick = backUpCloudOnClick
+                text = stringResource(id = R.string.done),
+                onClick = doneOnClick
             )
 
             Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
@@ -121,7 +117,6 @@ fun RecoveryPhraseScreen(
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.recovery_phrase_backup_manual),
-                state = if (showLoading) ButtonState.Disabled else ButtonState.Enabled,
                 onClick = backUpManualOnClick
             )
         }
@@ -131,46 +126,12 @@ fun RecoveryPhraseScreen(
 // ///////////////
 // PREVIEWS
 // ///////////////
-
-private val mnemonic = Locale.getISOCountries().toList().map {
-    Locale("", it).isO3Country
-}.shuffled().subList(0, 12)
-
-@Preview(name = "Recovery Phrase - no backup", showBackground = true)
+@Preview(name = "Cloud Backup Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewRecoveryPhraseScreenNoBackup() {
-    RecoveryPhraseScreen(
-        backupStatus = BackUpStatus.NO_BACKUP,
-        mnemonic = mnemonic,
-        showLoading = false,
-        backOnClick = {},
-        backUpCloudOnClick = {},
-        backUpManualOnClick = {}
-    )
-}
-
-@Preview(name = "Recovery Phrase - no backup - loading", showBackground = true)
-@Composable
-fun PreviewRecoveryPhraseScreenNoBackupLoading() {
-    RecoveryPhraseScreen(
-        backupStatus = BackUpStatus.NO_BACKUP,
-        mnemonic = mnemonic,
-        showLoading = true,
-        backOnClick = {},
-        backUpCloudOnClick = {},
-        backUpManualOnClick = {}
-    )
-}
-
-@Preview(name = "Recovery Phrase - backup", showBackground = true)
-@Composable
-fun PreviewRecoveryPhraseScreenBackup() {
-    RecoveryPhraseScreen(
-        backupStatus = BackUpStatus.BACKED_UP,
-        mnemonic = mnemonic,
-        showLoading = false,
-        backOnClick = {},
-        backUpCloudOnClick = {},
+fun PreviewCloudBackupConfirmationScreen() {
+    CloudBackupConfirmationScreen(
+        mnemonic = listOf(),
+        doneOnClick = {},
         backUpManualOnClick = {}
     )
 }

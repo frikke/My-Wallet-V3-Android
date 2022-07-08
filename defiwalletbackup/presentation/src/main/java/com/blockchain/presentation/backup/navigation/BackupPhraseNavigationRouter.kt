@@ -27,6 +27,14 @@ class BackupPhraseNavigationRouter(
                 navController.navigate(BackPhraseDestination.RecoveryPhrase.route)
             }
 
+            BackupPhraseNavigationEvent.CloudBackupConfirmation -> {
+                navController.navigate(BackPhraseDestination.CloudBackupConfirmation.route) {
+                    popUpTo(BackPhraseDestination.BackupPhraseIntro.route) {
+                        inclusive = true
+                    }
+                }
+            }
+
             BackupPhraseNavigationEvent.ManualBackup -> {
                 navController.navigate(BackPhraseDestination.ManualBackup.route)
             }
