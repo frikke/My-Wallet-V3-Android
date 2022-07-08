@@ -75,11 +75,15 @@ class BackupPhraseViewModel(
 
             BackupPhraseIntent.MnemonicCopied -> {
                 resetCopyState()
-                updateState { it.copy(copyState = CopyState.COPIED) }
+                updateState { it.copy(copyState = CopyState.Copied) }
             }
 
             BackupPhraseIntent.ResetCopy -> {
-                updateState { it.copy(copyState = CopyState.IDLE) }
+                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = true)) }
+            }
+
+            BackupPhraseIntent.ClipboardReset -> {
+                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = false)) }
             }
 
             BackupPhraseIntent.StartUserPhraseVerification -> {
@@ -133,7 +137,6 @@ class BackupPhraseViewModel(
         viewModelScope.launch {
             delay(TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES))
             onIntent(BackupPhraseIntent.ResetCopy)
-            // todo reset clipboard
         }
     }
 

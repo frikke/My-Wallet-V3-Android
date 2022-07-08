@@ -43,8 +43,9 @@ enum class BackUpStatus(
     )
 }
 
-enum class CopyState {
-    IDLE, COPIED
+sealed interface CopyState {
+    data class Idle(val resetClipboard: Boolean) : CopyState
+    object Copied : CopyState
 }
 
 enum class UserMnemonicVerificationStatus {

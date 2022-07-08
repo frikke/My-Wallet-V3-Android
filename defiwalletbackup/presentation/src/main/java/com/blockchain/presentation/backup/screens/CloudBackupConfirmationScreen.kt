@@ -143,7 +143,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 fun PreviewCloudBackupConfirmationScreen() {
     CloudBackupConfirmationScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.IDLE,
+        copyState = CopyState.Idle(false),
         mnemonicCopied = {},
         doneOnClick = {},
         backUpManualOnClick = {}

@@ -41,7 +41,7 @@ fun CopyMnemonicCta(
     }
 
     when (copyState) {
-        CopyState.IDLE -> {
+        is CopyState.Idle -> {
             TertiaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.common_copy),
@@ -49,7 +49,7 @@ fun CopyMnemonicCta(
             )
         }
 
-        CopyState.COPIED -> {
+        CopyState.Copied -> {
             MnemonicCopied()
         }
     }

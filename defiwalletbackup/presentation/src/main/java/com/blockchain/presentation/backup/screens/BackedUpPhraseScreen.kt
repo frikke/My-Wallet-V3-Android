@@ -131,7 +131,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 fun PreviewBackedUpPhraseScreen() {
     BackedUpPhraseScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.IDLE,
+        copyState = CopyState.Idle(resetClipboard = false),
         mnemonicCopied = {},
         nextOnClick = {}
     )

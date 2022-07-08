@@ -155,7 +155,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 fun PreviewManualBackupScreenCopy() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.IDLE,
+        copyState = CopyState.Idle(false),
 
         backOnClick = {},
         mnemonicCopied = {},
@@ -168,7 +168,7 @@ fun PreviewManualBackupScreenCopy() {
 fun PreviewManualBackupScreenCopied() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.COPIED,
+        copyState = CopyState.Copied,
 
         backOnClick = {},
         mnemonicCopied = {},

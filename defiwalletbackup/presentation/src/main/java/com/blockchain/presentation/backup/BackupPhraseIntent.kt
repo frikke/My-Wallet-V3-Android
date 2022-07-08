@@ -17,6 +17,7 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
     // manual backup
     object MnemonicCopied : BackupPhraseIntent
     object ResetCopy : BackupPhraseIntent
+    object ClipboardReset : BackupPhraseIntent
     object StartUserPhraseVerification : BackupPhraseIntent
 
     // verify phrase

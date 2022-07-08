@@ -129,19 +129,31 @@ class BackupPhraseViewModelTest {
 
                 val state = expectMostRecentItem()
 
-                assertEquals(CopyState.COPIED, state.copyState)
+                assertEquals(CopyState.Copied, state.copyState)
             }
         }
 
     @Test
-    fun `WHEN MnemonicCopied is called, THEN state should be Idle`() =
+    fun `WHEN ResetCopy is called, THEN state should be Idle with resetClipboard true`() =
         runTest {
             viewModel.viewState.test {
                 viewModel.onIntent(BackupPhraseIntent.ResetCopy)
 
                 val state = expectMostRecentItem()
 
-                assertEquals(CopyState.IDLE, state.copyState)
+                assertEquals(CopyState.Idle(resetClipboard = true), state.copyState)
+            }
+        }
+
+    @Test
+    fun `WHEN ClipboardReset is called, THEN state should be Idle with resetClipboard false`() =
+        runTest {
+            viewModel.viewState.test {
+                viewModel.onIntent(BackupPhraseIntent.ClipboardReset)
+
+                val state = expectMostRecentItem()
+
+                assertEquals(CopyState.Idle(resetClipboard = false), state.copyState)
             }
         }
 
