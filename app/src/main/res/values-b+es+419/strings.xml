@@ -1285,9 +1285,9 @@ Escribe estas 12 palabras en orden y consérvalas en algún lugar seguro. Nunca 
     <string name="yapily_agreement_title_2">Conexión segura</string>
     <string name="yapily_agreement_blurb_2">Los datos se recuperan de forma segura en formato de solo lectura y solo durante el tiempo acordado contigo. Tienes derecho a retirar tu consentimiento en cualquier momento.</string>
     <string name="yapily_agreement_title_3">Autorización del Banco de Lituania</string>
-    <string name="yapily_agreement_blurb_3">Blockchain.com es un agente de SafeConnect Ltd. SafeConnect Ltd y está autorizado y regulado por la Autoridad de Conducta Financiera según las Reglamentaciones de Servicios de Pago de 2017 [827001] para la provisión de Información de cuentas y servicios de iniciación de pagos.</string>
+    <string name="yapily_agreement_blurb_3">Blockchain.com es un agente de YapilyConnect Ltd. YapilyConnect Ltd y está autorizado y regulado por la Autoridad de Conducta Financiera según las Reglamentaciones de Servicios de Pago de 2017 [827001] para la provisión de Información de cuentas y servicios de iniciación de pagos.</string>
     <string name="yapily_agreement_title_4">Acerca del acceso</string>
-    <string name="yapily_agreement_blurb_5">Para compartir tus datos de %1$s con Blockchain.com, se te redireccionará de manera segura a tu banco para que confirmes tu consentimiento para que SafeConnect lea la siguiente información:
+    <string name="yapily_agreement_blurb_5">Para compartir tus datos de %1$s con Blockchain.com, se te redireccionará de manera segura a tu banco para que confirmes tu consentimiento para que YapilyConnect lea la siguiente información:
 
 • Detalles de identificación
 • Detalles de cuenta</string>
@@ -1313,9 +1313,9 @@ Escribe estas 12 palabras en orden y consérvalas en algún lugar seguro. Nunca 
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Número de cuenta</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">Para configurar pagos de manera fácil desde tu banco a Blockchain.com, estamos a punto de redireccionarte de manera segura a tu banco, en el que se te pedirá que confirmes el pago a través de SafeConnect, un proveedor de inicio de pago regulado para Blockchain.com.
+    <string name="yapily_approval_blurb">Para configurar pagos de manera fácil desde tu banco a Blockchain.com, estamos a punto de redireccionarte de manera segura a tu banco, en el que se te pedirá que confirmes el pago a través de YapilyConnect, un proveedor de inicio de pago regulado para Blockchain.com.
 
-SafeConnect compartirá estos detalles con tu banco, en el que se te pedirá luego que confirmes la siguiente configuración de pago.</string>
+YapilyConnect compartirá estos detalles con tu banco, en el que se te pedirá luego que confirmes la siguiente configuración de pago.</string>
     <string name="yapily_payment_to_fiat_wallet_title">Monto de compra cancelado agregado a %1$s Wallet</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">Has aprobado recientemente una compra de %1$s con tu banco y cancelaste la orden aquí. Dado que tu banco lo aprobó, hemos depositado el monto de tu compra en tu %2$s Wallet.</string>
     <string name="yapily_payment_to_fiat_wallet_default">criptomoneda</string>
@@ -1380,7 +1380,7 @@ Tus fondos estarán disponibles para retirarlos una vez que se complete la trans
     <string name="yapily_agreement_blurb_3_1">%1$s está autorizado y regulado por el Banco de Lituania en virtud de la Ley de pagos (LB002045) para la prestación de servicios de Información de cuentas e Iniciación de pagos.</string>
     <string name="yapily_agreement_blurb_4_1">%1$s utilizará estos datos con Blockchain.com únicamente con el fin de comprar criptomonedas. Este acceso es válido hasta el %2$s. Puedes cancelar el consentimiento en cualquier momento a través de la configuración de Blockchain.com o a través de tu banco. Esta solicitud no es única; seguirás recibiendo solicitudes de consentimiento a medida que caduquen las versiones anteriores.</string>
     <string name="yapily_agreement_blurb_4_2">Se puede acceder a los Términos y condiciones %1$s mediante el siguiente enlace <a> https://yapi.ly/GDNT </a></string>
-    <string name="yapily_agreement_blurb_5_1">Para compartir tus datos de %1$s con Blockchain.com, se te redireccionará de manera segura a tu banco para que confirmes tu consentimiento para que SafeConnect lea la siguiente información:
+    <string name="yapily_agreement_blurb_5_1">Para compartir tus datos de %1$s con Blockchain.com, se te redireccionará de manera segura a tu banco para que confirmes tu consentimiento para que YapilyConnect lea la siguiente información:
 
 • Detalles de identificación
 • Detalles de cuenta</string>
@@ -2408,8 +2408,8 @@ Compra criptomonedas hoy.</string>
     <string name="security_missing_phone_number_description">Para activar la función de autenticación de 2 factores, primero debes actualizar tu número de teléfono para que podamos verificar tu dispositivo.</string>
     <string name="security_missing_phone_number_cta">Agregar número de teléfono</string>
     <string name="open_banking_permission_link_to_bank">Vincula con %1$s</string>
-    <string name="open_banking_permission_confirmation">Al pulsar aprobar, aceptas SafeConnect</string>
-    <string name="open_banking_permission_confirmation_buy">Al pulsar Comprar ahora, aceptas los <annotation link="terms">Términos del servicio</annotation> y la <annotation link="privacy">Política de privacidad</annotation> de SafeConnect.</string>
+    <string name="open_banking_permission_confirmation">Al pulsar aprobar, aceptas YapilyConnect</string>
+    <string name="open_banking_permission_confirmation_buy">Al pulsar Comprar ahora, aceptas los <annotation link="terms">Términos del servicio</annotation> y la <annotation link="privacy">Política de privacidad</annotation> de YapilyConnect.</string>
     <string name="open_banking_permission_terms_service">Términos del servicio</string>
     <string name="open_banking_permission_privacy_policy">Política de privacidad</string>
     <string name="common_http_error_with_new_line_message">¡Ups! Hubo un error.
