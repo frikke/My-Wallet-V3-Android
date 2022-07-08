@@ -9,6 +9,7 @@ import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.custodial.models.QuoteFee
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.Authenticator
 import com.blockchain.nabu.datamanagers.CurrencyPair
 import com.blockchain.nabu.datamanagers.Product
@@ -50,6 +51,7 @@ private fun BrokerageQuoteResponse.toDomainModel(pair: CurrencyPair): BrokerageQ
         createdAt = ZonedDateTime.parse(quoteCreatedAt),
         expiresAt = ZonedDateTime.parse(quoteExpiresAt),
         quoteMargin = quoteMarginPercent,
+        settlementReason = settlementDetails?.reason?.toSettlementReason() ?: SettlementReason.NONE,
         availability = settlementDetails?.availability?.toAvailability() ?: Availability.UNAVAILABLE,
         feeDetails = QuoteFee(
             fee = Money.fromMinor(pair.source, feeDetails.fee.toBigInteger()),
@@ -71,6 +73,12 @@ private fun String.toAvailability(): Availability =
         SettlementDetails.UNAVAILABLE -> Availability.UNAVAILABLE
         else -> Availability.UNAVAILABLE
     }
+
+private fun String.toSettlementReason(): SettlementReason = try {
+    SettlementReason.valueOf(this)
+} catch (ex: Exception) {
+    SettlementReason.UNKNOWN
+}
 
 private fun Product.toProfileRequestString(): String =
     when (this) {

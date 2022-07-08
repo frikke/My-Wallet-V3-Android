@@ -17,6 +17,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.Partner
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.EligibleAndNextPaymentRecurringBuy
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -239,6 +240,7 @@ sealed class ErrorState : Serializable {
     data class UnhandledHttpError(val nabuApiException: NabuApiException) : ErrorState()
     object InternetConnectionError : ErrorState()
     object BuyPaymentMethodsUnavailable : ErrorState()
+    class SettlementRefreshRequired(val accountId: String) : ErrorState()
     class ServerSideUxError(val serverSideUxErrorInfo: ServerSideUxErrorInfo) : ErrorState()
 }
 
@@ -256,6 +258,7 @@ data class BuyQuote(
     val id: String? = null,
     val price: FiatValue,
     val availability: Availability? = null,
+    val settlementReason: SettlementReason? = null,
     val quoteMargin: Double? = null,
     val feeDetails: BuyFees,
     val createdAt: @Contextual ZonedDateTime,
@@ -270,6 +273,7 @@ data class BuyQuote(
                 // we should pass the fiat to the state, otherwise Money interface wont get serialised.
                 price = brokerageQuote.price.toFiat(fiatCurrency),
                 availability = brokerageQuote.availability,
+                settlementReason = brokerageQuote.settlementReason,
                 quoteMargin = brokerageQuote.quoteMargin,
                 feeDetails = BuyFees(
                     fee = fee(brokerageQuote.feeDetails.fee as FiatValue, orderFee as FiatValue),

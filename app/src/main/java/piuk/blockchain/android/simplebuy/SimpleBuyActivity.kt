@@ -52,6 +52,8 @@ import piuk.blockchain.android.ui.home.MainActivity
 import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
+import piuk.blockchain.android.ui.linkbank.BankAuthRefreshContract
+import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.linkbank.fromPreferencesValue
 import piuk.blockchain.android.ui.linkbank.toPreferencesValue
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyFirstTimeBuyerFragment
@@ -123,6 +125,15 @@ class SimpleBuyActivity :
 
     private val binding: FragmentActivityBinding by lazy {
         FragmentActivityBinding.inflate(layoutInflater)
+    }
+
+    private val refreshBankResultLauncher = registerForActivityResult(BankAuthRefreshContract()) { refreshSuccess ->
+        if (refreshSuccess) {
+            popFragmentsInStackUntilFind(
+                fragmentName = SimpleBuyCheckoutFragment::class.simpleName.orEmpty(),
+                popInclusive = true
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -414,6 +425,29 @@ class SimpleBuyActivity :
                     errorDescription = description,
                     action = ACTION_BUY,
                     analyticsCategories = nabuApiException?.getServerSideErrorInfo()?.categories ?: emptyList()
+                )
+            )
+        )
+    }
+
+    override fun showBankRefreshError(accountId: String) {
+        primaryErrorCtaAction = {
+            if (accountId.isNotEmpty()) {
+                refreshBankResultLauncher.launch(Pair(accountId, BankAuthSource.SIMPLE_BUY))
+            }
+        }
+
+        showBottomSheet(
+            ErrorSlidingBottomDialog.newInstance(
+                ErrorDialogData(
+                    title = getString(R.string.common_oops_bank),
+                    description = getString(R.string.trading_deposit_description_requires_update),
+                    errorButtonCopies = ErrorButtonCopies(
+                        primaryButtonText = getString(R.string.trading_deposit_relink_bank_account),
+                        secondaryButtonText = getString(R.string.common_ok),
+                    ),
+                    action = ACTION_BUY,
+                    analyticsCategories = emptyList()
                 )
             )
         )

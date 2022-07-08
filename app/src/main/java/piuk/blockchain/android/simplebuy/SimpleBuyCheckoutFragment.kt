@@ -26,12 +26,15 @@ import com.blockchain.componentlib.viewextensions.invisible
 import com.blockchain.componentlib.viewextensions.setOnClickListenerDebounced
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.extensions.exhaustive
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
+import com.blockchain.koin.plaidFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -97,8 +100,10 @@ class SimpleBuyCheckoutFragment :
     }
 
     private val buyQuoteRefreshFF: FeatureFlag by scopedInject(buyRefreshQuoteFeatureFlag)
+    private val plaidFF: FeatureFlag by scopedInject(plaidFeatureFlag)
     private val compositeDisposable = CompositeDisposable()
     private var animateRefreshQuote = false
+    private var isPlaidEnabled = false
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSimplebuyCheckoutBinding =
         FragmentSimplebuyCheckoutBinding.inflate(inflater, container, false)
@@ -113,6 +118,10 @@ class SimpleBuyCheckoutFragment :
                     binding.quoteExpiration.visible()
                     model.process(SimpleBuyIntent.ListenToQuotesUpdate)
                 }
+            }
+        compositeDisposable += plaidFF.enabled.onErrorReturn { false }
+            .subscribe { enabled ->
+                isPlaidEnabled = enabled
             }
 
         binding.recycler.apply {
@@ -341,6 +350,13 @@ class SimpleBuyCheckoutFragment :
         }
     }
 
+    private fun isBankAccountRefreshRequired(quote: BuyQuote?, selectedPaymentMethod: SelectedPaymentMethod?) =
+        isPlaidEnabled &&
+            selectedPaymentMethod?.paymentMethodType == PaymentMethodType.BANK_TRANSFER &&
+            selectedPaymentMethod.id.isNotEmpty() &&
+            quote?.availability == Availability.UNAVAILABLE &&
+            quote.settlementReason == SettlementReason.REQUIRES_UPDATE
+
     private fun renderPrivateKeyLabel(selectedCryptoAsset: AssetInfo) {
         if (selectedCryptoAsset.isCustodialOnly) {
             val map = mapOf("learn_more_link" to Uri.parse(PRIVATE_KEY_EXPLANATION))
@@ -525,14 +541,20 @@ class SimpleBuyCheckoutFragment :
                 if (!isForPendingPayment && !isOrderAwaitingFunds) {
                     text = getString(R.string.buy_asset_now, state.orderValue?.toStringWithSymbol())
                     setOnClickListener {
-                        binding.quoteExpiration.invisible()
-                        model.process(SimpleBuyIntent.ConfirmOrder)
-                        analytics.logEvent(
-                            eventWithPaymentMethod(
-                                SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
-                                state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                        if (isBankAccountRefreshRequired(state.quote, state.selectedPaymentMethod)) {
+                            showErrorState(
+                                ErrorState.SettlementRefreshRequired(state.selectedPaymentMethod?.id.orEmpty())
                             )
-                        )
+                        } else {
+                            binding.quoteExpiration.invisible()
+                            model.process(SimpleBuyIntent.ConfirmOrder)
+                            analytics.logEvent(
+                                eventWithPaymentMethod(
+                                    SimpleBuyAnalytics.CHECKOUT_SUMMARY_CONFIRMED,
+                                    state.selectedPaymentMethod?.paymentMethodType?.toAnalyticsString().orEmpty()
+                                )
+                            )
+                        }
                     }
                 } else {
                     text = if (isOrderAwaitingFunds && !isForPendingPayment) {
@@ -726,6 +748,7 @@ class SimpleBuyCheckoutFragment :
                     error = SERVER_SIDE_HANDLED_ERROR,
                     serverErrorHandling = errorState.serverSideUxErrorInfo.actions
                 )
+            is ErrorState.SettlementRefreshRequired -> navigator().showBankRefreshError(errorState.accountId)
             ErrorState.ApproveBankInvalid,
             ErrorState.ApprovedBankAccountInvalid,
             ErrorState.ApprovedBankDeclined,

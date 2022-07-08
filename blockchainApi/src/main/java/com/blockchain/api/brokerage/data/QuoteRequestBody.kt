@@ -27,7 +27,8 @@ class BrokerageQuoteResponse(
 
 @Serializable
 class SettlementDetails(
-    val availability: String?
+    val availability: String?,
+    val reason: String?
 ) {
     companion object {
         val INSTANT = "INSTANT"

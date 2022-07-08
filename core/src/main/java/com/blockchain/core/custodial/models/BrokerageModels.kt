@@ -1,5 +1,6 @@
 package com.blockchain.core.custodial.models
 
+import com.blockchain.domain.paymentmethods.model.SettlementReason
 import com.blockchain.nabu.datamanagers.BuySellOrder
 import info.blockchain.balance.Money
 import java.time.Duration
@@ -10,6 +11,7 @@ data class BrokerageQuote(
     val price: Money,
     val quoteMargin: Double?,
     val availability: Availability?,
+    val settlementReason: SettlementReason?,
     val feeDetails: QuoteFee,
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,

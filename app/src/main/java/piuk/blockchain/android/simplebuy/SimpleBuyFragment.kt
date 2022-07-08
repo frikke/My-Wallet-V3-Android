@@ -51,4 +51,6 @@ interface ErrorBuyNavigator {
         errorDescription: String? = null,
         nabuApiException: NabuApiException? = null
     )
+
+    fun showBankRefreshError(accountId: String)
 }
