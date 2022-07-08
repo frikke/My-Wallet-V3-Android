@@ -66,8 +66,7 @@ class BackupPhraseViewModel(
             }
 
             BackupPhraseIntent.EnableCloudBackup -> {
-                updateState { it.copy(backupOption = BackupOption.CLOUD) }
-                confirmRecoveryPhraseBackup()
+                confirmRecoveryPhraseBackup(BackupOption.CLOUD)
             }
 
             BackupPhraseIntent.StartManualBackup -> {
@@ -88,25 +87,7 @@ class BackupPhraseViewModel(
             }
 
             is BackupPhraseIntent.VerifyPhrase -> {
-                updateState { it.copy(backupOption = BackupOption.MANUAL) }
                 verifyPhraseAndConfirmBackup(intent.userMnemonic)
-            }
-
-            BackupPhraseIntent.PhraseVerified -> {
-                when (modelState.backupOption) {
-                    BackupOption.CLOUD -> {
-                        backupPrefs.backupEnabled = true
-                        navigate(BackupPhraseNavigationEvent.CloudBackupConfirmation)
-                    }
-
-                    BackupOption.MANUAL -> {
-                        updateState { it.copy(isLoading = false) }
-                        navigate(BackupPhraseNavigationEvent.BackupConfirmation)
-                    }
-
-                    BackupOption.NONE -> {
-                    }
-                }.exhaustive
             }
 
             BackupPhraseIntent.ResetVerificationStatus -> {
@@ -160,17 +141,28 @@ class BackupPhraseViewModel(
         if (userMnemonic != modelState.mnemonic) {
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
-            confirmRecoveryPhraseBackup()
+            confirmRecoveryPhraseBackup(BackupOption.MANUAL)
         }
     }
 
-    private fun confirmRecoveryPhraseBackup() {
+    private fun confirmRecoveryPhraseBackup(backupOption: BackupOption) {
         viewModelScope.launch {
             updateState { it.copy(isLoading = true) }
 
             backupPhraseService.confirmRecoveryPhraseBackedUp()
                 .doOnSuccess {
-                    onIntent(BackupPhraseIntent.PhraseVerified)
+                    updateState { it.copy(isLoading = false) }
+
+                    when (backupOption) {
+                        BackupOption.CLOUD -> {
+                            backupPrefs.backupEnabled = true
+                            navigate(BackupPhraseNavigationEvent.CloudBackupConfirmation)
+                        }
+
+                        BackupOption.MANUAL -> {
+                            navigate(BackupPhraseNavigationEvent.BackupConfirmation)
+                        }
+                    }.exhaustive
                 }
                 .doOnFailure {
                     updateState { it.copy(isLoading = false) }

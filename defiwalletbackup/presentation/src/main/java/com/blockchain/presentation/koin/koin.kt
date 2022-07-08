@@ -15,7 +15,10 @@ val backupPhrasePresentationModule = module {
 
     scope(payloadScopeQualifier) {
         viewModel {
-            BackupPhraseViewModel(backupPhraseService = get())
+            BackupPhraseViewModel(
+                backupPhraseService = get(),
+                backupPrefs = get()
+            )
         }
     }
 }
