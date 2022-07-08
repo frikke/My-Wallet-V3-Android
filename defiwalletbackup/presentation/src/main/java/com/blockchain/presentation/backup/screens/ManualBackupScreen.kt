@@ -76,14 +76,6 @@ fun ManualBackupScreen(
     mnemonicCopied: () -> Unit,
     nextOnClick: () -> Unit
 ) {
-    var copyMnemonic by remember { mutableStateOf(false) }
-
-    if (copyMnemonic) {
-        CopyMnemonic(mnemonic.joinToString(separator = " "))
-        mnemonicCopied()
-        copyMnemonic = false
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -124,19 +116,11 @@ fun ManualBackupScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            when (copyState) {
-                CopyState.IDLE -> {
-                    TertiaryButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.common_copy),
-                        onClick = { copyMnemonic = true }
-                    )
-                }
-
-                CopyState.COPIED -> {
-                    MnemonicCopied()
-                }
-            }
+            CopyMnemonicCta(
+                copyState = copyState,
+                mnemonic = mnemonic,
+                mnemonicCopied = mnemonicCopied
+            )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
@@ -156,35 +140,6 @@ fun ManualBackupScreen(
             )
         }
     }
-}
-
-@Composable
-fun MnemonicCopied() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.very_small_margin)),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Image(imageResource = ImageResource.Local(R.drawable.ic_check))
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
-
-        Text(
-            text = stringResource(R.string.manual_backup_copied),
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.body2,
-            color = Green600
-        )
-    }
-}
-
-@Composable
-fun CopyMnemonic(mnemonic: String) {
-    LocalContext.current.copyToClipboard(
-        label = stringResource(id = R.string.manual_backup_title),
-        text = mnemonic
-    )
 }
 
 // ///////////////

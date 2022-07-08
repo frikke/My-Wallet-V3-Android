@@ -24,14 +24,15 @@ import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
 import com.blockchain.componentlib.button.SecondaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
 import com.blockchain.presentation.backup.BackUpStatus
 import com.blockchain.presentation.backup.BackupPhraseIntent
 import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
 import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import java.util.Locale
 
 @Composable
 fun CloudBackupConfirmation(viewModel: BackupPhraseViewModel) {
@@ -44,6 +45,9 @@ fun CloudBackupConfirmation(viewModel: BackupPhraseViewModel) {
     viewState?.let { state ->
         CloudBackupConfirmationScreen(
             mnemonic = state.mnemonic,
+            copyState = state.copyState,
+
+            mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
             doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) },
             backUpManualOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
         )
@@ -53,6 +57,9 @@ fun CloudBackupConfirmation(viewModel: BackupPhraseViewModel) {
 @Composable
 fun CloudBackupConfirmationScreen(
     mnemonic: List<String>,
+    copyState: CopyState,
+
+    mnemonicCopied: () -> Unit,
     doneOnClick: () -> Unit,
     backUpManualOnClick: () -> Unit
 ) {
@@ -89,10 +96,10 @@ fun CloudBackupConfirmationScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            TertiaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_copy),
-                onClick = { }
+            CopyMnemonicCta(
+                copyState = copyState,
+                mnemonic = mnemonic,
+                mnemonicCopied = mnemonicCopied
             )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
@@ -126,11 +133,18 @@ fun CloudBackupConfirmationScreen(
 // ///////////////
 // PREVIEWS
 // ///////////////
+private val mnemonic = Locale.getISOCountries().toList().map {
+    Locale("", it).isO3Country
+}.shuffled().subList(0, 12)
+
+
 @Preview(name = "Cloud Backup Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
 fun PreviewCloudBackupConfirmationScreen() {
     CloudBackupConfirmationScreen(
-        mnemonic = listOf(),
+        mnemonic = mnemonic,
+        copyState = CopyState.IDLE,
+        mnemonicCopied = {},
         doneOnClick = {},
         backUpManualOnClick = {}
     )
