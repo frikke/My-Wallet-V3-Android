@@ -2084,8 +2084,8 @@
     <string name="yapily_empty_cta">Show Transfer Details</string>
     <string name="yapily_find_bank_title">Find Your Bank</string>
     <string name="open_banking_permission_link_to_bank">Link to %1$s</string>
-    <string name="open_banking_permission_confirmation">By tapping approve you are agreeing to SafeConnect</string>
-    <string name="open_banking_permission_confirmation_buy">By tapping Buy Now, you agree to SafeConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
+    <string name="open_banking_permission_confirmation">By tapping approve you are agreeing to YapilyConnect</string>
+    <string name="open_banking_permission_confirmation_buy">By tapping Buy Now, you agree to YapilyConnect <annotation link="terms">Terms of Service</annotation> &amp; <annotation link="privacy">Privacy Policy</annotation>.</string>
     <string name="open_banking_permission_terms_service">Terms of Service</string>
     <string name="open_banking_permission_privacy_policy">Privacy Policy</string>
     <string name="yapily_agreement_title_1">Data Sharing</string>
@@ -2093,13 +2093,13 @@
     <string name="yapily_agreement_title_2">Secure Connection</string>
     <string name="yapily_agreement_blurb_2">Data is securely retrieved in read-only format and only for the duration agreed with you. You have the right to withdraw your consent at any time.</string>
     <string name="yapily_agreement_title_3">Bank of Lithuania Authorisation</string>
-    <string name="yapily_agreement_blurb_3">Blockchain is an agent of SafeConnect Ltd. SafeConnect Ltd is authorised and regulated by the Financial Conduct Authority under the Payment Service Regulations 2017 [827001] for the provision of Account Information and Payment Initiation services.</string>
+    <string name="yapily_agreement_blurb_3">Blockchain is an agent of YapilyConnect Ltd. YapilyConnect Ltd is authorised and regulated by the Financial Conduct Authority under the Payment Service Regulations 2017 [827001] for the provision of Account Information and Payment Initiation services.</string>
     <string name="yapily_agreement_blurb_3_1">%1$s is authorised and regulated by the Bank of Lithuania under Payments Law (LB002045) for the provision of Account Information and Payment Initiation services.</string>
     <string name="yapily_agreement_title_4">About the access</string>
     <string name="yapily_agreement_blurb_4_1">%1$s will then use these details with Blockchain solely for the purposes of buying cryptocurrencies. This access is valid until %2$s, you can cancel consent at any time via the Blockchain settings or via your bank. This request is not a one-off, you will continue to receive consent requests as older versions expire.</string>
     <string name="yapily_agreement_blurb_4_2">%1$s Terms and Conditions can be accessed using the following link <a>https://yapi.ly/GDNT</a></string>
-    <string name="yapily_agreement_blurb_5">In order to share your %1$s data with Blockchain, you will now be securely redirected to your bank to confirm your consent for SafeConnect to read the following information:\n\n• Identification details\n\n• Account(s) details</string>
-    <string name="yapily_agreement_blurb_5_1">In order to share your %1$s data with Blockchain.com, you will now be securely redirected to your bank to confirm your consent for SafeConnect to read the following information:\n\n• Identification details\n\n• Account(s) details</string>
+    <string name="yapily_agreement_blurb_5">In order to share your %1$s data with Blockchain, you will now be securely redirected to your bank to confirm your consent for YapilyConnect to read the following information:\n\n• Identification details\n\n• Account(s) details</string>
+    <string name="yapily_agreement_blurb_5_1">In order to share your %1$s data with Blockchain.com, you will now be securely redirected to your bank to confirm your consent for YapilyConnect to read the following information:\n\n• Identification details\n\n• Account(s) details</string>
     <string name="yapily_linking_pending_title">Taking you to %1$s</string>
     <string name="yapily_linking_pending_subtitle">This could take up to 30 seconds. Please do not go back or close the app.</string>
     <string name="yapily_linking_in_progress_title">Waiting to hear from %1$s</string>
@@ -2122,7 +2122,7 @@
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Account Number</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">To easily set up payments from your bank to Blockchain, we are about to securely re-direct you to your bank where you will be asked to confirm the payment via SafeConnect, an FCA regulated payment initiation provider for Blockchain.\n\nSafeConnect will share these details with your bank, where you will then be asked to confirm the following payment setup.</string>
+    <string name="yapily_approval_blurb">To easily set up payments from your bank to Blockchain, we are about to securely re-direct you to your bank where you will be asked to confirm the payment via YapilyConnect, an FCA regulated payment initiation provider for Blockchain.\n\nYapilyConnect will share these details with your bank, where you will then be asked to confirm the following payment setup.</string>
     <string name="yapily_payment_to_fiat_wallet_title">Canceled purchase amount added to %1$s Wallet</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">You recently approved a %1$s purchase with your bank and cancelled the order here. Since you approved with your bank, we’ve deposited your purchase amount in your %2$s Wallet.</string>
     <string name="yapily_payment_to_fiat_wallet_default">crypto</string>

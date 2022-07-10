@@ -1408,9 +1408,9 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="yapily_agreement_title_2">Güvenli Bağlantı</string>
     <string name="yapily_agreement_blurb_2">Veriler, salt okunur biçimde ve yalnızca sizinle kararlaştırılan süre boyunca güvenli bir şekilde alınır. Onayınızı istediğiniz zaman geri çekme hakkına sahipsiniz.</string>
     <string name="yapily_agreement_title_3">Litvanya Merkez Bankası Yetki Yazısı</string>
-    <string name="yapily_agreement_blurb_3">Blockchain bir SafeConnect Ltd aracısıdır. SafeConnect Ltd, Hesap Bilgisi ve Ödeme Başlatma hizmetlerinin sağlanması için 2017 tarihli Ödeme Hizmeti Yönetmeliği [827001] kapsamında Finansal Yürütme Kurumu tarafından yetkilendirilip denetlenmektedir.</string>
+    <string name="yapily_agreement_blurb_3">Blockchain bir YapilyConnect Ltd aracısıdır. YapilyConnect Ltd, Hesap Bilgisi ve Ödeme Başlatma hizmetlerinin sağlanması için 2017 tarihli Ödeme Hizmeti Yönetmeliği [827001] kapsamında Finansal Yürütme Kurumu tarafından yetkilendirilip denetlenmektedir.</string>
     <string name="yapily_agreement_title_4">Erişim hakkında</string>
-    <string name="yapily_agreement_blurb_5">%1$s verilerinizi Blockchain ile paylaşmak amacıyla, SafeConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
+    <string name="yapily_agreement_blurb_5">%1$s verilerinizi Blockchain ile paylaşmak amacıyla, YapilyConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
 
 • Kimlik bilgileri
 
@@ -1437,9 +1437,9 @@ Banka transferiniz %3$s tarihinde tamamlanınca para çekme işlemi gerçekleşt
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Hesap Numarası</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">Bankanızdan Blockchain\'e kolayca ödeme ayarlamak amacıyla, Blockchain için FCA tarafından denetlenen bir ödeme başlatma sağlayıcısı olan SafeConnect aracılığıyla ödemeyi onaylamanızın isteneceği bankanıza sizi güvenli bir şekilde yeniden yönlendirmek üzereyiz.
+    <string name="yapily_approval_blurb">Bankanızdan Blockchain\'e kolayca ödeme ayarlamak amacıyla, Blockchain için FCA tarafından denetlenen bir ödeme başlatma sağlayıcısı olan YapilyConnect aracılığıyla ödemeyi onaylamanızın isteneceği bankanıza sizi güvenli bir şekilde yeniden yönlendirmek üzereyiz.
 
-SafeConnect bu bilgileri bankanızla paylaşacak ve daha sonra sizden aşağıdaki ödeme ayarını onaylamanız istenecek.</string>
+YapilyConnect bu bilgileri bankanızla paylaşacak ve daha sonra sizden aşağıdaki ödeme ayarını onaylamanız istenecek.</string>
     <string name="yapily_payment_to_fiat_wallet_title">İptal edilen satın alma miktarı %1$s Cüzdanına eklendi</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">Kısa süre önce bankanızla  %1$s değerinde satın alma işlemini onayladınız ve siparişi buradan iptal ettiniz. Bankanızla onayladığınız için satın alma tutarınızı %2$s Cüzdanınıza yatırdık.</string>
     <string name="yapily_payment_to_fiat_wallet_default">kripto</string>
@@ -1504,7 +1504,7 @@ Banka transferi %3$s tarihinde tamamlanınca para çekme işlemi gerçekleştire
     <string name="yapily_agreement_blurb_3_1">%1$s, Hesap Bilgileri ve Ödeme Başlatma hizmetlerinin verilmesi için Litvanya Merkez Bankası tarafından Ödemeler Kanunu (LB002045) kapsamında yetkilendirilip düzenlenmektedir.</string>
     <string name="yapily_agreement_blurb_4_1">%1$s daha sonra bu bilgileri Blockchain ile yalnızca kripto para satın almak amacıyla kullanacaktır. Bu erişim %2$s tarihine kadar geçerlidir. İzni dilediğiniz zaman Blockchain ayarları veya bankanız aracılığıyla iptal edebilirsiniz. Bu talep tek seferlik değildir, eski sürümlerin süresi doldukça izin talepleri almaya devam edeceksiniz.</string>
     <string name="yapily_agreement_blurb_4_2">%1$s Hüküm ve Koşullara <a>https://yapi.ly/GDNT</a> bağlantısı kullanılarak erişilebilir</string>
-    <string name="yapily_agreement_blurb_5_1">%1$s verilerinizi Blockchain.com ile paylaşmak amacıyla, SafeConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
+    <string name="yapily_agreement_blurb_5_1">%1$s verilerinizi Blockchain.com ile paylaşmak amacıyla, YapilyConnect\'in aşağıdaki bilgileri okumasına izin verdiğinizi onaylamak için şimdi güvenli bir şekilde bankanıza yönlendirileceksiniz:
 
 • Kimlik bilgileri
 
@@ -2529,8 +2529,8 @@ Bunu zaten yaptıysanız, lütfen <annotation link="contact_support">destek ile 
     <string name="security_missing_phone_number_description">2FA\'yı etkinleştirmek amacıyla cihazınızı doğrulayabilmemiz için önce telefon numaranızı güncellemeniz gerekir.</string>
     <string name="security_missing_phone_number_cta">Telefon numarası ekle</string>
     <string name="open_banking_permission_link_to_bank">%1$s bankasına bağla</string>
-    <string name="open_banking_permission_confirmation">Onayla\'ya dokunarak SafeConnect\'i kabul etmiş olursunuz</string>
-    <string name="open_banking_permission_confirmation_buy">Şimdi Satın Al\'a dokunarak SafeConnect <annotation link="terms">Kullanım Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
+    <string name="open_banking_permission_confirmation">Onayla\'ya dokunarak YapilyConnect\'i kabul etmiş olursunuz</string>
+    <string name="open_banking_permission_confirmation_buy">Şimdi Satın Al\'a dokunarak YapilyConnect <annotation link="terms">Kullanım Şartları</annotation> ve <annotation link="privacy">Gizlilik Politikasını</annotation> kabul etmiş olursunuz.</string>
     <string name="open_banking_permission_terms_service">Kullanım Şartları</string>
     <string name="open_banking_permission_privacy_policy">Gizlilik Politikası</string>
     <string name="common_http_error_with_new_line_message">Hay aksi! Bir sorun oluştu.

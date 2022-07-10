@@ -1349,9 +1349,9 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="yapily_agreement_title_2">Connexion sécurisée</string>
     <string name="yapily_agreement_blurb_2">Les données sont récupérées de manière sécurisée en lecture seule et uniquement pour la durée convenue avec vous. Vous avez le droit de révoquer votre consentement à tout moment.</string>
     <string name="yapily_agreement_title_3">Autorisation de la Banque centrale de Lituanie</string>
-    <string name="yapily_agreement_blurb_3">Blockchain est un agent de SafeConnect Ltd. SafeConnect Ltd est autorisé et réglementé par la Financial Conduct Authority en vertu du Règlement de 2017 sur les services de paiement [827001] pour la fourniture de services d\'information sur les comptes et d\'initiation de paiement.</string>
+    <string name="yapily_agreement_blurb_3">Blockchain est un agent de YapilyConnect Ltd. YapilyConnect Ltd est autorisé et réglementé par la Financial Conduct Authority en vertu du Règlement de 2017 sur les services de paiement [827001] pour la fourniture de services d\'information sur les comptes et d\'initiation de paiement.</string>
     <string name="yapily_agreement_title_4">À propos de l\'accès</string>
-    <string name="yapily_agreement_blurb_5">Afin de partager vos données %1$s avec Blockchain, vous allez maintenant être redirigé en toute sécurité vers votre banque pour confirmer votre consentement à ce que SafeConnect lise les informations suivantes :
+    <string name="yapily_agreement_blurb_5">Afin de partager vos données %1$s avec Blockchain, vous allez maintenant être redirigé en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :
 
 - Détails d\'identification
 
@@ -1378,9 +1378,9 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="yapily_approval_subtitle_2_eu">IBAN</string>
     <string name="yapily_approval_subtitle_3_uk">Numéro de compte</string>
     <string name="yapily_approval_subtitle_3_eu">SWIFT/BIC</string>
-    <string name="yapily_approval_blurb">Pour faciliter la mise en place de paiements de votre banque vers Blockchain, nous allons vous rediriger en toute sécurité vers votre banque où il vous sera demandé de confirmer le paiement via SafeConnect, un fournisseur d\'initiation de paiement réglementé par la FCA pour Blockchain.
+    <string name="yapily_approval_blurb">Pour faciliter la mise en place de paiements de votre banque vers Blockchain, nous allons vous rediriger en toute sécurité vers votre banque où il vous sera demandé de confirmer le paiement via YapilyConnect, un fournisseur d\'initiation de paiement réglementé par la FCA pour Blockchain.
 
-SafeConnect partagera ces détails avec votre banque, qui vous demandera ensuite de confirmer la configuration du paiement suivant.</string>
+YapilyConnect partagera ces détails avec votre banque, qui vous demandera ensuite de confirmer la configuration du paiement suivant.</string>
     <string name="yapily_payment_to_fiat_wallet_title">Montant de l\'achat annulé ajouté au portefeuille %1$s</string>
     <string name="yapily_payment_to_fiat_wallet_subtitle">Vous avez récemment approuvé un achat de %1$s avec votre banque et annulé la commande ici. Puisque vous avez approuvé avec votre banque, nous avons déposé le montant de votre achat dans votre Portefeuille %2$s.</string>
     <string name="yapily_payment_to_fiat_wallet_default">crypto</string>
@@ -1445,7 +1445,7 @@ Vos fonds pourront être retirés une fois le transfert bancaire effectué le %3
     <string name="yapily_agreement_blurb_3_1">%1$s est autorisée et réglementée par la Banque centrale de Lituanie en vertu de la Payments Law (LB002045) pour la fourniture de services d\'informations sur les comptes et d\'initiation de paiement.</string>
     <string name="yapily_agreement_blurb_4_1">%1$s utilisera ensuite ces informations avec Blockchain uniquement dans le but d\'acheter des cryptomonnaies. Cet accès est valable jusqu\'au %2$s, vous pouvez annuler votre consentement quand bon vous semble via les paramètres Blockchain ou via votre banque. Cette demande n\'est pas ponctuelle, vous continuerez à recevoir des demandes de consentement à mesure que les anciennes versions expireront.</string>
     <string name="yapily_agreement_blurb_4_2">%1$s Les conditions générales peuvent être consultés sous le lien suivant<a>https://yapi.ly/GDNT</a></string>
-    <string name="yapily_agreement_blurb_5_1">Afin de partager vos données %1$s avec Blockchain.com, vous allez maintenant être redirigé en toute sécurité vers votre banque pour confirmer votre consentement à ce que SafeConnect lise les informations suivantes :
+    <string name="yapily_agreement_blurb_5_1">Afin de partager vos données %1$s avec Blockchain.com, vous allez maintenant être redirigé en toute sécurité vers votre banque pour confirmer votre consentement à ce que YapilyConnect lise les informations suivantes :
 
 - Détails d\'identification
 
@@ -2472,8 +2472,8 @@ Si vous l\'avez déjà fait, veuillez <annotation link="contact_support">contact
     <string name="security_missing_phone_number_description">Pour activer l\'authentification à deux facteurs (2FA), vous devez d\'abord mettre à jour votre numéro de téléphone afin que nous puissions vérifier votre appareil.</string>
     <string name="security_missing_phone_number_cta">Ajouter un numéro de téléphone</string>
     <string name="open_banking_permission_link_to_bank">Lien vers %1$s</string>
-    <string name="open_banking_permission_confirmation">En appuyant sur approuver, vous acceptez les conditions de SafeConnect</string>
-    <string name="open_banking_permission_confirmation_buy">En appuyant sur Acheter maintenant, vous acceptez les <annotation link="terms">Conditions d\'utilisation</annotation> et la <annotation link="privacy">Politique de confidentialité</annotation> de SafeConnect.</string>
+    <string name="open_banking_permission_confirmation">En appuyant sur approuver, vous acceptez les conditions de YapilyConnect</string>
+    <string name="open_banking_permission_confirmation_buy">En appuyant sur Acheter maintenant, vous acceptez les <annotation link="terms">Conditions d\'utilisation</annotation> et la <annotation link="privacy">Politique de confidentialité</annotation> de YapilyConnect.</string>
     <string name="open_banking_permission_terms_service">Conditions d\'utilisation</string>
     <string name="open_banking_permission_privacy_policy">Politique de confidentialité</string>
     <string name="common_http_error_with_new_line_message">Oups ! Un problème est survenu.
