@@ -165,11 +165,10 @@ fun ReferralCode(
             text = code,
         )
 
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.very_small_margin)))
+        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
 
         Text(
             modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.tiny_margin))
                 .clickable { copyToClipboard(code) },
             style = AppTheme.typography.paragraph2,
             color = Blue600,
