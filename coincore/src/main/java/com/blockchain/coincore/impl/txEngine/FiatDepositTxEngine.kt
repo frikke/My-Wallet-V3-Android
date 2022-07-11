@@ -267,22 +267,26 @@ class FiatDepositTxEngine(
     private fun pollForOpenBanking(txResult: TxResult): Completable {
         val paymentId = (txResult as TxResult.HashedTxResult).txId
         return PollService(bankService.getBankTransferCharge(paymentId)) {
-            it.authorisationUrl != null
+            it.authorisationUrl != null || it.status is BankTransferStatus.Error
         }.start()
             .map { it.value }
-            .flatMap { bankTransferDetails ->
-                bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
-                    bankTransferDetails.authorisationUrl?.let {
-                        BankPaymentApproval(
-                            paymentId,
-                            it,
-                            linkedBank,
-                            bankTransferDetails.amount as FiatValue
-                        )
-                    } ?: throw InvalidParameterException("No auth url was returned")
+            .flatMapCompletable { bankTransferDetails ->
+                (bankTransferDetails.status as? BankTransferStatus.Error)?.error?.let { errorCode ->
+                    Completable.error(TransactionError.FiatDepositError(errorCode))
+                } ?: run {
+                    bankService.getLinkedBank(bankTransferDetails.id).map { linkedBank ->
+                        bankTransferDetails.authorisationUrl?.let {
+                            BankPaymentApproval(
+                                paymentId,
+                                it,
+                                linkedBank,
+                                bankTransferDetails.amount as FiatValue
+                            )
+                        } ?: throw InvalidParameterException("No auth url was returned")
+                    }.flatMapCompletable {
+                        Completable.error(NeedsApprovalException(it))
+                    }
                 }
-            }.flatMapCompletable {
-                Completable.error(NeedsApprovalException(it))
             }
     }
 

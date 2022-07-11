@@ -860,6 +860,47 @@ class FiatDepositTxEngineTest : CoincoreTestBase() {
     }
 
     @Test
+    fun `doPostExecute() - poll for OpenBanking with error should return FiatDepositError`() {
+        // Arrange
+        val errorCode = "errorCode"
+        val fiatValue = 10.eur()
+        val txTarget: FiatAccount = mock()
+        val sourceAccount: LinkedBankAccount = mock {
+            on { accountId }.thenReturn(ACCOUNT_ID)
+            on { isOpenBankingCurrency() }.thenReturn(true)
+        }
+        val txResult: TxResult.HashedTxResult = mock {
+            on { txId }.thenReturn(TX_ID)
+        }
+        val linkedBank: LinkedBank = mock {
+            on { partner }.thenReturn(BankPartner.YAPILY)
+        }
+        val bankTransferDetails: BankTransferDetails = mock {
+            on { id }.thenReturn(ACCOUNT_ID)
+            on { amount }.thenReturn(fiatValue)
+            on { status }.thenReturn(BankTransferStatus.Error(errorCode))
+        }
+
+        whenever(plaidFeatureFlag.enabled).thenReturn(Single.just(false))
+        whenever(bankService.getLinkedBank(ACCOUNT_ID)).thenReturn(Single.just(linkedBank))
+        whenever(bankService.getBankTransferCharge(TX_ID)).thenReturn(Single.just(bankTransferDetails))
+
+        // Act
+        subject.start(
+            sourceAccount,
+            txTarget,
+            exchangeRates
+        )
+        val result = subject.doPostExecute(mock(), txResult)
+
+        // Assert
+        result.test()
+            .assertError {
+                (it as TransactionError.FiatDepositError).errorCode == errorCode
+            }
+    }
+
+    @Test
     fun `doPostExecute() - poll for OpenBanking with missing authUrl should throw InvalidParameterException`() {
         // Arrange
         val fiatValue = 10.eur()

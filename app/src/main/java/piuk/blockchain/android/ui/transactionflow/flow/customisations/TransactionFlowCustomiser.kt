@@ -1008,8 +1008,7 @@ class TransactionFlowCustomiserImpl(
             TransactionError.SettlementInsufficientBalance,
             TransactionError.SettlementStaleBalance,
             TransactionError.SettlementGenericError,
-            is TransactionError.SettlementRefreshRequired,
-            -> resources.getString(R.string.trading_confirm_deposit)
+            is TransactionError.SettlementRefreshRequired -> resources.getString(R.string.trading_confirm_deposit)
         }
     }
 
@@ -1026,8 +1025,7 @@ class TransactionFlowCustomiserImpl(
     private fun getFiatDepositError(error: String): FiatDepositErrorContent {
         val errorContent = when (error) {
             BuySellOrderResponse.APPROVAL_ERROR_INVALID,
-            BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID,
-            ->
+            BuySellOrderResponse.APPROVAL_ERROR_ACCOUNT_INVALID ->
                 Pair(
                     R.string.bank_transfer_payment_invalid_title,
                     R.string.bank_transfer_payment_invalid_subtitle

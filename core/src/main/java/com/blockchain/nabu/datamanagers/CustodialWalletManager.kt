@@ -515,7 +515,7 @@ internal fun String.toSupportedPartner(): Partner =
         else -> Partner.UNKNOWN
     }
 
-sealed class TransactionError : Throwable() {
+sealed class TransactionError : Exception() {
     object OrderLimitReached : TransactionError()
     object OrderNotCancelable : TransactionError()
     object WithdrawalAlreadyPending : TransactionError()

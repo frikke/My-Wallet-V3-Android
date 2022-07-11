@@ -50,7 +50,7 @@ enum class ValidationState {
 }
 
 class TxValidationFailure(val state: ValidationState) : TransferError("Invalid Tx: $state")
-class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Throwable()
+class NeedsApprovalException(val bankPaymentData: BankPaymentApproval) : Exception()
 
 enum class FeeLevel {
     None,
