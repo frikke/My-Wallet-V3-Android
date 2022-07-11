@@ -114,7 +114,8 @@ class SelectSourceAccountFragment :
                 LinkBankMethodChooserBottomSheet.newInstance(
                     linkablePaymentMethodsForAction = LinkablePaymentMethodsForAction.LinkablePaymentMethodsForDeposit(
                         newState.depositOptionsState.linkablePaymentMethods
-                    )
+                    ),
+                    transactionTarget = newState.selectedTarget
                 ).show(childFragmentManager, BOTTOM_SHEET)
             }
             is DepositOptionsState.Error -> {
