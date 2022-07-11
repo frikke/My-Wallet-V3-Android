@@ -14,6 +14,7 @@ import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
 import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
+import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -382,12 +383,12 @@ class SimpleBuyModel(
                 }
             )
             is SimpleBuyIntent.GetAmountToPrefill -> {
-                val amountToPrefill = getPrefillAmountRounded(
+                val buttonsAmounts = getPrefillAmountRounded(
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
                     maxAmount = intent.maxAmount
                 )
-                process(SimpleBuyIntent.PrefillEnterAmount(amountToPrefill))
+                process(SimpleBuyIntent.PrefillQuickFillButtons(buttonsAmounts))
                 null
             }
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
@@ -544,12 +545,15 @@ class SimpleBuyModel(
                             )
                         )
                     }
-
                     process(
                         SimpleBuyIntent.GetAmountToPrefill(
                             assetCode = asset.networkTicker,
                             fiatCurrency = fiatCurrency,
-                            maxAmount = limits.maxAmount
+                            maxAmount = if (limits.max is TxLimit.Limited) {
+                                limits.max.amount as? FiatValue ?: FiatValue.zero(fiatCurrency)
+                            } else {
+                                FiatValue.zero(fiatCurrency)
+                            }
                         )
                     )
                 }
@@ -585,6 +589,18 @@ class SimpleBuyModel(
                     process(SimpleBuyIntent.SelectedPaymentMethodUpdate(paymentMethod))
                     process(SimpleBuyIntent.UpdateErrorState(errorState))
                 }
+
+                process(
+                    SimpleBuyIntent.GetAmountToPrefill(
+                        assetCode = state.selectedCryptoAsset.networkTicker,
+                        fiatCurrency = state.fiatCurrency,
+                        maxAmount = if (limits.max is TxLimit.Limited) {
+                            limits.max.amount as? FiatValue ?: FiatValue.zero(state.fiatCurrency)
+                        } else {
+                            FiatValue.zero(state.fiatCurrency)
+                        }
+                    )
+                )
             },
             onError = {
                 processOrderErrors(it)
@@ -1061,29 +1077,46 @@ class SimpleBuyModel(
         assetCode: String,
         fiatCurrency: FiatCurrency,
         maxAmount: Money,
-    ): FiatValue {
+    ): List<FiatValue> {
 
         val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-$fiatCurrency")
+        val listOfAmounts = mutableListOf<FiatValue>()
 
-        return if (amountString.isNotEmpty()) {
-            val fiatAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
-            val fiatAmountToDisplay = roundToNearest(fiatAmount.toFloat(), ROUND_TO_NEAREST)
+        if (amountString.isNotEmpty()) {
+            val prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
 
-            when {
-                fiatAmountToDisplay <= maxAmount.toFloat() -> {
-                    FiatValue.fromMajor(fiatCurrency, BigDecimal(fiatAmountToDisplay.toString()))
-                }
-                fiatAmount <= maxAmount -> fiatAmount
-                else -> FiatValue.zero(fiatCurrency)
+            val prefilledToLowestButton = roundToNearest(prefilledAmount.toFloat(), ROUND_TO_NEAREST_10)
+            if (checkIfUnderLimit(prefilledToLowestButton, maxAmount)) {
+                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLowestButton)))
+            } else {
+                return listOfAmounts
             }
+
+            val prefilledToMediumButton = roundToNearest(2 * prefilledAmount.toFloat(), ROUND_TO_NEAREST_50)
+            if (checkIfUnderLimit(prefilledToMediumButton, maxAmount)) {
+                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToMediumButton)))
+            } else {
+                return listOfAmounts
+            }
+
+            val prefilledToLargestButton = roundToNearest(2 * prefilledToMediumButton.toFloat(), ROUND_TO_NEAREST_100)
+            if (checkIfUnderLimit(prefilledToLargestButton, maxAmount)) {
+                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLargestButton)))
+            } else {
+                return listOfAmounts
+            }
+            return listOfAmounts
         } else {
-            FiatValue.zero(fiatCurrency)
+            return listOfAmounts
         }
     }
 
     private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
         return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
     }
+
+    private fun checkIfUnderLimit(fiatAmountToButton: Int, maxAmount: Money): Boolean =
+        fiatAmountToButton <= maxAmount.toFloat()
 
     private fun requestGooglePayInfo(
         currency: FiatCurrency?,
@@ -1186,7 +1219,9 @@ class SimpleBuyModel(
     }
 
     companion object {
-        private const val ROUND_TO_NEAREST = 5
+        private const val ROUND_TO_NEAREST_10 = 10
+        private const val ROUND_TO_NEAREST_50 = 50
+        private const val ROUND_TO_NEAREST_100 = 100
     }
 }
 

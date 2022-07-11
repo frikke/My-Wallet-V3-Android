@@ -56,7 +56,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     class GetAmountToPrefill(
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
-        val maxAmount: Money,
+        val maxAmount: FiatValue,
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState = oldState
 
@@ -74,6 +74,13 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         override fun isValidFor(oldState: SimpleBuyState): Boolean {
             return amount.isPositive
         }
+    }
+
+    class PrefillQuickFillButtons(
+        private val quickFillButtons: List<FiatValue>,
+    ) : SimpleBuyIntent() {
+        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
+            oldState.copy(quickFillButtons = quickFillButtons)
     }
 
     object ResetLinkBankTransfer : SimpleBuyIntent() {

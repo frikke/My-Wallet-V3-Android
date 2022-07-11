@@ -9,10 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.api.ServerErrorAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.button.ButtonState
+import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.limits.TxLimit
@@ -281,8 +293,52 @@ class SimpleBuyCryptoFragment :
         }
     }
 
+    private fun loadQuickFillButtons(
+        listSuggestedAmounts: List<FiatValue>,
+        buyMaxAmount: FiatValue? = null
+    ) {
+        binding.quickFillButtons.setContent {
+            AppTheme {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    LazyRow(modifier = Modifier.weight(1f)) {
+                        items(
+                            items = listSuggestedAmounts, itemContent = { item ->
+                                SmallMinimalButton(
+                                    text = item.toStringWithSymbol(),
+                                    onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(item)) },
+                                    modifier = Modifier.padding(end = 4.dp)
+                                )
+                            }
+                        )
+                    }
+                    if (buyMaxAmount != null && buyMaxAmount.isPositive) {
+                        SmallMinimalButton(
+                            text = getString(R.string.buy_max),
+                            onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(buyMaxAmount)) },
+                            state = ButtonState.Enabled,
+                            modifier = Modifier
+                                .wrapContentSize(Alignment.Center)
+                                .padding(end = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     override fun render(newState: SimpleBuyState) {
         lastState = newState
+
+        loadQuickFillButtons(
+            listSuggestedAmounts = newState.quickFillButtons,
+            buyMaxAmount = if (newState.selectedPaymentMethod?.isFunds() == true &&
+                newState.limits.max is TxLimit.Limited
+            ) {
+                newState.limits.max.amount as? FiatValue
+            } else {
+                FiatValue.zero(fiatCurrency)
+            }
+        )
 
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)
@@ -290,7 +346,8 @@ class SimpleBuyCryptoFragment :
             return
         }
 
-        binding.recurringBuyCta.text = newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
+        binding.recurringBuyCta.text =
+            newState.recurringBuyFrequency.toHumanReadableRecurringBuy(requireContext())
 
         newState.selectedCryptoAsset?.let {
             binding.inputAmount.configuration = FiatCryptoViewConfiguration(
@@ -524,7 +581,10 @@ class SimpleBuyCryptoFragment :
                 !state.isLoading
         }
 
-    private fun renderDefinedPaymentMethod(state: SimpleBuyState, selectedPaymentMethod: PaymentMethod) {
+    private fun renderDefinedPaymentMethod(
+        state: SimpleBuyState,
+        selectedPaymentMethod: PaymentMethod
+    ) {
         renderRecurringBuy(state)
 
         with(binding) {
@@ -805,7 +865,8 @@ class SimpleBuyCryptoFragment :
             is ErrorState.UnhandledHttpError ->
                 navigator().showErrorInBottomSheet(
                     title = getString(
-                        R.string.common_http_error_with_message, errorState.nabuApiException.getErrorDescription()
+                        R.string.common_http_error_with_message,
+                        errorState.nabuApiException.getErrorDescription()
                     ),
                     description = errorState.nabuApiException.getErrorDescription(),
                     error = NABU_ERROR,
@@ -899,13 +960,13 @@ class SimpleBuyCryptoFragment :
 
     override fun onPaymentMethodChanged(paymentMethod: PaymentMethod) {
         model.process(SimpleBuyIntent.PaymentMethodChangeRequested(paymentMethod))
-        if (paymentMethod.canBeUsedForPaying())
+        if (paymentMethod.canBeUsedForPaying()) {
             analytics.logEvent(
                 BuyPaymentMethodSelected(
                     paymentMethod.toNabuAnalyticsString()
                 )
             )
-
+        }
         when (paymentMethod) {
             is PaymentMethod.UndefinedCard -> {
                 analytics.logEvent(SettingsAnalytics.LinkCardClicked(LaunchOrigin.BUY))

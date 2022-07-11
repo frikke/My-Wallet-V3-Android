@@ -71,10 +71,10 @@ data class SimpleBuyState constructor(
     val googlePayMerchantBankCountryCode: String? = null,
     val googlePayAllowPrepaidCards: Boolean? = true,
     val googlePayAllowCreditCards: Boolean? = true,
+    @Transient val quickFillButtons: List<FiatValue> = emptyList(),
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
-    @Transient
-    override val errorState: TransactionErrorState = TransactionErrorState.NONE,
+    @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
     @Transient val buyErrorState: ErrorState? = null,
     @Transient override val fiatRate: ExchangeRate? = null,
     @Transient val exchangePriceWithDelta: ExchangePriceWithDelta? = null,

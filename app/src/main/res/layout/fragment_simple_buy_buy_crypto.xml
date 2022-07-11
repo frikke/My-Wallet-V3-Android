@@ -118,10 +118,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/small_margin"
         android:text="@string/recurring_buy_one_time_cta"
-        app:layout_constraintBottom_toTopOf="@id/payment_method"
+        app:layout_constraintBottom_toTopOf="@id/quick_fill_buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_amount" />
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/quick_fill_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/small_margin"
+        android:layout_marginTop="@dimen/standard_margin"
+        app:layout_constraintBottom_toTopOf="@id/payment_method"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_cta" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/payment_method"
@@ -132,7 +142,7 @@
         android:layout_marginTop="@dimen/standard_margin"
         android:text="@string/payment_method"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recurring_buy_cta" />
+        app:layout_constraintTop_toBottomOf="@+id/quick_fill_buttons" />
 
     <View
         android:id="@+id/payment_method_separator"
@@ -214,10 +224,10 @@
             android:layout_marginEnd="@dimen/small_margin"
             app:corners="8"
             app:height_weight="0.8"
+            app:layout_constraintBottom_toTopOf="@+id/payment_method_limit"
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_title"
-            app:layout_constraintBottom_toTopOf="@+id/payment_method_limit"
             app:layout_constraintVertical_chainStyle="packed"
             app:use_gradient="true"
             app:width_weight="0.9"
@@ -233,10 +243,10 @@
             android:layout_marginEnd="@dimen/small_margin"
             app:corners="8"
             app:height_weight="0.8"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_bank_info"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             app:use_gradient="true"
             app:width_weight="0.9"
