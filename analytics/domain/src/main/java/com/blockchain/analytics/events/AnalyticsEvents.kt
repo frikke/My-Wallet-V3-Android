@@ -299,6 +299,7 @@ enum class LaunchOrigin {
     WITHDRAW,
     CURRENCY_PAGE,
     DEEPLINK,
+    NOTIFICATION,
     SAVINGS,
     FIAT_FUNDS,
     SIGN_UP,
@@ -306,7 +307,8 @@ enum class LaunchOrigin {
     SAVINGS_PAGE,
     VERIFICATION,
     FAB,
-
+    PRICES,
+    HOME,
     DCA_DETAILS_LINK,
     BUY_CONFIRMATION,
     RECURRING_BUY_DETAILS,

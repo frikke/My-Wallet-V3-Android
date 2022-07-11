@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import com.blockchain.analytics.Analytics
+import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.core.featureflag.IntegratedFeatureFlag
 import com.blockchain.deeplinking.navigation.DeeplinkRedirector
@@ -76,7 +77,8 @@ class GlobalEventHandler(
                     subject.onSuccess(
                         CoinViewActivity.newIntent(
                             context = application,
-                            asset = assetInfo
+                            asset = assetInfo,
+                            originScreen = LaunchOrigin.NOTIFICATION.name,
                         )
                     )
                 } ?: run {

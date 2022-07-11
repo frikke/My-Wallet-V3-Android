@@ -71,15 +71,24 @@ sealed class CoinViewAnalytics(
             )
         )
 
-    object CoinViewOpen : CoinViewAnalytics(
-        event = AnalyticsNames.COINVIEW_COINVIEW_OPEN.eventName
-    )
+    class CoinViewOpen(
+        override val origin: LaunchOrigin,
+        currency: String
+    ) :
+        CoinViewAnalytics(
+            event = AnalyticsNames.COINVIEW_COINVIEW_OPEN.eventName,
+            params = mapOf(
+                CURRENCY to currency
+            )
+        )
 
     class CoinViewClosed(
-        closingMethod: ClosingMethod
+        closingMethod: ClosingMethod,
+        currency: String
     ) : CoinViewAnalytics(
         event = AnalyticsNames.COINVIEW_COINVIEW_CLOSE.eventName,
         params = mapOf(
+            CURRENCY to currency,
             CLOSING_METHOD to closingMethod.name
         )
     )
@@ -234,7 +243,6 @@ sealed class CoinViewAnalytics(
         private const val TIME_INTERVAL = "time_interval"
         private const val TYPE = "type"
         private const val CLOSING_METHOD = "closing_method"
-        private const val TIER = "tier"
 
         enum class Type {
             RECEIVE, SEND, ADD, WITHDRAW, SELL, BUY

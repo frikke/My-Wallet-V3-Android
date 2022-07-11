@@ -310,7 +310,13 @@ class PortfolioFragment :
                 model.process(DashboardIntent.ResetNavigation)
             }
             is DashboardNavigationAction.Coinview -> {
-                activityResultsContract.launch(CoinViewActivity.newIntent(requireContext(), navigationAction.asset))
+                activityResultsContract.launch(
+                    CoinViewActivity.newIntent(
+                        context = requireContext(),
+                        asset = navigationAction.asset,
+                        originScreen = LaunchOrigin.HOME.name,
+                    )
+                )
                 model.process(DashboardIntent.ResetNavigation)
             }
             is DashboardNavigationAction.BackUpBeforeSend,

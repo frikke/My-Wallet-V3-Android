@@ -743,7 +743,8 @@ class MainActivity :
                     activityResultsContract.launch(
                         CoinViewActivity.newIntent(
                             context = this,
-                            asset = assetInfo
+                            asset = assetInfo,
+                            originScreen = LaunchOrigin.DEEPLINK.name,
                         )
                     )
                 } ?: run {
@@ -1289,7 +1290,8 @@ class MainActivity :
                 activityResultsContract.launch(
                     CoinViewActivity.newIntent(
                         context = this,
-                        asset = navigationEvent.assetInfo
+                        asset = navigationEvent.assetInfo,
+                        originScreen = LaunchOrigin.PRICES.name,
                     )
                 )
             }

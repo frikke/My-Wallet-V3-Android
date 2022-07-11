@@ -44,6 +44,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
+import com.blockchain.extensions.enumValueOfOrNull
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -107,6 +108,10 @@ class CoinViewActivity :
         intent.getStringExtra(ASSET_NAME).orEmpty()
     }
 
+    private val originName: LaunchOrigin? by lazy {
+        enumValueOfOrNull<LaunchOrigin>(intent.getStringExtra(ORIGIN_NAME).orEmpty())
+    }
+
     private val labels: DefaultLabels by inject()
     private val assetResources: AssetResources by inject()
     private val localSettingsPrefs: LocalSettingsPrefs by inject()
@@ -139,12 +144,22 @@ class CoinViewActivity :
         updateToolbar(toolbarTitle = assetName, backAction = {
             analytics.logEvent(
                 CoinViewAnalytics
-                    .CoinViewClosed(closingMethod = CoinViewAnalytics.Companion.ClosingMethod.BACK_BUTTON)
+                    .CoinViewClosed(
+                        closingMethod = CoinViewAnalytics.Companion.ClosingMethod.BACK_BUTTON,
+                        currency = assetTicker
+                    )
             )
             onBackPressed()
         })
+        originName?.let {
+            analytics.logEvent(
+                CoinViewAnalytics.CoinViewOpen(
+                    origin = it,
+                    currency = assetTicker,
+                )
+            )
+        }
         initUI()
-        analytics.logEvent(CoinViewAnalytics.CoinViewOpen)
     }
 
     private fun initUI() {
@@ -1095,6 +1110,7 @@ class CoinViewActivity :
         private const val INFO_VIEW = 1
         private const val ASSET_TICKER = "ASSET_TICKER"
         private const val ASSET_NAME = "ASSET_NAME"
+        private const val ORIGIN_NAME = "ORIGIN_NAME"
         private const val PATTERN_HOURS = "HH:mm"
         private const val PATTERN_DAY_HOUR = "HH:mm, EEE"
         private const val PATTERN_DAY_HOUR_MONTH = "HH:mm d, MMM"
@@ -1103,10 +1119,11 @@ class CoinViewActivity :
         const val ACCOUNT_FOR_ACTIVITY = "ACCOUNT_FOR_ACTIVITY"
         private const val VISIBLE_LINES_DESCRIPTION = 6
 
-        fun newIntent(context: Context, asset: AssetInfo): Intent =
+        fun newIntent(context: Context, asset: AssetInfo, originScreen: String): Intent =
             Intent(context, CoinViewActivity::class.java).apply {
                 putExtra(ASSET_TICKER, asset.networkTicker)
                 putExtra(ASSET_NAME, asset.name)
+                putExtra(ORIGIN_NAME, originScreen)
             }
     }
 
