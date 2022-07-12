@@ -100,17 +100,7 @@ sealed class StoreRequest {
  */
 sealed class StoreResponse<out E, out T> {
     object Loading : StoreResponse<Nothing, Nothing>()
-    data class Data<out T>(val data: T) : StoreResponse<Nothing, T>() {
-
-        // This is used internally to make StoreResponse.firstOutcome() work as expected,
-        // allowing it to ignore the first cachedData when it's stale or it's doing a force refresh
-        internal var isStale: Boolean = false
-            private set
-
-        internal constructor(data: T, isStale: Boolean) : this(data) {
-            this.isStale = isStale
-        }
-    }
+    data class Data<out T>(val data: T) : StoreResponse<Nothing, T>()
     data class Error<out E>(val error: E) : StoreResponse<E, Nothing>()
 }
 

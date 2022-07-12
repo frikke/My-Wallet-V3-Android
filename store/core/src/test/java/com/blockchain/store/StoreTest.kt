@@ -64,7 +64,9 @@ class StoreTest {
         val resultData = Item(2)
         coEvery { fetcher.fetch(KEY) } returns FetcherResult.Success(resultData)
         val cachedItem = Item(1)
-        cacheReadState.emit(CachedData(KEY, cachedItem, 1))
+        val cachedData = CachedData(KEY, cachedItem, 1)
+        cacheReadState.emit(cachedData)
+        coEvery { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedStoreRequest.Cached(KEY, true)).test {
             assertEquals(StoreResponse.Data(cachedItem), awaitItem())
@@ -86,6 +88,7 @@ class StoreTest {
         coEvery { fetcher.fetch(KEY) } returns FetcherResult.Failure(error)
         val cachedItem = Item(1)
         cacheReadState.emit(CachedData(KEY, cachedItem, 1))
+        coEvery { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedStoreRequest.Cached(KEY, true)).test {
             assertEquals(StoreResponse.Data(cachedItem), awaitItem())
@@ -111,17 +114,44 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
-            val firstItem = awaitItem()
-            assertEquals(StoreResponse.Data(cachedItem), firstItem)
-            assertTrue(firstItem is StoreResponse.Data && firstItem.isStale)
             assertEquals(StoreResponse.Loading, awaitItem())
             // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
             expectNoEvents()
 
-            cacheReadState.emit(CachedData(KEY, resultData, 2))
+            val cachedResultData = CachedData(KEY, resultData, 2)
+            coEvery { mediator.shouldFetch(cachedResultData) } returns true
+            cacheReadState.emit(cachedResultData)
             val secondItem = awaitItem()
             assertEquals(StoreResponse.Data(resultData), secondItem)
-            assertTrue(secondItem is StoreResponse.Data && !secondItem.isStale)
+            assertTrue(secondItem is StoreResponse.Data)
+            expectNoEvents()
+        }
+
+        coVerify { fetcher.fetch(KEY) }
+        coVerify { cache.write(match { it.data == resultData }) }
+        coVerify { mediator.shouldFetch(cachedData) }
+    }
+
+    @Test
+    fun `stale cached data should not be emitted`() = testScope.runTest {
+        val resultData = Item(2)
+        coEvery { fetcher.fetch(KEY) } returns FetcherResult.Success(resultData)
+        val cachedItem = Item(1)
+        val cachedData = CachedData(KEY, cachedItem, 1)
+        coEvery { mediator.shouldFetch(cachedData) } returns true
+        cacheReadState.emit(cachedData)
+
+        store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
+            assertEquals(StoreResponse.Loading, awaitItem())
+            // the store should not proactively emit after fetch success, it should rely on the cache to emit a new cached item
+            expectNoEvents()
+
+            val resultCachedData = CachedData(KEY, resultData, 2)
+            coEvery { mediator.shouldFetch(resultCachedData) } returns true
+            cacheReadState.emit(resultCachedData)
+            val secondItem = awaitItem()
+            assertEquals(StoreResponse.Data(resultData), secondItem)
+            assertTrue(secondItem is StoreResponse.Data)
             expectNoEvents()
         }
 
@@ -140,17 +170,16 @@ class StoreTest {
         cacheReadState.emit(cachedData)
 
         store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
-            val firstItem = awaitItem()
-            assertEquals(StoreResponse.Data(cachedItem), firstItem)
-            assertTrue(firstItem is StoreResponse.Data && firstItem.isStale)
             assertEquals(StoreResponse.Loading, awaitItem())
             assertEquals(StoreResponse.Error(error), awaitItem())
 
             val futureItem = Item(2)
-            cacheReadState.emit(CachedData(KEY, futureItem, 2))
+            val cachedFutureItem = CachedData(KEY, futureItem, 2)
+            coEvery { mediator.shouldFetch(cachedFutureItem) } returns true
+            cacheReadState.emit(cachedFutureItem)
             val secondItem = awaitItem()
             assertEquals(StoreResponse.Data(futureItem), secondItem)
-            assertTrue(secondItem is StoreResponse.Data && !secondItem.isStale)
+            assertTrue(secondItem is StoreResponse.Data)
             expectNoEvents()
         }
 
@@ -162,7 +191,7 @@ class StoreTest {
         val cachedItem = Item(1)
         val cachedData = CachedData(KEY, cachedItem, 1)
         cacheReadState.emit(cachedData)
-        every { mediator.shouldFetch(cachedData) } returns false
+        every { mediator.shouldFetch(any()) } returns false
 
         store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
             assertEquals(StoreResponse.Data(cachedItem), awaitItem())
@@ -175,6 +204,20 @@ class StoreTest {
 
         coVerify { fetcher.fetch(KEY) wasNot Called }
         verify { mediator.shouldFetch(cachedData) }
+    }
+
+    @Test
+    fun `cache should filter out duplicated emissions`() = testScope.runTest {
+        val cachedItem = Item(1)
+        val cachedData = CachedData(KEY, cachedItem, 1)
+        every { mediator.shouldFetch(any()) } returns false
+
+        store.stream(KeyedStoreRequest.Cached(KEY, false)).test {
+            cacheReadState.emit(cachedData)
+            assertEquals(StoreResponse.Data(cachedItem), awaitItem())
+            cacheReadState.emit(cachedData)
+            expectNoEvents()
+        }
     }
 }
 

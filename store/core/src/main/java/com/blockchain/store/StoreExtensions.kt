@@ -15,11 +15,7 @@ suspend fun <E, T> Flow<StoreResponse<E, T>>.firstOutcome(): Outcome<E, T> =
     mapNotNull {
         when (it) {
             StoreResponse.Loading -> null
-            is StoreResponse.Data -> if (it.isStale) {
-                null
-            } else {
-                Outcome.Success(it.data)
-            }
+            is StoreResponse.Data -> Outcome.Success(it.data)
             is StoreResponse.Error -> Outcome.Failure(it.error)
         }
     }.first()
