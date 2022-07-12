@@ -240,6 +240,7 @@ class SimpleBuyCryptoFragment :
 
     private fun startBuy() {
         lastState?.takeIf { canContinue(it) }?.let { state ->
+            binding.inputAmount.canEdit(false)
             model.process(SimpleBuyIntent.BuyButtonClicked)
             model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
             analytics.logEvent(
@@ -343,6 +344,7 @@ class SimpleBuyCryptoFragment :
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)
             model.process(SimpleBuyIntent.ClearError)
+            binding.inputAmount.canEdit(true)
             return
         }
 
@@ -476,6 +478,7 @@ class SimpleBuyCryptoFragment :
         } ?: errorContainer.setOnClickListener {}
 
         model.process(SimpleBuyIntent.ClearError)
+        binding.inputAmount.canEdit(true)
     }
 
     private fun handlePossibleInfoAction(

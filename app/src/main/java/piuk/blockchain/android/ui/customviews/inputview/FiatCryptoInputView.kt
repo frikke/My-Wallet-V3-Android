@@ -294,6 +294,10 @@ class FiatCryptoInputView(
         binding.exchangeAmount.text = it.toStringWithSymbol()
     }
 
+    fun canEdit(canEdit: Boolean) {
+        binding.enterAmount.isEnabled = canEdit
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         disposables.clear()
