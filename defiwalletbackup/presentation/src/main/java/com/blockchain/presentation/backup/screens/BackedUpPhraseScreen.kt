@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,17 +22,18 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.MinimalButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
+fun BackedUpPhrase(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -40,30 +41,30 @@ fun RecoveryPhrase(viewModel: BackupPhraseViewModel) {
     val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        RecoveryPhraseScreen(
-            backupStatus = state.backUpStatus,
+        BackedUpPhraseScreen(
             mnemonic = state.mnemonic,
-            backOnClick = { viewModel.onIntent(BackupPhraseIntent.GoToPreviousScreen) },
-            backUpNowOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
+            copyState = state.copyState,
+
+            mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
+            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackup) }
         )
     }
 }
 
 @Composable
-fun RecoveryPhraseScreen(
-    backupStatus: BackUpStatus,
+fun BackedUpPhraseScreen(
     mnemonic: List<String>,
-    backOnClick: () -> Unit,
-    backUpNowOnClick: () -> Unit,
+    copyState: CopyState,
+
+    mnemonicCopied: () -> Unit,
+    nextOnClick: () -> Unit
 ) {
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar(
-            title = stringResource(R.string.backup_phrase_title_secure_wallet),
-            onBackButtonClick = backOnClick
-        )
+        NavigationBar(title = stringResource(R.string.backup_phrase_title_secure_wallet), onBackButtonClick = null)
 
         Spacer(modifier = Modifier.size(dimensionResource(id = R.dimen.tiny_margin)))
 
@@ -81,17 +82,23 @@ fun RecoveryPhraseScreen(
                 gravity = ComposeGravities.Centre
             )
 
-            if (backupStatus == BackUpStatus.NO_BACKUP) {
-                Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.standard_margin)))
 
-                BackupStatus(backupStatus)
-            }
+            BackupStatus(BackUpStatus.BACKED_UP)
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
 
-            Mnemonic(mnemonic = mnemonic)
+            HidableMnemonic(mnemonic = mnemonic)
 
-            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.large_margin)))
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
+
+            CopyMnemonicCta(
+                copyState = copyState,
+                mnemonic = mnemonic,
+                mnemonicCopied = mnemonicCopied
+            )
+
+            Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
             SimpleText(
                 text = stringResource(id = R.string.recovery_phrase_description),
@@ -102,10 +109,10 @@ fun RecoveryPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            PrimaryButton(
+            MinimalButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_manual),
-                onClick = backUpNowOnClick
+                text = stringResource(id = R.string.recovery_phrase_backup_again),
+                onClick = nextOnClick
             )
         }
     }
@@ -119,24 +126,13 @@ private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Recovery Phrase - no backup", showBackground = true)
+@Preview(name = "Backed Up Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewRecoveryPhraseScreenNoBackup() {
-    RecoveryPhraseScreen(
-        backupStatus = BackUpStatus.NO_BACKUP,
+fun PreviewBackedUpPhraseScreen() {
+    BackedUpPhraseScreen(
         mnemonic = mnemonic,
-        backOnClick = {},
-        backUpNowOnClick = {}
-    )
-}
-
-@Preview(name = "Recovery Phrase - backup", showBackground = true)
-@Composable
-fun PreviewRecoveryPhraseScreenBackup() {
-    RecoveryPhraseScreen(
-        backupStatus = BackUpStatus.BACKED_UP,
-        mnemonic = mnemonic,
-        backOnClick = {},
-        backUpNowOnClick = {}
+        copyState = CopyState.Idle(resetClipboard = false),
+        mnemonicCopied = {},
+        nextOnClick = {}
     )
 }

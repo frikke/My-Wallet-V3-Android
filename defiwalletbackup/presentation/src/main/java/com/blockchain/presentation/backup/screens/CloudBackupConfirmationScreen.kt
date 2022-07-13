@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,18 +22,20 @@ import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
 import com.blockchain.componentlib.basic.SimpleText
-import com.blockchain.componentlib.button.MinimalButton
-import com.blockchain.componentlib.button.TertiaryButton
+import com.blockchain.componentlib.button.PrimaryButton
+import com.blockchain.componentlib.button.SecondaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
+import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.presentation.R
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 @Composable
-fun BackedUpPhrase(viewModel: BackupPhraseViewModel) {
+fun CloudBackupConfirmation(viewModel: BackupPhraseViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val stateFlowLifecycleAware = remember(viewModel.viewState, lifecycleOwner) {
         viewModel.viewState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
@@ -41,17 +43,25 @@ fun BackedUpPhrase(viewModel: BackupPhraseViewModel) {
     val viewState: BackupPhraseViewState? by stateFlowLifecycleAware.collectAsState(null)
 
     viewState?.let { state ->
-        BackedUpPhraseScreen(
+        CloudBackupConfirmationScreen(
             mnemonic = state.mnemonic,
-            nextOnClick = { viewModel.onIntent(BackupPhraseIntent.StartBackup) }
+            copyState = state.copyState,
+
+            mnemonicCopied = { viewModel.onIntent(BackupPhraseIntent.MnemonicCopied) },
+            doneOnClick = { viewModel.onIntent(BackupPhraseIntent.EndFlow(isSuccessful = true)) },
+            backUpManualOnClick = { viewModel.onIntent(BackupPhraseIntent.StartManualBackup) }
         )
     }
 }
 
 @Composable
-fun BackedUpPhraseScreen(
+fun CloudBackupConfirmationScreen(
     mnemonic: List<String>,
-    nextOnClick: () -> Unit
+    copyState: CopyState,
+
+    mnemonicCopied: () -> Unit,
+    doneOnClick: () -> Unit,
+    backUpManualOnClick: () -> Unit
 ) {
 
     Column(
@@ -86,10 +96,10 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            TertiaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.common_copy),
-                onClick = nextOnClick
+            CopyMnemonicCta(
+                copyState = copyState,
+                mnemonic = mnemonic,
+                mnemonicCopied = mnemonicCopied
             )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
@@ -103,10 +113,18 @@ fun BackedUpPhraseScreen(
 
             Spacer(modifier = Modifier.weight(1F))
 
-            MinimalButton(
+            PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.recovery_phrase_backup_again),
-                onClick = nextOnClick
+                text = stringResource(id = R.string.done),
+                onClick = doneOnClick
+            )
+
+            Spacer(modifier = Modifier.size(AppTheme.dimensions.paddingSmall))
+
+            SecondaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.recovery_phrase_backup_manual),
+                onClick = backUpManualOnClick
             )
         }
     }
@@ -115,16 +133,18 @@ fun BackedUpPhraseScreen(
 // ///////////////
 // PREVIEWS
 // ///////////////
-
 private val mnemonic = Locale.getISOCountries().toList().map {
     Locale("", it).isO3Country
 }.shuffled().subList(0, 12)
 
-@Preview(name = "Backed Up Phrase", backgroundColor = 0xFFFFFF, showBackground = true)
+@Preview(name = "Cloud Backup Confirmation", backgroundColor = 0xFFFFFF, showBackground = true)
 @Composable
-fun PreviewBackedUpPhraseScreen() {
-    BackedUpPhraseScreen(
+fun PreviewCloudBackupConfirmationScreen() {
+    CloudBackupConfirmationScreen(
         mnemonic = mnemonic,
-        nextOnClick = {}
+        copyState = CopyState.Idle(false),
+        mnemonicCopied = {},
+        doneOnClick = {},
+        backUpManualOnClick = {}
     )
 }

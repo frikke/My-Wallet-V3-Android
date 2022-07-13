@@ -174,7 +174,7 @@
             android:name="com.blockchain.presentation.onboarding.DeFiOnboardingActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
-            android:name="com.blockchain.presentation.BackupPhraseActivity"
+            android:name="com.blockchain.presentation.backup.BackupPhraseActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".ui.addresses.AddressesActivity"

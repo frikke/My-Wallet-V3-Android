@@ -1,4 +1,4 @@
-package com.blockchain.presentation
+package com.blockchain.presentation.backup
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -8,6 +8,7 @@ import com.blockchain.componentlib.theme.Green000
 import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Orange000
 import com.blockchain.componentlib.theme.Orange600
+import com.blockchain.presentation.R
 
 const val TOTAL_STEP_COUNT = 2
 
@@ -42,8 +43,9 @@ enum class BackUpStatus(
     )
 }
 
-enum class CopyState {
-    IDLE, COPIED
+sealed interface CopyState {
+    data class Idle(val resetClipboard: Boolean) : CopyState
+    object Copied : CopyState
 }
 
 enum class UserMnemonicVerificationStatus {

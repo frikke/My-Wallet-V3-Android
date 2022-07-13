@@ -16,6 +16,7 @@
     <string name="recovery_phrase_description" />
     <string name="recovery_phrase_backup_again" />
     <string name="recovery_phrase_backup_manual" />
+    <string name="recovery_phrase_backup_cloud" />
 
     <string name="manual_backup_title" />
     <string name="manual_backup_description" />
@@ -50,6 +51,7 @@
     <string name="defi_onboarding_complete_title" />
     <string name="defi_onboarding_complete_description" />
     <string name="common_continue" />
+
     <!--    <string name="backup_phrase_title_secure_wallet">Secure Your Wallet</string>-->
     <!--    <string name="backup_phrase_title_steps">Step %1$d of %2$d</string>-->
     <!--    <string name="back_up_status_negative">Not Backed Up</string>-->
@@ -66,6 +68,7 @@
     <!--    <string name="recovery_phrase_description">These 12 words give you access your Private Key Wallets. Please back them up to the cloud or write them down manually.</string>-->
     <!--    <string name="recovery_phrase_backup_again">Back Up Again</string>-->
     <!--    <string name="recovery_phrase_backup_manual">Back Up Manually</string>-->
+    <!--    <string name="recovery_phrase_backup_cloud">Back Up to Cloud</string>-->
 
     <!--    <string name="manual_backup_title">Manual Back Up</string>-->
     <!--    <string name="manual_backup_description">Write down your recovery phrase in the order you see below.</string>-->
@@ -79,7 +82,7 @@
     <!--    <string name="ops">Oops!</string>-->
     <!--    <string name="something_went_wrong_try_again">Something went wrong. Please try again.</string>-->
     <!--    <string name="common_ok">OK</string>-->
-    <!--    <string name="common_continue"/>-->
+    <!--    <string name="common_continue">Continue</string>-->
 
     <!--    <string name="verify_phrase_title">Verify Your Phrase</string>-->
     <!--    <string name="verify_phrase_description">Tap the words to put them in the correct order.\n</string>-->
@@ -103,6 +106,5 @@
 
     <!--    <string name="defi_onboarding_complete_title">Welcome to Your DeFi Wallet</string>-->
     <!--    <string name="defi_onboarding_complete_description">Your DeFi Wallet was successfully created. You DeFi wallet supports Bitcoin, Bitcoin Cash, Ethereum, |etc| and 1500 tokens.</string>-->
-    <!--    <string name="common_continue">Continue</string>-->
 
 </resources>

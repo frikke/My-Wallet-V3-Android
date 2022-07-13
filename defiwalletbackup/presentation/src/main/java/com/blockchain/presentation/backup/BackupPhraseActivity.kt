@@ -1,4 +1,4 @@
-package com.blockchain.presentation
+package com.blockchain.presentation.backup
 
 import android.app.Activity
 import android.content.Context
@@ -11,8 +11,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.navigation.BackupPhraseNavHost
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.navigation.BackupPhraseNavHost
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.extensions.copyToClipboard
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -46,7 +47,15 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
                 viewModel.viewState.collect { viewState ->
                     with(viewState) {
                         when {
-                            flowState is FlowState.Ended -> finish(flowState.isSuccessful)
+                            copyState is CopyState.Idle && copyState.resetClipboard -> {
+                                resetClipboard()
+                                viewModel.onIntent(BackupPhraseIntent.ClipboardReset)
+                            }
+
+                            flowState is FlowState.Ended -> {
+                                finish(flowState.isSuccessful)
+                            }
+
                             else -> {
                                 /* n/a */
                             }
@@ -57,9 +66,21 @@ class BackupPhraseActivity : BlockchainActivity(), KoinScopeComponent {
         }
     }
 
+    private fun resetClipboard() {
+        copyToClipboard(
+            label = "",
+            text = ""
+        )
+    }
+
     private fun finish(isSuccessful: Boolean) {
         setResult(if (isSuccessful) Activity.RESULT_OK else Activity.RESULT_CANCELED)
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        resetClipboard()
     }
 
     companion object {

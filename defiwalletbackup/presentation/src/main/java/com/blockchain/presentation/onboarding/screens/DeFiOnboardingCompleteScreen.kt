@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,6 +52,7 @@ fun DeFiOnboardingCompleteScreen(
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .alpha(0.8f)
                     .align(Alignment.BottomCenter),
                 imageResource = ImageResource.Local(R.drawable.ic_grid),
                 contentScale = ContentScale.FillWidth

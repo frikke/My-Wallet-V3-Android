@@ -12,8 +12,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.blockchain.commonarch.presentation.base.BlockchainActivity
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.payloadScope
-import com.blockchain.presentation.BackupPhraseActivity
 import com.blockchain.presentation.BackupPhrasePinService
+import com.blockchain.presentation.backup.BackupPhraseActivity
 import com.blockchain.presentation.onboarding.navigation.DeFiOnboardingNavHost
 import com.blockchain.presentation.onboarding.viewmodel.DeFiOnboardingViewModel
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.blockchain.presentation.viewmodel
+package com.blockchain.presentation.backup.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.blockchain.commonarch.presentation.mvi_v2.MviViewModel
@@ -6,21 +6,24 @@ import com.blockchain.defiwalletbackup.domain.service.BackupPhraseService
 import com.blockchain.extensions.exhaustive
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.doOnSuccess
-import com.blockchain.presentation.BackUpStatus
-import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseModelState
-import com.blockchain.presentation.BackupPhraseViewState
-import com.blockchain.presentation.CopyState
-import com.blockchain.presentation.FlowState
-import com.blockchain.presentation.UserMnemonicVerificationStatus
-import com.blockchain.presentation.navigation.BackupPhraseNavigationEvent
+import com.blockchain.presentation.backup.BackUpStatus
+import com.blockchain.presentation.backup.BackupOption
+import com.blockchain.presentation.backup.BackupPhraseArgs
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseModelState
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.FlowState
+import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
+import com.blockchain.presentation.backup.navigation.BackupPhraseNavigationEvent
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import piuk.blockchain.androidcore.utils.EncryptedPrefs
 
 class BackupPhraseViewModel(
     private val backupPhraseService: BackupPhraseService,
+    private val backupPrefs: EncryptedPrefs
 ) : MviViewModel<BackupPhraseIntent,
     BackupPhraseViewState,
     BackupPhraseModelState,
@@ -62,17 +65,25 @@ class BackupPhraseViewModel(
                 navigate(BackupPhraseNavigationEvent.RecoveryPhrase)
             }
 
+            BackupPhraseIntent.EnableCloudBackup -> {
+                confirmRecoveryPhraseBackup(BackupOption.CLOUD)
+            }
+
             BackupPhraseIntent.StartManualBackup -> {
                 navigate(BackupPhraseNavigationEvent.ManualBackup)
             }
 
             BackupPhraseIntent.MnemonicCopied -> {
                 resetCopyState()
-                updateState { it.copy(copyState = CopyState.COPIED) }
+                updateState { it.copy(copyState = CopyState.Copied) }
             }
 
             BackupPhraseIntent.ResetCopy -> {
-                updateState { it.copy(copyState = CopyState.IDLE) }
+                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = true)) }
+            }
+
+            BackupPhraseIntent.ClipboardReset -> {
+                updateState { it.copy(copyState = CopyState.Idle(resetClipboard = false)) }
             }
 
             BackupPhraseIntent.StartUserPhraseVerification -> {
@@ -80,7 +91,7 @@ class BackupPhraseViewModel(
             }
 
             is BackupPhraseIntent.VerifyPhrase -> {
-                verifyPhrase(intent.userMnemonic)
+                verifyPhraseAndConfirmBackup(intent.userMnemonic)
             }
 
             BackupPhraseIntent.ResetVerificationStatus -> {
@@ -126,27 +137,39 @@ class BackupPhraseViewModel(
         viewModelScope.launch {
             delay(TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES))
             onIntent(BackupPhraseIntent.ResetCopy)
-            // todo reset clipboard
         }
     }
 
-    private fun verifyPhrase(userMnemonic: List<String>) {
+    private fun verifyPhraseAndConfirmBackup(userMnemonic: List<String>) {
         if (userMnemonic != modelState.mnemonic) {
             updateState { it.copy(mnemonicVerificationStatus = UserMnemonicVerificationStatus.INCORRECT) }
         } else {
-            viewModelScope.launch {
-                updateState { it.copy(isLoading = true) }
+            confirmRecoveryPhraseBackup(BackupOption.MANUAL)
+        }
+    }
 
-                backupPhraseService.confirmRecoveryPhraseBackedUp()
-                    .doOnSuccess {
-                        updateState { it.copy(isLoading = false) }
-                        navigate(BackupPhraseNavigationEvent.BackupConfirmation)
-                    }
-                    .doOnFailure {
-                        updateState { it.copy(isLoading = false) }
-                        // todo(othman) handle api error
-                    }
-            }
+    private fun confirmRecoveryPhraseBackup(backupOption: BackupOption) {
+        viewModelScope.launch {
+            updateState { it.copy(isLoading = true) }
+
+            backupPhraseService.confirmRecoveryPhraseBackedUp()
+                .doOnSuccess {
+                    updateState { it.copy(isLoading = false) }
+
+                    when (backupOption) {
+                        BackupOption.CLOUD -> {
+                            backupPrefs.backupEnabled = true
+                            navigate(BackupPhraseNavigationEvent.CloudBackupConfirmation)
+                        }
+
+                        BackupOption.MANUAL -> {
+                            navigate(BackupPhraseNavigationEvent.BackupConfirmation)
+                        }
+                    }.exhaustive
+                }
+                .doOnFailure {
+                    updateState { it.copy(isLoading = false) }
+                }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.blockchain.presentation.navigation
+package com.blockchain.presentation.backup.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -9,15 +9,15 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.rememberNavController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.MviFragmentNavHost
 import com.blockchain.commonarch.presentation.mvi_v2.compose.composable
-import com.blockchain.presentation.BackPhraseDestination
-import com.blockchain.presentation.BackupPhraseArgs
-import com.blockchain.presentation.screens.BackedUpPhrase
-import com.blockchain.presentation.screens.BackupPhraseIntro
-import com.blockchain.presentation.screens.BackupSuccess
-import com.blockchain.presentation.screens.ManualBackup
-import com.blockchain.presentation.screens.RecoveryPhrase
-import com.blockchain.presentation.screens.VerifyPhrase
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackupPhraseArgs
+import com.blockchain.presentation.backup.screens.BackedUpPhrase
+import com.blockchain.presentation.backup.screens.BackupPhraseIntro
+import com.blockchain.presentation.backup.screens.BackupSuccess
+import com.blockchain.presentation.backup.screens.CloudBackupConfirmation
+import com.blockchain.presentation.backup.screens.ManualBackup
+import com.blockchain.presentation.backup.screens.RecoveryPhrase
+import com.blockchain.presentation.backup.screens.VerifyPhrase
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 
 @Composable
 fun BackupPhraseNavHost(
@@ -52,6 +52,9 @@ fun BackupPhraseNavHost(
         // Recovery Phrase
         recoveryPhraseDestination(viewModel)
 
+        // Cloud Backup
+        cloudBackupConfirmationDestination(viewModel)
+
         // Manual Backup
         manualBackupDestination(viewModel)
 
@@ -78,6 +81,12 @@ private fun NavGraphBuilder.backupPhraseIntroDestination(viewModel: BackupPhrase
 private fun NavGraphBuilder.recoveryPhraseDestination(viewModel: BackupPhraseViewModel) {
     composable(navigationEvent = BackPhraseDestination.RecoveryPhrase) {
         RecoveryPhrase(viewModel)
+    }
+}
+
+private fun NavGraphBuilder.cloudBackupConfirmationDestination(viewModel: BackupPhraseViewModel) {
+    composable(navigationEvent = BackPhraseDestination.CloudBackupConfirmation) {
+        CloudBackupConfirmation(viewModel)
     }
 }
 

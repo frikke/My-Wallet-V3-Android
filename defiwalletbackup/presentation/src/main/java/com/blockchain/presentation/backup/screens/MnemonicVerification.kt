@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,7 +32,7 @@ import com.blockchain.componentlib.theme.Grey900
 import com.blockchain.componentlib.theme.Red600
 import com.blockchain.extensions.exhaustive
 import com.blockchain.presentation.R
-import com.blockchain.presentation.UserMnemonicVerificationStatus
+import com.blockchain.presentation.backup.UserMnemonicVerificationStatus
 import com.google.accompanist.flowlayout.FlowMainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 import java.util.Locale

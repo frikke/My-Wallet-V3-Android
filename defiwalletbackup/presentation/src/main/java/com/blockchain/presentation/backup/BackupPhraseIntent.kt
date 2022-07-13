@@ -1,4 +1,4 @@
-package com.blockchain.presentation
+package com.blockchain.presentation.backup
 
 import com.blockchain.commonarch.presentation.mvi_v2.Intent
 
@@ -11,11 +11,13 @@ sealed interface BackupPhraseIntent : Intent<BackupPhraseModelState> {
     object StartBackupProcess : BackupPhraseIntent
 
     // recover phrase
+    object EnableCloudBackup : BackupPhraseIntent
     object StartManualBackup : BackupPhraseIntent
 
     // manual backup
     object MnemonicCopied : BackupPhraseIntent
     object ResetCopy : BackupPhraseIntent
+    object ClipboardReset : BackupPhraseIntent
     object StartUserPhraseVerification : BackupPhraseIntent
 
     // verify phrase

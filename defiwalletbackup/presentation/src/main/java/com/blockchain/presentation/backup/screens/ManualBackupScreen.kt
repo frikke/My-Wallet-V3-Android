@@ -1,48 +1,36 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.blockchain.componentlib.basic.ComposeColors
 import com.blockchain.componentlib.basic.ComposeGravities
 import com.blockchain.componentlib.basic.ComposeTypographies
-import com.blockchain.componentlib.basic.Image
-import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.basic.SimpleText
 import com.blockchain.componentlib.button.PrimaryButton
-import com.blockchain.componentlib.button.TertiaryButton
 import com.blockchain.componentlib.navigation.NavigationBar
-import com.blockchain.componentlib.theme.AppTheme
-import com.blockchain.componentlib.theme.Green600
-import com.blockchain.presentation.BackupPhraseIntent
-import com.blockchain.presentation.BackupPhraseViewState
-import com.blockchain.presentation.CopyState
 import com.blockchain.presentation.R
-import com.blockchain.presentation.TOTAL_STEP_COUNT
-import com.blockchain.presentation.extensions.copyToClipboard
-import com.blockchain.presentation.viewmodel.BackupPhraseViewModel
+import com.blockchain.presentation.backup.BackupPhraseIntent
+import com.blockchain.presentation.backup.BackupPhraseViewState
+import com.blockchain.presentation.backup.CopyState
+import com.blockchain.presentation.backup.TOTAL_STEP_COUNT
+import com.blockchain.presentation.backup.viewmodel.BackupPhraseViewModel
 import java.util.Locale
 
 private const val STEP_INDEX = 1
@@ -76,14 +64,6 @@ fun ManualBackupScreen(
     mnemonicCopied: () -> Unit,
     nextOnClick: () -> Unit
 ) {
-    var copyMnemonic by remember { mutableStateOf(false) }
-
-    if (copyMnemonic) {
-        CopyMnemonic(mnemonic.joinToString(separator = " "))
-        mnemonicCopied()
-        copyMnemonic = false
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -124,19 +104,11 @@ fun ManualBackupScreen(
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
-            when (copyState) {
-                CopyState.IDLE -> {
-                    TertiaryButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(id = R.string.common_copy),
-                        onClick = { copyMnemonic = true }
-                    )
-                }
-
-                CopyState.COPIED -> {
-                    MnemonicCopied()
-                }
-            }
+            CopyMnemonicCta(
+                copyState = copyState,
+                mnemonic = mnemonic,
+                mnemonicCopied = mnemonicCopied
+            )
 
             Spacer(modifier = Modifier.size(dimensionResource(R.dimen.small_margin)))
 
@@ -158,35 +130,6 @@ fun ManualBackupScreen(
     }
 }
 
-@Composable
-fun MnemonicCopied() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.very_small_margin)),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Image(imageResource = ImageResource.Local(R.drawable.ic_check))
-
-        Spacer(modifier = Modifier.size(dimensionResource(R.dimen.tiny_margin)))
-
-        Text(
-            text = stringResource(R.string.manual_backup_copied),
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.body2,
-            color = Green600
-        )
-    }
-}
-
-@Composable
-fun CopyMnemonic(mnemonic: String) {
-    LocalContext.current.copyToClipboard(
-        label = stringResource(id = R.string.manual_backup_title),
-        text = mnemonic
-    )
-}
-
 // ///////////////
 // PREVIEWS
 // ///////////////
@@ -200,7 +143,7 @@ private val mnemonic = Locale.getISOCountries().toList().map {
 fun PreviewManualBackupScreenCopy() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.IDLE,
+        copyState = CopyState.Idle(false),
 
         backOnClick = {},
         mnemonicCopied = {},
@@ -213,7 +156,7 @@ fun PreviewManualBackupScreenCopy() {
 fun PreviewManualBackupScreenCopied() {
     ManualBackupScreen(
         mnemonic = mnemonic,
-        copyState = CopyState.COPIED,
+        copyState = CopyState.Copied,
 
         backOnClick = {},
         mnemonicCopied = {},

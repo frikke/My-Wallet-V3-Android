@@ -1,9 +1,8 @@
-package com.blockchain.presentation.navigation
+package com.blockchain.presentation.backup.navigation
 
 import androidx.navigation.NavHostController
 import com.blockchain.commonarch.presentation.mvi_v2.compose.ComposeNavigationRouter
 import com.blockchain.extensions.exhaustive
-import com.blockchain.presentation.BackPhraseDestination
 
 class BackupPhraseNavigationRouter(
     override val navController: NavHostController,
@@ -26,6 +25,14 @@ class BackupPhraseNavigationRouter(
 
             BackupPhraseNavigationEvent.RecoveryPhrase -> {
                 navController.navigate(BackPhraseDestination.RecoveryPhrase.route)
+            }
+
+            BackupPhraseNavigationEvent.CloudBackupConfirmation -> {
+                navController.navigate(BackPhraseDestination.CloudBackupConfirmation.route) {
+                    popUpTo(BackPhraseDestination.BackupPhraseIntro.route) {
+                        inclusive = true
+                    }
+                }
             }
 
             BackupPhraseNavigationEvent.ManualBackup -> {

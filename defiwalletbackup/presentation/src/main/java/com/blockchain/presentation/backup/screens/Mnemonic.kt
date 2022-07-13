@@ -1,4 +1,4 @@
-package com.blockchain.presentation.screens
+package com.blockchain.presentation.backup.screens
 
 import android.view.MotionEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
