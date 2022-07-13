@@ -71,7 +71,7 @@ data class SimpleBuyState constructor(
     val googlePayMerchantBankCountryCode: String? = null,
     val googlePayAllowPrepaidCards: Boolean? = true,
     val googlePayAllowCreditCards: Boolean? = true,
-    @Transient val quickFillButtons: List<FiatValue> = emptyList(),
+    @Transient val quickFillButtonData: QuickFillButtonData? = null,
     @Transient val safeConnectTosLink: String? = null,
     @Transient val paymentOptions: PaymentOptions = PaymentOptions(),
     @Transient override val errorState: TransactionErrorState = TransactionErrorState.NONE,
@@ -336,3 +336,8 @@ data class SelectedPaymentMethod(
         concreteId() != null ||
             (paymentMethodType == PaymentMethodType.FUNDS && id == PaymentMethod.FUNDS_PAYMENT_ID)
 }
+
+data class QuickFillButtonData(
+    val quickFillButtons: List<FiatValue>,
+    val buyMaxAmount: FiatValue
+)

@@ -71,6 +71,13 @@ class CryptoCurrencyFormatterTest {
     }
 
     @Test
+    fun `formatWithUnit BTC no decimals`() {
+        120000000L.satoshi().formatWithUnit(locale, includeDecimals = false) `should be equal to` "1 BTC"
+        123456778L.satoshi().formatWithUnit(locale, includeDecimals = false) `should be equal to` "1 BTC"
+        100000000L.satoshi().formatWithUnit(locale, includeDecimals = false) `should be equal to` "1 BTC"
+    }
+
+    @Test
     fun `formatWithUnit 0 BCH`() {
         0.bitcoinCash().formatWithUnit(locale) `should be equal to` "0 BCH"
     }

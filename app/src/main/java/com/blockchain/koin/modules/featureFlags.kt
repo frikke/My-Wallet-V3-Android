@@ -19,6 +19,7 @@ import com.blockchain.koin.metadataMigrationFeatureFlag
 import com.blockchain.koin.notificationPreferencesFeatureFlag
 import com.blockchain.koin.orderRewardsFeatureFlag
 import com.blockchain.koin.plaidFeatureFlag
+import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.referralsFeatureFlag
 import com.blockchain.koin.sendToDomainsAnnouncementFeatureFlag
 import com.blockchain.koin.speedUpLoginErc20FeatureFlag
@@ -257,6 +258,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_buy_refresh_quote",
                 "Buy Quote refreshing on checkout screen"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(quickFillButtonsFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_quick_fill_buttons",
+                "Display Quick Fill buttons in Buy"
             )
         )
     }.bind(FeatureFlag::class)

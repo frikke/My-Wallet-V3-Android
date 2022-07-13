@@ -18,7 +18,10 @@ data class CryptoValue(
 
     override val symbol = currency.displayTicker
 
-    override fun toStringWithSymbol() = formatWithUnit(Locale.getDefault())
+    override fun toStringWithSymbol(includeDecimals: Boolean) = formatWithUnit(
+        locale = Locale.getDefault(),
+        includeDecimals = includeDecimals
+    )
 
     override fun toStringWithoutSymbol() = format(Locale.getDefault())
 

@@ -20,7 +20,7 @@ class UnknownValue private constructor(
         throw IllegalStateException("Cannot Zero unknown value")
     }
 
-    override fun toStringWithSymbol(): String = "--"
+    override fun toStringWithSymbol(includeDecimals: Boolean): String = "--"
 
     override fun toStringWithoutSymbol(): String = "--"
 

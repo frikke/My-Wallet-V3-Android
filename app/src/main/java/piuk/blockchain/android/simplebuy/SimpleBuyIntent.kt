@@ -76,11 +76,11 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    class PrefillQuickFillButtons(
-        private val quickFillButtons: List<FiatValue>,
+    class PopulateQuickFillButtons(
+        private val quickFillButtonData: QuickFillButtonData
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(quickFillButtons = quickFillButtons)
+            oldState.copy(quickFillButtonData = quickFillButtonData)
     }
 
     object ResetLinkBankTransfer : SimpleBuyIntent() {

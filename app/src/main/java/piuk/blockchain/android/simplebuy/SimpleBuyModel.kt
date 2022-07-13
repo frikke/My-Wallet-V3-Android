@@ -42,8 +42,6 @@ import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.preferences.CurrencyPrefs
-import com.blockchain.preferences.OnboardingPrefs
-import com.blockchain.preferences.SimpleBuyPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -55,24 +53,20 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import java.math.BigDecimal
-import kotlin.math.floor
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.android.cards.CardAcquirerCredentials
 import piuk.blockchain.android.cards.partners.CardActivator
 import piuk.blockchain.android.domain.usecases.GetEligibilityAndNextPaymentDateUseCase
 import piuk.blockchain.android.domain.usecases.LinkAccess
-import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
 import piuk.blockchain.android.rating.domain.service.AppRatingService
 import piuk.blockchain.android.ui.linkbank.domain.openbanking.usecase.GetSafeConnectTosLinkUseCase
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionErrorState
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 import retrofit2.HttpException
+import timber.log.Timber
 
 class SimpleBuyModel(
     prefs: CurrencyPrefs,
-    private val simpleBuyPrefs: SimpleBuyPrefs,
-    private val onboardingPrefs: OnboardingPrefs,
     private val buyOrdersCache: BuyOrdersCache,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
@@ -227,7 +221,7 @@ class SimpleBuyModel(
                     previousSelectedId = previousState.selectedPaymentMethod?.id
                 )
             is SimpleBuyIntent.FetchSuggestedPaymentMethod -> {
-                val lastPaymentMethodId = simpleBuyPrefs.getLastPaymentMethodId()
+                val lastPaymentMethodId = interactor.getLastPaymentMethodId()
 
                 processGetPaymentMethod(
                     fiatCurrency = intent.fiatCurrency,
@@ -382,15 +376,23 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
-            is SimpleBuyIntent.GetAmountToPrefill -> {
-                val buttonsAmounts = getPrefillAmountRounded(
+            is SimpleBuyIntent.GetAmountToPrefill ->
+                interactor.getPrefillAndBuyMaxAmounts(
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
-                    maxAmount = intent.maxAmount
+                    maxAmount = intent.maxAmount,
+                    previousState = previousState
+                ).subscribeBy(
+                    onSuccess = { (_, quickFillData) ->
+                        quickFillData?.let {
+                            process(SimpleBuyIntent.PopulateQuickFillButtons(it))
+                        }
+                    },
+                    onError = {
+                        // do nothing - fail silently
+                        Timber.e("Simplebuy: Getting prefill and quickfill data failed - ${it.message}")
+                    }
                 )
-                process(SimpleBuyIntent.PrefillQuickFillButtons(buttonsAmounts))
-                null
-            }
             is SimpleBuyIntent.GooglePayInfoRequested -> requestGooglePayInfo(
                 previousState.fiatCurrency
             ).subscribeBy(
@@ -427,7 +429,7 @@ class SimpleBuyModel(
             }
 
             SimpleBuyIntent.CheckForOrderCompletedSideEvents -> {
-                if (simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS) {
+                if (interactor.shouldShowAppRating()) {
                     rxSingle { appRatingService.shouldShowRating() }.subscribe { showRating ->
                         if (showRating) process(SimpleBuyIntent.ShowAppRating)
                     }
@@ -982,11 +984,7 @@ class SimpleBuyModel(
     }
 
     private fun updatePersistingCountersForCompletedOrders(pair: String, amount: String, paymentMethodId: String) {
-        simpleBuyPrefs.setLastAmountBought(pair, amount)
-        simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId)
-        simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
-        simpleBuyPrefs.buysCompletedCount += 1
-        onboardingPrefs.isLandingCtaDismissed = true
+        interactor.updateCountersForCompletedOrders(pair, amount, paymentMethodId)
     }
 
     private fun pollForOrderStatus() {
@@ -1072,51 +1070,6 @@ class SimpleBuyModel(
             }
         )
     }
-
-    private fun getPrefillAmountRounded(
-        assetCode: String,
-        fiatCurrency: FiatCurrency,
-        maxAmount: Money,
-    ): List<FiatValue> {
-
-        val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-$fiatCurrency")
-        val listOfAmounts = mutableListOf<FiatValue>()
-
-        if (amountString.isNotEmpty()) {
-            val prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
-
-            val prefilledToLowestButton = roundToNearest(prefilledAmount.toFloat(), ROUND_TO_NEAREST_10)
-            if (checkIfUnderLimit(prefilledToLowestButton, maxAmount)) {
-                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLowestButton)))
-            } else {
-                return listOfAmounts
-            }
-
-            val prefilledToMediumButton = roundToNearest(2 * prefilledAmount.toFloat(), ROUND_TO_NEAREST_50)
-            if (checkIfUnderLimit(prefilledToMediumButton, maxAmount)) {
-                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToMediumButton)))
-            } else {
-                return listOfAmounts
-            }
-
-            val prefilledToLargestButton = roundToNearest(2 * prefilledToMediumButton.toFloat(), ROUND_TO_NEAREST_100)
-            if (checkIfUnderLimit(prefilledToLargestButton, maxAmount)) {
-                listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLargestButton)))
-            } else {
-                return listOfAmounts
-            }
-            return listOfAmounts
-        } else {
-            return listOfAmounts
-        }
-    }
-
-    private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
-        return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
-    }
-
-    private fun checkIfUnderLimit(fiatAmountToButton: Int, maxAmount: Money): Boolean =
-        fiatAmountToButton <= maxAmount.toFloat()
 
     private fun requestGooglePayInfo(
         currency: FiatCurrency?,
@@ -1216,12 +1169,6 @@ class SimpleBuyModel(
         val availablePaymentMethods = (availableForBuyLinkedMethods + canBeLinkedMethods)
 
         return availablePaymentMethods.sortedBy { paymentMethod -> paymentMethod.order }.toList()
-    }
-
-    companion object {
-        private const val ROUND_TO_NEAREST_10 = 10
-        private const val ROUND_TO_NEAREST_50 = 50
-        private const val ROUND_TO_NEAREST_100 = 100
     }
 }
 

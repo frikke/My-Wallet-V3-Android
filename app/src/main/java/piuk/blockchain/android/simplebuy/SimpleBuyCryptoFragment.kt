@@ -17,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
@@ -295,32 +295,38 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun loadQuickFillButtons(
-        listSuggestedAmounts: List<FiatValue>,
-        buyMaxAmount: FiatValue? = null
+        quickFillButtonData: QuickFillButtonData
     ) {
-        binding.quickFillButtons.setContent {
-            AppTheme {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    LazyRow(modifier = Modifier.weight(1f)) {
-                        items(
-                            items = listSuggestedAmounts, itemContent = { item ->
-                                SmallMinimalButton(
-                                    text = item.toStringWithSymbol(),
-                                    onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(item)) },
-                                    modifier = Modifier.padding(end = 4.dp)
-                                )
-                            }
-                        )
-                    }
-                    if (buyMaxAmount != null && buyMaxAmount.isPositive) {
-                        SmallMinimalButton(
-                            text = getString(R.string.buy_max),
-                            onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(buyMaxAmount)) },
-                            state = ButtonState.Enabled,
-                            modifier = Modifier
-                                .wrapContentSize(Alignment.Center)
-                                .padding(end = 16.dp)
-                        )
+        with(binding.quickFillButtons) {
+            visible()
+            setContent {
+                AppTheme {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        LazyRow(modifier = Modifier.weight(1f)) {
+                            items(
+                                items = quickFillButtonData.quickFillButtons,
+                                itemContent = { item ->
+                                    SmallMinimalButton(
+                                        text = item.toStringWithSymbol(includeDecimals = false),
+                                        onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(item)) },
+                                        modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
+                                    )
+                                }
+                            )
+                        }
+                        if (quickFillButtonData.buyMaxAmount.isPositive) {
+                            SmallMinimalButton(
+                                text = getString(R.string.buy_max),
+                                onClick = {
+                                    model.process(
+                                        SimpleBuyIntent.PrefillEnterAmount(quickFillButtonData.buyMaxAmount)
+                                    )
+                                },
+                                state = ButtonState.Enabled,
+                                modifier = Modifier
+                                    .wrapContentSize(Alignment.Center)
+                            )
+                        }
                     }
                 }
             }
@@ -330,16 +336,9 @@ class SimpleBuyCryptoFragment :
     override fun render(newState: SimpleBuyState) {
         lastState = newState
 
-        loadQuickFillButtons(
-            listSuggestedAmounts = newState.quickFillButtons,
-            buyMaxAmount = if (newState.selectedPaymentMethod?.isFunds() == true &&
-                newState.limits.max is TxLimit.Limited
-            ) {
-                newState.limits.max.amount as? FiatValue
-            } else {
-                FiatValue.zero(fiatCurrency)
-            }
-        )
+        newState.quickFillButtonData?.let { data ->
+            loadQuickFillButtons(data)
+        }
 
         if (newState.buyErrorState != null) {
             showErrorState(newState.buyErrorState)

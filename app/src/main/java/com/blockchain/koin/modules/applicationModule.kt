@@ -35,6 +35,7 @@ import com.blockchain.koin.intercomChatFeatureFlag
 import com.blockchain.koin.kotlinJsonAssetTicker
 import com.blockchain.koin.payloadScope
 import com.blockchain.koin.payloadScopeQualifier
+import com.blockchain.koin.quickFillButtonsFeatureFlag
 import com.blockchain.koin.usd
 import com.blockchain.lifecycle.LifecycleInterestedComponent
 import com.blockchain.lifecycle.LifecycleObservable
@@ -484,6 +485,9 @@ val applicationModule = module {
                 cardService = get(),
                 paymentMethodService = get(),
                 paymentsRepository = get(),
+                quickFillButtonsFeatureFlag = get(quickFillButtonsFeatureFlag),
+                simpleBuyPrefs = get(),
+                onboardingPrefs = get(),
                 cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag)
             )
         }
@@ -493,10 +497,8 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
-                onboardingPrefs = get(),
                 prefs = get(),
                 buyOrdersCache = get(),
-                simpleBuyPrefs = get(),
                 serializer = get(),
                 cardActivator = get(),
                 _activityIndicator = lazy { get<AppUtil>().activityIndicator },

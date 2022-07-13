@@ -53,16 +53,22 @@ import com.blockchain.payments.core.CardDetails
 import com.blockchain.payments.core.CardProcessor
 import com.blockchain.payments.core.PaymentToken
 import com.blockchain.preferences.BankLinkingPrefs
+import com.blockchain.preferences.OnboardingPrefs
+import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.serializers.StringMapSerializer
 import info.blockchain.balance.AssetCategory
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.FiatCurrency
+import info.blockchain.balance.FiatValue
+import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Singles
 import io.reactivex.rxjava3.kotlin.zipWith
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
+import kotlin.math.floor
 import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.json.Json
 import piuk.blockchain.android.cards.CardData
@@ -70,6 +76,7 @@ import piuk.blockchain.android.cards.CardIntent
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 import piuk.blockchain.android.domain.usecases.CancelOrderUseCase
 import piuk.blockchain.android.domain.usecases.GetAvailablePaymentMethodsTypesUseCase
+import piuk.blockchain.android.rating.domain.model.APP_RATING_MINIMUM_BUY_ORDERS
 import piuk.blockchain.android.sdd.SDDAnalytics
 import piuk.blockchain.android.ui.linkbank.BankAuthDeepLinkState
 import piuk.blockchain.android.ui.linkbank.BankAuthFlowState
@@ -98,6 +105,9 @@ class SimpleBuyInteractor(
     private val cardService: CardService,
     private val paymentMethodService: PaymentMethodService,
     private val paymentsRepository: PaymentsRepository,
+    private val quickFillButtonsFeatureFlag: FeatureFlag,
+    private val simpleBuyPrefs: SimpleBuyPrefs,
+    private val onboardingPrefs: OnboardingPrefs,
     private val cardRejectionCheckFF: FeatureFlag
 ) {
 
@@ -494,6 +504,12 @@ class SimpleBuyInteractor(
             CardStatus.ACTIVE
         )
 
+    fun getLastPaymentMethodId() =
+        simpleBuyPrefs.getLastPaymentMethodId()
+
+    fun shouldShowAppRating() =
+        simpleBuyPrefs.buysCompletedCount >= APP_RATING_MINIMUM_BUY_ORDERS
+
     fun checkNewCardRejectionRate(binNumber: String): Single<CardRejectionState> =
         cardRejectionCheckFF.enabled.flatMap { enabled ->
             if (enabled) {
@@ -528,12 +544,92 @@ class SimpleBuyInteractor(
             state = state
         )
 
+    fun updateCountersForCompletedOrders(pair: String, amount: String, paymentMethodId: String) {
+        simpleBuyPrefs.setLastAmountBought(pair, amount)
+        simpleBuyPrefs.setLastPaymentMethodId(paymentMethodId)
+        simpleBuyPrefs.hasCompletedAtLeastOneBuy = true
+        simpleBuyPrefs.buysCompletedCount += 1
+        onboardingPrefs.isLandingCtaDismissed = true
+    }
+
+    fun getPrefillAndBuyMaxAmounts(
+        previousState: SimpleBuyState,
+        assetCode: String,
+        fiatCurrency: FiatCurrency,
+        maxAmount: FiatValue
+    ): Single<Pair<Boolean, QuickFillButtonData?>> =
+        quickFillButtonsFeatureFlag.enabled.map { enabled ->
+            val quickFillButtonData = if (enabled) {
+                val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-$fiatCurrency")
+                val listOfAmounts = mutableListOf<FiatValue>()
+
+                val buyMaxAmount = if (previousState.limits.max is TxLimit.Limited) {
+                    previousState.limits.max.amount as FiatValue
+                } else {
+                    FiatValue.zero(fiatCurrency)
+                }
+
+                if (amountString.isNotEmpty()) {
+                    val prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+
+                    val prefilledToLowestButton = roundToNearest(
+                        prefilledAmount.toFloat(),
+                        ROUND_TO_NEAREST_10
+                    )
+                    if (checkIfUnderLimit(prefilledToLowestButton, maxAmount)) {
+                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLowestButton)))
+                    } else {
+                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                    }
+
+                    val prefilledToMediumButton = roundToNearest(
+                        2 * prefilledAmount.toFloat(),
+                        ROUND_TO_NEAREST_50
+                    )
+                    if (checkIfUnderLimit(prefilledToMediumButton, maxAmount)) {
+                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToMediumButton)))
+                    } else {
+                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                    }
+
+                    val prefilledToLargestButton = roundToNearest(
+                        2 * prefilledToMediumButton.toFloat(),
+                        ROUND_TO_NEAREST_100
+                    )
+                    if (checkIfUnderLimit(prefilledToLargestButton, maxAmount)) {
+                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLargestButton)))
+                    } else {
+                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                    }
+                    QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                } else {
+                    QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                }
+            } else {
+                null
+            }
+
+            // returning null directly from a Single throws an Exception, so wrap in a Pair for now
+            return@map Pair(enabled, quickFillButtonData)
+        }
+
+    private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
+        return nearest * (floor(lastAmount.toDouble() / nearest) + 1).toInt()
+    }
+
+    private fun checkIfUnderLimit(fiatAmountToButton: Int, maxAmount: Money): Boolean =
+        fiatAmountToButton <= maxAmount.toFloat()
+
     companion object {
+        const val PENDING = "pending"
+
         private const val INTERVAL: Long = 5
         private const val RETRIES_SHORT = 6
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
-        const val PENDING = "pending"
-        private const val QUOTE_SECONDS = 1L
+
+        private const val ROUND_TO_NEAREST_10 = 10
+        private const val ROUND_TO_NEAREST_50 = 50
+        private const val ROUND_TO_NEAREST_100 = 100
     }
 }

@@ -31,7 +31,7 @@ abstract class Money : Serializable {
     abstract fun toZero(): Money
 
     // Format for display
-    abstract fun toStringWithSymbol(): String
+    abstract fun toStringWithSymbol(includeDecimals: Boolean = true): String
     abstract fun toStringWithoutSymbol(): String
 
     // Format for network transmission
