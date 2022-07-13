@@ -14,7 +14,7 @@ data class TransactionHistoryResponse(
 data class TransactionResponse(
     val txId: String,
     val status: Status?,
-    val timestamp: Long,
+    val timestamp: Long?,
     val fee: String,
     val movements: List<TransactionMovement>
 )

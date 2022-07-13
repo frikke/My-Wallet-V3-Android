@@ -1,7 +1,9 @@
 package info.blockchain.wallet.dynamicselfcustody
 
 import info.blockchain.wallet.bip44.HDAddress
+import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.data.Derivation
+import info.blockchain.wallet.util.PrivateKeyFactory
 import org.bitcoinj.core.NetworkParameters
 import org.bitcoinj.crypto.ChildNumber
 import org.bitcoinj.crypto.DeterministicKey
@@ -29,4 +31,9 @@ class DynamicHDAccount(
 
     val bitcoinSerializedBase58Address: String
         get() = address.formattedAddress
+
+    val signingKey: SigningKey = PrivateKeyFactory().getSigningKey(
+        PrivateKeyFactory.WIF_COMPRESSED,
+        address.privateKeyString
+    )
 }

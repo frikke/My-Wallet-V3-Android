@@ -530,7 +530,8 @@ val coreModule = module {
             NonCustodialRepository(
                 dynamicSelfCustodyService = get(),
                 payloadDataManager = get(),
-                currencyPrefs = get()
+                currencyPrefs = get(),
+                assetCatalogue = get()
             )
         }
     }

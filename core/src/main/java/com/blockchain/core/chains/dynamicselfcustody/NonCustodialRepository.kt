@@ -1,6 +1,9 @@
 package com.blockchain.core.chains.dynamicselfcustody
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.selfcustody.BuildTxResponse
+import com.blockchain.api.selfcustody.PushTxResponse
+import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.Status
 import com.blockchain.api.selfcustody.TransactionDirection
 import com.blockchain.api.selfcustody.TransactionResponse
@@ -8,6 +11,9 @@ import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.map
 import com.blockchain.preferences.CurrencyPrefs
+import info.blockchain.balance.AssetCatalogue
+import info.blockchain.balance.AssetInfo
+import kotlinx.serialization.json.JsonObject
 import org.bitcoinj.core.Sha256Hash
 import org.spongycastle.util.encoders.Hex
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
@@ -15,7 +21,8 @@ import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 internal class NonCustodialRepository(
     private val dynamicSelfCustodyService: DynamicSelfCustodyService,
     private val payloadDataManager: PayloadDataManager,
-    private val currencyPrefs: CurrencyPrefs
+    private val currencyPrefs: CurrencyPrefs,
+    private val assetCatalogue: AssetCatalogue
 ) : NonCustodialService {
 
     override suspend fun authenticate(): Outcome<ApiError, Boolean> =
@@ -103,6 +110,53 @@ internal class NonCustodialRepository(
                 historyItem.toHistoryEvent()
             }
         }
+
+    override suspend fun buildTransaction(
+        currency: String,
+        accountIndex: Int,
+        type: String,
+        transactionTarget: String,
+        amount: String,
+        fee: String,
+        memo: String,
+        feeCurrency: String
+    ): Outcome<ApiError, BuildTxResponse> =
+        dynamicSelfCustodyService.buildTransaction(
+            getHashedString(payloadDataManager.guid),
+            getHashedString(payloadDataManager.sharedKey),
+            currency,
+            accountIndex,
+            type,
+            transactionTarget,
+            amount,
+            fee,
+            memo
+        )
+
+    override fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo =
+        asset.l1chainTicker?.let { ticker ->
+            (assetCatalogue.fromNetworkTicker(ticker) as? AssetInfo) ?: asset
+        } ?: asset
+
+    override suspend fun pushTransaction(
+        currency: String,
+        rawTx: JsonObject,
+        signatures: List<TransactionSignature>
+    ): Outcome<ApiError, PushTxResponse> =
+        dynamicSelfCustodyService.pushTransaction(
+            guidHash = getHashedString(payloadDataManager.guid),
+            sharedKeyHash = getHashedString(payloadDataManager.sharedKey),
+            currency = currency,
+            rawTx = rawTx,
+            signatures = signatures.map {
+                Signature(
+                    preImage = it.preImage,
+                    signingKey = it.signingKey,
+                    signatureAlgorithm = it.signatureAlgorithm,
+                    signature = it.signature
+                )
+            }
+        )
 
     private fun getHashedString(input: String): String = String(Hex.encode(Sha256Hash.hash(input.toByteArray())))
 }

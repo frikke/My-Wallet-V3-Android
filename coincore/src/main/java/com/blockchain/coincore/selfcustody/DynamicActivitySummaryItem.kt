@@ -11,6 +11,7 @@ import info.blockchain.balance.Money
 import info.blockchain.wallet.multiaddress.TransactionSummary
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
+import java.util.Date
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class DynamicActivitySummaryItem(
@@ -29,7 +30,12 @@ class DynamicActivitySummaryItem(
         }
     }
 
-    override val timeStampMs: Long = event.timestamp * 1000
+    // Use current time when the transaction is pending, the timestamp is zero or null
+    override val timeStampMs: Long = if (event.status == Status.PENDING || event.timestamp == 0L) {
+        Date().time
+    } else {
+        event.timestamp?.let { timestamp -> timestamp * 1000 } ?: Date().time
+    }
 
     override val value: CryptoValue = CryptoValue.fromMinor(asset, event.value)
 

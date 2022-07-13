@@ -237,7 +237,8 @@ internal class DynamicAssetLoader(
                 addressValidation = defaultCustodialAddressValidation,
                 addressResolver = identityAddressResolver,
                 selfCustodyService = selfCustodyService,
-                stxForAllFeatureFlag = stxForAllFeatureFlag
+                stxForAllFeatureFlag = stxForAllFeatureFlag,
+                walletPreferences = walletPreferences
             )
         } else {
             DynamicSelfCustodyAsset(

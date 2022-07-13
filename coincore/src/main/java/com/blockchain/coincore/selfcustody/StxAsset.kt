@@ -6,6 +6,7 @@ import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.AssetInfo
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -21,7 +22,8 @@ internal class StxAsset(
     private val addressResolver: IdentityAddressResolver,
     private val addressValidation: String? = null,
     private val selfCustodyService: NonCustodialService,
-    private val stxForAllFeatureFlag: FeatureFlag
+    private val stxForAllFeatureFlag: FeatureFlag,
+    private val walletPreferences: WalletStatusPrefs
 ) : CryptoAssetBase() {
 
     override fun loadNonCustodialAccounts(labels: DefaultLabels): Single<SingleAccountList> =
@@ -36,7 +38,8 @@ internal class StxAsset(
                             addressResolver,
                             selfCustodyService,
                             exchangeRates,
-                            labels.getDefaultNonCustodialWalletLabel()
+                            labels.getDefaultNonCustodialWalletLabel(),
+                            walletPreferences
                         )
                     )
                     else -> emptyList()

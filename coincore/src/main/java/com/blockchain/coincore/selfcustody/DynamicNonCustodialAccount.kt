@@ -14,10 +14,12 @@ import com.blockchain.outcome.flatMap
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.outcome.map
+import com.blockchain.preferences.WalletStatusPrefs
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Money
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
 import info.blockchain.wallet.dynamicselfcustody.DynamicHDAccount
+import info.blockchain.wallet.keys.SigningKey
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -30,13 +32,14 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class DynamicNonCustodialAccount(
-    payloadManager: PayloadDataManager,
+    val payloadManager: PayloadDataManager,
     assetInfo: AssetInfo,
     coinConfiguration: CoinConfiguration,
     override val addressResolver: AddressResolver,
     private val nonCustodialService: NonCustodialService,
     override val exchangeRates: ExchangeRatesDataManager,
-    override val label: String
+    override val label: String,
+    private val walletPreferences: WalletStatusPrefs
 ) : CryptoNonCustodialAccount(assetInfo) {
 
     private val internalAccount: DynamicHDAccount = payloadManager.getDynamicHdAccount(coinConfiguration)
@@ -128,7 +131,12 @@ class DynamicNonCustodialAccount(
     }
 
     override fun createTxEngine(target: TransactionTarget, action: AssetAction): TxEngine =
-        DynamicOnChanTxEngine()
+        DynamicOnChanTxEngine(
+            nonCustodialService = nonCustodialService,
+            walletPreferences = walletPreferences,
+            requireSecondPassword = false,
+            resolvedAddress = addressResolver.getReceiveAddress(currency, target, action)
+        )
 
     override fun updateLabel(newLabel: String): Completable {
         return Completable.complete()
@@ -144,4 +152,8 @@ class DynamicNonCustodialAccount(
         get() = internalAccount.bitcoinSerializedBase58Address
 
     override val hasStaticAddress: Boolean = false
+
+    fun getSigningKey(): SigningKey {
+        return internalAccount.signingKey
+    }
 }

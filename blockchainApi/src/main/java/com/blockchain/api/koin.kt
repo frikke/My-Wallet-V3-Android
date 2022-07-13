@@ -64,6 +64,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 
 val blockchainApi = StringQualifier("blockchain-api")
+val walletPubkeyApi = StringQualifier("wallet-pubkey-api")
 val explorerApi = StringQualifier("explorer-api")
 val nabuApi = StringQualifier("nabu-api")
 val assetsApi = StringQualifier("assets-api")
@@ -80,6 +81,15 @@ val blockchainApiModule = module {
             .baseUrl(getBaseUrl("blockchain-api"))
             .client(get())
             .addCallAdapterFactory(get<RxJava3CallAdapterFactory>())
+            .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
+            .addConverterFactory(get())
+            .build()
+    }
+
+    single(walletPubkeyApi) {
+        Retrofit.Builder()
+            .baseUrl(getBaseUrl("wallet-pubkey-api"))
+            .client(get())
             .addCallAdapterFactory(get<OutcomeCallAdapterFactory>())
             .addConverterFactory(get())
             .build()
@@ -150,7 +160,7 @@ val blockchainApiModule = module {
     }
 
     factory {
-        val api = get<Retrofit>(blockchainApi).create(SelfCustodyApi::class.java)
+        val api = get<Retrofit>(walletPubkeyApi).create(SelfCustodyApi::class.java)
         DynamicSelfCustodyService(
             api
         )

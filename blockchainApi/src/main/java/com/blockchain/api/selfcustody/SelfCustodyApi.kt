@@ -7,26 +7,32 @@ import retrofit2.http.POST
 
 interface SelfCustodyApi {
 
-    @POST("/wallet-pubkey/auth")
+    @POST("auth")
     suspend fun authenticate(@Body request: AuthRequest): Outcome<ApiError, CommonResponse>
 
-    @POST("/wallet-pubkey/subscribe")
+    @POST("subscribe")
     suspend fun subscribe(@Body request: AddSubscriptionRequest): Outcome<ApiError, CommonResponse>
 
-    @POST("/wallet-pubkey/unsubscribe")
+    @POST("unsubscribe")
     suspend fun unsubscribe(@Body request: RemoveSubscriptionRequest): Outcome<ApiError, CommonResponse>
 
-    @POST("/wallet-pubkey/subscriptions")
+    @POST("subscriptions")
     suspend fun getSubscriptions(@Body request: GetSubscriptionsRequest): Outcome<ApiError, GetSubscriptionsResponse>
 
-    @POST("/wallet-pubkey/balance")
+    @POST("balance")
     suspend fun getBalances(@Body request: BalancesRequest): Outcome<ApiError, BalancesResponse>
 
-    @POST("/wallet-pubkey/addresses")
+    @POST("addresses")
     suspend fun getAddresses(@Body request: AddressesRequest): Outcome<ApiError, AddressesResponse>
 
-    @POST("/wallet-pubkey/tx-history")
+    @POST("tx-history")
     suspend fun getTransactionHistory(
         @Body request: TransactionHistoryRequest
     ): Outcome<ApiError, TransactionHistoryResponse>
+
+    @POST("buildTx")
+    suspend fun buildTransaction(@Body request: BuildTxRequest): Outcome<ApiError, BuildTxResponse>
+
+    @POST("pushTx")
+    suspend fun pushTransaction(@Body request: PushTxRequest): Outcome<ApiError, PushTxResponse>
 }

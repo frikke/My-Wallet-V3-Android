@@ -1,7 +1,11 @@
 package com.blockchain.core.chains.dynamicselfcustody
 
 import com.blockchain.api.adapters.ApiError
+import com.blockchain.api.selfcustody.BuildTxResponse
+import com.blockchain.api.selfcustody.PushTxResponse
 import com.blockchain.outcome.Outcome
+import info.blockchain.balance.AssetInfo
+import kotlinx.serialization.json.JsonObject
 
 interface NonCustodialService {
 
@@ -21,4 +25,23 @@ interface NonCustodialService {
         currency: String,
         contractAddress: String?
     ): Outcome<ApiError, List<NonCustodialTxHistoryItem>>
+
+    suspend fun buildTransaction(
+        currency: String,
+        accountIndex: Int = 0,
+        type: String,
+        transactionTarget: String,
+        amount: String,
+        fee: String,
+        memo: String = "",
+        feeCurrency: String = currency
+    ): Outcome<ApiError, BuildTxResponse>
+
+    fun getFeeCurrencyFor(asset: AssetInfo): AssetInfo
+
+    suspend fun pushTransaction(
+        currency: String,
+        rawTx: JsonObject,
+        signatures: List<TransactionSignature>
+    ): Outcome<ApiError, PushTxResponse>
 }

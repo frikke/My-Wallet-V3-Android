@@ -6,14 +6,19 @@ import com.blockchain.api.selfcustody.AddressesRequest
 import com.blockchain.api.selfcustody.AuthInfo
 import com.blockchain.api.selfcustody.AuthRequest
 import com.blockchain.api.selfcustody.BalancesRequest
+import com.blockchain.api.selfcustody.BuildTxRequest
 import com.blockchain.api.selfcustody.CurrencyAddressInfo
 import com.blockchain.api.selfcustody.CurrencyInfo
+import com.blockchain.api.selfcustody.ExtraData
 import com.blockchain.api.selfcustody.GetSubscriptionsRequest
 import com.blockchain.api.selfcustody.PubKeyInfo
+import com.blockchain.api.selfcustody.PushTxRequest
 import com.blockchain.api.selfcustody.RemoveSubscriptionRequest
 import com.blockchain.api.selfcustody.SelfCustodyApi
+import com.blockchain.api.selfcustody.Signature
 import com.blockchain.api.selfcustody.SubscriptionInfo
 import com.blockchain.api.selfcustody.TransactionHistoryRequest
+import kotlinx.serialization.json.JsonObject
 
 class DynamicSelfCustodyService(
     private val selfCustodyApi: SelfCustodyApi
@@ -112,4 +117,54 @@ class DynamicSelfCustodyService(
             contractAddress = contractAddress
         )
     )
+
+    suspend fun buildTransaction(
+        guidHash: String,
+        sharedKeyHash: String,
+        currency: String,
+        accountIndex: Int = 0,
+        type: String,
+        transactionTarget: String,
+        amount: String,
+        fee: String,
+        memo: String = "",
+        feeCurrency: String = currency
+    ) = selfCustodyApi.buildTransaction(
+        request = BuildTxRequest(
+            auth = AuthInfo(
+                guidHash = guidHash,
+                sharedKeyHash = sharedKeyHash
+            ),
+            currency = currency,
+            accountIndex = accountIndex,
+            type = type,
+            destination = transactionTarget,
+            amount = amount,
+            fee = fee,
+            extraData = ExtraData(
+                memo = memo,
+                feeCurrency = feeCurrency,
+            ),
+            maxVerificationVersion = null
+        )
+    )
+
+    suspend fun pushTransaction(
+        guidHash: String,
+        sharedKeyHash: String,
+        currency: String,
+        rawTx: JsonObject,
+        signatures: List<Signature>
+    ) =
+        selfCustodyApi.pushTransaction(
+            request = PushTxRequest(
+                auth = AuthInfo(
+                    guidHash = guidHash,
+                    sharedKeyHash = sharedKeyHash
+                ),
+                currency = currency,
+                rawTx = rawTx,
+                signatures = signatures
+            )
+        )
 }
