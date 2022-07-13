@@ -18,7 +18,7 @@ interface ReferralApi {
         @Header("authorization") authorization: String,
         @Query("platform") platform: String,
         @Query("currency") currency: String
-    ): Outcome<ApiError, ReferralResponse>
+    ): Outcome<ApiError, ReferralResponse?>
 
     @GET("referral/{code}")
     suspend fun validateReferralCode(

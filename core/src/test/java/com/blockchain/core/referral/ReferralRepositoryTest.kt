@@ -80,12 +80,8 @@ class ReferralRepositoryTest {
 
     @Test
     fun `should fetch referral info not available`() = runBlocking {
-        val apiError: ApiError.KnownError = mock {
-            on { statusCode } doReturn NabuErrorStatusCodes.Forbidden
-        }
-
         whenever(referralApiService.getReferralCode(AUTH, FIAT))
-            .doReturn(Outcome.Failure(apiError))
+            .doReturn(Outcome.Success(null))
 
         val result = referralRepository.fetchReferralData()
 

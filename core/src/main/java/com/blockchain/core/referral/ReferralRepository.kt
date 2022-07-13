@@ -32,24 +32,22 @@ class ReferralRepository(
                     )
                         .fold(
                             onSuccess = { response ->
-                                Outcome.Success(
-                                    ReferralInfo.Data(
-                                        rewardTitle = response.rewardTitle,
-                                        rewardSubtitle = response.rewardSubtitle,
-                                        criteria = response.criteria,
-                                        code = response.code,
-                                        campaignId = response.campaignId
+                                if (response != null) {
+                                    Outcome.Success(
+                                        ReferralInfo.Data(
+                                            rewardTitle = response.rewardTitle,
+                                            rewardSubtitle = response.rewardSubtitle,
+                                            criteria = response.criteria,
+                                            code = response.code,
+                                            campaignId = response.campaignId
+                                        )
                                     )
-                                )
+                                } else {
+                                    Outcome.Success(ReferralInfo.NotAvailable)
+                                }
                             },
                             onFailure = { apiError ->
-                                if (apiError is ApiError.KnownError &&
-                                    apiError.statusCode == NabuErrorStatusCodes.Forbidden
-                                ) {
-                                    Outcome.Success(ReferralInfo.NotAvailable)
-                                } else {
-                                    Outcome.Failure(apiError.throwable)
-                                }
+                                Outcome.Failure(apiError.throwable)
                             }
                         )
                 }
