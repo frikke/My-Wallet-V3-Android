@@ -7,7 +7,6 @@ import com.blockchain.componentlib.theme.AppShapes
 import com.blockchain.componentlib.theme.AppThemeProvider
 import com.blockchain.componentlib.theme.AppTypography
 import com.blockchain.componentlib.theme.DefaultAppTheme
-import com.blockchain.componentlib.theme.Purple0000
 import com.blockchain.componentlib.theme.SemanticColors
 import com.blockchain.componentlib.theme.Theme
 import com.blockchain.componentlib.theme.defDarkColors
@@ -33,7 +32,7 @@ object DefiWalletTheme : Theme() {
     override val lightColors: SemanticColors
         @Composable
         @ReadOnlyComposable
-        get() = defLightColors.copy(primary = Purple0000)
+        get() = defLightColors
 
     override val darkColors: SemanticColors
         @Composable

@@ -733,6 +733,7 @@ class MainActivity :
             this.hasMiddleButton = hasMiddleButton
         }
         if (binding.bottomNavigation.selectedNavigationItem != currentTab) {
+            binding.bottomNavigation.selectedNavigationItem = currentTab
             currentTab.launch()
         }
     }
@@ -953,7 +954,6 @@ class MainActivity :
 
     private fun updateSelectedNavigationItem(navigationItem: NavigationItem) {
         model.process(MainIntent.UpdateCurrentTab(navigationItem))
-        binding.bottomNavigation.selectedNavigationItem = navigationItem
     }
 
     override fun exitSimpleBuyFlow() {
