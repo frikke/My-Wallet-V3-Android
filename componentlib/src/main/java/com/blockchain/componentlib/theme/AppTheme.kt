@@ -102,7 +102,6 @@ object DefiWalletTheme : Theme() {
         get() = LocalShapes.current
 }
 
-
 object AppTheme : Theme() {
     override val lightColors: SemanticColors
         @Composable
