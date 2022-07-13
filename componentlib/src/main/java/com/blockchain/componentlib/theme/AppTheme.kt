@@ -75,33 +75,6 @@ object DefaultAppTheme : Theme() {
         get() = LocalShapes.current
 }
 
-object DefiWalletTheme : Theme() {
-    override val lightColors: SemanticColors
-        @Composable
-        @ReadOnlyComposable
-        get() = defLightColors
-
-    override val darkColors: SemanticColors
-        @Composable
-        @ReadOnlyComposable
-        get() = defDarkColors
-
-    override val typography: AppTypography
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTypography.current
-
-    override val dimensions: AppDimensions
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalDimensions.current
-
-    override val shapes: AppShapes
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalShapes.current
-}
-
 object AppTheme : Theme() {
     override val lightColors: SemanticColors
         @Composable
