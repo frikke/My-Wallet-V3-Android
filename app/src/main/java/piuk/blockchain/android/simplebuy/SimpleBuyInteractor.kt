@@ -552,65 +552,51 @@ class SimpleBuyInteractor(
         onboardingPrefs.isLandingCtaDismissed = true
     }
 
-    fun getPrefillAndBuyMaxAmounts(
-        previousState: SimpleBuyState,
+    fun getPrefillAndQuickFillAmounts(
+        buyMaxAmount: FiatValue,
         assetCode: String,
-        fiatCurrency: FiatCurrency,
-        maxAmount: FiatValue
-    ): Single<Pair<Boolean, QuickFillButtonData?>> =
+        fiatCurrency: FiatCurrency
+    ): Single<Pair<FiatValue, QuickFillButtonData?>> =
         quickFillButtonsFeatureFlag.enabled.map { enabled ->
+            var prefilledAmount = FiatValue.zero(fiatCurrency)
+
             val quickFillButtonData = if (enabled) {
-                val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-$fiatCurrency")
+                val amountString = simpleBuyPrefs.getLastAmountBought("$assetCode-${fiatCurrency.networkTicker}")
+                    .ifEmpty {
+                        DEFAULT_MIN_PREFILL_AMOUNT
+                    }
                 val listOfAmounts = mutableListOf<FiatValue>()
 
-                val buyMaxAmount = if (previousState.limits.max is TxLimit.Limited) {
-                    previousState.limits.max.amount as FiatValue
-                } else {
-                    FiatValue.zero(fiatCurrency)
+                prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
+
+                val lowestPrefillAmount = (2 * prefilledAmount.toFloat()).toInt()
+
+                if (checkIfUnderLimit(lowestPrefillAmount, buyMaxAmount)) {
+                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(lowestPrefillAmount)))
                 }
 
-                if (amountString.isNotEmpty()) {
-                    val prefilledAmount = FiatValue.fromMajor(fiatCurrency, BigDecimal(amountString))
-
-                    val prefilledToLowestButton = roundToNearest(
-                        prefilledAmount.toFloat(),
-                        ROUND_TO_NEAREST_10
-                    )
-                    if (checkIfUnderLimit(prefilledToLowestButton, maxAmount)) {
-                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLowestButton)))
-                    } else {
-                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
-                    }
-
-                    val prefilledToMediumButton = roundToNearest(
-                        2 * prefilledAmount.toFloat(),
-                        ROUND_TO_NEAREST_50
-                    )
-                    if (checkIfUnderLimit(prefilledToMediumButton, maxAmount)) {
-                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToMediumButton)))
-                    } else {
-                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
-                    }
-
-                    val prefilledToLargestButton = roundToNearest(
-                        2 * prefilledToMediumButton.toFloat(),
-                        ROUND_TO_NEAREST_100
-                    )
-                    if (checkIfUnderLimit(prefilledToLargestButton, maxAmount)) {
-                        listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(prefilledToLargestButton)))
-                    } else {
-                        QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
-                    }
-                    QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
-                } else {
-                    QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
+                val mediumPrefillAmount = roundToNearest(
+                    2 * lowestPrefillAmount.toFloat(),
+                    ROUND_TO_NEAREST_50
+                )
+                if (checkIfUnderLimit(mediumPrefillAmount, buyMaxAmount)) {
+                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(mediumPrefillAmount)))
                 }
+
+                val largestPrefillAmount = roundToNearest(
+                    2 * mediumPrefillAmount.toFloat(),
+                    ROUND_TO_NEAREST_100
+                )
+                if (checkIfUnderLimit(largestPrefillAmount, buyMaxAmount)) {
+                    listOfAmounts.add(FiatValue.fromMajor(fiatCurrency, BigDecimal(largestPrefillAmount)))
+                }
+
+                QuickFillButtonData(buyMaxAmount = buyMaxAmount, quickFillButtons = listOfAmounts)
             } else {
                 null
             }
 
-            // returning null directly from a Single throws an Exception, so wrap in a Pair for now
-            return@map Pair(enabled, quickFillButtonData)
+            return@map Pair(prefilledAmount, quickFillButtonData)
         }
 
     private fun roundToNearest(lastAmount: Float, nearest: Int): Int {
@@ -628,8 +614,8 @@ class SimpleBuyInteractor(
         private const val RETRIES_DEFAULT = 12
         private const val EMPTY_PAYMENT_TOKEN: PaymentToken = ""
 
-        private const val ROUND_TO_NEAREST_10 = 10
         private const val ROUND_TO_NEAREST_50 = 50
         private const val ROUND_TO_NEAREST_100 = 100
+        private const val DEFAULT_MIN_PREFILL_AMOUNT = "50"
     }
 }

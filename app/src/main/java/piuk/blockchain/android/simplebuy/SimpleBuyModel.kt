@@ -376,17 +376,21 @@ class SimpleBuyModel(
                     processOrderErrors(it)
                 }
             )
-            is SimpleBuyIntent.GetAmountToPrefill ->
-                interactor.getPrefillAndBuyMaxAmounts(
+            is SimpleBuyIntent.GetPrefillAndQuickFillAmounts ->
+                interactor.getPrefillAndQuickFillAmounts(
+                    buyMaxAmount = if (previousState.limits.max is TxLimit.Limited) {
+                        previousState.limits.max.amount as FiatValue
+                    } else {
+                        FiatValue.zero(intent.fiatCurrency)
+                    },
                     assetCode = intent.assetCode,
                     fiatCurrency = intent.fiatCurrency,
-                    maxAmount = intent.maxAmount,
-                    previousState = previousState
                 ).subscribeBy(
-                    onSuccess = { (_, quickFillData) ->
+                    onSuccess = { (amountToPrepopulate, quickFillData) ->
                         quickFillData?.let {
                             process(SimpleBuyIntent.PopulateQuickFillButtons(it))
                         }
+                        process(SimpleBuyIntent.PrefillEnterAmount(amountToPrepopulate))
                     },
                     onError = {
                         // do nothing - fail silently
@@ -548,7 +552,7 @@ class SimpleBuyModel(
                         )
                     }
                     process(
-                        SimpleBuyIntent.GetAmountToPrefill(
+                        SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
                             assetCode = asset.networkTicker,
                             fiatCurrency = fiatCurrency,
                             maxAmount = if (limits.max is TxLimit.Limited) {
@@ -593,7 +597,7 @@ class SimpleBuyModel(
                 }
 
                 process(
-                    SimpleBuyIntent.GetAmountToPrefill(
+                    SimpleBuyIntent.GetPrefillAndQuickFillAmounts(
                         assetCode = state.selectedCryptoAsset.networkTicker,
                         fiatCurrency = state.fiatCurrency,
                         maxAmount = if (limits.max is TxLimit.Limited) {

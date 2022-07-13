@@ -53,7 +53,7 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
             oldState.copy(amount = amount)
     }
 
-    class GetAmountToPrefill(
+    class GetPrefillAndQuickFillAmounts(
         val assetCode: String,
         val fiatCurrency: FiatCurrency,
         val maxAmount: FiatValue,
