@@ -167,7 +167,7 @@ interface PaymentMethodsApi {
         @Query("currency") currency: String
     ): Single<GooglePayResponse>
 
-    @GET("//TODO")
+    @GET("payments/cards/success-rate")
     suspend fun checkNewCardRejectionState(
         @Header("authorization") authorization: String,
         @Query("bin") binNumber: String

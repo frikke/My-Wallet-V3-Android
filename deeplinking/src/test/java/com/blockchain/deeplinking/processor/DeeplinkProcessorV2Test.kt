@@ -118,10 +118,10 @@ class DeeplinkProcessorV2Test {
 
     @Test
     fun `test parse of customer support deeplink URI`() {
-        val assetCustomerSupportTestURL = Uri.parse(
+        val customerSupportTestURL = Uri.parse(
             "https://www.login.blockchain.com/app/contact/customer/support"
         )
-        val test = deeplinkProcessorV2Subject.process(assetCustomerSupportTestURL).test()
+        val test = deeplinkProcessorV2Subject.process(customerSupportTestURL).test()
         test.assertValue { deeplinkResult ->
             deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
                 deeplinkResult.destination is Destination.CustomerSupportDestination
@@ -130,13 +130,28 @@ class DeeplinkProcessorV2Test {
 
     @Test
     fun `test parse of referral code deeplink URI`() {
-        val assetCustomerSupportTestURL = Uri.parse(
+        val referralCodeUri = Uri.parse(
             "https://www.login.blockchain.com/app/referral"
         )
-        val test = deeplinkProcessorV2Subject.process(assetCustomerSupportTestURL).test()
+        val test = deeplinkProcessorV2Subject.process(referralCodeUri).test()
         test.assertValue { deeplinkResult ->
             deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
                 deeplinkResult.destination is Destination.ReferralDestination
+        }
+    }
+
+    @Test
+    fun `test parse of external link deeplink URI`() {
+        val expectedUrl = "https://www.google.com"
+        val externalLinkUri = Uri.parse(
+            "https://www.login.blockchain.com/app/external/link?url=$expectedUrl"
+        )
+
+        val test = deeplinkProcessorV2Subject.process(externalLinkUri).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.ExternalLinkDestination &&
+                (deeplinkResult.destination as Destination.ExternalLinkDestination).url == expectedUrl
         }
     }
 }

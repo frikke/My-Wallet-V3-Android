@@ -46,4 +46,9 @@ sealed class Destination : Parcelable {
 
     @Parcelize
     object ReferralDestination : Destination()
+
+    @Parcelize
+    class ExternalLinkDestination(
+        val url: String
+    ) : Destination()
 }

@@ -119,6 +119,7 @@ import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
 import piuk.blockchain.android.ui.upsell.KycUpgradePromptManager
 import piuk.blockchain.android.util.AndroidUtils
 import piuk.blockchain.android.util.getAccount
+import piuk.blockchain.android.util.openUrl
 import timber.log.Timber
 
 class MainActivity :
@@ -836,6 +837,9 @@ class MainActivity :
             }
             Destination.ReferralDestination -> {
                 model.process(MainIntent.ShowReferralWhenAvailable)
+            }
+            is Destination.ExternalLinkDestination -> {
+                openUrl(destination.url)
             }
         }.exhaustive
 

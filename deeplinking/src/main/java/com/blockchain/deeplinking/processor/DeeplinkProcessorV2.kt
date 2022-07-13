@@ -144,6 +144,21 @@ class DeeplinkProcessorV2 {
                 val destination = Destination.ReferralDestination
                 Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
             }
+            EXTERNAL_LINK_URL -> {
+                val url = getUrl(deeplinkUri)
+
+                if (!url.isNullOrEmpty()) {
+                    val destination = Destination.ExternalLinkDestination(url)
+                    Single.just(
+                        DeepLinkResult.DeepLinkResultSuccess(
+                            destination = destination,
+                            notificationPayload = payload
+                        )
+                    )
+                } else {
+                    Single.just(DeepLinkResult.DeepLinkResultFailed)
+                }
+            }
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
     }
@@ -165,11 +180,13 @@ class DeeplinkProcessorV2 {
         const val KYC_URL = "$APP_URL/kyc"
         const val ACTIVITY_URL = "$APP_URL/activity"
         const val REFERRAL_URL = "$APP_URL/referral"
+        const val EXTERNAL_LINK_URL = "$APP_URL/external/link"
 
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"
         const val PARAMETER_ADDRESS = "address"
         const val PARAMETER_FILTER = "filter"
+        const val PARAMETER_URL = "url"
     }
 
     private fun getAssetNetworkTicker(deeplinkUri: Uri): String? =
@@ -183,6 +200,9 @@ class DeeplinkProcessorV2 {
 
     private fun getFilter(deeplinkUri: Uri): String? =
         deeplinkUri.getQueryParameter(PARAMETER_FILTER)
+
+    private fun getUrl(deeplinkUri: Uri): String? =
+        deeplinkUri.getQueryParameter(PARAMETER_URL)
 }
 
 sealed class DeepLinkResult {
