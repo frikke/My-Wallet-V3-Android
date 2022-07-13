@@ -118,7 +118,7 @@ outros aplicativos podem ver essas informações.</string>
 atividade maliciosa. Verifique sua conexão de rede e dispositivo antes de continuar.</string>
     <string name="profile_label_name">Nome</string>
     <string name="content_desc_edit_account_label">Editar etiqueta de conta</string>
-    <string name="next">Próximo</string>
+    <string name="common_next">Próximo</string>
     <string name="received_ethereum">Ether recebido</string>
     <string name="received_usd_pax_1">USD Digital recebido</string>
     <string name="received_bitcoin_cash">Bitcoin Cash recebido</string>
@@ -1823,7 +1823,7 @@ Seus %1$s estarão disponíveis em sua conta \"%2$s\" dentro de 2 dias.</string>
     <string name="instantly_available">Disponível instantaneamente</string>
     <string name="send_again">Enviar novamente</string>
     <string name="login_email_hint">E-mail</string>
-    <string name="learn_more">Saiba mais</string>
+    <string name="common_learn_more">Saiba mais</string>
     <string name="activity_details_buy_deposited_to">Depositado em</string>
     <string name="kyc_enter_address">Digite seu endereço residencial atual.</string>
     <string name="kyc_enter_address_manually">Digite manualmente -&gt;</string>

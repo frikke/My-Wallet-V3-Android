@@ -4,6 +4,7 @@ import com.blockchain.android.testutils.rxInit
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
@@ -422,6 +423,84 @@ class CardModelTest {
             it == defaultState
         }.assertValueAt(1) {
             it.linkedCards == expectedCards
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns always rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.AlwaysRejected(
+            title = "title",
+            description = "description",
+            actions = emptyList()
+        )
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns sometimes rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.MaybeRejected(
+            title = "title",
+            actions = emptyList()
+        )
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state returns not rejected then state is updated`() {
+        val binNumber = "1234"
+        val expectedResult = CardRejectionState.NotRejected
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.just(expectedResult)
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState == expectedResult
+        }
+    }
+
+    @Test
+    fun `when card rejection state errors then state shows not rejected`() {
+        val binNumber = "1234"
+        whenever(interactor.checkNewCardRejectionRate(binNumber)).thenReturn(
+            Single.error(Exception())
+        )
+
+        val test = model.state.test()
+        model.process(CardIntent.CheckProviderFailureRate(binNumber))
+
+        test.assertValueAt(0) {
+            it == defaultState
+        }.assertValueAt(1) {
+            it.cardRejectionState is CardRejectionState.NotRejected
         }
     }
 }

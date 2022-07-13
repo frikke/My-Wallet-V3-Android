@@ -2,6 +2,7 @@ package piuk.blockchain.android.cards
 
 import com.blockchain.commonarch.presentation.mvi.MviState
 import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
@@ -9,6 +10,7 @@ import com.braintreepayments.cardform.utils.CardType
 import info.blockchain.balance.FiatCurrency
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import piuk.blockchain.android.R
 
 @Serializable
@@ -20,11 +22,10 @@ data class CardState(
     val addCard: Boolean = false,
     val linkedCards: List<@Contextual LinkedPaymentMethod.Card>? = null,
     @Transient
-    @kotlinx.serialization.Transient
     val authoriseCard: CardAcquirerCredentials? = null,
     @Transient
-    @kotlinx.serialization.Transient
-    val cardRequestStatus: CardRequestStatus? = null
+    val cardRequestStatus: CardRequestStatus? = null,
+    val cardRejectionState: @Contextual CardRejectionState? = null
 ) : MviState
 
 @Serializable

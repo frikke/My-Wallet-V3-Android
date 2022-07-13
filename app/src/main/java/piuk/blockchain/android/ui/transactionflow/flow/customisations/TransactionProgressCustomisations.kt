@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.transactionflow.flow.customisations
 
 import androidx.annotation.DrawableRes
-import com.blockchain.api.ServerErrorAction
+import com.blockchain.domain.common.model.ServerErrorAction
 import piuk.blockchain.android.ui.transactionflow.engine.TransactionState
 
 interface TransactionProgressCustomisations {

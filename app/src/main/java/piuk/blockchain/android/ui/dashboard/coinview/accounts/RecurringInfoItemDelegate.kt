@@ -38,7 +38,7 @@ private class RecurringBuyInfoCardViewHolder(
         binding.rbInfoCard.apply {
             isDismissable = false
             callToActionButton = CardButton(
-                context.getString(R.string.learn_more),
+                context.getString(R.string.common_learn_more),
                 type = ButtonType.Minimal
             ) { onCardClicked() }
             title = context.getString(R.string.coinview_rb_card_title)

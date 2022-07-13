@@ -123,7 +123,7 @@
     </string>
     <string name="profile_label_name">имя</string>
     <string name="content_desc_edit_account_label">Изменить ярлык учетной записи</string>
-    <string name="next">Далее</string>
+    <string name="common_next">Далее</string>
     <string name="received_ethereum">Получено %1$s</string>
     <string name="received_usd_pax_1">Полученные USD Digital</string>
     <string name="received_bitcoin_cash">Полученные Bitcoin Cash</string>
@@ -1851,7 +1851,7 @@ YapilyConnect поделится этими данными с вашим бан�
     <string name="instantly_available">Доступно мгновенно</string>
     <string name="send_again">Отправить еще раз</string>
     <string name="login_email_hint">Электронная почта</string>
-    <string name="learn_more">Подробнее</string>
+    <string name="common_learn_more">Подробнее</string>
     <string name="activity_details_buy_deposited_to">На хранение</string>
     <string name="kyc_enter_address">Введите свой текущий домашний адрес.</string>
     <string name="kyc_enter_address_manually">Ввести вручную - &gt;</string>

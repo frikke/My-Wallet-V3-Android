@@ -11,9 +11,9 @@
         android:id="@+id/card_scroll_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/standard_margin"
         android:fadingEdge="vertical"
         android:fadingEdgeLength="@dimen/very_small_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
         android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@id/lock_icon"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,6 +51,7 @@
                 android:layout_marginStart="@dimen/standard_margin"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="@dimen/standard_margin"
+                app:errorEnabled="false"
                 android:hint="@string/card_number">
 
                 <piuk.blockchain.android.cards.views.CardNumberEditText
@@ -60,6 +61,24 @@
                     android:paddingStart="@dimen/small_margin"
                     android:paddingEnd="@dimen/small_margin" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.blockchain.componentlib.basic.SimpleTextView
+                android:id="@+id/card_input_alert"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/tiny_margin"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <com.blockchain.componentlib.basic.SimpleTextView
+                android:id="@+id/card_input_alert_info"
+                android:layout_marginStart="@dimen/standard_margin"
+                android:layout_marginEnd="@dimen/standard_margin"
+                android:layout_marginTop="@dimen/smallest_margin"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,8 +145,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginBottom="@dimen/standard_margin"
         app:layout_constraintBottom_toTopOf="@id/same_card_error"
         app:layout_constraintEnd_toStartOf="@id/security_text"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -162,14 +181,21 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
 
-    <Button
+    <com.blockchain.componentlib.button.PrimaryButtonView
         android:id="@+id/btn_next"
-        style="@style/CtaButton.Blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        android:text="@string/next"
+        android:layout_margin="@dimen/standard_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.blockchain.componentlib.button.AlertButtonView
+        android:id="@+id/btn_alert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/standard_margin"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

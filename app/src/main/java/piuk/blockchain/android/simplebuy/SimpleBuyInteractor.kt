@@ -17,6 +17,7 @@ import com.blockchain.domain.paymentmethods.PaymentMethodService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
@@ -24,6 +25,7 @@ import com.blockchain.domain.paymentmethods.model.LegacyLimits
 import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
@@ -44,6 +46,7 @@ import com.blockchain.network.PollResult
 import com.blockchain.network.PollService
 import com.blockchain.outcome.doOnFailure
 import com.blockchain.outcome.getOrDefault
+import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
 import com.blockchain.payments.core.CardBillingAddress
 import com.blockchain.payments.core.CardDetails
@@ -95,6 +98,7 @@ class SimpleBuyInteractor(
     private val cardService: CardService,
     private val paymentMethodService: PaymentMethodService,
     private val paymentsRepository: PaymentsRepository,
+    private val cardRejectionCheckFF: FeatureFlag
 ) {
 
     // Hack until we have a proper limits api.
@@ -283,7 +287,6 @@ class SimpleBuyInteractor(
     }.start(timerInSec = INTERVAL, retries = RETRIES_DEFAULT)
 
     fun checkTierLevel(): Single<SimpleBuyIntent.KycStateUpdated> {
-
         return tierService.tiers().flatMap {
             when {
                 it.isApprovedFor(KycTierLevel.GOLD) -> eligibilityProvider.isEligibleForSimpleBuy(
@@ -490,6 +493,16 @@ class SimpleBuyInteractor(
             CardStatus.PENDING,
             CardStatus.ACTIVE
         )
+
+    fun checkNewCardRejectionRate(binNumber: String): Single<CardRejectionState> =
+        cardRejectionCheckFF.enabled.flatMap { enabled ->
+            if (enabled) {
+                rxSingle { paymentsRepository.checkNewCardRejectionState(binNumber).getOrThrow() }
+            } else {
+                // we don't want to block the user if the FF is off
+                Single.just(CardRejectionState.NotRejected)
+            }
+        }
 
     data class PaymentMethods(
         val available: List<AvailablePaymentMethodType>,

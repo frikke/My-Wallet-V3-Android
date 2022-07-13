@@ -181,6 +181,14 @@ class PaymentMethodsService internal constructor(
         currency = currency
     )
 
+    suspend fun checkCardRejectionState(
+        authorization: String,
+        binNumber: String
+    ) = api.checkNewCardRejectionState(
+        authorization = authorization,
+        binNumber = binNumber
+    )
+
     private fun getLocalisedErrorIfEnabled(): String? =
         if (environmentConfig.isRunningInDebugMode() && remoteConfigPrefs.brokerageErrorsEnabled) {
             remoteConfigPrefs.brokerageErrorsCode

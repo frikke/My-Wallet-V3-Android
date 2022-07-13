@@ -9,6 +9,7 @@ import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.Limits
+import com.blockchain.api.paymentmethods.models.NewCardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -36,6 +37,7 @@ import com.blockchain.api.services.toMobilePaymentType
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -46,6 +48,8 @@ import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.BankTransferStatus
 import com.blockchain.domain.paymentmethods.model.BillingAddress
 import com.blockchain.domain.paymentmethods.model.CardProvider
+import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.EligiblePaymentMethodType
@@ -82,6 +86,8 @@ import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
+import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
@@ -109,6 +115,7 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
+import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
 import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class PaymentsRepository(
@@ -611,6 +618,52 @@ class PaymentsRepository(
                     available.any {
                         it.type == PaymentMethodType.BANK_ACCOUNT || it.type == PaymentMethodType.BANK_TRANSFER
                     }
+                }
+            }
+        }
+
+    override suspend fun checkNewCardRejectionState(binNumber: String):
+        Outcome<CardRejectionCheckError, CardRejectionState> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .mapError { CardRejectionCheckError.AUTH_FAILED }
+            .flatMap { authToken ->
+                paymentMethodsService.checkCardRejectionState(
+                    authToken,
+                    binNumber
+                ).map { response ->
+                    response.toDomain()
+                }.mapError {
+                    CardRejectionCheckError.REQUEST_FAILED
+                }
+            }
+
+    private fun NewCardRejectionStateResponse.toDomain(): CardRejectionState =
+        when (this.block) {
+            true -> {
+                CardRejectionState.AlwaysRejected(
+                    title = this.ux?.title,
+                    description = this.ux?.message,
+                    actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
+                        ServerErrorAction(
+                            title = data.title,
+                            deeplinkPath = data.url.orEmpty()
+                        )
+                    }.orEmpty()
+                )
+            }
+            false -> {
+                if (this.ux?.actions?.isNotEmpty() == true) {
+                    CardRejectionState.MaybeRejected(
+                        title = this.ux?.title,
+                        actions = this.ux?.actions.takeUnless { it.isNullOrEmpty() }?.map { data ->
+                            ServerErrorAction(
+                                title = data.title,
+                                deeplinkPath = data.url.orEmpty()
+                            )
+                        }.orEmpty()
+                    )
+                } else {
+                    CardRejectionState.NotRejected
                 }
             }
         }

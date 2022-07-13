@@ -1,6 +1,8 @@
 package com.blockchain.domain.paymentmethods
 
 import com.blockchain.domain.paymentmethods.model.BillingAddress
+import com.blockchain.domain.paymentmethods.model.CardRejectionCheckError
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.domain.paymentmethods.model.CardToBeActivated
 import com.blockchain.domain.paymentmethods.model.GooglePayInfo
@@ -8,6 +10,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.PartnerCredentials
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodsError
+import com.blockchain.outcome.Outcome
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.FiatCurrency
@@ -37,4 +40,6 @@ interface CardService {
     fun getCardDetails(cardId: String): Single<PaymentMethod.Card>
 
     fun getGooglePayTokenizationParameters(currency: String): Single<GooglePayInfo>
+
+    suspend fun checkNewCardRejectionState(binNumber: String): Outcome<CardRejectionCheckError, CardRejectionState>
 }

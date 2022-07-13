@@ -1,5 +1,6 @@
 package com.blockchain.api.paymentmethods.models
 
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.nabu.data.AddressRequest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -86,4 +87,10 @@ data class CardProviderResponse(
     val clientSecret: String?, // use when client secret is needed (stripe)
     @SerialName("publishableApiKey")
     val publishableApiKey: String?
+)
+
+@Serializable
+data class NewCardRejectionStateResponse(
+    val block: Boolean,
+    val ux: NabuUxErrorResponse?
 )

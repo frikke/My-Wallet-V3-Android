@@ -70,6 +70,8 @@
     <string name="common_did_you_know">Did you know?</string>
     <string name="common_submit">Submit</string>
     <string name="common_close">Close</string>
+    <string name="common_next">Next</string>
+    <string name="common_learn_more">Learn More</string>
 
     <string name="exit">Exit</string>
     <string name="screen_overlay_warning">Screen overlay detected!</string>
@@ -299,7 +301,6 @@
     <string name="description">Description</string>
     <string name="name">Name</string>
 
-    <string name="next">Next</string>
     <string name="received_ethereum">Received %1$s</string>
 
     <!-- "Received {ETHER} {10.2 ETH}" -->
@@ -572,7 +573,6 @@
     <string name="rate_yes">Yes, rate Blockchain Wallet</string>
     <string name="rate_no">No, thanks</string>
     <string name="rate_later">Remind me later</string>
-    <string name="learn_more">Learn More</string>
     <string name="web_wallet_log_in">Log in to Web Wallet</string>
     <string name="email_request_subject_btc">Bitcoin payment request</string>
     <string name="settings_bank_remove_check_title">Are you sure?</string>
@@ -1478,6 +1478,10 @@
     <string name="checkout_bank_transfer_label">Bank Transfer</string>
     <string name="activity_loading_error">Failed to load activity, please try again later</string>
     <string name="apple_pay" translatable="false">Apple Pay</string>
+    <string name="card_issuer_always_rejects_title">Buying crypto not supported</string>
+    <string name="card_issuer_always_rejects_desc">This card doesn’t allow crypto transactions. Try another card instead.</string>
+    <string name="card_issuer_always_rejects_primary_cta">Try Another Card</string>
+    <string name="card_issuer_sometimes_rejects_title">This card often declines crypto transactions.</string>
 
     <!-- Activity Details -->
     <string name="activity_details_created">Date</string>

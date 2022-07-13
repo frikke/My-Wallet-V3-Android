@@ -72,7 +72,7 @@ class DeeplinkProcessorV2 {
             }
             DIFFERENT_CARD_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
-                Timber.d("deeplink: Enter Amount with args $code")
+                Timber.d("deeplink: Different card with code: $code")
 
                 if (!code.isNullOrEmpty()) {
                     val destination = Destination.AssetEnterAmountLinkCardDestination(code)
@@ -88,7 +88,7 @@ class DeeplinkProcessorV2 {
             }
             DIFFERENT_PAYMENT_URL -> {
                 val code = getAssetNetworkTicker(deeplinkUri)
-                Timber.d("deeplink: Enter Amount with args $code")
+                Timber.d("deeplink: Different payment with code: $code")
 
                 if (!code.isNullOrEmpty()) {
                     val destination = Destination.AssetEnterAmountNewMethodDestination(code)
@@ -119,6 +119,8 @@ class DeeplinkProcessorV2 {
                 }
             }
             CUSTOMER_SUPPORT_URL -> {
+                Timber.d("deeplink: Customer support")
+
                 Single.just(
                     DeepLinkResult.DeepLinkResultSuccess(
                         destination = Destination.CustomerSupportDestination,
@@ -127,6 +129,8 @@ class DeeplinkProcessorV2 {
                 )
             }
             KYC_URL -> {
+                Timber.d("deeplink: KYC")
+
                 Single.just(
                     DeepLinkResult.DeepLinkResultSuccess(
                         destination = Destination.StartKyc,
@@ -135,10 +139,11 @@ class DeeplinkProcessorV2 {
                 )
             }
             REFERRAL_URL -> {
+                Timber.d("deeplink: Referral")
+
                 val destination = Destination.ReferralDestination
                 Single.just(DeepLinkResult.DeepLinkResultSuccess(destination = destination, payload))
             }
-
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
     }

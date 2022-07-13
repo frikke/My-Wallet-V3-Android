@@ -28,7 +28,7 @@ class PaxRenamedAnnouncement(
                 dismissEntry = dismissEntry,
                 titleText = R.string.pax_renamed_card_title,
                 bodyText = R.string.pax_renamed_card_body,
-                ctaText = R.string.learn_more,
+                ctaText = R.string.common_learn_more,
                 iconImage = R.drawable.ic_announce_pax,
                 dismissFunction = {
                     host.dismissAnnouncementCard()

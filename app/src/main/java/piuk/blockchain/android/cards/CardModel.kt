@@ -3,6 +3,7 @@ package piuk.blockchain.android.cards
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorCodes
 import com.blockchain.commonarch.presentation.mvi.MviModel
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.CardStatus
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.logging.RemoteLogger
@@ -43,18 +44,32 @@ class CardModel(
             is CardIntent.ActivateCard -> activateCard(intent)
             is CardIntent.CheckCardStatus -> checkCardStatus(previousState)
             CardIntent.LoadLinkedCards -> loadLinkedCards()
+            is CardIntent.CheckProviderFailureRate -> checkCardFailureRate(intent.cardNumber)
             else -> null
         }
 
+    private fun checkCardFailureRate(binNumber: String) =
+        interactor.checkNewCardRejectionRate(binNumber)
+            .subscribeBy(
+                onSuccess = { state ->
+                    process(CardIntent.UpdateCardRejectionState(state))
+                },
+                onError = {
+                    // if the check fails, allow the user to go through
+                    process(CardIntent.UpdateCardRejectionState(CardRejectionState.NotRejected))
+                }
+            )
+
     private fun loadLinkedCards() =
-        interactor.loadLinkedCards().subscribeBy(
-            onSuccess = {
-                process(CardIntent.LinkedCardsLoaded(it))
-            },
-            onError = {
-                Timber.e("Error loading linked cards ${it.message}")
-            }
-        )
+        interactor.loadLinkedCards()
+            .subscribeBy(
+                onSuccess = {
+                    process(CardIntent.LinkedCardsLoaded(it))
+                },
+                onError = {
+                    Timber.e("Error loading linked cards ${it.message}")
+                }
+            )
 
     private fun handleAddNewCard(
         intent: CardIntent.AddNewCard,

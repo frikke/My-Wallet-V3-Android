@@ -1,5 +1,7 @@
 package com.blockchain.api
 
+import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.serializers.BigDecimalSerializer
 import com.blockchain.serializers.BigIntSerializer
 import com.blockchain.serializers.IsoDateSerializer
@@ -71,20 +73,6 @@ data class ActionData(
     val title: String,
     @SerialName("url")
     val url: String?
-)
-
-data class ServerSideUxErrorInfo(
-    val title: String,
-    val description: String,
-    val iconUrl: String,
-    val statusUrl: String,
-    val actions: List<ServerErrorAction>,
-    val categories: List<String>
-)
-
-data class ServerErrorAction(
-    val title: String,
-    val deeplinkPath: String
 )
 
 private fun NabuUxErrorResponse.mapActions(): List<ServerErrorAction> =

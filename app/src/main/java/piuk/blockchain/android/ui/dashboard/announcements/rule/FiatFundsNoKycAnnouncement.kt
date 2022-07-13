@@ -37,7 +37,7 @@ class FiatFundsNoKycAnnouncement(
                 iconImage = R.drawable.vector_new_badge,
                 titleText = R.string.fiat_funds_no_kyc_announcement_title,
                 bodyText = R.string.fiat_funds_no_kyc_announcement_description,
-                ctaText = R.string.learn_more,
+                ctaText = R.string.common_learn_more,
                 ctaFunction = {
                     host.dismissAnnouncementCard()
                     host.showFiatFundsKyc()

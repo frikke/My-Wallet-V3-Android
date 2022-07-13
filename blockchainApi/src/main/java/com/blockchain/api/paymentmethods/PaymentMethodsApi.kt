@@ -1,10 +1,12 @@
 package com.blockchain.api.paymentmethods
 
+import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
+import com.blockchain.api.paymentmethods.models.NewCardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -21,6 +23,7 @@ import com.blockchain.api.payments.data.RefreshPlaidResponse
 import com.blockchain.api.payments.data.SettlementBody
 import com.blockchain.api.payments.data.SettlementResponse
 import com.blockchain.api.payments.data.UpdateProviderAccountBody
+import com.blockchain.outcome.Outcome
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.Body
@@ -163,4 +166,10 @@ interface PaymentMethodsApi {
         @Header("authorization") authorization: String,
         @Query("currency") currency: String
     ): Single<GooglePayResponse>
+
+    @GET("//TODO")
+    suspend fun checkNewCardRejectionState(
+        @Header("authorization") authorization: String,
+        @Query("bin") binNumber: String
+    ): Outcome<ApiError, NewCardRejectionStateResponse>
 }

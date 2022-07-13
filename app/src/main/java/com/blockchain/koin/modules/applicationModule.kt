@@ -25,6 +25,7 @@ import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.eur
@@ -482,7 +483,8 @@ val applicationModule = module {
                 bankService = get(),
                 cardService = get(),
                 paymentMethodService = get(),
-                paymentsRepository = get()
+                paymentsRepository = get(),
+                cardRejectionCheckFF = get(cardRejectionCheckFeatureFlag)
             )
         }
 

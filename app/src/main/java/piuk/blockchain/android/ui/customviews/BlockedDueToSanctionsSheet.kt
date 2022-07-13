@@ -38,7 +38,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
                         description = descriptionResId ?: R.string.russia_sanctions_eu5_sheet_subtitle,
                         descriptionText = descriptionText,
                         icon = R.drawable.ic_wallet_intro_image,
-                        ctaText = R.string.learn_more,
+                        ctaText = R.string.common_learn_more,
                         ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
                     )
                 }
@@ -58,7 +58,7 @@ class BlockedDueToSanctionsSheet : ComposeModalBottomDialog() {
             headerImageResource = null,
             button1 = BottomSheetButton(
                 type = ButtonType.MINIMAL,
-                text = stringResource(R.string.learn_more),
+                text = stringResource(R.string.common_learn_more),
                 onClick = { context.openUrl(URL_RUSSIA_SANCTIONS_EU5) }
             ),
             button2 = BottomSheetButton(

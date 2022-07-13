@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/standard_margin"
         android:layout_marginHorizontal="@dimen/standard_margin"
-        android:contentDescription="@string/next"
+        android:contentDescription="@string/common_next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

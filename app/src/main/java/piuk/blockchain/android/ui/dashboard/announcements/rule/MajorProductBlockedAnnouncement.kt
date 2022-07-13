@@ -52,7 +52,7 @@ class MajorProductBlockedAnnouncement(
 
         val ctaText = when (reason) {
             is ProductNotEligibleReason.InsufficientTier -> throw IllegalArgumentException()
-            ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.learn_more
+            ProductNotEligibleReason.Sanctions.RussiaEU5 -> R.string.common_learn_more
             is ProductNotEligibleReason.Sanctions.Unknown -> R.string.common_ok
             is ProductNotEligibleReason.Unknown -> R.string.common_ok
         }

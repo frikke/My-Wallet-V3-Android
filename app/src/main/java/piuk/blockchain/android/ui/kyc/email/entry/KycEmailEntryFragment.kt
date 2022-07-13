@@ -87,7 +87,7 @@ class KycEmailEntryFragment :
             txStateIndicator.visible()
             ctaPrimary.apply {
                 visible()
-                text = getString(R.string.next)
+                text = getString(R.string.common_next)
                 setOnClickListener {
                     emailEntryHost.onEmailVerified()
                 }

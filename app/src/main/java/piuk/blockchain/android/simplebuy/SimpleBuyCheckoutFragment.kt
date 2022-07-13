@@ -18,7 +18,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.blockchain.api.ServerErrorAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.system.CircularProgressBar
 import com.blockchain.componentlib.viewextensions.gone
@@ -28,6 +27,7 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.custodial.models.Availability
 import com.blockchain.core.custodial.models.Promo
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.Companion.GOOGLE_PAY_PAYMENT_ID
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.SettlementReason

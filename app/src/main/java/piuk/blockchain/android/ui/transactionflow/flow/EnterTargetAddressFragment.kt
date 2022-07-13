@@ -72,7 +72,7 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
             ctaButton.apply {
                 buttonState = ButtonState.Disabled
-                text = getString(R.string.next)
+                text = getString(R.string.common_next)
             }
         }
         model.process(TransactionIntent.LoadSendToDomainBannerPref(DOMAIN_ALERT_DISMISS_KEY))

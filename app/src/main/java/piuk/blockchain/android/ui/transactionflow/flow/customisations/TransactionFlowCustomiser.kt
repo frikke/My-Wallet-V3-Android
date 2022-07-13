@@ -6,7 +6,6 @@ import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import com.blockchain.api.NabuApiException
-import com.blockchain.api.ServerErrorAction
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -22,6 +21,7 @@ import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.WITHDRAW_LOCKS
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.datamanagers.TransactionError
 import com.blockchain.nabu.models.responses.simplebuy.BuySellOrderResponse

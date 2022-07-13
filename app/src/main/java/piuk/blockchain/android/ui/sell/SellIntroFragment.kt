@@ -243,7 +243,7 @@ class SellIntroFragment : ViewPagerFragment() {
                     is BlockedReason.Sanctions.Unknown -> reason.message
                 }
                 icon = R.drawable.ic_wallet_intro_image
-                ctaText = R.string.learn_more
+                ctaText = R.string.common_learn_more
                 ctaAction = { requireContext().openUrl(URL_RUSSIA_SANCTIONS_EU5) }
                 visible()
             }

@@ -1,5 +1,8 @@
 package com.blockchain.domain.paymentmethods.model
 
+import com.blockchain.domain.common.model.ServerErrorAction
+import kotlinx.serialization.Serializable
+
 data class CardToBeActivated(val partner: Partner, val cardId: String)
 
 enum class Partner {
@@ -32,4 +35,28 @@ sealed class PartnerCredentials {
     object Unknown : PartnerCredentials()
     data class EverypayPartner(val everyPay: EveryPayCredentials) : PartnerCredentials()
     data class CardProviderPartner(val cardProvider: CardProvider) : PartnerCredentials()
+}
+
+@Serializable
+sealed class CardRejectionState {
+    @Serializable
+    object NotRejected : CardRejectionState()
+
+    @Serializable
+    data class MaybeRejected(
+        val title: String?,
+        val actions: List<ServerErrorAction> = emptyList()
+    ) : CardRejectionState()
+
+    @Serializable
+    data class AlwaysRejected(
+        val title: String?,
+        val description: String?,
+        val actions: List<ServerErrorAction> = emptyList()
+    ) : CardRejectionState()
+}
+
+enum class CardRejectionCheckError {
+    REQUEST_FAILED,
+    AUTH_FAILED
 }

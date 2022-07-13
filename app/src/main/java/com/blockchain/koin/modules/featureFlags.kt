@@ -9,6 +9,7 @@ import com.blockchain.koin.backupPhraseFeatureFlag
 import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.blockchainCardFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
 import com.blockchain.koin.deeplinkingFeatureFlag
 import com.blockchain.koin.ethLayerTwoFeatureFlag
@@ -256,6 +257,15 @@ val featureFlagsModule = module {
             remoteFlag = get<RemoteConfig>().featureFlag(
                 "android_ff_buy_refresh_quote",
                 "Buy Quote refreshing on checkout screen"
+            )
+        )
+    }.bind(FeatureFlag::class)
+
+    single(cardRejectionCheckFeatureFlag) {
+        IntegratedFeatureFlag(
+            remoteFlag = get<RemoteConfig>().featureFlag(
+                "android_ff_card_rejection_check",
+                "Check Cards for tx rejection"
             )
         )
     }.bind(FeatureFlag::class)

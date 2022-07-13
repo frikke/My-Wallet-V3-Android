@@ -116,7 +116,7 @@ Reservados todos los derechos.</string>
     </string>
     <string name="profile_label_name">Nombre</string>
     <string name="content_desc_edit_account_label">Editar etiqueta de cuenta</string>
-    <string name="next">Siguiente</string>
+    <string name="common_next">Siguiente</string>
     <string name="received_ethereum">Recibido%1$s</string>
     <string name="received_usd_pax_1">USD Digital recibido</string>
     <string name="received_bitcoin_cash">Bitcoin Cash recibido</string>
@@ -1800,7 +1800,7 @@ Verifique su conexión a Internet y vuelva a intentarlo o comuníquese con el se
     <string name="instantly_available">Disponible al instante</string>
     <string name="send_again">Enviar de nuevo</string>
     <string name="login_email_hint">Correo electrónico</string>
-    <string name="learn_more">Más información</string>
+    <string name="common_learn_more">Más información</string>
     <string name="activity_details_buy_deposited_to">Depositado a</string>
     <string name="kyc_enter_address">Introduzca su domicilio.</string>
     <string name="kyc_enter_address_manually">Introducir manualmente -&gt;</string>

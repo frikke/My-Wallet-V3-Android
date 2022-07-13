@@ -1,7 +1,6 @@
 package piuk.blockchain.android.simplebuy
 
 import com.blockchain.api.NabuApiException
-import com.blockchain.api.ServerSideUxErrorInfo
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.ExchangePriceWithDelta
 import com.blockchain.coincore.fiat.isOpenBankingCurrency
@@ -11,6 +10,7 @@ import com.blockchain.core.custodial.models.BrokerageQuote
 import com.blockchain.core.custodial.models.Promo
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
+import com.blockchain.domain.common.model.ServerSideUxErrorInfo
 import com.blockchain.domain.eligibility.model.TransactionsLimit
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
 import com.blockchain.domain.paymentmethods.model.LinkedBank

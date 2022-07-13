@@ -45,7 +45,7 @@ class UiTourView @JvmOverloads constructor(
         binding.subtitle.text = step.subtitle
         binding.buttonNext.text =
             if (step == UiTourStep.values().last()) context.getString(R.string.buy_now)
-            else context.getString(R.string.next)
+            else context.getString(R.string.common_next)
     }
 
     private fun updateNavigationIndicators(step: UiTourStep) {

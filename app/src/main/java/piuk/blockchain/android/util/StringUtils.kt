@@ -154,7 +154,7 @@ class StringUtils(private val context: Context) {
     }
 }
 
-private class ClickableSpanWithoutUnderline(val onClick: () -> Unit) : ClickableSpan() {
+class ClickableSpanWithoutUnderline(val onClick: () -> Unit) : ClickableSpan() {
     override fun onClick(widget: View) {
         onClick.invoke()
     }

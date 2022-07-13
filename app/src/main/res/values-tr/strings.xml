@@ -129,7 +129,7 @@ Her hakkı saklıdır.</string>
     </string>
     <string name="profile_label_name">ad</string>
     <string name="content_desc_edit_account_label">Hesap Etiketini Düzenle</string>
-    <string name="next">İleri</string>
+    <string name="common_next">İleri</string>
     <string name="received_ethereum">%1$s alındı</string>
     <string name="received_usd_pax_1">Alınan USD Digital</string>
     <string name="received_bitcoin_cash">Alınan Bitcoin Cash</string>
@@ -1892,7 +1892,7 @@ Lütfen internet bağlantınızı kontrol edip tekrar deneyin veya sorun devam e
     <string name="instantly_available">Hemen Kullanılabilir</string>
     <string name="send_again">Tekrar Gönder</string>
     <string name="login_email_hint">E-posta</string>
-    <string name="learn_more">Daha Fazla Bilgi</string>
+    <string name="common_learn_more">Daha Fazla Bilgi</string>
     <string name="activity_details_buy_deposited_to">yatırılan</string>
     <string name="kyc_enter_address">Mevcut ev adresinizi girin.</string>
     <string name="kyc_enter_address_manually">Manuel olarak girin -&gt;</string>

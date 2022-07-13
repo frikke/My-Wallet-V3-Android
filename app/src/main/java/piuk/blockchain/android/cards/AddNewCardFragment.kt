@@ -1,7 +1,5 @@
 package piuk.blockchain.android.cards
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -9,27 +7,37 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import com.blockchain.commonarch.presentation.mvi.MviFragment
+import com.blockchain.componentlib.basic.ComposeColors
+import com.blockchain.componentlib.basic.ComposeTypographies
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.card.CardButton
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.koin.scopedInject
 import com.braintreepayments.cardform.utils.CardType
-import io.reactivex.rxjava3.kotlin.plusAssign
 import java.util.Calendar
 import java.util.Date
+import kotlinx.serialization.Contextual
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.FragmentAddNewCardBinding
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
+import piuk.blockchain.android.ui.BottomSheetInformation
+import piuk.blockchain.android.urllinks.URL_CARD_REJECTIONS
 import piuk.blockchain.android.urllinks.URL_CREDIT_CARD_FAILURES
 import piuk.blockchain.android.util.AfterTextChangedWatcher
+import piuk.blockchain.android.util.openUrl
 
 class AddNewCardFragment :
-    MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(), AddCardFlowFragment {
+    MviFragment<CardModel, CardIntent, CardState, FragmentAddNewCardBinding>(),
+    AddCardFlowFragment,
+    BottomSheetInformation.Host {
 
     override val model: CardModel by scopedInject()
 
     private var availableCards: List<LinkedPaymentMethod.Card> = emptyList()
+    private var learnMoreLink: String = URL_CARD_REJECTIONS
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentAddNewCardBinding =
         FragmentAddNewCardBinding.inflate(inflater, container, false)
@@ -45,9 +53,28 @@ class AddNewCardFragment :
     private val textWatcher = object : AfterTextChangedWatcher() {
         override fun afterTextChanged(s: Editable?) {
             with(binding) {
-                btnNext.isEnabled = cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid
+                btnNext.buttonState = if (cardName.isValid && cardNumber.isValid && cvv.isValid && expiryDate.isValid) {
+                    ButtonState.Enabled
+                } else {
+                    ButtonState.Disabled
+                }
             }
             hideError()
+        }
+    }
+
+    private val cardNumberTextWatcher = object : AfterTextChangedWatcher() {
+        override fun afterTextChanged(s: Editable?) {
+            s?.let { input ->
+                when {
+                    input.length == CARD_BIN_LENGTH -> {
+                        model.process(CardIntent.CheckProviderFailureRate(s.toString()))
+                    }
+                    input.length < CARD_BIN_LENGTH -> {
+                        model.process(CardIntent.ResetCardRejectionState)
+                    }
+                }
+            }
         }
     }
 
@@ -85,12 +112,14 @@ class AddNewCardFragment :
             cardNumber.apply {
                 addTextChangedListener(cardTypeWatcher)
                 addTextChangedListener(textWatcher)
+                addTextChangedListener(cardNumberTextWatcher)
             }
             cvv.addTextChangedListener(textWatcher)
             expiryDate.addTextChangedListener(textWatcher)
             btnNext.apply {
-                isEnabled = false
-                setOnClickListener {
+                text = getString(R.string.common_next)
+                buttonState = ButtonState.Disabled
+                onClick = {
                     if (cardHasAlreadyBeenAdded()) {
                         showError()
                     } else {
@@ -125,10 +154,9 @@ class AddNewCardFragment :
             subtitle = getString(R.string.card_info_description)
             isDismissable = false
             primaryCta = CardButton(
-                text = getString(R.string.learn_more),
+                text = getString(R.string.common_learn_more),
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(URL_CREDIT_CARD_FAILURES))
-                    requireContext().startActivity(intent)
+                    openUrl(URL_CREDIT_CARD_FAILURES)
                 }
             )
         }
@@ -158,9 +186,121 @@ class AddNewCardFragment :
         newState.linkedCards?.let {
             availableCards = it
         }
+
+        newState.cardRejectionState?.let { state ->
+            handleCardRejectionState(state)
+        } ?: run {
+            resetCardRejectionState()
+        }
+    }
+
+    private fun resetCardRejectionState() {
+        with(binding) {
+            btnNext.visible()
+            btnAlert.gone()
+            cardInputAlert.gone()
+            cardInputAlertInfo.gone()
+        }
+    }
+
+    private fun handleCardRejectionState(state: @Contextual CardRejectionState) {
+        with(binding) {
+            when (state) {
+                is CardRejectionState.AlwaysRejected -> {
+                    btnNext.gone()
+                    if (state.actions.size == 2) {
+                        learnMoreLink = state.actions[1].deeplinkPath
+                    }
+
+                    val tryAnotherCardActionTitle = if (state.actions.isNotEmpty()) {
+                        state.actions[0].title
+                    } else {
+                        getString(R.string.card_issuer_always_rejects_primary_cta)
+                    }
+                    val learnMoreActionTitle = if (state.actions.isNotEmpty()) {
+                        state.actions[1].title
+                    } else {
+                        getString(R.string.common_learn_more)
+                    }
+
+                    btnAlert.apply {
+                        text = state.title ?: getString(R.string.card_issuer_always_rejects_title)
+                        onClick = {
+                            showBottomSheet(
+                                BottomSheetInformation.newInstance(
+                                    title = state.title ?: getString(R.string.card_issuer_always_rejects_title),
+                                    description = state.description ?: getString(
+                                        R.string.card_issuer_always_rejects_desc
+                                    ),
+                                    ctaPrimaryText = tryAnotherCardActionTitle,
+                                    ctaSecondaryText = learnMoreActionTitle,
+                                    icon = null // TODO (dserrano) check if there will be icons here
+                                )
+                            )
+                        }
+                        visible()
+                    }
+                }
+                is CardRejectionState.MaybeRejected -> {
+                    binding.cardInputAlert.apply {
+                        style = ComposeTypographies.Caption1
+                        textColor = ComposeColors.Warning
+                        text = state.title ?: getString(R.string.card_issuer_sometimes_rejects_title)
+                        visible()
+                    }
+                    val learnMoreActionTitle = if (state.actions.isNotEmpty()) {
+                        state.actions[0].title
+                    } else {
+                        getString(R.string.common_learn_more)
+                    }
+                    val learnMoreActionUrl = if (state.actions.isNotEmpty()) {
+                        state.actions[0].deeplinkPath
+                    } else {
+                        learnMoreLink
+                    }
+
+                    binding.cardInputAlertInfo.apply {
+                        style = ComposeTypographies.Caption1
+                        textColor = ComposeColors.Primary
+                        text = learnMoreActionTitle
+                        onClick = {
+                            openUrl(learnMoreActionUrl)
+                        }
+                        visible()
+                    }
+                }
+                CardRejectionState.NotRejected -> {
+                    resetCardRejectionState()
+                }
+            }
+        }
+    }
+
+    private fun openUrl(url: String) {
+        requireContext().openUrl(url)
     }
 
     override fun onBackPressed(): Boolean = true
+
+    override fun primaryButtonClicked() {
+        resetCardRejectionState()
+        with(binding) {
+            cardName.setText("")
+            cardNumber.setText("")
+            expiryDate.setText("")
+            cvv.setText("")
+        }
+    }
+
+    override fun secondButtonClicked() {
+        if (learnMoreLink.isNotEmpty()) {
+            openUrl(learnMoreLink)
+        }
+    }
+
+    override fun onSheetClosed() {
+        // do nothing
+    }
 
     private fun Date.hasSameMonthAndYear(year: Int, month: Int): Boolean {
         val calendar = Calendar.getInstance()
@@ -171,4 +311,9 @@ class AddNewCardFragment :
 
     private fun Int.asCalendarYear(): Int =
         if (this < 100) 2000 + this else this
+
+    companion object {
+        // Card BIN - 6 digit code which can be looked up in the success rate
+        private const val CARD_BIN_LENGTH = 6
+    }
 }
