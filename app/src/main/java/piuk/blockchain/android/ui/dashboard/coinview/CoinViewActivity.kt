@@ -5,8 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginBottom
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.charts.ChartIndicatorView
 import com.blockchain.coincore.AssetAction
@@ -87,8 +84,11 @@ import piuk.blockchain.android.ui.kyc.navhost.KycNavHostActivity
 import piuk.blockchain.android.ui.recurringbuy.RecurringBuyAnalytics
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
+import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccountType
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
+import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
+import piuk.blockchain.android.ui.transfer.receive.detail.copyAddress
 import piuk.blockchain.android.util.StringUtils
 import piuk.blockchain.android.util.putAccount
 
@@ -141,6 +141,8 @@ class CoinViewActivity :
     private val adapterDelegate by lazy {
         AccountsAdapterDelegate(
             onAccountSelected = ::onAccountSelected,
+            onCopyAddressClicked = ::onCopyAddressClicked,
+            onReceiveClicked = ::onReceiveClicked,
             onLockedAccountSelected = ::showUpgradeKycSheet,
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
@@ -1025,6 +1027,31 @@ class CoinViewActivity :
             )
         )
         model.process(CoinViewIntent.CheckScreenToOpen(accountDetails))
+    }
+
+    private fun onCopyAddressClicked(
+        cryptoAccount: CryptoAccount,
+    ) {
+        cryptoAccount.receiveAddress.subscribe { receiveAddress ->
+            analytics.logEvent(
+                TransferAnalyticsEvent.ReceiveDetailsCopied(
+                    accountType = TxFlowAnalyticsAccountType.fromAccount(cryptoAccount),
+                    asset = cryptoAccount.currency
+                )
+            )
+
+            copyAddress(
+                receiveAddress = receiveAddress,
+                confirmationAnchorView = binding.root
+            )
+        }
+    }
+
+    private fun onReceiveClicked(
+        account: BlockchainAccount,
+    ) {
+        logReceiveEvent()
+        startReceive(account)
     }
 
     private fun openOnboardingForRecurringBuy() {

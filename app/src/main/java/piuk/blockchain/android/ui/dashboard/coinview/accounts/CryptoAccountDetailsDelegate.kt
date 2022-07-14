@@ -2,6 +2,7 @@ package piuk.blockchain.android.ui.dashboard.coinview.accounts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.recyclerview.widget.RecyclerView
 import com.blockchain.coincore.AccountGroup
@@ -32,6 +33,8 @@ import java.text.DecimalFormat
  */
 class CryptoAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
+    private val onCopyAddressClicked: (CryptoAccount) -> Unit,
+    private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
     private val assetResources: AssetResources,
@@ -45,10 +48,15 @@ class CryptoAccountDetailsDelegate(
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetWalletViewHolder(
             ViewCoinviewWalletsBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-            onAccountSelected,
-            onLockedAccountSelected,
-            labels,
-            assetResources
+            onAccountSelected = onAccountSelected,
+            onCopyAddressClicked = onCopyAddressClicked,
+            onReceiveClicked = onReceiveClicked,
+            onLockedAccountSelected = onLockedAccountSelected,
+            labels = labels,
+            assetResources = assetResources,
+            allowWalletsLabel = allowWalletsLabel,
+            showOnlyAssetInfo = showOnlyAssetInfo,
+            allowEmbeddedCta = allowEmbeddedCta,
         )
 
     override fun onBindViewHolder(
@@ -58,28 +66,27 @@ class CryptoAccountDetailsDelegate(
     ) = (holder as AssetWalletViewHolder).bind(
         item = items[position] as AssetDetailsItem.CryptoDetailsInfo,
         isFirstItemOfCategory = items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo } == position,
-        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.CryptoDetailsInfo } == 1,
-        allowWalletsLabel = allowWalletsLabel,
-        showOnlyAssetInfo = showOnlyAssetInfo,
-        allowEmbeddedCta = allowEmbeddedCta
+        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.CryptoDetailsInfo } == 1
     )
 }
 
 private class AssetWalletViewHolder(
     private val binding: ViewCoinviewWalletsBinding,
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
+    private val onCopyAddressClicked: (CryptoAccount) -> Unit,
+    private val onReceiveClicked: (BlockchainAccount) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
+    private val allowWalletsLabel: Boolean,
+    private val showOnlyAssetInfo: Boolean,
+    private val allowEmbeddedCta: Boolean,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
         item: AssetDetailsItem.CryptoDetailsInfo,
         isFirstItemOfCategory: Boolean,
-        isOnlyItemOfCategory: Boolean,
-        allowWalletsLabel: Boolean,
-        showOnlyAssetInfo: Boolean,
-        allowEmbeddedCta: Boolean
+        isOnlyItemOfCategory: Boolean
     ) {
         val asset = getAsset(item.account, item.balance.currencyCode)
 
@@ -146,9 +153,14 @@ private class AssetWalletViewHolder(
                             }
                         )
                     }
-                    accountIcon.indicator?.let {
-                        startImageResource =
-                            ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
+
+                    if (showOnlyAssetInfo) {
+                        startImageResource = ImageResource.Remote(url = account.currency.logo, shape = CircleShape)
+                    } else {
+                        accountIcon.indicator?.let {
+                            startImageResource =
+                                ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
+                        }
                     }
                 }
 
@@ -157,10 +169,12 @@ private class AssetWalletViewHolder(
                     copyAddressButton.apply {
                         text = context.getString(R.string.copy_address)
                         icon = ImageResource.Local(R.drawable.ic_copy)
+                        onClick = { onCopyAddressClicked(account) }
                     }
                     receiveButton.apply {
                         text = context.getString(R.string.common_receive)
                         icon = ImageResource.Local(R.drawable.ic_qr_scan)
+                        onClick = { onReceiveClicked(item.account) }
                     }
                 } else {
                     ctaContainer.gone()
@@ -182,9 +196,13 @@ private class AssetWalletViewHolder(
                         }
                         else -> throw IllegalArgumentException("Not a supported filter")
                     }
-                    accountIcon.indicator?.let {
-                        startImageResource =
-                            ImageResource.LocalWithBackground(it, R.color.grey_400, R.color.white, 1F)
+                    if (showOnlyAssetInfo) {
+                        startImageResource = ImageResource.Remote(url = account.currency.logo, shape = CircleShape)
+                    } else {
+                        accountIcon.indicator?.let {
+                            startImageResource =
+                                ImageResource.LocalWithBackground(it, R.color.grey_400, R.color.white, 1F)
+                        }
                     }
                     endImageResource =
                         ImageResource.LocalWithBackground(R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F)

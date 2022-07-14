@@ -1,9 +1,6 @@
 package piuk.blockchain.android.ui.transfer.receive.detail
 
 import android.app.AlertDialog
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -98,7 +95,10 @@ internal class ReceiveDetailSheet :
                             )
                         )
                     )
-                    copyAddress(newState.cryptoAddress.address)
+                    activity?.copyAddress(
+                        receiveAddress = newState.cryptoAddress,
+                        confirmationAnchorView = binding.root
+                    )
                 }
             } else {
                 shareButton.onClick = {}
@@ -209,26 +209,6 @@ internal class ReceiveDetailSheet :
                 .show()
         }
         analytics.logEvent(RequestAnalyticsEvents.RequestPaymentClicked)
-    }
-
-    private fun copyAddress(address: String) {
-        activity?.run {
-            AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                .setTitle(R.string.app_name)
-                .setMessage(R.string.receive_address_to_clipboard)
-                .setCancelable(false)
-                .setPositiveButton(R.string.common_yes) { _, _ ->
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("Send address", address)
-                    BlockchainSnackbar.make(
-                        dialog?.window?.decorView ?: binding.root,
-                        getString(R.string.copied_to_clipboard), type = SnackbarType.Success
-                    ).show()
-                    clipboard.setPrimaryClip(clip)
-                }
-                .setNegativeButton(R.string.common_no, null)
-                .show()
-        }
     }
 
     companion object {
