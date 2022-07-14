@@ -18,13 +18,13 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
+import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
-import java.text.DecimalFormat
 
 /**
  * @property allowWalletsLabel weather or not to show labels, e.g. 'Wallets & Accounts'

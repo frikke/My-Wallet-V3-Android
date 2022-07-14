@@ -1,7 +1,6 @@
 package com.blockchain.componentlib.control
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.blockchain.componentlib.R
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -55,9 +52,10 @@ fun TabLayoutLiveBoxed(
         items.forEachIndexed { index, itemName ->
             val isSelected = selectedItemIndex == index
 
-            Box(modifier = Modifier
-                .clickableNoEffect { onItemSelected(index) }
-                .padding(AppTheme.dimensions.xPaddingSmall)
+            Box(
+                modifier = Modifier
+                    .clickableNoEffect { onItemSelected(index) }
+                    .padding(AppTheme.dimensions.xPaddingSmall)
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
