@@ -41,6 +41,13 @@ class EthereumAccount : JsonSerializableAccount {
         )
     }
 
+    override val isArchived: Boolean
+        get() = archived
+
+    override fun updateArchivedState(isArchived: Boolean): JsonSerializableAccount {
+        throw UnsupportedOperationException("Cannot update label of $this")
+    }
+
     /**
      * Compute an address from an encoded public key.
      *

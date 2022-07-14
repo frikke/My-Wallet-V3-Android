@@ -4,6 +4,7 @@ import com.blockchain.AppVersion;
 import com.blockchain.api.ApiException;
 import com.blockchain.api.bitcoin.data.BalanceDto;
 import com.blockchain.api.services.NonCustodialBitcoinService;
+import com.blockchain.serialization.JsonSerializableAccount;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.tuple.Pair;
@@ -11,6 +12,7 @@ import org.bitcoinj.crypto.MnemonicException.MnemonicChecksumException;
 import org.bitcoinj.crypto.MnemonicException.MnemonicLengthException;
 import org.bitcoinj.crypto.MnemonicException.MnemonicWordException;
 import org.bitcoinj.params.MainNetParams;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,6 +64,7 @@ import info.blockchain.wallet.payload.model.Balance;
 import info.blockchain.wallet.payload.model.BalanceKt;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.Tools;
+import io.reactivex.rxjava3.core.Completable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -93,21 +97,25 @@ public class PayloadManager {
         Device device,
         AppVersion appVersion
     ) {
-        this.walletApi = walletApi;
+        this.walletApi  = walletApi;
         this.bitcoinApi = bitcoinApi;
         // Bitcoin
         this.multiAddressFactory = multiAddressFactory;
-        this.balanceManagerBtc = balanceManagerBtc;
+        this.balanceManagerBtc   = balanceManagerBtc;
         // Bitcoin Cash
         this.balanceManagerBch = balanceManagerBch;
 
-        this.device = device;
+        this.device     = device;
         this.appVersion = appVersion;
     }
 
     @Nullable
     public Wallet getPayload() {
-        return walletBase != null ? walletBase.getWalletBody() : null;
+        return walletBase != null ? walletBase.getWallet() : null;
+    }
+
+    private void updatePayload(WalletBase walletBase) {
+        this.walletBase = walletBase;
     }
 
     public String getPayloadChecksum() {
@@ -118,7 +126,7 @@ public class PayloadManager {
         return password;
     }
 
-    public void setTempPassword(String password) {
+    private void setTempPassword(String password) {
         this.password = password;
     }
 
@@ -138,13 +146,10 @@ public class PayloadManager {
         @Nonnull String password
     ) throws Exception {
 
-        this.password    = password;
-        walletBase       = new WalletBase();
-        walletBase.setWalletBody(
-            new Wallet(
-                defaultAccountName
-            )
-        );
+        this.password = password;
+        walletBase    = new WalletBase(new Wallet(
+            defaultAccountName
+        ));
 
         saveNewWallet(email);
 
@@ -166,17 +171,14 @@ public class PayloadManager {
         @Nonnull String password
     ) throws Exception {
         this.password = password;
-        walletBase = new WalletBase();
 
-        Wallet wallet = new Wallet(defaultAccountName);
         WalletBody walletBody = WalletBody.Companion.recoverFromMnemonic(
             mnemonic,
             defaultAccountName,
             bitcoinApi
         );
-        wallet.setWalletBody(walletBody);
-
-        walletBase.setWalletBody(wallet);
+        Wallet wallet = new Wallet(walletBody);
+        walletBase = new WalletBase(wallet);
 
         saveNewWallet(email);
 
@@ -204,15 +206,14 @@ public class PayloadManager {
         @Nullable String secondPassword,
         @Nonnull String defaultAccountName
     ) throws Exception {
+        Wallet currentWallet = getPayload();
         try {
-            getPayload().upgradeV2PayloadToV3(secondPassword, defaultAccountName);
-            boolean success = save();
+            Wallet upgradedWallet = currentWallet.upgradeV2PayloadToV3(secondPassword, defaultAccountName);
+            boolean success = saveAndSync(walletBase.withWalletBody(upgradedWallet), password);
             if (!success) {
                 throw new Exception("Save failed");
             }
         } catch (Throwable t) {
-            // Revert on fail
-            getPayload().setWalletBodies(null);
             throw t;
         }
         updateAllBalances();
@@ -220,9 +221,12 @@ public class PayloadManager {
 
     /**
      * Upgrades a V3 wallet to V4 wallet format and saves it to the server
+     *
+     * @param secondPassword
+     * @throws Exception
      */
     public void upgradeV3PayloadToV4(@Nullable String secondPassword) throws Exception {
-        final Wallet payload = getPayload();
+        Wallet payload = getPayload();
 
         if (payload.isDoubleEncryption()) {
             payload.decryptHDWallet(secondPassword);
@@ -237,37 +241,71 @@ public class PayloadManager {
         }
 
         try {
-            for (WalletBody walletBody : payload.getWalletBodies()) {
-                List<Account> upgraded = walletBody.upgradeAccountsToV4();
-                encryptUpgradedAccounts(payload, upgraded, secondPassword);
-                walletBody.setAccounts(upgraded);
-            }
-            payload.setWrapperVersion(WalletWrapper.V4);
-
-            if (!save()) {
+            List<WalletBody> v4walletBodies = payload.getWalletBodies().stream()
+                .map(v3walletBody -> v3walletBody.upgradeAccountsToV4(
+                         secondPassword,
+                         payload.getSharedKey(),
+                         getPayload().getOptions().getPbkdf2Iterations()
+                     )
+                )
+                .collect(Collectors.toList());
+            boolean success = saveAndSync(walletBase.withWalletBody(payload.withUpdatedBodiesAndVersion(v4walletBodies, 4)), password);
+            if (!success) {
                 throw new Exception("Save failed");
             }
         } catch (Throwable t) {
-            // Revert on fail
-            for (int i = 0; i < hdWalletsAccountsBackup.size(); i++) {
-                WalletBody walletBody = getPayload().getWalletBodies().get(i);
-                walletBody.setWrapperVersion(wrapperVersionBackup);
-                walletBody.setAccounts(hdWalletsAccountsBackup.get(i));
-            }
-            getPayload().setWrapperVersion(wrapperVersionBackup);
             throw t;
         }
         updateAllBalances();
     }
 
-    private void encryptUpgradedAccounts(
-        Wallet payload,
-        List<Account> upgraded,
-        @Nonnull String secondPassword
-    ) throws UnsupportedEncodingException, EncryptionException {
-        for (Account a : upgraded) {
-            payload.encryptAccount(a, secondPassword);
+    public void updateDerivationsForAccounts(List<Account> accounts) throws HDWalletException,
+        EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withUpdatedDerivationsForAccounts(accounts), password
+        );
+    }
+
+    public void updateAccountLabel(JsonSerializableAccount account, String label) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withUpdatedAccountLabel(account, label), password
+        );
+    }
+
+    public void updateArchivedAccountState(JsonSerializableAccount account, boolean acrhived) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withUpdatedAccountState(account, acrhived), password
+        );
+    }
+
+    public void updateMnemonicVerified(boolean verified) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withMnemonicState(verified), password
+        );
+    }
+
+    public boolean updatePassword(String password) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
+        boolean success = saveAndSync(walletBase, password);
+        if (success) {
+            this.password = password;
         }
+        return success;
+    }
+
+    public void updateDefaultIndex(int index) throws HDWalletException,
+        EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withWalletBody(getPayload().updateDefaultIndex(index)),
+            password
+        );
+    }
+
+    public void updateDefaultDerivationTypeForAccounts(List<Account> accounts) throws HDWalletException,
+        EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withUpdatedDefaultDerivationTypeForAccounts(accounts),
+            password
+        );
     }
 
     /**
@@ -301,16 +339,15 @@ public class PayloadManager {
         MnemonicChecksumException,
         DecoderException,
         HDWalletException {
-        this.password    = password;
+        this.password = password;
 
         Call<ResponseBody> call = walletApi.fetchWalletData(guid, sharedKey);
         Response<ResponseBody> exe = call.execute();
 
         if (exe.isSuccessful()) {
             final String response = exe.body().string();
-            final WalletBase base = WalletBase.fromJson(response);
+            final WalletBase base = WalletBase.fromJson(response).withDecryptedPayload(this.password);
 
-            base.decryptPayload(this.password);
             walletBase = base;
         }
         else {
@@ -377,8 +414,7 @@ public class PayloadManager {
         String password
     ) throws HDWalletException, DecryptionException {
         try {
-            walletBase = WalletBase.fromJson(payload);
-            walletBase.decryptPayload(password);
+            walletBase = WalletBase.fromJson(payload).withDecryptedPayload(password);
             setTempPassword(password);
 
             updateAllBalances();
@@ -403,6 +439,18 @@ public class PayloadManager {
         }
     }
 
+    private void validateSave(WalletBase walletBase) throws HDWalletException {
+        if (walletBase == null) {
+            throw new HDWalletException("Save aborted - HDWallet not initialized.");
+        }
+        else if (!walletBase.getWallet().isEncryptionConsistent()) {
+            throw new HDWalletException("Save aborted - Payload corrupted. Key encryption not consistent.");
+        }
+        else if (device == null) {
+            throw new HDWalletException("Save aborted - Device name not specified in FrameWork.");
+        }
+    }
+
     private void saveNewWallet(String email) throws Exception {
         validateSave();
         // Encrypt and wrap payload
@@ -415,7 +463,7 @@ public class PayloadManager {
             getPayload().getGuid(),
             getPayload().getSharedKey(),
             null,
-            payloadWrapper.toJson(getPayload().getWrapperVersion()),
+            payloadWrapper.toJson(),
             newPayloadChecksum,
             email,
             device.getOsType()
@@ -424,7 +472,7 @@ public class PayloadManager {
         Response<ResponseBody> exe = call.execute();
         if (exe.isSuccessful()) {
             //set new checksum
-            walletBase.setPayloadChecksum(newPayloadChecksum);
+            updatePayload(walletBase.withUpdatedChecksum(newPayloadChecksum));
         }
         else {
             log.error("", exe.code() + " - " + exe.errorBody().string());
@@ -438,46 +486,46 @@ public class PayloadManager {
      *
      * @return True if save successful
      */
-    public boolean saveAndSyncPubKeys() throws
+    public boolean syncPubKeys() throws
         HDWalletException,
         EncryptionException,
         NoSuchAlgorithmException,
         IOException {
-        return save(true);
+        return saveAndSync(
+            walletBase.withSyncedPubKeys(),
+            password
+        );
     }
 
     /**
-     * Saves wallet to server.
+     * Saves the payload to the API and if the save was successfull
+     * it updates the local one with the updated
+     * and returns true
+     * If save fails, then it returns false.
      *
-     * @return True if save successful
+     * @param walletBase
+     * @return
+     * @throws HDWalletException
+     * @throws NoSuchAlgorithmException
+     * @throws EncryptionException
+     * @throws IOException
      */
-    public boolean save() throws
-        HDWalletException,
-        EncryptionException,
-        NoSuchAlgorithmException,
-        IOException {
-        return save(false);
-    }
-
-    private synchronized boolean save(
-        boolean forcePubKeySync
-    ) throws HDWalletException,
+    private boolean saveAndSync(WalletBase newWalletBase, String passw) throws HDWalletException,
         NoSuchAlgorithmException,
         EncryptionException,
         IOException {
-
-        validateSave();
-
+        validateSave(newWalletBase);
         // Encrypt and wrap payload
-        int payloadVersion = getPayload().getWrapperVersion();
-        Pair pair = walletBase.encryptAndWrapPayload(password);
+        int payloadVersion = newWalletBase.getWallet().getWrapperVersion();
+        Pair pair = newWalletBase.encryptAndWrapPayload(passw);
+
         WalletWrapper payloadWrapper = (WalletWrapper) pair.getRight();
         String newPayloadChecksum = (String) pair.getLeft();
-        String oldPayloadChecksum = walletBase.getPayloadChecksum();
+        String oldPayloadChecksum = newWalletBase.getPayloadChecksum();
 
         // Save to server
         List<String> syncAddresses;
-        if (walletBase.isSyncPubkeys() || forcePubKeySync) {
+        if (newWalletBase.isSyncPubkeys()) {
             syncAddresses = makePubKeySyncList(getPayload().getWalletBody(), payloadVersion);
         }
         else {
@@ -488,16 +536,16 @@ public class PayloadManager {
             getPayload().getGuid(),
             getPayload().getSharedKey(),
             syncAddresses,
-            payloadWrapper.toJson(payloadVersion),
+            payloadWrapper.toJson(),
             newPayloadChecksum,
             oldPayloadChecksum,
             device.getOsType()
         );
-
         Response<ResponseBody> exe = call.execute();
         if (exe.isSuccessful()) {
-            //set new checksum
-            walletBase.setPayloadChecksum(newPayloadChecksum);
+            //set new checksum and update the local
+            WalletBase updatedWalletBase = newWalletBase.withUpdatedChecksum(newPayloadChecksum);
+            updatePayload(updatedWalletBase);
             return true;
         }
         else {
@@ -557,76 +605,42 @@ public class PayloadManager {
         @Nullable String secondPassword
     ) throws Exception {
         int version = getPayload().getWrapperVersion();
-        Account accountBody = getPayload().addAccount(
+
+        Wallet updatedWallet = getPayload().addAccount(
             label,
-            secondPassword,
-            version
+            secondPassword
         );
 
-        boolean success = save();
+        boolean success = saveAndSync(
+            walletBase.withWalletBody(updatedWallet),
+            password
+        );
 
         if (!success) {
             //Revert on save fail
-            getPayload().getWalletBody().getAccounts().remove(accountBody);
             throw new Exception("Failed to save added account.");
         }
 
         updateAllBalances();
 
-        return accountBody;
+        return walletBase.getWallet().getWalletBody().lastCreatedAccount();
     }
 
     /**
      * Inserts a {@link ImportedAddress} into the user's {@link Wallet} and then syncs the wallet with
-     * the server. Will remove/revert the ImportedAddress if the sync was unsuccessful.
+     * the server.
      *
      * @param importedAddress The {@link ImportedAddress} to be added
      * @throws Exception Possible if saving the Wallet fails
      */
     public void addImportedAddress(ImportedAddress importedAddress) throws Exception {
-        List<ImportedAddress> backup = new ArrayList<>(getPayload().getImportedAddressList());
-        getPayload().getImportedAddressList().add(importedAddress);
-
-        if (!save()) {
-            // Revert on sync fail
-            getPayload().setImportedAddressList(backup);
+        Wallet wallet = getPayload().addImportedAddress(importedAddress);
+        WalletBase updatedWalletBase = walletBase.withWalletBody(wallet);
+        if (!saveAndSync(
+            updatedWalletBase,
+            password
+        )) {
             throw new Exception("Failed to save added Imported Address.");
-        }
-        updateAllBalances();
-    }
-
-    /**
-     * Replaces an old {@link ImportedAddress} with a newer one if found and then syncs the wallet
-     * with the server. Will remove/revert the ImportedAddress if the sync was unsuccessful.
-     *
-     * @param importedAddress The {@link ImportedAddress} to be added
-     * @throws Exception            Possible if saving the Wallet fails
-     * @throws NullPointerException Thrown if the address to be updated is not found
-     */
-    public void updateImportedAddress(ImportedAddress importedAddress) throws Exception {
-        boolean found = false;
-
-        final List<ImportedAddress> backup = new ArrayList<>(getPayload().getImportedAddressList());
-
-        final List<ImportedAddress> importedList = getPayload().getImportedAddressList();
-        for (int i = 0; i < importedList.size(); i++) {
-            final ImportedAddress address = importedList.get(i);
-            if (address.getAddress().equals(importedAddress.getAddress())) {
-                // Replace object with updated version
-                importedList.set(i, importedAddress);
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            throw new NullPointerException("Imported address not found");
-        }
-
-        if (!save()) {
-            // Revert on sync fail
-            getPayload().setImportedAddressList(backup);
-            throw new Exception("Failed to save added imported Address.");
         }
         updateAllBalances();
     }
@@ -642,44 +656,43 @@ public class PayloadManager {
         SigningKey key,
         @Nullable String secondPassword
     ) throws Exception {
-        ImportedAddress matchingImportedAddress;
         try {
-            matchingImportedAddress = getPayload().setKeyForImportedAddress(key, secondPassword);
-        } catch (NoSuchAddressException e) {
-            e.printStackTrace();
-            //If no match found, save as new
+            Wallet wallet = getPayload().updateKeyForImportedAddress(
+                key,
+                secondPassword
+            );
+
+            ImportedAddress updatedAddress = wallet.getImportedAddressList().stream().reduce((first, second) -> second).get();
+            if (saveAndSync(
+                walletBase.withWalletBody(wallet),
+                password
+            )) {
+                return updatedAddress;
+            }
+            else { throw new RuntimeException("Failed to add address"); }
+
+        } catch (NoSuchAddressException e) { // No match found
             return addImportedAddressFromKey(key, secondPassword);
         }
-
-        boolean success = save();
-
-        if (!success) {
-            //Revert on save fail
-            matchingImportedAddress.setPrivateKey(null);
-        }
-
-        return matchingImportedAddress;
     }
 
     public ImportedAddress addImportedAddressFromKey(
         SigningKey key,
         @Nullable String secondPassword
     ) throws Exception {
-        ImportedAddress newlyAdded = getPayload().addImportedAddressFromKey(
+        ImportedAddress address = getPayload().importedAddressFromKey(
             key,
-            secondPassword,
-            device.getOsType(),
+            secondPassword, device.getOsType(),
             appVersion.getAppVersion()
         );
-
-        boolean success = save();
-
-        if (!success) {
-            //Revert on save fail
-            newlyAdded.setPrivateKey(null);
+        Wallet wallet = getPayload().addImportedAddress(address);
+        if (saveAndSync(
+            walletBase.withWalletBody(wallet),
+            password
+        )) { return address; }
+        else {
+            throw new RuntimeException("Failed to import Address");
         }
-        updateAllBalances();
-        return newlyAdded;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1030,8 +1043,12 @@ public class PayloadManager {
         IOException,
         ServerConnectionException {
 
-        account.addAddressLabel(index, label);
-        if (!save()) {
+        Account updatedAccount = account.addAddressLabel(index, label);
+        boolean success = saveAndSync(
+            walletBase.withWalletBody(getPayload().updateAccount(account, updatedAccount)),
+            password
+        );
+        if (!success) {
             throw new ServerConnectionException("Unable to reserve address.");
         }
     }
@@ -1081,5 +1098,13 @@ public class PayloadManager {
     public void subtractAmountFromAddressBalance(String address, BigInteger amount) throws
         Exception {
         balanceManagerBtc.subtractAmountFromAddressBalance(address, amount);
+    }
+
+    @NotNull
+    public void updateNotesForTxHash(@NotNull String transactionHash, @NotNull String notes) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
+        saveAndSync(
+            walletBase.withWalletBody(getPayload().updateTxNotes(transactionHash, notes)),
+            password
+        );
     }
 }

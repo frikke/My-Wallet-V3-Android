@@ -1,27 +1,33 @@
 package info.blockchain.wallet.payload.data
 
-import info.blockchain.wallet.bip44.HDAccount
+import com.blockchain.extensions.replace
 import java.lang.IllegalStateException
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AccountV4 @OptIn(ExperimentalSerializationApi::class) constructor(
+data class AccountV4 constructor(
     @SerialName("label")
-    override var label: String = "",
-
-    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    override val label: String,
+    /**
+     * There are some payloads out there that are missing `default_derivation` and `archived`due to a default
+     * value set once upon a time that was never encoded. :- That's why we have to make those private and
+     * create baking fields for accessing
+     */
     @SerialName("default_derivation")
-    var defaultType: String = "",
-
+    private val _defaultType: String? = null,
     @SerialName("archived")
-    override var isArchived: Boolean = false,
+    private val _isArchived: Boolean? = null,
 
     @SerialName("derivations")
-    val derivations: MutableList<Derivation> = mutableListOf()
+    val derivations: List<Derivation>
 ) : Account {
+
+    val defaultType: String
+        get() = _defaultType ?: ""
+
+    override val isArchived: Boolean
+        get() = _isArchived ?: false
 
     override fun xpubForDerivation(derivation: String): String? =
         derivationForType(derivation)?.xpub
@@ -29,57 +35,57 @@ data class AccountV4 @OptIn(ExperimentalSerializationApi::class) constructor(
     override fun containsXpub(xpub: String): Boolean =
         derivations.map { it.xpub }.contains(xpub)
 
-    fun derivationForType(type: String) = derivations.find { it.type == type }
+    private fun derivationForType(type: String) = derivations.find { it.type == type }
 
     private val derivation
         get() = derivationForType(defaultType)
 
-    override var xpriv: String
+    override val xpriv: String
         get() = derivation?.xpriv ?: ""
-        set(value) {
-            derivation?.xpriv = value
-        }
 
-    @delegate:Transient
+    override fun withEncryptedPrivateKey(encryptedKey: String): Account {
+        return derivation?.let {
+            return this.copy(
+                derivations = derivations.replace(it, it.copy(xpriv = encryptedKey))
+            )
+        } ?: this
+    }
+
     override val xpubs: XPubs by lazy {
         XPubs(derivations.map { XPub(address = it.xpub, derivation = mapFormat(it.type)) })
     }
 
-    override val addressCache: AddressCache
-        get() = derivation?.cache ?: AddressCache()
+    override val addressLabels: List<AddressLabel>
+        get() = derivation?.addressLabels ?: listOf()
 
-    override val addressLabels: MutableList<AddressLabel>
-        get() = derivation?.addressLabels ?: mutableListOf()
+    override fun addAddressLabel(index: Int, reserveLabel: String): Account {
+        val addressLabel = AddressLabel(index = index, label = reserveLabel)
 
-    override fun addAddressLabel(index: Int, reserveLabel: String) {
-        val addressLabel = AddressLabel().apply {
-            this.index = index
-            this.label = reserveLabel
-        }
-        if (derivation?.addressLabels?.contains(addressLabel) == true) {
-            derivation?.addressLabels?.add(addressLabel)
-        }
+        return derivation?.let { derivation ->
+            this.copy(
+                derivations = derivations.replace(
+                    derivation,
+                    derivation.copy(
+                        _addressLabels = derivation.addressLabels.plus(addressLabel).toSet().toList()
+                    )
+                )
+            )
+        } ?: this
     }
 
-    override fun upgradeToV4() = this
+    override fun updateLabel(label: String): Account = this.copy(
+        label = label
+    )
 
-    @Deprecated("We should pass the info into the Account v3.upgrade method and keep this immutable if possible")
-    fun addSegwitDerivation(hdAccount: HDAccount, index: Int) {
-        if (defaultType == Derivation.SEGWIT_BECH32_TYPE) {
-            return
-        }
-        derivations += Derivation.createSegwit(
-            hdAccount.xPriv,
-            hdAccount.xpub,
-            AddressCache.setCachedXPubs(hdAccount)
+    override fun updateArchivedState(isArchived: Boolean): AccountV4 =
+        this.copy(
+            _isArchived = isArchived
         )
-        defaultType = Derivation.SEGWIT_BECH32_TYPE
-    }
-}
 
-private fun mapFormat(type: String): XPub.Format =
-    when (type) {
-        Derivation.LEGACY_TYPE -> XPub.Format.LEGACY
-        Derivation.SEGWIT_BECH32_TYPE -> XPub.Format.SEGWIT
-        else -> throw IllegalStateException("Unknown derivation type")
-    }
+    private fun mapFormat(type: String): XPub.Format =
+        when (type) {
+            Derivation.LEGACY_TYPE -> XPub.Format.LEGACY
+            Derivation.SEGWIT_BECH32_TYPE -> XPub.Format.SEGWIT
+            else -> throw IllegalStateException("Unknown derivation type")
+        }
+}

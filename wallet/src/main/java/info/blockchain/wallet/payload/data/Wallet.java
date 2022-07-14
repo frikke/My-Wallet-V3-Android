@@ -1,17 +1,15 @@
 package info.blockchain.wallet.payload.data;
 
-import com.google.common.annotations.VisibleForTesting;
-
+import com.blockchain.serialization.JsonSerializableAccount;
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.EncryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.NoSuchAddressException;
 import info.blockchain.wallet.keys.SigningKey;
+import info.blockchain.wallet.payload.HDWalletsContainer;
 import info.blockchain.wallet.payload.data.walletdto.WalletDto;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FormatsUtil;
-import kotlinx.serialization.modules.SerializersModule;
-
 import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
@@ -19,35 +17,62 @@ import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.params.MainNetParams;
 import org.spongycastle.crypto.InvalidCipherTextException;
-
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 public class Wallet {
+
     private final WalletDto walletDto;
-    private int wrapperVersion;
+    private final int wrapperVersion;
+    /**
+     * We need to keep a reference of those as they persist the HDWallets container
+     */
+    private final List<WalletBody> walletBodies;
 
-    private Wallet(WalletDto walletDto) {
-        this.walletDto = walletDto;
+    /**
+     * from Json after loading the payload
+     *
+     * @param walletDto
+     * @param wrapperVersion
+     */
+    private Wallet(WalletDto walletDto, int wrapperVersion) {
+        this.walletDto      = walletDto;
+        this.wrapperVersion = wrapperVersion;
+        if (walletDto.getWalletBodies() != null) {
+            walletBodies = walletDto.getWalletBodies().stream()
+                .map(walletBodyDto -> new WalletBody(wrapperVersion, walletBodyDto, new HDWalletsContainer()))
+                .collect(Collectors.toList());
+        }
+        else { walletBodies = Collections.emptyList(); }
     }
 
-    public Wallet() {
-        walletDto      = new WalletDto();
-        wrapperVersion = WalletWrapper.V4;
+    private Wallet(WalletDto walletDto, List<WalletBody> walletBodies, int wrapperVersion) {
+        this.walletDto      = walletDto;
+        this.wrapperVersion = wrapperVersion;
+        this.walletBodies   = walletBodies;
     }
 
+    /**
+     * Creating a new wallet
+     */
     public Wallet(String defaultAccountName) throws Exception {
-        WalletBody walletBodyBody = new WalletBody(defaultAccountName, true);
-        ArrayList<WalletBody> walletBodies = new ArrayList<>();
-        walletBodies.add(walletBodyBody);
-        walletDto      = new WalletDto(walletBodies);
+        this(WalletBody.Companion.create(defaultAccountName, true));
+    }
+
+    /**
+     * Recover from mnemonic
+     *
+     * @param walletBody
+     */
+    public Wallet(WalletBody walletBody) {
+        walletDto      = new WalletDto(Collections.singletonList(walletBody.getWalletBodyDto()));
+        walletBodies   = Collections.singletonList(walletBody);
         wrapperVersion = WalletWrapper.V4;
     }
 
@@ -60,7 +85,7 @@ public class Wallet {
     }
 
     public boolean isDoubleEncryption() {
-        return walletDto.isDoubleEncryption();
+        return walletDto.getDoubledEncrypted();
     }
 
     public String getDpasswordhash() {
@@ -72,119 +97,76 @@ public class Wallet {
         return walletDto.getTxNotes();
     }
 
-    public Map<String, List<Integer>> getTxTags() {
-        return walletDto.getTxTags();
-    }
-
-    public List<Map<Integer, String>> getTagNames() {
-        return walletDto.getTagNames();
-    }
-
     public Options getOptions() {
-        fixPbkdf2Iterations();
         return walletDto.getOptions();
     }
 
-    public Options getWalletOptions() {
-        return walletDto.getWalletOptions();
-    }
-
-    @Deprecated
     @Nullable
     public List<WalletBody> getWalletBodies() {
-        return walletDto.getWalletBodies();
+        return walletBodies;
     }
 
     @Nullable
     public WalletBody getWalletBody() {
-        if (walletDto.getWalletBodies() == null || walletDto.getWalletBodies().isEmpty()) {
+        if (walletBodies.isEmpty()) {
             return null;
         }
         else {
-            return walletDto.getWalletBodies().get(HD_WALLET_INDEX);
+            return walletBodies.get(WalletBody.HD_DEFAULT_WALLET_INDEX);
         }
     }
 
+    /**
+     * TODO this is a mutable list when it come to kotlin. make it immutable by converting the file to kotlin
+     */
     public List<ImportedAddress> getImportedAddressList() {
         return walletDto.getImported();
-    }
-
-    public List<AddressBook> getAddressBooks() {
-        return walletDto.getAddressBook();
     }
 
     public int getWrapperVersion() {
         return wrapperVersion;
     }
 
-    public void setGuid(String guid) {
-        this.walletDto.setGuid(guid);
+    public Wallet updateDefaultIndex(int index) {
+        if (getWalletBody() == null) { return this; }
+        WalletBody walletBody = getWalletBody().updateDefaultindex(index);
+        return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
 
-    public void setSharedKey(String sharedKey) {
-        this.walletDto.setSharedKey(sharedKey);
+    public Wallet withUpdatedDerivationsForAccounts(List<Account> accounts) {
+        if (getWalletBody() == null) { return this; }
+        WalletBody walletBody = getWalletBody().updateDerivationsForAccounts(accounts);
+        return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
 
-    @Deprecated
-    public void setWalletBodies(List<WalletBody> walletBodies) {
-        this.walletDto
-            .setWalletBodies(walletBodies);
+    public Wallet withUpdatedDefaultDerivationTypeForAccounts(List<Account> accounts) {
+        if (getWalletBody() == null) { return this; }
+        WalletBody walletBody = getWalletBody().updateDefaultDerivationTypeForAccounts(accounts);
+        return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
 
-    public void setWalletBody(WalletBody walletBody) {
-        this.walletDto.setWalletBodies(Collections.singletonList(walletBody));
-    }
-
-    public void setImportedAddressList(List<ImportedAddress> keys) {
-        this.walletDto.setImported(keys);
-    }
-
-    public void setWrapperVersion(int wrapperVersion) {
-        this.wrapperVersion = wrapperVersion;
+    public Wallet updateAccountLabel(Account account, String label) {
+        if (getWalletBody() == null) { return this; }
+        WalletBody walletBody = getWalletBody().updateAccountLabel(account, label);
+        return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
 
     public boolean isUpgradedToV3() {
         return (walletDto.getWalletBodies() != null && walletDto.getWalletBodies().size() > 0);
     }
 
-    public static Wallet fromJson(String json)
+
+    public static Wallet fromJson(String json, int wrapperVersion)
         throws IOException, HDWalletException {
-        SerializersModule serializersModule = WalletWrapper.getSerializerForVersion(WalletWrapper.V3);
-        return fromJson(json, serializersModule);
+        WalletDto walletDto = WalletDto.fromJson(json);
+
+        return new Wallet(walletDto, wrapperVersion);
     }
 
-    public static Wallet fromJson(String json, SerializersModule serializersModule)
-        throws IOException, HDWalletException {
-        WalletDto walletDto = WalletDto.fromJson(json, serializersModule);
-
-        if (walletDto.getWalletBodies() != null) {
-            ArrayList<WalletBody> walletBodyList = new ArrayList<>();
-
-            for (WalletBody walletBody : walletDto.getWalletBodies()) {
-                walletBodyList.add(
-                    WalletBody.Companion.fromJson(
-                        walletBody.toJson(serializersModule),
-                        serializersModule
-                    )
-                );
-            }
-
-            walletDto.setWalletBodies(walletBodyList);
-        }
-
-        return new Wallet(walletDto);
+    public String toJson() {
+        return this.walletDto.toJson();
     }
 
-    public String toJson(SerializersModule serializersModule) {
-        return this.walletDto.toJson(serializersModule);
-    }
-
-    void addHDWallet(WalletBody walletBody) {
-        if (walletDto.getWalletBodies() == null) {
-            walletDto.setWalletBodies(new ArrayList<>());
-        }
-        walletDto.getWalletBodies().add(walletBody);
-    }
 
     /**
      * Checks imported address and hd keys for possible double encryption corruption
@@ -247,33 +229,38 @@ public class Wallet {
         }
     }
 
-    public void upgradeV2PayloadToV3(@Nullable String secondPassword, String defaultAccountName) throws Exception {
+    /**
+     * Upgrades a wallet from v2 to v3 and returns the Upgraded wallet.
+     *
+     * @param secondPassword
+     * @param defaultAccountName
+     * @return
+     * @throws Exception
+     */
+    public Wallet upgradeV2PayloadToV3(@Nullable String secondPassword, String defaultAccountName) throws Exception {
 
         //Check if payload has 2nd password
         validateSecondPassword(secondPassword);
 
         if (!isUpgradedToV3()) {
 
-            //Create new hd wallet
-            WalletBody walletBodyBody = new WalletBody(defaultAccountName, false);
-            walletBodyBody.setWrapperVersion(wrapperVersion);
-            addHDWallet(walletBodyBody);
+            //Create new V3 hd wallet
+            WalletBody walletBody = WalletBody.Companion.create(defaultAccountName, false);
 
             //Double encrypt if need
             if (!StringUtils.isEmpty(secondPassword)) {
 
                 //Double encrypt seedHex
                 String doubleEncryptedSeedHex = DoubleEncryptionFactory.encrypt(
-                    walletBodyBody.getSeedHex(),
+                    walletBody.getSeedHex(),
                     getSharedKey(),
                     secondPassword,
                     getOptions().getPbkdf2Iterations()
                 );
-                walletBodyBody.setSeedHex(doubleEncryptedSeedHex);
+                walletBody = walletBody.updateSeedHex(doubleEncryptedSeedHex);
 
                 //Double encrypt private keys
-                for (Account account : walletBodyBody.getAccounts()) {
-
+                for (Account account : walletBody.getAccounts()) {
                     String encryptedXPriv = DoubleEncryptionFactory.encrypt(
                         account.getXpriv(),
                         getSharedKey(),
@@ -281,20 +268,24 @@ public class Wallet {
                         getOptions().getPbkdf2Iterations()
                     );
 
-                    account.setXpriv(encryptedXPriv);
-
+                    walletBody = walletBody.replaceAccount(
+                        account,
+                        account.withEncryptedPrivateKey(encryptedXPriv)
+                    );
                 }
             }
-
-            setWrapperVersion(WalletWrapper.V3);
+            return new Wallet(walletDto.addWalletBody(walletBody.getWalletBodyDto()), 3);
         }
+        else { return this; }
     }
 
-    @VisibleForTesting
-    public ImportedAddress addImportedAddress(ImportedAddress address,
-                                              @Nullable String secondPassword)
+    public ImportedAddress importedAddressFromKey(SigningKey key,
+                                                  @Nullable String secondPassword,
+                                                  String device,
+                                                  String apiCode)
         throws Exception {
 
+        ImportedAddress address = ImportedAddress.Companion.fromECKey(key.toECKey(), device, apiCode);
         validateSecondPassword(secondPassword);
 
         if (secondPassword != null) {
@@ -308,19 +299,18 @@ public class Wallet {
                 getOptions().getPbkdf2Iterations()
             );
 
-            address.setPrivateKey(encryptedKey);
+            address = address.withUpdatePrivateKey(encryptedKey);
 
         }
-        walletDto.getImported().add(address);
         return address;
     }
 
-    public ImportedAddress addImportedAddressFromKey(SigningKey key,
-                                                     @Nullable String secondPassword,
-                                                     String device,
-                                                     String apiCode)
-        throws Exception {
-        return addImportedAddress(ImportedAddress.Companion.fromECKey(key.toECKey(), device, apiCode), secondPassword);
+    public Wallet addImportedAddress(ImportedAddress address) {
+        return new Wallet(
+            walletDto.addImportedAddress(address),
+            walletBodies,
+            wrapperVersion
+        );
     }
 
     public void decryptHDWallet(String secondPassword)
@@ -331,28 +321,22 @@ public class Wallet {
 
         validateSecondPassword(secondPassword);
 
-        WalletBody walletBody = walletDto.getWalletBodies().get(HD_WALLET_INDEX);
+        assert getWalletBodies() != null;
+        WalletBody walletBody = getWalletBodies().get(WalletBody.HD_DEFAULT_WALLET_INDEX);
         walletBody.decryptHDWallet(secondPassword, walletDto.getSharedKey(), getOptions().getPbkdf2Iterations());
     }
 
-    public void encryptAccount(Account account, String secondPassword)
-        throws UnsupportedEncodingException, EncryptionException {
-        //Double encryption
-        if (secondPassword != null) {
-            String encryptedPrivateKey = DoubleEncryptionFactory.encrypt(
-                account.getXpriv(),
-                walletDto.getSharedKey(),
-                secondPassword,
-                getOptions().getPbkdf2Iterations()
-            );
-            account.setXpriv(encryptedPrivateKey);
-        }
-    }
-
-    public Account addAccount(
+    /**
+     * This method adds always a v4 account
+     *
+     * @param label
+     * @param secondPassword
+     * @return
+     * @throws Exception
+     */
+    public Wallet addAccount(
         String label,
-        @Nullable String secondPassword,
-        int version
+        @Nullable String secondPassword
     ) throws Exception {
 
         validateSecondPassword(secondPassword);
@@ -360,19 +344,65 @@ public class Wallet {
         //Double decryption if need
         decryptHDWallet(secondPassword);
 
-        WalletBody walletBody = walletDto.getWalletBodies().get(HD_WALLET_INDEX);
+        WalletBody walletBody = walletBodies.get(WalletBody.HD_DEFAULT_WALLET_INDEX).withNewAccount(
+            label,
+            secondPassword,
+            getSharedKey(),
+            getOptions().getPbkdf2Iterations()
+        );
 
-        walletBody.setWrapperVersion(version);
-
-        Account account = walletBody.addAccount(label);
-
-        //Double encryption if need
-        encryptAccount(account, secondPassword);
-
-        return account;
+        return new Wallet(
+            walletDto.replaceWalletBody(walletBodies.get(WalletBody.HD_DEFAULT_WALLET_INDEX).getWalletBodyDto(), walletBody.getWalletBodyDto()),
+            walletBodies.stream().map(item ->
+                                      {
+                                          if (item.equals(walletBodies.get(WalletBody.HD_DEFAULT_WALLET_INDEX))) {
+                                              return walletBody;
+                                          }
+                                          else {
+                                              return item;
+                                          }
+                                      }
+            ).collect(Collectors.toList()),
+            wrapperVersion
+        );
     }
 
-    public ImportedAddress setKeyForImportedAddress(
+    public Wallet updateAccount(Account oldAccount, Account newAccount) {
+        if (walletDto.getWalletBodies() == null) { return this; }
+
+        List<WalletBodyDto> walletBodyDtos = walletDto.getWalletBodies().stream()
+            .filter(dto -> dto.getAccounts().contains(oldAccount)).collect(Collectors.toList());
+
+        if (walletBodyDtos.size() == 0) { return this; }
+
+        List<Account> accounts = walletBodyDtos.get(WalletBody.HD_DEFAULT_WALLET_INDEX).getAccounts();
+        accounts.set(
+            accounts.indexOf(oldAccount), newAccount
+        );
+        return new Wallet(
+            walletDto.replaceWalletBody(
+                walletBodyDtos.get(WalletBody.HD_DEFAULT_WALLET_INDEX),
+                walletBodyDtos.get(WalletBody.HD_DEFAULT_WALLET_INDEX).withUpdatedAccounts(accounts)
+            ),
+            walletBodies.stream().map(item -> item.replaceAccount(oldAccount, newAccount)).collect(Collectors.toList()),
+            wrapperVersion
+        );
+
+    }
+
+    /**
+     * Updates the private key of an Imported address if found and  returns updated Wallet payload.
+     *
+     * @param key
+     * @param secondPassword
+     * @return
+     * @throws DecryptionException
+     * @throws UnsupportedEncodingException
+     * @throws EncryptionException
+     * @throws NoSuchAddressException
+     */
+
+    public Wallet updateKeyForImportedAddress(
         SigningKey key,
         @Nullable String secondPassword
     ) throws DecryptionException,
@@ -402,23 +432,28 @@ public class Wallet {
             throw new NoSuchAddressException("No matching address found for key");
         }
 
+        ImportedAddress updatedAddress;
+        String encryptedKey = Base58.encode(ecKey.getPrivKeyBytes());
         if (secondPassword != null) {
             //Double encryption
-            String encryptedKey = Base58.encode(ecKey.getPrivKeyBytes());
-            String encrypted2 = DoubleEncryptionFactory.encrypt(
+
+            String doubleEncryptedKey = DoubleEncryptionFactory.encrypt(
                 encryptedKey,
                 getSharedKey(),
                 secondPassword,
                 getOptions().getPbkdf2Iterations()
             );
 
-            matchingAddressBody.setPrivateKey(encrypted2);
-
+            updatedAddress = matchingAddressBody.withUpdatePrivateKey(doubleEncryptedKey);
         }
         else {
-            matchingAddressBody.setPrivateKeyFromBytes(ecKey.getPrivKeyBytes());
+            updatedAddress = matchingAddressBody.withUpdatePrivateKey(encryptedKey);
         }
-        return matchingAddressBody;
+        return new Wallet(
+            walletDto.replaceImportedAddress(matchingAddressBody, updatedAddress),
+            walletBodies,
+            wrapperVersion
+        );
     }
 
     /**
@@ -429,7 +464,7 @@ public class Wallet {
 
         List<String> addrs = new ArrayList<>(walletDto.getImported().size());
         for (ImportedAddress importedAddress : walletDto.getImported()) {
-            if (!ImportedAddressExtensionsKt.isArchived(importedAddress)) {
+            if (!importedAddress.isArchived()) {
                 addrs.add(importedAddress.getAddress());
             }
         }
@@ -437,63 +472,14 @@ public class Wallet {
         return addrs;
     }
 
-    public List<String> getImportedAddressStringList(long tag) {
-
-        List<String> addrs = new ArrayList<>(walletDto.getImported().size());
-        for (ImportedAddress importedAddress : walletDto.getImported()) {
-            if (importedAddress.getTag() == tag) {
-                addrs.add(importedAddress.getAddress());
-            }
-        }
-
-        return addrs;
-    }
 
     public boolean containsImportedAddress(String addr) {
-        if (walletDto.getImported() == null) { return false; }
         for (ImportedAddress importedAddress : walletDto.getImported()) {
             if (importedAddress.getAddress().equals(addr)) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * In case wallet was encrypted with iterations other than what is specified in options, we
-     * will ensure next encryption and options get updated accordingly.
-     *
-     * @return
-     */
-    private int fixPbkdf2Iterations() {
-
-        //Use default initially
-        int iterations = WalletWrapper.DEFAULT_PBKDF2_ITERATIONS_V2;
-
-        //Old wallets may contain 'wallet_options' key - we'll use this now
-        if (
-            walletDto.getWalletOptions() != null &&
-            walletDto.getWalletOptions().getPbkdf2Iterations() > 0 &&
-            walletDto.getOptions() != null
-        ) {
-            iterations = walletDto.getWalletOptions().getPbkdf2Iterations();
-            walletDto.getOptions().setPbkdf2Iterations(iterations);
-        }
-
-        //'options' key override wallet_options key - we'll use this now
-        if (walletDto.getOptions() != null && walletDto.getOptions().getPbkdf2Iterations() > 0) {
-            iterations = walletDto.getOptions().getPbkdf2Iterations();
-        }
-
-        //If wallet doesn't contain 'option' - use default
-        if (walletDto.getOptions() == null) {
-            walletDto.setOptions(Options.Companion.getDefaultOptions());
-        }
-
-        //Set iterations
-        walletDto.getOptions().setPbkdf2Iterations(iterations);
-
-        return iterations;
     }
 
     /**
@@ -508,7 +494,7 @@ public class Wallet {
         for (ImportedAddress importedAddress : addresses) {
             if (importedAddress.getAddress().equals(address)) {
                 String label = importedAddress.getLabel();
-                if (label == null || label.isEmpty()) {
+                if (label.isEmpty()) {
                     return address;
                 }
                 else {
@@ -520,20 +506,53 @@ public class Wallet {
         return address;
     }
 
-    //Assume we only support 1 hdWallet
-    private static final int HD_WALLET_INDEX = 0;
 
-    private boolean isKeyUnencrypted(String data) {
-        if (data == null) { return false; }
-        try {
-            Base58.decode(data);
-            return true;
-        } catch (AddressFormatException e) {
-            return false;
-        }
+    public Wallet withUpdatedBodiesAndVersion(List<WalletBody> walletBodies, int version) {
+        return new Wallet(
+            walletDto.replaceWalletBodies(
+                walletBodies.stream()
+                    .map(WalletBody::getWalletBodyDto).collect(Collectors.toList())),
+            walletBodies,
+            version
+        );
     }
 
-    public void setImportedAddresses(List<ImportedAddress> backup) {
-        walletDto.setImported(backup);
+    public Wallet updateArchivedState(JsonSerializableAccount account, boolean isArchived) {
+        if (getWalletBody() == null) { return this; }
+        if (account instanceof ImportedAddress) {
+            return new Wallet(
+                walletDto.updateArchivedStateOfImportedAddr((ImportedAddress) account, isArchived),
+                walletBodies,
+                wrapperVersion
+            );
+        }
+        else if (account instanceof Account) {
+            WalletBody walletBody = getWalletBody().updateAccountState((Account) account, isArchived);
+            return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
+        }
+        throw new IllegalStateException("Unknown to payload account type " + account);
+    }
+
+    public Wallet updateMnemonicVerifiedState(boolean verified) {
+        return withUpdatedBodiesAndVersion(
+            Collections.singletonList(walletBodies.get(WalletBody.HD_DEFAULT_WALLET_INDEX).updateMnemonicState(verified)),
+            wrapperVersion
+        );
+    }
+
+    public Wallet updatePbkdf2Iterations(int iterations) {
+        return new Wallet(
+            walletDto.withPbkdf2Iterations(iterations),
+            walletBodies,
+            wrapperVersion
+        );
+    }
+
+    public Wallet updateTxNotes(String transactionHash, String notes) {
+        return new Wallet(
+            walletDto.withUpdatedNotes(transactionHash, notes),
+            walletBodies,
+            wrapperVersion
+        );
     }
 }

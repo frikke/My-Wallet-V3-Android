@@ -21,10 +21,10 @@ object ImportedAddressHelper {
                 createdDeviceName = "",
                 createdTime = System.currentTimeMillis(),
                 createdDeviceVersion = "",
+                _tag = 0,
+                privateKey = Base58.encode(it.privKeyBytes),
                 labelField = "Some Label"
-            ).apply {
-                setPrivateKeyFromBytes(it.privKeyBytes)
-            }
+            )
         }
 
     private fun privateKeyWifToEcKey(privateKeyBase58Wif: String) = ECKey.fromPrivate(

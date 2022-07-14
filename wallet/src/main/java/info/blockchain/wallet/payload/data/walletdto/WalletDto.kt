@@ -1,91 +1,163 @@
 package info.blockchain.wallet.payload.data.walletdto
 
-import info.blockchain.wallet.payload.data.AddressBook
+import com.blockchain.extensions.replace
 import info.blockchain.wallet.payload.data.ImportedAddress
 import info.blockchain.wallet.payload.data.Options
 import info.blockchain.wallet.payload.data.Options.Companion.defaultOptions
-import info.blockchain.wallet.payload.data.WalletBody
+import info.blockchain.wallet.payload.data.WalletBodyDto
 import java.util.UUID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 
 @Serializable
-internal class WalletDto constructor(
+internal data class WalletDto(
     @SerialName("guid")
-    var guid: String? = null,
+    val guid: String,
 
     @SerialName("sharedKey")
-    var sharedKey: String? = null,
+    val sharedKey: String,
 
     @SerialName("double_encryption")
-    val isDoubleEncryption: Boolean = false,
+    private val _isDoubleEncryption: Boolean? = null,
 
     @SerialName("dpasswordhash")
-    val dpasswordhash: String? = null,
+    private val _dpasswordhash: String? = null,
 
     @SerialName("metadataHDNode")
     val metadataHDNode: String? = null,
 
     @SerialName("tx_notes")
-    var txNotes: MutableMap<String, String>? = null,
-
-    @SerialName("tx_tags")
-    val txTags: Map<String, List<Int>>? = null,
+    val txNotes: Map<String, String>? = null,
 
     @SerialName("tag_names")
     val tagNames: List<Map<Int, String>>? = null,
 
     @SerialName("options")
-    var options: Options? = null,
-
-    @SerialName("address_book")
-    var addressBook: List<AddressBook>? = null,
+    private val _options: Options? = null,
 
     @SerialName("wallet_options")
-    val walletOptions: Options? = null,
-
+    private val walletOptions: Options? = null,
+    /**
+     * This can be null in case of <V3 wallets
+     */
     @SerialName("hd_wallets")
-    var walletBodies: List<WalletBody>? = null,
+    val walletBodies: List<WalletBodyDto>? = null,
 
     @SerialName("keys")
-    var imported: MutableList<ImportedAddress>? = null
+    private val _imported: List<ImportedAddress>? = null
 ) {
-    constructor() : this(
-        guid = UUID.randomUUID().toString(),
-        sharedKey = UUID.randomUUID().toString(),
-        txNotes = hashMapOf(),
-        imported = mutableListOf(),
-        options = defaultOptions,
-        walletBodies = emptyList()
-    )
+    val options: Options
+        get() = _options ?: _options.fixPbkdf2Iterations()
 
-    constructor(walletBodies: List<WalletBody>) : this(
+    val doubledEncrypted: Boolean
+        get() = _isDoubleEncryption ?: false
+
+    val dpasswordhash: String
+        get() = _dpasswordhash ?: ""
+
+    val imported: List<ImportedAddress>
+        get() = _imported ?: emptyList()
+
+    constructor(walletBodies: List<WalletBodyDto>) : this(
         guid = UUID.randomUUID().toString(),
         sharedKey = UUID.randomUUID().toString(),
         txNotes = hashMapOf(),
-        imported = mutableListOf(),
-        options = defaultOptions,
+        _imported = listOf(),
+        _dpasswordhash = null,
+        _isDoubleEncryption = false,
+        metadataHDNode = null,
+        tagNames = emptyList(),
+        _options = defaultOptions,
+        walletOptions = null,
         walletBodies = walletBodies
     )
 
-    fun toJson(module: SerializersModule): String {
+    fun addWalletBody(walletBody: WalletBodyDto): WalletDto =
+        this.copy(
+            walletBodies = walletBodies?.plus(walletBody) ?: listOf(walletBody)
+        )
+
+    fun replaceWalletBodies(walletBodies: List<WalletBodyDto>): WalletDto =
+        this.copy(
+            walletBodies = walletBodies
+        )
+
+    fun replaceImportedAddress(oldAddress: ImportedAddress, newAddress: ImportedAddress): WalletDto =
+        this.copy(
+            _imported = _imported?.replace(oldAddress, newAddress) ?: listOf(newAddress)
+        )
+
+    fun addImportedAddress(address: ImportedAddress): WalletDto =
+        this.copy(
+            _imported = _imported?.plus(address) ?: listOf(address)
+        )
+
+    fun toJson(): String {
         val jsonBuilder = Json {
             ignoreUnknownKeys = true
-            serializersModule = module
         }
         return jsonBuilder.encodeToString(this)
     }
 
+    fun replaceWalletBody(oldWalletBodyDto: WalletBodyDto, newWalletBodyDto: WalletBodyDto): WalletDto =
+        this.copy(
+            walletBodies = walletBodies!!.replace(oldWalletBodyDto, newWalletBodyDto)
+        )
+
+    /**
+     * In case wallet was encrypted with iterations other than what is specified in options, we
+     * will ensure next encryption and options get updated accordingly.
+     *
+     * @return
+     */
+    private fun Options?.fixPbkdf2Iterations(): Options {
+        // Use default initially
+        //  val iterations = WalletWrapper.DEFAULT_PBKDF2_ITERATIONS_V2
+
+        // Old wallets may contain 'wallet_options' key - we'll use this now
+        if (
+            walletOptions?.pbkdf2Iterations != null && walletOptions.pbkdf2Iterations > 0 &&
+            this?.pbkdf2Iterations == null
+        ) {
+            val options = _options ?: defaultOptions
+            return options.copy(
+                pbkdf2Iterations = walletOptions.pbkdf2Iterations
+            )
+        }
+
+        // 'options' key override wallet_options key - we'll use this now
+        if (this?.pbkdf2Iterations != null && this.pbkdf2Iterations > 0) {
+            return this
+        }
+        // If wallet doesn't contain 'option' - use default
+        if (this?.pbkdf2Iterations == null) {
+            return defaultOptions
+        }
+        return this
+    }
+
+    fun updateArchivedStateOfImportedAddr(address: ImportedAddress, isArchived: Boolean): WalletDto =
+        this.copy(
+            _imported = _imported?.replace(address, address.updateArchivedState(isArchived))
+        )
+
+    fun withPbkdf2Iterations(iterations: Int): WalletDto =
+        this.copy(_options = _options?.copy(pbkdf2Iterations = iterations))
+
+    fun withUpdatedNotes(transactionHash: String, notes: String): WalletDto {
+        return this.copy(
+            txNotes = txNotes?.plus(transactionHash to notes) ?: mapOf(transactionHash to notes)
+        )
+    }
+
     companion object {
         @JvmStatic
-        fun fromJson(json: String, module: SerializersModule): WalletDto {
+        fun fromJson(json: String): WalletDto {
             val jsonBuilder = Json {
                 ignoreUnknownKeys = true
-                serializersModule = module
             }
             return jsonBuilder.decodeFromString(json)
         }

@@ -45,7 +45,7 @@ class WalletWrapperTest : MockedResponseTest() {
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7}",
-            walletWrapper.toJson(WalletWrapper.V4)
+            walletWrapper.toJson()
         )
     }
 
@@ -56,7 +56,7 @@ class WalletWrapperTest : MockedResponseTest() {
 
         Assert.assertEquals(
             "{\"version\":4,\"pbkdf2_iterations\":7,\"payload\":\"test_payload\"}",
-            walletWrapper.toJson(WalletWrapper.V4)
+            walletWrapper.toJson()
         )
     }
 }

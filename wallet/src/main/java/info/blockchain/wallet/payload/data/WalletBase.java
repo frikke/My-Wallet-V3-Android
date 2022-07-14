@@ -1,5 +1,7 @@
 package info.blockchain.wallet.payload.data;
 
+import com.blockchain.serialization.JsonSerializableAccount;
+
 import info.blockchain.wallet.crypto.AESUtil;
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.EncryptionException;
@@ -7,12 +9,12 @@ import info.blockchain.wallet.exceptions.HDWalletException;
 import info.blockchain.wallet.exceptions.UnsupportedVersionException;
 import info.blockchain.wallet.payload.data.walletdto.WalletBaseDto;
 import info.blockchain.wallet.util.FormatsUtil;
-import kotlinx.serialization.modules.SerializersModule;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -31,34 +33,51 @@ public class WalletBase {
     private static final int DEFAULT_PBKDF2_ITERATIONS_V1_B = 10;
 
     private final WalletBaseDto walletBaseDto;
+    // HDWallet body containing private keys.
+    private Wallet wallet;
 
     private WalletBase(WalletBaseDto walletBaseDto) {
         this.walletBaseDto = walletBaseDto;
     }
 
-    public WalletBase() {
-        walletBaseDto = new WalletBaseDto();
+    public WalletBase(Wallet wallet) {
+        this.wallet   = wallet;
+        walletBaseDto = WalletBaseDto.Companion.withDefaults();
     }
 
-    public String getGuid() {
-        return walletBaseDto.getGuid();
+    private WalletBase(WalletBaseDto walletBaseDto, Wallet walletBody) {
+        this.walletBaseDto = walletBaseDto;
+        this.wallet        = walletBody;
     }
 
-    public void setGuid(String guid) {
-        walletBaseDto.setGuid(guid);
+    public WalletBase withWalletBody(Wallet walletBody) {
+        return new WalletBase(walletBaseDto, walletBody);
     }
 
-    public void decryptPayload(@Nonnull String password)
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public WalletBase withUpdatedDerivationsForAccounts(List<Account> accounts) {
+        return withWalletBody(wallet.withUpdatedDerivationsForAccounts(accounts));
+    }
+
+    public WalletBase withUpdatedDefaultDerivationTypeForAccounts(List<Account> accounts) {
+        return withWalletBody(wallet.withUpdatedDefaultDerivationTypeForAccounts(accounts));
+    }
+
+
+    private Wallet decryptPayload(@Nonnull String password)
         throws DecryptionException,
         IOException,
         UnsupportedVersionException,
         HDWalletException {
 
         if (!isV1Wallet()) {
-            walletBody = decryptV3OrV4Wallet(password);
+            return decryptV3OrV4Wallet(password);
         }
         else {
-            walletBody = decryptV1Wallet(password);
+            return decryptV1Wallet(password);
         }
     }
 
@@ -72,7 +91,7 @@ public class WalletBase {
     }
 
     /*
-    No need to encrypt V1 wallet again. We will force user to upgrade to V3
+        No need to encrypt V1 wallet again. We will force user to upgrade to V3
      */
     private Wallet decryptV1Wallet(String password)
         throws DecryptionException, IOException, HDWalletException {
@@ -119,56 +138,29 @@ public class WalletBase {
         }
 
         String decryptedPayload = decrypted;
-        walletBody = Wallet.fromJson(decryptedPayload);
-        return walletBody;
+        wallet = Wallet.fromJson(decryptedPayload, 1);
+        return wallet;
     }
 
-    public String getExtraSeed() {
-        return walletBaseDto.getExtraSeed();
+    public WalletBase withUpdatedChecksum(String checksum) {
+        return new WalletBase(
+            walletBaseDto.withUpdatedPayloadCheckSum(checksum),
+            wallet
+        );
     }
 
-    public void setExtraSeed(String extraSeed) {
-        walletBaseDto.setExtraSeed(extraSeed);
+    public WalletBase withDecryptedPayload(String password) throws
+        HDWalletException, IOException, DecryptionException, UnsupportedVersionException {
+        return new WalletBase(
+            walletBaseDto, decryptPayload(password)
+        );
     }
 
-    public String getPayloadChecksum() {
-        return walletBaseDto.getPayloadChecksum();
-    }
-
-    public void setPayloadChecksum(String payloadChecksum) {
-        walletBaseDto.setPayloadChecksum(payloadChecksum);
-    }
-
-    public String getWarChecksum() {
-        return walletBaseDto.getWarChecksum();
-    }
-
-    public void setWarChecksum(String warChecksum) {
-        walletBaseDto.setWarChecksum(warChecksum);
-    }
-
-    public String getLanguage() {
-        return walletBaseDto.getLanguage();
-    }
-
-    public void setLanguage(String language) {
-        walletBaseDto.setLanguage(language);
-    }
-
-    public String getStorageToken() {
-        return walletBaseDto.getStorageToken();
-    }
-
-    public void setStorageToken(String storageToken) {
-        walletBaseDto.setStorageToken(storageToken);
-    }
-
-    public boolean isSyncPubkeys() {
-        return walletBaseDto.getSyncPubkeys();
-    }
-
-    public void setSyncPubkeys(boolean syncPubkeys) {
-        walletBaseDto.setSyncPubkeys(syncPubkeys);
+    public WalletBase withSyncedPubKeys() {
+        return new WalletBase(
+            walletBaseDto.withSyncedKeys(),
+            wallet
+        );
     }
 
     public boolean isV1Wallet() {
@@ -186,31 +178,38 @@ public class WalletBase {
     public Pair encryptAndWrapPayload(String password)
         throws EncryptionException, NoSuchAlgorithmException {
 
-        int version = walletBody.getWrapperVersion();
-        int iterations = walletBody.getOptions().getPbkdf2Iterations();
-        String encryptedPayload;
-        SerializersModule serializersModule = WalletWrapper.getSerializerForVersion(version);
-        encryptedPayload = AESUtil.encrypt(walletBody.toJson(serializersModule), password, iterations);
+        int version = wallet.getWrapperVersion();
+        int iterations = wallet.getOptions().getPbkdf2Iterations();
+        String encryptedPayload = AESUtil.encrypt(wallet.toJson(), password, iterations);
         WalletWrapper wrapperBody = WalletWrapper.wrap(encryptedPayload, version, iterations);
 
         String checkSum = new String(
             Hex.encode(
                 MessageDigest.getInstance("SHA-256")
-                    .digest(wrapperBody.toJson(version).getBytes(StandardCharsets.UTF_8))
+                    .digest(wrapperBody.toJson().getBytes(StandardCharsets.UTF_8))
             )
         );
 
         return Pair.of(checkSum, wrapperBody);
     }
 
-    // HDWallet body containing private keys
-    private Wallet walletBody;
-
-    public Wallet getWalletBody() {
-        return walletBody;
+    public String getPayloadChecksum() {
+        return walletBaseDto.getPayloadChecksum();
     }
 
-    public void setWalletBody(Wallet walletBody) {
-        this.walletBody = walletBody;
+    public boolean isSyncPubkeys() {
+        return walletBaseDto.getSyncPubkeys();
+    }
+
+    public WalletBase withUpdatedAccountLabel(JsonSerializableAccount account, String label) {
+        return withWalletBody(wallet.updateAccountLabel((Account) account, label));
+    }
+
+    public WalletBase withUpdatedAccountState(JsonSerializableAccount account, boolean isArchived) {
+        return withWalletBody(wallet.updateArchivedState(account, isArchived));
+    }
+
+    public WalletBase withMnemonicState(boolean verified) {
+        return withWalletBody(wallet.updateMnemonicVerifiedState(verified));
     }
 }

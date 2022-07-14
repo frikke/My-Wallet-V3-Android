@@ -17,7 +17,7 @@ class GenericMetadataAccount(
     override var label: String = "",
 
     @SerialName("archived")
-    var isArchived: Boolean = false,
+    override var isArchived: Boolean = false,
 
     @SerialName("xpub")
     private var xpub: String? = null
@@ -34,5 +34,9 @@ class GenericMetadataAccount(
 
     fun xpubs(): XPubs {
         return XPubs(XPub(xpub!!, XPub.Format.LEGACY))
+    }
+
+    override fun updateArchivedState(isArchived: Boolean): JsonSerializableAccount {
+        throw UnsupportedOperationException("Cannot update label of $this")
     }
 }

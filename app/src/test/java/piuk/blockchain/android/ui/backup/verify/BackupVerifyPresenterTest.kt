@@ -77,15 +77,15 @@ class BackupVerifyPresenterTest {
         val pairThree = 7 to "word_three"
         val sequence = listOf(pairOne, pairTwo, pairThree)
         whenever(backupWallet.getConfirmSequence(null)).thenReturn(sequence)
-        whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
+        whenever(payloadDataManager.updateMnemonicVerified(true)).thenReturn(Completable.complete())
         // Act
         subject.onVerifyClicked(pairOne.second, pairTwo.second, pairThree.second)
         // Assert
         verify(backupWallet).getConfirmSequence(null)
         verifyNoMoreInteractions(backupWallet)
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(payloadDataManager).wallet
+        verify(payloadDataManager).updateMnemonicVerified(true)
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).getPageBundle()
         verify(view).showProgressDialog()
@@ -100,13 +100,14 @@ class BackupVerifyPresenterTest {
     @Test
     fun `updateBackupStatus success`() {
         // Arrange
-        whenever(payloadDataManager.syncPayloadWithServer()).thenReturn(Completable.complete())
+        whenever(payloadDataManager.updateMnemonicVerified(true)).thenReturn(Completable.complete())
+
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
         // Act
         subject.updateBackupStatus()
         // Assert
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(payloadDataManager).updateMnemonicVerified(true)
+        verify(payloadDataManager).wallet
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()
@@ -120,14 +121,14 @@ class BackupVerifyPresenterTest {
     @Test
     fun `updateBackupStatus failure`() {
         // Arrange
-        whenever(payloadDataManager.syncPayloadWithServer())
+        whenever(payloadDataManager.updateMnemonicVerified(any()))
             .thenReturn(Completable.error { Throwable() })
         whenever(payloadDataManager.wallet!!.walletBody).thenReturn(mock())
         // Act
         subject.updateBackupStatus()
         // Assert
-        verify(payloadDataManager).syncPayloadWithServer()
-        verify(payloadDataManager, times(2)).wallet
+        verify(payloadDataManager).updateMnemonicVerified(any())
+        verify(payloadDataManager).wallet
         verifyNoMoreInteractions(payloadDataManager)
         verify(view).showProgressDialog()
         verify(view).hideProgressDialog()

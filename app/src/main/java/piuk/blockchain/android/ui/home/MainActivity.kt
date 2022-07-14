@@ -17,7 +17,7 @@ import com.blockchain.analytics.NotificationAppOpened
 import com.blockchain.analytics.events.AnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
 import com.blockchain.analytics.events.SendAnalytics
-import com.blockchain.analytics.events.activityShown
+import com.blockchain.analytics.events.transactionsShown
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
@@ -900,7 +900,7 @@ class MainActivity :
             fragment = ActivitiesFragment.newInstance(account),
             reloadFragment = reload
         )
-        analytics.logEvent(activityShown(account?.label ?: "All Wallets"))
+        analytics.logEvent(transactionsShown(account?.label ?: "All Wallets"))
     }
 
     override fun startDashboardOnboarding() {

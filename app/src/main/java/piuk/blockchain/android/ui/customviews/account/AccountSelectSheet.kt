@@ -3,7 +3,7 @@ package piuk.blockchain.android.ui.customviews.account
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import com.blockchain.analytics.events.activityShown
+import com.blockchain.analytics.events.transactionsShown
 import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.Coincore
 import com.blockchain.commonarch.presentation.base.HostedBottomSheet
@@ -51,7 +51,7 @@ class AccountSelectSheet(
     private var statusDecorator: StatusDecorator = { DefaultCellDecorator() }
 
     private fun doOnAccountSelected(account: BlockchainAccount) {
-        analytics.logEvent(activityShown(account.label))
+        analytics.logEvent(transactionsShown(account.label))
         (host as SelectionHost).onAccountSelected(account)
         dismiss()
     }

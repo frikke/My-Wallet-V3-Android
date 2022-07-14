@@ -137,16 +137,6 @@ class PinInteractor internal constructor(
         )
     }
 
-    fun setAccountLabelIfNecessary() {
-        if (walletStatusPrefs.isNewlyCreated &&
-            payloadManager.accounts.isNotEmpty() &&
-            payloadManager.getAccount(0).label.isEmpty()
-        ) {
-            payloadManager.getAccount(0).label =
-                defaultLabels.getDefaultNonCustodialWalletLabel()
-        }
-    }
-
     fun updateShareKeyInPrefs() {
         authPrefs.sharedKey = payloadManager.wallet?.sharedKey.orEmpty()
     }
@@ -157,7 +147,7 @@ class PinInteractor internal constructor(
         return Observable.fromCallable { appUpdateManager.appUpdateInfo }
     }
 
-    fun doUpgradeWallet(secondPassword: String?, isFromPinCreation: Boolean): Completable {
+    fun doUpgradeWallet(secondPassword: String?): Completable {
         return payloadManager.upgradeWalletPayload(
             secondPassword,
             defaultLabels.getDefaultNonCustodialWalletLabel()

@@ -113,7 +113,7 @@ class PinInteractorTest {
             )
         ).thenReturn(Completable.complete())
 
-        interactor.doUpgradeWallet(secondPassword, false).test()
+        interactor.doUpgradeWallet(secondPassword).test()
 
         verify(payloadDataManager).upgradeWalletPayload(
             secondPassword, defaultLabels.getDefaultNonCustodialWalletLabel()

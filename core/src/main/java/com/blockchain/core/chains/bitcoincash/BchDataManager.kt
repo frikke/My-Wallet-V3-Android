@@ -80,10 +80,9 @@ class BchDataManager(
                     Completable.complete()
                 }
                 saveToMetadataCompletable.then {
-                    if (correctBtcOffsetIfNeed()) {
-                        payloadDataManager.syncPayloadWithServer()
-                    } else
-                        Completable.complete()
+                    Completable.fromCallable {
+                        correctBtcOffsetIfNeed()
+                    }
                 }
             }
             .subscribeOn(Schedulers.io())
@@ -213,7 +212,7 @@ class BchDataManager(
      *
      * @return Boolean value to indicate if bitcoin wallet payload needs to sync to the server
      */
-    fun correctBtcOffsetIfNeed(): Boolean {
+    fun correctBtcOffsetIfNeed() {
         val startingAccountIndex = payloadDataManager.accounts.size
         val bchAccountSize = bchDataStore.bchMetadata?.accounts?.size ?: 0
         val difference = bchAccountSize.minus(startingAccountIndex)
@@ -222,21 +221,18 @@ class BchDataManager(
             (startingAccountIndex until bchAccountSize)
                 .forEach {
                     val accountNumber = it + 1
-
                     val label = defaultLabels.getDefaultNonCustodialWalletLabel()
-                    val walletBody = payloadDataManager.wallet!!.walletBody
                     val newAccountLabel = "$label $accountNumber"
-                    val acc = walletBody?.addAccount(newAccountLabel)
+                    println(newAccountLabel)
+                    val acc = payloadDataManager.addAccountWithLabel(newAccountLabel)
 
                     bchDataStore.bchMetadata!!.accounts[it].apply {
-                        val xpub = acc?.xpubForDerivation(Derivation.LEGACY_TYPE)
+                        val xpub = acc.xpubForDerivation(Derivation.LEGACY_TYPE)
                         checkXpubAndLog(xpub, "correctoffset", it)
                         this.setXpub(xpub)
                     }
                 }
         }
-
-        return difference > 0
     }
 
     /**

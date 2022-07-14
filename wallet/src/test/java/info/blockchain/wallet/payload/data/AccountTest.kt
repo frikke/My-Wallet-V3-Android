@@ -3,28 +3,20 @@ package info.blockchain.wallet.payload.data
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
-import org.bitcoinj.crypto.HDKeyDerivation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 
 class AccountTest {
-    @Before
-    fun setup() {
-        val seed = "15e23aa73d25994f1921a1256f93f72c"
-        val key = HDKeyDerivation.createMasterPrivateKey(seed.toByteArray())
-    }
-
     @Test
     fun fromJson_1() {
         val uri = javaClass.classLoader.getResource("wallet_body_1.txt")?.toURI()!!
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 3)
         val hdWallet = wallet.walletBody
-        val accounts = hdWallet!!.accounts!!
+        val accounts = hdWallet!!.accounts
         assertEquals(68, accounts.size.toLong())
         assertEquals("My Wallet", accounts[0].label)
         assertFalse(accounts[0].isArchived)
@@ -39,7 +31,6 @@ class AccountTest {
                 "YJMEzb5G3oGwYrE6WQjnjhLeB6TgVudV3B9kKtpQmYeBJZLRNyXCobPht2jPUBm",
             accounts[0].getDefaultXpub()
         )
-        assertNotNull(accounts[0].addressCache)
         assertNotNull(accounts[0].addressLabels)
         assertEquals("Savings 1", accounts[1].label)
         assertTrue(accounts[1].isArchived)
@@ -54,8 +45,6 @@ class AccountTest {
                 "ChAKtUX5uRza9rabc6rAgFhXptveBmaoy7ptVGgbYT8KKaJ9E7wmyj5o4aqvr",
             accounts[1].getDefaultXpub()
         )
-        assertNotNull(accounts[1].addressCache)
-
         // AddressLabel parsing tested in AddressLabelTest
         assertNotNull(accounts[1].addressLabels)
     }
@@ -64,9 +53,9 @@ class AccountTest {
     fun fromJson_6() {
         val uri = javaClass.classLoader.getResource("wallet_body_6.txt")?.toURI()!!
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 3)
         val hdWallet = wallet.walletBody
-        val accounts = hdWallet!!.accounts!!
+        val accounts = hdWallet!!.accounts
         assertEquals(1, accounts.size.toLong())
         assertEquals("My Bitcoin Wallet", accounts[0].label)
         assertFalse(accounts[0].isArchived)
@@ -80,7 +69,6 @@ class AccountTest {
                 "NchLsoHENPVcdgAtUrk82X5LNuaViWoxsqMhCd3UBxhQRHvyrUeqqA7tupvSpkoC73nhL1",
             accounts[0].getDefaultXpub()
         )
-        assertNotNull(accounts[0].addressCache)
         assertNotNull(accounts[0].addressLabels)
     }
 }

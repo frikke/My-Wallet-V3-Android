@@ -52,7 +52,7 @@ class SMSVerificationInteractor internal constructor(
                 if (enable) {
                     payloadDataManager.syncPayloadAndPublicKeys()
                 } else {
-                    payloadDataManager.syncPayloadWithServer()
+                    Completable.complete()
                 }
             }.thenSingle {
                 cachedSettings

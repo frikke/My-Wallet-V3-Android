@@ -3,6 +3,7 @@ package piuk.blockchain.androidcore.data.payload
 import com.blockchain.annotations.MoveCandidate
 import com.blockchain.api.services.NonCustodialBitcoinService
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.serialization.JsonSerializableAccount
 import info.blockchain.balance.CryptoValue
 import info.blockchain.wallet.bip44.HDWalletFactory
 import info.blockchain.wallet.dynamicselfcustody.CoinConfiguration
@@ -18,7 +19,9 @@ import info.blockchain.wallet.payload.data.AccountV3
 import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.Derivation
 import info.blockchain.wallet.payload.data.ImportedAddress
+import info.blockchain.wallet.payload.data.MISSING_DEFAULT_INDEX_VALUE
 import info.blockchain.wallet.payload.data.Wallet
+import info.blockchain.wallet.payload.data.WalletBody.Companion.HD_DEFAULT_WALLET_INDEX
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
@@ -31,6 +34,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.lang.IllegalStateException
+import java.lang.RuntimeException
 import java.math.BigInteger
 import org.bitcoinj.core.AddressFormatException
 import org.bitcoinj.core.LegacyAddress
@@ -72,11 +76,8 @@ class PayloadDataManager internal constructor(
     val accountCount: Int
         get() = wallet?.walletBody?.accounts?.size ?: 0
 
-    var importedAddresses: List<ImportedAddress>
+    val importedAddresses: List<ImportedAddress>
         get() = wallet?.importedAddressList?.filter { !it.isWatchOnly() } ?: emptyList()
-        set(addresses) {
-            wallet!!.setImportedAddresses(addresses)
-        }
 
     val importedAddressStringList: List<String>
         get() = wallet?.importedAddressStringList ?: emptyList()
@@ -94,11 +95,8 @@ class PayloadDataManager internal constructor(
         get() = payloadManager.payloadChecksum
 
     // Can be null if the user is not currently logged in and has no pin set
-    var tempPassword: String?
+    val tempPassword: String?
         get() = payloadManager.tempPassword
-        set(password) {
-            payloadManager.tempPassword = password
-        }
 
     val importedAddressesBalance: BigInteger
         get() = payloadManager.importedAddressesBalance
@@ -214,7 +212,7 @@ class PayloadDataManager internal constructor(
                 logWalletStats(hasRecoveredDerivations = false)
                 recoverMissingDerivations()
             }.then {
-                checkForDefaultMissingDerivationOrDefaultAccountIndex()
+                checkForMissingDefaultDerivationOrDefaultAccountIndex()
             }
             .doOnComplete {
                 logWalletStats(hasRecoveredDerivations = true)
@@ -227,22 +225,24 @@ class PayloadDataManager internal constructor(
      * The original issue was created when a bug introduced by kotlinx serialisation made those fields not to get
      * encode on the payload and iOS was failing due to them missing from the payload.
      */
-    private fun checkForDefaultMissingDerivationOrDefaultAccountIndex(): Completable {
+    private fun checkForMissingDefaultDerivationOrDefaultAccountIndex(): Completable {
         val accountsMissingDefaultType = payloadManager.payload?.walletBody?.accounts?.filter { account ->
             account is AccountV4 && account.defaultType.isEmpty()
         } ?: emptyList()
 
-        val missingDefaultIndex = payloadManager.payload?.walletBody?.defaultAccountIdx == -1
+        val missingDefaultIndex = payloadManager.payload?.walletBody?.defaultAccountIdx == MISSING_DEFAULT_INDEX_VALUE
 
         val updateRequired = missingDefaultIndex || accountsMissingDefaultType.isNotEmpty()
         return when {
             !updateRequired || isDoubleEncrypted -> Completable.complete()
             else -> {
-                accountsMissingDefaultType.forEach { account ->
-                    payloadManager.payload?.walletBody?.generateDerivationsForAccount(account)
+                Completable.fromCallable {
+                    payloadManager.updateDerivationsForAccounts(accounts)
+                }.then {
+                    Completable.fromCallable {
+                        payloadManager.updateDefaultIndex(HD_DEFAULT_WALLET_INDEX)
+                    }
                 }
-                payloadManager.payload?.walletBody?.updateDefaultIndex()
-                syncPayloadWithServer()
             }
         }
     }
@@ -301,7 +301,7 @@ class PayloadDataManager internal constructor(
         logWalletUpgradeStats()
         remoteLogger.logState("tried recovering derivations", hasRecoveredDerivations.toString())
         payloadManager.payload?.let { payload ->
-            remoteLogger.logState("wallet wrapper version", payload.walletBody?.wrapperVersion.toString())
+            remoteLogger.logState("wallet wrapper version", payload.wrapperVersion.toString())
             remoteLogger.logState("wallet has second password", isDoubleEncrypted.toString())
             payload.walletBody?.accounts?.map { account ->
                 remoteLogger.logState("account is archived", account.isArchived.toString())
@@ -346,25 +346,12 @@ class PayloadDataManager internal constructor(
         return when {
             accountsWithMissingDerivations.isNullOrEmpty() || isDoubleEncrypted -> Completable.complete()
             else -> {
-                accountsWithMissingDerivations.forEach { account ->
-                    payloadManager.payload?.walletBody?.generateDerivationsForAccount(account)
+                Completable.fromCallable {
+                    payloadManager.updateDerivationsForAccounts(accountsWithMissingDerivations)
                 }
-                syncPayloadWithServer()
             }
         }
     }
-
-    // /////////////////////////////////////////////////////////////////////////
-    // SYNC METHODS
-    // /////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Returns a [Completable] which saves the current payload to the server.
-     *
-     * @return A [Completable] object
-     */
-    fun syncPayloadWithServer(): Completable =
-        payloadService.syncPayloadWithServer().applySchedulers()
 
     /**
      * Returns a [Completable] which saves the current payload to the server whilst also
@@ -553,15 +540,6 @@ class PayloadDataManager internal constructor(
             .singleOrError()
 
     /**
-     * Allows you to propagate changes to a [ImportedAddress] through the [Wallet]
-     *
-     * @param importedAddress The updated address
-     * @return A [Completable] object representing a successful save
-     */
-    fun updateImportedAddress(importedAddress: ImportedAddress): Completable =
-        payloadService.updateImportedAddress(importedAddress).applySchedulers()
-
-    /**
      * Returns an Elliptic Curve key for a given private key
      *
      * @param keyFormat The format of the private key
@@ -695,9 +673,10 @@ class PayloadDataManager internal constructor(
     // HELPER METHODS
     // /////////////////////////////////////////////////////////////////////////
 
-    fun setDefaultIndex(defaultIndex: Int) {
-        wallet!!.walletBody?.defaultAccountIdx = defaultIndex
-    }
+    fun setDefaultIndex(defaultIndex: Int): Completable =
+        Completable.fromCallable {
+            payloadManager.updateDefaultIndex(defaultIndex)
+        }.applySchedulers()
 
     fun validateSecondPassword(secondPassword: String?): Boolean =
         payloadManager.validateSecondPassword(secondPassword)
@@ -744,6 +723,38 @@ class PayloadDataManager internal constructor(
             }
         } catch (ignored: AddressFormatException) {
             null
+        }
+    }
+
+    fun addAccountWithLabel(newAccountLabel: String): Account {
+        return payloadManager.addAccount(newAccountLabel, null)
+    }
+
+    fun updateAccountLabel(internalAccount: JsonSerializableAccount, newLabel: String): Completable {
+        return Completable.fromCallable {
+            payloadManager.updateAccountLabel(internalAccount, newLabel)
+        }.applySchedulers()
+    }
+
+    fun updateAccountArchivedState(internalAccount: JsonSerializableAccount, isArchived: Boolean): Completable {
+        return Completable.fromCallable {
+            payloadManager.updateArchivedAccountState(internalAccount, isArchived)
+        }.applySchedulers()
+    }
+
+    fun updateMnemonicVerified(mnemonicVerified: Boolean): Completable {
+        return Completable.fromCallable {
+            payloadManager.updateMnemonicVerified(mnemonicVerified)
+        }.applySchedulers()
+    }
+
+    fun updatePassword(password: String): Completable {
+        return Single.fromCallable {
+            payloadManager.updatePassword(password)
+        }.applySchedulers().flatMapCompletable { success ->
+            if (success) {
+                Completable.complete()
+            } else Completable.error(RuntimeException("Update password failed"))
         }
     }
 

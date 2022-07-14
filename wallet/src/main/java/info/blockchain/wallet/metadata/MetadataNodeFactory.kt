@@ -33,7 +33,6 @@ class MetadataNodeFactory(
         }
         sharedMetadataNode = metadataDerivation.deserializeMetadataNode(remoteMetadataNodes.mdid)
         metadataNode = metadataDerivation.deserializeMetadataNode(remoteMetadataNodes.metadata)
-
         return true
     }
 

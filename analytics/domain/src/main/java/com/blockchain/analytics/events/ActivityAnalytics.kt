@@ -25,7 +25,7 @@ enum class ActivityAnalytics(
     DETAILS_FEE_VIEW_EXPLORER("activity_gas_view_explorer")
 }
 
-fun activityShown(activityType: String): AnalyticsEvent = object : AnalyticsEvent {
+fun transactionsShown(activityType: String): AnalyticsEvent = object : AnalyticsEvent {
     override val event: String = "activity_page_shown"
     override val params: Map<String, String> = mapOf(
         "wallet" to activityType

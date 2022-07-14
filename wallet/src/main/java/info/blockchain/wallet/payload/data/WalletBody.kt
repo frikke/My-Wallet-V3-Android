@@ -1,6 +1,7 @@
 package info.blockchain.wallet.payload.data
 
 import com.blockchain.api.services.NonCustodialBitcoinService
+import com.blockchain.extensions.replace
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import info.blockchain.wallet.bip44.HDAccount
@@ -11,58 +12,37 @@ import info.blockchain.wallet.exceptions.HDWalletException
 import info.blockchain.wallet.keys.MasterKey
 import info.blockchain.wallet.keys.SigningKey
 import info.blockchain.wallet.payload.HDWalletsContainer
+import info.blockchain.wallet.payload.data.Derivation.Companion.SEGWIT_BECH32_TYPE
 import info.blockchain.wallet.payload.model.toBalanceMap
 import info.blockchain.wallet.payment.SpendableUnspentOutputs
 import info.blockchain.wallet.util.DoubleEncryptionFactory
 import info.blockchain.wallet.util.PrivateKeyFactory
 import java.util.LinkedList
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import org.spongycastle.util.encoders.Hex
 
-@Serializable
-class WalletBody {
+class WalletBody(
+    private val version: Int,
+    val walletBodyDto: WalletBodyDto,
+    private val HD: HDWalletsContainer
+) {
 
-    @SerialName("accounts")
-    var accounts: MutableList<Account>? = null
+    init {
+        if (HD.isInstantiated.not()) {
+            instantiateBip44Wallet()
+        }
+    }
 
-    @SerialName("seed_hex")
-    var seedHex: String? = null
-
-    @SerialName("passphrase")
-    var passphrase: String? = null
-
-    @SerialName("mnemonic_verified")
-    var mnemonicVerified = false
-
-    @OptIn(ExperimentalSerializationApi::class)
-    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
-    @SerialName("default_account_idx")
-    var defaultAccountIdx = -1
-
-    @Transient
-    var wrapperVersion = 0
-
-    @Transient
-    private val HD = HDWalletsContainer()
+    val mnemonicVerified: Boolean
+        get() = walletBodyDto.mnemonicVerified
 
     fun decryptHDWallet(
         validatedSecondPassword: String?,
         sharedKey: String,
         iterations: Int
     ) {
-        if (!HD.isInstantiated) {
-            instantiateBip44Wallet()
-        }
+
         if (validatedSecondPassword != null && !HD.isDecrypted) {
-            val encryptedSeedHex = seedHex
+            val encryptedSeedHex = walletBodyDto.seedHex
             val decryptedSeedHex = DoubleEncryptionFactory.decrypt(
                 encryptedSeedHex,
                 sharedKey,
@@ -72,23 +52,29 @@ class WalletBody {
             HD.restoreWallets(
                 HDWalletFactory.Language.US,
                 decryptedSeedHex,
-                passphrase!!,
-                accounts!!.size
+                walletBodyDto.passphrase,
+                walletBodyDto.accounts.size
             )
         }
     }
 
+    val seedHex: String
+        get() = walletBodyDto.seedHex
+
+    val accounts: List<Account>
+        get() = walletBodyDto.accounts
+
     private fun instantiateBip44Wallet() {
         try {
-            val walletSize = accounts?.size ?: DEFAULT_NEW_WALLET_SIZE
+            val walletSize = walletBodyDto.accounts.takeIf { it.isNotEmpty() }?.size ?: DEFAULT_NEW_WALLET_SIZE
             HD.restoreWallets(
                 HDWalletFactory.Language.US,
-                seedHex!!,
-                passphrase!!,
+                walletBodyDto.seedHex,
+                walletBodyDto.passphrase,
                 walletSize
             )
         } catch (e: Exception) {
-            HD.restoreWatchOnly(accounts!!)
+            HD.restoreWatchOnly(walletBodyDto.accounts)
         }
 
         if (!HD.isInstantiated) {
@@ -104,145 +90,165 @@ class WalletBody {
         }
     }
 
-    constructor()
+    val defaultAccountIdx: Int
+        get() = walletBodyDto.defaultAccountIdx ?: MISSING_DEFAULT_INDEX_VALUE
 
-    constructor(defaultAccountName: String, createV4: Boolean = true) {
-        HD.createWallets(
-            HDWalletFactory.Language.US,
-            DEFAULT_MNEMONIC_LENGTH,
-            DEFAULT_PASSPHRASE,
-            DEFAULT_NEW_WALLET_SIZE
-        )
-        wrapperVersion = if (createV4) WalletWrapper.V4 else WalletWrapper.V3
+    fun getAccount(accountId: Int) = walletBodyDto.accounts[accountId]
 
-        val hdAccounts = HD.legacyAccounts
-        accounts = mutableListOf()
+    fun upgradeAccountsToV4(secondPassword: String?, sharedKey: String, iterations: Int): WalletBody {
 
-        hdAccounts?.forEachIndexed { index, _ ->
-            var label = defaultAccountName
-            if (index > 0) {
-                label = defaultAccountName + " " + (index + 1)
-            }
-            if (createV4) {
-                addAccount(label, HD.getLegacyAccount(index)!!, HD.getSegwitAccount(index))
-            } else
-                addAccount(label, HD.getLegacyAccount(index)!!, null)
-        }
-
-        seedHex = this.HD.seedHex
-        defaultAccountIdx = 0
-        mnemonicVerified = false
-        passphrase = DEFAULT_PASSPHRASE
-    }
-
-    fun getAccount(accountId: Int) = accounts!![accountId]
-
-    fun toJson(module: SerializersModule): String {
-        val jsonBuilder = Json {
-            ignoreUnknownKeys = true
-            serializersModule = module
-            encodeDefaults = true
-        }
-        return jsonBuilder.encodeToString(this)
-    }
-
-    fun upgradeAccountsToV4(): List<Account> {
-        val upgradedAccounts = mutableListOf<Account>()
-        wrapperVersion = WalletWrapper.V4
-        accounts?.forEachIndexed { index, account ->
-            val accountV4: AccountV4 = account.upgradeToV4()
+        val upgradedAccounts = walletBodyDto.accounts.mapIndexed { index, account ->
             val legacyHdAccount = HD.getLegacyAccount(index)
-            accountV4.derivationForType(Derivation.LEGACY_TYPE)!!.cache =
-                AddressCache.setCachedXPubs(legacyHdAccount!!)
-            addSegwitDerivation(accountV4, index)
-            upgradedAccounts.add(accountV4)
+            val segWitHdAccount = HD.getSegwitAccount(index)!!
+            val accountV3 = account as? AccountV3 ?: return@mapIndexed account
+
+            AccountV4(
+                label = account.label,
+                _defaultType = SEGWIT_BECH32_TYPE,
+                _isArchived = account.isArchived,
+                derivations = listOf(
+                    Derivation(
+                        type = Derivation.LEGACY_TYPE,
+                        purpose = Derivation.LEGACY_PURPOSE,
+                        xpriv = accountV3.xpriv,
+                        xpub = accountV3.legacyXpub,
+                        cache = AddressCache.setCachedXPubs(legacyHdAccount),
+                        _addressLabels = account.addressLabels,
+                    ),
+                    segwitDerivation(segWitHdAccount)
+                )
+            ).encryptAccountIfNeeded(secondPassword, sharedKey, iterations)
         }
-        return upgradedAccounts
-    }
-
-    fun generateDerivationsForAccount(account: Account) {
-        val index = accounts!!.indexOf(account)
-        val legacyAccount = HD.getLegacyAccount(index)
-        val segWit = HD.getSegwitAccount(index)
-        val derivations: List<Derivation> = getDerivations(legacyAccount!!, segWit!!)
-
-        accounts!![index] = AccountV4(
-            label = account.label,
-            defaultType = Derivation.SEGWIT_BECH32_TYPE,
-            isArchived = account.isArchived,
-            derivations = derivations.toMutableList()
+        return WalletBody(
+            version = WalletWrapper.V4,
+            HD = HD,
+            walletBodyDto = walletBodyDto.copy(accounts = upgradedAccounts)
         )
     }
 
-    private fun getDerivations(legacyAccount: HDAccount, segWit: HDAccount): List<Derivation> {
-        val derivations = mutableListOf<Derivation>()
-        val legacy = Derivation.create(
-            legacyAccount.xPriv,
-            legacyAccount.xpub,
-            AddressCache.setCachedXPubs(legacyAccount)
+    private fun Account.encryptAccountIfNeeded(secondPassword: String?, sharedKey: String, iterations: Int): Account {
+        return if (secondPassword != null) {
+            val encryptedPrivateKey = DoubleEncryptionFactory.encrypt(
+                xpriv,
+                sharedKey,
+                secondPassword,
+                iterations
+            )
+            this.withEncryptedPrivateKey(encryptedPrivateKey)
+        } else {
+            this
+        }
+    }
+
+    fun updateDefaultindex(index: Int): WalletBody {
+        return WalletBody(
+            version = version,
+            HD = HD,
+            walletBodyDto = walletBodyDto.copy(defaultAccountIdx = index)
         )
-        val segwit = Derivation.createSegwit(
+    }
+
+    fun updateDerivationsForAccounts(accounts: List<Account>): WalletBody {
+        var mWalletBodyDto = walletBodyDto
+        accounts.forEach { account ->
+            val index = accounts.indexOf(account)
+            val legacyAccount = HD.getLegacyAccount(index)
+            val segWit = HD.getSegwitAccount(index)
+            val derivations: List<Derivation> = getDerivations(legacyAccount, segWit!!)
+            mWalletBodyDto = mWalletBodyDto.withUpdatedAccounts(
+                accounts.replace(
+                    account,
+                    AccountV4(
+                        label = account.label,
+                        _defaultType = SEGWIT_BECH32_TYPE,
+                        _isArchived = account.isArchived,
+                        derivations = derivations
+                    )
+                )
+            )
+        }
+
+        return WalletBody(
+            version = version,
+            walletBodyDto = mWalletBodyDto,
+            HD = HD
+        )
+    }
+
+    fun updateDefaultDerivationTypeForAccounts(accounts: List<Account>): WalletBody {
+        var mWalletBodyDto = walletBodyDto
+        accounts.forEach { account ->
+            val index = accounts.indexOf(account)
+            val legacyAccount = HD.getLegacyAccount(index)
+            val segWit = HD.getSegwitAccount(index)
+            val derivations: List<Derivation> = getDerivations(legacyAccount, segWit!!)
+            mWalletBodyDto = mWalletBodyDto.withUpdatedAccounts(
+                accounts.replace(
+                    account,
+                    AccountV4(
+                        label = account.label,
+                        _defaultType = SEGWIT_BECH32_TYPE,
+                        _isArchived = account.isArchived,
+                        derivations = derivations
+                    )
+                )
+            )
+        }
+
+        return WalletBody(
+            version = version,
+            walletBodyDto = mWalletBodyDto,
+            HD = HD
+        )
+    }
+
+    private fun segwitDerivation(segWit: HDAccount): Derivation {
+        validateHD()
+        return Derivation.createSegwit(
             segWit.xPriv,
             segWit.xpub,
             AddressCache.setCachedXPubs(segWit)
         )
-        derivations.add(legacy)
-        derivations.add(segwit)
-        return derivations
-    }
-
-    private fun addSegwitDerivation(accountV4: AccountV4, accountIdx: Int) {
-        validateHD()
-        if (wrapperVersion != WalletWrapper.V4) {
-            throw HDWalletException("HD wallet has not been upgraded to version 4")
-        }
-        val hdAccount = HD.getSegwitAccount(accountIdx)
-        accountV4.addSegwitDerivation(hdAccount!!, accountIdx)
-        accounts!!.set(accountIdx, accountV4)
     }
 
     /**
      * @return Non-archived account xpubs
      */
     fun getActiveXpubs(): List<XPubs> {
-        return accounts?.mapNotNull {
+        return walletBodyDto.accounts.mapNotNull {
             it.takeIf { !it.isArchived }?.xpubs
-        } ?: emptyList()
+        }
     }
 
-    fun addAccount(label: String): Account {
+    fun withNewAccount(label: String, secondPassword: String?, sharedKey: String, iterations: Int): WalletBody {
         validateHD()
         val index = HD.addAccount()
         val legacyAccount = HD.getLegacyAccount(index)
         val segwitAccount = HD.getSegwitAccount(index)
-        return addAccount(label, legacyAccount!!, segwitAccount!!)
+
+        /**
+         * Hardcoding v4. We dont support earlier versions
+         */
+        val account = createAccount(WalletWrapper.V4, label, legacyAccount, segwitAccount!!).encryptIfNeeded(
+            secondPassword, sharedKey, iterations
+        )
+        return WalletBody(
+            version = version,
+            walletBodyDto = walletBodyDto.withUpdatedAccounts(walletBodyDto.accounts.plus(account)),
+            HD = HD
+        )
     }
 
-    fun addAccount(
-        label: String,
-        legacyAccount: HDAccount,
-        segWit: HDAccount?
-    ): Account {
-        val accountBody: Account
-        if (wrapperVersion == WalletWrapper.V4) {
-            val derivations = getDerivations(legacyAccount, segWit!!)
-            accountBody = AccountV4(
-                label = label,
-                defaultType = Derivation.SEGWIT_BECH32_TYPE,
-                isArchived = false,
-                derivations = derivations.toMutableList()
+    private fun Account.encryptIfNeeded(secondPassword: String?, sharedKey: String, iterations: Int): Account =
+        secondPassword?.let {
+            val encryptedPrivateKey = DoubleEncryptionFactory.encrypt(
+                xpriv,
+                sharedKey,
+                secondPassword,
+                iterations
             )
-        } else {
-            accountBody = AccountV3(
-                label = label,
-                isArchived = false,
-                xpriv = legacyAccount.xPriv,
-                legacyXpub = legacyAccount.xpub
-            )
-        }
-        accounts!!.add(accountBody)
-        return accountBody
-    }
+            return this.withEncryptedPrivateKey(encryptedPrivateKey)
+        } ?: this
 
     fun getHDKeysForSigning(
         account: Account,
@@ -286,7 +292,7 @@ class WalletBody {
         }
 
         HD.segwitAccounts?.forEach { account ->
-            if (account.xpub == accountBody.xpubForDerivation(Derivation.SEGWIT_BECH32_TYPE)) {
+            if (account.xpub == accountBody.xpubForDerivation(SEGWIT_BECH32_TYPE)) {
                 segwitAccount = account
             }
         }
@@ -327,7 +333,7 @@ class WalletBody {
     }
 
     fun getLabelFromXpub(xpub: String): String? {
-        accounts?.forEach { account ->
+        walletBodyDto.accounts.forEach { account ->
             if (account.containsXpub(xpub)) {
                 return account.label
             }
@@ -337,14 +343,143 @@ class WalletBody {
 
     fun getDynamicHdAccount(coinConfiguration: CoinConfiguration) = HD.getDynamicAccount(coinConfiguration)
 
-    fun updateDefaultIndex() {
-        defaultAccountIdx = 0
+    fun updateSeedHex(doubleEncryptedSeedHex: String): WalletBody = WalletBody(
+        version = version,
+        walletBodyDto = walletBodyDto.copy(
+            seedHex = doubleEncryptedSeedHex
+        ),
+        HD = HD
+    )
+
+    /**
+     * Returns a new WalletBody with replaced an account,
+     * with the the one that has encypted keys with second passw
+     */
+    fun replaceAccount(oldAccount: Account, newAccount: Account): WalletBody = WalletBody(
+        version = version,
+        walletBodyDto = walletBodyDto.copy(
+            accounts = walletBodyDto.accounts.replace(
+                oldAccount,
+                newAccount
+            )
+        ),
+        HD = HD
+    )
+
+    fun lastCreatedAccount(): Account = walletBodyDto.accounts.last()
+    fun updateAccountLabel(account: Account, label: String): WalletBody {
+        return WalletBody(
+            version,
+            walletBodyDto.updateAccountLabel(account, label),
+            HD
+        )
     }
+
+    fun updateAccountState(account: Account, isArchived: Boolean): WalletBody =
+        WalletBody(
+            version,
+            walletBodyDto.updateAccountArchivedState(account, isArchived),
+            HD
+        )
+
+    fun updateMnemonicState(verified: Boolean): WalletBody = WalletBody(
+        version,
+        walletBodyDto.copy(
+            _mnemonicVerified = verified
+        ),
+        HD
+    )
 
     companion object {
         private const val DEFAULT_MNEMONIC_LENGTH = 12
         private const val DEFAULT_NEW_WALLET_SIZE = 1
         private const val DEFAULT_PASSPHRASE = ""
+
+        fun create(defaultAccountName: String, createV4: Boolean = true): WalletBody {
+            val hd = HDWalletsContainer()
+            hd.createWallets(
+                HDWalletFactory.Language.US,
+                DEFAULT_MNEMONIC_LENGTH,
+                DEFAULT_PASSPHRASE,
+                DEFAULT_NEW_WALLET_SIZE
+            )
+            val wrapperVersion = if (createV4) WalletWrapper.V4 else WalletWrapper.V3
+            val hdAccounts = hd.legacyAccounts
+            val accounts = hdAccounts?.mapIndexed { index, _ ->
+                var label = defaultAccountName
+                if (index > 0) {
+                    label = defaultAccountName + " " + (index + 1)
+                }
+                if (createV4) {
+                    createAccount(
+                        wrapperVersion,
+                        label,
+                        hd.getLegacyAccount(index),
+                        hd.getSegwitAccount(index)
+                    )
+                } else
+                    createAccount(
+                        wrapperVersion,
+                        label,
+                        hd.getLegacyAccount(index),
+                        null
+                    )
+            } ?: emptyList()
+
+            return WalletBody(
+                walletBodyDto = WalletBodyDto(
+                    accounts = accounts,
+                    defaultAccountIdx = 0,
+                    _mnemonicVerified = false,
+                    seedHex = hd.seedHex,
+                    passphrase = DEFAULT_PASSPHRASE
+                ),
+                HD = HDWalletsContainer(),
+                version = if (createV4) WalletWrapper.V4 else WalletWrapper.V3
+            )
+        }
+
+        private fun createAccount(
+            version: Int,
+            label: String,
+            legacyAccount: HDAccount,
+            segWit: HDAccount?
+        ): Account {
+            val accountBody: Account
+            if (version == WalletWrapper.V4) {
+                val derivations = getDerivations(legacyAccount = legacyAccount, segWit = segWit!!)
+                accountBody = AccountV4(
+                    label = label,
+                    _defaultType = SEGWIT_BECH32_TYPE,
+                    _isArchived = false,
+                    derivations = derivations
+                )
+            } else {
+                accountBody = AccountV3(
+                    label = label,
+                    isArchived = false,
+                    xpriv = legacyAccount.xPriv,
+                    legacyXpub = legacyAccount.xpub,
+                    _addressLabels = emptyList(),
+                    addressCache = AddressCache.setCachedXPubs(legacyAccount)
+                )
+            }
+            return accountBody
+        }
+
+        private fun getDerivations(legacyAccount: HDAccount, segWit: HDAccount): List<Derivation> =
+            listOf(
+                Derivation.create(
+                    legacyAccount.xPriv,
+                    legacyAccount.xpub,
+                    AddressCache.setCachedXPubs(legacyAccount)
+                ),
+                Derivation.createSegwit(
+                    segWit.xPriv,
+                    segWit.xpub,
+                    AddressCache.setCachedXPubs(segWit)
+                )
+            )
 
         fun recoverFromMnemonic(
             mnemonic: String,
@@ -358,6 +493,9 @@ class WalletBody {
             bitcoinApi = bitcoinApi
         )
 
+        /**
+         * Only from tests?
+         */
         fun recoverFromMnemonic(
             mnemonic: String,
             passphrase: String,
@@ -388,10 +526,6 @@ class WalletBody {
                 passphrase,
                 DEFAULT_NEW_WALLET_SIZE
             )
-            val walletBody = WalletBody().apply {
-                this.wrapperVersion = wrapperVersion
-                this.accounts = mutableListOf()
-            }
 
             var walletSize = _walletSize
 
@@ -427,28 +561,31 @@ class WalletBody {
             val legacyAccounts = HD.legacyAccounts
             val segwitAccounts = HD.segwitAccounts
 
-            legacyAccounts!!.forEachIndexed { index, legacyAccount ->
+            val recoveredAccounts = legacyAccounts!!.mapIndexed { index, legacyAccount ->
                 val label = if (index > 0) {
                     defaultAccountName + " " + (index + 1)
                 } else defaultAccountName
 
                 val segwitAccount = segwitAccounts!![index]
-                val account =
-                    walletBody.addAccount(label = label, legacyAccount = legacyAccount, segWit = segwitAccount)
-                if (wrapperVersion == WalletWrapper.V4) {
-                    val accountV4 = account.upgradeToV4()
-                    accountV4.addSegwitDerivation(segwitAccounts[index], index)
-                    walletBody.accounts!![index] = accountV4
-                }
+                createAccount(
+                    version = wrapperVersion,
+                    label = label,
+                    legacyAccount = legacyAccount,
+                    segWit = segwitAccount
+                )
             }
 
-            walletBody.apply {
-                this.seedHex = Hex.toHexString(HD.seed)
-                this.passphrase = HD.passphrase
-                this.mnemonicVerified = false
-                this.defaultAccountIdx = 0
-            }
-            return walletBody
+            return WalletBody(
+                walletBodyDto = WalletBodyDto(
+                    seedHex = Hex.toHexString(HD.seed),
+                    passphrase = HD.passphrase!!,
+                    _mnemonicVerified = false,
+                    accounts = recoveredAccounts,
+                    defaultAccountIdx = 0
+                ),
+                HD = HD,
+                version = wrapperVersion
+            )
         }
 
         private fun getDeterminedSize(
@@ -504,14 +641,6 @@ class WalletBody {
             )
         }
 
-        fun fromJson(json: String, module: SerializersModule): WalletBody {
-            val jsonBuilder = Json {
-                ignoreUnknownKeys = true
-                serializersModule = module
-            }
-            val walletBody: WalletBody = jsonBuilder.decodeFromString(json)
-            walletBody.instantiateBip44Wallet()
-            return walletBody
-        }
+        const val HD_DEFAULT_WALLET_INDEX = 0
     }
 }

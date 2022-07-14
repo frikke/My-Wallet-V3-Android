@@ -74,7 +74,8 @@ class LoaderInteractor(
                 metadata.toSingle { it }
             }.flatMapCompletable {
                 syncFiatCurrency(it)
-            }.then {
+            }
+            .then {
                 saveInitialCountry()
             }.then {
                 updateUserFiatIfNotSet()

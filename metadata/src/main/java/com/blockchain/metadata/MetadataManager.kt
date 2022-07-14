@@ -71,11 +71,9 @@ internal class MetadataManager(
 
     override fun decryptAndSetupMetadata(): Completable {
         return generateNodes()
-            .andThen {
-                Completable.defer {
-                    initMetadataNodes()
-                }
-            }
+            .andThen(Completable.defer {
+                initMetadataNodes()
+            })
     }
 
     internal fun fetchMetadata(metadataType: Int): Maybe<String> =
@@ -112,6 +110,7 @@ internal class MetadataManager(
      */
     private fun initMetadataNodes(): Completable =
         loadNodes().map { loaded ->
+
             if (!loaded) {
                 if (walletPayloadService.isDoubleEncrypted) {
                     throw InvalidCredentialsException(

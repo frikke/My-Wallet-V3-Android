@@ -7,52 +7,58 @@ class ImportedAddressExtensionsTest {
 
     @Test
     fun `is not archived initially`() {
-        ImportedAddress().isArchived `should be` false
+        ImportedAddress(
+            address = "",
+            _tag = 0
+        ).isArchived `should be` false
     }
 
     @Test
     fun `tag is not set initially`() {
-        ImportedAddress().tag `should be` 0
+        ImportedAddress(
+            address = "",
+            _tag = 0
+        ).tag `should be` 0
     }
 
     @Test
     fun `archive marks address as archived`() {
-        ImportedAddress().apply {
-            archive()
-            isArchived `should be` true
-        }
+        val arcived = ImportedAddress(
+            address = "",
+            _tag = 0
+        ).updateArchivedState(true)
+        arcived.isArchived `should be` true
     }
 
     @Test
-    fun `tag is set by archive`() {
-        ImportedAddress().apply {
-            archive()
-            tag `should be` ImportedAddress.ARCHIVED_ADDRESS
-        }
+    fun `_tag is set by archive`() {
+        val arcived = ImportedAddress(
+            address = "",
+            _tag = 0
+        ).updateArchivedState(true)
+        arcived.tag `should be` 2
     }
 
     @Test
     fun `tag set marks address as archived`() {
-        ImportedAddress().apply {
-            tag = ImportedAddress.ARCHIVED_ADDRESS
+        ImportedAddress(address = "", _tag = 2).apply {
             isArchived `should be` true
         }
     }
 
     @Test
     fun `tag set to normal, clears archived`() {
-        ImportedAddress().apply {
-            tag = ImportedAddress.NORMAL_ADDRESS
+        ImportedAddress(address = "", _tag = 0).apply {
             isArchived `should be` false
         }
     }
 
     @Test
     fun `unarchive, clears archived`() {
-        ImportedAddress().apply {
-            archive()
-            unarchive()
-            isArchived `should be` false
-        }
+        val address = ImportedAddress(
+            address = "",
+            _tag = 0
+        ).updateArchivedState(true).updateArchivedState(false)
+        address.isArchived `should be` false
     }
 }

@@ -33,7 +33,6 @@ class WalletApiTest {
         val sessionId = ""
         val encryptedPayload = getStringFromResource("encrypted-payload.txt")
         val response = Response.success(encryptedPayload.toResponseBody("plain/text".toMediaTypeOrNull()))
-        val withKotlinX: Boolean = true
 
         whenever(
             walletExplorerEndpoints.fetchEncryptedPayload(
@@ -49,7 +48,9 @@ class WalletApiTest {
 
         subject.fetchEncryptedPayload(guid, sessionId, false).test()
             .waitForCompletionWithoutErrors().assertValue {
-                WalletBase.fromJson(it.body()!!.string()).guid == "a09910d9-1906-4ea1-a956-2508c3fe0661"
+                val walletBase = WalletBase.fromJson(it.body()!!.string())
+                walletBase.isSyncPubkeys &&
+                    walletBase.payloadChecksum == "1b921868a5b29ef7548dd5b541b1e6644acc1c46b0fe7726b790ec717a947416"
             }
     }
 

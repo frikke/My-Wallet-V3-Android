@@ -10,9 +10,9 @@ This class is used for iOS and Web only.
 @Serializable
 data class AddressCache(
     @SerialName("receiveAccount")
-    var receiveAccount: String? = null,
+    val receiveAccount: String,
     @SerialName("changeAccount")
-    var changeAccount: String? = null
+    val changeAccount: String
 ) {
     companion object {
         fun setCachedXPubs(account: HDAccount): AddressCache {

@@ -55,11 +55,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
         get() = internalAccount.label
 
     override val isArchived: Boolean
-        get() = if (isHDAccount) {
-            (internalAccount as Account).isArchived
-        } else {
-            (internalAccount as ImportedAddress).tag == ImportedAddress.ARCHIVED_ADDRESS
-        }
+        get() = internalAccount.isArchived
 
     override val isDefault: Boolean
         get() = isHDAccount && payloadDataManager.defaultAccountIndex == hdAccountIndex
@@ -135,10 +131,7 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        val revertLabel = label
-        internalAccount.label = newLabel
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { internalAccount.label = revertLabel }
+        return payloadDataManager.updateAccountLabel(internalAccount, newLabel)
     }
 
     override fun archive(): Completable {
@@ -154,36 +147,22 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
     private fun toggleArchived(): Completable {
         val isArchived = this.isArchived
-        setArchivedBits(!isArchived)
 
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { setArchivedBits(isArchived) } // Revert
+        return updateArchivedState(!isArchived)
             .then { payloadDataManager.updateAllTransactions() }
             .then { getAccountBalance(true).ignoreElement() }
             .doOnComplete { forceRefresh() }
     }
 
-    private fun setArchivedBits(newIsArchived: Boolean) {
-        when (internalAccount) {
-            is Account -> internalAccount.isArchived = newIsArchived
-            is ImportedAddress -> {
-                internalAccount.tag = if (newIsArchived)
-                    ImportedAddress.ARCHIVED_ADDRESS
-                else
-                    ImportedAddress.NORMAL_ADDRESS
-            }
-            else -> throw java.lang.IllegalStateException("Unknown account type")
-        }
+    private fun updateArchivedState(newIsArchived: Boolean): Completable {
+        return payloadDataManager.updateAccountArchivedState(internalAccount, newIsArchived)
     }
 
     override fun setAsDefault(): Completable {
         require(!isDefault)
         require(isHDAccount)
 
-        val revertDefault = payloadDataManager.defaultAccountIndex
-        payloadDataManager.setDefaultIndex(hdAccountIndex)
-        return payloadDataManager.syncPayloadWithServer()
-            .doOnError { payloadDataManager.setDefaultIndex(revertDefault) }
+        return payloadDataManager.setDefaultIndex(hdAccountIndex)
             .doOnComplete { forceRefresh() }
     }
 

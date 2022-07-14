@@ -110,7 +110,8 @@ class PasswordChangeInteractorTest {
     @Test
     fun `confirmation password too long errors`() {
         val existingPassword = "blockchain@123"
-        val newPassword = "THIS STRING IS 256 CHARACTERS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        val newPassword =
+            "THIS STRING IS 256 CHARACTERS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
         val test = interactor.checkPasswordValidity(
             existingPassword,
@@ -152,7 +153,7 @@ class PasswordChangeInteractorTest {
         whenever(pinRepository.pin).thenReturn(pin)
         whenever(authDataManager.createPin(confirmationPassword, pin)).thenReturn(Completable.complete())
         whenever(authDataManager.verifyCloudBackup()).thenReturn(Completable.complete())
-        whenever(payloadManager.syncPayloadWithServer()).thenReturn(Completable.complete())
+        whenever(payloadManager.updatePassword(newPassword)).thenReturn(Completable.complete())
 
         val test = interactor.checkPasswordValidity(
             existingPassword,
@@ -166,11 +167,10 @@ class PasswordChangeInteractorTest {
         }
 
         verify(payloadManager).tempPassword
-        verify(payloadManager).tempPassword = newPassword
         verify(pinRepository).pin
         verify(authDataManager).createPin(confirmationPassword, pin)
         verify(authDataManager).verifyCloudBackup()
-        verify(payloadManager).syncPayloadWithServer()
+        verify(payloadManager).updatePassword(newPassword)
 
         verifyNoMoreInteractions(payloadManager)
         verifyNoMoreInteractions(pinRepository)

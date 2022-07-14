@@ -78,13 +78,10 @@ class ResetPasswordInteractor(
         }
 
     fun setNewPassword(password: String): Completable {
-        val fallbackPassword = payloadDataManager.tempPassword
-        payloadDataManager.tempPassword = password
         walletStatusPrefs.isRestored = true
         return authDataManager.verifyCloudBackup()
-            .then { payloadDataManager.syncPayloadWithServer() }
-            .doOnError {
-                payloadDataManager.tempPassword = fallbackPassword
+            .then {
+                payloadDataManager.updatePassword(password)
             }
     }
 

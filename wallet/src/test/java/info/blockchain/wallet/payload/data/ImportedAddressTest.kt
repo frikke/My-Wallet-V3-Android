@@ -11,9 +11,9 @@ import org.junit.Test
 
 class ImportedAddressTest {
     @Test fun fromJson_1() {
-        val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
+        val uri = javaClass.classLoader.getResource("wallet_body_1.txt")!!.toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 4)
         Assert.assertEquals(19, wallet.importedAddressList.size.toLong())
         var addressBody = wallet.importedAddressList[0]
         Assert.assertEquals("import 1", addressBody.label)
@@ -39,14 +39,16 @@ class ImportedAddressTest {
         Assert.assertEquals("6.1.16", addressBody.createdDeviceVersion)
     }
 
+    private val json = Json { encodeDefaults = true }
+
     @Test fun testToJSON() {
 
         // Ensure toJson doesn't write any unintended fields
-        val uri = javaClass.classLoader.getResource("wallet_body_1.txt").toURI()
+        val uri = javaClass.classLoader.getResource("wallet_body_1.txt")?.toURI()
         val body = String(Files.readAllBytes(Paths.get(uri)), StandardCharsets.UTF_8)
-        val wallet = Wallet.fromJson(body)
+        val wallet = Wallet.fromJson(body, 4)
         val addressBody = wallet.importedAddressList[0]
-        val jsonString = Json { encodeDefaults = true }.encodeToString(addressBody)
+        val jsonString = json.encodeToString(addressBody)
         val jsonObject = JSONObject(jsonString)
         Assert.assertEquals(7, jsonObject.keySet().size.toLong())
     }

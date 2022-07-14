@@ -1,4 +1,5 @@
 @file:Suppress("SameParameterValue")
+
 package com.blockchain.core.chains.bitcoincash
 
 import com.blockchain.android.testutils.rxInit
@@ -9,6 +10,7 @@ import com.blockchain.wallet.DefaultLabels
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -16,9 +18,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import info.blockchain.wallet.coin.GenericMetadataAccount
 import info.blockchain.wallet.coin.GenericMetadataWallet
 import info.blockchain.wallet.payload.data.Account
+import info.blockchain.wallet.payload.data.AccountV4
 import info.blockchain.wallet.payload.data.Derivation
-import info.blockchain.wallet.payload.data.Wallet
-import info.blockchain.wallet.payload.data.WalletBody
 import info.blockchain.wallet.payload.data.XPub
 import info.blockchain.wallet.payload.data.XPubs
 import info.blockchain.wallet.payload.model.Balance
@@ -27,12 +28,9 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import java.math.BigInteger
 import junit.framework.Assert
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
@@ -49,7 +47,9 @@ class BchDataManagerTest {
     private var bchDataStore: BchDataStore = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
     private val remoteLogger: RemoteLogger = mock()
     private val bitcoinApi: NonCustodialBitcoinService = mock()
-    private val defaultLabels: DefaultLabels = mock()
+    private val defaultLabels: DefaultLabels = mock {
+        on { getDefaultNonCustodialWalletLabel() }.thenReturn(DEFAULT_LABEL)
+    }
     private val metadataRepository: MetadataRepository = mock()
 
     @Before
@@ -332,10 +332,10 @@ class BchDataManagerTest {
         whenever(bchDataStore.bchMetadata?.accounts).thenReturn(bchAccounts)
 
         // Act
-        val needsSync = subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed()
 
         // Assert
-        assertFalse(needsSync)
+        verify(payloadDataManager, never()).addAccountWithLabel(any())
         verify(payloadDataManager, atLeastOnce()).accounts
         verify(bchDataStore.bchMetadata)!!.accounts
         verifyNoMoreInteractions(payloadDataManager)
@@ -354,10 +354,10 @@ class BchDataManagerTest {
         whenever(bchDataStore.bchMetadata?.accounts).thenReturn(bchAccounts)
 
         // Act
-        val needsSync = subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed()
 
         // Assert
-        assertFalse(needsSync)
+        verify(payloadDataManager, never()).addAccountWithLabel(any())
         verify(payloadDataManager, atLeastOnce()).accounts
         verify(bchDataStore.bchMetadata)!!.accounts
         verifyNoMoreInteractions(payloadDataManager)
@@ -381,26 +381,21 @@ class BchDataManagerTest {
         val bchAccount: GenericMetadataAccount = mock(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
         val bchAccounts = mutableListOf(bchAccount, bchAccount)
         whenever(bchDataStore.bchMetadata?.accounts).thenReturn(bchAccounts)
-
-        val mockWallet: Wallet = mock()
-        val mockWalletBody: WalletBody = mock {
-            on { addAccount(anyString()) }.thenReturn(btcAccount)
+        val newBtcAccount = mock<AccountV4> {
+            on { xpubForDerivation("legacy") }.thenReturn("213123")
         }
-        whenever(mockWallet.walletBody).thenReturn(mockWalletBody)
-        whenever(payloadDataManager.wallet).thenReturn(mockWallet)
+        whenever(payloadDataManager.addAccountWithLabel("BTC label 2")).thenReturn(newBtcAccount)
 
         whenever(defaultLabels.getDefaultNonCustodialWalletLabel()).thenReturn("BTC label")
 
         // Act
-        val needsSync = subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed()
 
         // Assert
-        assertTrue(needsSync)
+        verify(payloadDataManager).addAccountWithLabel(any())
         verify(payloadDataManager, atLeastOnce()).accounts
         verify(bchDataStore.bchMetadata, times(btcAccountsNeeded + mockCallCount))!!.accounts
 
-        verify(payloadDataManager, times(btcAccountsNeeded)).wallet
-        verify(mockWalletBody, times(btcAccountsNeeded)).addAccount("BTC label 2")
         verify(bchDataStore.bchMetadata, times(btcAccountsNeeded + mockCallCount))!!.accounts
 
         verifyNoMoreInteractions(payloadDataManager)
@@ -417,6 +412,7 @@ class BchDataManagerTest {
             on { xpubs }.thenReturn(XPubs(listOf(XPub(address = "xpub 2", XPub.Format.LEGACY))))
             on { xpubForDerivation(Derivation.LEGACY_TYPE) }.thenReturn(xpub.address)
         }
+
         val btcAccounts = mutableListOf(btcAccount)
         whenever(payloadDataManager.accounts).thenReturn(btcAccounts)
 
@@ -429,26 +425,37 @@ class BchDataManagerTest {
             bchAccount,
             bchAccount
         )
+        val mockAccounts = listOf<Account>(
+            mock {
+                on { xpubForDerivation("legacy") }.thenReturn("xpudfsasdfasb")
+            },
+            mock {
+                on { xpubForDerivation("legacy") }.thenReturn("xpubfsagdasf")
+            },
+            mock {
+                on { xpubForDerivation("legacy") }.thenReturn("xpubwrqsa")
+            },
+            mock {
+                on { xpubForDerivation("legacy") }.thenReturn("xpubasdgasdgas")
+            },
+            mock {
+                on { xpubForDerivation("legacy") }.thenReturn("xpubasdgaserqwedgas")
+            }
+        )
+        val offset = btcAccounts.size + 1
+        mockAccounts.forEachIndexed { index, account ->
+            whenever(payloadDataManager.addAccountWithLabel("$DEFAULT_LABEL ${index + offset}")).thenReturn(account)
+        }
+
         whenever(bchDataStore.bchMetadata?.accounts).thenReturn(bchAccounts)
-
-        val mockWallet: Wallet = mock()
-        val mockWalletBody: WalletBody = mock()
-
-        whenever(mockWalletBody.addAccount(any())).thenReturn(btcAccount)
-
-        whenever(mockWallet.walletBody).thenReturn(mockWalletBody)
-        whenever(payloadDataManager.wallet).thenReturn(mockWallet)
-
         // Act
-        val needsSync = subject.correctBtcOffsetIfNeed()
+        subject.correctBtcOffsetIfNeed()
 
         // Assert
-        assertTrue(needsSync)
+        verify(payloadDataManager, times(bchAccounts.size - btcAccounts.size)).addAccountWithLabel(any())
         verify(payloadDataManager, atLeastOnce()).accounts
         verify(bchDataStore.bchMetadata, times(btcAccountsNeeded + mockCallCount))!!.accounts
 
-        verify(payloadDataManager, times(btcAccountsNeeded)).wallet
-        verify(mockWalletBody, times(btcAccountsNeeded)).addAccount(any())
         verify(bchDataStore.bchMetadata, times(btcAccountsNeeded + mockCallCount))!!.accounts
 
         verifyNoMoreInteractions(payloadDataManager)
@@ -472,7 +479,7 @@ class BchDataManagerTest {
             },
             bchDataStore = mock(),
             bitcoinApi = mock(),
-            defaultLabels = mock(),
+            defaultLabels = defaultLabels,
             metadataRepository = mock(),
             remoteLogger = mock()
         ).getBalance(xpubs)
@@ -504,3 +511,5 @@ class BchDataManagerTest {
         return words.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }
     }
 }
+
+private const val DEFAULT_LABEL = "account"

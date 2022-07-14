@@ -174,7 +174,7 @@ class PinModel(
                     )
             }
             is PinIntent.UpgradeWallet -> {
-                interactor.doUpgradeWallet(intent.secondPassword, intent.isFromPinCreation)
+                interactor.doUpgradeWallet(intent.secondPassword)
                     .handleProgress(R.string.upgrading)
                     .subscribeBy(
                         onComplete = {
@@ -291,7 +291,6 @@ class PinModel(
 
     private fun handlePayloadUpdateComplete(isFromPinCreation: Boolean = false) {
         interactor.updateShareKeyInPrefs()
-        interactor.setAccountLabelIfNecessary()
         specificAnalytics.logLogin(true)
 
         if (interactor.isWalletUpgradeRequired()) {

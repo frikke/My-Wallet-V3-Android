@@ -227,8 +227,7 @@ class PinActivity :
                     newState.passwordStatus?.passwordTriesRemaining ?: 0,
                     newState.pinStatus.isFromPinCreation
                 )
-            }
-            if (it.upgradeAppSucceeded) {
+            } else if (it.upgradeAppSucceeded) {
                 onUpdateFinished(newState.pinStatus.isFromPinCreation)
             } else {
                 onWalletUpgradeFailed()

@@ -5,10 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddressLabel(
-
     @SerialName("index")
-    var index: Int = 0,
-
+    val index: Int,
     @SerialName("label")
-    var label: String? = null
+    val label: String
 )

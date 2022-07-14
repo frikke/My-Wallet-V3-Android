@@ -135,38 +135,13 @@ class PayloadServiceTest {
     }
 
     @Test
-    fun `syncPayloadWithServer successful`() {
-        // Arrange
-        whenever(mockPayloadManager.save()).thenReturn(true)
-        // Act
-        val testObserver = subject.syncPayloadWithServer().test()
-        // Assert
-        verify(mockPayloadManager).save()
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-    }
-
-    @Test
-    fun `syncPayloadWithServer failed`() {
-        // Arrange
-        whenever(mockPayloadManager.save()).thenReturn(false)
-        // Act
-        val testObserver = subject.syncPayloadWithServer().test()
-        // Assert
-        verify(mockPayloadManager).save()
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertNotComplete()
-        testObserver.assertError(ApiException::class.java)
-    }
-
-    @Test
     fun `syncPayloadAndPublicKeys successful`() {
         // Arrange
-        whenever(mockPayloadManager.saveAndSyncPubKeys()).thenReturn(true)
+        whenever(mockPayloadManager.syncPubKeys()).thenReturn(true)
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
-        verify(mockPayloadManager).saveAndSyncPubKeys()
+        verify(mockPayloadManager).syncPubKeys()
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -174,11 +149,11 @@ class PayloadServiceTest {
     @Test
     fun `syncPayloadAndPublicKeys failed`() {
         // Arrange
-        whenever(mockPayloadManager.saveAndSyncPubKeys()).thenReturn(false)
+        whenever(mockPayloadManager.syncPubKeys()).thenReturn(false)
         // Act
         val testObserver = subject.syncPayloadAndPublicKeys().test()
         // Assert
-        verify(mockPayloadManager).saveAndSyncPubKeys()
+        verify(mockPayloadManager).syncPubKeys()
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertNotComplete()
         testObserver.assertError(ApiException::class.java)
@@ -236,12 +211,12 @@ class PayloadServiceTest {
         val txHash = "TX_HASH"
         val note = "NOTE"
         whenever(mockPayloadManager.payload?.txNotes).thenReturn(mutableMapOf())
-        whenever(mockPayloadManager.save()).thenReturn(true)
+
         // Act
         val testObserver = subject.updateTransactionNotes(txHash, note).test()
         // Assert
         verify(mockPayloadManager, atLeastOnce()).payload
-        verify(mockPayloadManager).save()
+        verify(mockPayloadManager).updateNotesForTxHash(txHash, note)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }
@@ -292,18 +267,6 @@ class PayloadServiceTest {
         val testObserver = subject.addImportedAddress(mockImportedAddress).test()
         // Assert
         verify(mockPayloadManager).addImportedAddress(mockImportedAddress)
-        verifyNoMoreInteractions(mockPayloadManager)
-        testObserver.assertComplete()
-    }
-
-    @Test
-    fun updateImportedAddress() {
-        // Arrange
-        val mockImportedAddress: ImportedAddress = mock()
-        // Act
-        val testObserver = subject.updateImportedAddress(mockImportedAddress).test()
-        // Assert
-        verify(mockPayloadManager).updateImportedAddress(mockImportedAddress)
         verifyNoMoreInteractions(mockPayloadManager)
         testObserver.assertComplete()
     }

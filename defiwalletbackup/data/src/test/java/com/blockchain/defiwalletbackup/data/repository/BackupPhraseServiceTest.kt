@@ -13,11 +13,9 @@ import io.reactivex.rxjava3.core.Completable
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Test
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class BackupPhraseServiceTest {
     private val payloadManager = mockk<PayloadDataManager>()
     private val backupWallet = mockk<BackupWallet>()
@@ -30,12 +28,6 @@ class BackupPhraseServiceTest {
     )
 
     private val mnemonic = listOf("A", "B")
-
-    @Before
-    fun setUp() {
-        every { payloadManager.wallet!!.walletBody?.mnemonicVerified = any() } just Runs
-        every { walletStatusPrefs.lastBackupTime = any() } just Runs
-    }
 
     @Test
     fun `GIVEN phrase backed up, WHEN isBackedUp is called, THEN true should be returned`() {
@@ -73,10 +65,12 @@ class BackupPhraseServiceTest {
         assertEquals(Outcome.Failure(BackupPhraseError.NoMnemonicFound), result)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `GIVEN sync successful, WHEN confirmRecoveryPhraseBackedUp is called, THEN Success should be returned`() =
         runTest {
-            every { payloadManager.syncPayloadWithServer() } returns Completable.complete()
+            every { payloadManager.updateMnemonicVerified(true) } returns Completable.complete()
+            every { walletStatusPrefs.lastBackupTime = any() } just Runs
 
             val result = backupPhraseService.confirmRecoveryPhraseBackedUp()
 
@@ -86,7 +80,7 @@ class BackupPhraseServiceTest {
     @Test
     fun `GIVEN sync unsuccessful, WHEN confirmRecoveryPhraseBackedUp is called, THEN Failure BackupConfirmationError should be returned`() =
         runTest {
-            every { payloadManager.syncPayloadWithServer() } returns Completable.error(Exception())
+            every { payloadManager.updateMnemonicVerified(true) } returns Completable.error(Exception())
 
             val result = backupPhraseService.confirmRecoveryPhraseBackedUp()
 

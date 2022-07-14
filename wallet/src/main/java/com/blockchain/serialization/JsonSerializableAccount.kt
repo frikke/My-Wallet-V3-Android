@@ -1,5 +1,7 @@
 package com.blockchain.serialization
 
 interface JsonSerializableAccount : JsonSerializable {
-    var label: String
+    val label: String
+    fun updateArchivedState(isArchived: Boolean): JsonSerializableAccount
+    val isArchived: Boolean
 }
