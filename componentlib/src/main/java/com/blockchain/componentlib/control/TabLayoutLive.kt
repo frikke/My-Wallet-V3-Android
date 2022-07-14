@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.theme.Green600
 import com.blockchain.componentlib.theme.Grey400
+import com.blockchain.componentlib.utils.clickableNoEffect
 
 // This composable assumes the first item given is the Live item
 @Composable
@@ -53,7 +56,9 @@ fun TabLayoutLive(
                 LiveTabLayoutItem(
                     itemName = itemName,
                     isSelected = isSelected,
-                    modifier = Modifier.clickable { onItemSelected(index) }
+                    modifier = Modifier
+                        .clickable { onItemSelected(index) }
+                        .padding(vertical = 14.dp),
                 )
             } else {
                 TabLayoutItem(
@@ -63,6 +68,59 @@ fun TabLayoutLive(
                         .clickable { onItemSelected(index) }
                         .padding(vertical = 14.dp),
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun TabLayoutLiveBoxed(
+    items: List<String>,
+    onItemSelected: (index: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    selectedItemIndex: Int = 0,
+    showLiveIndicator: Boolean = true
+) {
+    TabRow(
+        selectedTabIndex = selectedItemIndex,
+        backgroundColor = Color.Transparent,
+        contentColor = AppTheme.colors.primary,
+        divider = {},
+        indicator = {},
+        modifier = modifier,
+    ) {
+        items.forEachIndexed { index, itemName ->
+            val isSelected = selectedItemIndex == index
+
+            Box(
+                modifier = Modifier
+                    .clickableNoEffect { onItemSelected(index) }
+                    .padding(AppTheme.dimensions.xPaddingSmall)
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(AppTheme.dimensions.borderRadiiLarge),
+                    backgroundColor = if (isSelected) AppTheme.colors.background else Color.Transparent,
+                    elevation = if (isSelected) AppTheme.dimensions.xPaddingSmall else AppTheme.dimensions.paddingZero
+                ) {
+                    if (index == 0 && showLiveIndicator) {
+                        LiveTabLayoutItem(
+                            itemName = itemName,
+                            isSelected = isSelected,
+                            modifier = Modifier
+                                .clickable { onItemSelected(index) }
+                                .padding(AppTheme.dimensions.xPaddingSmall),
+                        )
+                    } else {
+                        TabLayoutItem(
+                            itemName = itemName,
+                            isSelected = isSelected,
+                            modifier = Modifier
+                                .clickable { onItemSelected(index) }
+                                .padding(AppTheme.dimensions.xPaddingSmall),
+                        )
+                    }
+                }
             }
         }
     }
@@ -89,7 +147,6 @@ private fun LiveTabLayoutItem(
             TabLayoutItem(
                 itemName = itemName,
                 isSelected = isSelected,
-                modifier = Modifier.padding(vertical = 14.dp)
             )
         }
     }
@@ -117,6 +174,22 @@ private fun TabLayoutLivePreview() {
     AppTheme {
         AppSurface {
             TabLayoutLive(
+                items = listOf("Live", "1D", "1W", "1M", "1Y", "All"),
+                onItemSelected = { index -> selectedItem = index },
+                modifier = Modifier.fillMaxWidth(),
+                selectedItemIndex = selectedItem
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TabLayoutLiveBoxedPreview() {
+    var selectedItem by remember { mutableStateOf(1) }
+    AppTheme {
+        AppSurface {
+            TabLayoutLiveBoxed(
                 items = listOf("Live", "1D", "1W", "1M", "1Y", "All"),
                 onItemSelected = { index -> selectedItem = index },
                 modifier = Modifier.fillMaxWidth(),

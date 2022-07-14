@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.transfer.receive.detail
 
-import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.view.View
 import com.blockchain.coincore.ReceiveAddress
 import com.blockchain.componentlib.alert.BlockchainSnackbar
@@ -9,7 +9,7 @@ import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.android.R
 import piuk.blockchain.android.util.copyToClipboard
 
-fun Activity.copyAddress(receiveAddress: ReceiveAddress, confirmationAnchorView: View) {
+fun Context.copyAddress(receiveAddress: ReceiveAddress, confirmationAnchorView: View) {
     AlertDialog.Builder(this, R.style.AlertDialogStyle)
         .setTitle(R.string.app_name)
         .setMessage(R.string.receive_address_to_clipboard)

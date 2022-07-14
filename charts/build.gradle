@@ -25,4 +25,5 @@ dependencies {
     implementation Libraries.constraintLayout
     implementation Libraries.charts
     implementation Libraries.composeUi
+    implementation Libraries.composeMaterial
 }
