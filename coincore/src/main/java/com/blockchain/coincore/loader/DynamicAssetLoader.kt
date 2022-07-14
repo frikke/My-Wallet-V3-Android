@@ -18,6 +18,7 @@ import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
+import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.WalletStatusPrefs
 import com.blockchain.rx.printTime
 import com.blockchain.wallet.DefaultLabels
@@ -31,6 +32,7 @@ import info.blockchain.balance.isNonCustodial
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.data.fees.FeeDataManager
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.utils.extensions.thenSingle
@@ -103,7 +105,13 @@ internal class DynamicAssetLoader(
                         .thenSingle {
                             doLoadAssets(
                                 dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
-                            )
+                            ).zipWith(
+                                loadSelfCustodialAssets(
+                                    dynamicAssets = supportedAssets.filterIsInstance<AssetInfo>().toSet()
+                                )
+                            ) { assets, dscAssets ->
+                                assets.plus(dscAssets).toSet().toList()
+                            }
                         }
                 }
                 .map { assets ->
@@ -133,6 +141,22 @@ internal class DynamicAssetLoader(
                 )
             }
         }.zipSingles().subscribeOn(Schedulers.io()).ignoreElement()
+
+    private fun loadSelfCustodialAssets(dynamicAssets: Set<AssetInfo>): Single<List<CryptoAsset>> {
+        return rxSingle {
+            if (stxForAllFeatureFlag.isEnabled) {
+                val subscriptions = selfCustodyService.getSubscriptions().getOrDefault(emptyList())
+                dynamicAssets.filter { it.isNonCustodial && subscriptions.contains(it.networkTicker) }
+                    .map { assetInfo ->
+                        val dscAsset = loadSelfCustodialAsset(assetInfo)
+                        nonCustodialActiveAssets[assetInfo] = dscAsset
+                        dscAsset
+                    }
+            } else {
+                emptyList()
+            }
+        }
+    }
 
     private fun doLoadAssets(
         dynamicAssets: Set<AssetInfo>,

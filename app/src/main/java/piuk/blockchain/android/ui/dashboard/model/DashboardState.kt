@@ -201,7 +201,7 @@ data class DashboardState(
             if (activeAssets.isEmpty()) return emptyList()
             if (activeAssets.all { it.value is DefiAsset }) return activeAssets.values.toList()
             if (activeAssets.all { it.value is BrokerageAsset }) return activeAssets.values.filter {
-                it.fiatBalance?.isPositive ?: false
+                it.accountBalance?.total?.isPositive ?: false
             }
             throw IllegalStateException("State is not valid ${activeAssets.values.map { it.currency }}")
         }
