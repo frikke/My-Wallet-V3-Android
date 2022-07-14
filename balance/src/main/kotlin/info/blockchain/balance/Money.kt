@@ -31,7 +31,12 @@ abstract class Money : Serializable {
     abstract fun toZero(): Money
 
     // Format for display
-    abstract fun toStringWithSymbol(includeDecimals: Boolean = true): String
+    /**
+     * includeDecimalsWhenWhole is by default set to true so in case
+     * amount value is a whole number then trailing zeros are returned normally.
+     * Set this flag to false, in order to get only the integer part in the case above .
+     */
+    abstract fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean = true): String
     abstract fun toStringWithoutSymbol(): String
 
     // Format for network transmission
@@ -162,3 +167,6 @@ open class ValueTypeMismatchException(
 fun String.removeComma(): String {
     return replace(",", "")
 }
+
+fun Money.valueIsWholeNumber() =
+    toBigDecimal().rem(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0

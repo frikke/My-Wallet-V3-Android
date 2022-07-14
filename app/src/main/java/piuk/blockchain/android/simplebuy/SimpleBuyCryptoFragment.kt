@@ -307,7 +307,7 @@ class SimpleBuyCryptoFragment :
                                 items = quickFillButtonData.quickFillButtons,
                                 itemContent = { item ->
                                     SmallMinimalButton(
-                                        text = item.toStringWithSymbol(includeDecimals = false),
+                                        text = item.toStringWithSymbol(includeDecimalsWhenWhole = false),
                                         onClick = { model.process(SimpleBuyIntent.PrefillEnterAmount(item)) },
                                         modifier = Modifier.padding(end = dimensionResource(R.dimen.smallest_margin))
                                     )

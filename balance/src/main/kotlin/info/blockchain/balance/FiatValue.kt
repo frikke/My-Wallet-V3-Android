@@ -14,9 +14,10 @@ import kotlinx.serialization.Serializable
 
 private data class Key(
     val locale: Locale,
+    val value: Money,
     val currencyCode: String,
     val includeSymbol: Boolean,
-    val includeDecimals: Boolean
+    val includeDecimalsWhenWhole: Boolean = true
 )
 
 private object FiatFormat {
@@ -34,8 +35,10 @@ private object FiatFormat {
                         currencySymbol = ""
                     }
                 }
-            minimumFractionDigits = if (key.includeDecimals) currencyInstance.defaultFractionDigits else 0
-            maximumFractionDigits = if (key.includeDecimals) currencyInstance.defaultFractionDigits else 0
+            minimumFractionDigits = if (key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber()
+            ) currencyInstance.defaultFractionDigits else 0
+            maximumFractionDigits = if (key.includeDecimalsWhenWhole || !key.value.valueIsWholeNumber()
+            ) currencyInstance.defaultFractionDigits else 0
             roundingMode = RoundingMode.DOWN
         }
     }
@@ -65,13 +68,14 @@ class FiatValue private constructor(
     override fun toFloat(): Float =
         toBigDecimal().toFloat()
 
-    override fun toStringWithSymbol(includeDecimals: Boolean): String =
+    override fun toStringWithSymbol(includeDecimalsWhenWhole: Boolean): String =
         FiatFormat[
             Key(
                 locale = Locale.getDefault(),
                 currencyCode = currencyCode,
+                value = this,
                 includeSymbol = true,
-                includeDecimals = includeDecimals
+                includeDecimalsWhenWhole = includeDecimalsWhenWhole
             )
         ].format(amount)
 
@@ -81,14 +85,14 @@ class FiatValue private constructor(
                 locale = Locale.getDefault(),
                 currencyCode = currencyCode,
                 includeSymbol = false,
-                includeDecimals = true
+                value = this
             )
         ]
             .format(amount)
             .trim()
 
     override fun toNetworkString(): String =
-        FiatFormat[Key(Locale.US, currencyCode, includeSymbol = false, includeDecimals = true)]
+        FiatFormat[Key(Locale.US, value = this, currencyCode, includeSymbol = false)]
             .format(amount)
             .trim()
             .removeComma()
