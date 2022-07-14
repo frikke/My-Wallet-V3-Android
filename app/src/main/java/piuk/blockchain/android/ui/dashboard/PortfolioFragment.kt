@@ -530,7 +530,7 @@ class PortfolioFragment :
 
         announcements.checkLatest(announcementHost, compositeDisposable)
         model.process(DashboardIntent.FetchOnboardingSteps)
-        initOrUpdateAssets()
+        model.process(DashboardIntent.GetActiveAssets(loadSilently = true))
         model.process(DashboardIntent.FetchReferralSuccess)
     }
 

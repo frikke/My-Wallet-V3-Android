@@ -64,7 +64,7 @@ class DashboardModel(
                         fiatAccounts = previousState.fiatAssets.fiatAccounts.values.toSet()
                     )
                 } else {
-                    process(DashboardIntent.GetActiveAssets)
+                    process(DashboardIntent.GetActiveAssets(loadSilently = false))
                     null
                 }
             }

@@ -39,12 +39,16 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
         override fun isValidFor(oldState: DashboardState): Boolean = oldState.showedAppRating.not()
     }
 
-    object GetActiveAssets : DashboardIntent() {
+    data class GetActiveAssets(
+        private val loadSilently: Boolean = false
+    ) : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState {
+            val activeAssets = if (loadSilently) oldState.activeAssets else AssetMap(mapOf())
+            val fiatAssets = if (loadSilently) oldState.fiatAssets else FiatAssetState()
             return oldState.copy(
-                activeAssets = AssetMap(mapOf()),
-                fiatAssets = FiatAssetState(),
-                isLoadingAssets = true
+                activeAssets = activeAssets,
+                fiatAssets = fiatAssets,
+                isLoadingAssets = !loadSilently || activeAssets.isEmpty()
             )
         }
     }
