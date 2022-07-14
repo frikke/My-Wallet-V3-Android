@@ -38,7 +38,6 @@ import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
-import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.databinding.FragmentPortfolioBinding
 import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
@@ -49,7 +48,6 @@ import piuk.blockchain.android.simplebuy.BuySellClicked
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.sheets.BuyPendingOrdersBottomSheet
 import piuk.blockchain.android.simplebuy.sheets.SimpleBuyCancelOrderBottomSheet
-import piuk.blockchain.android.ui.airdrops.AirdropStatusSheet
 import piuk.blockchain.android.ui.customviews.BlockchainListDividerDecor
 import piuk.blockchain.android.ui.customviews.BlockedDueToSanctionsSheet
 import piuk.blockchain.android.ui.customviews.KycBenefitsBottomSheet
@@ -327,8 +325,8 @@ class PortfolioFragment :
             is DashboardNavigationAction.LinkOrDeposit,
             is DashboardNavigationAction.PaymentMethods,
             DashboardNavigationAction.SimpleBuyCancelOrder,
-            is DashboardNavigationAction.DepositQuestionnaire,
-            DashboardNavigationAction.StxAirdropComplete -> Timber.e("Unhandled navigation event $navigationAction")
+            is DashboardNavigationAction.DepositQuestionnaire ->
+                Timber.e("Unhandled navigation event $navigationAction")
         }
     }
 
@@ -371,9 +369,6 @@ class PortfolioFragment :
     private fun handleBottomSheet(navigationAction: DashboardNavigationAction) {
         showBottomSheet(
             when (navigationAction) {
-                DashboardNavigationAction.StxAirdropComplete -> AirdropStatusSheet.newInstance(
-                    blockstackCampaignName
-                )
                 is DashboardNavigationAction.BackUpBeforeSend -> ForceBackupForSendSheet.newInstance(
                     navigationAction.backupSheetDetails
                 )
@@ -702,9 +697,6 @@ class PortfolioFragment :
             )
             navigator().launchReceive()
         }
-
-        override fun startStxReceivedDetail() =
-            model.process(DashboardIntent.ShowPortfolioSheet(DashboardNavigationAction.StxAirdropComplete))
 
         override fun finishSimpleBuySignup() {
             navigator().resumeSimpleBuyKyc()

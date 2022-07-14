@@ -18,7 +18,6 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import java.lang.IllegalStateException
 import java.util.Date
-import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.ui.base.MvpPresenter
 import piuk.blockchain.android.ui.base.MvpView
@@ -67,7 +66,6 @@ class AirdropCentrePresenter(
     private fun transformAirdropStatus(item: AirdropStatus): Airdrop? {
         val name = item.campaignName
         val asset = when (name) {
-            blockstackCampaignName -> AIRDROP_STX
             sunriverCampaignName -> CryptoCurrency.XLM
             else -> return null
         }
@@ -115,7 +113,6 @@ class AirdropCentrePresenter(
         // When we get full-dynamic assets _and_ it's supported, we can take this out TODO
         return when {
             asset != null -> asset
-            ticker.compareTo(AIRDROP_STX.networkTicker, ignoreCase = true) == 0 -> AIRDROP_STX
             else -> throw IllegalStateException("Unknown crypto currency: $ticker")
         }
     }
@@ -132,14 +129,8 @@ class AirdropCentrePresenter(
 
     private fun parseDate(item: AirdropStatus): Date? {
         with(item) {
-            return if (txResponseList.isNullOrEmpty()) {
+            return if (txResponseList.isEmpty()) {
                 when (campaignName) {
-                    blockstackCampaignName ->
-                        if (userState == UserCampaignState.RewardReceived) {
-                            updatedAt
-                        } else {
-                            campaignEndDate
-                        }
                     sunriverCampaignName -> campaignEndDate
                     else -> null
                 }
@@ -155,20 +146,6 @@ class AirdropCentrePresenter(
         Timber.d("Got status!")
         view?.renderList(statusList)
     }
-
-    // STUB Asset; only used in the airdrop screen
-    @Suppress("ClassName")
-    private object AIRDROP_STX : CryptoCurrency(
-        displayTicker = "STX",
-        networkTicker = "STX",
-        name = "Stacks",
-        categories = emptySet(),
-        precisionDp = 6,
-        requiredConfirmations = 12,
-        startDate = 1615831200L, // 2021-03-15 00:00:00 UTC
-        colour = "#211F6D",
-        logo = "file:///android_asset/logo/blockstack/logo.png"
-    )
 }
 
 enum class AirdropState {

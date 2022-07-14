@@ -53,7 +53,6 @@ class KycTierSplashFragment :
         val title = when (progressListener.campaignType) {
             CampaignType.Swap -> R.string.kyc_splash_title
             CampaignType.SimpleBuy,
-            CampaignType.Blockstack,
             CampaignType.Resubmission,
             CampaignType.None,
             CampaignType.FiatFunds,

@@ -52,7 +52,6 @@ class KycStatusActivity :
 
         val title = when (campaignType) {
             CampaignType.Swap -> R.string.kyc_splash_title
-            CampaignType.Blockstack,
             CampaignType.SimpleBuy,
             CampaignType.Resubmission,
             CampaignType.FiatFunds,
@@ -106,7 +105,6 @@ class KycStatusActivity :
                 CampaignType.Swap,
                 CampaignType.None,
                 CampaignType.Resubmission -> R.string.kyc_status_message_in_progress
-                CampaignType.Blockstack,
                 CampaignType.SimpleBuy,
                 CampaignType.FiatFunds,
                 CampaignType.Interest -> R.string.sunriver_status_message

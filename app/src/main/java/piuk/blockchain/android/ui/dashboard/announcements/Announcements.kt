@@ -32,7 +32,6 @@ interface AnnouncementHost {
     fun startEnableFingerprintLogin()
     fun startTransferCrypto()
 
-    fun startStxReceivedDetail()
     fun finishSimpleBuySignup()
     fun startSimpleBuy(asset: AssetInfo, paymentMethodId: String? = null)
     fun startInterestDashboard()

@@ -373,10 +373,6 @@ Introdúzcalo aquí para continuar.
     <string name="activity_details_title_received_1">Recibido</string>
     <string name="airdrop_status_pending">Pendiente</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Adquiera su identidad y datos digitales con cientos de aplicaciones descentralizadas creadas con Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">¿Dónde están mis Stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Sus stacks (STX) se almacenan en su Blockchain Wallet. Tenga en cuenta que el saldo no es transferible en estos momentos.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Copia de seguridad de su billetera</string>
     <string name="backup_before_send_cta">Copia ahora</string>
@@ -525,11 +521,6 @@ Introdúzcalo aquí para continuar.
     <string name="buy_sell_please_wait">Por favor, espere...</string>
     <string name="tiers_splash_header_text">Operar con sus criptomonedas no significa ceder su control</string>
     <string name="announcing_swap">Swap de Blockchain le permite operar con criptomonedas con los mejores precios y una liquidación rápida; y todo ello mientras mantiene el control total de sus fondos.</string>
-    <string name="stacks_airdrop_complete_card_title">Su Airdrop ha aterrizado</string>
-    <string name="stacks_airdrop_complete_card_description">Tus pilas ahora están en tu billetera. Le informaremos tan pronto como estén disponibles para su uso.</string>
-    <string name="stacks_airdrop_complete_card_button">Ver detalles</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Una recompensa por estar Plenamente Verificado</string>
-    <string name="stacks_airdrop_registered_mini_card_body">En 2020 hemos distribuido su criptomoneda de forma gratuita</string>
     <string name="unlock">desbloquear</string>
     <string name="_1_000">$1,000</string>
     <string name="_25_000">$25,000</string>

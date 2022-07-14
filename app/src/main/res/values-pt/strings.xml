@@ -456,10 +456,6 @@ Para
     <string name="activity_details_title_received_1">Recebido</string>
     <string name="airdrop_status_pending">Pendente</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Possui sua identidade e dados digitais com centenas de aplicativos descentralizados criados com o Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Onde estão os meus stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Os Stacks (STX) são armazenados na sua Blockchain Wallet. Tenha em atenção que o saldo não é transferível atualmente.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Faça backup da sua carteira</string>
     <string name="backup_before_send_cta">Faça backup agora</string>
@@ -608,11 +604,6 @@ Para
     <string name="buy_sell_please_wait">Aguarde...</string>
     <string name="tiers_splash_header_text">Trocar o seu crypto não significa trocar o controlo</string>
     <string name="announcing_swap">Swap by Blockchain permite negociar criptomoedas com melhores preços e rápida liquidação, tudo isso mantendo o controle total dos seus fundos.</string>
-    <string name="stacks_airdrop_complete_card_title">O seu Airdrop chegou</string>
-    <string name="stacks_airdrop_complete_card_description">Suas pilhas estão agora na sua carteira. Avisaremos assim que estiverem disponíveis para uso.</string>
-    <string name="stacks_airdrop_complete_card_button">Ver detalhes</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Um Reward por ser Completamente Verificado</string>
-    <string name="stacks_airdrop_registered_mini_card_body">Estamos a enviar-lhe o crypto gratuito em 2020</string>
     <string name="unlock">Desbloquear</string>
     <string name="_1_000">$1.000</string>
     <string name="_25_000">$25.000</string>

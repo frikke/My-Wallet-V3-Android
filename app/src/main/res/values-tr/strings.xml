@@ -456,10 +456,6 @@ Bunun yerine
     <string name="activity_details_title_received_1">Alınan</string>
     <string name="airdrop_status_pending">Bekliyor</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Blockstack ile oluşturulmuş yüzlerce merkezi olmayan uygulama ile dijital kimliğinize ve verilerinize sahip olun.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Stack kriptolarım nerede?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Stack kriptolar (STX), Blockchain Wallet cüzdanınızda saklanır. Bakiyenin şu anda transfer edilemediğini lütfen unutmayın.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Cüzdanınızı Yedekleyin</string>
     <string name="backup_before_send_cta">Şimdi yedekle</string>
@@ -608,11 +604,6 @@ Bunun yerine
     <string name="buy_sell_please_wait">Lütfen bekleyin...</string>
     <string name="tiers_splash_header_text">Kripto paranızla al-sat yapmak kontrolü başkalarına devretmek anlamına gelmez</string>
     <string name="announcing_swap">Blockchain.com ile Swap, tüm paranızı tam olarak kontrol ederken, en iyi fiyatlarla kripto al-sat işlemleri yapmanızı ve hızlı bir şekilde paraya çevirmenizi sağlar.</string>
-    <string name="stacks_airdrop_complete_card_title">AirDrop başladı</string>
-    <string name="stacks_airdrop_complete_card_description">Yığınlarınız artık cüzdanınızda. Bunlar kullanıma hazır olur olmaz size haber vereceğiz.</string>
-    <string name="stacks_airdrop_complete_card_button">Detayları göster</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Tamamen Doğrulanmış Olma Ödülü</string>
-    <string name="stacks_airdrop_registered_mini_card_body">2020\'de ücretsiz kripto para dağıtıyoruz</string>
     <string name="unlock">Kilidini aç</string>
     <string name="_1_000">1.000 $</string>
     <string name="_25_000">25.000 $</string>

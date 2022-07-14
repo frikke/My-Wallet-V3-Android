@@ -18,9 +18,6 @@ const val URL_PRIVACY_POLICY = "https://blockchain.com/privacy"
 const val URL_LEARN_MORE_REJECTED =
     "https://support.blockchain.com/hc/articles/360018080352-Why-has-my-ID-submission-been-rejected-"
 
-const val STX_STACKS_LEARN_MORE =
-    "https://support.blockchain.com/hc/en-us/articles/360038745191"
-
 const val MODULAR_TERMS_AND_CONDITIONS =
     "https://exchange.blockchain.com/legal#modulr"
 

@@ -197,11 +197,6 @@ class NabuUserIdentity(
     override fun checkForUserWalletLinkErrors(): Completable =
         nabuDataProvider.getUser().flatMapCompletable { Completable.complete() }
 
-    override fun hasReceivedStxAirdrop(): Single<Boolean> =
-        nabuDataUserProvider.getUser()
-            .map { it.isStxAirdropRegistered }
-            .onErrorReturn { false }
-
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {
             Tier.BRONZE -> KycTierLevel.BRONZE

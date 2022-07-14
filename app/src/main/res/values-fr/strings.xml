@@ -397,10 +397,6 @@ chaque fois que vous recevez des bitcoins
     <string name="activity_details_title_received_1">Reçu</string>
     <string name="airdrop_status_pending">En attente</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Possédez votre identité numérique et vos données avec des centaines d\'applications décentralisées construites avec Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Où sont mes stacks ?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Les stacks (STX) sont stockés dans votre Blockchain Wallet. Il faut noter que le solde n\'est actuellement pas transférable.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Sauvegardez votre portefeuille</string>
     <string name="backup_before_send_cta">Sauvegarder maintenant</string>
@@ -549,11 +545,6 @@ chaque fois que vous recevez des bitcoins
     <string name="buy_sell_please_wait">Veuillez patienter...</string>
     <string name="tiers_splash_header_text">Échanger votre crypto ne signifie pas céder le contrôle</string>
     <string name="announcing_swap">La conversion par Blockchain.com vous permet d’échanger de la crypto avec les meilleurs prix et un règlement rapide, tout en maintenant un contrôle total sur vos fonds.</string>
-    <string name="stacks_airdrop_complete_card_title">Votre Airdrop est arrivé</string>
-    <string name="stacks_airdrop_complete_card_description">Vos piles sont maintenant dans votre portefeuille. Nous vous informerons dès qu\'ils seront disponibles pour être utilisés.</string>
-    <string name="stacks_airdrop_complete_card_button">Voir les détails</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Une récompense pour avoir terminé la vérification</string>
-    <string name="stacks_airdrop_registered_mini_card_body">Nous vous envoyons une cryptomonnaie gratuite en 2020</string>
     <string name="unlock">Ouvrir</string>
     <string name="_1_000">1 000 $</string>
     <string name="_25_000">25 000 $</string>

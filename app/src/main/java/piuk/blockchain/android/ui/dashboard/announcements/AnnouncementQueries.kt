@@ -14,7 +14,6 @@ import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
-import com.blockchain.nabu.models.responses.nabu.UserCampaignState
 import com.blockchain.nabu.service.TierService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
@@ -31,7 +30,6 @@ import kotlinx.coroutines.rx3.rxSingle
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.simplebuy.SimpleBuySyncFactory
 
 @Serializable
@@ -78,12 +76,6 @@ class AnnouncementQueries(
     fun isTier1Or2Verified(): Single<Boolean> =
         tierService.tiers().map { it.isVerified() }
 
-    fun isRegistedForStxAirdrop(): Single<Boolean> {
-        return nabuDataUserProvider.getUser()
-            .map { it.isStxAirdropRegistered }
-            .onErrorReturn { false }
-    }
-
     fun isSimplifiedDueDiligenceEligibleAndNotVerified(): Single<Boolean> =
         userIdentity.isEligibleFor(Feature.SimplifiedDueDiligence).flatMap {
             if (!it)
@@ -94,12 +86,6 @@ class AnnouncementQueries(
 
     fun isSimplifiedDueDiligenceVerified(): Single<Boolean> =
         userIdentity.isVerifiedFor(Feature.SimplifiedDueDiligence)
-
-    fun hasReceivedStxAirdrop(): Single<Boolean> {
-        return nabuToken.fetchNabuToken()
-            .flatMap { token -> nabu.getAirdropCampaignStatus(token) }
-            .map { it[blockstackCampaignName]?.userState == UserCampaignState.RewardReceived }
-    }
 
     fun isSimpleBuyKycInProgress(): Single<Boolean> {
         // If we have a local simple buy in progress and it has the kyc unfinished state set

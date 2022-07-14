@@ -402,10 +402,6 @@ suportada. Atualize o aplicativo e tente novamente.</string>
     <string name="activity_details_title_received_1">Recebido</string>
     <string name="airdrop_status_pending">Pendente</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Tenha sua identidade digital e dados com centenas de aplicativos descentralizados criados com o Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Onde estão minhas stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Stacks (STX) são armazenados em sua Blockchain.com Wallet. Note que o saldo é atualmente intransferível.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Faça backup da sua Wallet</string>
     <string name="backup_before_send_cta">Fazer backup agora</string>
@@ -554,11 +550,6 @@ suportada. Atualize o aplicativo e tente novamente.</string>
     <string name="buy_sell_please_wait">Aguarde...</string>
     <string name="tiers_splash_header_text">Negociar sua criptomoeda não significa trocar o controle</string>
     <string name="announcing_swap">Swap by Blockchain.com permite que você negocie criptomoedas com os melhores preços e liquidação rápida, mantendo o controle total de seus fundos.</string>
-    <string name="stacks_airdrop_complete_card_title">Seu Airdrop chegou</string>
-    <string name="stacks_airdrop_complete_card_description">Suas stacks estão agora em sua carteira. Avisaremos assim que estiverem disponíveis para serem usadas.</string>
-    <string name="stacks_airdrop_complete_card_button">Ver detalhes</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Uma recompensa por ser um nível verificado</string>
-    <string name="stacks_airdrop_registered_mini_card_body">Estamos lançando criptomoedas grátis para você em 2020</string>
     <string name="unlock">Desbloquear</string>
     <string name="_1_000">$ 1.000</string>
     <string name="_25_000">$ 25.000</string>

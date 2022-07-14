@@ -421,10 +421,6 @@ Blockchain Wallet:
     <string name="activity_details_title_received_1">Получили</string>
     <string name="airdrop_status_pending">В ожидании</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Имейте свою цифровую идентификацию и данные с сотнями децентрализованных приложений, созданных с Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Где мои токены Stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Stacks (STX) хранятся в вашем Blockchain Wallet. Обратите внимание, что баланс в настоящее время не подлежит переводу.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Сделайте резервную копию вашего кошелька</string>
     <string name="backup_before_send_cta">Резервное копирование сейчас</string>
@@ -573,11 +569,6 @@ Blockchain Wallet:
     <string name="buy_sell_please_wait">Пожалуйста, подождите...</string>
     <string name="tiers_splash_header_text">Торговые операции при участии криптовалюты контролируются и регулируются определенными правилами</string>
     <string name="announcing_swap">Функция обмена Blockchain.com дает возможность торговать криптовалютами по лучшим ценам и с быстрым расчетом, при сохранении полного контроля над своими средствами.</string>
-    <string name="stacks_airdrop_complete_card_title">Ваша раздача Airdrop выполнена</string>
-    <string name="stacks_airdrop_complete_card_description">Ваши стеки теперь в вашем кошельке. Мы сообщим вам, как только они будут доступны для использования.</string>
-    <string name="stacks_airdrop_complete_card_button">Посмотреть детали</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Награда за полностью подтвержденный статус</string>
-    <string name="stacks_airdrop_registered_mini_card_body">В 2020 году мы бесплатно раздаем криптовалюту</string>
     <string name="unlock">разблокировка</string>
     <string name="_1_000">1000 долл. США</string>
     <string name="_25_000">25000 долл. США</string>

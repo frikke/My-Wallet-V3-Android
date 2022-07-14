@@ -82,9 +82,6 @@ data class NabuUser(
         get() = resubmission?.reason == ResubmissionResponse.ACCOUNT_RECOVERED_REASON &&
             tiers?.current != 2
 
-    val isStxAirdropRegistered: Boolean
-        get() = tags?.containsKey(STX_AIRDROP_TAG) ?: false
-
     val isPowerPaxTagged: Boolean
         get() = tags?.containsKey(POWER_PAX_TAG) ?: false
 
@@ -92,7 +89,6 @@ data class NabuUser(
         get() = productsUsed?.exchange ?: settings?.MERCURY_EMAIL_VERIFIED ?: false
 
     companion object {
-        const val STX_AIRDROP_TAG = "BLOCKSTACK"
         const val POWER_PAX_TAG = "POWER_PAX"
     }
 }

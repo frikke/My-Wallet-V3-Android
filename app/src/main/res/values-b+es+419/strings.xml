@@ -344,10 +344,6 @@ Ingrésalo aquí para continuar.</string>
     <string name="activity_details_title_received_1">Recibido</string>
     <string name="airdrop_status_pending">Pendiente</string>
     <string name="airdrop_status_unknown">-</string>
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Sé el dueño de tu identidad e información digital con miles de aplicaciones descentralizadas creadas con Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">¿Qué son mis Stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Los Stacks (STX) se guardan en tu Blockchain Wallet. Ten en cuenta que el saldo no se puede transferir en este momento.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
     <string name="backup_before_send_title">Respalda tu Wallet</string>
     <string name="backup_before_send_cta">Realizar copia de seguridad ahora</string>
@@ -496,11 +492,6 @@ Ingrésalo aquí para continuar.</string>
     <string name="buy_sell_please_wait">Espera...</string>
     <string name="tiers_splash_header_text">Operar con criptomonedas no significa que perderás el control de las operaciones.</string>
     <string name="announcing_swap">La función de intercambio de Blockchain.com te permite operar con criptomonedas a los mejores precios y liquidar rápidamente. Al mismo tiempo, tienes el control de tus fondos.</string>
-    <string name="stacks_airdrop_complete_card_title">Tu Airdrop llegó</string>
-    <string name="stacks_airdrop_complete_card_description">Tus Stacks ahora están en tu billetera. Te avisaremos apenas estén disponibles para usarse.</string>
-    <string name="stacks_airdrop_complete_card_button">Ver detalles</string>
-    <string name="stacks_airdrop_registered_mini_card_title">Una recompensa para ti por completar tu verificación</string>
-    <string name="stacks_airdrop_registered_mini_card_body">Estamos usando airdrops para tus criptomonedas gratis en 2020</string>
     <string name="unlock">Desbloquear</string>
     <string name="_1_000">$1000</string>
     <string name="_25_000">$25 000</string>

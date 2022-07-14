@@ -19,11 +19,9 @@ import com.blockchain.koin.scopedInject
 import java.lang.IllegalStateException
 import java.text.DateFormat
 import piuk.blockchain.android.R
-import piuk.blockchain.android.campaign.blockstackCampaignName
 import piuk.blockchain.android.campaign.sunriverCampaignName
 import piuk.blockchain.android.databinding.DialogAirdropStatusBinding
 import piuk.blockchain.android.ui.resources.AssetResources
-import piuk.blockchain.android.urllinks.STX_STACKS_LEARN_MORE
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
 class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(), AirdropCentreView {
@@ -32,7 +30,7 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
     private val assetResources: AssetResources by scopedInject()
 
     private val airdropName: String by unsafeLazy {
-        arguments?.getString(ARG_AIRDROP_NAME) ?: blockstackCampaignName
+        arguments?.getString(ARG_AIRDROP_NAME) ?: sunriverCampaignName
     }
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): DialogAirdropStatusBinding =
@@ -53,30 +51,9 @@ class AirdropStatusSheet : SlidingModalBottomDialog<DialogAirdropStatusBinding>(
             sunriverCampaignName -> {
                 renderSunriver(airdrop)
             }
-            blockstackCampaignName -> {
-                renderBlockstacks(airdrop)
+            else -> {
+                // Do nothing.
             }
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun renderBlockstacks(airdrop: Airdrop) {
-        with(binding) {
-            title.text = "${airdrop.asset.name} (${airdrop.asset.displayTicker})"
-            body.setText(R.string.airdrop_sheet_stx_body)
-            assetResources.loadAssetIcon(iconCrypto, airdrop.asset)
-        }
-
-        renderStatus(airdrop)
-        renderDate(airdrop)
-        renderAmount(airdrop)
-
-        if (airdrop.status == AirdropState.RECEIVED) {
-            showSupportInfo(
-                R.string.airdrop_sheet_stx_where_are_my_stacks_title,
-                R.string.airdrop_sheet_stx_where_are_my_stacks,
-                Uri.parse(STX_STACKS_LEARN_MORE)
-            )
         }
     }
 

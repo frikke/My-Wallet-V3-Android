@@ -26,7 +26,6 @@ import piuk.blockchain.android.ui.dashboard.announcements.rule.NftAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.PaxRenamedAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RecurringBuysAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisterBiometricsAnnouncement
-import piuk.blockchain.android.ui.dashboard.announcements.rule.RegisteredForAirdropMiniAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SellIntroAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SendToDomainAnnouncement
 import piuk.blockchain.android.ui.dashboard.announcements.rule.SimpleBuyFinishSignupAnnouncement
@@ -183,13 +182,6 @@ val dashboardAnnouncementsModule = module {
             TransferCryptoAnnouncement(
                 dismissRecorder = get(),
                 walletStatusPrefs = get()
-            )
-        }.bind(AnnouncementRule::class)
-
-        factory {
-            RegisteredForAirdropMiniAnnouncement(
-                dismissRecorder = get(),
-                queries = get()
             )
         }.bind(AnnouncementRule::class)
 

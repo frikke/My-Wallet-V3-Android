@@ -972,10 +972,6 @@
     <string name="airdrop_status_pending">Pending</string>
     <string name="airdrop_status_unknown">-</string>
 
-    <string name="airdrop_sheet_stx_title" translatable="false">Blockstack (STX)</string>
-    <string name="airdrop_sheet_stx_body">Own your digital identity and data with hundreds of decentralized apps built with Blockstack.</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks_title">Where are my stacks?</string>
-    <string name="airdrop_sheet_stx_where_are_my_stacks">Stacks (STX) are stored in your Blockchain Wallet. Please note the balance is currently non-transferable.</string>
     <string name="airdrop_sheet_xlm_title" translatable="false">Stellar (XLM)</string>
 
     <!-- custody wallet intro sheet -->
@@ -1202,15 +1198,6 @@
     <string name="buy_sell_please_wait">Please wait…</string>
     <string name="tiers_splash_header_text">Trading your crypto doesn’t mean trading away control</string>
     <string name="announcing_swap">Swap by Blockchain enables you to trade crypto with best prices, and quick settlement, all while maintaining full control of your funds.</string>
-
-    <!-- Blockstack airdrop complete announcement -->
-    <string name="stacks_airdrop_complete_card_title">Your Airdrop has landed</string>
-    <string name="stacks_airdrop_complete_card_description">Your stacks are now in your wallet. We’ll let you know as soon as these are available to be used.</string>
-    <string name="stacks_airdrop_complete_card_button">View Details</string>
-
-    <!-- Blockstack mini-announcement -->
-    <string name="stacks_airdrop_registered_mini_card_title">A Reward for Being Fully Verified</string>
-    <string name="stacks_airdrop_registered_mini_card_body">We’re airdropping you free crypto in 2020</string>
 
     <!-- KYC Tiers -->
     <string name="gold_level">Full Access</string>

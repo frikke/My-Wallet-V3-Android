@@ -15,7 +15,6 @@ import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.Limits
-import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.models.responses.simplebuy.SimpleBuyEligibility
 import com.blockchain.outcome.Outcome
@@ -244,30 +243,6 @@ class NabuUserIdentityTest {
             .test()
             .await()
             .assertValue(FeatureAccess.Blocked(BlockedReason.Sanctions.RussiaEU5))
-    }
-
-    @Test
-    fun `has received STX airdrop`() {
-        val mockNabuUser: NabuUser = mock {
-            on { isStxAirdropRegistered }.thenReturn(true)
-        }
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(mockNabuUser))
-
-        subject.hasReceivedStxAirdrop()
-            .test()
-            .assertValue(true)
-    }
-
-    @Test
-    fun `has not received STX airdrop`() {
-        val mockNabuUser: NabuUser = mock {
-            on { isStxAirdropRegistered }.thenReturn(false)
-        }
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(mockNabuUser))
-
-        subject.hasReceivedStxAirdrop()
-            .test()
-            .assertValue(false)
     }
 
     companion object {

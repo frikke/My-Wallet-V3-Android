@@ -69,8 +69,7 @@ class KycNavHostPresenter(
             view.campaignType == CampaignType.Resubmission || user.isMarkedForResubmission -> {
                 view.navigateToResubmissionSplash()
             }
-            view.campaignType == CampaignType.Blockstack ||
-                view.campaignType == CampaignType.SimpleBuy ||
+            view.campaignType == CampaignType.SimpleBuy ||
                 view.campaignType == CampaignType.Interest ||
                 view.campaignType == CampaignType.FiatFunds ||
                 view.campaignType == CampaignType.None ||

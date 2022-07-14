@@ -17,7 +17,6 @@ import piuk.blockchain.android.ui.dashboard.sheets.BackupDetails
 
 sealed class DashboardNavigationAction {
     object AppRating : DashboardNavigationAction()
-    object StxAirdropComplete : DashboardNavigationAction(), BottomSheet
     data class BackUpBeforeSend(val backupSheetDetails: BackupDetails) : DashboardNavigationAction(), BottomSheet
     object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet
     data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction(), BottomSheet

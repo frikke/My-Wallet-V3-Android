@@ -68,7 +68,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
                 CampaignType.None,
                 CampaignType.Swap -> AnalyticsEvents.KycWelcome
                 CampaignType.Resubmission -> AnalyticsEvents.KycResubmission
-                CampaignType.Blockstack -> AnalyticsEvents.KycBlockstackStart
                 CampaignType.SimpleBuy -> AnalyticsEvents.KycSimpleBuyStart
                 CampaignType.FiatFunds -> AnalyticsEvents.KycFiatFundsStart
                 CampaignType.Interest -> AnalyticsEvents.KycFiatFundsStart
@@ -76,7 +75,6 @@ class KycSplashFragment : BaseFragment<KycSplashView, KycSplashPresenter>(), Kyc
         )
 
         val title = when (progressListener.campaignType) {
-            CampaignType.Blockstack,
             CampaignType.SimpleBuy,
             CampaignType.Resubmission,
             CampaignType.FiatFunds -> R.string.buy_sell_splash_title
