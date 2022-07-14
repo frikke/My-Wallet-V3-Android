@@ -18,12 +18,38 @@
     <com.blockchain.componentlib.tablerow.DefaultTableRowView
         android:id="@+id/asset_details_not_available"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <com.blockchain.componentlib.tablerow.BalanceTableRowView
         android:id="@+id/asset_details_available"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/cta_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/medium_margin"
+        android:paddingVertical="@dimen/small_margin">
+
+        <com.blockchain.componentlib.button.SmallMinimalButtonView
+            android:id="@+id/copy_address_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Space
+            android:layout_width="@dimen/tiny_margin"
+            android:layout_height="wrap_content" />
+
+        <com.blockchain.componentlib.button.SmallMinimalButtonView
+            android:id="@+id/receive_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
 </androidx.appcompat.widget.LinearLayoutCompat>

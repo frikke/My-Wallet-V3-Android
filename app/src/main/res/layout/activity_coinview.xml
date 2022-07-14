@@ -74,13 +74,13 @@
                 <com.blockchain.componentlib.alert.CardAlertView
                     android:id="@+id/asset_chart_error"
                     android:layout_width="match_parent"
-                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_marginStart="@dimen/standard_margin"
                     android:layout_marginEnd="@dimen/standard_margin" />
             </ViewFlipper>
 
-            <com.blockchain.componentlib.control.TabLayoutLiveView
+            <com.blockchain.charts.ChartIndicatorView
                 android:id="@+id/chart_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

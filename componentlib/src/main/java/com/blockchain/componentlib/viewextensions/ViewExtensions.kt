@@ -297,3 +297,19 @@ fun View?.findSuitableParent(): ViewGroup? {
     // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
     return fallback
 }
+
+fun View.setMargins(
+    start: Int? = null,
+    top: Int? = null,
+    end: Int? = null,
+    bottom: Int? = null
+) {
+    if (layoutParams is ViewGroup.MarginLayoutParams) {
+        val params = layoutParams as ViewGroup.MarginLayoutParams
+        start?.run { params.leftMargin = this }
+        top?.run { params.topMargin = this }
+        end?.run { params.rightMargin = this }
+        bottom?.run { params.bottomMargin = this }
+        requestLayout()
+    }
+}

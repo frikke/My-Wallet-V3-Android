@@ -17,19 +17,27 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
-import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
+import java.text.DecimalFormat
 
+/**
+ * @property allowWalletsLabel weather or not to show labels, e.g. 'Wallets & Accounts'
+ * @property showOnlyAssetInfo if true shows Network/Ticket, else Wallet name/Network,
+ * @property allowEmbeddedCta weather or not to show CopyAddress/Receive buttons
+ */
 class CryptoAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
     private val onLockedAccountSelected: () -> Unit,
     private val labels: DefaultLabels,
-    private val assetResources: AssetResources
+    private val assetResources: AssetResources,
+    private val allowWalletsLabel: Boolean,
+    private val showOnlyAssetInfo: Boolean,
+    private val allowEmbeddedCta: Boolean
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
         items[position] is AssetDetailsItem.CryptoDetailsInfo
@@ -48,8 +56,12 @@ class CryptoAccountDetailsDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
-        items[position] as AssetDetailsItem.CryptoDetailsInfo,
-        items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo } == position
+        item = items[position] as AssetDetailsItem.CryptoDetailsInfo,
+        isFirstItemOfCategory = items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo } == position,
+        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.CryptoDetailsInfo } == 1,
+        allowWalletsLabel = allowWalletsLabel,
+        showOnlyAssetInfo = showOnlyAssetInfo,
+        allowEmbeddedCta = allowEmbeddedCta
     )
 }
 
@@ -63,7 +75,11 @@ private class AssetWalletViewHolder(
 
     fun bind(
         item: AssetDetailsItem.CryptoDetailsInfo,
-        isFirstItemOfCategory: Boolean
+        isFirstItemOfCategory: Boolean,
+        isOnlyItemOfCategory: Boolean,
+        allowWalletsLabel: Boolean,
+        showOnlyAssetInfo: Boolean,
+        allowEmbeddedCta: Boolean
     ) {
         val asset = getAsset(item.account, item.balance.currencyCode)
 
@@ -93,31 +109,40 @@ private class AssetWalletViewHolder(
                 assetDetailsNotAvailable.gone()
                 assetDetailsAvailable.apply {
                     visible()
-                    titleStart = buildAnnotatedString { append(walletLabel) }
+                    titleStart = buildAnnotatedString {
+                        append(
+                            if (showOnlyAssetInfo) account.currency.name
+                            else walletLabel
+                        )
+                    }
                     titleEnd = buildAnnotatedString { append(item.fiatBalance.toStringWithSymbol()) }
                     bodyEnd = buildAnnotatedString { append(item.balance.toStringWithSymbol()) }
                     bodyStart = buildAnnotatedString {
                         append(
-                            when (item.assetFilter) {
-                                AssetFilter.NonCustodial -> {
-                                    if (account is MultiChainAccount) {
-                                        context.getString(
-                                            R.string.coinview_multi_nc_desc,
-                                            account.l1Network.networkName
-                                        )
-                                    } else {
-                                        context.getString(R.string.coinview_nc_desc)
+                            if (showOnlyAssetInfo) {
+                                account.currency.displayTicker
+                            } else {
+                                when (item.assetFilter) {
+                                    AssetFilter.NonCustodial -> {
+                                        if (account is MultiChainAccount) {
+                                            context.getString(
+                                                R.string.coinview_multi_nc_desc,
+                                                account.l1Network.networkName
+                                            )
+                                        } else {
+                                            context.getString(R.string.coinview_nc_desc)
+                                        }
                                     }
+                                    AssetFilter.Trading -> context.getString(R.string.coinview_c_available_desc)
+                                    AssetFilter.Interest -> {
+                                        val interestFormat = DecimalFormat("0.#")
+                                        val interestRate = interestFormat.format(item.interestRate)
+                                        binding.root.context.getString(
+                                            R.string.coinview_interest_with_balance, interestRate
+                                        )
+                                    }
+                                    else -> throw IllegalArgumentException("Not a supported filter")
                                 }
-                                AssetFilter.Trading -> context.getString(R.string.coinview_c_available_desc)
-                                AssetFilter.Interest -> {
-                                    val interestFormat = DecimalFormat("0.#")
-                                    val interestRate = interestFormat.format(item.interestRate)
-                                    binding.root.context.getString(
-                                        R.string.coinview_interest_with_balance, interestRate
-                                    )
-                                }
-                                else -> throw IllegalArgumentException("Not a supported filter")
                             }
                         )
                     }
@@ -125,6 +150,20 @@ private class AssetWalletViewHolder(
                         startImageResource =
                             ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
                     }
+                }
+
+                if (allowEmbeddedCta && isOnlyItemOfCategory) {
+                    ctaContainer.visible()
+                    copyAddressButton.apply {
+                        text = context.getString(R.string.copy_address)
+                        icon = ImageResource.Local(R.drawable.ic_copy)
+                    }
+                    receiveButton.apply {
+                        text = context.getString(R.string.common_receive)
+                        icon = ImageResource.Local(R.drawable.ic_qr_scan)
+                    }
+                } else {
+                    ctaContainer.gone()
                 }
             } else {
                 assetDetailsAvailable.gone()
@@ -150,11 +189,15 @@ private class AssetWalletViewHolder(
                     endImageResource =
                         ImageResource.LocalWithBackground(R.drawable.ic_lock, R.color.grey_400, R.color.white, 1F)
                 }
+
+                ctaContainer.gone()
             }
 
-            walletsLabel.apply {
-                visibleIf { isFirstItemOfCategory }
-                title = context.getString(R.string.coinview_accounts_label)
+            if (allowWalletsLabel) {
+                walletsLabel.apply {
+                    visibleIf { isFirstItemOfCategory }
+                    title = context.getString(R.string.coinview_accounts_label)
+                }
             }
         }
     }

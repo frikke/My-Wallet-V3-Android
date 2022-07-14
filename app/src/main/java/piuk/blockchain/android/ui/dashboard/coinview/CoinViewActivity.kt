@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,7 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginBottom
 import com.blockchain.analytics.events.LaunchOrigin
+import com.blockchain.charts.ChartIndicatorView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -40,16 +44,20 @@ import com.blockchain.componentlib.expandables.ExpandableItem
 import com.blockchain.componentlib.sectionheader.BalanceSectionHeaderView
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
+import com.blockchain.componentlib.viewextensions.setMargins
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.extensions.enumValueOfOrNull
+import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.LocalSettingsPrefs
 import com.blockchain.wallet.DefaultLabels
+import com.blockchain.walletmode.WalletMode
+import com.blockchain.walletmode.WalletModeService
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
@@ -57,6 +65,7 @@ import info.blockchain.balance.CryptoValue
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -125,6 +134,8 @@ class CoinViewActivity :
 
     private val simpleBuySyncFactory: SimpleBuySyncFactory by scopedInject()
 
+    private val walletMode = get<WalletModeService>().enabledWalletMode()
+
     override fun initBinding(): ActivityCoinviewBinding = ActivityCoinviewBinding.inflate(layoutInflater)
 
     private val adapterDelegate by lazy {
@@ -134,7 +145,8 @@ class CoinViewActivity :
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
-            assetResources = assetResources
+            assetResources = assetResources,
+            walletMode = walletMode
         )
     }
 
@@ -165,6 +177,17 @@ class CoinViewActivity :
     private fun initUI() {
         with(binding) {
             assetList.apply {
+
+                if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                    foreground = getDrawable(R.drawable.rounded_view_grey_100_border_16_radius)
+                    setMargins(
+                        start = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        top = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        end = resources.getDimensionPixelSize(R.dimen.small_margin),
+                        bottom = resources.getDimensionPixelSize(R.dimen.standard_margin),
+                    )
+                }
+
                 adapter = adapterDelegate
                 addItemDecoration(BlockchainListDividerDecor(this@CoinViewActivity))
             }
@@ -173,10 +196,15 @@ class CoinViewActivity :
             assetBalancesLoading.showIconLoader = false
             assetInfoLoading.showIconLoader = false
 
-            assetBalance.apply {
-                shouldShowIcon = true
-                onIconClick = {
-                    model.process(CoinViewIntent.ToggleWatchlist)
+            // not showing asset balance on defi
+            if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) {
+                assetBalancesSwitcher.gone()
+            } else {
+                assetBalance.apply {
+                    shouldShowIcon = true
+                    onIconClick = {
+                        model.process(CoinViewIntent.ToggleWatchlist)
+                    }
                 }
             }
 
@@ -254,6 +282,11 @@ class CoinViewActivity :
             }
 
             chartControls.apply {
+                viewType = when (walletMode) {
+                    WalletMode.CUSTODIAL_ONLY, WalletMode.UNIVERSAL -> ChartIndicatorView.ViewType.Lined
+                    WalletMode.NON_CUSTODIAL_ONLY -> ChartIndicatorView.ViewType.Boxed
+                }.exhaustive
+
                 items = getTimeIntervalItems()
                 onItemSelected = {
                     analytics.logEvent(
@@ -883,6 +916,9 @@ class CoinViewActivity :
         totalFiatBalance: Money,
         isInWatchList: Boolean,
     ) {
+        // not showing this view in defi
+        if (walletMode == WalletMode.NON_CUSTODIAL_ONLY) return
+
         totalCryptoBalance[AssetFilter.All]?.let { cryptoBalance ->
             with(binding) {
                 assetBalance.apply {

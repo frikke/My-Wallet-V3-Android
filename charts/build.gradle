@@ -7,12 +7,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion Versions.compose
+    }
 }
 
 dependencies {
+    implementation project(':common:interface')
     implementation project(':componentlib')
     implementation Libraries.appCompat
     implementation Libraries.design
     implementation Libraries.constraintLayout
     implementation Libraries.charts
+    implementation Libraries.composeUi
 }
