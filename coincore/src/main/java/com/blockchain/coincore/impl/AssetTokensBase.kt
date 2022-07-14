@@ -139,7 +139,8 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                             interestBalance = interestBalance,
                             custodialWalletManager = custodialManager,
                             exchangeRates = exchangeRates,
-                            identity = identity
+                            identity = identity,
+                            internalAccountLabel = labels.getDefaultCustodialWalletLabel()
                         )
                     )
                 } else {

@@ -339,6 +339,7 @@ data class TransactionAttributesResponse(
     val hash: String? = null,
     val id: String? = null,
     val txHash: String? = null,
+    val transferType: String? = null,
     val beneficiary: TransactionBeneficiaryResponse? = null
 )
 

@@ -30,7 +30,8 @@ class CryptoInterestAccountBalanceTest : CoincoreTestBase() {
         exchangeRates = exchangeRates,
         custodialWalletManager = custodialManager,
         interestBalance = interestBalance,
-        identity = identity
+        identity = identity,
+        internalAccountLabel = "Trading Account"
     )
 
     @Before

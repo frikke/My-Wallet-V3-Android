@@ -39,6 +39,7 @@ import piuk.blockchain.androidcore.utils.extensions.mapList
 class CryptoInterestAccount(
     override val currency: AssetInfo,
     override val label: String,
+    private val internalAccountLabel: String,
     private val interestBalance: InterestBalanceDataManager,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
@@ -111,7 +112,10 @@ class CryptoInterestAccount(
             status = item.state,
             type = item.type,
             confirmations = item.extraAttributes?.confirmations ?: 0,
-            accountRef = item.extraAttributes?.beneficiary?.accountRef ?: "",
+            accountRef = item.extraAttributes?.address
+                ?: item.extraAttributes?.transferType?.takeIf { it == "INTERNAL" }?.let {
+                    internalAccountLabel
+                } ?: "",
             recipientAddress = item.extraAttributes?.address ?: ""
         )
 

@@ -165,7 +165,8 @@ class CryptoInterestAccountActionsTest : CoincoreTestBase() {
             exchangeRates = exchangeRates,
             custodialWalletManager = custodialManager,
             interestBalance = interestBalanceDataManager,
-            identity = userIdentity
+            identity = userIdentity,
+            internalAccountLabel = "Trading Account"
         )
 
     private fun configureActionTest(

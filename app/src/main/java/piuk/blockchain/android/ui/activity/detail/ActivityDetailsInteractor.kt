@@ -7,7 +7,6 @@ import com.blockchain.coincore.CustodialInterestActivitySummaryItem
 import com.blockchain.coincore.CustodialTradingActivitySummaryItem
 import com.blockchain.coincore.CustodialTransferActivitySummaryItem
 import com.blockchain.coincore.NonCustodialActivitySummaryItem
-import com.blockchain.coincore.NullCryptoAccount
 import com.blockchain.coincore.RecurringBuyActivitySummaryItem
 import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.bch.BchActivitySummaryItem
@@ -198,17 +197,7 @@ class ActivityDetailsInteractor(
             }
         }
         return if (summaryItem.type == TransactionSummary.TransactionType.WITHDRAW) {
-            coincore.findAccountByAddress(
-                summaryItem.account.currency,
-                summaryItem.accountRef
-            ).map {
-                if (it !is NullCryptoAccount) {
-                    list.add(getToField(it.label, it.label, summaryItem.asset))
-                } else if (summaryItem.accountRef.isNotBlank()) {
-                    list.add(To(summaryItem.accountRef))
-                }
-                list.toList()
-            }.toSingle()
+            Single.just(list + getToField(summaryItem.accountRef, summaryItem.accountRef, summaryItem.asset))
         } else {
             Single.just(list.toList())
         }
