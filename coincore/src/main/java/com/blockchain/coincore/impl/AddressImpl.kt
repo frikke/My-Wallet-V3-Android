@@ -11,7 +11,7 @@ import com.blockchain.coincore.xlm.XlmAddress
 import com.blockchain.core.chains.erc20.isErc20
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.CryptoCurrency
-import info.blockchain.balance.isCustodialOnly
+import info.blockchain.balance.isCustodial
 import io.reactivex.rxjava3.core.Completable
 
 internal fun makeExternalAssetAddress(
@@ -57,7 +57,7 @@ internal fun makeExternalAssetAddress(
                 onTxCompleted = postTransactions
             )
         }
-        asset.isCustodialOnly -> {
+        asset.isCustodial -> {
             DynamicCustodialAddress(
                 address = address,
                 asset = asset,
