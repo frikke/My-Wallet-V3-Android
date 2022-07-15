@@ -23,6 +23,8 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.commonarch.presentation.mvi.MviFragment
 import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.componentlib.button.SmallMinimalButton
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.theme.AppTheme
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
@@ -30,11 +32,14 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.CardFundSource
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.UndefinedPaymentMethod
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
@@ -68,6 +73,7 @@ import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.NABU_ERR
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.OVER_MAXIMUM_SOURCE_LIMIT
 import piuk.blockchain.android.simplebuy.ClientErrorAnalytics.Companion.PENDING_ORDERS_LIMIT_REACHED
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
+import piuk.blockchain.android.ui.BottomSheetInformation
 import piuk.blockchain.android.ui.customviews.inputview.FiatCryptoViewConfiguration
 import piuk.blockchain.android.ui.customviews.inputview.PrefixedOrSuffixedEditText
 import piuk.blockchain.android.ui.dashboard.asDeltaPercent
@@ -108,6 +114,8 @@ class SimpleBuyCryptoFragment :
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
     private val currencyPrefs: CurrencyPrefs by inject()
+    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
+
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
@@ -137,10 +145,6 @@ class SimpleBuyCryptoFragment :
 
     private val launchSelectPaymentMethod: Boolean by lazy {
         arguments?.getBoolean(ARG_LAUNCH_PAYMENT_METHOD_SELECTION, false) ?: false
-    }
-
-    private val errorContainer by lazy {
-        binding.errorLayout.errorContainer
     }
 
     override fun navigator(): SimpleBuyNavigator =
@@ -395,6 +399,9 @@ class SimpleBuyCryptoFragment :
             binding.inputAmount.hideInfo()
         }
 
+        binding.btnContinue.isEnabled = canContinue(newState)
+        updateInputStateUI(newState)
+
         if (newState.paymentOptions.availablePaymentMethods.isEmpty()) {
             paymentMethodLoading()
             disableRecurringBuyCta(false)
@@ -411,9 +418,6 @@ class SimpleBuyCryptoFragment :
             }
         }
 
-        binding.btnContinue.isEnabled = canContinue(newState)
-
-        updateInputStateUI(newState)
         showCtaOrError(newState)
 
         if (newState.confirmationActionRequested &&
@@ -440,28 +444,35 @@ class SimpleBuyCryptoFragment :
 
     private fun showCtaOrError(newState: SimpleBuyState) {
         when {
+            cardRejectionFF.isEnabled && newState.selectedPaymentMethodDetails?.isCardAndAlwaysRejected() == true -> {
+                (
+                    (newState.selectedPaymentMethodDetails as PaymentMethod.Card).cardRejectionState
+                        as CardRejectionState.AlwaysRejected
+                    ).renderAlwaysRejectedCardError()
+            }
             newState.errorStateShouldBeIndicated() -> showError(newState)
             else -> showCta()
         }
     }
 
     private fun showError(state: SimpleBuyState) {
-        binding.btnContinue.gone()
-        binding.errorLayout.errorMessage.text = state.errorState.message(state)
-        errorContainer.visible()
+        with(binding) {
+            btnContinue.gone()
+            with(btnError) {
+                text = state.errorState.message(state)
+                visible()
+            }
+        }
 
         val infoType = when (state.errorState) {
             TransactionErrorState.INSUFFICIENT_FUNDS -> InfoBottomSheetType.INSUFFICIENT_FUNDS
             TransactionErrorState.BELOW_MIN_PAYMENT_METHOD_LIMIT,
-            TransactionErrorState.BELOW_MIN_LIMIT,
-            -> InfoBottomSheetType.BELOW_MIN_LIMIT
+            TransactionErrorState.BELOW_MIN_LIMIT -> InfoBottomSheetType.BELOW_MIN_LIMIT
             // we need to keep those for working with the feature flag off, otherwise we would be based only on the
             // suggested upgrade
             TransactionErrorState.OVER_GOLD_TIER_LIMIT,
-            TransactionErrorState.OVER_SILVER_TIER_LIMIT,
-            -> InfoBottomSheetType.OVER_MAX_LIMIT
-            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT ->
-                InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
+            TransactionErrorState.OVER_SILVER_TIER_LIMIT -> InfoBottomSheetType.OVER_MAX_LIMIT
+            TransactionErrorState.ABOVE_MAX_PAYMENT_METHOD_LIMIT -> InfoBottomSheetType.ABOVE_MAX_PAYMENT_METHOD_LIMIT
             else -> null
         }
 
@@ -469,12 +480,12 @@ class SimpleBuyCryptoFragment :
             bottomSheetInfoCustomiser.info(type, state, state.fiatCurrency.type)
         }
         bottomSheetInfo?.let { info ->
-            errorContainer.setOnClickListener {
+            binding.btnError.onClick = {
                 showBottomSheet(TransactionFlowInfoBottomSheet.newInstance(info))
                 infoActionCallback =
                     handlePossibleInfoAction(info, state.transactionsLimit ?: TransactionsLimit.Unlimited)
             }
-        } ?: errorContainer.setOnClickListener {}
+        } ?: run { binding.btnError.onClick = {} }
 
         model.process(SimpleBuyIntent.ClearError)
         binding.inputAmount.canEdit(true)
@@ -499,8 +510,10 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun showCta() {
-        binding.btnContinue.visible()
-        errorContainer.gone()
+        with(binding) {
+            btnContinue.visible()
+            btnError.gone()
+        }
     }
 
     private fun handleNewPaymentMethodAdding(state: SimpleBuyState) {
@@ -614,6 +627,14 @@ class SimpleBuyCryptoFragment :
                 // Nothing to do here.
             }
         }
+
+        if (cardRejectionFF.isEnabled && selectedPaymentMethod !is PaymentMethod.Card) {
+            with(binding) {
+                btnError.gone()
+                btnContinue.visible()
+                paymentMethodTagRow.tags = emptyList()
+            }
+        }
     }
 
     private fun List<PaymentMethod>.toPaymentMethodChooserState(): PaymentMethodsChooserState {
@@ -631,7 +652,6 @@ class SimpleBuyCryptoFragment :
     }
 
     private fun renderRecurringBuy(state: SimpleBuyState) {
-
         val paymentMethodIsEligibleForSelectedFreq =
             state.isSelectedPaymentMethodEligibleForSelectedFrequency() ||
                 state.recurringBuyFrequency == RecurringBuyFrequency.ONE_TIME
@@ -724,8 +744,69 @@ class SimpleBuyCryptoFragment :
             paymentMethodTitle.text = selectedPaymentMethod.detailedLabel()
             paymentMethodLimit.text =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+
+            if (cardRejectionFF.isEnabled) {
+                when (val cardState = selectedPaymentMethod.cardRejectionState) {
+                    is CardRejectionState.AlwaysRejected -> {
+                        cardState.renderAlwaysRejectedCardError()
+                        btnContinue.gone()
+                    }
+                    is CardRejectionState.MaybeRejected -> {
+                        btnError.gone()
+                        btnContinue.visible()
+                        paymentMethodTagRow.tags = listOf(
+                            TagViewState(
+                                cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                TagType.Warning()
+                            )
+                        )
+                    }
+                    else -> {
+                        btnError.gone()
+                        btnContinue.visible()
+                    }
+                }
+            }
         }
     }
+
+    private fun PaymentMethod?.isCardAndAlwaysRejected(): Boolean =
+        (this as? PaymentMethod.Card)?.cardRejectionState is CardRejectionState.AlwaysRejected
+
+    private fun CardRejectionState.AlwaysRejected.renderAlwaysRejectedCardError() =
+        binding.btnError.apply {
+            visible()
+            text = title ?: getString(R.string.card_issuer_always_rejects_title)
+            onClick = {
+                val tryAnotherCardActionTitle = if (actions.isNotEmpty() &&
+                    actions[0].deeplinkPath.isNotEmpty()
+                ) {
+                    actions[0].title
+                } else {
+                    getString(R.string.common_ok)
+                }
+                val learnMoreActionTitle = if (actions.isNotEmpty() &&
+                    actions.size == 2 &&
+                    actions[1].deeplinkPath.isNotEmpty()
+                ) {
+                    actions[1].title
+                } else {
+                    getString(R.string.common_ok)
+                }
+
+                showBottomSheet(
+                    BottomSheetInformation.newInstance(
+                        title = title ?: getString(R.string.card_issuer_always_rejects_title),
+                        description = description ?: getString(
+                            R.string.card_issuer_always_rejects_desc
+                        ),
+                        ctaPrimaryText = tryAnotherCardActionTitle,
+                        ctaSecondaryText = learnMoreActionTitle,
+                        icon = null
+                    )
+                )
+            }
+        }
 
     private fun paymentMethodLoading() {
         with(binding) {

@@ -25,7 +25,8 @@ sealed class LinkedPaymentMethod(
         val cardFundSources: List<String>? = null,
         val mobilePaymentType: MobilePaymentType? = null,
         @SerialName("fiatCurrency")
-        override val currency: FiatCurrency
+        override val currency: FiatCurrency,
+        val cardRejectionState: @Contextual CardRejectionState? = null
     ) : LinkedPaymentMethod(PaymentMethodType.PAYMENT_CARD, currency)
 
     data class Funds(

@@ -2,6 +2,7 @@ package com.blockchain.domain.common.model
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 data class ServerSideUxErrorInfo(
     val title: String,
     val description: String,

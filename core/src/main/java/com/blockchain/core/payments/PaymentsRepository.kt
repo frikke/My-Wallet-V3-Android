@@ -5,11 +5,11 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
+import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.Limits
-import com.blockchain.api.paymentmethods.models.NewCardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -637,7 +637,7 @@ class PaymentsRepository(
                 }
             }
 
-    private fun NewCardRejectionStateResponse.toDomain(): CardRejectionState =
+    private fun CardRejectionStateResponse.toDomain(): CardRejectionState =
         when (this.block) {
             true -> {
                 CardRejectionState.AlwaysRejected(
@@ -668,7 +668,6 @@ class PaymentsRepository(
             }
         }
 
-    // <editor-fold desc="Editor Fold: Network response Mappers">
     private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card {
         return LinkedPaymentMethod.Card(
             cardId = id,
@@ -688,7 +687,8 @@ class PaymentsRepository(
             status = state.toCardStatus(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
-            mobilePaymentType = mobilePaymentType?.toMobilePaymentType()
+            mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
+            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain()
         )
     }
 

@@ -33,7 +33,7 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
     private val description by lazy { arguments?.getString(DESCRIPTION).orEmpty() }
     private val primaryCtaText by lazy { arguments?.getString(CTA_TEXT_PRIMARY).orEmpty() }
     private val secondaryCtaText by lazy { arguments?.getString(CTA_TEXT_SECONDARY) }
-    private val icon by lazy { arguments?.getInt(SHEET_ICON, R.drawable.ic_phone) }
+    private val icon by lazy { arguments?.getInt(SHEET_ICON, -1)?.takeIf { it != -1 } }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireActivity())
@@ -66,7 +66,9 @@ class BottomSheetInformation : BottomSheetDialogFragment() {
                             subtitle = description,
                             shouldShowHeaderDivider = false,
                             onCloseClick = { dismiss() },
-                            headerImageResource = ImageResource.Local(R.drawable.ic_phone),
+                            headerImageResource = icon?.let {
+                                ImageResource.Local(it)
+                            } ?: ImageResource.None,
                             button1 = BottomSheetButton(
                                 type = ButtonType.PRIMARY,
                                 text = primaryCtaText,

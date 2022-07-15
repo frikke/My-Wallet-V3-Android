@@ -3,11 +3,18 @@ package piuk.blockchain.android.simplebuy.paymentmethods
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.blockchain.componentlib.tag.TagType
+import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.CardPaymentMethodLayoutBinding
@@ -33,7 +40,9 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
     }
 
     private class CardPaymentViewHolder(private val binding: CardPaymentMethodLayoutBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+        RecyclerView.ViewHolder(binding.root), KoinComponent {
+
+        private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
 
         fun bind(paymentMethodItem: PaymentMethodItem) {
             with(binding) {
@@ -49,6 +58,35 @@ class CardPaymentDelegate : AdapterDelegate<PaymentMethodItem> {
                     expDate.text = context.getString(R.string.card_expiry_date, it.expireDate.formatted())
                 }
                 paymentMethodRoot.setOnClickListener { paymentMethodItem.clickAction() }
+
+                if (cardRejectionFF.isEnabled) {
+                    paymentMethodTagRow.apply {
+                        tags = when (
+                            val cardState =
+                                (paymentMethodItem.paymentMethod as PaymentMethod.Card).cardRejectionState
+                        ) {
+                            is CardRejectionState.AlwaysRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: context.getString(R.string.card_issuer_always_rejects_title),
+                                        TagType.Error()
+                                    )
+                                )
+                            }
+                            is CardRejectionState.MaybeRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: context.getString(
+                                            R.string.card_issuer_sometimes_rejects_title
+                                        ),
+                                        TagType.Warning()
+                                    )
+                                )
+                            }
+                            else -> emptyList()
+                        }
+                    }
+                }
             }
         }
 

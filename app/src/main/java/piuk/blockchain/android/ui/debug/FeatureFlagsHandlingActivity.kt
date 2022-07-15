@@ -132,7 +132,7 @@ class FeatureFlagsHandlingActivity : BlockchainActivity() {
             }
 
             brokerageErrorCta.setOnClickListener {
-                remoteConfigPrefs.updateBrokerageErrorCode(brokerageErrorInput.text?.toString().orEmpty())
+                remoteConfigPrefs.updateBrokerageErrorCode(brokerageErrorInput.text?.toString()?.trim().orEmpty())
                 BlockchainSnackbar.make(this@with.root, "Updated error message", type = SnackbarType.Success).show()
             }
 

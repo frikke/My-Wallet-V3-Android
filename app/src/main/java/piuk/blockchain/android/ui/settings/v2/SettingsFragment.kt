@@ -34,10 +34,13 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
@@ -97,6 +100,7 @@ class SettingsFragment :
         }
 
     private val environmentConfig: EnvironmentConfig by inject()
+    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
 
     override val model: SettingsModel by scopedInject()
 
@@ -392,6 +396,27 @@ class SettingsFragment :
                     }
                     onClick = {
                         showBottomSheet(RemoveCardBottomSheet.newInstance(card))
+                    }
+                    if (cardRejectionFF.isEnabled) {
+                        tags = when (val cardState = card.cardRejectionState) {
+                            is CardRejectionState.AlwaysRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: getString(R.string.card_issuer_always_rejects_title),
+                                        TagType.Error()
+                                    )
+                                )
+                            }
+                            is CardRejectionState.MaybeRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                        TagType.Warning()
+                                    )
+                                )
+                            }
+                            else -> null
+                        }
                     }
                     animate().alpha(1f)
                 }

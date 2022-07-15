@@ -140,7 +140,8 @@ sealed class PaymentMethod(
         val cardType: String,
         val status: CardStatus,
         val mobilePaymentType: MobilePaymentType? = null,
-        override val isEligible: Boolean
+        override val isEligible: Boolean,
+        val cardRejectionState: CardRejectionState? = null
     ) : PaymentMethod(cardId, PaymentMethodType.PAYMENT_CARD, limits, CARD_PAYMENT_METHOD_ORDER, isEligible),
         Serializable,
         RecurringBuyPaymentDetails {

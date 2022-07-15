@@ -37,7 +37,6 @@ class SettingsInteractor internal constructor(
 ) {
     private val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
-    fun getUserFiat() = userSelectedFiat
 
     fun getSupportEligibilityAndBasicInfo(): Single<UserDetails> {
         return Singles.zip(
@@ -142,6 +141,7 @@ class SettingsInteractor internal constructor(
         expireDate = expireDate,
         cardType = cardType,
         status = status,
-        isEligible = true
+        isEligible = true,
+        cardRejectionState = cardRejectionState
     )
 }

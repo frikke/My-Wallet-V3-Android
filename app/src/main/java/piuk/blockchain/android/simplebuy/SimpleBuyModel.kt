@@ -1115,7 +1115,8 @@ class SimpleBuyModel(
                         expireDate = it.expireDate,
                         cardType = it.cardType,
                         status = it.status,
-                        isEligible = true
+                        isEligible = true,
+                        cardRejectionState = it.cardRejectionState
                     )
                     is LinkedPaymentMethod.Funds -> it.balance.takeIf { balance ->
                         balance > limits.min
