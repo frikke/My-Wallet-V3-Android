@@ -89,6 +89,7 @@ class DashboardModel(
             is DashboardIntent.DismissReferralSuccess -> {
                 interactor.dismissReferralSuccess()
             }
+            is DashboardIntent.ShowBankLinkingWithAlias,
             is DashboardIntent.ShowReferralSuccess,
             is DashboardIntent.FiatBalanceUpdate,
             is DashboardIntent.BalanceUpdateError,

@@ -30,11 +30,13 @@ sealed class SettingsIntent : MviIntent<SettingsState> {
     }
 
     class UpdatePaymentMethodsInfo(
-        private val paymentMethodInfo: PaymentMethods
+        private val paymentMethodInfo: PaymentMethods,
+        private val canPayWithBind: Boolean
     ) : SettingsIntent() {
         override fun reduce(oldState: SettingsState): SettingsState =
             oldState.copy(
-                paymentMethodInfo = paymentMethodInfo
+                paymentMethodInfo = paymentMethodInfo,
+                canPayWithBind = canPayWithBind
             )
     }
 

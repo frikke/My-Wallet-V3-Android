@@ -13,6 +13,7 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.outcome.getOrDefault
 import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.FiatCurrency
@@ -33,7 +34,8 @@ class SettingsInteractor internal constructor(
     private val cardService: CardService,
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase,
     private val currencyPrefs: CurrencyPrefs,
-    private val referralService: ReferralService
+    private val referralService: ReferralService,
+    private val nabuUserIdentity: NabuUserIdentity
 ) {
     private val userSelectedFiat: FiatCurrency
         get() = currencyPrefs.selectedFiatCurrency
@@ -85,6 +87,8 @@ class SettingsInteractor internal constructor(
             }
         }
     }
+
+    fun canPayWithBind(): Single<Boolean> = nabuUserIdentity.isArgentinian()
 
     fun getBankLinkingInfo(): Single<LinkBankTransfer> =
         bankService.linkBank(userSelectedFiat)

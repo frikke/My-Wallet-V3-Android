@@ -96,7 +96,7 @@ class DashboardActionInteractor(
     private val walletModeService: WalletModeService,
     private val analytics: Analytics,
     private val remoteLogger: RemoteLogger,
-    private val referralPrefs: ReferralPrefs,
+    private val referralPrefs: ReferralPrefs
 ) {
 
     private val defFilter: AssetFilter
@@ -582,6 +582,9 @@ class DashboardActionInteractor(
             is FiatTransactionRequestResult.LaunchDepositDetailsSheet -> {
                 model.process(DashboardIntent.ShowBankLinkingSheet(fiatTxRequestResult.targetAccount))
             }
+            is FiatTransactionRequestResult.LaunchAliasWithdrawal -> {
+                model.process(DashboardIntent.ShowBankLinkingWithAlias(fiatTxRequestResult.targetAccount))
+            }
             null -> {
             }
         }.exhaustive
@@ -613,7 +616,13 @@ class DashboardActionInteractor(
                 }
             }
             paymentMethodForAction.linkablePaymentMethods.linkMethods.contains(PaymentMethodType.BANK_ACCOUNT) -> {
-                Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                userIdentity.isArgentinian().flatMap { isArgentinian ->
+                    if (isArgentinian && action == AssetAction.FiatWithdraw) {
+                        Single.just(FiatTransactionRequestResult.LaunchAliasWithdrawal(targetAccount))
+                    } else {
+                        Single.just(FiatTransactionRequestResult.LaunchDepositDetailsSheet(targetAccount))
+                    }
+                }
             }
             else -> {
                 Single.just(FiatTransactionRequestResult.NotSupportedPartner)

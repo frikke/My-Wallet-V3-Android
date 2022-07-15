@@ -183,13 +183,7 @@ class USDPaymentAccountMapper(private val resources: Resources) : PaymentAccount
             },
             bankAccountResponse.agent.address?.let { address ->
                 BankDetail(
-                    title = if (
-                        bankAccountResponse.agent.accountType == ARSPaymentAccountMapper.AccountType.TRADITIONAL.value
-                    ) {
-                        ARSPaymentAccountMapper.AccountType.TRADITIONAL.value
-                    } else {
-                        ARSPaymentAccountMapper.AccountType.VIRTUAL.value
-                    },
+                    title = bankAccountResponse.agent.accountType.orEmpty().toBindAccountTypeTitle(),
                     value = address,
                     isCopyable = true
                 )
@@ -261,11 +255,7 @@ class ARSPaymentAccountMapper(private val resources: Resources) : PaymentAccount
                 },
                 bankAccountResponse.agent.address?.let { address ->
                     BankDetail(
-                        title = if (bankAccountResponse.agent.accountType == AccountType.TRADITIONAL.value) {
-                            AccountType.TRADITIONAL.value
-                        } else {
-                            AccountType.VIRTUAL.value
-                        },
+                        title = bankAccountResponse.agent.accountType.orEmpty().toBindAccountTypeTitle(),
                         value = address,
                         isCopyable = true
                     )
@@ -288,3 +278,10 @@ class ARSPaymentAccountMapper(private val resources: Resources) : PaymentAccount
         )
     }
 }
+
+fun String.toBindAccountTypeTitle() =
+    if (this == ARSPaymentAccountMapper.AccountType.TRADITIONAL.value) {
+        ARSPaymentAccountMapper.AccountType.TRADITIONAL.value
+    } else {
+        ARSPaymentAccountMapper.AccountType.VIRTUAL.value
+    }

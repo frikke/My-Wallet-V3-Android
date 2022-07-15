@@ -2,6 +2,8 @@ package com.blockchain.api.services
 
 import com.blockchain.api.paymentmethods.PaymentMethodsApi
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
+import com.blockchain.api.paymentmethods.models.AliasInfoRequestBody
+import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.Attributes
@@ -179,6 +181,27 @@ class PaymentMethodsService internal constructor(
     ) = api.getGooglePayInfo(
         authorization = authorization,
         currency = currency
+    )
+
+    suspend fun getBeneficiaryInfo(
+        authorization: String,
+        currency: String,
+        address: String
+    ) = api.getBeneficiaryInfo(
+        authorization = authorization,
+        body = AliasInfoRequestBody(
+            currency = currency,
+            address = address
+        ),
+        localisedError = getLocalisedErrorIfEnabled()
+    )
+
+    suspend fun activateBeneficiary(
+        authorization: String,
+        beneficiaryId: String
+    ) = api.activateBeneficiary(
+        authorization = authorization,
+        body = LinkWithAliasRequestBody(beneficiaryId)
     )
 
     suspend fun checkCardRejectionState(

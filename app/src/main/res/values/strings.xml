@@ -1958,6 +1958,7 @@
     <string name="link_once_and_instantly_buy_crypto_anytime">Quick and secure without entering account details.</string>
     <string name="add_payment_method">+ Add New</string>
     <string name="pay_with_my_dotted">Pay with my…</string>
+    <string name="add_new_bank_account">+ Add New Bank Account</string>
 
     <!-- Yodlee splash -->
     <string name="yodlee_splash_title_partner">Blockchain.com uses Yodlee to verify your bank credentials &amp; securely link your accounts.</string>
@@ -2117,6 +2118,13 @@
     <string name="yapily_payment_to_fiat_wallet_subtitle">You recently approved a %1$s purchase with your bank and cancelled the order here. Since you approved with your bank, we’ve deposited your purchase amount in your %2$s Wallet.</string>
     <string name="yapily_payment_to_fiat_wallet_default">crypto</string>
     <string name="yapily_fiat_deposit_success_subtitle">While we wait for your bank to send the cash, here’s early access to %1$s in your %2$s Cash Account so you can buy crypto right away.\n\nYour funds will be available to withdraw once the bank transfer is complete on %3$s.</string>
+
+    <!-- Bank Alias Linking -->
+    <string name="bank_alias_types" translatable="false">Alias/CBU/CVU</string>
+    <string name="bank_alias_info">Please, enter your bank Alias/CBU/CVU to link a new bank account in your name.\n\nIf you enter an alias:\n- It has to be between 6 and 20 characters (letters, numbers, dash and dot)\n- Don’t include the letter “ñ”, accents, gaps and other special characters.</string>
+    <string name="bank_alias_search_account">Search Account</string>
+    <string name="bank_alias_cbu" translatable="false">CBU</string>
+    <string name="bank_alias_cuil" translatable="false">CUIL</string>
 
     <!-- Bank Linking Errors -->
     <string name="bank_linking_generic_error_title">Oops! Something went wrong</string>

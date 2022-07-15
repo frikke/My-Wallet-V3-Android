@@ -1,5 +1,6 @@
 package com.blockchain.domain.paymentmethods
 
+import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankTransferDetails
 import com.blockchain.domain.paymentmethods.model.FundsLocks
@@ -8,6 +9,7 @@ import com.blockchain.domain.paymentmethods.model.LinkedBank
 import com.blockchain.domain.paymentmethods.model.LinkedPaymentMethod
 import com.blockchain.domain.paymentmethods.model.RefreshBankInfo
 import com.blockchain.domain.paymentmethods.model.SettlementInfo
+import com.blockchain.outcome.Outcome
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.Money
@@ -60,4 +62,8 @@ interface BankService {
     fun getBankTransferCharge(paymentId: String): Single<BankTransferDetails>
 
     fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean>
+
+    suspend fun getBeneficiaryInfo(currency: String, address: String): Outcome<Exception, AliasInfo>
+
+    suspend fun activateBeneficiary(beneficiaryId: String): Outcome<Exception, Unit>
 }

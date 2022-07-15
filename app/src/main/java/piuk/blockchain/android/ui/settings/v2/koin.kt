@@ -66,7 +66,8 @@ val redesignSettingsModule = module {
                 cardService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
-                referralService = get()
+                referralService = get(),
+                nabuUserIdentity = get()
             )
         }
 

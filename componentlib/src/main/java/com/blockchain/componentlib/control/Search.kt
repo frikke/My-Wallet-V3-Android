@@ -17,15 +17,17 @@ import com.blockchain.componentlib.theme.AppTheme
 
 @Composable
 fun Search(
+    prePopulatedText: String = "",
     label: String = "",
     placeholder: String = "",
+    readOnly: Boolean = false,
     isDarkMode: Boolean = isSystemInDarkTheme(),
     onValueChange: (String) -> Unit = {},
 ) {
 
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
-    var value by remember { mutableStateOf("") }
+    var value by remember { mutableStateOf(prePopulatedText) }
 
     val searchIcon = ImageResource.Local(R.drawable.ic_search, null)
     val closeIcon = if (isDarkMode) {
@@ -49,7 +51,7 @@ fun Search(
         label = label,
         placeholder = placeholder,
         singleLine = true,
-        trailingIcon = trailingIcon,
+        trailingIcon = if (!readOnly) trailingIcon else ImageResource.None,
         onTrailingIconClicked = {
             onValueChange.invoke("")
             value = ""
@@ -61,6 +63,7 @@ fun Search(
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus(true) }
         ),
+        readOnly = readOnly
     )
 }
 

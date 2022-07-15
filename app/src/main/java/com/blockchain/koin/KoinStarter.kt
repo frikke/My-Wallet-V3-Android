@@ -58,6 +58,7 @@ import piuk.blockchain.android.ui.kyc.autocomplete.kycAutocompleteModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiModule
 import piuk.blockchain.android.ui.kyc.koin.kycUiNabuModule
 import piuk.blockchain.android.ui.launcher.loader.loaderModule
+import piuk.blockchain.android.ui.linkbank.alias.bankAliasLinkPresentationModule
 import piuk.blockchain.android.ui.linkbank.data.bankAuthDataModule
 import piuk.blockchain.android.ui.linkbank.domain.bankAuthDomainModule
 import piuk.blockchain.android.ui.linkbank.presentation.openbanking.permission.bankAuthPresentationModule
@@ -139,7 +140,8 @@ object KoinStarter {
                     referralPresentationModule,
                     appRatingDataModule, appRatingPresentationModule,
                     backupPhraseDataModule, backupPhrasePresentationModule,
-                    pricesPresentationModule
+                    pricesPresentationModule,
+                    bankAliasLinkPresentationModule
                 )
             )
         }

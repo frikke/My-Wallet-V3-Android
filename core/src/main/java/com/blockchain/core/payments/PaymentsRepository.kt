@@ -4,6 +4,7 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
+import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
@@ -41,6 +42,7 @@ import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -87,6 +89,7 @@ import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -622,6 +625,36 @@ class PaymentsRepository(
             }
         }
 
+    override suspend fun getBeneficiaryInfo(currency: String, address: String): Outcome<Exception, AliasInfo> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { authToken ->
+                paymentMethodsService.getBeneficiaryInfo(
+                    authorization = authToken,
+                    currency = currency,
+                    address = address
+                ).fold(
+                    onSuccess = {
+                        it.ux?.let { error ->
+                            Outcome.Failure(NabuApiExceptionFactory.fromServerSideError(error))
+                        } ?: Outcome.Success(it.toAliasInfo())
+                    },
+                    onFailure = {
+                        Outcome.Failure(Exception(it.throwable))
+                    }
+                )
+            }
+
+    override suspend fun activateBeneficiary(beneficiaryId: String): Outcome<Exception, Unit> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { authToken ->
+                paymentMethodsService.activateBeneficiary(
+                    authorization = authToken,
+                    beneficiaryId = beneficiaryId
+                ).mapError {
+                    Exception(it.throwable)
+                }
+            }
+
     override suspend fun checkNewCardRejectionState(binNumber: String):
         Outcome<CardRejectionCheckError, CardRejectionState> =
         authenticator.getAuthHeader().awaitOutcome()
@@ -913,6 +946,16 @@ class PaymentsRepository(
         "CARDPROVIDER" -> Partner.CARDPROVIDER
         else -> Partner.UNKNOWN
     }
+
+    private fun AliasInfoResponse.toAliasInfo(): AliasInfo =
+        AliasInfo(
+            bankName = agent?.bankName,
+            alias = agent?.label,
+            accountHolder = agent?.name,
+            accountType = agent?.accountType,
+            cbu = agent?.address,
+            cuil = agent?.holderDocument
+        )
 
     // </editor-fold>
 

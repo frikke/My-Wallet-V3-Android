@@ -84,6 +84,7 @@ import piuk.blockchain.android.ui.home.WalletClientAnalytics
 import piuk.blockchain.android.ui.interest.InterestSummarySheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.locks.LocksDetailsActivity
 import piuk.blockchain.android.ui.recurringbuy.onboarding.RecurringBuyOnboardingActivity
 import piuk.blockchain.android.ui.resources.AssetResources
@@ -162,6 +163,18 @@ class PortfolioFragment :
         if (it.resultCode == RESULT_OK) {
             (it.data?.getAccount(CoinViewActivity.ACCOUNT_FOR_ACTIVITY))?.let { account ->
                 goToActivityFor(account)
+            }
+        }
+    }
+
+    private val bankAliasLinkLauncher = registerForActivityResult(BankAliasLinkContract()) { linkSuccess ->
+        if (linkSuccess) {
+            (state?.dashboardNavigationAction as? DashboardNavigationAction.LinkWithAlias)?.let { action ->
+                action.fiatAccount?.let {
+                    model.process(
+                        DashboardIntent.LaunchBankTransferFlow(it, AssetAction.FiatWithdraw, false)
+                    )
+                }
             }
         }
     }
@@ -316,6 +329,12 @@ class PortfolioFragment :
                     )
                 )
                 model.process(DashboardIntent.ResetNavigation)
+            }
+            is DashboardNavigationAction.LinkWithAlias -> {
+                bankAliasLinkLauncher.launch(
+                    navigationAction.fiatAccount?.currency?.networkTicker
+                        ?: currencyPrefs.selectedFiatCurrency.networkTicker
+                )
             }
             is DashboardNavigationAction.BackUpBeforeSend,
             is DashboardNavigationAction.FiatDepositOrWithdrawalBlockedDueToSanctions,

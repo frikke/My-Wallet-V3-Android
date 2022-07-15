@@ -8,6 +8,7 @@ import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.outcome.Outcome
 import com.blockchain.preferences.CurrencyPrefs
 import com.nhaarman.mockitokotlin2.doNothing
@@ -37,6 +38,7 @@ class SettingsInteractorTest {
     private val getAvailablePaymentMethodsTypesUseCase: GetAvailablePaymentMethodsTypesUseCase = mock()
     private val currencyPrefs: CurrencyPrefs = mock()
     private val referralService: ReferralService = mock()
+    private val nabuUserIdentity: NabuUserIdentity = mock()
 
     @Before
     fun setup() {
@@ -48,7 +50,8 @@ class SettingsInteractorTest {
             cardService = cardService,
             getAvailablePaymentMethodsTypesUseCase = getAvailablePaymentMethodsTypesUseCase,
             currencyPrefs = currencyPrefs,
-            referralService = referralService
+            referralService = referralService,
+            nabuUserIdentity = nabuUserIdentity
         )
     }
 
@@ -83,5 +86,14 @@ class SettingsInteractorTest {
 
         verify(credentialsWiper).wipe()
         verify(database.historicRateQueries).clear()
+    }
+
+    @Test
+    fun `canPayWithBind() should check if user is Argentinian`() {
+        whenever(nabuUserIdentity.isArgentinian()).thenReturn(Single.just(true))
+
+        interactor.canPayWithBind().test()
+            .assertValue(true)
+            .assertComplete()
     }
 }

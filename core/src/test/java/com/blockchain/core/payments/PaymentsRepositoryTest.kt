@@ -3,9 +3,12 @@ package com.blockchain.core.payments
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
+import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
@@ -39,6 +42,7 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -372,6 +376,79 @@ class PaymentsRepositoryTest {
             .assertValue(
                 RefreshBankInfo(BankPartner.PLAID, ID, "linkToken", "linkUrl", "tokenExpiresAt")
             )
+    }
+
+    @Test
+    fun `getBeneficiaryInfo() - success`() = runTest {
+        // Arrange
+        val currency = "ARS"
+        val alias = "alias"
+        val mockAgent: AliasInfoResponse.Agent = mockk {
+            every { bankName } returns "bankName"
+            every { label } returns "alias"
+            every { name } returns "accountHolder"
+            every { accountType } returns "accountType"
+            every { address } returns "cbu"
+            every { holderDocument } returns "cuil"
+        }
+        val aliasInfoResponse: AliasInfoResponse = mockk {
+            every { agent } returns mockAgent
+            every { ux } returns null
+        }
+        coEvery {
+            paymentMethodsService.getBeneficiaryInfo(
+                authorization = AUTH,
+                currency = currency,
+                address = alias
+            )
+        } returns Outcome.Success(aliasInfoResponse)
+
+        // Act
+        val result = subject.getBeneficiaryInfo(currency, alias)
+
+        // Assert
+        assertEquals(
+            Outcome.Success(
+                AliasInfo(
+                    bankName = "bankName",
+                    alias = "alias",
+                    accountHolder = "accountHolder",
+                    accountType = "accountType",
+                    cbu = "cbu",
+                    cuil = "cuil"
+                )
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `getBeneficiaryInfo() - ux error`() = runTest {
+        // Arrange
+        val currency = "ARS"
+        val address = "alias"
+        val uxError: NabuUxErrorResponse = mockk(relaxed = true) {
+            every { title } returns "title"
+            every { message } returns "message"
+        }
+        val aliasInfoResponse: AliasInfoResponse = mockk {
+            every { ux } returns uxError
+        }
+        coEvery {
+            paymentMethodsService.getBeneficiaryInfo(
+                authorization = AUTH,
+                currency = currency,
+                address = address
+            )
+        } returns Outcome.Success(aliasInfoResponse)
+
+        // Act
+        val result = subject.getBeneficiaryInfo(currency, address)
+
+        // Assert
+        result.doOnFailure {
+            assertTrue(it is NabuApiException)
+        }
     }
 
     @Test

@@ -16,7 +16,8 @@ data class SettingsState(
     val paymentMethodInfo: PaymentMethods? = null,
     val tier: Tier = Tier.BRONZE,
     val error: SettingsError = SettingsError.None,
-    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable
+    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
+    val canPayWithBind: Boolean = false
 ) : MviState
 
 sealed class ViewToLaunch {
