@@ -78,6 +78,11 @@ class Coincore internal constructor(
 
     private fun allLoadedAssets() = assetLoader.loadedAssets + fiatAsset
 
+    fun walletsForAsset(cryptoAsset: CryptoAsset): Single<AccountGroup> =
+        cryptoAsset.accountGroup(
+            walletModeService.enabledWalletMode().defaultFilter()
+        ).defaultIfEmpty(NullAccountGroup)
+
     fun allWallets(includeArchived: Boolean = false): Single<AccountGroup> =
         walletsWithFilter(includeArchived, AssetFilter.All).map { list ->
             AllWalletsAccount(list, defaultLabels)

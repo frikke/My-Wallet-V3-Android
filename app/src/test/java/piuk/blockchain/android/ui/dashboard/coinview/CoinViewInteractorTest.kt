@@ -6,6 +6,7 @@ import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
+import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
@@ -23,7 +24,6 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
 import com.blockchain.testutils.rxInit
-import com.blockchain.walletmode.WalletMode
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
@@ -109,6 +109,11 @@ class CoinViewInteractorTest {
     private val interestGroup: AccountGroup = mock {
         on { accounts }.thenReturn(listOf(interestAccount))
     }
+    private val allGroups: AccountGroup = mock {
+        on { accounts }.thenReturn(
+            listOf(defaultNcAccount, secondNcAccount, archivedNcAccount, custodialAccount, interestAccount)
+        )
+    }
     private val actionsComparator: StateAwareActionsComparator = mock()
 
     private val prices: Prices24HrWithDelta = mock {
@@ -135,9 +140,6 @@ class CoinViewInteractorTest {
             watchlistDataManager = watchlistDataManager,
             assetActionsComparator = actionsComparator,
             assetsManager = assetManager,
-            walletModeService = mock {
-                on { enabledWalletMode() }.thenReturn(WalletMode.UNIVERSAL)
-            }
         )
     }
 
@@ -362,13 +364,11 @@ class CoinViewInteractorTest {
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         val asset: CryptoAsset = mock {
             on { this.assetInfo }.thenReturn(assetInfo)
-            on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
         }
         whenever(watchlistDataManager.isAssetInWatchlist(asset.assetInfo)).thenReturn(Single.just(true))
+        whenever(coincore.walletsForAsset(asset)).thenReturn(Single.just(NullAccountGroup))
 
         val test = subject.loadAccountDetails(asset).test()
 
@@ -391,6 +391,7 @@ class CoinViewInteractorTest {
         ) {}
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(watchlistDataManager.isAssetInWatchlist(testAsset)).thenReturn(Single.just(true))
+        whenever(coincore.walletsForAsset(asset)).thenReturn(Single.just(allGroups))
 
         val test = subject.loadAccountDetails(asset).test()
 
