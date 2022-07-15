@@ -1,6 +1,7 @@
 package info.blockchain.wallet.payload.data;
 
 import com.blockchain.serialization.JsonSerializableAccount;
+
 import info.blockchain.wallet.exceptions.DecryptionException;
 import info.blockchain.wallet.exceptions.EncryptionException;
 import info.blockchain.wallet.exceptions.HDWalletException;
@@ -10,6 +11,7 @@ import info.blockchain.wallet.payload.HDWalletsContainer;
 import info.blockchain.wallet.payload.data.walletdto.WalletDto;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.FormatsUtil;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
@@ -17,13 +19,16 @@ import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.params.MainNetParams;
 import org.spongycastle.crypto.InvalidCipherTextException;
+
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Wallet {
@@ -150,6 +155,17 @@ public class Wallet {
         WalletBody walletBody = getWalletBody().updateAccountLabel(account, label);
         return withUpdatedBodiesAndVersion(Collections.singletonList(walletBody), getWrapperVersion());
     }
+
+    public Wallet updateImportedAddressLabel(ImportedAddress address, String label) {
+        if (getWalletBody() == null) { return this; }
+
+        return new Wallet(
+            walletDto.updateImportedAddressLabel(address, label),
+            walletBodies,
+            wrapperVersion
+        );
+    }
+
 
     public boolean isUpgradedToV3() {
         return (walletDto.getWalletBodies() != null && walletDto.getWalletBodies().size() > 0);
@@ -402,7 +418,7 @@ public class Wallet {
      * @throws NoSuchAddressException
      */
 
-    public Wallet updateKeyForImportedAddress(
+    public ImportedAddress updateKeyForImportedAddress(
         SigningKey key,
         @Nullable String secondPassword
     ) throws DecryptionException,
@@ -449,11 +465,7 @@ public class Wallet {
         else {
             updatedAddress = matchingAddressBody.withUpdatePrivateKey(encryptedKey);
         }
-        return new Wallet(
-            walletDto.replaceImportedAddress(matchingAddressBody, updatedAddress),
-            walletBodies,
-            wrapperVersion
-        );
+        return updatedAddress;
     }
 
     /**
@@ -554,5 +566,27 @@ public class Wallet {
             walletBodies,
             wrapperVersion
         );
+    }
+
+    public Wallet replaceOrAddImportedAddress(ImportedAddress address) {
+        List<ImportedAddress> sameOldAddrs = getImportedAddressList()
+            .stream().filter(addr ->
+                                 addr.getAddress().equals(address.getAddress())
+            ).collect(Collectors.toList());
+        if (sameOldAddrs.size() == 0) {
+            return new Wallet(
+                walletDto.addImportedAddress(address),
+                walletBodies,
+                wrapperVersion
+            );
+        }
+        else {
+            return new Wallet(
+                walletDto.replaceImportedAddress(sameOldAddrs.get(0), address),
+                walletBodies,
+                wrapperVersion
+            );
+        }
+
     }
 }

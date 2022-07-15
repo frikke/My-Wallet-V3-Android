@@ -64,7 +64,6 @@ import info.blockchain.wallet.payload.model.Balance;
 import info.blockchain.wallet.payload.model.BalanceKt;
 import info.blockchain.wallet.util.DoubleEncryptionFactory;
 import info.blockchain.wallet.util.Tools;
-import io.reactivex.rxjava3.core.Completable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -268,7 +267,7 @@ public class PayloadManager {
 
     public void updateAccountLabel(JsonSerializableAccount account, String label) throws HDWalletException, EncryptionException, NoSuchAlgorithmException, IOException {
         saveAndSync(
-            walletBase.withUpdatedAccountLabel(account, label), password
+            walletBase.withUpdatedLabel(account, label), password
         );
     }
 
@@ -657,17 +656,17 @@ public class PayloadManager {
         @Nullable String secondPassword
     ) throws Exception {
         try {
-            Wallet wallet = getPayload().updateKeyForImportedAddress(
+            ImportedAddress address = getPayload().updateKeyForImportedAddress(
                 key,
                 secondPassword
             );
 
-            ImportedAddress updatedAddress = wallet.getImportedAddressList().stream().reduce((first, second) -> second).get();
+
             if (saveAndSync(
-                walletBase.withWalletBody(wallet),
+                walletBase.withWalletBody(getPayload().replaceOrAddImportedAddress(address)),
                 password
             )) {
-                return updatedAddress;
+                return address;
             }
             else { throw new RuntimeException("Failed to add address"); }
 

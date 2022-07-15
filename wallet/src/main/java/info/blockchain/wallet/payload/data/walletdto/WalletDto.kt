@@ -153,6 +153,11 @@ internal data class WalletDto(
         )
     }
 
+    fun updateImportedAddressLabel(address: ImportedAddress, label: String): WalletDto {
+        val updatedAddress = address.copy(labelField = label)
+        return this.copy(_imported = imported.replace(old = address, new = updatedAddress))
+    }
+
     companion object {
         @JvmStatic
         fun fromJson(json: String): WalletDto {

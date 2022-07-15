@@ -201,8 +201,15 @@ public class WalletBase {
         return walletBaseDto.getSyncPubkeys();
     }
 
-    public WalletBase withUpdatedAccountLabel(JsonSerializableAccount account, String label) {
-        return withWalletBody(wallet.updateAccountLabel((Account) account, label));
+    public WalletBase withUpdatedLabel(JsonSerializableAccount jsonSerializableAccount, String label) {
+        if (jsonSerializableAccount instanceof Account) {
+            return withWalletBody(wallet.updateAccountLabel((Account) jsonSerializableAccount, label));
+        }
+        if (jsonSerializableAccount instanceof ImportedAddress) {
+            return withWalletBody(wallet.updateImportedAddressLabel(((ImportedAddress) jsonSerializableAccount), label));
+        }
+        throw new UnsupportedOperationException("Cannot update label of " + jsonSerializableAccount.getClass().getName());
+
     }
 
     public WalletBase withUpdatedAccountState(JsonSerializableAccount account, boolean isArchived) {

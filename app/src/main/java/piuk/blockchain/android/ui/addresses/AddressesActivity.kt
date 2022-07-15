@@ -203,7 +203,7 @@ class AddressesActivity :
     }
 
     private fun handleImportScan(scanData: String) {
-        val walletPassword = secondPasswordHandler.verifiedPassword
+        val walletPassword = secondPasswordHandler.verifiedPassword.takeIf { it?.isNotEmpty() == true }
         if (presenter.importRequiresPassword(scanData)) {
             promptImportKeyPassword(this) { password ->
                 presenter.importScannedAddress(scanData, password, walletPassword)

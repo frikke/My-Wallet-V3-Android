@@ -276,7 +276,9 @@ class WalletTest : WalletApiMockedResponseTest() {
             withImportedAddressWallet.importedAddressList.last()
         val key = SigningKeyImpl(DeterministicKey.fromPrivate(Base58.decode(address.privateKey)))
 
-        val updatedWallet = withImportedAddressWallet.updateKeyForImportedAddress(key, null)
+        val updatedWallet = withImportedAddressWallet.updateKeyForImportedAddress(key, null).let {
+            wallet.replaceOrAddImportedAddress(it)
+        }
         assertEquals(updatedWallet.importedAddressList.last().privateKey, "tb1TutW9CCZUqsXQ9nhvatCW51sauRJapY5YpW3zddF")
     }
 
@@ -358,7 +360,9 @@ class WalletTest : WalletApiMockedResponseTest() {
         )
 
         // Set private key
-        val updatedWallet = wallet.updateKeyForImportedAddress(key, "bogus")
+        val updatedWallet = wallet.updateKeyForImportedAddress(key, "bogus").let {
+            wallet.replaceOrAddImportedAddress(it)
+        }
         assertEquals("123", updatedWallet.importedAddressList.last().privateKey)
     }
 
