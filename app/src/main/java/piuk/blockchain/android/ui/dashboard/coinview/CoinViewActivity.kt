@@ -46,7 +46,6 @@ import com.blockchain.core.price.HistoricalRateList
 import com.blockchain.core.price.HistoricalTimeSpan
 import com.blockchain.core.price.Prices24HrWithDelta
 import com.blockchain.extensions.enumValueOfOrNull
-import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.models.data.RecurringBuy
@@ -87,8 +86,8 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccou
 import piuk.blockchain.android.ui.transactionflow.flow.TransactionFlowActivity
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.detail.ReceiveDetailSheet
-import piuk.blockchain.android.ui.transfer.receive.detail.copyAddress
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.android.util.copyToClipboardWithConfirmationDialog
 import piuk.blockchain.android.util.putAccount
 
 class CoinViewActivity :
@@ -1034,9 +1033,11 @@ class CoinViewActivity :
                 )
             )
 
-            copyAddress(
-                receiveAddress = receiveAddress,
-                confirmationAnchorView = binding.root
+            copyToClipboardWithConfirmationDialog(
+                confirmationAnchorView = binding.root,
+                confirmationMessage = R.string.receive_address_to_clipboard,
+                label = "Send address",
+                text = receiveAddress.address
             )
         }
     }

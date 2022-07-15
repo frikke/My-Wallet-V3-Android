@@ -1,5 +1,6 @@
 package piuk.blockchain.android.util
 
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -7,11 +8,15 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import com.blockchain.componentlib.alert.BlockchainSnackbar
+import com.blockchain.componentlib.alert.SnackbarType
 import piuk.blockchain.android.R
 
 fun Context.loadInterMedium(): Typeface =
@@ -52,6 +57,28 @@ fun Context.copyToClipboard(label: String, text: String) {
             setPrimaryClip(clipData)
         }
     }
+}
+
+fun Context.copyToClipboardWithConfirmationDialog(
+    confirmationAnchorView: View,
+    @StringRes confirmationTitle: Int = R.string.app_name,
+    @StringRes confirmationMessage: Int,
+    label: String,
+    text: String
+) {
+    AlertDialog.Builder(this, R.style.AlertDialogStyle)
+        .setTitle(confirmationTitle)
+        .setMessage(confirmationMessage)
+        .setCancelable(false)
+        .setPositiveButton(R.string.common_yes) { _, _ ->
+            copyToClipboard(label, text)
+            BlockchainSnackbar.make(
+                confirmationAnchorView,
+                getString(R.string.copied_to_clipboard), type = SnackbarType.Success
+            ).show()
+        }
+        .setNegativeButton(R.string.common_no, null)
+        .show()
 }
 
 fun Context.shareTextWithSubject(text: String, subject: String) {

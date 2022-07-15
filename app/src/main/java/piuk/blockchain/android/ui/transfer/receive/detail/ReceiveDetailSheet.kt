@@ -33,6 +33,7 @@ import piuk.blockchain.android.ui.transactionflow.analytics.TxFlowAnalyticsAccou
 import piuk.blockchain.android.ui.transfer.analytics.TransferAnalyticsEvent
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveInfoView
 import piuk.blockchain.android.ui.transfer.receive.plugin.ReceiveMemoView
+import piuk.blockchain.android.util.copyToClipboardWithConfirmationDialog
 import piuk.blockchain.android.util.getAccount
 import piuk.blockchain.android.util.putAccount
 
@@ -95,9 +96,12 @@ internal class ReceiveDetailSheet :
                             )
                         )
                     )
-                    activity?.copyAddress(
-                        receiveAddress = newState.cryptoAddress,
-                        confirmationAnchorView = binding.root
+
+                    activity?.copyToClipboardWithConfirmationDialog(
+                        confirmationAnchorView = binding.root,
+                        confirmationMessage = R.string.receive_address_to_clipboard,
+                        label = "Send address",
+                        text = newState.cryptoAddress.address
                     )
                 }
             } else {
