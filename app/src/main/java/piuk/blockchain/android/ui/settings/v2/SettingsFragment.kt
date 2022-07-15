@@ -55,12 +55,10 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentRedesignSettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
 import piuk.blockchain.android.ui.referral.presentation.Origin
@@ -205,14 +203,6 @@ class SettingsFragment :
                 newState.basicProfileInfo?.let {
                     navigator().goToProfile()
                 }
-            is ViewToLaunch.BankAccount -> {
-                val fiatCurrency = newState.viewToLaunch.currency
-                WireTransferAccountDetailsBottomSheet.newInstance(fiatCurrency)
-                    .show(childFragmentManager, BOTTOM_SHEET)
-                analytics.logEvent(
-                    linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, fiatCurrency.networkTicker)
-                )
-            }
             is ViewToLaunch.BankTransfer -> {
                 onBankTransferAddedResult.launch(
                     BankAuthActivity.newInstance(
