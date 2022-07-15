@@ -42,7 +42,7 @@ sealed class Destination : Parcelable {
     object CustomerSupportDestination : Destination()
 
     @Parcelize
-    object StartKyc : Destination()
+    object StartKycDestination : Destination()
 
     @Parcelize
     object ReferralDestination : Destination()
@@ -51,4 +51,7 @@ sealed class Destination : Parcelable {
     class ExternalLinkDestination(
         val url: String
     ) : Destination()
+
+    @Parcelize
+    object DashboardDestination : Destination()
 }

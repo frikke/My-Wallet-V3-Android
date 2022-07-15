@@ -133,7 +133,7 @@ class DeeplinkProcessorV2 {
 
                 Single.just(
                     DeepLinkResult.DeepLinkResultSuccess(
-                        destination = Destination.StartKyc,
+                        destination = Destination.StartKycDestination,
                         notificationPayload = payload
                     )
                 )
@@ -146,6 +146,7 @@ class DeeplinkProcessorV2 {
             }
             EXTERNAL_LINK_URL -> {
                 val url = getUrl(deeplinkUri)
+                Timber.d("deeplink: External link with URL $url")
 
                 if (!url.isNullOrEmpty()) {
                     val destination = Destination.ExternalLinkDestination(url)
@@ -158,6 +159,16 @@ class DeeplinkProcessorV2 {
                 } else {
                     Single.just(DeepLinkResult.DeepLinkResultFailed)
                 }
+            }
+            DASHBOARD_URL -> {
+                Timber.d("deeplink: Dashboard")
+
+                Single.just(
+                    DeepLinkResult.DeepLinkResultSuccess(
+                        destination = Destination.DashboardDestination,
+                        notificationPayload = payload
+                    )
+                )
             }
             else -> Single.just(DeepLinkResult.DeepLinkResultFailed)
         }
@@ -181,6 +192,7 @@ class DeeplinkProcessorV2 {
         const val ACTIVITY_URL = "$APP_URL/activity"
         const val REFERRAL_URL = "$APP_URL/referral"
         const val EXTERNAL_LINK_URL = "$APP_URL/external/link"
+        const val DASHBOARD_URL = "$APP_URL/go/to/dashboard"
 
         const val PARAMETER_CODE = "code"
         const val PARAMETER_AMOUNT = "amount"

@@ -753,7 +753,6 @@ class MainActivity :
                     Timber.e("Unable to start CoinViewActivity from deeplink. AssetInfo is null")
                 }
             }
-
             is Destination.AssetBuyDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     startActivity(
@@ -767,7 +766,6 @@ class MainActivity :
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
-
             is Destination.AssetSendDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     destinationArgs.getSendSourceCryptoAccount(assetInfo, destination.accountAddress).subscribeBy(
@@ -788,10 +786,7 @@ class MainActivity :
                     Timber.e("Unable to start Send flow from deeplink. AssetInfo is null")
                 }
             }
-
-            is Destination.ActivityDestination -> {
-                startActivitiesFragment()
-            }
+            is Destination.ActivityDestination -> startActivitiesFragment()
             is Destination.AssetEnterAmountDestination -> {
                 destinationArgs.getAssetInfo(destination.networkTicker)?.let { assetInfo ->
                     startActivity(
@@ -830,18 +825,13 @@ class MainActivity :
                     Timber.e("Unable to start SimpleBuyActivity from deeplink. AssetInfo is null")
                 }
             }
-            Destination.CustomerSupportDestination -> {
+            Destination.CustomerSupportDestination ->
                 startActivity(SupportCentreActivity.newIntent(this))
-            }
-            Destination.StartKyc -> {
+            Destination.StartKycDestination ->
                 startActivity(KycNavHostActivity.newIntent(this, CampaignType.None))
-            }
-            Destination.ReferralDestination -> {
-                model.process(MainIntent.ShowReferralWhenAvailable)
-            }
-            is Destination.ExternalLinkDestination -> {
-                openUrl(destination.url)
-            }
+            Destination.ReferralDestination -> model.process(MainIntent.ShowReferralWhenAvailable)
+            is Destination.ExternalLinkDestination -> openUrl(destination.url)
+            is Destination.DashboardDestination -> launchPortfolio(reload = true)
         }.exhaustive
 
         model.process(MainIntent.ClearDeepLinkResult)
