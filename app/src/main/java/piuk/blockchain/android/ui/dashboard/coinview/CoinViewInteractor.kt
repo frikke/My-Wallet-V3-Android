@@ -2,7 +2,6 @@ package piuk.blockchain.android.ui.dashboard.coinview
 
 import com.blockchain.api.services.AssetTag
 import com.blockchain.api.services.DetailedAssetInformation
-import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.ActionState
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
@@ -12,8 +11,10 @@ import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
@@ -32,6 +33,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
@@ -49,11 +51,14 @@ class CoinViewInteractor(
     private val currencyPrefs: CurrencyPrefs,
     private val dashboardPrefs: DashboardPrefs,
     private val identity: UserIdentity,
+    private val walletModeService: WalletModeService,
     private val custodialWalletManager: CustodialWalletManager,
     private val assetActionsComparator: StateAwareActionsComparator,
     private val assetsManager: DynamicAssetsDataManager,
     private val watchlistDataManager: WatchlistDataManager,
 ) {
+    private val defFilter: AssetFilter
+        get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun loadAssetDetails(assetTicker: String): Single<Pair<CryptoAsset?, FiatCurrency>> =
         Single.just(Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency))
@@ -229,9 +234,10 @@ class CoinViewInteractor(
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
 
-        val accounts = coincore.walletsForAsset(asset).flatMap {
-            extractAccountDetails(it)
-        }
+        val accounts = asset.accountGroup(defFilter)
+            .map { it.accounts }
+            .switchIfEmpty(Single.just(emptyList()))
+            .flatMap { extractAccountDetails(it) }
 
         return Single.zip(
             accounts,
@@ -359,8 +365,8 @@ class CoinViewInteractor(
         return listOfAccounts
     }
 
-    private fun extractAccountDetails(accountGroup: AccountGroup): Single<List<DetailsItem>> =
-        accountGroup.accounts.filter {
+    private fun extractAccountDetails(accounts: SingleAccountList): Single<List<DetailsItem>> =
+        accounts.filter {
             (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
         }.map { account ->
             Single.zip(
