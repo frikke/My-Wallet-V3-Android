@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.charts.ChartIndicatorView
 import com.blockchain.coincore.AssetAction
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.BlockchainAccount
@@ -284,11 +283,6 @@ class CoinViewActivity :
             }
 
             chartControls.apply {
-                viewType = when (walletMode) {
-                    WalletMode.CUSTODIAL_ONLY, WalletMode.UNIVERSAL -> ChartIndicatorView.ViewType.Lined
-                    WalletMode.NON_CUSTODIAL_ONLY -> ChartIndicatorView.ViewType.Boxed
-                }.exhaustive
-
                 items = getTimeIntervalItems()
                 onItemSelected = {
                     analytics.logEvent(
