@@ -31,7 +31,8 @@ class OutcomeCall<R>(
             override fun onFailure(call: Call<R>, throwable: Throwable) {
                 val error = when (throwable) {
                     is IOException -> ApiError.NetworkError(throwable)
-                    else -> ApiError.UnknownApiError(throwable)
+                    is Exception -> ApiError.UnknownApiError(throwable)
+                    else -> ApiError.UnknownApiError(Exception(throwable))
                 }
                 callback.onResponse(this@OutcomeCall, Response.success(Outcome.Failure(error)))
             }
@@ -65,7 +66,7 @@ class OutcomeCall<R>(
                 @Suppress("UNCHECKED_CAST")
                 Outcome.Success(Unit) as Outcome<ApiError, R>
             code() == HttpStatus.NO_CONTENT -> Outcome.Success(null as R)
-            else -> Outcome.Failure(ApiError.UnknownApiError(throwable = Throwable(errorBody()?.toString() ?: "")))
+            else -> Outcome.Failure(ApiError.UnknownApiError(exception = Exception(errorBody()?.toString() ?: "")))
         }
     }
 

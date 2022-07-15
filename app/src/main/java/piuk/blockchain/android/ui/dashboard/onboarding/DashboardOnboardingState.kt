@@ -22,8 +22,6 @@ sealed class DashboardOnboardingNavigationAction {
     object StartKyc : DashboardOnboardingNavigationAction()
     data class AddPaymentMethod(val eligiblePaymentMethods: List<PaymentMethod>) : DashboardOnboardingNavigationAction()
     object OpenBuy : DashboardOnboardingNavigationAction()
-    data class SelectTradingCurrency(val supportedCurrencies: List<FiatCurrency>, val selectedCurrency: FiatCurrency) :
-        DashboardOnboardingNavigationAction()
 
     object AddCard : DashboardOnboardingNavigationAction()
     data class WireTransferAccountDetails(val currency: FiatCurrency) : DashboardOnboardingNavigationAction()

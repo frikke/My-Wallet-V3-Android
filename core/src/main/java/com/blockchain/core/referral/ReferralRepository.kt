@@ -47,7 +47,7 @@ class ReferralRepository(
                                 }
                             },
                             onFailure = { apiError ->
-                                Outcome.Failure(apiError.throwable)
+                                Outcome.Failure(apiError.exception)
                             }
                         )
                 }
@@ -67,7 +67,7 @@ class ReferralRepository(
                     ) {
                         Outcome.Success(false)
                     } else {
-                        Outcome.Failure(apiError.throwable)
+                        Outcome.Failure(apiError.exception)
                     }
                 }
             )
@@ -80,7 +80,7 @@ class ReferralRepository(
                 .awaitOutcome()
                 .flatMap { authToken ->
                     referralApi.associateReferralCode(authToken, validatedCode)
-                        .mapError { it.throwable }
+                        .mapError { it.exception }
                 }
         }
     }

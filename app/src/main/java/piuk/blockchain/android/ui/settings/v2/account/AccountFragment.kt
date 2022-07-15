@@ -103,10 +103,17 @@ class AccountFragment :
                 }
             }
 
-            settingsCurrency.apply {
+            settingsDisplayCurrency.apply {
                 primaryText = getString(R.string.account_currency_title)
                 onClick = {
-                    model.process(AccountIntent.LoadFiatList)
+                    model.process(AccountIntent.LoadDisplayCurrencies)
+                }
+            }
+
+            settingsTradingCurrency.apply {
+                primaryText = getString(R.string.account_trading_currency_title)
+                onClick = {
+                    model.process(AccountIntent.LoadTradingCurrencies)
                 }
             }
 
@@ -264,20 +271,33 @@ class AccountFragment :
 
         with(binding) {
             settingsChartVibration.isChecked = accountInformation.isChartVibrationEnabled
-            settingsCurrency.apply {
-                secondaryText = accountInformation.userCurrency.nameWithSymbol()
+            settingsDisplayCurrency.apply {
+                secondaryText = accountInformation.displayCurrency.nameWithSymbol()
+            }
+
+            settingsTradingCurrency.apply {
+                secondaryText = accountInformation.tradingCurrency.nameWithSymbol()
             }
         }
     }
 
     private fun renderViewToLaunch(newState: AccountState) {
         when (val view = newState.viewToLaunch) {
-            is ViewToLaunch.CurrencySelection -> {
+            is ViewToLaunch.DisplayCurrencySelection -> {
                 showBottomSheet(
                     CurrencySelectionSheet.newInstance(
                         currencies = view.currencyList,
                         selectedCurrency = view.selectedCurrency,
-                        currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.DISPLAY_CURRENCY
+                        currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY
+                    )
+                )
+            }
+            is ViewToLaunch.TradingCurrencySelection -> {
+                showBottomSheet(
+                    CurrencySelectionSheet.newInstance(
+                        currencies = view.currencyList,
+                        selectedCurrency = view.selectedCurrency,
+                        currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY
                     )
                 )
             }
@@ -288,8 +308,16 @@ class AccountFragment :
         model.process(AccountIntent.ResetViewState)
     }
 
-    override fun onCurrencyChanged(currency: FiatCurrency) {
-        model.process(AccountIntent.UpdateFiatCurrency(currency))
+    override fun onCurrencyChanged(
+        currency: FiatCurrency,
+        selectionType: CurrencySelectionSheet.CurrencySelectionType
+    ) {
+        when (selectionType) {
+            CurrencySelectionSheet.CurrencySelectionType.DISPLAY_CURRENCY ->
+                model.process(AccountIntent.UpdateSelectedDisplayCurrency(currency))
+            CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY ->
+                model.process(AccountIntent.UpdateSelectedTradingCurrency(currency))
+        }
     }
 
     override fun onSheetClosed() {

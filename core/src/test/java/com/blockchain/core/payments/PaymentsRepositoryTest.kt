@@ -42,6 +42,8 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
 import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
@@ -84,7 +86,9 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.CoroutineTestRule
+import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
+import com.blockchain.testutils.USD
 import com.blockchain.testutils.usd
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
@@ -154,7 +158,7 @@ class PaymentsRepositoryTest {
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
     private val withdrawLocksCache: WithdrawLocksCache = mockk()
-    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase = mockk()
+    private val fiatCurrenciesService: FiatCurrenciesService = mockk()
 
     private lateinit var subject: PaymentsRepository
 
@@ -171,7 +175,7 @@ class PaymentsRepositoryTest {
             authenticator,
             googlePayManager,
             environmentConfig,
-            getSupportedCurrenciesUseCase,
+            fiatCurrenciesService,
             googlePayFeatureFlag,
             plaidFeatureFlag
         )
@@ -693,14 +697,15 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `canTransactWithBankMethods() - unsupported currency`() {
+    fun `canTransactWithBankMethods() - unsupported currency`() = runTest {
         // ARRANGE
-        every { getSupportedCurrenciesUseCase.invoke(Unit) } returns Single.just(
-            SupportedCurrencies(
-                listOf("GBP", "EUR", "USD"),
-                listOf("GBP", "EUR", "USD")
-            )
+        val tradingCurrencies = TradingCurrencies(
+            selected = USD,
+            allRecommended = listOf(GBP),
+            allAvailable = listOf(GBP)
         )
+        coEvery { fiatCurrenciesService.getTradingCurrencies() } returns
+            Outcome.Success(tradingCurrencies)
         val fiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns "invalid" }
 
         // ASSERT
@@ -1017,7 +1022,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - HttpError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.HttpError(Throwable()))
+            Outcome.Failure(ApiError.HttpError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -1032,7 +1037,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - NetworkError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.NetworkError(Throwable()))
+            Outcome.Failure(ApiError.NetworkError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -1047,7 +1052,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - UnknownApiError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.UnknownApiError(Throwable()))
+            Outcome.Failure(ApiError.UnknownApiError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)

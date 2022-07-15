@@ -7,6 +7,7 @@ import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.ResubmissionResponse
@@ -120,7 +121,13 @@ class KycNavHostPresenterTest {
                         state = UserState.Created,
                         kycState = KycState.None,
                         insertedAt = null,
-                        updatedAt = null
+                        updatedAt = null,
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -153,7 +160,13 @@ class KycNavHostPresenterTest {
                         state = UserState.Created,
                         kycState = KycState.UnderReview,
                         insertedAt = null,
-                        updatedAt = null
+                        updatedAt = null,
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -187,7 +200,13 @@ class KycNavHostPresenterTest {
                         kycState = KycState.UnderReview,
                         insertedAt = null,
                         updatedAt = null,
-                        resubmission = ResubmissionResponse(0, "")
+                        resubmission = ResubmissionResponse(0, ""),
+                        currencies = CurrenciesResponse(
+                            preferredFiatTradingCurrency = "EUR",
+                            usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                            defaultWalletCurrency = "BRL",
+                            userFiatCurrencies = listOf("EUR", "GBP")
+                        )
                     )
                 )
             )
@@ -217,7 +236,13 @@ class KycNavHostPresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
 
@@ -250,7 +275,13 @@ class KycNavHostPresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(nabuUser))
@@ -281,7 +312,13 @@ class KycNavHostPresenterTest {
             kycState = KycState.None,
             insertedAt = null,
             updatedAt = null,
-            tiers = TierLevels(current = 1, next = 2, selected = 2)
+            tiers = TierLevels(current = 1, next = 2, selected = 2),
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
         // Act
@@ -310,7 +347,13 @@ class KycNavHostPresenterTest {
             state = UserState.Active,
             kycState = KycState.None,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(nabuUser))
@@ -338,7 +381,13 @@ class KycNavHostPresenterTest {
             state = UserState.Active,
             kycState = KycState.Pending,
             insertedAt = null,
-            updatedAt = null
+            updatedAt = null,
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
 

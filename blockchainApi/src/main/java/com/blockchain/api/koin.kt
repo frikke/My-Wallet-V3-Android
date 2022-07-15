@@ -16,6 +16,7 @@ import com.blockchain.api.dataremediation.DataRemediationApi
 import com.blockchain.api.eligibility.EligibilityApi
 import com.blockchain.api.ethereum.EthereumApiInterface
 import com.blockchain.api.ethereum.evm.EvmApi
+import com.blockchain.api.fiatcurrencies.FiatCurrenciesApi
 import com.blockchain.api.interest.InterestApiInterface
 import com.blockchain.api.nabu.NabuUserApi
 import com.blockchain.api.nftwaitlist.data.api.NftWaitlistApi
@@ -34,6 +35,7 @@ import com.blockchain.api.services.CustodialBalanceService
 import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
+import com.blockchain.api.services.FiatCurrenciesApiService
 import com.blockchain.api.services.InterestService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftWaitlistApiService
@@ -169,6 +171,13 @@ val blockchainApiModule = module {
     factory {
         val api = get<Retrofit>(assetsApi).create(AssetDiscoveryApiInterface::class.java)
         AssetDiscoveryApiService(
+            api
+        )
+    }
+
+    factory {
+        val api = get<Retrofit>(nabuApi).create(FiatCurrenciesApi::class.java)
+        FiatCurrenciesApiService(
             api
         )
     }

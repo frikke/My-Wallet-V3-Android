@@ -1,6 +1,7 @@
 package piuk.blockchain.android.ui.dashboard.onboarding
 
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.LinkBankAttributes
 import com.blockchain.domain.paymentmethods.model.LinkBankTransfer
@@ -9,15 +10,11 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.paymentmethods.model.YodleeAttributes
 import com.blockchain.enviroment.EnvironmentConfig
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.testutils.EUR
-import com.blockchain.testutils.GBP
-import com.blockchain.testutils.USD
 import com.blockchain.testutils.numberToBigInteger
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import info.blockchain.balance.FiatCurrency
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
@@ -43,7 +40,7 @@ class DashboardOnboardingModelTest {
 
     private lateinit var model: DashboardOnboardingModel
 
-    private val currencyPrefs: CurrencyPrefs = mock()
+    private val fiatCurrenciesService: FiatCurrenciesService = mock()
     private val environmentConfig: EnvironmentConfig = mock {
         on { isRunningInDebugMode() }.thenReturn(false)
     }
@@ -59,7 +56,7 @@ class DashboardOnboardingModelTest {
         model = DashboardOnboardingModel(
             initialSteps = STEPS_INITIAL,
             interactor = interactor,
-            currencyPrefs = currencyPrefs,
+            fiatCurrenciesService = fiatCurrenciesService,
             uiScheduler = Schedulers.io(),
             environmentConfig = environmentConfig,
             remoteLogger = mock()
@@ -141,88 +138,6 @@ class DashboardOnboardingModelTest {
     }
 
     @Test
-    fun `given upgrade to gold step complete, clicking link payment method step should check if user has a supported trading currency`() {
-        whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(FiatCurrency.Dollars)))
-
-        val state = model.state.test()
-        model.process(DashboardOnboardingIntent.FetchSteps)
-        model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
-
-        verify(interactor).getSupportedCurrencies()
-    }
-
-    @Test
-    fun `given user clicked link payment method step, fetching supported currencies success, if user currency is not supported should navigate to select trading currency`() {
-        val userCurrency = EUR
-        val supportedCurrencies = listOf(USD, GBP)
-        whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(userCurrency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(supportedCurrencies))
-
-        val state = model.state.test()
-        model.process(DashboardOnboardingIntent.FetchSteps)
-        model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
-
-        state.assertValueAt(2) {
-            it.navigationAction == DashboardOnboardingNavigationAction.SelectTradingCurrency(
-                supportedCurrencies, userCurrency
-            )
-        }
-    }
-
-    @Test
-    fun `given user clicked link payment method step, fetching supported currencies success, if user currency is supported should fetch eligible payment methods`() {
-        val currency = EUR
-        whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
-
-        val state = model.state.test()
-        model.process(DashboardOnboardingIntent.FetchSteps)
-        model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
-
-        verify(interactor).getAvailablePaymentMethodTypes(currency)
-    }
-
-    @Test
-    fun `given user clicked link payment method step, fetching supported currencies failure should show error`() {
-        val currency = EUR
-        val error = IllegalStateException("error")
-        whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.error(error))
-
-        val state = model.state.test()
-        model.process(DashboardOnboardingIntent.FetchSteps)
-        model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
-
-        state.assertValueAt(2) {
-            it.errorState == DashboardOnboardingError.Error(error)
-        }
-    }
-
-    @Test
-    fun `given user clicked link payment method step, on trading currency changed should check trading currency again fetch eligible payment methods`() {
-        val userCurrency = EUR
-        val supportedCurrencies = listOf(USD, GBP)
-        whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(userCurrency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(supportedCurrencies))
-
-        val state = model.state.test()
-        model.process(DashboardOnboardingIntent.FetchSteps)
-        model.process(DashboardOnboardingIntent.StepClicked(LINK_PAYMENT_METHOD))
-
-        val newUserCurrency = USD
-        whenever(currencyPrefs.tradingCurrency).thenReturn(newUserCurrency)
-
-        model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
-
-        verify(interactor).getAvailablePaymentMethodTypes(newUserCurrency)
-    }
-
-    @Test
     fun `given user clicked link payment method step, fetching eligible payment methods success should navigate to add payment method`() {
         val currency = EUR
         val limits = PaymentLimits(BigInteger.ZERO, BigInteger.ZERO, currency)
@@ -236,8 +151,7 @@ class DashboardOnboardingModelTest {
             Single.just(availablePaymentMethodTypes)
         )
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
         whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.just(availablePaymentMethodTypes))
 
         val state = model.state.test()
@@ -258,8 +172,7 @@ class DashboardOnboardingModelTest {
         val currency = EUR
         val error = IllegalStateException("error")
         whenever(interactor.getSteps()).thenReturn(Single.just(STEPS_UPGRADE_TO_GOLD_COMPLETE))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
-        whenever(interactor.getSupportedCurrencies()).thenReturn(Single.just(listOf(currency)))
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
         whenever(interactor.getAvailablePaymentMethodTypes(currency)).thenReturn(Single.error(error))
 
         val state = model.state.test()
@@ -284,7 +197,7 @@ class DashboardOnboardingModelTest {
     @Test
     fun `clicking wire transfer payment method should navigate to wire transfer account details`() {
         val currency = EUR
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
 
         val state = model.state.test()
         model.process(DashboardOnboardingIntent.PaymentMethodClicked(PaymentMethodType.FUNDS))
@@ -297,7 +210,7 @@ class DashboardOnboardingModelTest {
     @Test
     fun `clicking link bank payment method should fetch link bank transfer`() {
         val currency = EUR
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
         whenever(interactor.linkBank(currency)).thenReturn(
             Single.just(
                 LinkBankTransfer(
@@ -319,7 +232,7 @@ class DashboardOnboardingModelTest {
             BankPartner.YAPILY,
             object : LinkBankAttributes {}
         )
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
         whenever(interactor.linkBank(currency)).thenReturn(Single.just(linkBankTransfer))
 
         val state = model.state.test()
@@ -334,7 +247,7 @@ class DashboardOnboardingModelTest {
     fun `fetching link bank transfer failure should show error`() {
         val currency = EUR
         val error = IllegalStateException("error")
-        whenever(currencyPrefs.tradingCurrency).thenReturn(currency)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(currency)
         whenever(interactor.linkBank(currency)).thenReturn(Single.error(error))
 
         val state = model.state.test()

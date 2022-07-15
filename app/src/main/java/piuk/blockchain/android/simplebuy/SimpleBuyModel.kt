@@ -16,6 +16,7 @@ import com.blockchain.commonarch.presentation.mvi.MviModel
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.limits.TxLimits
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankState
 import com.blockchain.domain.paymentmethods.model.CardStatus
@@ -41,9 +42,7 @@ import com.blockchain.nabu.models.data.RecurringBuyState
 import com.blockchain.network.PollResult
 import com.blockchain.outcome.getOrThrow
 import com.blockchain.payments.core.CardAcquirer
-import com.blockchain.preferences.CurrencyPrefs
 import info.blockchain.balance.AssetInfo
-import info.blockchain.balance.Currency
 import info.blockchain.balance.FiatCurrency
 import info.blockchain.balance.FiatValue
 import info.blockchain.balance.Money
@@ -66,7 +65,7 @@ import retrofit2.HttpException
 import timber.log.Timber
 
 class SimpleBuyModel(
-    prefs: CurrencyPrefs,
+    fiatCurrenciesService: FiatCurrenciesService,
     private val buyOrdersCache: BuyOrdersCache,
     initialState: SimpleBuyState,
     uiScheduler: Scheduler,
@@ -83,9 +82,7 @@ class SimpleBuyModel(
     private val getSafeConnectTosLinkUseCase: GetSafeConnectTosLinkUseCase,
     private val appRatingService: AppRatingService,
 ) : MviModel<SimpleBuyState, SimpleBuyIntent>(
-    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(
-        prefs.tradingCurrency
-    ),
+    initialState = serializer.fetch() ?: initialState.withSelectedFiatCurrency(fiatCurrenciesService),
     uiScheduler = uiScheduler,
     environmentConfig = environmentConfig,
     remoteLogger = remoteLogger
@@ -102,12 +99,6 @@ class SimpleBuyModel(
                     onSuccess = { process(SimpleBuyIntent.ExchangeRateUpdated(it)) },
                     onError = { processOrderErrors(it) }
                 )
-            is SimpleBuyIntent.FetchSupportedFiatCurrencies ->
-                interactor.fetchSupportedFiatCurrencies()
-                    .subscribeBy(
-                        onSuccess = { process(it) },
-                        onError = { processOrderErrors(it) }
-                    )
             is SimpleBuyIntent.CancelOrder,
             is SimpleBuyIntent.CancelOrderAndResetAuthorisation,
             -> (
@@ -206,13 +197,22 @@ class SimpleBuyModel(
                     onError = { processOrderErrors(it) }
                 )
             }
-            is SimpleBuyIntent.BuyButtonClicked -> interactor.checkTierLevel()
-                .subscribeBy(
-                    onSuccess =
-                    { process(it) },
-                    onError =
-                    { processOrderErrors(it) }
-                )
+            is SimpleBuyIntent.BuyButtonClicked -> {
+                val selectedPaymentMethod = previousState.selectedPaymentMethodDetails
+                if (selectedPaymentMethod is PaymentMethod.UndefinedBankAccount) {
+                    process(SimpleBuyIntent.AddNewPaymentMethodRequested(selectedPaymentMethod))
+                    null
+                } else {
+                    process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
+                    interactor.checkTierLevel()
+                        .subscribeBy(
+                            onSuccess =
+                            { process(it) },
+                            onError =
+                            { processOrderErrors(it) }
+                        )
+                }
+            }
 
             is SimpleBuyIntent.FetchPaymentDetails ->
                 processGetPaymentMethod(
@@ -811,7 +811,9 @@ class SimpleBuyModel(
             ?: previousSelectedId?.let { availablePaymentMethods.firstOrNull { it.id == previousSelectedId }?.id }
             ?: let {
                 val paymentMethodsThatCanBePreselected =
-                    availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
+                    if (availablePaymentMethods.size == 1) availablePaymentMethods
+                    else availablePaymentMethods.filter { it !is PaymentMethod.UndefinedBankAccount }
+
                 paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible && it.canBeUsedForPaying() }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull { it.isEligible }?.id
                     ?: paymentMethodsThatCanBePreselected.firstOrNull()?.id
@@ -1177,10 +1179,18 @@ class SimpleBuyModel(
     }
 }
 
-private fun SimpleBuyState.withSelectedFiatCurrency(selectedFiatCurrency: Currency?): SimpleBuyState =
+private fun SimpleBuyState.withSelectedFiatCurrency(
+    fiatCurrenciesService: FiatCurrenciesService
+): SimpleBuyState = try {
+    // Try catch is used for testing, because fiatCurrenciesService.selectedTradingCurrency would throw
+    // Uninitialized on KoinGraph test
+    val selectedFiatCurrency = fiatCurrenciesService.selectedTradingCurrency
     (selectedFiatCurrency as? FiatCurrency)?.let {
         this.copy(
             fiatCurrency = selectedFiatCurrency,
             amount = Money.zero(selectedFiatCurrency) as FiatValue
         )
     } ?: this
+} catch (ex: Exception) {
+    this
+}

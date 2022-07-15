@@ -39,6 +39,7 @@ import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -110,12 +111,14 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
@@ -132,7 +135,7 @@ class PaymentsRepository(
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
-    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
+    private val fiatCurrenciesService: FiatCurrenciesService,
     private val googlePayFeatureFlag: FeatureFlag,
     private val plaidFeatureFlag: FeatureFlag,
 ) : BankService, CardService, PaymentMethodService {
@@ -218,16 +221,16 @@ class PaymentsRepository(
             .filter { it.eligible || !onlyEligible }
     }.doOnSuccess {
         updateSupportedCards(it)
-    }.zipWith(getSupportedCurrenciesUseCase.invoke(Unit)).map { (methods, supportedCurrencies) ->
+    }.zipWith(rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies() }).map { (methods, tradingCurrencies) ->
         val paymentMethodsTypes = methods
             .map { it.toAvailablePaymentMethodType(fiatCurrency) }
             .filterNot { it.type == PaymentMethodType.UNKNOWN }
             .filter {
                 when (it.type) {
                     PaymentMethodType.BANK_ACCOUNT ->
-                        supportedCurrencies.wireTransferCurrencies.contains(it.currency.networkTicker)
+                        tradingCurrencies.allRecommended.contains(it.currency)
                     PaymentMethodType.FUNDS ->
-                        supportedCurrencies.fundsCurrencies.contains(it.currency.networkTicker)
+                        tradingCurrencies.allRecommended.contains(it.currency)
                     PaymentMethodType.BANK_TRANSFER,
                     PaymentMethodType.PAYMENT_CARD,
                     PaymentMethodType.GOOGLE_PAY,
@@ -609,8 +612,10 @@ class PaymentsRepository(
         } ?: toBankTransferDetails()
 
     override fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean> =
-        getSupportedCurrenciesUseCase.invoke(Unit).flatMap { supportedCurrencies ->
-            if (!supportedCurrencies.wireTransferCurrencies.contains(fiatCurrency.networkTicker)) {
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            fiatCurrenciesService.getTradingCurrencies()
+        }.flatMap { tradingCurrencies ->
+            if (!tradingCurrencies.allRecommended.contains(fiatCurrency)) {
                 Single.just(false)
             } else {
                 getAvailablePaymentMethodsTypes(
@@ -639,7 +644,7 @@ class PaymentsRepository(
                         } ?: Outcome.Success(it.toAliasInfo())
                     },
                     onFailure = {
-                        Outcome.Failure(Exception(it.throwable))
+                        Outcome.Failure(it.exception)
                     }
                 )
             }
@@ -651,7 +656,7 @@ class PaymentsRepository(
                     authorization = authToken,
                     beneficiaryId = beneficiaryId
                 ).mapError {
-                    Exception(it.throwable)
+                    it.exception
                 }
             }
 

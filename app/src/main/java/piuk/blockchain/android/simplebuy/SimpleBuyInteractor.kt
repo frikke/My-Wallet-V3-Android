@@ -157,10 +157,6 @@ class SimpleBuyInteractor(
         )
     }
 
-    fun fetchSupportedFiatCurrencies(): Single<SimpleBuyIntent.SupportedCurrenciesUpdated> =
-        custodialWalletManager.getSupportedFiatCurrencies()
-            .map { SimpleBuyIntent.SupportedCurrenciesUpdated(it) }
-
     fun cancelOrder(orderId: String): Completable = cancelOrderUseCase.invoke(orderId)
 
     fun createRecurringBuyOrder(

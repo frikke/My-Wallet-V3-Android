@@ -7,9 +7,6 @@ import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.OrderState
-import com.blockchain.testutils.EUR
-import com.blockchain.testutils.GBP
-import com.blockchain.testutils.USD
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -51,10 +48,6 @@ class BuySellFlowNavigatorTest {
         whenever(userIdentity.userAccessForFeature(Feature.Sell))
             .thenReturn(Single.just(FeatureAccess.Blocked(BlockedReason.NotEligible)))
 
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, GBP)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(GBP))
-            .thenReturn(Single.just(true))
-
         val test = subject.navigateTo().test()
 
         test.assertValue(BuySellIntroAction.UserNotEligible)
@@ -66,9 +59,6 @@ class BuySellFlowNavigatorTest {
             .thenReturn(Single.just(FeatureAccess.Granted()))
         whenever(userIdentity.userAccessForFeature(Feature.Sell))
             .thenReturn(Single.just(FeatureAccess.Granted()))
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
-            .thenReturn(Single.just(true))
 
         val test = subject.navigateTo().test()
 
@@ -89,9 +79,6 @@ class BuySellFlowNavigatorTest {
         whenever(userIdentity.userAccessForFeature(Feature.Sell))
             .thenReturn(Single.just(FeatureAccess.Granted()))
 
-        whenever(custodialWalletManager.getSupportedFiatCurrencies()).thenReturn(Single.just(listOf(EUR, USD)))
-        whenever(custodialWalletManager.isCurrencySupportedForSimpleBuy(USD))
-            .thenReturn(Single.just(true))
         whenever(custodialWalletManager.deleteBuyOrder("ORDERID"))
             .thenReturn(Completable.complete())
 

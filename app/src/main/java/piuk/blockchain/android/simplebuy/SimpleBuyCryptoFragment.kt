@@ -32,6 +32,7 @@ import com.blockchain.core.limits.TxLimit
 import com.blockchain.core.payments.toCardType
 import com.blockchain.domain.common.model.ServerErrorAction
 import com.blockchain.domain.eligibility.model.TransactionsLimit
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethod.UndefinedCard.CardFundSource
@@ -43,7 +44,6 @@ import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.OrderState
 import com.blockchain.nabu.models.data.RecurringBuyFrequency
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.utils.capitalizeFirstChar
 import com.blockchain.utils.isLastDayOfTheMonth
 import com.blockchain.utils.to12HourFormat
@@ -98,6 +98,7 @@ import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoAction
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.InfoBottomSheetType
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowBottomSheetInfo
 import piuk.blockchain.android.ui.transactionflow.flow.customisations.TransactionFlowInfoBottomSheetCustomiser
+import piuk.blockchain.android.util.StringLocalizationUtil
 import piuk.blockchain.android.util.getResolvedColor
 import piuk.blockchain.android.util.getResolvedDrawable
 import piuk.blockchain.android.util.setAssetIconColoursWithTint
@@ -113,14 +114,13 @@ class SimpleBuyCryptoFragment :
     override val model: SimpleBuyModel by scopedInject()
     private val assetResources: AssetResources by inject()
     private val assetCatalogue: AssetCatalogue by inject()
-    private val currencyPrefs: CurrencyPrefs by inject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
     private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
-
     private val bottomSheetInfoCustomiser: TransactionFlowInfoBottomSheetCustomiser by inject()
     private var infoActionCallback: () -> Unit = {}
 
     private val fiatCurrency: FiatCurrency
-        get() = currencyPrefs.tradingCurrency
+        get() = fiatCurrenciesService.selectedTradingCurrency
 
     private var lastState: SimpleBuyState? = null
     private val compositeDisposable = CompositeDisposable()
@@ -178,7 +178,6 @@ class SimpleBuyCryptoFragment :
                 preselectedMethodId
             )
         )
-        model.process(SimpleBuyIntent.FetchSupportedFiatCurrencies)
         model.process(SimpleBuyIntent.FetchEligibility)
         analytics.logEvent(SimpleBuyAnalytics.BUY_FORM_SHOWN)
 
@@ -246,7 +245,6 @@ class SimpleBuyCryptoFragment :
         lastState?.takeIf { canContinue(it) }?.let { state ->
             binding.inputAmount.canEdit(false)
             model.process(SimpleBuyIntent.BuyButtonClicked)
-            model.process(SimpleBuyIntent.CancelOrderIfAnyAndCreatePendingOne)
             analytics.logEvent(
                 buyConfirmClicked(
                     state.amount.toBigInteger().toString(),
@@ -622,6 +620,7 @@ class SimpleBuyCryptoFragment :
             is PaymentMethod.Bank -> renderBankPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedCard -> renderUndefinedCardPayment(selectedPaymentMethod)
             is PaymentMethod.UndefinedBankTransfer -> renderUndefinedBankTransfer(selectedPaymentMethod)
+            is PaymentMethod.UndefinedBankAccount -> renderUndefinedBankAccount(selectedPaymentMethod)
             is PaymentMethod.GooglePay -> renderGooglePayPayment(selectedPaymentMethod)
             else -> {
                 // Nothing to do here.
@@ -732,6 +731,18 @@ class SimpleBuyCryptoFragment :
             paymentMethodBankInfo.gone()
             paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
             paymentMethodTitle.text = getString(R.string.easy_bank_transfer)
+            paymentMethodLimit.text =
+                getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
+        }
+    }
+
+    private fun renderUndefinedBankAccount(selectedPaymentMethod: PaymentMethod.UndefinedBankAccount) {
+        with(binding) {
+            paymentMethodBankInfo.gone()
+            paymentMethodIcon.setImageResource(R.drawable.ic_bank_transfer)
+            paymentMethodTitle.text = getString(
+                StringLocalizationUtil.getBankDepositTitle(selectedPaymentMethod.fiatCurrency.networkTicker)
+            )
             paymentMethodLimit.text =
                 getString(R.string.payment_method_limit, selectedPaymentMethod.limits.max.toStringWithSymbol())
         }

@@ -4,6 +4,7 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.NabuToken
@@ -18,7 +19,6 @@ import com.blockchain.nabu.models.responses.nabu.Tier
 import com.blockchain.nabu.models.responses.nabu.Tiers
 import com.blockchain.nabu.service.TierService
 import com.blockchain.payments.googlepay.manager.GooglePayManager
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -49,7 +49,7 @@ class AnnouncementQueriesTest {
     private val googlePayEnabledFlag: FeatureFlag = mock()
     private val paymentMethodsService: PaymentMethodsService = mock()
     private val authenticator: AuthHeaderProvider = mock()
-    private val currencyPrefs: CurrencyPrefs = mock()
+    private val fiatCurrenciesService: FiatCurrenciesService = mock()
 
     private val sbSync: SimpleBuySyncFactory = mock()
 
@@ -72,7 +72,7 @@ class AnnouncementQueriesTest {
                 googlePayEnabledFlag = googlePayEnabledFlag,
                 paymentMethodsService = paymentMethodsService,
                 authenticator = authenticator,
-                currencyPrefs = currencyPrefs
+                fiatCurrenciesService = fiatCurrenciesService
             )
         )
     }
@@ -343,7 +343,7 @@ class AnnouncementQueriesTest {
         val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(false))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
@@ -375,7 +375,7 @@ class AnnouncementQueriesTest {
         val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
@@ -393,7 +393,7 @@ class AnnouncementQueriesTest {
         val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(false))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(
@@ -425,7 +425,7 @@ class AnnouncementQueriesTest {
         val authToken = "1234"
         whenever(googlePayEnabledFlag.enabled).thenReturn(Single.just(true))
         whenever(subject.checkGooglePayAvailability()).thenReturn(Single.just(true))
-        whenever(currencyPrefs.tradingCurrency).thenReturn(FiatCurrency.Dollars)
+        whenever(fiatCurrenciesService.selectedTradingCurrency).thenReturn(FiatCurrency.Dollars)
         whenever(authenticator.getAuthHeader()).thenReturn(Single.just(authToken))
         whenever(
             paymentMethodsService.getAvailablePaymentMethodsTypes(

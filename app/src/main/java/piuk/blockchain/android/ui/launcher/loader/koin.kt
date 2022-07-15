@@ -35,7 +35,8 @@ val loaderModule = module {
                 prerequisites = get(),
                 ioScheduler = Schedulers.io(),
                 deepLinkPersistence = get(),
-                referralService = get()
+                referralService = get(),
+                fiatCurrenciesService = get()
             )
         }
     }

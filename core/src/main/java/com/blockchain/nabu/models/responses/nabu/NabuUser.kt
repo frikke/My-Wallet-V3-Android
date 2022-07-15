@@ -39,6 +39,7 @@ data class NabuUser(
     private val tags: Map<String, Map<String, @Serializable(with = AnyToStringSerializer::class) Any>>? = null,
     val userName: String? = null,
     val tiers: TierLevels? = null,
+    val currencies: CurrenciesResponse,
     val walletGuid: String? = null
 ) : JsonSerializable {
     val tierInProgress

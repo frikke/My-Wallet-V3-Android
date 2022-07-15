@@ -7,8 +7,8 @@ import com.blockchain.core.TransactionsCache
 import com.blockchain.core.TransactionsRequest
 import com.blockchain.core.buy.BuyOrdersCache
 import com.blockchain.core.buy.BuyPairsCache
-import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.core.payments.cache.PaymentMethodsEligibilityStore
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.CryptoWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.FiatWithdrawalFeeAndLimit
 import com.blockchain.domain.paymentmethods.model.PaymentLimits
@@ -93,6 +93,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.flatMapIterable
 import java.math.BigInteger
 import java.util.Date
+import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 
 class LiveCustodialWalletManager(
     private val assetCatalogue: AssetCatalogue,
@@ -108,7 +109,7 @@ class LiveCustodialWalletManager(
     private val currencyPrefs: CurrencyPrefs,
     private val custodialRepository: CustodialRepository,
     private val transactionErrorMapper: TransactionErrorMapper,
-    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) : CustodialWalletManager {
 
     override val selectedFiatcurrency: FiatCurrency
@@ -239,13 +240,6 @@ class LiveCustodialWalletManager(
         }
     }
 
-    override fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>> =
-        pairsCache.pairs().map {
-            it.pairs.mapNotNull { pair ->
-                assetCatalogue.fiatFromNetworkTicker(pair.pair.split("-")[1])
-            }.distinct()
-        }
-
     override fun getCustodialFiatTransactions(
         fiatCurrency: FiatCurrency,
         product: Product,
@@ -331,15 +325,8 @@ class LiveCustodialWalletManager(
             response.address
         }
 
-    override fun isCurrencySupportedForSimpleBuy(fiatCurrency: FiatCurrency): Single<Boolean> =
-        pairsCache.pairs().map {
-            it.pairs.firstOrNull { buyPair ->
-                buyPair.pair.split("-")[1] == fiatCurrency.networkTicker
-            } != null
-        }.onErrorReturn { false }
-
     override fun isCurrencyAvailableForTrading(assetInfo: AssetInfo): Single<Boolean> {
-        val tradingCurrency = currencyPrefs.tradingCurrency
+        val tradingCurrency = fiatCurrenciesService.selectedTradingCurrency
         return pairsCache.pairs().map {
             it.pairs.firstOrNull { buyPair ->
                 val pair = buyPair.pair.split("-")
@@ -347,6 +334,16 @@ class LiveCustodialWalletManager(
             } != null
         }.onErrorReturn { false }
     }
+
+    override fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>> =
+        pairsCache.pairs().map {
+            it.pairs.map { buyPair ->
+                buyPair.pair.split("-")
+            }.mapNotNull { pair ->
+                if (pair.first() != assetInfo.networkTicker) null
+                else assetCatalogue.fiatFromNetworkTicker(pair.last())
+            }
+        }
 
     override fun isAssetSupportedForSwap(assetInfo: AssetInfo): Single<Boolean> =
         authenticator.authenticate { sessionToken ->
@@ -572,12 +569,12 @@ class LiveCustodialWalletManager(
     override fun getSupportedFundsFiats(fiatCurrency: FiatCurrency): Single<List<FiatCurrency>> {
         return Single.zip(
             paymentMethods(fiatCurrency, true),
-            getSupportedCurrenciesUseCase.invoke(Unit)
-        ) { methods, supportedCurrencies ->
-            methods.filter {
-                it.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
-                    supportedCurrencies.fundsCurrencies.contains(it.currency) &&
-                    it.eligible
+            rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies() }
+        ) { methods, tradingCurrencies ->
+            methods.filter { method ->
+                method.type.toPaymentMethodType() == PaymentMethodType.FUNDS &&
+                    tradingCurrencies.allRecommended.any { it.networkTicker == method.currency } &&
+                    method.eligible
             }.mapNotNull {
                 it.currency?.let { currency ->
                     assetCatalogue.fromNetworkTicker(currency) as? FiatCurrency

@@ -6,6 +6,7 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.metadata.NabuLegacyCredentialsMetadata
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
@@ -233,7 +234,13 @@ class KycProfilePresenterTest {
             state = UserState.Created,
             kycState = KycState.None,
             updatedAt = "",
-            insertedAt = ""
+            insertedAt = "",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
         whenever(nabuDataUserProvider.getUser())
             .thenReturn(Single.just(nabuUser))
