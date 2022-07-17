@@ -60,7 +60,7 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys ->
                 if
-                (walletModeService.enabledWalletMode().custodialEnabled) {
+                    (walletModeService.enabledWalletMode().custodialEnabled) {
                     loadRecurringBuys(intent)
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
@@ -258,7 +258,31 @@ class CoinViewModel(
                         CoinViewIntent.UpdateAccountDetails(
                             viewState = when (accountInfo) {
                                 is AssetInformation.AccountsInfo -> CoinViewViewState.ShowAccountInfo(
-                                    accountInfo, accountInfo.isAddedToWatchlist
+                                    totalCryptoBalance = accountInfo.totalCryptoBalance,
+                                    totalFiatBalance = accountInfo.totalFiatBalance,
+                                    assetDetails = accountInfo.accountsList.map { assetDisplayInfo: AssetDisplayInfo ->
+                                        when (assetDisplayInfo) {
+                                            is AssetDisplayInfo.BrokerageDisplayInfo -> {
+                                                AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo(
+                                                    assetFilter = assetDisplayInfo.filter,
+                                                    account = assetDisplayInfo.account,
+                                                    balance = assetDisplayInfo.amount,
+                                                    fiatBalance = assetDisplayInfo.fiatValue,
+                                                    actions = assetDisplayInfo.actions,
+                                                    interestRate = assetDisplayInfo.interestRate
+                                                )
+                                            }
+                                            is AssetDisplayInfo.DefiDisplayInfo -> {
+                                                AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo(
+                                                    account = assetDisplayInfo.account,
+                                                    balance = assetDisplayInfo.amount,
+                                                    fiatBalance = assetDisplayInfo.fiatValue,
+                                                    actions = assetDisplayInfo.actions,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    isAddedToWatchlist = accountInfo.isAddedToWatchlist
                                 )
                                 is AssetInformation.NonTradeable -> CoinViewViewState.ShowNonTradeableAccount(
                                     accountInfo.isAddedToWatchlist

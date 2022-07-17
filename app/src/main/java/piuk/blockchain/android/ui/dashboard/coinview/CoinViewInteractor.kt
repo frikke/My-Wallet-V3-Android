@@ -33,6 +33,7 @@ import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.preferences.DashboardPrefs
+import com.blockchain.walletmode.WalletMode
 import com.blockchain.walletmode.WalletModeService
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.Currency
@@ -57,8 +58,8 @@ class CoinViewInteractor(
     private val assetsManager: DynamicAssetsDataManager,
     private val watchlistDataManager: WatchlistDataManager,
 ) {
-    private val defFilter: AssetFilter
-        get() = walletModeService.enabledWalletMode().defaultFilter()
+    private val walletMode: WalletMode
+        get() = walletModeService.enabledWalletMode()
 
     fun loadAssetDetails(assetTicker: String): Single<Pair<CryptoAsset?, FiatCurrency>> =
         Single.just(Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency))
@@ -234,7 +235,7 @@ class CoinViewInteractor(
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
 
-        val accounts = asset.accountGroup(defFilter)
+        val accounts = asset.accountGroup(walletMode.defaultFilter())
             .map { it.accounts }
             .switchIfEmpty(Single.just(emptyList()))
             .flatMap { extractAccountDetails(it) }
@@ -292,77 +293,60 @@ class CoinViewInteractor(
         exchangeRate: ExchangeRate,
         interestRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
-        val listOfAccounts = mutableListOf<AssetDisplayInfo>()
 
-        listOfAccounts.addAll(
-            accounts.filter { it.account is TradingAccount }.map {
-                AssetDisplayInfo(
-                    account = it.account,
-                    filter = AssetFilter.Trading,
-                    amount = it.balance,
-                    fiatValue = exchangeRate.convert(it.balance),
-                    pendingAmount = it.pendingBalance,
-                    actions = it.actions.filter { action ->
-                        action.action != AssetAction.InterestDeposit
-                    }.toSet(),
-                    interestRate = interestRate
-                )
+        class AccountComparator : Comparator<DetailsItem> {
+            override fun compare(o1: DetailsItem, o2: DetailsItem): Int {
+                return getAssignedValue(o1).compareTo(getAssignedValue(o2))
             }
-        )
-        listOfAccounts.addAll(
-            accounts.filter { it.account is InterestAccount }.map {
-                AssetDisplayInfo(
-                    account = it.account,
-                    filter = AssetFilter.Interest,
-                    amount = it.balance,
-                    fiatValue = exchangeRate.convert(it.balance),
-                    pendingAmount = it.pendingBalance,
-                    actions = it.actions.filter { action ->
-                        action.action != AssetAction.InterestDeposit
-                    }.toSet(),
-                    interestRate = interestRate
-                )
-            }
-        )
 
-        val ncLists = accounts.filter { it.account is NonCustodialAccount }.partition {
-            it.isDefault
+            fun getAssignedValue(detailItem: DetailsItem): Int {
+                return when {
+                    detailItem.account is NonCustodialAccount && detailItem.isDefault -> 0
+                    detailItem.account is TradingAccount -> 1
+                    detailItem.account is InterestAccount -> 2
+                    detailItem.account is NonCustodialAccount && detailItem.isDefault.not() -> 3
+                    else -> Int.MAX_VALUE
+                }
+            }
         }
 
-        listOfAccounts.addAll(
-            0,
-            ncLists.first.map {
-                AssetDisplayInfo(
-                    account = it.account,
-                    filter = AssetFilter.NonCustodial,
-                    amount = it.balance,
-                    fiatValue = exchangeRate.convert(it.balance),
-                    pendingAmount = it.pendingBalance,
-                    actions = it.actions.filter { action ->
-                        action.action != AssetAction.InterestDeposit
-                    }.toSet(),
-                    interestRate = interestRate
-                )
-            }
-        )
+        val sortedAccounts = accounts.sortedWith(AccountComparator())
 
-        listOfAccounts.addAll(
-            ncLists.second.map {
-                AssetDisplayInfo(
-                    account = it.account,
-                    filter = AssetFilter.NonCustodial,
-                    amount = it.balance,
-                    fiatValue = exchangeRate.convert(it.balance),
-                    pendingAmount = it.pendingBalance,
-                    actions = it.actions.filter { action ->
-                        action.action != AssetAction.InterestDeposit
-                    }.toSet(),
-                    interestRate = interestRate
-                )
+        return sortedAccounts.map {
+            when (walletMode) {
+                WalletMode.UNIVERSAL,
+                WalletMode.CUSTODIAL_ONLY -> {
+                    AssetDisplayInfo.BrokerageDisplayInfo(
+                        account = it.account,
+                        filter = when (it.account) {
+                            is TradingAccount -> AssetFilter.Trading
+                            is InterestAccount -> AssetFilter.Interest
+                            // todo (othman) should be removed once universal mode is removed
+                            is NonCustodialAccount -> AssetFilter.NonCustodial
+                            else -> error("account type not supported")
+                        },
+                        amount = it.balance,
+                        fiatValue = exchangeRate.convert(it.balance),
+                        pendingAmount = it.pendingBalance,
+                        actions = it.actions.filter { action ->
+                            action.action != AssetAction.InterestDeposit
+                        }.toSet(),
+                        interestRate = interestRate
+                    )
+                }
+                WalletMode.NON_CUSTODIAL_ONLY -> {
+                    AssetDisplayInfo.DefiDisplayInfo(
+                        account = it.account,
+                        amount = it.balance,
+                        fiatValue = exchangeRate.convert(it.balance),
+                        pendingAmount = it.pendingBalance,
+                        actions = it.actions.filter { action ->
+                            action.action != AssetAction.InterestDeposit
+                        }.toSet()
+                    )
+                }
             }
-        )
-
-        return listOfAccounts
+        }
     }
 
     private fun extractAccountDetails(accounts: SingleAccountList): Single<List<DetailsItem>> =

@@ -4,7 +4,6 @@ import com.blockchain.coincore.BlockchainAccount
 import com.blockchain.coincore.CryptoAccount
 import com.blockchain.nabu.models.data.RecurringBuy
 import com.blockchain.wallet.DefaultLabels
-import com.blockchain.walletmode.WalletMode
 import piuk.blockchain.android.ui.adapters.AdapterDelegatesManager
 import piuk.blockchain.android.ui.adapters.DelegationAdapter
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
@@ -18,22 +17,24 @@ class AccountsAdapterDelegate(
     private val labels: DefaultLabels,
     private val onCardClicked: () -> Unit,
     private val onRecurringBuyClicked: (RecurringBuy) -> Unit,
-    private val assetResources: AssetResources,
-    private val walletMode: WalletMode
+    private val assetResources: AssetResources
 ) : DelegationAdapter<AssetDetailsItem>(AdapterDelegatesManager(), emptyList()) {
     init {
         with(delegatesManager) {
             addAdapterDelegate(
-                CryptoAccountDetailsDelegate(
+                BrokerageAccountDetailsDelegate(
+                    onAccountSelected = onAccountSelected,
+                    onLockedAccountSelected = onLockedAccountSelected,
+                    labels = labels,
+                    assetResources = assetResources
+                )
+            )
+            addAdapterDelegate(
+                DefiAccountDetailsDelegate(
                     onAccountSelected = onAccountSelected,
                     onCopyAddressClicked = onCopyAddressClicked,
                     onReceiveClicked = onReceiveClicked,
-                    onLockedAccountSelected = onLockedAccountSelected,
-                    labels = labels,
-                    assetResources = assetResources,
-                    allowWalletsLabel = walletMode != WalletMode.NON_CUSTODIAL_ONLY,
-                    showOnlyAssetInfo = walletMode == WalletMode.NON_CUSTODIAL_ONLY,
-                    allowEmbeddedCta = walletMode == WalletMode.NON_CUSTODIAL_ONLY
+                    onLockedAccountSelected = onLockedAccountSelected
                 )
             )
             addAdapterDelegate(RecurringBuyItemDelegate(onRecurringBuyClicked))

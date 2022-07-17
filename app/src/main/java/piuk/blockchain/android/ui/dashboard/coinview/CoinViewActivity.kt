@@ -146,7 +146,6 @@ class CoinViewActivity :
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
             assetResources = assetResources,
-            walletMode = walletMode
         )
     }
 
@@ -460,9 +459,9 @@ class CoinViewActivity :
             CoinViewViewState.LoadingQuickActions -> showLoadingCtas()
             CoinViewViewState.LoadingAssetDetails -> binding.assetInformationSwitcher.displayedChild = INFO_LOADING
             is CoinViewViewState.ShowAccountInfo -> {
-                renderAccountsDetails(state.assetInfo.accountsList)
+                renderAccountsDetails(state.assetDetails)
                 renderBalanceInformation(
-                    state.assetInfo.totalCryptoBalance, state.assetInfo.totalFiatBalance, state.isAddedToWatchlist
+                    state.totalCryptoBalance, state.totalFiatBalance, state.isAddedToWatchlist
                 )
                 binding.assetAccountsViewSwitcher.displayedChild = ACCOUNTS_LIST
             }
@@ -495,7 +494,10 @@ class CoinViewActivity :
                         AccountExplainerBottomSheet.newInstance(
                             selectedAccount = account,
                             networkTicker = assetTicker,
-                            interestRate = interestRate,
+                            interestRate = when (this) {
+                                is AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo -> interestRate
+                                else -> Double.NaN
+                            },
                             stateAwareActions = state.actions
                         )
                     )
@@ -977,36 +979,24 @@ class CoinViewActivity :
     }
 
     private fun renderAccountsDetails(
-        assetDetails: List<AssetDisplayInfo>,
+        assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>
     ) {
-        val itemList = mutableListOf<AssetDetailsItem>()
-
-        assetDetails.map {
-            itemList.add(
-                AssetDetailsItem.CryptoDetailsInfo(
-                    assetFilter = it.filter,
-                    account = it.account,
-                    balance = it.amount,
-                    fiatBalance = it.fiatValue,
-                    actions = it.actions,
-                    interestRate = it.interestRate
-                )
-            )
-        }
-
         listItems.removeIf { details ->
             details is AssetDetailsItem.CryptoDetailsInfo
         }
-        listItems.addAll(0, itemList)
+        listItems.addAll(0, assetDetails)
         updateList()
     }
 
     private fun onAccountSelected(
         accountDetails: AssetDetailsItem.CryptoDetailsInfo,
     ) {
-        if (accountDetails.account is CryptoAccount && accountDetails.account is TradingAccount) {
-            analytics.logEvent(CustodialBalanceClicked(accountDetails.account.currency))
+        accountDetails.account.let { account ->
+            if (account is CryptoAccount && account is TradingAccount) {
+                analytics.logEvent(CustodialBalanceClicked(account.currency))
+            }
         }
+
         analytics.logEvent(
             CoinViewAnalytics.WalletsAccountsClicked(
                 origin = LaunchOrigin.COIN_VIEW,

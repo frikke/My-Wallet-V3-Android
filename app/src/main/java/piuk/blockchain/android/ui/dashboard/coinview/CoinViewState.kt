@@ -32,8 +32,12 @@ sealed class CoinViewViewState {
     object LoadingRecurringBuys : CoinViewViewState()
     object LoadingAssetDetails : CoinViewViewState()
     object LoadingQuickActions : CoinViewViewState()
-    class ShowAccountInfo(val assetInfo: AssetInformation.AccountsInfo, val isAddedToWatchlist: Boolean) :
-        CoinViewViewState()
+    class ShowAccountInfo(
+        val totalCryptoBalance: Map<AssetFilter, Money>,
+        val totalFiatBalance: Money,
+        val assetDetails: List<AssetDetailsItem.CryptoDetailsInfo>,
+        val isAddedToWatchlist: Boolean
+    ) : CoinViewViewState()
 
     class ShowAssetInfo(
         val entries: List<ChartEntry>,
@@ -98,35 +102,85 @@ sealed class AssetInformation(
     ) : AssetInformation(prices, isAddedToWatchlist)
 }
 
-data class AssetDisplayInfo(
-    val account: BlockchainAccount,
-    val filter: AssetFilter,
-    val amount: Money,
-    val pendingAmount: Money,
-    val fiatValue: Money,
-    val actions: Set<StateAwareAction>,
-    val interestRate: Double = Double.NaN
-)
+sealed class AssetDisplayInfo(
+    open val account: BlockchainAccount,
+    open val amount: Money,
+    open val pendingAmount: Money,
+    open val fiatValue: Money,
+    open val actions: Set<StateAwareAction>,
+    open val interestRate: Double,
+    open val filter: AssetFilter
+) {
+    data class BrokerageDisplayInfo(
+        override val account: BlockchainAccount,
+        override val amount: Money,
+        override val pendingAmount: Money,
+        override val fiatValue: Money,
+        override val actions: Set<StateAwareAction>,
+        override val interestRate: Double,
+        override val filter: AssetFilter
+    ) : AssetDisplayInfo(
+        account, amount, pendingAmount, fiatValue, actions, interestRate, filter
+    )
 
-sealed class AssetDetailsItem {
-    data class CryptoDetailsInfo(
-        val assetFilter: AssetFilter,
-        val account: BlockchainAccount,
-        val balance: Money,
-        val fiatBalance: Money,
-        val actions: Set<StateAwareAction>,
-        val interestRate: Double = Double.NaN
-    ) : AssetDetailsItem()
+    data class DefiDisplayInfo(
+        override val account: BlockchainAccount,
+        override val amount: Money,
+        override val pendingAmount: Money,
+        override val fiatValue: Money,
+        override val actions: Set<StateAwareAction>,
+    ) : AssetDisplayInfo(
+        account, amount, pendingAmount, fiatValue, actions, Double.NaN, AssetFilter.NonCustodial
+    )
+}
+
+sealed interface AssetDetailsItem {
+    sealed class CryptoDetailsInfo(
+        open val account: BlockchainAccount,
+        open val balance: Money,
+        open val fiatBalance: Money,
+        open val actions: Set<StateAwareAction>,
+        open val interestRate: Double
+    ) : AssetDetailsItem {
+
+        data class BrokerageDetailsInfo(
+            val assetFilter: AssetFilter,
+            override val account: BlockchainAccount,
+            override val balance: Money,
+            override val fiatBalance: Money,
+            override val actions: Set<StateAwareAction>,
+            override val interestRate: Double = Double.NaN
+        ) : CryptoDetailsInfo(
+            account = account,
+            balance = balance,
+            fiatBalance = fiatBalance,
+            actions = actions,
+            interestRate = interestRate
+        )
+
+        data class DefiDetailsInfo(
+            override val account: BlockchainAccount,
+            override val balance: Money,
+            override val fiatBalance: Money,
+            override val actions: Set<StateAwareAction>,
+        ) : CryptoDetailsInfo(
+            account = account,
+            balance = balance,
+            fiatBalance = fiatBalance,
+            actions = actions,
+            interestRate = Double.NaN
+        )
+    }
 
     data class RecurringBuyInfo(
         val recurringBuy: RecurringBuy
-    ) : AssetDetailsItem()
+    ) : AssetDetailsItem
 
-    object RecurringBuyBanner : AssetDetailsItem()
+    object RecurringBuyBanner : AssetDetailsItem
 
-    object RecurringBuyError : AssetDetailsItem()
+    object RecurringBuyError : AssetDetailsItem
 
-    object AccountError : AssetDetailsItem()
+    object AccountError : AssetDetailsItem
 }
 
 class DetailsItem(
