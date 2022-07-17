@@ -27,7 +27,7 @@ internal class GetUserStore(
     private val trust: DigitalTrust,
     private val walletReporter: WalletReporter,
     private val payloadDataManager: PayloadDataManager
-) : Store<Throwable, NabuUser> by PersistedJsonSqlDelightStoreBuilder()
+) : Store<Exception, NabuUser> by PersistedJsonSqlDelightStoreBuilder()
     .build(
         storeId = STORE_ID,
         fetcher = Fetcher.Keyed.ofSingle(
@@ -42,7 +42,7 @@ internal class GetUserStore(
                         }
                 }
             },
-            errorMapper = { it }
+            errorMapper = { Exception(it) }
         ),
         dataSerializer = NabuUser.serializer(),
         mediator = object : Mediator<Unit, NabuUser> {
@@ -53,6 +53,8 @@ internal class GetUserStore(
              */
             fun shouldFetch(userState: UserState, kycState: KycState, dataAgeMillis: Long): Boolean {
                 if (userState == UserState.None) return true
+                // Phone clocked was changed
+                if (dataAgeMillis < 0) return true
 
                 return when (kycState) {
                     KycState.Expired -> dataAgeMillis > TimeUnit.MINUTES.toMillis(60L)
@@ -77,7 +79,7 @@ internal class GetUserStore(
     ),
     GetUserDataSource {
 
-    override fun stream(refresh: Boolean): Flow<StoreResponse<Throwable, NabuUser>> =
+    override fun stream(refresh: Boolean): Flow<StoreResponse<Exception, NabuUser>> =
         stream(StoreRequest.Cached(forceRefresh = refresh))
 
     override fun invalidate() {

@@ -6,6 +6,7 @@ import com.blockchain.domain.eligibility.model.EligibleProduct
 import com.blockchain.domain.eligibility.model.ProductEligibility
 import com.blockchain.domain.eligibility.model.ProductNotEligibleReason
 import com.blockchain.extensions.exhaustive
+import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
@@ -30,7 +31,8 @@ class NabuUserIdentity(
     private val nabuUserDataManager: NabuUserDataManager,
     private val nabuDataProvider: NabuDataUserProvider,
     private val eligibilityService: EligibilityService,
-    private val nabuDataUserProvider: NabuDataUserProvider
+    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val bindFeatureFlag: FeatureFlag
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
         return when (feature) {
@@ -197,6 +199,11 @@ class NabuUserIdentity(
     override fun checkForUserWalletLinkErrors(): Completable =
         nabuDataProvider.getUser().flatMapCompletable { Completable.complete() }
 
+    override fun isArgentinian(): Single<Boolean> =
+        nabuDataProvider.getUser().zipWith(bindFeatureFlag.enabled).flatMap { (user, isBindEnabled) ->
+            Single.just(user.address?.countryCode == COUNTRY_CODE_ARGENTINA && isBindEnabled)
+        }
+
     private fun Tier.toKycTierLevel(): KycTierLevel =
         when (this) {
             Tier.BRONZE -> KycTierLevel.BRONZE
@@ -210,6 +217,10 @@ class NabuUserIdentity(
             KycTierLevel.SILVER -> Tier.SILVER
             KycTierLevel.GOLD -> Tier.GOLD
         }
+
+    private companion object {
+        private const val COUNTRY_CODE_ARGENTINA = "AR"
+    }
 }
 
 private fun ProductEligibility.toFeatureAccess(): FeatureAccess =

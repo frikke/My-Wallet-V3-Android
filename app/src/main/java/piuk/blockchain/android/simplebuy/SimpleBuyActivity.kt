@@ -202,7 +202,7 @@ class SimpleBuyActivity :
             CurrencySelectionSheet.newInstance(
                 currencies = currencies,
                 selectedCurrency = selectedCurrency,
-                currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
+                currencySelectionType = CurrencySelectionSheet.CurrencySelectionType.TRADING_CURRENCY
             )
         )
     }

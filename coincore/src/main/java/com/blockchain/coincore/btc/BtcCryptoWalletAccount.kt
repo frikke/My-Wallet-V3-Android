@@ -131,7 +131,9 @@ import piuk.blockchain.androidcore.utils.extensions.then
 
     override fun updateLabel(newLabel: String): Completable {
         require(newLabel.isNotEmpty())
-        return payloadDataManager.updateAccountLabel(internalAccount, newLabel)
+        return payloadDataManager.updateAccountLabel(internalAccount, newLabel).doOnComplete {
+            forceRefresh()
+        }
     }
 
     override fun archive(): Completable {

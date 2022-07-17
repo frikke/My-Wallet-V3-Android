@@ -3,9 +3,12 @@ package com.blockchain.core.payments
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
 import com.blockchain.android.testutils.rxInit
+import com.blockchain.api.NabuApiException
+import com.blockchain.api.NabuUxErrorResponse
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
+import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
@@ -39,6 +42,9 @@ import com.blockchain.api.services.PaymentsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.domain.fiatcurrencies.model.TradingCurrencies
+import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -80,7 +86,9 @@ import com.blockchain.preferences.SimpleBuyPrefs
 import com.blockchain.store.StoreRequest
 import com.blockchain.store.StoreResponse
 import com.blockchain.testutils.CoroutineTestRule
+import com.blockchain.testutils.GBP
 import com.blockchain.testutils.MockKRule
+import com.blockchain.testutils.USD
 import com.blockchain.testutils.usd
 import com.blockchain.utils.toZonedDateTime
 import info.blockchain.balance.AssetCatalogue
@@ -150,7 +158,7 @@ class PaymentsRepositoryTest {
     }
     private val plaidFeatureFlag: FeatureFlag = mockk(relaxed = true)
     private val withdrawLocksCache: WithdrawLocksCache = mockk()
-    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase = mockk()
+    private val fiatCurrenciesService: FiatCurrenciesService = mockk()
 
     private lateinit var subject: PaymentsRepository
 
@@ -167,7 +175,7 @@ class PaymentsRepositoryTest {
             authenticator,
             googlePayManager,
             environmentConfig,
-            getSupportedCurrenciesUseCase,
+            fiatCurrenciesService,
             googlePayFeatureFlag,
             plaidFeatureFlag
         )
@@ -372,6 +380,79 @@ class PaymentsRepositoryTest {
             .assertValue(
                 RefreshBankInfo(BankPartner.PLAID, ID, "linkToken", "linkUrl", "tokenExpiresAt")
             )
+    }
+
+    @Test
+    fun `getBeneficiaryInfo() - success`() = runTest {
+        // Arrange
+        val currency = "ARS"
+        val alias = "alias"
+        val mockAgent: AliasInfoResponse.Agent = mockk {
+            every { bankName } returns "bankName"
+            every { label } returns "alias"
+            every { name } returns "accountHolder"
+            every { accountType } returns "accountType"
+            every { address } returns "cbu"
+            every { holderDocument } returns "cuil"
+        }
+        val aliasInfoResponse: AliasInfoResponse = mockk {
+            every { agent } returns mockAgent
+            every { ux } returns null
+        }
+        coEvery {
+            paymentMethodsService.getBeneficiaryInfo(
+                authorization = AUTH,
+                currency = currency,
+                address = alias
+            )
+        } returns Outcome.Success(aliasInfoResponse)
+
+        // Act
+        val result = subject.getBeneficiaryInfo(currency, alias)
+
+        // Assert
+        assertEquals(
+            Outcome.Success(
+                AliasInfo(
+                    bankName = "bankName",
+                    alias = "alias",
+                    accountHolder = "accountHolder",
+                    accountType = "accountType",
+                    cbu = "cbu",
+                    cuil = "cuil"
+                )
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `getBeneficiaryInfo() - ux error`() = runTest {
+        // Arrange
+        val currency = "ARS"
+        val address = "alias"
+        val uxError: NabuUxErrorResponse = mockk(relaxed = true) {
+            every { title } returns "title"
+            every { message } returns "message"
+        }
+        val aliasInfoResponse: AliasInfoResponse = mockk {
+            every { ux } returns uxError
+        }
+        coEvery {
+            paymentMethodsService.getBeneficiaryInfo(
+                authorization = AUTH,
+                currency = currency,
+                address = address
+            )
+        } returns Outcome.Success(aliasInfoResponse)
+
+        // Act
+        val result = subject.getBeneficiaryInfo(currency, address)
+
+        // Assert
+        result.doOnFailure {
+            assertTrue(it is NabuApiException)
+        }
     }
 
     @Test
@@ -616,14 +697,15 @@ class PaymentsRepositoryTest {
     }
 
     @Test
-    fun `canTransactWithBankMethods() - unsupported currency`() {
+    fun `canTransactWithBankMethods() - unsupported currency`() = runTest {
         // ARRANGE
-        every { getSupportedCurrenciesUseCase.invoke(Unit) } returns Single.just(
-            SupportedCurrencies(
-                listOf("GBP", "EUR", "USD"),
-                listOf("GBP", "EUR", "USD")
-            )
+        val tradingCurrencies = TradingCurrencies(
+            selected = USD,
+            allRecommended = listOf(GBP),
+            allAvailable = listOf(GBP)
         )
+        coEvery { fiatCurrenciesService.getTradingCurrencies() } returns
+            Outcome.Success(tradingCurrencies)
         val fiatCurrency = mockk<FiatCurrency>().apply { every { networkTicker } returns "invalid" }
 
         // ASSERT
@@ -940,7 +1022,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - HttpError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.HttpError(Throwable()))
+            Outcome.Failure(ApiError.HttpError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -955,7 +1037,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - NetworkError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.NetworkError(Throwable()))
+            Outcome.Failure(ApiError.NetworkError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)
@@ -970,7 +1052,7 @@ class PaymentsRepositoryTest {
     fun `getPaymentMethodForId() - UnknownApiError`() = runTest {
         // ARRANGE
         coEvery { paymentsService.getPaymentMethodDetailsForId(AUTH, ID) } returns
-            Outcome.Failure(ApiError.UnknownApiError(Throwable()))
+            Outcome.Failure(ApiError.UnknownApiError(Exception()))
 
         // ACT
         val result = subject.getPaymentMethodDetailsForId(ID)

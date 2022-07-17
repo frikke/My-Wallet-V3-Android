@@ -6,8 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blockchain.commonarch.presentation.base.SlidingModalBottomDialog
 import com.blockchain.componentlib.viewextensions.visibleIf
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
-import com.blockchain.preferences.CurrencyPrefs
+import com.blockchain.koin.scopedInject
 import info.blockchain.balance.FiatCurrency
 import java.io.Serializable
 import org.koin.android.ext.android.inject
@@ -49,10 +50,10 @@ class PaymentMethodChooserBottomSheet : SlidingModalBottomDialog<SimpleBuyPaymen
     }
 
     private val assetResources: AssetResources by inject()
-    private val currencyPrefs: CurrencyPrefs by inject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
     private val fiatCurrency: FiatCurrency
-        get() = currencyPrefs.tradingCurrency
+        get() = fiatCurrenciesService.selectedTradingCurrency
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): SimpleBuyPaymentMethodChooserBinding =
         SimpleBuyPaymentMethodChooserBinding.inflate(inflater, container, false)

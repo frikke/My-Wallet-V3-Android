@@ -38,6 +38,7 @@ import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
 import com.blockchain.core.dynamicassets.impl.DynamicAssetsDataManagerImpl
 import com.blockchain.core.eligibility.EligibilityRepository
 import com.blockchain.core.eligibility.cache.ProductsEligibilityStore
+import com.blockchain.core.fiatcurrencies.FiatCurrenciesRepository
 import com.blockchain.core.interest.InterestBalanceCallCache
 import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.InterestBalanceDataManagerImpl
@@ -61,6 +62,7 @@ import com.blockchain.core.user.WatchlistDataManager
 import com.blockchain.core.user.WatchlistDataManagerImpl
 import com.blockchain.domain.dataremediation.DataRemediationService
 import com.blockchain.domain.eligibility.EligibilityService
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
@@ -217,6 +219,17 @@ val coreModule = module {
                 eligibilityApiService = get()
             )
         }.bind(EligibilityService::class)
+
+        scoped {
+            FiatCurrenciesRepository(
+                authenticator = get(),
+                getUserStore = get(),
+                assetCatalogue = get(),
+                currencyPrefs = get(),
+                analytics = get(),
+                api = get(),
+            )
+        }.bind(FiatCurrenciesService::class)
 
         factory {
             InterestBalanceCallCache(
@@ -492,7 +505,7 @@ val coreModule = module {
                 withdrawLocksCache = get(),
                 assetCatalogue = get(),
                 linkedCardsStore = get(),
-                getSupportedCurrenciesUseCase = get(),
+                fiatCurrenciesService = get(),
                 googlePayFeatureFlag = get(googlePayFeatureFlag),
                 plaidFeatureFlag = get(plaidFeatureFlag)
             )

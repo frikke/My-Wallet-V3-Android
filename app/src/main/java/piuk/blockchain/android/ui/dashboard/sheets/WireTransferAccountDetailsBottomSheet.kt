@@ -11,6 +11,9 @@ import com.blockchain.componentlib.alert.BlockchainSnackbar
 import com.blockchain.componentlib.alert.SnackbarType
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
+import com.blockchain.domain.dataremediation.DataRemediationService
+import com.blockchain.domain.dataremediation.model.Questionnaire
+import com.blockchain.domain.dataremediation.model.QuestionnaireContext
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -20,6 +23,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetLinkBankAccountBinding
@@ -28,14 +32,19 @@ import piuk.blockchain.android.simplebuy.CopyFieldListener
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
 import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.linkBankFieldCopied
+import piuk.blockchain.android.ui.dataremediation.QuestionnaireSheet
 import piuk.blockchain.android.urllinks.MODULAR_TERMS_AND_CONDITIONS
 import piuk.blockchain.android.util.StringUtils
+import piuk.blockchain.androidcore.utils.extensions.rxMaybeOutcome
 import piuk.blockchain.androidcore.utils.helperfunctions.unsafeLazy
 
-class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>() {
+class WireTransferAccountDetailsBottomSheet :
+    SlidingModalBottomDialog<DialogSheetLinkBankAccountBinding>(),
+    QuestionnaireSheet.Host {
 
     private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
+    private val dataRemediationService: DataRemediationService by scopedInject()
     private val stringUtils: StringUtils by inject()
     private val currencyPrefs: CurrencyPrefs by scopedInject()
 
@@ -52,10 +61,40 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
         DialogSheetLinkBankAccountBinding.inflate(inflater, container, false)
 
     override fun initControls(binding: DialogSheetLinkBankAccountBinding) {
+        compositeDisposable += rxMaybeOutcome {
+            dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT)
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                binding.loading.visible()
+            }
+            .subscribeBy(
+                onSuccess = { questionnaire ->
+                    binding.loading.gone()
+                    renderQuestionnaire(questionnaire)
+                },
+                onComplete = {
+                    fetchAndDisplayAccountDetails()
+                },
+                onError = {
+                    renderErrorUi()
+                    binding.loading.gone()
+                }
+            )
+    }
+
+    private fun fetchAndDisplayAccountDetails() {
         compositeDisposable += custodialWalletManager.getBankAccountDetails(fiatCurrency)
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                binding.fragmentContainer.gone()
+                binding.loading.visible()
+            }
             .subscribeBy(
                 onSuccess = { bankAccount ->
+                    binding.loading.gone()
+                    binding.containerBankDetails.visible()
                     binding.bankDetails.initWithBankDetailsAndAmount(
                         bankAccount.details.map {
                             BankDetailField(it.title, it.value, it.isCopyable, it.tooltip)
@@ -72,6 +111,7 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                     )
                 },
                 onError = {
+                    binding.loading.gone()
                     renderErrorUi()
                     analytics.logEvent(
                         linkBankEventWithCurrency(
@@ -81,6 +121,17 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                     )
                 }
             )
+    }
+
+    private fun renderQuestionnaire(questionnaire: Questionnaire) {
+        binding.fragmentContainer.visible()
+        if (childFragmentManager.findFragmentById(R.id.fragment_container) == null) {
+            childFragmentManager.beginTransaction()
+                .add(
+                    R.id.fragment_container,
+                    QuestionnaireSheet.newInstance(questionnaire)
+                ).commitAllowingStateLoss()
+        }
     }
 
     private fun renderErrorUi() {
@@ -157,6 +208,14 @@ class WireTransferAccountDetailsBottomSheet : SlidingModalBottomDialog<DialogShe
                 type = SnackbarType.Success
             ).show()
         }
+    }
+
+    override fun questionnaireSubmittedSuccessfully() {
+        fetchAndDisplayAccountDetails()
+    }
+
+    override fun questionnaireSkipped() {
+        fetchAndDisplayAccountDetails()
     }
 
     companion object {

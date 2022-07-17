@@ -8,8 +8,8 @@ import com.blockchain.componentlib.basic.ImageResource
 import com.blockchain.componentlib.tag.TagType
 import com.blockchain.componentlib.tag.TagViewState
 import com.blockchain.componentlib.viewextensions.visibleIf
-import com.blockchain.preferences.CurrencyPrefs
-import org.koin.android.ext.android.inject
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
+import com.blockchain.koin.scopedInject
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.DialogSheetAddPaymentMethodBinding
 import piuk.blockchain.android.util.StringLocalizationUtil
@@ -37,7 +37,7 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
         arguments?.getBoolean(CAN_ADD_LINK_BANK, false) ?: false
     }
 
-    private val currencyPrefs: CurrencyPrefs by inject()
+    private val fiatCurrenciesService: FiatCurrenciesService by scopedInject()
 
     override fun initControls(binding: DialogSheetAddPaymentMethodBinding) {
         with(binding) {
@@ -58,7 +58,9 @@ class AddPaymentMethodsBottomSheet : SlidingModalBottomDialog<DialogSheetAddPaym
                 primaryText = getString(R.string.easy_bank_transfer)
                 startImageResource = ImageResource.Local(R.drawable.ic_bank_transfer, null)
                 secondaryText = getString(
-                    StringLocalizationUtil.subtitleForEasyTransfer(currencyPrefs.tradingCurrency.networkTicker)
+                    StringLocalizationUtil.subtitleForEasyTransfer(
+                        fiatCurrenciesService.selectedTradingCurrency.networkTicker
+                    )
                 )
                 paragraphText = getString(R.string.easy_bank_transfer_blurb)
                 onClick = {

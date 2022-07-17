@@ -1,6 +1,7 @@
 package com.blockchain.nabu.models
 
 import com.blockchain.nabu.models.responses.nabu.Address
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuSettings
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -48,7 +49,13 @@ class NabuUserSerializationTest {
             tags = mapOf("tag1" to mapOf("sub_tag_1" to 12)),
             userName = "userName",
             tiers = TierLevels(1, 2, 3),
-            walletGuid = "walletId"
+            walletGuid = "walletId",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
 
         val jsonString = jsonBuilder.encodeToString(user)
@@ -78,19 +85,33 @@ class NabuUserSerializationTest {
             tags = null,
             userName = null,
             tiers = null,
-            walletGuid = "walletId"
+            walletGuid = "walletId",
+            currencies = CurrenciesResponse(
+                preferredFiatTradingCurrency = "EUR",
+                usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+                defaultWalletCurrency = "BRL",
+                userFiatCurrencies = listOf("EUR", "GBP")
+            )
         )
 
         val testObject = jsonBuilder.decodeFromString<NabuUser>(
-            "{\n" +
-                "   \"email\":\"email\",\n" +
-                "   \"emailVerified\":true,\n" +
-                "   \"mobileVerified\":true,\n" +
-                "   \"state\":\"ACTIVE\",\n" +
-                "   \"kycState\":\"VERIFIED\",\n" +
-                "   \"productsUsed\":{},\n" +
-                "   \"walletGuid\":\"walletId\"\n" +
-                "}"
+            """
+            {
+                "email":"email",
+                "emailVerified":true,
+                "mobileVerified":true,
+                "state":"ACTIVE",
+                "kycState":"VERIFIED",
+                "productsUsed":{},
+                "walletGuid":"walletId",
+                "currencies":{
+                    "preferredFiatTradingCurrency": "EUR",
+                    "usableFiatCurrencies": ["EUR", "USD", "GBP", "ARS"],
+                    "defaultWalletCurrency": "BRL",
+                    "userFiatCurrencies": ["EUR", "GBP"]
+                }
+            }
+            """.trimIndent()
         )
 
         testObject shouldBeEqualTo user

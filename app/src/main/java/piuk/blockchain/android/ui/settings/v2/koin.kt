@@ -66,7 +66,8 @@ val redesignSettingsModule = module {
                 cardService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get(),
                 currencyPrefs = get(),
-                referralService = get()
+                referralService = get(),
+                nabuUserIdentity = get()
             )
         }
 
@@ -204,7 +205,8 @@ val redesignSettingsModule = module {
                 blockchainCardRepository = get(),
                 currencyPrefs = get(),
                 exchangeLinkingState = get(),
-                localSettingsPrefs = get()
+                localSettingsPrefs = get(),
+                fiatCurrenciesService = get()
             )
         }
 

@@ -21,7 +21,6 @@ import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.extensions.exhaustive
 import com.blockchain.koin.scopedInject
-import info.blockchain.balance.FiatCurrency
 import org.koin.core.parameter.parametersOf
 import piuk.blockchain.android.R
 import piuk.blockchain.android.campaign.CampaignType
@@ -31,7 +30,6 @@ import piuk.blockchain.android.domain.usecases.CompletableDashboardOnboardingSte
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStep
 import piuk.blockchain.android.domain.usecases.DashboardOnboardingStepState
 import piuk.blockchain.android.simplebuy.paymentmethods.PaymentMethodChooserBottomSheet
-import piuk.blockchain.android.simplebuy.sheets.CurrencySelectionSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
@@ -48,7 +46,6 @@ class DashboardOnboardingActivity :
         DashboardOnboardingState,
         ActivityDashboardOnboardingBinding
         >(),
-    CurrencySelectionSheet.Host,
     PaymentMethodChooserBottomSheet.Host,
     ErrorSlidingBottomDialog.Host {
 
@@ -188,15 +185,6 @@ class DashboardOnboardingActivity :
                 setResult(RESULT_OK, intent)
                 finish()
             }
-            is DashboardOnboardingNavigationAction.SelectTradingCurrency -> {
-                showBottomSheet(
-                    CurrencySelectionSheet.newInstance(
-                        currencies = action.supportedCurrencies,
-                        selectedCurrency = action.selectedCurrency,
-                        currencySelectionType = CurrencySelectionSheet.Companion.CurrencySelectionType.TRADING_CURRENCY
-                    )
-                )
-            }
             DashboardOnboardingNavigationAction.AddCard -> {
                 val intent = Intent(this, CardDetailsActivity::class.java)
                 startActivity(intent)
@@ -223,10 +211,6 @@ class DashboardOnboardingActivity :
     override fun showAvailableToAddPaymentMethods() {
         // The paymentmethodchooser bottomsheet should be correctly configured so not to show Add Payment method button
         throw UnsupportedOperationException()
-    }
-
-    override fun onCurrencyChanged(currency: FiatCurrency) {
-        model.process(DashboardOnboardingIntent.TradingCurrencyChanged)
     }
 
     override fun onErrorPrimaryCta() {

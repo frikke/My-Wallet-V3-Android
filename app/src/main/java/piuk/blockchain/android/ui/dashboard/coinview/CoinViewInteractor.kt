@@ -10,10 +10,11 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.coincore.CryptoAsset
 import com.blockchain.coincore.InterestAccount
 import com.blockchain.coincore.NonCustodialAccount
-import com.blockchain.coincore.NullAccountGroup
 import com.blockchain.coincore.NullCryptoAccount
+import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.StateAwareAction
 import com.blockchain.coincore.TradingAccount
+import com.blockchain.coincore.defaultFilter
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.CustodialTradingAccount
 import com.blockchain.core.dynamicassets.DynamicAssetsDataManager
@@ -56,6 +57,8 @@ class CoinViewInteractor(
     private val assetsManager: DynamicAssetsDataManager,
     private val watchlistDataManager: WatchlistDataManager,
 ) {
+    private val defFilter: AssetFilter
+        get() = walletModeService.enabledWalletMode().defaultFilter()
 
     fun loadAssetDetails(assetTicker: String): Single<Pair<CryptoAsset?, FiatCurrency>> =
         Single.just(Pair(coincore[assetTicker], currencyPrefs.selectedFiatCurrency))
@@ -230,35 +233,23 @@ class CoinViewInteractor(
         asset.getPricesWith24hDelta()
 
     private fun getAssetDisplayDetails(asset: CryptoAsset): Single<AssetInformation> {
-        val pkAccounts = if (walletModeService.enabledWalletMode().nonCustodialEnabled) {
-            splitAccountsInGroup(
-                asset, AssetFilter.NonCustodial
-            )
-        } else Single.just(emptyList())
 
-        val tradingAccounts = if (walletModeService.enabledWalletMode().custodialEnabled) {
-            splitAccountsInGroup(
-                asset, AssetFilter.Trading
-            )
-        } else Single.just(emptyList())
-
-        val interestAccount = if (walletModeService.enabledWalletMode().custodialEnabled) {
-            splitAccountsInGroup(
-                asset, AssetFilter.Interest
-            )
-        } else Single.just(emptyList())
+        val accounts = asset.accountGroup(defFilter)
+            .map { it.accounts }
+            .switchIfEmpty(Single.just(emptyList()))
+            .flatMap { extractAccountDetails(it) }
 
         return Single.zip(
-            pkAccounts,
-            tradingAccounts,
-            interestAccount,
+            accounts,
             load24hPriceDelta(asset),
             asset.interestRate(),
             watchlistDataManager.isAssetInWatchlist(asset.assetInfo)
-        ) { nonCustodialAccounts, custodialAccounts, interestAccounts, prices, interestRate, isAddedToWatchlist ->
+        ) { accounts, prices, interestRate, isAddedToWatchlist ->
             // while we wait for a BE flag on whether an asset is tradeable or not, we can check the
             // available accounts to see if we support custodial or PK balances as a guideline to asset support
-            val tradeableAsset = nonCustodialAccounts.isNotEmpty() || custodialAccounts.isNotEmpty()
+            val tradeableAsset = accounts.any {
+                it.account is NonCustodialAccount || it.account is CustodialTradingAccount
+            }
 
             return@zip if (!tradeableAsset) {
                 AssetInformation.NonTradeable(
@@ -267,7 +258,7 @@ class CoinViewInteractor(
                 )
             } else {
                 val accountsList = mapAccounts(
-                    nonCustodialAccounts, prices.currentRate, custodialAccounts, interestAccounts, interestRate
+                    accounts, prices.currentRate, interestRate
                 )
                 val totalCryptoMoney = Money.zero(asset.assetInfo)
                 var totalCryptoMoneyAll = Money.zero(asset.assetInfo)
@@ -297,16 +288,14 @@ class CoinViewInteractor(
         identity.userAccessForFeature(Feature.Buy)
 
     private fun mapAccounts(
-        nonCustodialAccounts: List<DetailsItem>,
+        accounts: List<DetailsItem>,
         exchangeRate: ExchangeRate,
-        custodialAccounts: List<DetailsItem>,
-        interestAccounts: List<DetailsItem>,
         interestRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
         val listOfAccounts = mutableListOf<AssetDisplayInfo>()
 
         listOfAccounts.addAll(
-            custodialAccounts.map {
+            accounts.filter { it.account is TradingAccount }.map {
                 AssetDisplayInfo(
                     account = it.account,
                     filter = AssetFilter.Trading,
@@ -321,7 +310,7 @@ class CoinViewInteractor(
             }
         )
         listOfAccounts.addAll(
-            interestAccounts.map {
+            accounts.filter { it.account is InterestAccount }.map {
                 AssetDisplayInfo(
                     account = it.account,
                     filter = AssetFilter.Interest,
@@ -336,7 +325,7 @@ class CoinViewInteractor(
             }
         )
 
-        val ncLists = nonCustodialAccounts.partition {
+        val ncLists = accounts.filter { it.account is NonCustodialAccount }.partition {
             it.isDefault
         }
 
@@ -376,23 +365,21 @@ class CoinViewInteractor(
         return listOfAccounts
     }
 
-    private fun splitAccountsInGroup(asset: CryptoAsset, filter: AssetFilter) =
-        asset.accountGroup(filter).defaultIfEmpty(NullAccountGroup).flatMap { accountGroup ->
-            accountGroup.accounts.filter {
-                (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
-            }.map { account ->
-                Single.zip(
-                    account.balance.firstOrError(),
-                    account.stateAwareActions
-                ) { balance, actions ->
-                    DetailsItem(
-                        account = account,
-                        balance = balance.total,
-                        pendingBalance = balance.pending,
-                        actions = actions,
-                        isDefault = account.isDefault
-                    )
-                }
-            }.zipSingles()
-        }
+    private fun extractAccountDetails(accounts: SingleAccountList): Single<List<DetailsItem>> =
+        accounts.filter {
+            (it as? CryptoNonCustodialAccount)?.isArchived?.not() ?: true
+        }.map { account ->
+            Single.zip(
+                account.balance.firstOrError(),
+                account.stateAwareActions
+            ) { balance, actions ->
+                DetailsItem(
+                    account = account,
+                    balance = balance.total,
+                    pendingBalance = balance.pending,
+                    actions = actions,
+                    isDefault = account.isDefault
+                )
+            }
+        }.zipSingles()
 }

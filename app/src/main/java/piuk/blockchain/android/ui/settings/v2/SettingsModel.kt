@@ -11,6 +11,7 @@ import com.blockchain.nabu.Tier
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.kotlin.zipWith
 import timber.log.Timber
 
 class SettingsModel(
@@ -48,13 +49,19 @@ class SettingsModel(
                     )
             }
             is SettingsIntent.LoadPaymentMethods ->
-                interactor.getExistingPaymentMethods()
+                interactor.getExistingPaymentMethods().zipWith(interactor.canPayWithBind())
                     .subscribeBy(
-                        onSuccess = { paymentMethodInfo ->
-                            process(SettingsIntent.UpdatePaymentMethodsInfo(paymentMethodInfo = paymentMethodInfo))
-                        }, onError = {
-                        process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
-                    }
+                        onSuccess = { (paymentMethodInfo, canPayWithBind) ->
+                            process(
+                                SettingsIntent.UpdatePaymentMethodsInfo(
+                                    paymentMethodInfo = paymentMethodInfo,
+                                    canPayWithBind = canPayWithBind
+                                )
+                            )
+                        },
+                        onError = {
+                            process(SettingsIntent.UpdateErrorState(SettingsError.PaymentMethodsLoadFail))
+                        }
                     )
             is SettingsIntent.AddLinkBankSelected -> interactor.getBankLinkingInfo()
                 .subscribeBy(

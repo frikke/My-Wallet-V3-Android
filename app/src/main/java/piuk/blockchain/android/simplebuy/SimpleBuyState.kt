@@ -59,7 +59,6 @@ data class SimpleBuyState constructor(
     val quote: BuyQuote? = null,
     val hasQuoteChanged: Boolean = false,
     val orderValue: CryptoValue? = null,
-    val supportedFiatCurrencies: List<FiatCurrency> = emptyList(),
     val paymentSucceeded: Boolean = false,
     val withdrawalLockPeriod: @Contextual BigInteger = BigInteger.ZERO,
     val recurringBuyFrequency: RecurringBuyFrequency = RecurringBuyFrequency.ONE_TIME,

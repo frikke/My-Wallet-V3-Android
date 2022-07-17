@@ -124,6 +124,7 @@ class SettingsModelTest {
     fun `loadPaymentMethods works`() {
         val paymentDetails: PaymentMethods = mock()
         whenever(interactor.getExistingPaymentMethods()).thenReturn(Single.just(paymentDetails))
+        whenever(interactor.canPayWithBind()).thenReturn(Single.just(true))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadPaymentMethods)
@@ -133,7 +134,8 @@ class SettingsModelTest {
                 it == SettingsState()
             }.assertValueAt(1) {
                 it == SettingsState(
-                    paymentMethodInfo = paymentDetails
+                    paymentMethodInfo = paymentDetails,
+                    canPayWithBind = true
                 )
             }
     }
@@ -197,6 +199,7 @@ class SettingsModelTest {
     @Test
     fun `loadPaymentMethods fails`() {
         whenever(interactor.getExistingPaymentMethods()).thenReturn(Single.error(Exception()))
+        whenever(interactor.canPayWithBind()).thenReturn(Single.just(true))
 
         val testState = model.state.test()
         model.process(SettingsIntent.LoadPaymentMethods)

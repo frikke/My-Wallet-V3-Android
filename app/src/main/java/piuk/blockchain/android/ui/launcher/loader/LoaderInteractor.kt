@@ -4,6 +4,7 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.AnalyticsEvent
 import com.blockchain.analytics.events.AnalyticsNames
 import com.blockchain.core.user.NabuUserDataManager
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.referral.ReferralService
 import com.blockchain.notifications.NotificationTokenManager
 import com.blockchain.preferences.CurrencyPrefs
@@ -25,6 +26,7 @@ import piuk.blockchain.android.ui.launcher.DeepLinkPersistence
 import piuk.blockchain.android.ui.launcher.Prerequisites
 import piuk.blockchain.androidcore.data.payload.PayloadDataManager
 import piuk.blockchain.androidcore.data.settings.SettingsDataManager
+import piuk.blockchain.androidcore.utils.extensions.rxCompletableOutcome
 import piuk.blockchain.androidcore.utils.extensions.then
 
 class LoaderInteractor(
@@ -39,7 +41,8 @@ class LoaderInteractor(
     private val analytics: Analytics,
     private val assetCatalogue: AssetCatalogue,
     private val ioScheduler: Scheduler,
-    private val referralService: ReferralService
+    private val referralService: ReferralService,
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
 
     private val wallet: Wallet
@@ -73,9 +76,8 @@ class LoaderInteractor(
             .flatMap {
                 metadata.toSingle { it }
             }.flatMapCompletable {
-                syncFiatCurrency(it)
-            }
-            .then {
+                syncFiatCurrencies(it)
+            }.then {
                 saveInitialCountry()
             }.then {
                 updateUserFiatIfNotSet()
@@ -103,8 +105,8 @@ class LoaderInteractor(
             )
     }
 
-    private fun syncFiatCurrency(settings: Settings): Completable =
-        when {
+    private fun syncFiatCurrencies(settings: Settings): Completable {
+        val syncDisplayCurrency = when {
             walletPrefs.isNewlyCreated -> settingsDataManager.setDefaultUserFiat().ignoreElement()
             settings.currency != currencyPrefs.selectedFiatCurrency.networkTicker -> Completable.fromAction {
                 currencyPrefs.selectedFiatCurrency =
@@ -112,6 +114,12 @@ class LoaderInteractor(
             }
             else -> Completable.complete()
         }
+
+        // warm selectedTradingCurrency cache
+        val syncTradingCurrency = rxCompletableOutcome { fiatCurrenciesService.getTradingCurrencies() }
+
+        return syncDisplayCurrency.mergeWith(syncTradingCurrency)
+    }
 
     private fun onInitSettingsSuccess(shouldLaunchEmailVerification: Boolean) {
         emitter.onNext(LoaderIntents.UpdateProgressStep(ProgressStep.FINISH))

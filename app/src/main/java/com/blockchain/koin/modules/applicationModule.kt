@@ -16,14 +16,12 @@ import com.blockchain.core.chains.erc20.data.store.Erc20DataSource
 import com.blockchain.core.chains.erc20.data.store.Erc20L2DataSource
 import com.blockchain.core.custodial.data.store.TradingDataSource
 import com.blockchain.core.interest.data.store.InterestDataSource
-import com.blockchain.core.payments.GetSupportedCurrenciesUseCase
 import com.blockchain.enviroment.Environment
 import com.blockchain.enviroment.EnvironmentConfig
 import com.blockchain.keyboard.InputKeyboard
 import com.blockchain.koin.appMaintenanceFeatureFlag
 import com.blockchain.koin.applicationScope
 import com.blockchain.koin.ars
-import com.blockchain.koin.bindFeatureFlag
 import com.blockchain.koin.buyRefreshQuoteFeatureFlag
 import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.coinWebSocketFeatureFlag
@@ -497,7 +495,7 @@ val applicationModule = module {
                 interactor = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 initialState = SimpleBuyState(),
-                prefs = get(),
+                fiatCurrenciesService = get(),
                 buyOrdersCache = get(),
                 serializer = get(),
                 cardActivator = get(),
@@ -562,13 +560,6 @@ val applicationModule = module {
             )
         }
 
-        factory {
-            GetSupportedCurrenciesUseCase(
-                nabuDataUserProvider = get(),
-                bindFeatureFlag = get(bindFeatureFlag)
-            )
-        }
-
         factory<TradeDataService> {
             TradeDataRepository(
                 tradeService = get(),
@@ -629,7 +620,7 @@ val applicationModule = module {
             BuyFlowNavigator(
                 simpleBuySyncFactory = get(),
                 userIdentity = get(),
-                currencyPrefs = get(),
+                fiatCurrenciesService = get(),
                 custodialWalletManager = get()
             )
         }

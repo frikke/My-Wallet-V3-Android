@@ -80,7 +80,6 @@ class SimpleBuyPrefsSerializerTest {
             expiresAt = ZonedDateTime.parse("2022-08-18T14:29:15.103+02"),
         ),
         orderValue = CryptoValue(CryptoCurrency.BTC, BigInteger.TEN),
-        supportedFiatCurrencies = listOf(EUR),
         paymentSucceeded = true,
         withdrawalLockPeriod = BigInteger.ONE,
         recurringBuyFrequency = RecurringBuyFrequency.DAILY,
@@ -99,7 +98,7 @@ class SimpleBuyPrefsSerializerTest {
     )
 
     private val simpleBuyStateKtxString =
-        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"},"createdAt":"2022-08-18T14:27:15.103+02:00","expiresAt":"2022-08-18T14:29:15.103+02:00","remainingTime":10},"orderValue":{"currency":"BTC","amount":"10"},"supportedFiatCurrencies":[{"currencyCode":"EUR"}],"paymentSucceeded":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""
+        """{"id":"id_SimpleBuyState","fiatCurrency":{"currencyCode":"EUR"},"amount":{"currency":{"currencyCode":"EUR"},"amount":"10.00"},"selectedCryptoAsset":"BTC","orderState":"AWAITING_FUNDS","kycStartedButNotCompleted":true,"kycVerificationState":"PENDING","currentScreen":"KYC","selectedPaymentMethod":{"id":"id_SelectedPaymentMethod","partner":"CARDPROVIDER","label":"label_SelectedPaymentMethod","paymentMethodType":"BANK_ACCOUNT","isEligible":true},"quote":{"id":"id_BuyQuote","price":{"currency":{"currencyCode":"EUR"},"amount":"20.00"},"availability":"REGULAR","quoteMargin":2000.0,"feeDetails":{"feeBeforePromo":{"currency":{"currencyCode":"EUR"},"amount":"20.01"},"fee":{"currency":{"currencyCode":"EUR"},"amount":"20.02"},"promo":"NEW_USER"},"createdAt":"2022-08-18T14:27:15.103+02:00","expiresAt":"2022-08-18T14:29:15.103+02:00","remainingTime":10},"orderValue":{"currency":"BTC","amount":"10"},"paymentSucceeded":true,"withdrawalLockPeriod":"1","recurringBuyFrequency":"DAILY","recurringBuyState":"ACTIVE","showRecurringBuyFirstTimeFlow":true,"googlePayTokenizationInfo":{"1":"2"},"googlePayBeneficiaryId":"id_googlePayBeneficiaryId","googlePayMerchantBankCountryCode":"cc_googlePayMerchantBankCountryCode","googlePayAllowPrepaidCards":false,"googlePayAllowCreditCards":false}"""
 
     @Before
     fun setUp() {

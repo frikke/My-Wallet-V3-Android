@@ -103,7 +103,7 @@ class ReferralRepositoryTest {
         val expectedThrowable: NabuApiException = mock {}
         val apiError: ApiError.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
-            on { throwable } doReturn expectedThrowable
+            on { exception } doReturn expectedThrowable
         }
 
         whenever(referralApiService.getReferralCode(AUTH, FIAT))
@@ -141,7 +141,7 @@ class ReferralRepositoryTest {
         val expectedThrowable: NabuApiException = mock {}
         val apiError: ApiError.KnownError = mock {
             on { statusCode } doReturn NabuErrorStatusCodes.InternalServerError
-            on { throwable } doReturn expectedThrowable
+            on { exception } doReturn expectedThrowable
         }
         whenever(referralApiService.validateReferralCode(REF_CODE))
             .doReturn(Outcome.Failure(apiError))

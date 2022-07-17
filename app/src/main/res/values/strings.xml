@@ -1296,6 +1296,8 @@
     <string name="simple_buy_skip_text">Explore your new Blockchain Wallet.</string>
     <string name="common_skip">Skip</string>
     <string name="simple_buy_currency_selection_header">Your local currency to store funds in that currency as funds in your Blockchain Wallet.</string>
+    <string name="trading_currency_selection_header">This is the currency that you use to buy and sell crypto.</string>
+    <string name="display_currency_selection_header">This is the currency in which your balance will be displayed.</string>
     <string name="simple_buy_get_started">Get Started</string>
     <string name="simple_buy_what_you_want_to_buy">What would you like to buy?</string>
     <string name="payment_methods">Payment Methods</string>
@@ -1958,6 +1960,7 @@
     <string name="link_once_and_instantly_buy_crypto_anytime">Quick and secure without entering account details.</string>
     <string name="add_payment_method">+ Add New</string>
     <string name="pay_with_my_dotted">Pay with my…</string>
+    <string name="add_new_bank_account">+ Add New Bank Account</string>
 
     <!-- Yodlee splash -->
     <string name="yodlee_splash_title_partner">Blockchain.com uses Yodlee to verify your bank credentials &amp; securely link your accounts.</string>
@@ -2117,6 +2120,13 @@
     <string name="yapily_payment_to_fiat_wallet_subtitle">You recently approved a %1$s purchase with your bank and cancelled the order here. Since you approved with your bank, we’ve deposited your purchase amount in your %2$s Wallet.</string>
     <string name="yapily_payment_to_fiat_wallet_default">crypto</string>
     <string name="yapily_fiat_deposit_success_subtitle">While we wait for your bank to send the cash, here’s early access to %1$s in your %2$s Cash Account so you can buy crypto right away.\n\nYour funds will be available to withdraw once the bank transfer is complete on %3$s.</string>
+
+    <!-- Bank Alias Linking -->
+    <string name="bank_alias_types" translatable="false">Alias/CBU/CVU</string>
+    <string name="bank_alias_info">Please, enter your bank Alias/CBU/CVU to link a new bank account in your name.\n\nIf you enter an alias:\n- It has to be between 6 and 20 characters (letters, numbers, dash and dot)\n- Don’t include the letter “ñ”, accents, gaps and other special characters.</string>
+    <string name="bank_alias_search_account">Search Account</string>
+    <string name="bank_alias_cbu" translatable="false">CBU</string>
+    <string name="bank_alias_cuil" translatable="false">CUIL</string>
 
     <!-- Bank Linking Errors -->
     <string name="bank_linking_generic_error_title">Oops! Something went wrong</string>
@@ -2581,7 +2591,8 @@
     <string name="account_limits_subtitle">Trading Accounts</string>
     <string name="account_wallet_id_title">Wallet ID</string>
     <string name="account_wallet_id_subtitle">Warning: Do Not Share Publicly</string>
-    <string name="account_currency_title">Local Currency</string>
+    <string name="account_currency_title">Display Currency</string>
+    <string name="account_trading_currency_title">Trading Currency</string>
     <string name="account_exchange_title">Blockchain Exchange</string>
     <string name="account_wallet_connect">WalletConnect</string>
     <string name="account_exchange_launch">Launch the Blockchain Exchange</string>
@@ -2741,7 +2752,7 @@
     <string name="ui_tour_prices_subtitle">Track the live price of over 1,200 coins and find new ones to add to your wallet.</string>
     <string name="ui_tour_middle_button_subtitle">Whether you want to swap with speed or send to a friend - we’ve got you covered!</string>
     <string name="ui_tour_activity_subtitle">Know exactly when you bought, sold or swapped and at what price.</string>
-    <string name="ui_tour_buyer_handhold_subtitle">Add a card or link a bank to start buying crypto in seconds.</string>
+    <string name="ui_tour_buyer_handhold_subtitle">Add a payment method to start buying crypto in seconds.</string>
 
     <!-- Pin screen -->
     <string name="pin_title_create">Choose a Wallet PIN.</string>

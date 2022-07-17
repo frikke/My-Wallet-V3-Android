@@ -99,7 +99,7 @@ class DeeplinkProcessorV2Test {
         )
         val test = deeplinkProcessorV2Subject.process(assetKycTestURL).test()
         test.assertValue { deeplinkResult ->
-            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess && deeplinkResult.destination is Destination.StartKyc
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess && deeplinkResult.destination is Destination.StartKycDestination
         }
     }
 
@@ -152,6 +152,19 @@ class DeeplinkProcessorV2Test {
             deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
                 deeplinkResult.destination is Destination.ExternalLinkDestination &&
                 (deeplinkResult.destination as Destination.ExternalLinkDestination).url == expectedUrl
+        }
+    }
+
+    @Test
+    fun `test parse of dashboard deeplink URI`() {
+        val externalLinkUri = Uri.parse(
+            "https://www.login.blockchain.com/app/go/to/dashboard"
+        )
+
+        val test = deeplinkProcessorV2Subject.process(externalLinkUri).test()
+        test.assertValue { deeplinkResult ->
+            deeplinkResult is DeepLinkResult.DeepLinkResultSuccess &&
+                deeplinkResult.destination is Destination.DashboardDestination
         }
     }
 }

@@ -18,15 +18,16 @@ import com.blockchain.coincore.fiat.FiatCustodialAccount
 import com.blockchain.coincore.fiat.LinkedBankAccount
 import com.blockchain.commonarch.presentation.base.ActivityIndicator
 import com.blockchain.commonarch.presentation.base.trackProgress
+import com.blockchain.componentlib.button.ButtonState
 import com.blockchain.domain.paymentmethods.model.FundsLocks
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import io.reactivex.rxjava3.kotlin.zipWith
 import java.io.Serializable
 import piuk.blockchain.android.R
+import piuk.blockchain.android.databinding.ItemAccountAddNewBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectBankBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectCryptoBinding
 import piuk.blockchain.android.databinding.ItemAccountSelectFiatBinding
@@ -50,6 +51,8 @@ internal data class SelectableAccountItem(
     val item: AccountListViewItem,
     var isSelected: Boolean,
 ) : AccountsListItem
+
+object AddBankAccountItem : AccountsListItem
 
 class AccountList @JvmOverloads constructor(
     ctx: Context,
@@ -83,6 +86,7 @@ class AccountList @JvmOverloads constructor(
         accountsLocks: Single<List<AccountLocks>> = Single.just(emptyList()),
         introView: IntroHeaderView? = null,
         shouldShowSelectionStatus: Boolean = false,
+        shouldShowAddNewBankAccount: Single<Boolean> = Single.just(false),
         assetAction: AssetAction? = null,
     ) {
         removeAllHeaderDecorations()
@@ -103,29 +107,48 @@ class AccountList @JvmOverloads constructor(
                 onLockItemSelected = { onLockItemSelected(it) },
                 showSelectionStatus = shouldShowSelectionStatus,
                 assetAction = assetAction,
+                onAddNewBankAccountClicked = { onAddNewBankAccountClicked() }
             )
         }
-        loadItems(accountsSource = source, accountsLocksSource = accountsLocks)
+        loadItems(
+            accountsSource = source,
+            accountsLocksSource = accountsLocks,
+            showAddNewBankAccount = shouldShowAddNewBankAccount,
+            assetAction = assetAction
+        )
     }
 
     fun loadItems(
         accountsSource: Single<List<AccountListViewItem>>,
         accountsLocksSource: Single<List<AccountLocks>>,
         showLoader: Boolean = true,
+        showAddNewBankAccount: Single<Boolean> = Single.just(false),
+        assetAction: AssetAction? = null
     ) {
         val loader = if (showLoader) activityIndicator else null
-        disposables += accountsSource.zipWith(accountsLocksSource.onErrorReturn { emptyList() })
+        disposables += Single.zip(
+            accountsSource,
+            accountsLocksSource.onErrorReturn { emptyList() },
+            showAddNewBankAccount,
+        ) { accounts, extraInfos, showAddBankAccount ->
+            LoadedItems(
+                accountsSource = accounts,
+                accountsLocksSource = extraInfos,
+                showAddNewBankAccount = showAddBankAccount && assetAction == AssetAction.FiatWithdraw
+            )
+        }
             .observeOn(uiScheduler)
             .doOnSubscribe {
                 onListLoading()
             }
             .trackProgress(loader)
             .subscribeBy(
-                onSuccess = { (accounts, extraInfos) ->
-                    (adapter as? AccountsDelegateAdapter)?.items = extraInfos + accounts.map { account ->
-                        SelectableAccountItem(account, false)
-                    }
-                    onListLoaded(accounts.isEmpty())
+                onSuccess = {
+                    (adapter as? AccountsDelegateAdapter)?.items = it.accountsLocksSource +
+                        it.accountsSource.map { account -> SelectableAccountItem(account, false) } +
+                        listOfNotNull(if (it.showAddNewBankAccount) AddBankAccountItem else null)
+
+                    onListLoaded(it.accountsSource.isEmpty())
 
                     lastSelectedAccount?.let { account ->
                         updatedSelectedAccount(account)
@@ -178,6 +201,7 @@ class AccountList @JvmOverloads constructor(
     var onLockItemSelected: (AccountLocks) -> Unit = {}
     var onListLoaded: (isEmpty: Boolean) -> Unit = {}
     var onListLoading: () -> Unit = {}
+    var onAddNewBankAccountClicked: () -> Unit = {}
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
@@ -185,10 +209,17 @@ class AccountList @JvmOverloads constructor(
     }
 }
 
+internal data class LoadedItems(
+    val accountsSource: List<AccountListViewItem>,
+    val accountsLocksSource: List<AccountLocks>,
+    val showAddNewBankAccount: Boolean
+)
+
 private class AccountsDelegateAdapter(
     statusDecorator: StatusDecorator,
     onAccountClicked: (BlockchainAccount) -> Unit,
     onLockItemSelected: (AccountLocks) -> Unit,
+    onAddNewBankAccountClicked: () -> Unit,
     showSelectionStatus: Boolean,
     assetAction: AssetAction? = null,
 ) : DelegationAdapter<AccountsListItem>(AdapterDelegatesManager(), emptyList()) {
@@ -235,6 +266,12 @@ private class AccountsDelegateAdapter(
             addAdapterDelegate(
                 AccountLocksDelegate(
                     onLockItemSelected
+                )
+            )
+
+            addAdapterDelegate(
+                AddNewBankAccountDelegate(
+                    onAddNewBankAccountClicked
                 )
             )
         }
@@ -413,6 +450,41 @@ private class BankAccountViewHolder(
                 action = assetAction,
                 onAccountClicked = onAccountClicked
             )
+        }
+    }
+
+    override fun dispose() {
+        // nothing to dispose
+    }
+}
+
+private class AddNewBankAccountDelegate(
+    private val onAddNewBankAccountButtonClick: () -> Unit
+) : AdapterDelegate<AccountsListItem> {
+
+    override fun isForViewType(items: List<AccountsListItem>, position: Int): Boolean =
+        items[position] is AddBankAccountItem
+
+    override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
+        AddNewBankAccountViewHolder(
+            ItemAccountAddNewBankBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+        )
+
+    override fun onBindViewHolder(items: List<AccountsListItem>, position: Int, holder: RecyclerView.ViewHolder) =
+        (holder as AddNewBankAccountViewHolder).bind(onAddNewBankAccountButtonClick)
+}
+
+private class AddNewBankAccountViewHolder(
+    private val binding: ItemAccountAddNewBankBinding
+) : RecyclerView.ViewHolder(binding.root), DisposableViewHolder {
+
+    fun bind(onAddNewBankAccountButtonClick: () -> Unit) {
+        with(binding.addNewBankAccountButton) {
+            buttonState = ButtonState.Enabled
+            text = context.getString(R.string.add_new_bank_account)
+            onClick = onAddNewBankAccountButtonClick
         }
     }
 

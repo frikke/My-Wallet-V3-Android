@@ -63,7 +63,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
         configureAccountLabel(account)
         configureMakeDefault(account)
         configureShowXpub(account)
-        configureArchive(account)
+        configureArchive(account, account.isArchived)
     }
 
     @SuppressLint("CheckResult")
@@ -75,6 +75,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
 
             if (!account.isInternalAccount) {
                 account.balance.firstOrError().map { it.withdrawable }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(
                         onSuccess = {
                             visible()
@@ -153,6 +154,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                 .updateUi(account)
                 .subscribeBy(
                     onComplete = {
+                        binding.accountName.text = newLabel
                         analytics.logEvent(WalletAnalytics.EditWalletName)
                     },
                     onError = {
@@ -283,16 +285,15 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             null
         }
 
-    private fun configureArchive(account: CryptoNonCustodialAccount) {
-        if (account.isArchived) {
-
+    private fun configureArchive(account: CryptoNonCustodialAccount, isArchived: Boolean) {
+        if (isArchived) {
             binding.tvArchiveHeader.setText(R.string.unarchive)
             binding.tvArchiveDescription.setText(R.string.archived_description)
             with(binding.archiveContainer) {
                 alpha = ENABLED_ALPHA
                 visibility = View.VISIBLE
                 isClickable = true
-                setOnClickListener { toggleArchived(account) }
+                setOnClickListener { toggleArchived(account, isArchived) }
             }
         } else {
             if (account.isDefault) {
@@ -314,24 +315,24 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
                         ENABLED_ALPHA
                     visibility = View.VISIBLE
                     isClickable = true
-                    setOnClickListener { toggleArchived(account) }
+                    setOnClickListener { toggleArchived(account, isArchived) }
                 }
             }
         }
     }
 
-    private fun toggleArchived(account: CryptoNonCustodialAccount) {
-        val title = if (account.isArchived) R.string.unarchive else R.string.archive
-        val msg = if (account.isArchived) R.string.unarchive_are_you_sure else R.string.archive_are_you_sure
+    private fun toggleArchived(account: CryptoNonCustodialAccount, isArchived: Boolean) {
+        val title = if (isArchived) R.string.unarchive else R.string.archive
+        val msg = if (isArchived) R.string.unarchive_are_you_sure else R.string.archive_are_you_sure
         promptArchive(
             requireContext(),
             title,
             msg
-        ) { handleToggleArchive(account) }
+        ) { handleToggleArchive(account, isArchived) }
     }
 
-    private fun handleToggleArchive(account: CryptoNonCustodialAccount) {
-        disposables += if (account.isArchived) {
+    private fun handleToggleArchive(account: CryptoNonCustodialAccount, isArchived: Boolean) {
+        disposables += if (isArchived) {
             account.unarchive()
         } else {
             account.archive()
@@ -341,6 +342,7 @@ class AccountEditSheet : SlidingModalBottomDialog<DialogAccountEditBinding>() {
             .subscribeBy(
                 onError = { showError(R.string.remote_save_failed) },
                 onComplete = {
+                    configureArchive(account, !isArchived)
                     if (!account.isArchived)
                         analytics.logEvent(WalletAnalytics.UnArchiveWallet)
                     else

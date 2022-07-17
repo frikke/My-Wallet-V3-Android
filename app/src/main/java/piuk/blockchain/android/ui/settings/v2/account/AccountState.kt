@@ -17,7 +17,14 @@ data class AccountState(
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()
-    class CurrencySelection(val selectedCurrency: FiatCurrency, val currencyList: List<FiatCurrency>) : ViewToLaunch()
+    class DisplayCurrencySelection(
+        val selectedCurrency: FiatCurrency,
+        val currencyList: List<FiatCurrency>
+    ) : ViewToLaunch()
+    class TradingCurrencySelection(
+        val selectedCurrency: FiatCurrency,
+        val currencyList: List<FiatCurrency>
+    ) : ViewToLaunch()
 }
 
 enum class ExchangeLinkingState {
@@ -34,7 +41,8 @@ sealed class BlockchainCardOrderState {
 
 data class AccountInformation(
     val walletId: String,
-    val userCurrency: FiatCurrency,
+    val displayCurrency: FiatCurrency,
+    val tradingCurrency: FiatCurrency,
     val isChartVibrationEnabled: Boolean
 )
 

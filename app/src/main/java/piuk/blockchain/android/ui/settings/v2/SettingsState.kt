@@ -7,7 +7,6 @@ import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
-import info.blockchain.balance.FiatCurrency
 import piuk.blockchain.android.domain.usecases.AvailablePaymentMethodType
 
 data class SettingsState(
@@ -17,14 +16,14 @@ data class SettingsState(
     val paymentMethodInfo: PaymentMethods? = null,
     val tier: Tier = Tier.BRONZE,
     val error: SettingsError = SettingsError.None,
-    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable
+    val referralInfo: ReferralInfo = ReferralInfo.NotAvailable,
+    val canPayWithBind: Boolean = false
 ) : MviState
 
 sealed class ViewToLaunch {
     object None : ViewToLaunch()
     object Profile : ViewToLaunch()
     class BankTransfer(val linkBankTransfer: LinkBankTransfer) : ViewToLaunch()
-    class BankAccount(val currency: FiatCurrency) : ViewToLaunch()
 }
 
 sealed class SettingsError {

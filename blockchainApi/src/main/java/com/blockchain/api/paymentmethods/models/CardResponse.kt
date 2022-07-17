@@ -90,7 +90,7 @@ data class CardProviderResponse(
 )
 
 @Serializable
-data class NewCardRejectionStateResponse(
+data class CardRejectionStateResponse(
     val block: Boolean,
     val ux: NabuUxErrorResponse?
 )

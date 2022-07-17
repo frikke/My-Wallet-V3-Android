@@ -233,6 +233,9 @@
             android:name=".ui.linkbank.BankAuthActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
+            android:name=".ui.linkbank.alias.BankAliasLinkActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
             android:name=".ui.transactionflow.flow.TransactionFlowActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity

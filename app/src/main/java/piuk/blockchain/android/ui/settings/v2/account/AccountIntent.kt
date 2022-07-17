@@ -9,7 +9,11 @@ sealed class AccountIntent : MviIntent<AccountState> {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
-    object LoadFiatList : AccountIntent() {
+    object LoadDisplayCurrencies : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    object LoadTradingCurrencies : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 
@@ -53,7 +57,11 @@ sealed class AccountIntent : MviIntent<AccountState> {
         )
     }
 
-    class UpdateFiatCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
+    class UpdateSelectedDisplayCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
+        override fun reduce(oldState: AccountState): AccountState = oldState
+    }
+
+    class UpdateSelectedTradingCurrency(val updatedCurrency: FiatCurrency) : AccountIntent() {
         override fun reduce(oldState: AccountState): AccountState = oldState
     }
 

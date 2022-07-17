@@ -35,6 +35,7 @@ sealed class FiatTransactionRequestResult {
         val action: AssetAction,
         val sourceAccount: FiatAccount
     ) : FiatTransactionRequestResult()
+    data class LaunchAliasWithdrawal(val targetAccount: FiatAccount) : FiatTransactionRequestResult()
     object NotSupportedPartner : FiatTransactionRequestResult()
     data class BlockedDueToSanctions(val reason: BlockedReason.Sanctions) : FiatTransactionRequestResult()
     data class LaunchQuestionnaire(

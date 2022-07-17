@@ -59,7 +59,7 @@ internal fun ApiError.toError(): SubmitQuestionnaireError {
     } else {
         SubmitQuestionnaireError.RequestFailed(
             message = (this as? ApiError.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
-                ?: this.throwable.message
+                ?: this.exception.message
         )
     }
 }

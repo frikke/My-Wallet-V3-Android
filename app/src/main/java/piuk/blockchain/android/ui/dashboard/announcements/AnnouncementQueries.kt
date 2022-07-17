@@ -5,6 +5,7 @@ import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.services.PaymentMethodsService
 import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.coincore.Coincore
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
@@ -19,7 +20,6 @@ import com.blockchain.payments.googlepay.manager.GooglePayManager
 import com.blockchain.payments.googlepay.manager.request.GooglePayRequestBuilder
 import com.blockchain.payments.googlepay.manager.request.allowedAuthMethods
 import com.blockchain.payments.googlepay.manager.request.allowedCardNetworks
-import com.blockchain.preferences.CurrencyPrefs
 import com.blockchain.remoteconfig.RemoteConfig
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetInfo
@@ -52,7 +52,7 @@ class AnnouncementQueries(
     private val googlePayEnabledFlag: FeatureFlag,
     private val paymentMethodsService: PaymentMethodsService,
     private val authenticator: AuthHeaderProvider,
-    private val currencyPrefs: CurrencyPrefs,
+    private val fiatCurrenciesService: FiatCurrenciesService,
 ) {
     fun hasFundedFiatWallets(): Single<Boolean> =
         coincore.fiatAssets.accountGroup().toSingle().map {
@@ -142,7 +142,7 @@ class AnnouncementQueries(
             Single.zip(
                 paymentMethodsService.getAvailablePaymentMethodsTypes(
                     authorization = authToken,
-                    currency = currencyPrefs.tradingCurrency.networkTicker,
+                    currency = fiatCurrenciesService.selectedTradingCurrency.networkTicker,
                     tier = null,
                     eligibleOnly = true
                 ).map { list ->

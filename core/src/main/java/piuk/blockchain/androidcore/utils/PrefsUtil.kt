@@ -165,7 +165,6 @@ class PrefsUtil(
             ?: FiatCurrency.Dollars
         set(fiat) {
             setValue(KEY_SELECTED_FIAT, fiat.networkTicker)
-            tradingCurrency = fiat
         }
 
     override val noCurrencySet: Boolean
@@ -254,11 +253,11 @@ class PrefsUtil(
             setValue(KEY_FIRST_TIME_BUYER, value)
         }
 
-    override var tradingCurrency: FiatCurrency
+    override var tradingCurrency: FiatCurrency?
         get() = assetCatalogue.fromNetworkTicker(getValue(KEY_SIMPLE_BUY_CURRENCY, "")) as? FiatCurrency
-            ?: selectedFiatCurrency
         set(value) {
-            setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            if (value != null) setValue(KEY_SIMPLE_BUY_CURRENCY, value.networkTicker)
+            else removeValue(KEY_SIMPLE_BUY_CURRENCY)
         }
 
     override var hasCompletedAtLeastOneBuy: Boolean

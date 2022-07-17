@@ -109,6 +109,11 @@ class CoinViewInteractorTest {
     private val interestGroup: AccountGroup = mock {
         on { accounts }.thenReturn(listOf(interestAccount))
     }
+    private val allGroups: AccountGroup = mock {
+        on { accounts }.thenReturn(
+            listOf(defaultNcAccount, secondNcAccount, archivedNcAccount, custodialAccount, interestAccount)
+        )
+    }
     private val actionsComparator: StateAwareActionsComparator = mock()
 
     private val prices: Prices24HrWithDelta = mock {
@@ -119,6 +124,7 @@ class CoinViewInteractorTest {
         on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.just(nonCustodialGroup))
         on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.just(custodialGroup))
         on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.just(interestGroup))
+        on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.just(allGroups))
         on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
         on { interestRate() }.thenReturn(Single.just(5.0))
     }
@@ -362,9 +368,7 @@ class CoinViewInteractorTest {
         whenever(currencyPrefs.selectedFiatCurrency).thenReturn(FiatCurrency.Dollars)
         val asset: CryptoAsset = mock {
             on { this.assetInfo }.thenReturn(assetInfo)
-            on { accountGroup(AssetFilter.NonCustodial) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Trading) }.thenReturn(Maybe.empty())
-            on { accountGroup(AssetFilter.Interest) }.thenReturn(Maybe.empty())
+            on { accountGroup(AssetFilter.All) }.thenReturn(Maybe.empty())
             on { getPricesWith24hDelta() }.thenReturn(Single.just(prices))
             on { interestRate() }.thenReturn(Single.just(5.0))
         }

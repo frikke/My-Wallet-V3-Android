@@ -310,6 +310,15 @@ sealed class DashboardIntent : MviIntent<DashboardState> {
             )
     }
 
+    data class ShowBankLinkingWithAlias(
+        private val fiatAccount: FiatAccount? = null,
+    ) : DashboardIntent() {
+        override fun reduce(oldState: DashboardState): DashboardState =
+            oldState.copy(
+                dashboardNavigationAction = DashboardNavigationAction.LinkWithAlias(fiatAccount),
+            )
+    }
+
     object UpdateDepositButton : DashboardIntent() {
         override fun reduce(oldState: DashboardState): DashboardState = oldState
     }

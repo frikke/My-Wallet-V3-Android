@@ -59,8 +59,6 @@ enum class OrderState {
 interface CustodialWalletManager {
     fun getSupportedBuySellCryptoCurrencies(): Single<List<CurrencyPair>>
 
-    fun getSupportedFiatCurrencies(): Single<List<FiatCurrency>>
-
     fun fetchFiatWithdrawFeeAndMinLimit(
         fiatCurrency: FiatCurrency,
         product: Product,
@@ -109,13 +107,11 @@ interface CustodialWalletManager {
 
     fun getCustodialAccountAddress(asset: Currency): Single<String>
 
-    fun isCurrencySupportedForSimpleBuy(
-        fiatCurrency: FiatCurrency
-    ): Single<Boolean>
-
     fun isCurrencyAvailableForTrading(
         assetInfo: AssetInfo
     ): Single<Boolean>
+
+    fun availableFiatCurrenciesForTrading(assetInfo: AssetInfo): Single<List<FiatCurrency>>
 
     fun isAssetSupportedForSwap(
         assetInfo: AssetInfo

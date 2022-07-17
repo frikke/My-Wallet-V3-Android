@@ -23,10 +23,6 @@ sealed class DashboardOnboardingIntent : MviIntent<DashboardOnboardingState> {
         override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState
     }
 
-    object TradingCurrencyChanged : DashboardOnboardingIntent() {
-        override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState
-    }
-
     data class FetchFailed(private val error: Throwable) : DashboardOnboardingIntent() {
         override fun reduce(oldState: DashboardOnboardingState): DashboardOnboardingState = oldState.copy(
             errorState = DashboardOnboardingError.Error(error)

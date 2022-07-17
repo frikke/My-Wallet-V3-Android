@@ -229,11 +229,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
         }
     }
 
-    data class SupportedCurrenciesUpdated(private val currencies: List<FiatCurrency>) : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(supportedFiatCurrencies = currencies)
-    }
-
     data class WithdrawLocksTimeUpdated(private val time: BigInteger = BigInteger.ZERO) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState {
             return oldState.copy(withdrawalLockPeriod = time)
@@ -267,11 +262,6 @@ sealed class SimpleBuyIntent : MviIntent<SimpleBuyState> {
     ) : SimpleBuyIntent() {
         override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
             oldState.copy(paymentOptions = PaymentOptions(), selectedPaymentMethod = null)
-    }
-
-    object FetchSupportedFiatCurrencies : SimpleBuyIntent() {
-        override fun reduce(oldState: SimpleBuyState): SimpleBuyState =
-            oldState.copy(supportedFiatCurrencies = emptyList())
     }
 
     object FetchEligibility : SimpleBuyIntent()

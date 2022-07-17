@@ -21,6 +21,7 @@ import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.koin.scopedInject
+import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.google.android.material.snackbar.Snackbar
 import info.blockchain.balance.AssetInfo
 import info.blockchain.balance.asAssetInfoOrThrow
@@ -34,6 +35,7 @@ import piuk.blockchain.android.databinding.FragmentTxFlowEnterAddressBinding
 import piuk.blockchain.android.scan.QrScanResultProcessor
 import piuk.blockchain.android.ui.customviews.EditTextUpdateThrottle
 import piuk.blockchain.android.ui.customviews.account.AccountListViewItem
+import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.scan.QrExpected
 import piuk.blockchain.android.ui.scan.QrScanActivity
 import piuk.blockchain.android.ui.scan.QrScanActivity.Companion.getRawScanData
@@ -50,10 +52,17 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
 
     private val customiser: TargetSelectionCustomisations by inject()
     private val qrProcessor: QrScanResultProcessor by scopedInject()
+    private val nabuUserIdentity: NabuUserIdentity by scopedInject()
     private var sourceSlot: TxFlowWidget? = null
     private var state = TransactionState()
 
     private val disposables = CompositeDisposable()
+
+    private val bankAliasLinkLauncher = registerForActivityResult(BankAliasLinkContract()) { linkSuccess ->
+        if (linkSuccess) {
+            // TODO Do we need to refresh? Will verify once APIs are available.
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -218,8 +227,13 @@ class EnterTargetAddressFragment : TransactionFlowFragment<FragmentTxFlowEnterAd
                 ),
                 status = customiser.selectTargetStatusDecorator(state),
                 shouldShowSelectionStatus = true,
+                shouldShowAddNewBankAccount = nabuUserIdentity.isArgentinian(),
                 assetAction = state.action
             )
+
+            onAddNewBankAccountClicked = {
+                bankAliasLinkLauncher.launch(state.sendingAccount.currency.networkTicker)
+            }
 
             when (fragmentState) {
                 is TargetAddressSheetState.SelectAccountWhenWithinMaxLimit -> {

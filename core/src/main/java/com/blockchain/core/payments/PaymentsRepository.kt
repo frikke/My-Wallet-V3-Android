@@ -4,12 +4,13 @@ import com.blockchain.api.NabuApiExceptionFactory
 import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.nabu.data.AddressRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
+import com.blockchain.api.paymentmethods.models.AliasInfoResponse
 import com.blockchain.api.paymentmethods.models.CardProviderResponse
+import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.EveryPayAttrs
 import com.blockchain.api.paymentmethods.models.EveryPayCardCredentialsResponse
 import com.blockchain.api.paymentmethods.models.Limits
-import com.blockchain.api.paymentmethods.models.NewCardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -38,9 +39,11 @@ import com.blockchain.auth.AuthHeaderProvider
 import com.blockchain.core.custodial.TradingBalanceDataManager
 import com.blockchain.core.payments.cache.LinkedCardsStore
 import com.blockchain.domain.common.model.ServerErrorAction
+import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.BankService
 import com.blockchain.domain.paymentmethods.CardService
 import com.blockchain.domain.paymentmethods.PaymentMethodService
+import com.blockchain.domain.paymentmethods.model.AliasInfo
 import com.blockchain.domain.paymentmethods.model.BankPartner
 import com.blockchain.domain.paymentmethods.model.BankProviderAccountAttributes
 import com.blockchain.domain.paymentmethods.model.BankState
@@ -87,6 +90,7 @@ import com.blockchain.nabu.common.extensions.wrapErrorMessage
 import com.blockchain.nabu.datamanagers.toSupportedPartner
 import com.blockchain.outcome.Outcome
 import com.blockchain.outcome.flatMap
+import com.blockchain.outcome.fold
 import com.blockchain.outcome.map
 import com.blockchain.outcome.mapError
 import com.blockchain.payments.googlepay.manager.GooglePayManager
@@ -107,12 +111,14 @@ import info.blockchain.balance.Money
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.zipWith
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.math.BigInteger
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.rx3.rxSingle
 import piuk.blockchain.androidcore.utils.extensions.awaitOutcome
@@ -129,7 +135,7 @@ class PaymentsRepository(
     private val authenticator: AuthHeaderProvider,
     private val googlePayManager: GooglePayManager,
     private val environmentConfig: EnvironmentConfig,
-    private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
+    private val fiatCurrenciesService: FiatCurrenciesService,
     private val googlePayFeatureFlag: FeatureFlag,
     private val plaidFeatureFlag: FeatureFlag,
 ) : BankService, CardService, PaymentMethodService {
@@ -215,16 +221,16 @@ class PaymentsRepository(
             .filter { it.eligible || !onlyEligible }
     }.doOnSuccess {
         updateSupportedCards(it)
-    }.zipWith(getSupportedCurrenciesUseCase.invoke(Unit)).map { (methods, supportedCurrencies) ->
+    }.zipWith(rxSingleOutcome { fiatCurrenciesService.getTradingCurrencies() }).map { (methods, tradingCurrencies) ->
         val paymentMethodsTypes = methods
             .map { it.toAvailablePaymentMethodType(fiatCurrency) }
             .filterNot { it.type == PaymentMethodType.UNKNOWN }
             .filter {
                 when (it.type) {
                     PaymentMethodType.BANK_ACCOUNT ->
-                        supportedCurrencies.wireTransferCurrencies.contains(it.currency.networkTicker)
+                        tradingCurrencies.allRecommended.contains(it.currency)
                     PaymentMethodType.FUNDS ->
-                        supportedCurrencies.fundsCurrencies.contains(it.currency.networkTicker)
+                        tradingCurrencies.allRecommended.contains(it.currency)
                     PaymentMethodType.BANK_TRANSFER,
                     PaymentMethodType.PAYMENT_CARD,
                     PaymentMethodType.GOOGLE_PAY,
@@ -606,8 +612,10 @@ class PaymentsRepository(
         } ?: toBankTransferDetails()
 
     override fun canTransactWithBankMethods(fiatCurrency: FiatCurrency): Single<Boolean> =
-        getSupportedCurrenciesUseCase.invoke(Unit).flatMap { supportedCurrencies ->
-            if (!supportedCurrencies.wireTransferCurrencies.contains(fiatCurrency.networkTicker)) {
+        rxSingleOutcome(Schedulers.io().asCoroutineDispatcher()) {
+            fiatCurrenciesService.getTradingCurrencies()
+        }.flatMap { tradingCurrencies ->
+            if (!tradingCurrencies.allRecommended.contains(fiatCurrency)) {
                 Single.just(false)
             } else {
                 getAvailablePaymentMethodsTypes(
@@ -621,6 +629,36 @@ class PaymentsRepository(
                 }
             }
         }
+
+    override suspend fun getBeneficiaryInfo(currency: String, address: String): Outcome<Exception, AliasInfo> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { authToken ->
+                paymentMethodsService.getBeneficiaryInfo(
+                    authorization = authToken,
+                    currency = currency,
+                    address = address
+                ).fold(
+                    onSuccess = {
+                        it.ux?.let { error ->
+                            Outcome.Failure(NabuApiExceptionFactory.fromServerSideError(error))
+                        } ?: Outcome.Success(it.toAliasInfo())
+                    },
+                    onFailure = {
+                        Outcome.Failure(it.exception)
+                    }
+                )
+            }
+
+    override suspend fun activateBeneficiary(beneficiaryId: String): Outcome<Exception, Unit> =
+        authenticator.getAuthHeader().awaitOutcome()
+            .flatMap { authToken ->
+                paymentMethodsService.activateBeneficiary(
+                    authorization = authToken,
+                    beneficiaryId = beneficiaryId
+                ).mapError {
+                    it.exception
+                }
+            }
 
     override suspend fun checkNewCardRejectionState(binNumber: String):
         Outcome<CardRejectionCheckError, CardRejectionState> =
@@ -637,7 +675,7 @@ class PaymentsRepository(
                 }
             }
 
-    private fun NewCardRejectionStateResponse.toDomain(): CardRejectionState =
+    private fun CardRejectionStateResponse.toDomain(): CardRejectionState =
         when (this.block) {
             true -> {
                 CardRejectionState.AlwaysRejected(
@@ -668,7 +706,6 @@ class PaymentsRepository(
             }
         }
 
-    // <editor-fold desc="Editor Fold: Network response Mappers">
     private fun CardResponse.toPaymentMethod(): LinkedPaymentMethod.Card {
         return LinkedPaymentMethod.Card(
             cardId = id,
@@ -688,7 +725,8 @@ class PaymentsRepository(
             status = state.toCardStatus(),
             currency = assetCatalogue.fiatFromNetworkTicker(currency)
                 ?: throw IllegalStateException("Unknown currency $currency"),
-            mobilePaymentType = mobilePaymentType?.toMobilePaymentType()
+            mobilePaymentType = mobilePaymentType?.toMobilePaymentType(),
+            cardRejectionState = CardRejectionStateResponse(block, ux).toDomain()
         )
     }
 
@@ -913,6 +951,16 @@ class PaymentsRepository(
         "CARDPROVIDER" -> Partner.CARDPROVIDER
         else -> Partner.UNKNOWN
     }
+
+    private fun AliasInfoResponse.toAliasInfo(): AliasInfo =
+        AliasInfo(
+            bankName = agent?.bankName,
+            alias = agent?.label,
+            accountHolder = agent?.name,
+            accountType = agent?.accountType,
+            cbu = agent?.address,
+            cuil = agent?.holderDocument
+        )
 
     // </editor-fold>
 

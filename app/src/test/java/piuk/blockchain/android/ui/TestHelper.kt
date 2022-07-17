@@ -1,5 +1,6 @@
 package piuk.blockchain.android.ui
 
+import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -27,7 +28,13 @@ fun getBlankNabuUser(kycState: KycState = KycState.None): NabuUser = NabuUser(
     state = UserState.None,
     kycState = kycState,
     insertedAt = "",
-    updatedAt = ""
+    updatedAt = "",
+    currencies = CurrenciesResponse(
+        preferredFiatTradingCurrency = "EUR",
+        usableFiatCurrencies = listOf("EUR", "USD", "GBP", "ARS"),
+        defaultWalletCurrency = "BRL",
+        userFiatCurrencies = listOf("EUR", "GBP")
+    )
 )
 
 val validOfflineToken

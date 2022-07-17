@@ -34,13 +34,17 @@ import com.blockchain.componentlib.viewextensions.goneIf
 import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.core.payments.toCardType
+import com.blockchain.domain.paymentmethods.model.CardRejectionState
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.domain.paymentmethods.model.PaymentMethodType
 import com.blockchain.domain.referral.model.ReferralInfo
 import com.blockchain.enviroment.EnvironmentConfig
+import com.blockchain.featureflag.FeatureFlag
+import com.blockchain.koin.cardRejectionCheckFeatureFlag
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.BasicProfileInfo
 import com.blockchain.nabu.Tier
+import com.blockchain.preferences.CurrencyPrefs
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -52,14 +56,13 @@ import piuk.blockchain.android.cards.icon
 import piuk.blockchain.android.databinding.FragmentRedesignSettingsBinding
 import piuk.blockchain.android.domain.usecases.LinkAccess
 import piuk.blockchain.android.simplebuy.SimpleBuyAnalytics
-import piuk.blockchain.android.simplebuy.linkBankEventWithCurrency
 import piuk.blockchain.android.simplebuy.sheets.RemoveLinkedBankBottomSheet
 import piuk.blockchain.android.ui.base.ErrorButtonCopies
 import piuk.blockchain.android.ui.base.ErrorDialogData
 import piuk.blockchain.android.ui.base.ErrorSlidingBottomDialog
-import piuk.blockchain.android.ui.dashboard.sheets.WireTransferAccountDetailsBottomSheet
 import piuk.blockchain.android.ui.linkbank.BankAuthActivity
 import piuk.blockchain.android.ui.linkbank.BankAuthSource
+import piuk.blockchain.android.ui.linkbank.alias.BankAliasLinkContract
 import piuk.blockchain.android.ui.referral.presentation.Origin
 import piuk.blockchain.android.ui.referral.presentation.ReferralAnalyticsEvents
 import piuk.blockchain.android.ui.settings.v2.sheets.AddPaymentMethodsBottomSheet
@@ -97,8 +100,12 @@ class SettingsFragment :
         }
 
     private val environmentConfig: EnvironmentConfig by inject()
+    private val currencyPrefs: CurrencyPrefs by inject()
+    private val cardRejectionFF: FeatureFlag by inject(cardRejectionCheckFeatureFlag)
 
     override val model: SettingsModel by scopedInject()
+
+    private val bankAliasLinkLauncher = registerForActivityResult(BankAliasLinkContract()) {}
 
     override fun initBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentRedesignSettingsBinding =
         FragmentRedesignSettingsBinding.inflate(inflater, container, false)
@@ -157,7 +164,8 @@ class SettingsFragment :
                 paymentMethodInfo = newState.paymentMethodInfo,
                 totalLinkedPaymentMethods = newState.paymentMethodInfo.linkedBanks.count() +
                     newState.paymentMethodInfo.linkedCards.count(),
-                isUserGold = newState.tier == Tier.GOLD
+                isUserGold = newState.tier == Tier.GOLD,
+                canPayWithBind = newState.canPayWithBind
             )
         } else {
             with(binding.paymentsContainer) {
@@ -201,14 +209,6 @@ class SettingsFragment :
                 newState.basicProfileInfo?.let {
                     navigator().goToProfile()
                 }
-            is ViewToLaunch.BankAccount -> {
-                val fiatCurrency = newState.viewToLaunch.currency
-                WireTransferAccountDetailsBottomSheet.newInstance(fiatCurrency)
-                    .show(childFragmentManager, BOTTOM_SHEET)
-                analytics.logEvent(
-                    linkBankEventWithCurrency(SimpleBuyAnalytics.WIRE_TRANSFER_CLICKED, fiatCurrency.networkTicker)
-                )
-            }
             is ViewToLaunch.BankTransfer -> {
                 onBankTransferAddedResult.launch(
                     BankAuthActivity.newInstance(
@@ -286,7 +286,8 @@ class SettingsFragment :
     private fun addPaymentMethods(
         paymentMethodInfo: PaymentMethods,
         totalLinkedPaymentMethods: Int,
-        isUserGold: Boolean
+        isUserGold: Boolean,
+        canPayWithBind: Boolean
     ) {
         val availablePaymentMethodTypes = paymentMethodInfo.availablePaymentMethodTypes
         val linkAccessMap = availablePaymentMethodTypes.associate { it.type to it.linkAccess }
@@ -309,12 +310,18 @@ class SettingsFragment :
                                 MinimalButtonView(requireContext()).apply {
                                     text = getString(R.string.add_payment_method)
                                     onClick = {
-                                        showPaymentMethodsBottomSheet(
-                                            canAddCard =
-                                            linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
-                                            canLinkBank =
-                                            linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
-                                        )
+                                        if (canPayWithBind) {
+                                            bankAliasLinkLauncher.launch(
+                                                currencyPrefs.selectedFiatCurrency.networkTicker
+                                            )
+                                        } else {
+                                            showPaymentMethodsBottomSheet(
+                                                canAddCard =
+                                                linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
+                                                canLinkBank =
+                                                linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                                            )
+                                        }
                                     }
                                 },
                                 LinearLayoutCompat.LayoutParams(
@@ -330,14 +337,22 @@ class SettingsFragment :
                         addView(
                             DefaultTableRowView(requireContext()).apply {
                                 primaryText = getString(R.string.settings_title_no_payments)
-                                secondaryText = getString(R.string.settings_subtitle_no_payments)
+                                secondaryText = if (canPayWithBind) {
+                                    getString(R.string.add_a_bank_account)
+                                } else {
+                                    getString(R.string.settings_subtitle_no_payments)
+                                }
                                 onClick = {
-                                    showPaymentMethodsBottomSheet(
-                                        canAddCard =
-                                        linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
-                                        canLinkBank =
-                                        linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
-                                    )
+                                    if (canPayWithBind) {
+                                        bankAliasLinkLauncher.launch(currencyPrefs.selectedFiatCurrency.networkTicker)
+                                    } else {
+                                        showPaymentMethodsBottomSheet(
+                                            canAddCard =
+                                            linkAccessMap[PaymentMethodType.PAYMENT_CARD] == LinkAccess.GRANTED,
+                                            canLinkBank =
+                                            linkAccessMap[PaymentMethodType.BANK_TRANSFER] == LinkAccess.GRANTED,
+                                        )
+                                    }
                                 }
                                 startImageResource = ImageResource.Local(R.drawable.ic_payment_card, null)
                             }
@@ -392,6 +407,27 @@ class SettingsFragment :
                     }
                     onClick = {
                         showBottomSheet(RemoveCardBottomSheet.newInstance(card))
+                    }
+                    if (cardRejectionFF.isEnabled) {
+                        tags = when (val cardState = card.cardRejectionState) {
+                            is CardRejectionState.AlwaysRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: getString(R.string.card_issuer_always_rejects_title),
+                                        TagType.Error()
+                                    )
+                                )
+                            }
+                            is CardRejectionState.MaybeRejected -> {
+                                listOf(
+                                    TagViewState(
+                                        cardState.title ?: getString(R.string.card_issuer_sometimes_rejects_title),
+                                        TagType.Warning()
+                                    )
+                                )
+                            }
+                            else -> null
+                        }
                     }
                     animate().alpha(1f)
                 }

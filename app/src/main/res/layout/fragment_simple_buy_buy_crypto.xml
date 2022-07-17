@@ -128,8 +128,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/small_margin"
-        android:layout_marginEnd="@dimen/small_margin"
         android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/small_margin"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/payment_method"
         app:layout_constraintStart_toStartOf="parent"
@@ -180,7 +180,7 @@
             android:scaleType="center"
             app:corners="8"
             app:height_weight="0.8"
-            app:layout_constraintBottom_toBottomOf="@id/payment_method_limit"
+            app:layout_constraintBottom_toBottomOf="@id/payment_method_tag_row"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/payment_method_title"
             app:use_gradient="true"
@@ -212,7 +212,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/standard_margin"
-            app:layout_constraintBottom_toBottomOf="@id/payment_method_limit"
+            app:layout_constraintBottom_toBottomOf="@id/payment_method_tag_row"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/payment_method_title"
             app:srcCompat="@drawable/ic_arrow_down"
@@ -246,7 +246,7 @@
             android:layout_marginEnd="@dimen/small_margin"
             app:corners="8"
             app:height_weight="0.8"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/payment_method_tag_row"
             app:layout_constraintEnd_toStartOf="@+id/payment_method_arrow"
             app:layout_constraintStart_toEndOf="@+id/payment_method_icon"
             app:layout_constraintTop_toBottomOf="@+id/payment_method_bank_info"
@@ -254,6 +254,16 @@
             app:use_gradient="true"
             app:width_weight="0.9"
             tools:text="$5,000 USD Limit" />
+
+        <com.blockchain.componentlib.tag.TagsRowView
+            android:id="@+id/payment_method_tag_row"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/minuscule_margin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/payment_method_limit"
+            app:layout_constraintTop_toBottomOf="@id/payment_method_limit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -263,24 +273,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/standard_margin"
         android:layout_marginTop="@dimen/very_small_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
         android:text="@string/preview_buy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
 
-    <include
-        android:id="@+id/error_layout"
-        layout="@layout/error_container_layout"
+    <com.blockchain.componentlib.button.AlertButtonView
+        android:id="@+id/btn_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/standard_margin"
         android:layout_marginTop="@dimen/very_small_margin"
         android:layout_marginEnd="@dimen/standard_margin"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root"
-        tools:visibility="gone" />
-
+        app:layout_constraintTop_toBottomOf="@+id/payment_method_details_root" />
 </androidx.constraintlayout.widget.ConstraintLayout>

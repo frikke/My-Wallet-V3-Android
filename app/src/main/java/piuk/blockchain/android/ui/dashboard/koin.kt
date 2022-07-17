@@ -80,7 +80,7 @@ val dashboardModule = module {
             DashboardOnboardingModel(
                 initialSteps = params.getOrNull<List<CompletableDashboardOnboardingStep>>() ?: emptyList(),
                 interactor = get(),
-                currencyPrefs = get(),
+                fiatCurrenciesService = get(),
                 uiScheduler = AndroidSchedulers.mainThread(),
                 environmentConfig = get(),
                 remoteLogger = get()
@@ -90,7 +90,6 @@ val dashboardModule = module {
         factory {
             DashboardOnboardingInteractor(
                 getDashboardOnboardingUseCase = get(),
-                custodialWalletManager = get(),
                 bankService = get(),
                 getAvailablePaymentMethodsTypesUseCase = get()
             )

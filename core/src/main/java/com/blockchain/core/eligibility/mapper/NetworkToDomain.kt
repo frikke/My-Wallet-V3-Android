@@ -105,5 +105,5 @@ internal fun Throwable.toError(): EligibilityError =
 internal fun ApiError.toError(): EligibilityError =
     EligibilityError.RequestFailed(
         message = (this as? ApiError.KnownError)?.errorDescription.takeIf { !it.isNullOrBlank() }
-            ?: this.throwable.message
+            ?: this.exception.message
     )

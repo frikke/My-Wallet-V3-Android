@@ -102,7 +102,7 @@ val nabuModule = module {
             )
         }
 
-        scoped<GetUserDataSource> {
+        scoped {
             GetUserStore(
                 nabuService = get(),
                 authenticator = get(),
@@ -111,7 +111,7 @@ val nabuModule = module {
                 walletReporter = get(uniqueId),
                 payloadDataManager = get()
             )
-        }
+        }.bind(GetUserDataSource::class)
 
         scoped<GetUserStoreService> {
             GetUserStoreRepository(
@@ -136,7 +136,7 @@ val nabuModule = module {
                 pairsCache = get(),
                 swapOrdersCache = get(),
                 paymentMethodsEligibilityStore = get(),
-                getSupportedCurrenciesUseCase = get()
+                fiatCurrenciesService = get()
             )
         }.bind(CustodialWalletManager::class)
 
@@ -152,7 +152,8 @@ val nabuModule = module {
                 interestEligibilityProvider = get(),
                 nabuDataProvider = get(),
                 eligibilityService = get(),
-                nabuDataUserProvider = get()
+                nabuDataUserProvider = get(),
+                bindFeatureFlag = get(bindFeatureFlag)
             )
         }.bind(UserIdentity::class)
 

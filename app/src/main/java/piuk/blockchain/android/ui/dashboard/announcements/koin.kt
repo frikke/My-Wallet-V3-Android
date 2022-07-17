@@ -74,7 +74,7 @@ val dashboardAnnouncementsModule = module {
                 googlePayEnabledFlag = get(googlePayFeatureFlag),
                 paymentMethodsService = get(),
                 authenticator = get(),
-                currencyPrefs = get()
+                fiatCurrenciesService = get()
             )
         }
 

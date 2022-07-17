@@ -21,6 +21,7 @@ sealed class DashboardNavigationAction {
     object SimpleBuyCancelOrder : DashboardNavigationAction(), BottomSheet
     data class FiatFundsDetails(val fiatAccount: FiatAccount) : DashboardNavigationAction(), BottomSheet
     data class LinkOrDeposit(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), BottomSheet
+    data class LinkWithAlias(val fiatAccount: FiatAccount? = null) : DashboardNavigationAction(), FullScreenFlow
     object FiatFundsNoKyc : DashboardNavigationAction(), BottomSheet
     data class FiatDepositOrWithdrawalBlockedDueToSanctions(
         val reason: BlockedReason.Sanctions

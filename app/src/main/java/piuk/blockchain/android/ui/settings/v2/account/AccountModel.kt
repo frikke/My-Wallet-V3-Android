@@ -50,12 +50,14 @@ class AccountModel(
                     }
                 )
             }
-            is AccountIntent.LoadFiatList -> interactor.getAvailableFiatList()
+            is AccountIntent.LoadDisplayCurrencies -> interactor.getAvailableDisplayCurrencies()
                 .subscribeBy(
                     onSuccess = { list ->
-                        previousState.accountInformation?.userCurrency?.let { currentSelection ->
+                        previousState.accountInformation?.displayCurrency?.let { currentSelection ->
                             process(
-                                AccountIntent.UpdateViewToLaunch(ViewToLaunch.CurrencySelection(currentSelection, list))
+                                AccountIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.DisplayCurrencySelection(currentSelection, list)
+                                )
                             )
                         }
                     },
@@ -63,14 +65,50 @@ class AccountModel(
                         process(AccountIntent.UpdateErrorState(AccountError.FIAT_LIST_FAIL))
                     }
                 )
-            is AccountIntent.UpdateFiatCurrency -> interactor.updateSelectedCurrency(intent.updatedCurrency)
+            is AccountIntent.UpdateSelectedDisplayCurrency -> interactor.updateSelectedDisplayCurrency(
+                intent.updatedCurrency
+            )
                 .subscribeBy(
                     onComplete = {
                         previousState.accountInformation?.let { previousInfo ->
                             process(
                                 AccountIntent.UpdateAccountInformation(
                                     previousInfo.copy(
-                                        userCurrency = intent.updatedCurrency
+                                        displayCurrency = intent.updatedCurrency
+                                    )
+                                )
+                            )
+                        }
+                    },
+                    onError = {
+                        process(AccountIntent.UpdateErrorState(AccountError.ACCOUNT_FIAT_UPDATE_FAIL))
+                    }
+                )
+            is AccountIntent.LoadTradingCurrencies -> interactor.getAvailableTradingCurrencies()
+                .subscribeBy(
+                    onSuccess = { list ->
+                        previousState.accountInformation?.tradingCurrency?.let { currentSelection ->
+                            process(
+                                AccountIntent.UpdateViewToLaunch(
+                                    ViewToLaunch.TradingCurrencySelection(currentSelection, list)
+                                )
+                            )
+                        }
+                    },
+                    onError = {
+                        process(AccountIntent.UpdateErrorState(AccountError.FIAT_LIST_FAIL))
+                    }
+                )
+            is AccountIntent.UpdateSelectedTradingCurrency -> interactor.updateSelectedTradingCurrency(
+                intent.updatedCurrency
+            )
+                .subscribeBy(
+                    onComplete = {
+                        previousState.accountInformation?.let { previousInfo ->
+                            process(
+                                AccountIntent.UpdateAccountInformation(
+                                    previousInfo.copy(
+                                        tradingCurrency = intent.updatedCurrency
                                     )
                                 )
                             )

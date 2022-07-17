@@ -561,7 +561,7 @@ class QrScanActivity : BlockchainActivity(), ScanAndConnectBottomSheet.Host {
         private fun prepIntent(ctx: Context, expect: Set<QrExpected>) =
             Intent(ctx, QrScanActivity::class.java).apply {
                 action = QrScanIntents.ACTION
-                putExtra(QrScanIntents.FORMATS, EnumSet.allOf(BarcodeFormat::class.java))
+                putExtra(QrScanIntents.FORMATS, EnumSet.allOf(BarcodeFormat::class.java).joinToString { it.name })
                 putExtra(QrScanIntents.MODE, QrScanIntents.QR_CODE_MODE)
                 putExtra(PARAM_EXPECTED_QR, expect.toTypedArray())
             }

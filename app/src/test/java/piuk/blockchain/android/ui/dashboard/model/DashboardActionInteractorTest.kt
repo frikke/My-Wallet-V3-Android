@@ -190,6 +190,7 @@ class DashboardActionInteractorTest {
         )
         whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
             .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.isArgentinian()).thenReturn(Single.just(false))
         whenever(dataRemediationService.getQuestionnaire(QuestionnaireContext.FIAT_DEPOSIT))
             .thenReturn(Outcome.Success(null))
 
@@ -203,6 +204,64 @@ class DashboardActionInteractorTest {
 
         verify(model).process(
             DashboardIntent.ShowBankLinkingSheet(targetFiatAccount)
+        )
+    }
+
+    @Test
+    fun `when Argentinian users deposit, wire transfer should launched`() {
+        whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
+            Single.just(
+                setOf(PaymentMethodType.BANK_ACCOUNT)
+            )
+        )
+        whenever(linkedBanksFactory.getNonWireTransferBanks()).thenReturn(
+            Single.just(
+                emptyList()
+            )
+        )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.isArgentinian()).thenReturn(Single.just(true))
+
+        actionInteractor.getBankDepositFlow(
+            model = model,
+            targetAccount = targetFiatAccount,
+            action = AssetAction.FiatDeposit,
+            shouldLaunchBankLinkTransfer = false,
+            shouldSkipQuestionnaire = true
+        )
+
+        verify(model).process(
+            DashboardIntent.ShowBankLinkingSheet(targetFiatAccount)
+        )
+    }
+
+    @Test
+    fun `when Argentinian users with no linked banks withdraw, the alias link flow should be launched`() {
+        whenever(linkedBanksFactory.eligibleBankPaymentMethods(any())).thenReturn(
+            Single.just(
+                setOf(PaymentMethodType.BANK_ACCOUNT)
+            )
+        )
+        whenever(linkedBanksFactory.getNonWireTransferBanks()).thenReturn(
+            Single.just(
+                emptyList()
+            )
+        )
+        whenever(userIdentity.userAccessForFeature(Feature.DepositFiat))
+            .thenReturn(Single.just(FeatureAccess.Granted()))
+        whenever(userIdentity.isArgentinian()).thenReturn(Single.just(true))
+
+        actionInteractor.getBankDepositFlow(
+            model = model,
+            targetAccount = targetFiatAccount,
+            action = AssetAction.FiatWithdraw,
+            shouldLaunchBankLinkTransfer = false,
+            shouldSkipQuestionnaire = true
+        )
+
+        verify(model).process(
+            DashboardIntent.ShowBankLinkingWithAlias(targetFiatAccount)
         )
     }
 

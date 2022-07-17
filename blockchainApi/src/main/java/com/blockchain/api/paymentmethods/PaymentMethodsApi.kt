@@ -4,9 +4,12 @@ import com.blockchain.api.adapters.ApiError
 import com.blockchain.api.paymentmethods.models.ActivateCardResponse
 import com.blockchain.api.paymentmethods.models.AddNewCardBodyRequest
 import com.blockchain.api.paymentmethods.models.AddNewCardResponse
+import com.blockchain.api.paymentmethods.models.AliasInfoRequestBody
+import com.blockchain.api.paymentmethods.models.AliasInfoResponse
+import com.blockchain.api.paymentmethods.models.CardRejectionStateResponse
 import com.blockchain.api.paymentmethods.models.CardResponse
 import com.blockchain.api.paymentmethods.models.GooglePayResponse
-import com.blockchain.api.paymentmethods.models.NewCardRejectionStateResponse
+import com.blockchain.api.paymentmethods.models.LinkWithAliasRequestBody
 import com.blockchain.api.paymentmethods.models.PaymentMethodResponse
 import com.blockchain.api.paymentmethods.models.SimpleBuyConfirmationAttributes
 import com.blockchain.api.payments.data.BankInfoResponse
@@ -31,6 +34,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
@@ -167,9 +171,22 @@ interface PaymentMethodsApi {
         @Query("currency") currency: String
     ): Single<GooglePayResponse>
 
+    @POST("payments/bind/beneficiary")
+    suspend fun getBeneficiaryInfo(
+        @Header("authorization") authorization: String,
+        @Body body: AliasInfoRequestBody,
+        @Query("localisedError") localisedError: String?
+    ): Outcome<ApiError, AliasInfoResponse>
+
+    @PUT("payments/bind/beneficiary")
+    suspend fun activateBeneficiary(
+        @Header("authorization") authorization: String,
+        @Body body: LinkWithAliasRequestBody
+    ): Outcome<ApiError, Unit>
+
     @GET("payments/cards/success-rate")
     suspend fun checkNewCardRejectionState(
         @Header("authorization") authorization: String,
         @Query("bin") binNumber: String
-    ): Outcome<ApiError, NewCardRejectionStateResponse>
+    ): Outcome<ApiError, CardRejectionStateResponse>
 }
