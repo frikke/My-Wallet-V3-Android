@@ -43,6 +43,7 @@ class BlockchainCardFragment : BlockchainCardHostFragment() {
                 else orderCardViewModel
 
             setContent {
+                viewModel.viewCreated(modelArgs)
                 BlockchainCardNavHost(viewModel = viewModel, modelArgs = modelArgs)
             }
         }

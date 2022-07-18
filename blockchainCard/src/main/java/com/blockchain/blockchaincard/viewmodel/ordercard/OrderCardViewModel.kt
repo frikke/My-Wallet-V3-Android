@@ -2,6 +2,7 @@ package com.blockchain.blockchaincard.viewmodel.ordercard
 
 import com.blockchain.blockchaincard.domain.BlockchainCardRepository
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardArgs
+import com.blockchain.blockchaincard.viewmodel.BlockchainCardErrorState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardIntent
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardModelState
 import com.blockchain.blockchaincard.viewmodel.BlockchainCardNavigationEvent
@@ -28,6 +29,7 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
     }
 
     override fun reduce(state: BlockchainCardModelState): BlockchainCardViewState = BlockchainCardViewState(
+        errorState = state.errorState,
         card = state.card,
         selectedCardProduct = state.selectedCardProduct,
         residentialAddress = state.residentialAddress,
@@ -59,8 +61,9 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                     onSuccess = { address ->
                         updateState { it.copy(residentialAddress = address) }
                     },
-                    onFailure = {
-                        Timber.e("Unable to get residential address: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to get residential address: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.SnackbarErrorState(error)) }
                     }
                 )
             }
@@ -77,8 +80,9 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                         updateState { it.copy(residentialAddress = newAddress) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = true))
                     },
-                    onFailure = {
-                        Timber.e("Unable to update residential address: $it")
+                    onFailure = { error ->
+                        Timber.e("Unable to update residential address: $error")
+                        updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
                         navigate(BlockchainCardNavigationEvent.BillingAddressUpdated(success = false))
                     }
                 )
@@ -105,8 +109,8 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
                     modelState.ssn?.let { ssn ->
                         navigate(BlockchainCardNavigationEvent.CreateCardInProgress)
                         blockchainCardRepository.createCard(productCode = product.productCode, ssn = ssn)
-                            .doOnFailure {
-                                // Todo(labreu): update state's error here OR pass it to the destination
+                            .doOnFailure { error ->
+                                updateState { it.copy(errorState = BlockchainCardErrorState.ScreenErrorState(error)) }
                                 navigate(BlockchainCardNavigationEvent.CreateCardFailed)
                             }
                             .doOnSuccess { card ->
@@ -119,6 +123,10 @@ class OrderCardViewModel(private val blockchainCardRepository: BlockchainCardRep
 
             is BlockchainCardIntent.HideBottomSheet -> {
                 navigate(BlockchainCardNavigationEvent.HideBottomSheet)
+            }
+
+            is BlockchainCardIntent.SnackbarDismissed -> {
+                updateState { it.copy(errorState = null) }
             }
 
             is BlockchainCardIntent.ManageCard -> {

@@ -30,6 +30,7 @@ dependencies {
     implementation project(':commonarch')
     implementation project(':componentlib')
     implementation project(':common:interface')
+    implementation project(':common:domain')
     implementation project(':common-mp:utils')
     implementation project(':blockchainApi')
 

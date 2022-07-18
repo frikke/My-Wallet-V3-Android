@@ -56,6 +56,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.blockchain.blockchaincard.R
 import com.blockchain.blockchaincard.domain.models.BlockchainCard
 import com.blockchain.blockchaincard.domain.models.BlockchainCardAddress
+import com.blockchain.blockchaincard.domain.models.BlockchainCardError
 import com.blockchain.blockchaincard.domain.models.BlockchainCardStatus
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransaction
 import com.blockchain.blockchaincard.domain.models.BlockchainCardTransactionState
@@ -748,7 +749,12 @@ private fun PreviewBillingAddress() {
 }
 
 @Composable
-fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit, onCloseBottomSheet: () -> Unit) {
+fun BillingAddressUpdated(
+    success: Boolean,
+    error: BlockchainCardError? = null,
+    onDismiss: () -> Unit,
+    onCloseBottomSheet: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -764,8 +770,21 @@ fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit, onCloseBottom
 
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
 
-        if (success) BillingAddressUpdatedSuccess()
-        else BillingAddressUpdatedFailed()
+        if (success) {
+            BillingAddressUpdatedSuccess()
+        } else {
+            val errorTitle = when (error) {
+                is BlockchainCardError.UXBlockchainCardError -> error.uxError.title
+                else -> stringResource(R.string.address_update_failed)
+            }
+
+            val errorDescription = when (error) {
+                is BlockchainCardError.UXBlockchainCardError -> error.uxError.description
+                else -> stringResource(R.string.address_update_failed_description)
+            }
+
+            BillingAddressUpdatedFailed(errorTitle, errorDescription)
+        }
 
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.xxxPaddingLarge))
 
@@ -787,7 +806,7 @@ fun BillingAddressUpdated(success: Boolean, onDismiss: () -> Unit, onCloseBottom
 @Preview(showBackground = true)
 @Composable
 private fun PreviewBillingAddressUpdated() {
-    BillingAddressUpdated(success = true, onDismiss = {}, onCloseBottomSheet = {})
+    BillingAddressUpdated(success = true, null, onDismiss = {}, onCloseBottomSheet = {})
 }
 
 @Composable
@@ -826,7 +845,7 @@ private fun PreviewBillingAddressUpdatedSuccess() {
 }
 
 @Composable
-fun BillingAddressUpdatedFailed() {
+fun BillingAddressUpdatedFailed(errorTitle: String, errorDescription: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(id = R.drawable.ic_error),
@@ -839,7 +858,7 @@ fun BillingAddressUpdatedFailed() {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
-            text = stringResource(R.string.address_update_failed),
+            text = errorTitle,
             style = ComposeTypographies.Title3,
             color = ComposeColors.Title,
             gravity = ComposeGravities.Centre
@@ -848,7 +867,7 @@ fun BillingAddressUpdatedFailed() {
         Spacer(modifier = Modifier.padding(AppTheme.dimensions.paddingSmall))
 
         SimpleText(
-            text = stringResource(R.string.address_update_description),
+            text = errorDescription,
             style = ComposeTypographies.Paragraph1,
             color = ComposeColors.Body,
             gravity = ComposeGravities.Centre
@@ -859,7 +878,7 @@ fun BillingAddressUpdatedFailed() {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewBillingAddressUpdatedError() {
-    BillingAddressUpdatedFailed()
+    BillingAddressUpdatedFailed(errorTitle = "Error", errorDescription = "Something went wrong")
 }
 
 @Composable

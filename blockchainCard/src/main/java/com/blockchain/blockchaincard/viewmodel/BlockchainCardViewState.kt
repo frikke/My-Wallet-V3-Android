@@ -21,4 +21,5 @@ data class BlockchainCardViewState(
     val transactionList: List<BlockchainCardTransaction>? = null,
     val selectedCardTransaction: BlockchainCardTransaction? = null,
     val ssn: String? = null,
+    val errorState: BlockchainCardErrorState? = null,
 ) : ViewState

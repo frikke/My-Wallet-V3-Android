@@ -50,6 +50,7 @@ import com.blockchain.componentlib.divider.HorizontalDivider
 import com.blockchain.componentlib.sectionheader.SmallSectionHeader
 import com.blockchain.componentlib.sheets.SheetHeader
 import com.blockchain.componentlib.system.CircularProgressBar
+import com.blockchain.componentlib.system.ShimmerLoadingTableRow
 import com.blockchain.componentlib.tablerow.DefaultTableRow
 import com.blockchain.componentlib.theme.AppSurface
 import com.blockchain.componentlib.theme.AppTheme
@@ -118,60 +119,55 @@ private fun OrderCardIntroPreview() {
 @Composable
 fun OrderCardAddressKYC(onContinue: () -> Unit, onCheckBillingAddress: () -> Unit, shortAddress: String?) {
     Box(modifier = Modifier.fillMaxSize()) {
-        if (!shortAddress.isNullOrEmpty()) {
-            Column(
-                horizontalAlignment = CenterHorizontally,
-                modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
-            ) {
-                SimpleText(
-                    text = stringResource(R.string.verify_your_address),
-                    style = ComposeTypographies.Title3,
-                    color = ComposeColors.Title,
-                    gravity = ComposeGravities.Start,
-                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
-                )
+        Column(
+            horizontalAlignment = CenterHorizontally,
+            modifier = Modifier.padding(top = AppTheme.dimensions.xPaddingLarge)
+        ) {
+            SimpleText(
+                text = stringResource(R.string.verify_your_address),
+                style = ComposeTypographies.Title3,
+                color = ComposeColors.Title,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+            )
 
-                SimpleText(
-                    text = stringResource(R.string.verify_your_address_description),
-                    style = ComposeTypographies.Paragraph1,
-                    color = ComposeColors.Body,
-                    gravity = ComposeGravities.Start,
-                    modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
-                )
+            SimpleText(
+                text = stringResource(R.string.verify_your_address_description),
+                style = ComposeTypographies.Paragraph1,
+                color = ComposeColors.Body,
+                gravity = ComposeGravities.Start,
+                modifier = Modifier.padding(horizontal = AppTheme.dimensions.paddingLarge)
+            )
 
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = AppTheme.dimensions.paddingLarge)
-                )
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = AppTheme.dimensions.paddingLarge)
+            )
 
+            if (!shortAddress.isNullOrEmpty()) {
                 DefaultTableRow(
                     primaryText = stringResource(R.string.residential_address),
                     secondaryText = shortAddress,
                     onClick = onCheckBillingAddress,
                 )
+            } else {
+                ShimmerLoadingTableRow()
             }
+        }
 
-            Column(
-                Modifier
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(AppTheme.dimensions.paddingLarge)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            PrimaryButton(
+                text = stringResource(R.string.next),
+                onClick = onContinue,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(AppTheme.dimensions.paddingLarge)
-                    .align(Alignment.BottomCenter),
-                horizontalAlignment = CenterHorizontally
-            ) {
-                PrimaryButton(
-                    text = stringResource(R.string.next),
-                    onClick = onContinue,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
-        } else {
-            CircularProgressIndicator(
-                modifier = Modifier.padding(
-                    horizontal = AppTheme.dimensions.paddingMedium,
-                    vertical = AppTheme.dimensions.xxxPaddingLarge
-                )
             )
         }
     }
@@ -555,7 +551,7 @@ private fun PreviewCardCreationSuccess() {
 }
 
 @Composable
-fun CardCreationFailed(onTryAgain: () -> Unit) {
+fun CardCreationFailed(errorTitle: String, errorDescription: String, onTryAgain: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -570,13 +566,14 @@ fun CardCreationFailed(onTryAgain: () -> Unit) {
                 modifier = Modifier.wrapContentWidth(),
             )
             SimpleText(
-                text = stringResource(id = R.string.card_creation_failed),
+                text = errorTitle,
                 style = ComposeTypographies.Title3,
                 color = ComposeColors.Title,
                 gravity = ComposeGravities.Centre
             )
+
             SimpleText(
-                text = stringResource(id = R.string.card_creation_failed_description),
+                text = errorDescription,
                 style = ComposeTypographies.Paragraph1,
                 color = ComposeColors.Body,
                 gravity = ComposeGravities.Centre
@@ -606,7 +603,11 @@ fun CardCreationFailed(onTryAgain: () -> Unit) {
 private fun PreviewCardCreationFailed() {
     AppTheme(darkTheme = false) {
         AppSurface {
-            CardCreationFailed({})
+            CardCreationFailed(
+                errorTitle = "Ups something went wrong",
+                errorDescription = "Please try again later",
+                onTryAgain = {}
+            )
         }
     }
 }

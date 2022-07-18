@@ -9,6 +9,7 @@ import com.blockchain.commonarch.presentation.mvi_v2.Intent
 sealed class BlockchainCardIntent : Intent<BlockchainCardModelState> {
     // Common
     object HideBottomSheet : BlockchainCardIntent()
+    object SnackbarDismissed : BlockchainCardIntent()
 
     // Order Card
     data class OrderCardKycComplete(val ssn: String) : BlockchainCardIntent()
