@@ -17,7 +17,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.componentlib.viewextensions.gone
 import com.blockchain.componentlib.viewextensions.visible
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.koin.scopedInject
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -61,7 +61,7 @@ class InterestDashboardFragmentLegacy : Fragment() {
 
     private val compositeDisposable = CompositeDisposable()
     private val custodialWalletManager: CustodialWalletManager by scopedInject()
-    private val interestBalances: InterestBalanceDataManager by scopedInject()
+    private val interestService: InterestService by scopedInject()
     private val kycTierService: TierService by scopedInject()
     private val coincore: Coincore by scopedInject()
     private val assetResources: AssetResources by inject()
@@ -71,7 +71,7 @@ class InterestDashboardFragmentLegacy : Fragment() {
             assetResources = assetResources,
             disposables = compositeDisposable,
             custodialWalletManager = custodialWalletManager,
-            interestBalance = interestBalances,
+            interestService = interestService,
             verificationClicked = ::startKyc,
             itemClicked = ::interestItemClicked
         )

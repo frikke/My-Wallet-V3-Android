@@ -1,10 +1,10 @@
 package com.blockchain.core.store
 
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.core.interest.InterestAccountBalance
-import com.blockchain.core.interest.data.InterestStoreRepository
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.data.InterestRepository
 import com.blockchain.core.interest.data.store.InterestDataSource
-import com.blockchain.core.interest.domain.InterestStoreService
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.store.StoreResponse
 import info.blockchain.balance.AssetCatalogue
 import info.blockchain.balance.AssetCategory
@@ -19,11 +19,11 @@ import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 
-class InterestStoreServiceTest {
+class InterestServiceTest {
     private val assetCatalogue = mockk<AssetCatalogue>()
     private val interestDataSource = mockk<InterestDataSource>()
 
-    private val interestStoreService: InterestStoreService = InterestStoreRepository(
+    private val interestService: InterestService = InterestRepository(
         assetCatalogue = assetCatalogue,
         interestDataSource = interestDataSource
     )
@@ -69,7 +69,7 @@ class InterestStoreServiceTest {
 
     @Test
     fun testGetBalances() {
-        interestStoreService.getBalances()
+        interestService.getBalances()
             .test()
             .await()
             .assertValue {
@@ -81,7 +81,7 @@ class InterestStoreServiceTest {
 
     @Test
     fun testGetBalanceFor() {
-        interestStoreService.getBalanceFor(cryptoCurrency)
+        interestService.getBalanceFor(cryptoCurrency)
             .test()
             .await()
             .assertValue {
@@ -93,7 +93,7 @@ class InterestStoreServiceTest {
 
     @Test
     fun testGetActiveAssets() {
-        interestStoreService.getActiveAssets()
+        interestService.getActiveAssets()
             .test()
             .await()
             .assertValue {

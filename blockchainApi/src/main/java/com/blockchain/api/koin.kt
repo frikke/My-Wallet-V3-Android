@@ -36,7 +36,7 @@ import com.blockchain.api.services.DataRemediationApiService
 import com.blockchain.api.services.DynamicSelfCustodyService
 import com.blockchain.api.services.EligibilityApiService
 import com.blockchain.api.services.FiatCurrenciesApiService
-import com.blockchain.api.services.InterestService
+import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.NabuUserService
 import com.blockchain.api.services.NftWaitlistApiService
 import com.blockchain.api.services.NonCustodialBitcoinService
@@ -272,7 +272,7 @@ val blockchainApiModule = module {
 
     factory {
         val api = get<Retrofit>(nabuApi).create(InterestApiInterface::class.java)
-        InterestService(
+        InterestApiService(
             api = api
         )
     }

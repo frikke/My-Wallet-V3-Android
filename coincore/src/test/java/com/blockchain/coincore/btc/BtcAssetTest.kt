@@ -3,7 +3,6 @@ package com.blockchain.coincore.btc
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.coincore.impl.BackendNotificationUpdater
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -326,9 +325,6 @@ private val mockAssetDependenciesModule = module {
     }
     factory {
         mock<CustodialWalletManager>()
-    }
-    factory {
-        mock<InterestBalanceDataManager>()
     }
 
     factory {

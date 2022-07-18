@@ -133,7 +133,7 @@ val coincoreModule = module {
                 erc20DataManager = get(),
                 feeDataManager = get(),
                 tradingBalances = get(),
-                interestBalances = get(),
+                interestService = get(),
                 remoteLogger = get(),
                 labels = get(),
                 walletPreferences = get(),
@@ -166,7 +166,6 @@ val coincoreModule = module {
             TxProcessorFactory(
                 bitPayManager = get(),
                 exchangeRates = get(),
-                interestBalances = get(),
                 interestDataSource = get(),
                 tradingDataSource = get(),
                 walletManager = get(),

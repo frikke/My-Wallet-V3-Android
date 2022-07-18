@@ -12,7 +12,7 @@ val interestDashboardDataModule = module {
         scoped<AssetInterestService> {
             AssetInterestRepository(
                 kycTierService = payloadScope.get(),
-                interestBalance = payloadScope.get(),
+                interestService = payloadScope.get(),
                 custodialWalletManager = payloadScope.get(),
                 exchangeRatesDataManager = get(),
                 coincore = payloadScope.get(),

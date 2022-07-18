@@ -16,7 +16,6 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -33,8 +32,6 @@ class InterestWithdrawOnChainTxEngine(
     private val interestDataSource: InterestDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
 ) : InterestBaseEngine(walletManager) {
 
     override val flushableDataSources: List<FlushableDataSource>
@@ -163,7 +160,7 @@ class InterestWithdrawOnChainTxEngine(
         amount = amount,
         address = addMemoIfNeeded(receiveAddress, memo)
     ).doOnComplete {
-        interestBalances.flushCaches(sourceAsset)
+        interestDataSource.invalidate()
     }
 
     private fun addMemoIfNeeded(receiveAddress: String, memo: String?) =

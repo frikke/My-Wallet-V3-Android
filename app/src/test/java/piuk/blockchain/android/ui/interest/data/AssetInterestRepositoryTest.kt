@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.interest.data
 import com.blockchain.coincore.AccountGroup
 import com.blockchain.coincore.AssetFilter
 import com.blockchain.coincore.Coincore
-import com.blockchain.core.interest.InterestAccountBalance
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.model.InterestAccountBalance
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -37,7 +37,7 @@ import piuk.blockchain.android.ui.interest.domain.repository.AssetInterestServic
 @ExperimentalCoroutinesApi
 class AssetInterestRepositoryTest {
     private val kycTierService = mockk<TierService>()
-    private val interestBalance = mockk<InterestBalanceDataManager>()
+    private val interestService = mockk<InterestService>()
     private val custodialWalletManager = mockk<CustodialWalletManager>()
     private val exchangeRatesDataManager = mockk<ExchangeRatesDataManager>()
     private val coincore = mockk<Coincore>()
@@ -45,7 +45,7 @@ class AssetInterestRepositoryTest {
 
     private val service: AssetInterestService = AssetInterestRepository(
         kycTierService,
-        interestBalance,
+        interestService,
         custodialWalletManager,
         exchangeRatesDataManager,
         coincore,
@@ -139,7 +139,7 @@ class AssetInterestRepositoryTest {
 
     @Test
     fun `WHEN all services OK, THEN Success should be returned`() = runTest {
-        every { interestBalance.getBalanceForAsset(CryptoCurrency.BTC) } returns
+        every { interestService.getBalanceFor(CryptoCurrency.BTC) } returns
             Observable.just(interestAccountBalanceBtc)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } returns
             Observable.just(exchangeRateBtc)
@@ -148,7 +148,7 @@ class AssetInterestRepositoryTest {
         every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.BTC) } returns
             Single.just(eligibilityBtc)
 
-        every { interestBalance.getBalanceForAsset(CryptoCurrency.ETHER) } returns
+        every { interestService.getBalanceFor(CryptoCurrency.ETHER) } returns
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)
@@ -164,12 +164,12 @@ class AssetInterestRepositoryTest {
 
     @Test
     fun `WHEN services fail for BTC, THEN its detail should be null`() = runTest {
-        every { interestBalance.getBalanceForAsset(CryptoCurrency.BTC) } throws Throwable("error")
+        every { interestService.getBalanceFor(CryptoCurrency.BTC) } throws Throwable("error")
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.BTC) } throws Throwable("error")
         every { custodialWalletManager.getInterestAccountRates(CryptoCurrency.BTC) } throws Throwable("error")
         every { custodialWalletManager.getInterestEligibilityForAsset(CryptoCurrency.BTC) } throws Throwable("error")
 
-        every { interestBalance.getBalanceForAsset(CryptoCurrency.ETHER) } returns
+        every { interestService.getBalanceFor(CryptoCurrency.ETHER) } returns
             Observable.just(interestAccountBalanceEth)
         every { exchangeRatesDataManager.exchangeRateToUserFiat(CryptoCurrency.ETHER) } returns
             Observable.just(exchangeRateEth)

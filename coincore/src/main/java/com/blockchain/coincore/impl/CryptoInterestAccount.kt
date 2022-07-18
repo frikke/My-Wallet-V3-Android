@@ -14,7 +14,7 @@ import com.blockchain.coincore.TradeActivitySummaryItem
 import com.blockchain.coincore.TxResult
 import com.blockchain.coincore.TxSourceState
 import com.blockchain.coincore.toActionState
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.Feature
@@ -40,7 +40,7 @@ class CryptoInterestAccount(
     override val currency: AssetInfo,
     override val label: String,
     private val internalAccountLabel: String,
-    private val interestBalance: InterestBalanceDataManager,
+    private val interestService: InterestService,
     private val custodialWalletManager: CustodialWalletManager,
     override val exchangeRates: ExchangeRatesDataManager,
     private val identity: UserIdentity,
@@ -86,7 +86,7 @@ class CryptoInterestAccount(
 
     override val balance: Observable<AccountBalance>
         get() = Observable.combineLatest(
-            interestBalance.getBalanceForAsset(currency),
+            interestService.getBalanceFor(currency),
             exchangeRates.exchangeRateToUserFiat(currency)
         ) { balance, rate ->
             AccountBalance.from(balance, rate)

@@ -1,7 +1,7 @@
 package com.blockchain.core.interest.data.store
 
+import com.blockchain.api.services.InterestApiService
 import com.blockchain.api.services.InterestBalanceDetails
-import com.blockchain.api.services.InterestService
 import com.blockchain.nabu.Authenticator
 import com.blockchain.store.Fetcher
 import com.blockchain.store.Store
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.builtins.ListSerializer
 
 internal class InterestStore(
-    private val interestService: InterestService,
+    private val interestApiService: InterestApiService,
     private val authenticator: Authenticator
 ) : Store<Throwable, List<InterestBalanceDetails>> by PersistedJsonSqlDelightStoreBuilder()
     .build(
@@ -22,7 +22,7 @@ internal class InterestStore(
         fetcher = Fetcher.ofSingle(
             mapper = {
                 authenticator.authenticate {
-                    interestService.getAllInterestAccountBalances(it.authHeader)
+                    interestApiService.getAllInterestAccountBalances(it.authHeader)
                 }
             },
             errorMapper = { it }

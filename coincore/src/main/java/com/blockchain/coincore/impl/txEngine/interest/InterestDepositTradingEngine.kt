@@ -16,7 +16,6 @@ import com.blockchain.coincore.toCrypto
 import com.blockchain.coincore.toUserFiat
 import com.blockchain.coincore.updateTxValidity
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
@@ -32,8 +31,6 @@ class InterestDepositTradingEngine(
     private val tradingDataSource: TradingDataSource,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val walletManager: CustodialWalletManager,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
 ) : InterestBaseEngine(walletManager) {
 
     override val flushableDataSources: List<FlushableDataSource>
@@ -155,7 +152,7 @@ class InterestDepositTradingEngine(
             origin = Product.BUY,
             destination = Product.SAVINGS
         ).doOnComplete {
-            interestBalances.flushCaches(sourceAssetInfo)
+            interestDataSource.invalidate()
         }.toSingle {
             TxResult.UnHashedTxResult(pendingTx.amount)
         }

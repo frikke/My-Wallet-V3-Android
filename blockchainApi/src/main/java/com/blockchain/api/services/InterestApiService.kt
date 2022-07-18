@@ -23,7 +23,7 @@ data class InterestBalanceDetails(
 
 typealias InterestBalanceDetailsList = List<InterestBalanceDetails>
 
-class InterestService internal constructor(
+class InterestApiService internal constructor(
     private val api: InterestApiInterface
 ) {
     fun getAllInterestAccountBalances(

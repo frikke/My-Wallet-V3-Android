@@ -4,7 +4,6 @@ import com.blockchain.coincore.impl.CryptoAssetBase
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.logging.RemoteLogger
 import com.blockchain.nabu.UserIdentity
@@ -74,9 +73,6 @@ class CryptoAssetBaseTest : KoinTest {
 private val mockedModule = module {
     factory {
         mock<ExchangeRatesDataManager>()
-    }
-    factory {
-        mock<InterestBalanceDataManager>()
     }
 
     factory {

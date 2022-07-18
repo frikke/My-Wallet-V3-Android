@@ -13,7 +13,6 @@ import com.blockchain.coincore.ValidationState
 import com.blockchain.coincore.impl.CryptoNonCustodialAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.toCrypto
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -25,8 +24,6 @@ import io.reactivex.rxjava3.core.Single
 
 class InterestDepositOnChainTxEngine(
     private val interestDataSource: InterestDataSource,
-    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val interestBalances: InterestBalanceDataManager,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val onChainEngine: OnChainTxEngineBase,
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -140,9 +137,7 @@ class InterestDepositOnChainTxEngine(
 
     override fun doExecute(pendingTx: PendingTx, secondPassword: String): Single<TxResult> =
         onChainEngine.doExecute(pendingTx, secondPassword)
-            .doOnSuccess {
-                interestBalances.flushCaches(sourceAssetInfo)
-            }
+            .doOnSuccess { interestDataSource.invalidate() }
 
     override fun doPostExecute(pendingTx: PendingTx, txResult: TxResult): Completable =
         onChainEngine.doPostExecute(pendingTx, txResult)

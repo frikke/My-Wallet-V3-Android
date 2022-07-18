@@ -14,7 +14,7 @@ import com.blockchain.core.chains.dynamicselfcustody.NonCustodialService
 import com.blockchain.core.chains.erc20.Erc20DataManager
 import com.blockchain.core.chains.erc20.isErc20
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.extensions.minus
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.logging.RemoteLogger
@@ -51,7 +51,7 @@ internal class DynamicAssetLoader(
     private val feeDataManager: FeeDataManager,
     private val walletPreferences: WalletStatusPrefs,
     private val tradingBalances: TradingBalanceDataManager,
-    private val interestBalances: InterestBalanceDataManager,
+    private val interestService: InterestService,
     private val labels: DefaultLabels,
     private val remoteLogger: RemoteLogger,
     private val formatUtils: FormatUtilities,
@@ -191,7 +191,7 @@ internal class DynamicAssetLoader(
     ): Single<List<CryptoAsset>> {
         return Single.zip(
             tradingBalances.getActiveAssets().printTime("----- ::CustodialAssets - tradingBalances"),
-            interestBalances.getActiveAssets().printTime("----- ::CustodialAssets - interestBalances")
+            interestService.getActiveAssets()
         ) { activeTrading, activeInterest ->
             activeInterest + activeTrading
         }.map { activeAssets ->
@@ -214,8 +214,7 @@ internal class DynamicAssetLoader(
 
         val tradingBalancesAssets = tradingBalances.getActiveAssets()
             .printTime("----- ::Erc20Assets - tradingBalances")
-        val interestBalancesAssets = interestBalances.getActiveAssets()
-            .printTime("----- ::Erc20Assets - interestBalances")
+        val interestBalancesAssets = interestService.getActiveAssets()
 
         // Assets with non custodial balance
         val erc20ActiveAssets = erc20DataManager.getActiveAssets()

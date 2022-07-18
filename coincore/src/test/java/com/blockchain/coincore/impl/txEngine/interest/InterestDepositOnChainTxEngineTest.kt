@@ -13,7 +13,6 @@ import com.blockchain.coincore.btc.BtcCryptoWalletAccount
 import com.blockchain.coincore.impl.CryptoInterestAccount
 import com.blockchain.coincore.impl.txEngine.OnChainTxEngineBase
 import com.blockchain.coincore.testutil.CoincoreTestBase
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.TxLimits
 import com.blockchain.core.price.ExchangeRate
@@ -42,14 +41,12 @@ import org.junit.Test
 class InterestDepositOnChainTxEngineTest : CoincoreTestBase() {
 
     private val walletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
     private val onChainEngine: OnChainTxEngineBase = mock()
     private val interestDataSource: InterestDataSource = mock()
 
     private val subject = InterestDepositOnChainTxEngine(
         interestDataSource = interestDataSource,
         walletManager = walletManager,
-        interestBalances = interestBalances,
         onChainEngine = onChainEngine
     )
 

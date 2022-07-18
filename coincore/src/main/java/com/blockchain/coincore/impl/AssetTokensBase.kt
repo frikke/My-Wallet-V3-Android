@@ -13,7 +13,7 @@ import com.blockchain.coincore.SingleAccount
 import com.blockchain.coincore.SingleAccountList
 import com.blockchain.coincore.TradingAccount
 import com.blockchain.core.custodial.TradingBalanceDataManager
-import com.blockchain.core.interest.InterestBalanceDataManager
+import com.blockchain.core.interest.domain.InterestService
 import com.blockchain.core.price.ExchangeRate
 import com.blockchain.core.price.ExchangeRatesDataManager
 import com.blockchain.core.price.HistoricalRate
@@ -48,7 +48,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
     protected val exchangeRates: ExchangeRatesDataManager by inject()
     private val labels: DefaultLabels by inject()
     protected val custodialManager: CustodialWalletManager by scopedInject()
-    private val interestBalance: InterestBalanceDataManager by scopedInject()
+    private val interestService: InterestService by scopedInject()
     private val tradingBalances: TradingBalanceDataManager by scopedInject()
     private val exchangeLinking: ExchangeLinking by scopedInject()
     private val remoteLogger: RemoteLogger by inject()
@@ -136,7 +136,7 @@ internal abstract class CryptoAssetBase : CryptoAsset, AccountRefreshTrigger, Ko
                         CryptoInterestAccount(
                             currency = assetInfo,
                             label = labels.getDefaultInterestWalletLabel(),
-                            interestBalance = interestBalance,
+                            interestService = interestService,
                             custodialWalletManager = custodialManager,
                             exchangeRates = exchangeRates,
                             identity = identity,

@@ -29,7 +29,6 @@ import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.SECONDARY_TES
 import com.blockchain.coincore.testutil.CoincoreTestBase.Companion.TEST_ASSET
 import com.blockchain.coincore.testutil.EUR
 import com.blockchain.core.custodial.data.store.TradingDataSource
-import com.blockchain.core.interest.InterestBalanceDataManager
 import com.blockchain.core.interest.data.store.InterestDataSource
 import com.blockchain.core.limits.LimitsDataManager
 import com.blockchain.core.price.ExchangeRatesDataManager
@@ -50,7 +49,6 @@ class TxProcessorFactoryTest {
     private val bitPayManager: BitPayDataManager = mock()
     private val exchangeRates: ExchangeRatesDataManager = mock()
     private val walletManager: CustodialWalletManager = mock()
-    private val interestBalances: InterestBalanceDataManager = mock()
     private val interestDataSource: InterestDataSource = mock()
     private val tradingDataSource: TradingDataSource = mock()
     private val walletPrefs: WalletStatusPrefs = mock()
@@ -71,7 +69,6 @@ class TxProcessorFactoryTest {
             bitPayManager = bitPayManager,
             exchangeRates = exchangeRates,
             walletManager = walletManager,
-            interestBalances = interestBalances,
             interestDataSource = interestDataSource,
             tradingDataSource = tradingDataSource,
             walletPrefs = walletPrefs,
@@ -141,7 +138,6 @@ class TxProcessorFactoryTest {
                     it.engine is InterestDepositOnChainTxEngine &&
                     (it.engine as InterestDepositOnChainTxEngine).run {
                         this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances &&
                             this.onChainEngine == mockBaseEngine
                     }
             }
@@ -324,8 +320,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestDepositTradingEngine &&
                     (it.engine as InterestDepositTradingEngine).run {
-                        this.interestBalances == interestBalances &&
-                            this.walletManager == walletManager
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -459,8 +454,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestWithdrawTradingTxEngine &&
                     (it.engine as InterestWithdrawTradingTxEngine).run {
-                        this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances
+                        this.walletManager == walletManager
                     }
             }
     }
@@ -482,8 +476,7 @@ class TxProcessorFactoryTest {
                     it.exchangeRates == exchangeRates &&
                     it.engine is InterestWithdrawOnChainTxEngine &&
                     (it.engine as InterestWithdrawOnChainTxEngine).run {
-                        this.walletManager == walletManager &&
-                            this.interestBalances == interestBalances
+                        this.walletManager == walletManager
                     }
             }
     }
