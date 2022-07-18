@@ -6,9 +6,8 @@ import com.blockchain.nabu.CreateNabuToken
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.nabu.api.getuser.data.GetUserStoreRepository
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
-import com.blockchain.nabu.api.getuser.data.store.GetUserStore
 import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.api.kyc.data.KycStoreRepository
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
@@ -111,11 +110,11 @@ val nabuModule = module {
                 walletReporter = get(uniqueId),
                 payloadDataManager = get()
             )
-        }.bind(GetUserDataSource::class)
+        }
 
         scoped<GetUserStoreService> {
             GetUserStoreRepository(
-                getUserDataSource = get()
+                getUserStore = get()
             )
         }
 
@@ -281,7 +280,7 @@ val nabuModule = module {
                 authenticator = get(),
                 nabuDataManager = get(),
                 nabuService = get(),
-                userDataSource = get(),
+                getUserStore = get(),
             )
         }.bind(NabuUserSync::class)
 

@@ -120,7 +120,7 @@ val kycUiModule = module {
                 reentryDecision = get(),
                 kycNavigator = get(),
                 kycDataSource = get(),
-                userDataSource = get(),
+                getUserStore = get(),
                 analytics = get()
             )
         }

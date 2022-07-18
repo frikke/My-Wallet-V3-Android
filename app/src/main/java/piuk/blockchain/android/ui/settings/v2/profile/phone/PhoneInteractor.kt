@@ -2,7 +2,7 @@ package piuk.blockchain.android.ui.settings.v2.profile.phone
 
 import com.blockchain.api.services.WalletSettingsService
 import com.blockchain.nabu.NabuUserSync
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
+import com.blockchain.nabu.api.getuser.data.GetUserStore
 import com.blockchain.preferences.AuthPrefs
 import info.blockchain.wallet.api.data.Settings
 import io.reactivex.rxjava3.core.Completable
@@ -14,7 +14,7 @@ class PhoneInteractor internal constructor(
     private val authPrefs: AuthPrefs,
     private val settingsDataManager: SettingsDataManager,
     private val nabuUserSync: NabuUserSync,
-    private val userDataSource: GetUserDataSource
+    private val getUserStore: GetUserStore
 ) {
 
     fun fetchProfileSettings(): Single<WalletSettingsService.UserInfoSettings> =
@@ -29,7 +29,7 @@ class PhoneInteractor internal constructor(
     fun savePhoneNumber(mobileWithPrefix: String): Single<Settings> =
         settingsDataManager.updateSms(mobileWithPrefix, forceJson = true)
             .doOnSuccess {
-                userDataSource.invalidate()
+                getUserStore.invalidate()
             }
             .flatMap { settings ->
                 syncPhoneNumberWithNabu().thenSingle {

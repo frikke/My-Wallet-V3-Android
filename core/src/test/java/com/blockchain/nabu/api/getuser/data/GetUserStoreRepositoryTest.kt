@@ -1,6 +1,5 @@
 package com.blockchain.nabu.api.getuser.data
 
-import com.blockchain.nabu.api.getuser.data.store.GetUserDataSource
 import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.store.StoreResponse
@@ -14,20 +13,20 @@ import org.junit.Before
 import org.junit.Test
 
 class GetUserStoreRepositoryTest {
-    private val getUserDataSource = mockk<GetUserDataSource>()
+    private val getUserStore = mockk<GetUserStore>()
 
     private val getUserStoreService: GetUserStoreService = GetUserStoreRepository(
-        getUserDataSource = getUserDataSource
+        getUserStore = getUserStore
     )
 
     private val nabuUser = mockk<NabuUser>()
 
     @Before
     fun setUp() {
-        every { getUserDataSource.stream(any()) } returns
+        every { getUserStore.stream(any()) } returns
             flowOf(StoreResponse.Data(nabuUser))
 
-        every { getUserDataSource.invalidate() } just Runs
+        every { getUserStore.invalidate() } just Runs
     }
 
     @Test
@@ -39,6 +38,6 @@ class GetUserStoreRepositoryTest {
                 it == nabuUser
             }
 
-        verify(exactly = 1) { getUserDataSource.stream(any()) }
+        verify(exactly = 1) { getUserStore.stream(any()) }
     }
 }
