@@ -495,7 +495,7 @@ class CoinViewActivity :
                             selectedAccount = account,
                             networkTicker = assetTicker,
                             interestRate = when (this) {
-                                is AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo -> interestRate
+                                is AssetDetailsItem.BrokerageDetailsInfo -> interestRate
                                 else -> Double.NaN
                             },
                             stateAwareActions = state.actions

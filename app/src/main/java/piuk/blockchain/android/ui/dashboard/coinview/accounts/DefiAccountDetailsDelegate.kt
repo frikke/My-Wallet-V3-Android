@@ -25,7 +25,7 @@ class DefiAccountDetailsDelegate(
     private val onLockedAccountSelected: () -> Unit,
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
-        items[position] is AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo
+        items[position] is AssetDetailsItem.DefiDetailsInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         DefiWalletViewHolder(
@@ -41,8 +41,8 @@ class DefiAccountDetailsDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as DefiWalletViewHolder).bind(
-        item = items[position] as AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo,
-        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo } == 1
+        item = items[position] as AssetDetailsItem.DefiDetailsInfo,
+        isOnlyItemOfCategory = items.count { it is AssetDetailsItem.DefiDetailsInfo } == 1
     )
 }
 
@@ -55,7 +55,7 @@ private class DefiWalletViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        item: AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo,
+        item: AssetDetailsItem.DefiDetailsInfo,
         isOnlyItemOfCategory: Boolean
     ) {
         with(binding) {

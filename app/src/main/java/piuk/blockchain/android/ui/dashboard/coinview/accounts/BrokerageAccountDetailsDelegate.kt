@@ -17,13 +17,13 @@ import com.blockchain.componentlib.viewextensions.visible
 import com.blockchain.componentlib.viewextensions.visibleIf
 import com.blockchain.wallet.DefaultLabels
 import info.blockchain.balance.Currency
+import java.text.DecimalFormat
 import piuk.blockchain.android.R
 import piuk.blockchain.android.databinding.ViewCoinviewWalletsBinding
 import piuk.blockchain.android.ui.adapters.AdapterDelegate
 import piuk.blockchain.android.ui.dashboard.coinview.AssetDetailsItem
 import piuk.blockchain.android.ui.resources.AccountIcon
 import piuk.blockchain.android.ui.resources.AssetResources
-import java.text.DecimalFormat
 
 class BrokerageAccountDetailsDelegate(
     private val onAccountSelected: (AssetDetailsItem.CryptoDetailsInfo) -> Unit,
@@ -32,7 +32,7 @@ class BrokerageAccountDetailsDelegate(
     private val assetResources: AssetResources,
 ) : AdapterDelegate<AssetDetailsItem> {
     override fun isForViewType(items: List<AssetDetailsItem>, position: Int): Boolean =
-        items[position] is AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo
+        items[position] is AssetDetailsItem.BrokerageDetailsInfo
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
         AssetWalletViewHolder(
@@ -48,8 +48,8 @@ class BrokerageAccountDetailsDelegate(
         position: Int,
         holder: RecyclerView.ViewHolder
     ) = (holder as AssetWalletViewHolder).bind(
-        item = items[position] as AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo,
-        isFirstItemOfCategory = items.indexOfFirst { it is AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo } == position
+        item = items[position] as AssetDetailsItem.BrokerageDetailsInfo,
+        isFirstItemOfCategory = items.indexOfFirst { it is AssetDetailsItem.BrokerageDetailsInfo } == position
     )
 }
 
@@ -62,7 +62,7 @@ private class AssetWalletViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
-        item: AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo,
+        item: AssetDetailsItem.BrokerageDetailsInfo,
         isFirstItemOfCategory: Boolean
     ) {
         val asset = getAsset(item.account, item.balance.currencyCode)
@@ -127,7 +127,9 @@ private class AssetWalletViewHolder(
 
                     accountIcon.indicator?.let {
                         startImageResource =
-                            ImageResource.LocalWithBackgroundAndExternalResources(it, asset.colour, "#FFFFFF", 1F)
+                            ImageResource.LocalWithBackgroundAndExternalResources(
+                                it, asset.colour, "#FFFFFF", 1F
+                            )
                     }
                 }
             } else {

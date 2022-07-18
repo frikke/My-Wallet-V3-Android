@@ -60,7 +60,7 @@ class CoinViewModel(
             }
             is CoinViewIntent.LoadRecurringBuys ->
                 if
-                    (walletModeService.enabledWalletMode().custodialEnabled) {
+                (walletModeService.enabledWalletMode().custodialEnabled) {
                     loadRecurringBuys(intent)
                 } else null
             is CoinViewIntent.LoadQuickActions -> loadQuickActions(intent)
@@ -263,7 +263,7 @@ class CoinViewModel(
                                     assetDetails = accountInfo.accountsList.map { assetDisplayInfo: AssetDisplayInfo ->
                                         when (assetDisplayInfo) {
                                             is AssetDisplayInfo.BrokerageDisplayInfo -> {
-                                                AssetDetailsItem.CryptoDetailsInfo.BrokerageDetailsInfo(
+                                                AssetDetailsItem.BrokerageDetailsInfo(
                                                     assetFilter = assetDisplayInfo.filter,
                                                     account = assetDisplayInfo.account,
                                                     balance = assetDisplayInfo.amount,
@@ -273,7 +273,7 @@ class CoinViewModel(
                                                 )
                                             }
                                             is AssetDisplayInfo.DefiDisplayInfo -> {
-                                                AssetDetailsItem.CryptoDetailsInfo.DefiDetailsInfo(
+                                                AssetDetailsItem.DefiDetailsInfo(
                                                     account = assetDisplayInfo.account,
                                                     balance = assetDisplayInfo.amount,
                                                     fiatBalance = assetDisplayInfo.fiatValue,

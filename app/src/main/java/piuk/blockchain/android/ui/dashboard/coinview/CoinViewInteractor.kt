@@ -294,7 +294,7 @@ class CoinViewInteractor(
         interestRate: Double = Double.NaN
     ): List<AssetDisplayInfo> {
 
-        class AccountComparator : Comparator<DetailsItem> {
+        val accountComparator = object : Comparator<DetailsItem> {
             override fun compare(o1: DetailsItem, o2: DetailsItem): Int {
                 return getAssignedValue(o1).compareTo(getAssignedValue(o2))
             }
@@ -310,7 +310,7 @@ class CoinViewInteractor(
             }
         }
 
-        val sortedAccounts = accounts.sortedWith(AccountComparator())
+        val sortedAccounts = accounts.sortedWith(accountComparator)
 
         return sortedAccounts.map {
             when (walletMode) {
