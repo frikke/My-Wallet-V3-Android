@@ -61,6 +61,9 @@ enum class CoinViewError {
 }
 
 sealed interface AssetDetailsItem {
+    /**
+     * Model used for delegates
+     */
     sealed class CryptoDetailsInfo(
         open val account: BlockchainAccount,
         open val balance: Money,
@@ -69,6 +72,9 @@ sealed interface AssetDetailsItem {
         open val interestRate: Double
     ) : AssetDetailsItem
 
+    /**
+     * used when wallet mode is Universal or Custodial
+     */
     data class BrokerageDetailsInfo(
         val assetFilter: AssetFilter,
         override val account: BlockchainAccount,
@@ -84,6 +90,9 @@ sealed interface AssetDetailsItem {
         interestRate = interestRate
     )
 
+    /**
+     * used when wallet mode is NonCustodial
+     */
     data class DefiDetailsInfo(
         override val account: BlockchainAccount,
         override val balance: Money,

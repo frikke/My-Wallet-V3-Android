@@ -49,6 +49,9 @@ sealed class AssetInformation(
     ) : AssetInformation(prices, isAddedToWatchlist)
 }
 
+/**
+ * Model created from the interactor
+ */
 sealed class AssetDisplayInfo(
     open val account: BlockchainAccount,
     open val amount: Money,
