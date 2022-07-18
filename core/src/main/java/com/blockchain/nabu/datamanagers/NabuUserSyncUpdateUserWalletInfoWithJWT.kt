@@ -22,7 +22,7 @@ internal class NabuUserSyncUpdateUserWalletInfoWithJWT(
                     authenticator.authenticate { tokenResponse ->
                         nabuService.updateWalletInformation(tokenResponse, jwt)
                     }.doOnSuccess {
-                        userDataSource.invalidate()
+                        getUserStore.invalidate()
 
                         Timber.d(
                             "Syncing nabu user complete, email/phone verified: %s, %s",

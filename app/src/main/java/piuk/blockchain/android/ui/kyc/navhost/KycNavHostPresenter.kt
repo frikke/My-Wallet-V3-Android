@@ -34,7 +34,7 @@ class KycNavHostPresenter(
 
     override fun onViewReady() {
         kycDataSource.invalidate()
-        userDataSource.invalidate()
+        getUserStore.invalidate()
 
         compositeDisposable +=
             nabuDataUserProvider.getUser()

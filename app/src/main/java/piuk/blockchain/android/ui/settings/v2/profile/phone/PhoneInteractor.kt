@@ -29,7 +29,7 @@ class PhoneInteractor internal constructor(
     fun savePhoneNumber(mobileWithPrefix: String): Single<Settings> =
         settingsDataManager.updateSms(mobileWithPrefix, forceJson = true)
             .doOnSuccess {
-                userDataSource.invalidate()
+                getUserStore.invalidate()
             }
             .flatMap { settings ->
                 syncPhoneNumberWithNabu().thenSingle {

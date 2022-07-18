@@ -280,7 +280,7 @@ val nabuModule = module {
                 authenticator = get(),
                 nabuDataManager = get(),
                 nabuService = get(),
-                userDataSource = get(),
+                getUserStore = get(),
             )
         }.bind(NabuUserSync::class)
 

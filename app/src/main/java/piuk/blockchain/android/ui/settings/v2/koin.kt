@@ -124,7 +124,7 @@ val redesignSettingsModule = module {
                 settingsDataManager = get(),
                 authPrefs = get(),
                 nabuUserSync = get(),
-                userDataSource = get()
+                getUserStore = get()
             )
         }
 

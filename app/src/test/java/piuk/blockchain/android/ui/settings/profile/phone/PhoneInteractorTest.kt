@@ -64,7 +64,7 @@ class PhoneInteractorTest {
 
         interactor.savePhoneNumber(phoneNumber).test()
 
-        verify(userDataSource).invalidate()
+        verify(getUserStore).invalidate()
         verify(settingsDataManager).updateSms(phoneNumber, true)
         verify(nabuUserSync).syncUser()
     }

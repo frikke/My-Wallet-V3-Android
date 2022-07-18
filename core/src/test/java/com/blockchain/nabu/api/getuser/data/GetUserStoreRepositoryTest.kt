@@ -26,7 +26,7 @@ class GetUserStoreRepositoryTest {
         every { getUserStore.stream(any()) } returns
             flowOf(StoreResponse.Data(nabuUser))
 
-        every { getUserDataSource.invalidate() } just Runs
+        every { getUserStore.invalidate() } just Runs
     }
 
     @Test

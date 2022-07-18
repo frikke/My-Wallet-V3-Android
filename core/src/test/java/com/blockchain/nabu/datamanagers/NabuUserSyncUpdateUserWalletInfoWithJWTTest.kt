@@ -49,7 +49,7 @@ class NabuUserSyncUpdateUserWalletInfoWithJWTTest {
 
         every { nabuService.updateWalletInformation(any(), any()) } returns Single.just(userObject)
 
-        every { userDataSource.invalidate() } just Runs
+        every { getUserStore.invalidate() } just Runs
 
         every { userObject.emailVerified } returns true
         every { userObject.mobileVerified } returns true

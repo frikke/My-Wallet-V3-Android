@@ -35,7 +35,7 @@ class EmailInteractor internal constructor(
     fun saveEmail(email: String): Single<Email> =
         emailUpdater.updateEmailAndSync(email)
             .doOnSuccess {
-                userDataSource.invalidate()
+                getUserStore.invalidate()
             }
 
     fun resendEmail(email: String): Single<Email> = emailUpdater.resendEmail(email)

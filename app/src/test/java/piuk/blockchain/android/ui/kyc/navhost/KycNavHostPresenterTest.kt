@@ -74,7 +74,7 @@ class KycNavHostPresenterTest {
         subject.onViewReady()
         // Assert
         verify(kycDataSource).invalidate()
-        verify(userDataSource).invalidate()
+        verify(getUserStore).invalidate()
     }
 
     @Test

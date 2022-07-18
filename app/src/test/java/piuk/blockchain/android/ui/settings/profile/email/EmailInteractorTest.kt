@@ -44,7 +44,7 @@ class EmailInteractorTest {
 
         interactor.saveEmail(emailAddress).test()
 
-        verify(userDataSource).invalidate()
+        verify(getUserStore).invalidate()
         verify(emailSyncUpdater).updateEmailAndSync(emailAddress)
     }
 
