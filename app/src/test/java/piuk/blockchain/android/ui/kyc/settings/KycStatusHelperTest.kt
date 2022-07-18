@@ -5,8 +5,7 @@ import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.domain.eligibility.model.Region
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
@@ -31,9 +30,8 @@ import piuk.blockchain.androidcore.data.settings.SettingsDataManager
 class KycStatusHelperTest {
 
     private lateinit var subject: KycStatusHelper
-    private val nabuDataManager: NabuDataManager = mock()
     private val eligibilityService: EligibilityService = mock()
-    private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val userService: UserService = mock()
     private val nabuToken: NabuToken = mock()
     private val settingsDataManager: SettingsDataManager = mock()
     private val tierService: TierService = mock()
@@ -48,9 +46,8 @@ class KycStatusHelperTest {
     @Before
     fun setUp() {
         subject = KycStatusHelper(
-            nabuDataManager,
             eligibilityService,
-            nabuDataUserProvider,
+            userService,
             nabuToken,
             settingsDataManager,
             tierService
@@ -126,7 +123,7 @@ class KycStatusHelperTest {
     @Test
     fun `get kyc status returns none as error fetching user object`() {
         // Arrange
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(Single.error { Throwable() })
         // Act
         val testObserver = subject.getKycStatus().test()
@@ -140,7 +137,7 @@ class KycStatusHelperTest {
     fun `get kyc status returns user object status`() {
         // Arrange
         val kycState = KycState.Verified
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(Single.just(getBlankNabuUser(kycState)))
         // Act
         val testObserver = subject.getKycStatus().test()
@@ -397,7 +394,7 @@ class KycStatusHelperTest {
     @Test
     fun `get user state successful, returns created`() {
         // Arrange
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(Single.just(getBlankNabuUser().copy(state = UserState.Created)))
         // Act
         val testObserver = subject.getUserState().test()

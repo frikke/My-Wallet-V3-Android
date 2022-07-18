@@ -1,6 +1,6 @@
 package com.blockchain.nabu.api.getuser.data
 
-import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.store.StoreResponse
 import io.mockk.Runs
@@ -15,7 +15,7 @@ import org.junit.Test
 class GetUserStoreRepositoryTest {
     private val getUserStore = mockk<GetUserStore>()
 
-    private val getUserStoreService: GetUserStoreService = GetUserStoreRepository(
+    private val userService: UserService = UserRepository(
         getUserStore = getUserStore
     )
 
@@ -31,7 +31,7 @@ class GetUserStoreRepositoryTest {
 
     @Test
     fun testGetUser() {
-        getUserStoreService.getUser()
+        userService.getUser()
             .test()
             .await()
             .assertValue {

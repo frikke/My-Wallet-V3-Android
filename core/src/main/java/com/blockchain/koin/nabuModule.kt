@@ -7,8 +7,8 @@ import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
 import com.blockchain.nabu.UserIdentity
 import com.blockchain.nabu.api.getuser.data.GetUserStore
-import com.blockchain.nabu.api.getuser.data.GetUserStoreRepository
-import com.blockchain.nabu.api.getuser.domain.GetUserStoreService
+import com.blockchain.nabu.api.getuser.data.UserRepository
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.KycStoreRepository
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
 import com.blockchain.nabu.api.kyc.data.store.KycStore
@@ -23,8 +23,6 @@ import com.blockchain.nabu.datamanagers.NabuAuthenticator
 import com.blockchain.nabu.datamanagers.NabuCachedEligibilityProvider
 import com.blockchain.nabu.datamanagers.NabuDataManager
 import com.blockchain.nabu.datamanagers.NabuDataManagerImpl
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
-import com.blockchain.nabu.datamanagers.NabuDataUserProviderNabuDataManagerAdapter
 import com.blockchain.nabu.datamanagers.NabuUserIdentity
 import com.blockchain.nabu.datamanagers.NabuUserReporter
 import com.blockchain.nabu.datamanagers.NabuUserSyncUpdateUserWalletInfoWithJWT
@@ -105,8 +103,8 @@ val nabuModule = module {
             )
         }
 
-        scoped<GetUserStoreService> {
-            GetUserStoreRepository(
+        scoped<UserService> {
+            UserRepository(
                 getUserStore = get()
             )
         }
@@ -142,9 +140,8 @@ val nabuModule = module {
                 nabuUserDataManager = get(),
                 simpleBuyEligibilityProvider = get(),
                 interestEligibilityProvider = get(),
-                nabuDataProvider = get(),
                 eligibilityService = get(),
-                nabuDataUserProvider = get(),
+                userService = get(),
                 bindFeatureFlag = get(bindFeatureFlag)
             )
         }.bind(UserIdentity::class)
@@ -252,12 +249,6 @@ val nabuModule = module {
         factory {
             CreateNabuTokenAdapter(get())
         }.bind(CreateNabuToken::class)
-
-        factory<NabuDataUserProvider> {
-            NabuDataUserProviderNabuDataManagerAdapter(
-                getUserStoreService = get()
-            )
-        }
 
         factory {
             NabuUserSyncUpdateUserWalletInfoWithJWT(

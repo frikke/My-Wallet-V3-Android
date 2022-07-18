@@ -3,8 +3,8 @@ package piuk.blockchain.android.ui.kyc.profile
 import com.blockchain.api.NabuApiException
 import com.blockchain.api.NabuErrorStatusCodes
 import com.blockchain.nabu.NabuToken
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.tokenresponse.NabuOfflineToken
 import com.blockchain.nabu.util.toISO8601DateString
 import com.google.common.base.Optional
@@ -30,7 +30,7 @@ import timber.log.Timber
 class KycProfilePresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val stringUtils: StringUtils,
 ) : BaseKycPresenter<KycProfileView>(nabuToken) {
 
@@ -81,7 +81,7 @@ class KycProfilePresenter(
         // may have edited themselves
         if (!firstNameSet && !lastNameSet && !dateSet) {
             compositeDisposable +=
-                nabuDataUserProvider.getUser()
+                userService.getUser()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeBy(

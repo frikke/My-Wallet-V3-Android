@@ -9,10 +9,8 @@ import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.domain.paymentmethods.model.PaymentMethod
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.service.TierService
@@ -39,9 +37,7 @@ data class RenamedAsset(
 )
 
 class AnnouncementQueries(
-    private val nabuToken: NabuToken,
-    private val nabu: NabuDataManager,
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val tierService: TierService,
     private val sbStateFactory: SimpleBuySyncFactory,
     private val userIdentity: UserIdentity,
@@ -59,7 +55,7 @@ class AnnouncementQueries(
 
     // Have we moved past kyc tier 1 - silver?
     fun isKycGoldStartedOrComplete(): Single<Boolean> {
-        return nabuDataUserProvider.getUser()
+        return userService.getUser()
             .map { it.tierInProgressOrCurrentTier == 2 }
             .onErrorReturn { false }
     }

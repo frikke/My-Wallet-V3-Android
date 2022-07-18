@@ -4,8 +4,7 @@ import androidx.annotation.VisibleForTesting
 import com.blockchain.domain.eligibility.EligibilityService
 import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.nabu.NabuToken
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
 import com.blockchain.nabu.models.responses.nabu.UserState
@@ -19,9 +18,8 @@ import piuk.blockchain.androidcore.utils.extensions.rxSingleOutcome
 import timber.log.Timber
 
 class KycStatusHelper(
-    private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val nabuToken: NabuToken,
     private val settingsDataManager: SettingsDataManager,
     private val tierService: TierService
@@ -46,7 +44,7 @@ class KycStatusHelper(
     ) { allowedRegion, hasAccount -> allowedRegion || hasAccount }
 
     fun getKycStatus(): Single<KycState> =
-        nabuDataUserProvider.getUser()
+        userService.getUser()
             .subscribeOn(Schedulers.io())
             .map { it.kycState }
             .doOnError { Timber.e(it) }
@@ -58,7 +56,7 @@ class KycStatusHelper(
             .doOnError { Timber.e(it) }
 
     fun getUserState(): Single<UserState> =
-        nabuDataUserProvider.getUser()
+        userService.getUser()
             .subscribeOn(Schedulers.io())
             .map { it.state }
             .doOnError { Timber.e(it) }

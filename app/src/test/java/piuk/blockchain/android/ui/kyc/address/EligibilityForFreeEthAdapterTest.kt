@@ -1,7 +1,7 @@
 package piuk.blockchain.android.ui.kyc.address
 
 import com.blockchain.android.testutils.rxInit
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.TierLevels
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -15,7 +15,7 @@ import piuk.blockchain.android.ui.getBlankNabuUser
 class EligibilityForFreeEthAdapterTest {
 
     private lateinit var eligibilityForFreeEthAdapter: EligibilityForFreeEthAdapter
-    private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val userService: UserService = mock()
 
     @get:Rule
     val rx = rxInit {
@@ -24,12 +24,12 @@ class EligibilityForFreeEthAdapterTest {
 
     @Before
     fun setUp() {
-        eligibilityForFreeEthAdapter = EligibilityForFreeEthAdapter(nabuDataUserProvider)
+        eligibilityForFreeEthAdapter = EligibilityForFreeEthAdapter(userService)
     }
 
     @Test
     fun `should not be eligible, if tier is lower than 2 and no tag contained`() {
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -49,7 +49,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should not be eligible, if tier is lower than 2 and tag contained`() {
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -67,7 +67,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should not be eligible, if tier is 2 and tag contained`() {
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()
@@ -85,7 +85,7 @@ class EligibilityForFreeEthAdapterTest {
 
     @Test
     fun `should be eligible, if tier is 2 and no tag contained`() {
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     getBlankNabuUser()

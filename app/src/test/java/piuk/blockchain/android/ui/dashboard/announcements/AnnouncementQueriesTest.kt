@@ -7,10 +7,8 @@ import com.blockchain.coincore.Coincore
 import com.blockchain.domain.fiatcurrencies.FiatCurrenciesService
 import com.blockchain.featureflag.FeatureFlag
 import com.blockchain.nabu.Feature
-import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.UserIdentity
-import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.KycTierState
 import com.blockchain.nabu.models.responses.nabu.KycTiers
@@ -37,9 +35,7 @@ import piuk.blockchain.android.ui.tiers
 
 class AnnouncementQueriesTest {
 
-    private val nabuToken: NabuToken = mock()
-    private val nabu: NabuDataManager = mock()
-    private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val userService: UserService = mock()
     private val tierService: TierService = mock()
     private val userIdentity: UserIdentity = mock()
     private val coincore: Coincore = mock()
@@ -59,9 +55,7 @@ class AnnouncementQueriesTest {
     fun setUp() {
         subject = spy(
             AnnouncementQueries(
-                nabuToken = nabuToken,
-                nabu = nabu,
-                nabuDataUserProvider = nabuDataUserProvider,
+                userService = userService,
                 tierService = tierService,
                 sbStateFactory = sbSync,
                 userIdentity = userIdentity,

@@ -5,8 +5,8 @@ import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.exceptions.MetadataNotFoundException
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.KycState
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import com.blockchain.nabu.models.responses.nabu.UserState
@@ -24,7 +24,7 @@ import timber.log.Timber
 
 class KycNavHostPresenter(
     nabuToken: NabuToken,
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val reentryDecision: ReentryDecision,
     private val kycNavigator: KycNavigator,
     private val kycDataSource: KycDataSource,
@@ -37,7 +37,7 @@ class KycNavHostPresenter(
         getUserStore.invalidate()
 
         compositeDisposable +=
-            nabuDataUserProvider.getUser()
+            userService.getUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { view.displayLoading(true) }
