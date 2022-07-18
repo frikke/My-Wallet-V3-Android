@@ -145,7 +145,7 @@ class CoinViewActivity :
             labels = labels,
             onCardClicked = ::openOnboardingForRecurringBuy,
             onRecurringBuyClicked = ::onRecurringBuyClicked,
-            assetResources = assetResources,
+            assetResources = assetResources
         )
     }
 
@@ -494,10 +494,7 @@ class CoinViewActivity :
                         AccountExplainerBottomSheet.newInstance(
                             selectedAccount = account,
                             networkTicker = assetTicker,
-                            interestRate = when (this) {
-                                is AssetDetailsItem.BrokerageDetailsInfo -> interestRate
-                                else -> Double.NaN
-                            },
+                            interestRate = interestRate,
                             stateAwareActions = state.actions
                         )
                     )
