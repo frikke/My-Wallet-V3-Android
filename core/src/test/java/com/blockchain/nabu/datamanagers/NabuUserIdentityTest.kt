@@ -11,6 +11,7 @@ import com.blockchain.nabu.BlockedReason
 import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
@@ -34,9 +35,8 @@ class NabuUserIdentityTest {
     private val interestEligibilityProvider: InterestEligibilityProvider = mock()
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider = mock()
     private val nabuUserDataManager: NabuUserDataManager = mock()
-    private val nabuDataProvider: NabuDataUserProvider = mock()
     private val eligibilityService: EligibilityService = mock()
-    private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val userService: UserService = mock()
     private val bindFeatureFlag: FeatureFlag = mock()
 
     private val subject = NabuUserIdentity(
@@ -44,9 +44,8 @@ class NabuUserIdentityTest {
         interestEligibilityProvider = interestEligibilityProvider,
         simpleBuyEligibilityProvider = simpleBuyEligibilityProvider,
         nabuUserDataManager = nabuUserDataManager,
-        nabuDataProvider = nabuDataProvider,
         eligibilityService = eligibilityService,
-        nabuDataUserProvider = nabuDataUserProvider,
+        userService = userService,
         bindFeatureFlag = bindFeatureFlag
     )
 
@@ -259,7 +258,7 @@ class NabuUserIdentityTest {
         val mockNabuUser: NabuUser = mock {
             on { address }.thenReturn(mockAddress)
         }
-        whenever(nabuDataProvider.getUser()).thenReturn(Single.just(mockNabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(mockNabuUser))
         whenever(bindFeatureFlag.enabled).thenReturn(Single.just(true))
 
         subject.isArgentinian()
@@ -275,7 +274,7 @@ class NabuUserIdentityTest {
         val mockNabuUser: NabuUser = mock {
             on { address }.thenReturn(mockAddress)
         }
-        whenever(nabuDataProvider.getUser()).thenReturn(Single.just(mockNabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(mockNabuUser))
         whenever(bindFeatureFlag.enabled).thenReturn(Single.just(true))
 
         subject.isArgentinian()

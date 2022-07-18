@@ -4,8 +4,8 @@ import com.blockchain.analytics.Analytics
 import com.blockchain.android.testutils.rxInit
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.api.getuser.data.GetUserStore
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.api.kyc.data.store.KycDataSource
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.nabu.models.responses.nabu.Address
 import com.blockchain.nabu.models.responses.nabu.CurrenciesResponse
 import com.blockchain.nabu.models.responses.nabu.KycState
@@ -34,7 +34,7 @@ class KycNavHostPresenterTest {
 
     private lateinit var subject: KycNavHostPresenter
     private val view: KycNavHostView = mock()
-    private val nabuDataUserProvider: NabuDataUserProvider = mock()
+    private val userService: UserService = mock()
     private val nabuToken: NabuToken = mock()
     private val analytics: Analytics = mock()
     private val reentryDecision: ReentryDecision = mock()
@@ -52,10 +52,10 @@ class KycNavHostPresenterTest {
     fun setUp() {
         subject = KycNavHostPresenter(
             nabuToken = nabuToken,
-            nabuDataUserProvider = nabuDataUserProvider,
+            userService = userService,
             reentryDecision = reentryDecision,
             kycNavigator = ReentryDecisionKycNavigator(
-                nabuDataUserProvider, reentryDecision, analytics
+                userService, reentryDecision, analytics
             ),
             kycDataSource = kycDataSource,
             getUserStore = getUserStore,
@@ -69,7 +69,7 @@ class KycNavHostPresenterTest {
         // Arrange - throw an exception just to have definitions,
         // won't be checked in this test
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.error { Throwable() })
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.error { Throwable() })
+        whenever(userService.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
         // Assert
@@ -80,7 +80,7 @@ class KycNavHostPresenterTest {
     @Test
     fun `onViewReady exception thrown`() {
         // Arrange
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.error { Throwable() })
+        whenever(userService.getUser()).thenReturn(Single.error { Throwable() })
         // Act
         subject.onViewReady()
         // Assert
@@ -91,7 +91,7 @@ class KycNavHostPresenterTest {
     @Test
     fun `onViewReady metadata found, empty user object`() {
         // Arrange
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(getBlankNabuUser()))
+        whenever(userService.getUser()).thenReturn(Single.just(getBlankNabuUser()))
 
         // Act
         subject.onViewReady()
@@ -106,7 +106,7 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
@@ -145,7 +145,7 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Resubmission)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
@@ -184,7 +184,7 @@ class KycNavHostPresenterTest {
         givenReentryDecision(ReentryPoint.CountrySelection)
         whenever(view.campaignType).thenReturn(CampaignType.Swap)
         whenever(nabuToken.fetchNabuToken()).thenReturn(Single.just(validOfflineToken))
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(
                 Single.just(
                     NabuUser(
@@ -244,7 +244,7 @@ class KycNavHostPresenterTest {
                 userFiatCurrencies = listOf("EUR", "GBP")
             )
         )
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         subject.onViewReady()
@@ -283,7 +283,7 @@ class KycNavHostPresenterTest {
                 userFiatCurrencies = listOf("EUR", "GBP")
             )
         )
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
@@ -320,7 +320,7 @@ class KycNavHostPresenterTest {
                 userFiatCurrencies = listOf("EUR", "GBP")
             )
         )
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
         // Assert
@@ -355,7 +355,7 @@ class KycNavHostPresenterTest {
                 userFiatCurrencies = listOf("EUR", "GBP")
             )
         )
-        whenever(nabuDataUserProvider.getUser())
+        whenever(userService.getUser())
             .thenReturn(Single.just(nabuUser))
         // Act
         subject.onViewReady()
@@ -389,7 +389,7 @@ class KycNavHostPresenterTest {
                 userFiatCurrencies = listOf("EUR", "GBP")
             )
         )
-        whenever(nabuDataUserProvider.getUser()).thenReturn(Single.just(nabuUser))
+        whenever(userService.getUser()).thenReturn(Single.just(nabuUser))
 
         // Act
         subject.onViewReady()

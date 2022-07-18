@@ -9,9 +9,9 @@ import com.blockchain.domain.eligibility.model.GetRegionScope
 import com.blockchain.extensions.exhaustive
 import com.blockchain.nabu.NabuToken
 import com.blockchain.nabu.NabuUserSync
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.CustodialWalletManager
 import com.blockchain.nabu.datamanagers.NabuDataManager
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
 import com.blockchain.network.PollService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Completable
@@ -53,7 +53,7 @@ class KycHomeAddressPresenter(
     nabuToken: NabuToken,
     private val nabuDataManager: NabuDataManager,
     private val eligibilityService: EligibilityService,
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val nabuUserSync: NabuUserSync,
     private val kycNextStepDecision: KycHomeAddressNextStepDecision,
     private val custodialWalletManager: CustodialWalletManager,
@@ -98,7 +98,7 @@ class KycHomeAddressPresenter(
                     if (addressModel.containsData()) {
                         Maybe.empty()
                     } else {
-                        nabuDataUserProvider.getUser()
+                        userService.getUser()
                             .subscribeOn(Schedulers.io())
                             .flatMapMaybe { user ->
                                 user.address?.let { address ->

@@ -40,7 +40,7 @@ val kycUiModule = module {
 
         factory {
             ReentryDecisionKycNavigator(
-                nabuDataUserProvider = get(),
+                userService = get(),
                 reentryDecision = get(),
                 analytics = get()
             )
@@ -63,7 +63,7 @@ val kycUiModule = module {
             KycProfilePresenter(
                 nabuToken = get(),
                 nabuDataManager = get(),
-                nabuDataUserProvider = get(),
+                userService = get(),
                 stringUtils = get(),
             )
         }
@@ -73,7 +73,7 @@ val kycUiModule = module {
                 nabuToken = get(),
                 nabuDataManager = get(),
                 eligibilityService = get(),
-                nabuDataUserProvider = get(),
+                userService = get(),
                 nabuUserSync = get(),
                 custodialWalletManager = get(),
                 kycNextStepDecision = get(),
@@ -116,7 +116,7 @@ val kycUiModule = module {
         factory {
             KycNavHostPresenter(
                 nabuToken = get(),
-                nabuDataUserProvider = get(),
+                userService = get(),
                 reentryDecision = get(),
                 kycNavigator = get(),
                 kycDataSource = get(),
@@ -155,20 +155,20 @@ val kycUiNabuModule = module {
 
         factory {
             KycHomeAddressNextStepDecision(
-                nabuDataUserProvider = get(),
+                userService = get(),
                 dataRemediationService = get()
             )
         }
 
         factory {
             CurrentTierAdapter(
-                nabuDataUserProvider = get()
+                userService = get()
             )
         }.bind(CurrentTier::class)
 
         factory {
             EligibilityForFreeEthAdapter(
-                nabuDataUserProvider = get()
+                userService = get()
             )
         }.bind(EthEligibility::class)
     }

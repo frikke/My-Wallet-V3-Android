@@ -13,6 +13,7 @@ import com.blockchain.nabu.Feature
 import com.blockchain.nabu.FeatureAccess
 import com.blockchain.nabu.Tier
 import com.blockchain.nabu.UserIdentity
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.datamanagers.repositories.interest.InterestEligibilityProvider
 import com.blockchain.nabu.models.responses.nabu.KycTierLevel
 import com.blockchain.nabu.models.responses.nabu.NabuUser
@@ -29,9 +30,8 @@ class NabuUserIdentity(
     private val interestEligibilityProvider: InterestEligibilityProvider,
     private val simpleBuyEligibilityProvider: SimpleBuyEligibilityProvider,
     private val nabuUserDataManager: NabuUserDataManager,
-    private val nabuDataProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val eligibilityService: EligibilityService,
-    private val nabuDataUserProvider: NabuDataUserProvider,
     private val bindFeatureFlag: FeatureFlag
 ) : UserIdentity {
     override fun isEligibleFor(feature: Feature): Single<Boolean> {
@@ -95,7 +95,7 @@ class NabuUserIdentity(
     }
 
     override fun isKycInProgress(): Single<Boolean> =
-        nabuDataProvider
+        userService
             .getUser()
             .map { it.tiers?.next ?: 0 }
             .zipWith(nabuUserDataManager.tiers())
@@ -104,12 +104,12 @@ class NabuUserIdentity(
             }
 
     override fun getBasicProfileInformation(): Single<BasicProfileInfo> =
-        nabuDataProvider.getUser().map {
+        userService.getUser().map {
             it.toBasicProfileInfo()
         }
 
     override fun getUserCountry(): Maybe<String> =
-        nabuDataProvider.getUser().flatMapMaybe {
+        userService.getUser().flatMapMaybe {
             val countryCode = it.address?.countryCode
             if (countryCode.isNullOrEmpty()) {
                 Maybe.empty()
@@ -119,7 +119,7 @@ class NabuUserIdentity(
         }
 
     override fun getUserState(): Maybe<String> =
-        nabuDataProvider.getUser().flatMapMaybe {
+        userService.getUser().flatMapMaybe {
             val state = it.address?.state
             if (state.isNullOrEmpty()) {
                 Maybe.empty()
@@ -191,16 +191,16 @@ class NabuUserIdentity(
         )
 
     override fun isKycResubmissionRequired(): Single<Boolean> =
-        nabuDataProvider.getUser().map { it.isMarkedForResubmission }
+        userService.getUser().map { it.isMarkedForResubmission }
 
     override fun shouldResubmitAfterRecovery(): Single<Boolean> =
-        nabuDataProvider.getUser().map { it.isMarkedForRecoveryResubmission }
+        userService.getUser().map { it.isMarkedForRecoveryResubmission }
 
     override fun checkForUserWalletLinkErrors(): Completable =
-        nabuDataProvider.getUser().flatMapCompletable { Completable.complete() }
+        userService.getUser().flatMapCompletable { Completable.complete() }
 
     override fun isArgentinian(): Single<Boolean> =
-        nabuDataProvider.getUser().zipWith(bindFeatureFlag.enabled).flatMap { (user, isBindEnabled) ->
+        userService.getUser().zipWith(bindFeatureFlag.enabled).flatMap { (user, isBindEnabled) ->
             Single.just(user.address?.countryCode == COUNTRY_CODE_ARGENTINA && isBindEnabled)
         }
 

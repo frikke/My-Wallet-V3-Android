@@ -4,7 +4,7 @@ import androidx.navigation.NavDirections
 import com.blockchain.analytics.Analytics
 import com.blockchain.analytics.events.KYCAnalyticsEvents
 import com.blockchain.analytics.events.LaunchOrigin
-import com.blockchain.nabu.datamanagers.NabuDataUserProvider
+import com.blockchain.nabu.api.getuser.domain.UserService
 import com.blockchain.nabu.models.responses.nabu.NabuUser
 import io.reactivex.rxjava3.core.Single
 import piuk.blockchain.android.KycNavXmlDirections
@@ -28,13 +28,13 @@ interface KycNavigator {
 }
 
 class ReentryDecisionKycNavigator(
-    private val nabuDataUserProvider: NabuDataUserProvider,
+    private val userService: UserService,
     private val reentryDecision: ReentryDecision,
     private val analytics: Analytics
 ) : KycNavigator {
 
     override fun findNextStep(): Single<NavDirections> =
-        nabuDataUserProvider.getUser()
+        userService.getUser()
             .flatMap { findNextStep(it) }
 
     override fun findNextStep(user: NabuUser): Single<NavDirections> =
